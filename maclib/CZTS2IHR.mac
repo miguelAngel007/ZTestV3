@@ -1,0 +1,89 @@
+*****************************  CZTS2IHR  *****************************  00000010
+*        INTERFACE TO SYSTEMATICS - INPUT HEADER RECORD ( IFIHR )    *  00000020
+**********************************************************************  00000040
+IHRDSECT DSECT                                                          00000060
+IHR      DS   0X                                                        00000070
+IHRLNG   DS    XL2           IHR RECORD LENGTH - VALUE '+110'           00000080
+IHRLNGFL DS    XL2           FILLER LOW VALUES                          00000100
+*    ------------------------------------------------------
+*    -   KEY OF RECORD                                    -
+*    ------------------------------------------------------
+IHRKEY   DS   0CL23          KEY                                        00000110
+IHRRECID DS    CL3           - RECORD ID 'BFR' OR 'EFR'                 00000120
+IHRCLAS  DS    CL10          - CLASS                                    00000130
+IHRKEYFL DS    CL8           - FILLER                                   00000140
+IHRSEQN  DS    CL2           - SEQUENCE NUMBER - VALUE '00'             00000150
+*    -   END OF KEY                                       -
+IHRLMNT  DS   0CL24          LAST MAINTENANCE INFO                      00000170
+IHRLMDT  DS    CL6           - LAST MAINTENCE DATE MMDDYY               00000180
+IHRLMTM  DS    CL6           - LAST MAINTENCE TIME HHMMSS               00000190
+IHRLMEM  DS    CL8           - LAST MAINTENCE EMPLOYEE ID               00000200
+IHRLMTR  DS    CL4           - LAST MAINTENCE TERMINAL ID               00000210
+*
+IHRTYPE  DS    CL1           BASE FORMAT TYPE                           00000230
+*                            - '0' IS NOT BASE FORMAT                   00000240
+*                            - '1' ISC PINNACLE                         00000240
+*                            - '2' BUNKER RAMO                          00000250
+*                            - '3' IBM 4700                             00000260
+IHRTFLN  DS    PL2           TOTAL FIELDS INTO HEADER                   00000220
+IHRUSED  DS    CL1           USE DELIMITERS TO INPUT FIELDS             00000230
+*                            - 'Y' YES                                  00000240
+*                            - 'N' NO                                   00000250
+IHRNOTF  DS    PL2           FIELD TYPE NUMBER ( MAX 4 )                00000220
+*
+IHRTFLNB DS    PL3           TOTAL LENGTH OF FIELDS INPUT AREA          00000220
+IHRTYP1  DS    CL96          INPUT FIELD TYPE AREA ( EACH OF 24 BYTES ) 00000230
+*    ------------------------------------------------------
+*    -   THE NEXT FIELDS ARE USED IN EXTERNAL FORMAT      -             00000520
+*    -     RECORD                                         -
+*    ------------------------------------------------------
+IHRBKEY  DS   0CL23          KEY                                        00000110
+IHRBRCID DS    CL3           - RECORD ID 'BFR'                          00000120
+IHRBCLAS DS    CL10          - BASE FORMAT CLASS                        00000130
+IHRBKYFL DS    CL8           - FILLER                                   00000140
+IHRBSEQN DS    CL2           - SEQUENCE NUMBER - VALUE '00'             00000150
+IHRBTYPE DS    CL1           BASE FORMAT TYPE                           00000230
+*                            - '1' ISC PINNACLE                         00000240
+*                            - '2' BUNKER RAMO                          00000250
+*                            - '3' IBM 4700                             00000260
+IHRTYP2  DS    CL96          INPUT FIELD TYPE AREA OF 'BFR' (24 BYTES)  00000230
+*    ------------------------------------------------------
+*    -   OUTPUT AREA                                      -
+*    ------------------------------------------------------
+IHRFLCHR DS    CL1                     FIELD TYPE                       00000510
+*                                      * CONSTANT
+*                                      * LOCATION
+IHRTRCON DS   0CL7                     CONSTANT                         00000510
+IHRTRLOC DS    PL3                     LOCATION TRANSACTION             00000510
+IHRTRTYP DS    CL1                     FIELD'S TYPE                     00000510
+IHRTRLNG DS    PL2                     LENGHT TRANSACTION               00000510
+         DS    CL1                     FILLER                           00000510
+IHRFILLR DS    CL22                    FILLER - VALUE SPACES            00000510
+IHRENDFX EQU   *                       SYMBOLIC END OF FIXED IHR        00000530
+IHRLEN   EQU   *-IHR                   SYMBOLIC LENGTH OF FIXED IHR     00000540
+**********************************************************************  00000010
+*        INTERFACE TO SYSTEMATICS - OCCURS AREA                      *  00000020
+**********************************************************************  00000040
+IHROCCUR DSECT
+IHROTYP  DS    CL1           INPUT FIELD TYPE                           00000230
+*                            - 'N' NUMEIRC                              00000250
+*                            - 'A' ALPHANUMERIC                         00000250
+*                            - 'B' NUM / ALPHA                          00000250
+IHRONAM  DS    CL12          INPUT FIELD TYPE NAME                      00000230
+*                                                                       00000250
+IHROFXB  DS    XL1           FIXED DELIMITER       BEFORE               00000230
+IHROLOB  DS    CL1           LOCATION DELIMITER    BEFORE               00000230
+*                            - 'A' AFTER  FIELD ID                      00000240
+*                            - 'B' BEFORE FIELD ID                      00000250
+*                            - 'U' UNIQUE                               00000260
+IHROLNB  DS    PL2           FIELD ID LENGTH       BEFORE
+IHROTYB  DS    CL1           FIELD ID TYPE         BEFORE
+*                            - 'H' HEXADECIMAL                          00000240
+*                            - 'C' CARACTER                             00000250
+*                            - 'N' NUMERIC                              00000260
+IHROFXA  DS    XL1           FIXED DELIMITER       AFTER                00000230
+IHROLOA  DS    CL1           LOCATION DELIMITER    AFTER                00000230
+IHROLNA  DS    PL2           FIELD ID LENGTH       AFTER
+IHROTYA  DS    CL1           FIELD ID TYPE         AFTER
+IHRFILL  DS    CL1           FILLER
+IHROLEN  EQU   *-IHROCCUR    OCCUR'S LENGTH                             00000540

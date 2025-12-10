@@ -1,0 +1,360 @@
+         MACRO                                                          00010000
+&NAME    $PMMP &OP,&BOOL                                                00020000
+.* -----------------------------------------------------------------    00030000
+.* 5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983                    00040000
+.* 5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983                    00050000
+.* 5798-CLF COPYRIGHT IBM CORP. 1976                                    00060000
+.* LICENSED MATERIAL - PROGRAM PROPERTY OF IBM                          00070000
+.* REFER TO COPYRIGHT INSTRUCTIONS FROM NO. G120-2083                   00080000
+.* -----------------------------------------------------------------    00090000
+.*                                                                      00100000
+ GBLA &$PMAFO      * AND FOLLOWED BY OR COUNTER                         00110000
+ GBLA &$PMCNO      * CASE NUMBER                                        00120000
+ GBLA &$PMINC      * IF NESTING LEVEL COUNT                             00130000
+ GBLA &$PMPNI      * PROC NESTING INDEX                                 00140000
+ GBLA &$PMPNO      * PROC NUMBER WITHIN CASE                            00150000
+ GBLA &$PMPSC      * CONDITION (PREDICATE SET) COUNTER                  00160000
+ GBLA &$PMNDX      * LABEL SEQUENCE COUNTER                   @JBTR     00170000
+.*                                                                      00180000
+ GBLB &$PMCEM      * CASE ERROR PROC PRESENT INDICATOR                  00190000
+ GBLB &$PMCICS     * CICS OPTION                                        00200000
+ GBLB &$PMCIND     * CASE ACTIVE (WITHIN CASE/ECASE) INDICATOR          00210000
+ GBLB &$PMDCLS     * DCL ACTIVE (WITHIN DCL/EDCL PAIR)                  00220000
+ GBLB &$PMES(20)   * ELSE MACRO PRESENT INDICATOR                       00230000
+ GBLB &$PMOAA      * OR AND AND INDICATOR                               00240000
+ GBLB &$PMOERR     * CASE SEQ ERR INDICATOR                             00250000
+ GBLB &$PMPMS      * PROC MAIN ACTIVE SWITCH                            00260000
+ GBLB &$PMROS      * RENT (REENTRANT) OPTION SW FROM PROC               00270000
+.*                                                                      00280000
+ GBLC &$PMCLBL     * CASE LABEL FOR ECASE                               00290000
+ GBLC &$PMINS(20)  * IF NESTED SYSNDX VALUE                             00300000
+ GBLC &$PMISN(20)  * IF SYMBOLIC NAME                                   00310000
+ GBLC &$PMLKR      * PROC LINK REGISTER (PROC PERFORM EPROC)            00320000
+ GBLC &$PMPMX      * CURRENT SYSNDX VALUE                               00330000
+ GBLC &$PMPNM(20)  * PROC NESTED NAME                                   00340000
+ GBLC &$PMPNS(20)  * PROC NESTING SYMBOL                                00350000
+ GBLC &$PMPTP(20)  * PROC TYPE C=CASE L=CLOSED E=ERROR                  00360000
+ GBLC &$PMWR1      * WORK REGISTER 1 NAME                               00370000
+ GBLC &$PMWR2      * WORK REGISTER 2 NAME                               00380000
+ GBLC &$PMWSN      * WRKAREA SYMBOLIC NAME                              00390000
+.*                                                                      00400000
+.* -----------------------------------------------------------------    00410000
+ LCLA  &I,&T2A,&RLO                                                     00420000
+ LCLB  &SW1                                                             00430000
+ LCLC  &R1,&R2                                                          00440000
+ LCLC  &D,&T1,&T2                                                       00450000
+ LCLC  &BT,&BF,&C,&RULE,&SAFLBL                               @JBTR     00460000
+.*                                                                      00470000
+&R1      SETC  '&$PMWR1'                                                00480000
+&R2      SETC  '&$PMWR2'                                                00490000
+&D       SETC  '&$PMWSN'                                                00500000
+.*                                                                      00510000
+.DIAG    ANOP  ---- CHECK PARAMETER SYNTAX ----                         00520000
+.*                                                                      00530000
+         AIF   ('&OP'(1,1) EQ '(' AND '&OP'(K'&OP,1) EQ ')').DIAG1      00540000
+        MNOTE 12,'SPM0001 - CONDITIONAL PARAMETER NOT ENCLOSED WITHIN PX00550000
+               ARENTHESIS.'                                             00560000
+         MEXIT                                                          00570000
+.*                                                                      00580000
+.DIAG1   ANOP  ---- CHECK COMPARATOR AND SET BRANCH OP CODES ----       00590000
+.*                                                                      00600000
+&I       SETA  1                                                        00610000
+&C       SETC  '&OP(2)'  . . . . . . . . . . . . . . .                  00620000
+.DIAG1A  AIF   ('&C' EQ 'EQNELELTGEGTM NMO NOZ NZ'(&I,K'&OP(2))).DIAG1B 00630000
+&I       SETA  &I+2                                                     00640000
+         AIF   (&I LT 25).DIAG1A                                        00650000
+.MNOTE2  MNOTE 12,'SPM0002 -  CONDITION -&OP-  HAS INVALID RELATIONAL OP00660000
+               PERATOR.'                                                00670000
+         MEXIT                                                          00680000
+.*                                                                      00690000
+.DIAG1B  ANOP   . . . . . . . . . . . .                                 00700000
+&BT      SETC  'E NENHL NLH M NMO NOZ NZ'(&I,2)                         00710000
+.*&BF      SETC  'NEE H NLL NHNMM NOO NZO '(&I,2)              @SE01    00720000
+&BF      SETC  'NEE H NLL NHNMM NOO NZZ '(&I,2)                @SE01    00730000
+&RLO     SETA  (&I+1)/2                                                 00740000
+.*                                                                      00750000
+.DIAG2   ANOP  ---- CHECK BOOL OPERATOR CONNECTING CONDITIONS ----      00760000
+         AIF   ('&BOOL' EQ 'AND').DIAG3                                 00770000
+         AIF   ('&BOOL' EQ 'OR').DIAG3                                  00780000
+         AIF   ('&BOOL' EQ 'THEN').DIAG3                                00790000
+         MNOTE 12,'SPM0003 - LOGICAL OPERATOR &BOOL INVALID.'           00800000
+         MEXIT                                                          00810000
+.*                                                                      00820000
+.DIAG3   ANOP  ---- CHECK FOR 'COND' ONLY ----                          00830000
+         AIF   ('&OP(1)' NE 'COND').DIAG4                               00840000
+         AGO   .RULEX                                           @JB2    00850000
+         MNOTE 12,'SPM0004 - &OP MUST BE FIRST  CONDITION.'             00860000
+         MEXIT                                                          00870000
+.*                                                                      00880000
+.DIAG4   ANOP  ---- CHECK FOR PRESENCE OF OVERRIDE OP CODE ----         00890000
+.*                                                                      00900000
+         AIF   (T'&OP(4) NE 'O').OVRIDE                                 00910000
+.*                                                                      00920000
+.*             ---- DETERMINE COMPARE PROCESS RULE ----                 00930000
+.*                                                                      00940000
+&T1      SETC  T'&OP(1)       SET OPERAND DATA TYPES                    00950000
+&T2      SETC  T'&OP(3)                                                 00960000
+.*                                                                      00970000
+         AIF   ('&OP(1)'(1,1) NE '(').TAGA                              00980000
+&T1      SETC  '*'                                                      00990000
+.TAGA    AIF   ('&OP(3)'(1,1) NE '(').TAGB                              01000000
+&T2      SETC  '*'                                                      01010000
+.TAGB    ANOP                                                           01020000
+.*                                                                      01030000
+.*                                                                      01040000
+.LOG0    ANOP  -- FIND OP2 RULE ARRAY SUBSCRIPT                         01050000
+&T2A     SETA  1                                                        01060000
+.*                                                                      01070000
+.LOG1    AIF   ('&T2' EQ 'FHPZAYQVCBX'(&T2A,1)).LOG2                    01080000
+&T2A     SETA  &T2A+1                                                   01090000
+         AIF   (&T2A LT 12).LOG1                                        01100000
+.*                                                                      01110000
+         AIF   ('&OP(3)'(1,1) NE '=').LOG1A   IS OP2 A LITERAL          01120000
+         AIF   (&SW1).MNOTE6     EXIT ON BAD LIT                        01130000
+&T2      SETC  '&OP(3)'(2,1)  SET LITERAL TYPE CODE                     01140000
+&SW1     SETB  1              SET SW TO PREVENT LOOP ON BAD LIT         01150000
+         AGO  .LOG0            GO FIND LITERAL TYPE IN LOOP             01160000
+.*                                                                      01170000
+.LOG1A   ANOP                                                           01180000
+         AIF   ('&OP(3)'(1,1) EQ '(').LOG2 SUB=12 FOR REGISTER          01190000
+&T2A     SETA  &T2A+1                      SUB=13 FOR OTHER TYPE        01200000
+.*O                                                                     01210000
+.LOG2    ANOP                                                           01220000
+&T2A     SETA  &T2A*2-1                                                 01230000
+.*                                                                      01240000
+.LOG2AA  ANOP  ---- SELECT THE PROCESS RULE ----                        01250000
+.*                                                                      01260000
+         AIF   (&RLO GE 7).TM    IF A TEST UNDER MASK                   01270000
+&RULE    SETC  '**'   INIT RULE                                         01280000
+         AIF   ('&T1' EQ 'C' OR '&T1' EQ 'X').RULEL1                    01290000
+         AIF   ('&T1' EQ 'U' OR '&T1' EQ 'B').RULEL1                    01300000
+.*                                                                      01310000
+         AIF   ('&T1' NE 'F').LOG2A   IF NOT FIXED POINT                01320000
+.LOG2AB  ANOP                                                           01330000
+&RULE    SETC  '0102050601020101L1L1L121L1'(&T2A,2)                     01340000
+         AGO   .LOG2X                                                   01350000
+.*                                                                      01360000
+.LOG2A   ANOP                                                           01370000
+         AIF   ('&T1' NE 'H' AND '&T1' NE 'Y').LOG2B                    01380000
+&RULE    SETC  '0304080903040303L1L1L122L1'(&T2A,2)                     01390000
+         AGO   .LOG2X                                                   01400000
+.*                                                                      01410000
+.LOG2B   ANOP                                                           01420000
+         AIF   ('&T1' NE 'P').LOG2C                                     01430000
+&RULE    SETC  '0710111207100707L1L1L12311'(&T2A,2)                     01440000
+         AGO   .LOG2X                                                   01450000
+.*                                                                      01460000
+.LOG2C   ANOP                                                           01470000
+         AIF   ('&T1' NE 'Z').LOG2D   IF NOT ZONED DECIMAL              01480000
+&RULE    SETC  '1314151613141313L1L1L124L1'(&T2A,2)                     01490000
+         AGO   .LOG2X                                                   01500000
+.*                                                                      01510000
+.LOG2D   ANOP                                                           01520000
+         AIF   ('&T1' EQ 'A' OR '&T1' EQ 'Q' OR '&T1' EQ 'V').LOG2AB    01530000
+         AIF   ('&OP(1)'(1,1) NE '(').LOG2X                             01540000
+&RULE    SETC  '1718192017181717******L2**'(&T2A,2)                     01550000
+.*                                                                      01560000
+.LOG2X   ANOP                                                           01570000
+         AIF    ('&RULE' EQ 'L1').RULEL1                                01580000
+         AIF   ('&RULE' EQ '11').RULE11                                 01590000
+         AIF   ('&RULE' EQ '01').RULE01                                 01600000
+         AIF   ('&RULE' EQ '02').RULE02                                 01610000
+         AIF   ('&RULE' EQ '03').RULE03                                 01620000
+         AIF   ('&RULE' EQ '04').RULE04                                 01630000
+         AIF   ('&RULE' EQ '05').RULE05                                 01640000
+         AIF   ('&RULE' EQ '06').RULE06                                 01650000
+         AIF   ('&RULE' EQ '07').RULE07                                 01660000
+         AIF   ('&RULE' EQ '08').RULE08                                 01670000
+         AIF   ('&RULE' EQ '09').RULE09                                 01680000
+         AIF   ('&RULE' EQ '10').RULE10                                 01690000
+         AIF   ('&RULE' EQ '12').RULE12                                 01700000
+         AIF   ('&RULE' EQ '13').RULE13                                 01710000
+         AIF   ('&RULE' EQ '14').RULE14                                 01720000
+         AIF   ('&RULE' EQ '15').RULE15                                 01730000
+         AIF   ('&RULE' EQ '16').RULE16                                 01740000
+         AIF   ('&RULE' EQ '17').RULE17                                 01750000
+         AIF   ('&RULE' EQ '18').RULE18                                 01760000
+         AIF   ('&RULE' EQ '19').RULE19                                 01770000
+         AIF   ('&RULE' EQ '20').RULE20                                 01780000
+         AIF   ('&RULE' EQ '21').RULE21                                 01790000
+         AIF   ('&RULE' EQ '22').RULE22                                 01800000
+         AIF   ('&RULE' EQ '23').RULE23                                 01810000
+         AIF   ('&RULE' EQ '24').RULE24                                 01820000
+         AIF   ('&RULE' EQ 'L2').RULEL2                                 01830000
+         MNOTE 12,'SPM0005 -  CONDITION -&OP- REQUIRES OP CODE.'        01840000
+         MEXIT                                                          01850000
+.*                                                                      01860000
+.*             ---- PROCESS RULE EXPANSIONS                             01870000
+.*                                                                      01880000
+.RULEL1  ANOP                                                           01890000
+         AIF   (T'&OP(3) NE 'N').L1CLC                                  01900000
+&I       SETA  &OP(3)                                                   01910000
+         AIF   (&I GT 255).L1CLC                                        01920000
+         AIF   ('&OP(3)'(1,1) NE '(').L1CLI                             01930000
+.MNOTE6  MNOTE 12,'SPM0006 -  CONDITION -&OP- INVALID DATA TYPE MIX.'   01940000
+         MEXIT                                                          01950000
+.*                                                                      01960000
+.L1CLI   CLI   &OP(1),&OP(3)                                            01970000
+         AGO   .RULEX                                                   01980000
+.L1CLC   CLC   &OP(1),&OP(3)                                            01990000
+         AGO   .RULEX                                                   02000000
+.RULEL2  CR    &OP(1),&OP(3)                                            02010000
+         AGO   .RULEX                                                   02020000
+.TM      TM    &OP(1),&OP(3)                                            02030000
+         AGO   .RULEX                                                   02040000
+.*                                                                      02050000
+.RULE01   L     &R1,&OP(1)                                              02060000
+         C     &R1,&OP(3)                                               02070000
+         AGO   .RULEX                                                   02080000
+.*                                                                      02090000
+.RULE02  L     &R1,&OP(1)                                               02100000
+         CH    &R1,&OP(3)                                               02110000
+         AGO   .RULEX                                                   02120000
+.*                                                                      02130000
+.RULE03  LH    &R1,&OP(1)                                               02140000
+         C     &R1,&OP(3)                                               02150000
+         AGO   .RULEX                                                   02160000
+.*                                                                      02170000
+.RULE04  LH    &R1,&OP(1)                                               02180000
+         CH    &R1,&OP(3)                                               02190000
+         AGO   .RULEX                                                   02200000
+.*                                                                      02210000
+.RULE05  ZAP   &D.(8),&OP(3)                                            02220000
+         CVB   &R2,&D                                                   02230000
+         L     &R1,&OP(1)                                               02240000
+         CR    &R1,&R2                                                  02250000
+         AGO   .RULEX                                                   02260000
+.*                                                                      02270000
+.RULE06  PACK  &D.(8),&OP(3)                                            02280000
+         CVB   &R2,&D                                                   02290000
+         L     &R1,&OP(1)                                               02300000
+         CR    &R1,&R2                                                  02310000
+         AGO   .RULEX                                                   02320000
+.*                                                                      02330000
+.RULE07  ZAP   &D.(8),&OP(1)                                            02340000
+         CVB   &R1,&D                                                   02350000
+         C     &R1,&OP(3)                                               02360000
+         AGO   .RULEX                                                   02370000
+.*                                                                      02380000
+.RULE08  ZAP   &D.(8),&OP(3)                                            02390000
+         CVB   &R2,&D                                                   02400000
+         LH    &R1,&OP(1)                                               02410000
+         CR    &R1,&R2                                                  02420000
+         AGO   .RULEX                                                   02430000
+.*                                                                      02440000
+.RULE09  PACK  &D.(8),&OP(3)                                            02450000
+         CVB   &R2,&D                                                   02460000
+         LH    &R1,&OP(1)                                               02470000
+         CR    &R1,&R2                                                  02480000
+         AGO   .RULEX                                                   02490000
+.*                                                                      02500000
+.RULE10  ZAP   &D.(8),&OP(1)                                            02510000
+         CVB   &R1,&D                                                   02520000
+         CH    &R1,&OP(3)                                               02530000
+         AGO   .RULEX                                                   02540000
+.*                                                                      02550000
+.RULE11  CP    &OP(1),&OP(3)                                            02560000
+         AGO   .RULEX                                                   02570000
+.*                                                                      02580000
+.RULE12  PACK  &D.(8),&OP(3)                                            02590000
+         CP    &OP(1),&D.(8)                                            02600000
+         AGO   .RULEX                                                   02610000
+.*                                                                      02620000
+.RULE13  PACK  &D.(8),&OP(1)                                            02630000
+         CVB   &R1,&D                                                   02640000
+         C     &R1,&OP(3)                                               02650000
+         AGO   .RULEX                                                   02660000
+.*                                                                      02670000
+.RULE14  PACK  &D.(8),&OP(1)                                            02680000
+         CVB   &R1,&D                                                   02690000
+         CH    &R1,&OP(3)                                               02700000
+         AGO   .RULEX                                                   02710000
+.*                                                                      02720000
+.RULE16  PACK  &D.(8),&OP(1)                                            02730000
+         PACK  &D.+8(8),&OP(3)                                          02740000
+         CP    &D.(8),&D.+8(8)                                          02750000
+         AGO   .RULEX                                                   02760000
+.*                                                                      02770000
+.RULE15  PACK  &D.(8),&OP(1)                                            02780000
+         CP    &D.(8),&OP(3)                                            02790000
+         AGO   .RULEX                                                   02800000
+.*                                                                      02810000
+.RULE17  C     &OP(1),&OP(3)                                            02820000
+         AGO   .RULEX                                                   02830000
+.*                                                                      02840000
+.RULE18  CH    &OP(1),&OP(3)                                            02850000
+         AGO   .RULEX                                                   02860000
+.*                                                                      02870000
+.RULE19  ZAP   &D.(8),&OP(3)                                            02880000
+         CVB   &R2,&D                                                   02890000
+         CR    &OP(1),&R2                                               02900000
+         AGO   .RULEX                                                   02910000
+.*                                                                      02920000
+.RULE20  PACK  &D.(8),&OP(3)                                            02930000
+         CVB   &R2,&D                                                   02940000
+         CR    &OP(1),&R2                                               02950000
+         AGO   .RULEX                                                   02960000
+.*                                                                      02970000
+.RULE21  L     &R1,&OP(1)                                               02980000
+         CR    &R1,&OP(3)                                               02990000
+         AGO   .RULEX                                                   03000000
+.*                                                                      03010000
+.RULE22  LH    &R1,&OP(1)                                               03020000
+         CR    &R1,&OP(3)                                               03030000
+         AGO   .RULEX                                                   03040000
+.*                                                                      03050000
+.RULE23  ZAP   &D.(8),&OP(1)                                            03060000
+         CVB   &R1,&D                                                   03070000
+         CR    &R1,&OP(3)                                               03080000
+         AGO   .RULEX                                                   03090000
+.*                                                                      03100000
+.RULE24  PACK  &D.(8),&OP(1)                                            03110000
+         CVB   &R1,&D                                                   03120000
+         CR    &R1,&OP(3)                                               03130000
+         AGO   .RULEX                                                   03140000
+.*                                                                      03150000
+.OVRIDE  ANOP  ---- OVERIDE OP CODE HAS BEEN SPECIFIED  ----            03160000
+.*                                                                      03170000
+&C       SETC  '&OP(4)'                                                 03180000
+         &C    &OP(1),&OP(3)                                            03190000
+.RULEX   ANOP                                                           03200000
+&C       SETC  '&$PMINS(&$PMINC)'                                       03210000
+         AIF   ('&BOOL' NE 'THEN').RULEX1                               03220000
+         B&BF  $PME&C                                                   03230000
+$PMT&C EQU   *                                                          03240000
+         AIF   ('&SYSPARM' NE 'TRON').NOTR01                  @JBTR     03250000
+&SAFLBL  SETC  '$PMT'.'&C'                                    @JBTR     03260000
+         MVC   TRDATA,=CL8'&SAFLBL'                           @JBTR     03270000
+         BAL   14,SAFTRACE                                    @JBTR     03280000
+.NOTR01  ANOP                                                 @JBTR     03290000
+         MEXIT                                                          03300000
+.*                                                                      03310000
+.RULEX1  AIF   ('&BOOL' NE 'OR').RULEX2                                 03320000
+         B&BT  $PMT&C                                                   03330000
+         AIF   (&$PMAFO NE  0 AND &$PMOAA).RULEX1A                      03340000
+         MEXIT                                                          03350000
+.*                                                                      03360000
+.RULEX1A ANOP                                                           03370000
+&I       SETA  &$PMAFO                                                  03380000
+$PM&I&C  EQU   *                                                        03390000
+&$PMAFO  SETA  &$PMAFO-1                                                03400000
+&$PMOAA  SETB  0                                                        03410000
+         MEXIT                                                          03420000
+.*                                                                      03430000
+.RULEX2  AIF   (&$PMAFO NE 0).RULEX2A                                   03440000
+         B&BF   $PME&C                                                  03450000
+         MEXIT                                                          03460000
+.*                                                                      03470000
+.RULEX2A B&BF   $PM&$PMAFO&C                                            03480000
+&$PMOAA  SETB   1                       SET AND SW ON                   03490000
+         MEXIT                                                          03500000
+.*                                                                      03510000
+.COND    ANOP  ---- 'COND' HAS BEEN SPECIFIED                           03520000
+&BT      SETC  '&OP(2)'                                                 03530000
+         AIF   ('&BT'(1,1) NE 'N').COND1                                03540000
+&BF      SETC  'N'.'&BT'                                                03550000
+         AGO   .RULEX                                                   03560000
+.COND1   ANOP                                                           03570000
+&BF      SETC  '&BT'(2,3)                                               03580000
+         AGO   .RULEX                                                   03590000
+         MEND                                                           03600000

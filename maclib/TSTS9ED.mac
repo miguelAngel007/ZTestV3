@@ -1,0 +1,266 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&N       TSTS9ED &EDCRRG=,&EDDARG=,&EDWKRG=,&EDDALG=,&EDDATP=,         X00001100
+               &EDRTRN=,&EDDEC=,&TYPE=                                  00001200
+.*--------------------------------------------------------------------* 00001210
+.*                 ** HISTORY OF REVISIONS **                         * 00001220
+.*                                                                    * 00001230
+.* DESCRIPTION                                                CHNGID  * 00001240
+.*__________________________________________________________  _______ * 00001250
+.* 05/22/01 CHANGES FOR REENTRANT                             2021627 * 00001294
+.* 05/01/97 DBCS ENABLE                                       9913481 * 00001296
+.*--------------------------------------------------------------------* 00001298
+.********************************************************************** 00001300
+.*                      EDIT FACILITY MACRO                           * 00001400
+.*                                                                    * 00001500
+.*  THIS MACRO EDITS A FIELD USING THE EDIT CRITERIA PASSED TO IT     * 00001600
+.*  FROM THE DATA DICTIONARY.  CHARACTER DATA IS EDITED FOR THE       * 00001700
+.*  SMALLER OF THE DATA LENGTH PASSED AND THE EDIT CRITERIA LENGTH.   * 00001800
+.*  THE 'WILD CARD' FEATURE IS ALSO USED TO EDIT CHARACTER STRINGS    * 00001900
+.*  IF THE CONDITION CODE IN THE EDIT CRITERIA IS 'W'.  ALL OTHER     * 00002000
+.*  DATA IS PACKED BEFORE COMPARING TO THE EDIT CRITERIA DATA.        * 00002100
+.********************************************************************** 00002200
+.*  EDCRRG (REG )  =  ADDRESS OF EDIT CRITERIA RECORD                 * 00002300
+.*  EDDARG (REG )  =  ADDRESS OF DATA TO BE EDITED                    * 00002400
+.*  EDWKRG (REGS)  =  4 WORK REGISTERS                                * 00002500
+.*  EDDALG (XL1 )  =  DATA LENGTH                                     * 00002600
+.*  EDDATP (CL1 )  =  DATA TYPE                                       * 00002700
+.*                    B = BINARY        (EDIT CRITERIA IS PACKED)     * 00002800
+.*                    C = CHARACTER     (EDIT CRITERIA IS CHARACTER)  * 00002900
+.*                    N = NUMERIC       (EDIT CRITERIA IS PACKED)     * 00003000
+.*                    P = PACKED        (EDIT CRITERIA IS PACKED)     * 00003100
+.*  EDRTRN (CL1 )  =  RETURN CODE                                     * 00003200
+.*                    0 = VALID DATA                                  * 00003300
+.*                    1 = INVALID DATA                                * 00003400
+.*                    2 = INPUT DATA TYPE (EDDATP) DOES NOT MATCH     * 00003500
+.*                        EDIT CRITERIA DATA TYPE                     * 00003600
+.*                    3 = BINARY FIELD HAS LENGTH GREATER THAN 4      * 00003700
+.*  EDDEC  (XL1 )  =  NUMBER OF DECIMAL PLACES TO ADD TO EDIT DATA    * 00003800
+.*                    BEFORE EDITING (THIS FIELD CAN BE OMITTED -     * 00003900
+.*                    IT IS USED BY TS TO ADD DECIMAL ZEROS IF THE    * 00004000
+.*                    SCREEN HAS MORE DEFINED THAN THE EDIT DATA)     * 00004100
+.*  TYPE           =  MACRO TYPE (STRG,MACRO)                         * 00004200
+.********************************************************************** 00004300
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00004400
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00004500
+.STRG    ANOP                                                           00004600
+EDINST   DS    5H                                             2021627   00004605
+EDDWRD   DS    D                                                        00004700
+EDCRDW   DS    D                                                        00004800
+EDTRFLS  DS    CL1                                                      00004900
+EDBINMSK DS    XL1                                                      00005000
+EDWKSIGN DS    CL1                                            2602949   00005010
+         AIF   ('&TYPE' EQ 'STRG').END                                  00005100
+.MCRO    ANOP                                                           00005200
+         SPACE                                                          00005300
+&N.INIT00 EQU  *                                                        00005400
+         USING SAA8EDTA,&EDCRRG          ADDRESS EDIT FACILITY TABLE    00005500
+         MVI   &EDRTRN,C'2'              DEFAULT DATA TYPE ERROR        00005600
+         CLI   &EDDATP,C'C'              CHARACTER DATA?                00005700
+         BE    &N.INIT10                 YES - GO CHECK FOR CRIT TYPE C 00005800
+         CLI   &EDDATP,C'I'              IDEOGRAPHIC DATA?    9913481   00005810
+         BE    &N.INIT10                 YES-CHK FOR CRIT TYPE9913481   00005820
+         CLI   EDCRITTP,C'P'             EDIT CRITERIA PACKED?          00005900
+         BNE   &N.EXIT00                 NO  - DATA TYPE ERROR          00006000
+         B     &N.INIT20                 YES - VALID DATA TYPE          00006100
+         SPACE                                                          00006200
+&N.INIT10 EQU  *                                                        00006300
+         CLI   EDCRITTP,C'C'             EDIT CRITERIA CHARACTER?       00006400
+         BNE   &N.EXIT00                 NO  - DATA TYPE ERROR          00006500
+         SPACE                                                          00006600
+&N.INIT20 EQU  *                                                        00006700
+         MVI   &EDRTRN,C'0'              SET RETURN CODE GOOD           00006800
+         SR    &EDWKRG(1),&EDWKRG(1)     CLEAR REG FOR INSERT           00006900
+         ICM   &EDWKRG(1),3,EDNOTBLS     INSERT NUMBER OF TABLES        00007000
+         LA    &EDCRRG,EDETABLE          LOAD FIRST CONDITION TABLE     00007100
+         DROP  &EDCRRG                                                  00007200
+         USING EDETABLE,&EDCRRG          ADDRESS CONDITION TABLE        00007300
+         SPACE                                                          00007400
+&N.TEST00 EQU  *                         DEFAULT TO CHARACTER           00007500
+         MVI   EDTRFLS,C' '              CLEAR TRUE/FALSE FLAG          00007600
+         SR    &EDWKRG(2),&EDWKRG(2)     CLEAR REG FOR INSERT           00007700
+         ICM   &EDWKRG(2),3,EDEENTRY     INSERT NUMBER OF ENTRIES       00007800
+         LA    &EDCRRG,EDECOND           LOAD ADDRESS OF CONDITION ENT  00007900
+         DROP  &EDCRRG                                                  00008000
+         USING EDECOND,&EDCRRG           ADDRESS ENTRY                  00008100
+         SPACE                                                          00008200
+&N.TEST10 EQU  *                                                        00008300
+         CLI   &EDDATP,C'C'              CHARACTER DATA?                00008400
+         BE    &N.TYPC00                 GO COMPARE CHARACTER DATA      00008500
+         CLI   &EDDATP,C'I'              IDEOGRAPHIC DATA?    9913481   00008510
+         BE    &N.TYPC00                 GO COMPARE CHAR DATA 9913481   00008520
+         CLI   &EDDATP,C'N'              NUMERIC DATA?                  00008600
+         BE    &N.TYPN00                 GO PROCESS NUMERIC DATA        00008700
+         CLI   &EDDATP,C'B'              BINARY DATA?                   00008800
+         BE    &N.TYPN00                 GO PROCESS NUMERIC DATA        00008900
+         CLI   &EDDATP,C'P'              PACKED DATA?                   00009000
+         BE    &N.TYPN00                 GO PROCESS NUMERIC DATA        00009100
+         B     &N.TYPC00                 DEFAULT CHARACTER DATA         00009200
+         SPACE                                                          00009300
+&N.TEST20 EQU  *                                                        00009400
+         SR    &EDWKRG(3),&EDWKRG(3)     CLEAR REG FOR INSERT           00009500
+         IC    &EDWKRG(3),EDEDATLG       INSERT DATA LENGTH             00009600
+         LA    &EDCRRG,L'EDECOND(&EDCRRG)  BUMP PAST CONDITION ENTRY    00009700
+         AR    &EDCRRG,&EDWKRG(3)        BUMP PAST DATA                 00009800
+         CLI   EDTRFLS,C'F'              FALSE RETURN FROM EDIT?        00009900
+         BNE   &N.TEST30                 NO - GO ON TO EDIT NEXT COND   00010000
+         BCT   &EDWKRG(2),&N.TEST20      YES - BUMP THRU CONDS NO EDIT  00010100
+         B     &N.TEST40                 WHEN DONE, GO TO NEXT TABLE    00010200
+         SPACE                                                          00010300
+&N.TEST30 EQU  *                                                        00010400
+         BCT   &EDWKRG(2),&N.TEST10      TRUE COND - EDIT NEXT ENTRY    00010500
+         B     &N.EXIT00                 WHEN DONE, DATA MUST BE VALID  00010600
+         SPACE                                                          00010700
+&N.TEST40 EQU  *                                                        00010800
+         DROP  &EDCRRG                                                  00010900
+         USING EDECOND,&EDCRRG           ADDR NEXT TABLE W/ CURRENT AD  00011000
+         BCT   &EDWKRG(1),&N.TEST00      CHECK NEXT TABLE               00011100
+         MVI   &EDRTRN,C'1'              YES - SET INVALID DATA SWITCH  00011200
+         B     &N.EXIT00                 RETURN                         00011300
+         EJECT                                                          00011400
+*********************************************************************** 00011500
+*  CHARACTER DATA TEST                                                * 00011600
+*********************************************************************** 00011700
+&N.TYPC00 EQU  *                                                        00011800
+         SR    &EDWKRG(3),&EDWKRG(3)     CLEAR REG FOR INSERT           00011900
+         CLC   &EDDALG,EDEDATLG          IS DATA LENGTH LS EDIT DATA L  00012000
+         BL    &N.TYPC10                 YES - GO INSERT DATA LENGTH    00012100
+         IC    &EDWKRG(3),EDEDATLG       NO  - USE EDIT DATA LENGTH     00012200
+         B     &N.TYPC20                 GO DO COMPARE                  00012300
+         SPACE                                                          00012400
+&N.TYPC10 EQU  *                                                        00012500
+         IC    &EDWKRG(3),&EDDALG        INSERT LENGTH OF DATA          00012600
+         SPACE                                                          00012700
+&N.TYPC20 EQU  *                                                        00012800
+         CLI   EDECNDCD,C'W'             WILD CARD?                     00012900
+         BE    &N.TYPC50                 YES - GO EDIT EACH BYTE        00013000
+         MVC   EDINST(8),&N.TYPC30       STORE THE INSTR      2021627   00013005
+         MVC   EDINST+1(1),EDECNDCD      STORE COND CD IN BR  2021627   00013100
+         BCTR  &EDWKRG(3),0              SUBTRACT 1 FOR COMPARE LENGTH  00013200
+         EX    &EDWKRG(3),&N.TYPC90      EXECUTE CLC                    00013300
+         B     EDINST                    BRANCH IF COND TRUE  2021627   00013305
+&N.TYPC30 B    &N.TEST20                 BRANCH IF CONDITION TRUE       00013400
+         B     &N.TYPC31                 BRANCH IF COND TRUE  2021627   00013405
+&N.TYPC31 EQU  *                                              2021627   00013410
+         MVI   EDTRFLS,C'F'              SET CONDITION FLAG TO FALSE    00013500
+         B     &N.TEST20                 GO DETERMINE TEST              00013600
+         SPACE 2                                                        00013700
+&N.TYPC50 EQU  *                                                        00013800
+         LA    &EDWKRG(4),EDEDATA        LOAD ADDRESS OF EDIT DATA      00013900
+         SPACE                                                          00014000
+&N.TYPC60 EQU  *                                                        00014100
+         CLI   0(&EDWKRG(4)),C'*'        END OF EDITING?                00014200
+         BE    &N.TEST20                 YES - RETURN                   00014300
+         CLI   0(&EDWKRG(4)),C'?'        SKIP THIS BYTE?                00014400
+         BE    &N.TYPC70                 YES - SKIP THIS BYTE           00014500
+         CLC   0(1,&EDDARG),0(&EDWKRG(4))  DATA THE SAME?               00014600
+         BE    &N.TYPC70                 YES - GO ON TO NEXT BYTE       00014700
+         MVI   EDTRFLS,C'F'              NO  - FALSE CONDITION          00014800
+         B     &N.TEST20                        RETURN                  00014900
+         SPACE                                                          00015000
+&N.TYPC70 EQU  *                                                        00015100
+         LA    &EDDARG,1(&EDDARG)        BUMP DATA BEING EDITED         00015200
+         LA    &EDWKRG(4),1(&EDWKRG(4))  BUMP EDIT DATA                 00015300
+         BCT   &EDWKRG(3),&N.TYPC60      CHECK NEXT BYTE                00015400
+         B     &N.TEST20                                                00015500
+         SPACE                                                          00015600
+&N.TYPC90 CLC  0(0,&EDDARG),EDEDATA      COMPARE CHARACTER DATA         00015700
+         EJECT                                                          00015800
+*********************************************************************** 00015900
+*  NUMERIC DATA ADJUSTMENT, CONDITIONAL ASSEMBLY FOR DECIMALS, AND    * 00016000
+*  EDIT TEST FOR NUMERIC AND PACKED DATA                              * 00016100
+*********************************************************************** 00016200
+&N.TYPN00 EQU  *                                                        00016300
+         SR    &EDWKRG(3),&EDWKRG(3)     CLEAR REG FOR INSERT           00016400
+         IC    &EDWKRG(3),EDEDATLG       INSERT EDIT DATA LENGTH        00016500
+         BCTR  &EDWKRG(3),0              SUBTRACT 1 FOR INSTRUCTION     00016600
+         EX    &EDWKRG(3),&N.TYPN93      IF DATA IS NOT EQUAL TO SPACE  00016700
+         BNE   &N.TYPN05                 GO PERFORM THE PACK            00016800
+         MVI   EDTRFLS,C'F'              SET CONDITION FLAG TO FALSE    00016900
+         B     &N.TEST20                 GO DETERMINE TEST              00017000
+&N.TYPN05 DS   0H                                                       00017100
+         EX    &EDWKRG(3),&N.TYPN90      EXECUTE PACK                   00017200
+         SPACE                                                          00017300
+         AIF   (T'&EDDEC EQ 'O').NOADJST                                00017400
+         CLI   &EDDEC,X'00'              ANY DECIMALS TO ADD?           00017500
+         BE    &N.TYPN20                 NO - GO ON TO COMPARE ROUTINES 00017600
+         IC    &EDWKRG(3),&EDDEC         INSERT NUMBER OF DECS TO ADD   00017700
+         SPACE                                                          00017800
+&N.TYPN10 EQU  *                                                        00017900
+         MP    EDCRDW,=P'10'             MULTIPLY EDIT DATA BY 10       00018000
+         BCT   &EDWKRG(3),&N.TYPN10      CONTINUE FOR EACH DECIMAL      00018100
+         SPACE                                                          00018200
+&N.TYPN20 EQU  *                                                        00018300
+.NOADJST ANOP                                                           00018400
+         CLI   &EDDATP,C'B'              BINARY DATA?                   00018500
+         BE    &N.TYPB00                 GO COMPARE BINARY DATA         00018600
+         SR    &EDWKRG(3),&EDWKRG(3)     CLEAR REG FOR INSERT           00018700
+         IC    &EDWKRG(3),&EDDALG        INSERT DATA LENGTH             00018800
+         BCTR  &EDWKRG(3),0              SUBTRACT 1 FOR INSTRUCTION     00018900
+         CLI   &EDDATP,C'P'              PACKED DATA?                   00019000
+         BE    &N.TYPN30                 YES - GO EXECUTE ZAP           00019100
+         MVI   EDWKSIGN,C'N'             INIT TO NOT SIGNED   2602949   00019110
+         LR    &EDWKRG(4),&EDDARG        POINT TO DATA        2602949   00019120
+         LA    &EDWKRG(4),0(&EDWKRG(3),&EDWKRG(4)) LAST BYTE  2602949   00019130
+         CLI   0(&EDWKRG(4)),X'60'       IS THERE A SIGN?     2602949   00019140
+         BNE   &N.TYPN25                 NO                   2602949   00019150
+         MVI   EDWKSIGN,C'Y'             YES                  2602949   00019160
+         BCTR  &EDWKRG(3),0              DECREMENT FOR SIGN   2602949   00019170
+&N.TYPN25 EQU  *                                              2602949   00019180
+         EX    &EDWKRG(3),&N.TYPN91      EXECUTE PACK                   00019200
+         CLI   EDWKSIGN,C'Y'             WAS THERE A SIGN?    2602949   00019210
+         BNE   &N.TYPN40                 NO - COMPARE DATA    2602949   00019220
+         LA    &EDWKRG(4),EDDWRD         POINT TO PACKED FLD  2602949   00019230
+         MVN   7(1,&EDWKRG(4)),=X'0D'    MOVE IN SIGN         2602949   00019240
+         B     &N.TYPN40                 GO COMPARE DATA                00019300
+&N.TYPN30 EQU  *                                                        00019400
+         EX    &EDWKRG(3),&N.TYPN92      EXECUTE PACK                   00019500
+&N.TYPN40 EQU  *                                                        00019600
+         MVC   EDINST(8),&N.TYPN50       STORE THE INSTR      2021627   00019605
+         MVC   EDINST+1(1),EDECNDCD      STORE COND CD IN BR  2021627   00019700
+         CP    EDDWRD,EDCRDW             COMPARE FIELD TO EDIT DATA     00019800
+         B     EDINST                    BRANCH IF COND TRUE  2021627   00019805
+&N.TYPN50 B    &N.TEST20                 BRANCH IF CONDITION TRUE       00019900
+         B     &N.TYPN51                 BRANCH IF COND TRUE  2021627   00019905
+&N.TYPN51 EQU  *                                              2021627   00019910
+         MVI   EDTRFLS,C'F'              SET CONDITION FLAG TO FALSE    00020000
+         B     &N.TEST20                 GO DETERMINE TEST              00020100
+         SPACE                                                          00020200
+&N.TYPN90 ZAP  EDCRDW,EDEDATA(0)         MOVE EDIT DATA                 00020300
+&N.TYPN91 PACK EDDWRD,0(0,&EDDARG)       PACK INPUT DATA                00020400
+&N.TYPN92 ZAP  EDDWRD,0(0,&EDDARG)       ZAP INPUT DATA                 00020500
+&N.TYPN93 CLC  SPACES(0),0(&EDDARG)      IS INPUT DATA SPACED           00020600
+         EJECT                                                          00020700
+*********************************************************************** 00020800
+*  BINARY DATA TEST                                                   * 00020900
+*********************************************************************** 00021000
+&N.TYPB00 EQU  *                                                        00021100
+         SR    &EDWKRG(3),&EDWKRG(3)     CLEAR REG FOR INSERT           00021200
+         SR    &EDWKRG(4),&EDWKRG(4)     CLEAR REG FOR INSERT           00021300
+         CLI   &EDDALG,X'04'             LENGTH GREATER THAN 4?         00021400
+         BNH   &N.TYPB10                 NO - CONTINUE                  00021500
+         MVI   &EDRTRN,C'3'              YES - SET INVALID LGTH SWITCH  00021600
+         B     &N.EXIT00                 RETURN                         00021700
+         SPACE                                                          00021800
+&N.TYPB10 EQU  *                                                        00021900
+         MVC   EDBINMSK,&EDDALG          MOVE LENGTH TO WORK FIELD      00022000
+         TR    EDBINMSK,&N.TYPB91        TRANSLATE TO MASK VAL FOR ICM  00022100
+         IC    &EDWKRG(3),EDBINMSK       INSERT MASK VALUE              00022200
+         EX    &EDWKRG(3),&N.TYPB90      EXECUTE INSERT TO MOVE DATA    00022300
+         CVD   &EDWKRG(4),EDDWRD         CONVERT TO DECIMAL             00022400
+         MVC   EDINST(8),&N.TYPB30       STORE THE INSTR      2021627   00022405
+         MVC   EDINST+1(1),EDECNDCD      STORE COND CD IN BR  2021627   00022500
+         CP    EDDWRD,EDCRDW             COMPARE FIELD TO EDIT DATA     00022600
+         B     EDINST                    BRANCH IF COND TRUE  2021627   00022605
+&N.TYPB30 B    &N.TEST20                 BRANCH IF CONDITION TRUE       00022700
+         B     &N.TYPB31                 BRANCH IF COND TRUE  2021627   00022705
+&N.TYPB31 EQU  *                                              2021627   00022710
+         MVI   EDTRFLS,C'F'              SET CONDITION FLAG TO FALSE    00022800
+         B     &N.TEST20                 GO DETERMINE TEST              00022900
+         SPACE                                                          00023000
+&N.TYPB90 ICM  &EDWKRG(4),0,0(&EDDARG)   INSERT BINARY FIELD IN REG     00023100
+&N.TYPB91 DC   X'000103070F'                                            00023200
+         DS    0H                                                       00023300
+&N.EXIT00 EQU  *                                                        00023400
+.END     ANOP                                                           00023500
+         MEND                                                           00023600

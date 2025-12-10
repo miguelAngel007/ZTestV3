@@ -1,0 +1,90 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00010000
+*********************************************************************** 00020000
+*           TSTS2QCA - GN MQSERIES QUEUE CONTROL AREA                 * 00030000
+*                                                                     * 00040000
+*---------------------------------------------------------------------* 00050000
+*                   HISTORY OF REVISIONS                              * 00060001
+*   DESCRIPTION                                                CHG ID * 00070001
+* ----------------------------------------------------------- ------- * 00080001
+* 11/26/08 ADD FORMAT                                         0925694   00089988
+* 04/09/0R ADD BACKOUT CNT AND INQ ON CHAR                    0514798   00089990
+* 05/27/03 ADD EXPIRY TIME AND REPORT OPTIONS                 0364780   00089991
+* 06/05/03 ADD REPLY QUE MGR, OPEN QUE MGR; RENAME CURRENT    0364804   00089993
+*          QUEUE MGR FIELD TO LOCAL QUEUE MGR                 0364804   00089994
+* 05/24/02 ADDED MSG PERSISTENCE, CORRECTED DEFINITIONS OF    2024508 * 00089995
+*          MESSAGE TYPE AND PRIORITY                          2024508 * 00089997
+* 08/22/01 ADDED NEW FIELDS                                   2024376 * 00089999
+* 05/05/00 NEW COPYBOOK.                                              * 00090001
+*********************************************************************** 00100000
+*                                                                       00110000
+TSTS2QCA DSECT                                                          00120000
+QCA      DS    0C              START OF QUEUE CONTROL AREA    2024376   00130000
+QCACNTL  DS    0CL500          QUEUE CONTROL INFORMATION      0364804   00140000
+QCAACTN  DS    CL1             ACTION CODE                              00150000
+QCASUBA  DS    CL1             SUB-ACTION CODE                          00160000
+         DS    CL2                                            2024376   00170000
+QCAFQNME DS    CL48            FULL QUEUE NAME                2024376   00190001
+QCARQNME DS    CL48            REPLY QUEUE NAME               2024376   00290001
+QCAMSGAD DS    XL4             MESSAGE ADDRESS                          00390000
+QCAMSGTY DS    XL4             MESSAGE TYPE                   2024508   00400000
+QCAMSGPR DS    XL4             MESSAGE PRIORITY               2024508   00410000
+QCAMSGLN DS    XL4             MESSAGE LENGTH                           00420000
+QCAMSGPE DS    XL4             MESSAGE PERSISTENCE            2024508   00420010
+QCAMSGID DS    CL24            MQMD MESSAGE ID                          00430000
+QCACORID DS    CL24            MQMD CORRELATION ID                      00440000
+QCACONTX DS    XL4             MQMD CONTEXT DATA              2024376   00440100
+QCAUSID  DS    CL12            MQMD USER IDENTITY             2024376   00440200
+QCAACTT  DS    CL32            MQMD ACCOUNT TOKEN             2024376   00440300
+QCAAPPID DS    CL32            MQMD APPLICATION ID                      00450000
+QCAPTAT  DS    XL4             MQMD PUT APPL TYPE             2024376   00450100
+QCAPTAPN DS    CL28            MQMD PUT APPL NAME             2024376   00450200
+QCAPTDT  DS    CL8             MQMD PUT DATE                  2024376   00450300
+QCAPTTM  DS    CL8             MQMD PUT TIME                  2024376   00450400
+QCAAPOD  DS    CL4             MQMD APPL ORIGIN DATA          2024376   00450500
+QCAMDR2Q DS    CL48            MQMD REPLY TO QUEUE NAME                 00460000
+QCAMDR2M DS    CL48            MQMD REPLY TO QUEUE MANAGER    0364804   00461000
+QCAEXPRY DS    XL4             MQMD EXPIRY TIME               0364780   00461100
+QCAREPRT DS    XL4             MQMD REPORT OPTIONS            0364780   00461200
+QCAODQMG DS    CL48            MQOD QUEUE MANAGER             0364804   00461300
+QCAGMO   DS    XL4             MQ GMO GET MESSAGE OPTIONS               00470001
+QCAPMO   DS    XL4             MQ PMO PUT MESSAGE OPTIONS               00480001
+QCACOOG  DS    CL1             CONTEXT DATA OPEN OPTS FOR GET 2024376   00480100
+QCACOOPO DS    CL1             CONTEXT DATA OPEN/PUT OPTS     2024376   00480110
+QCABKOCT DS    XL4             BACKOUT COUNT                  0514798   00480112
+QCAFMT   DS    CL8             MQMD MESSAGE FORMAT            0925694   00480114
+         DS    CL26                                           0925694   00480120
+QCARESPA DS    0CL43           RESPONSE AREA                            00490001
+QCAERRTY DS    CL1             RESPONSE ERROR TYPE                      00500001
+QCAERRCD DS    CL4             RESPONSE ERROR CODE                      00510001
+QCARESN  DS    CL4             RESPONSE REASON CODE                     00520001
+QCACOMP  DS    CL4             RESPONSE COMP CODE                       00530001
+QCATEXT  DS    CL30            RESPONSE ERROR TEXT                      00540001
+QCAINQA  DS    0CL292          INQUIRY AREA                   0514798   00550000
+QCANUMAT DS    XL4             INQUIRY NUMBER OF ATTRIBUTES             00560000
+QCASELA  DS    0CL16           INQUIRY SELECT AREA                      00570000
+QCASEL   DS    XL4             INQUIRY SELECT CODE 1                    00580000
+QCASELR  DS    3CL4            INQUIRY SELECT CODE 2 - 4                00590000
+QCAATTA  DS    0CL16           INQUIRY ATTRIBUTE AREA                   00600000
+QCAATT   DS    XL4             INQUIRY ATTRIBUTE 1                      00610000
+QCAATTR  DS    3CL4            INQUIRY ATTRIBUTE 2 - 4                  00620000
+QCACHAR  DS    0CL256          INQUIRY CHARACTER AREA         0514798   00620100
+QCACHR   DS    CL64            INQUIRY CHARACTER 1            0514798   00620200
+QCACHRR  DS    3CL64           INQUIRY CHARACTER 2 - 4        0514798   00620300
+QCAINTA  DS    0CL1222         INTERNAL USE AREA              0364804   00630000
+QCAENVIR DS    CL1             ENVIRONMENT                              00640000
+QCACONN  DS    CL1             CONNECTION STATUS                        00650000
+QCALQMGR DS    CL48            LOCAL QUEUE MGR                0364804   00660000
+QCAHCONN DS    XL4             CONNECTION HANDLE                        00670000
+QCAADDRS DS    0CL8            ONLINE ADDRESS AREA                      00680000
+QCASACBA DS    XL4             SACB ADDRESS                             00690000
+QCANCAA  DS    XL4             NCA  ADDRESS                             00700000
+QCAOBJA  DS    0CL1160         OBJECT LIST - OCCURS 20 TIMES  2024376   00710000
+QCAOBJST DS    CL1               OBJECT STATUS                          00720000
+QCAOBJOT DS    CL1               OBJECT OPEN TYPE             2024376   00720010
+QCAOBJQN DS    CL48              OBJECT QUEUE NAME                      00730000
+QCAOBJH  DS    XL4               OBJ HANDLE                             00740000
+         DS    XL4                                            2024376   00750000
+QCAOBJR  DS    19CL58            OBJ OCCURRENCE 2 - 20        2024376   00760000
+         DS    CL48            FILLER                         2024376   00770000
+QCALEN   EQU   *-QCA           LENGTH OF QUEUE CONTROL AREA   2024376   00780000

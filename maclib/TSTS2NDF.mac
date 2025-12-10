@@ -1,0 +1,34 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                   TRANSACTION SYSTEM                                * 00000300
+*                   NEXT DAY PROCESSING CONTROL FILE                  * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+*---------------------------------------------------------------------* 00000700
+*                  ** HISTORY OF REVISIONS **                         * 00000800
+*                                                                     * 00000900
+* DESCRIPTION                                                 CHNGID  * 00001000
+* __________________________________________________________  _______ * 00001100
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00019994
+* 02/19/01 EXPAND PND RBA 4-BYTES                             2024274 * 00019996
+* 08/30/94 NEW COPYBOOK FOR GN 26                             2602019 * 00019998
+*---------------------------------------------------------------------* 00020000
+         SPACE 2                                                        00021000
+TSNDF    DSECT                                                          00022000
+NDFREC   DS    0X                                                       00023000
+NDFKEY   DS    XL4                   KEY (BINARY COUNTER)               00024000
+NDFOCRS  DS    XL6450                NDF OCCURRENCES AREA     1035850   00025000
+NDFLGTH  EQU   *-NDFREC              LENGTH OF THE RECORD               00026000
+         SPACE 2                                                        00027000
+TSNDFO   DSECT                                                          00028000
+NDFOCR   DS    0CL30                 NDF OCCURRENCES (215)    1035850   00029000
+NDFAPPL  DS    CL2                   APPLICATION                        00030000
+NDFAGRP  DS    CL2                   TSPND APPLICATION GROUP            00031000
+NDFPRBA  DS    XL8                   RBA OF TSPND RECORD      2024274   00032000
+NDFEXTF  DS    CL1                   EXTERNAL TRANSACTION FLAG          00033000
+NDFRPF   DS    CL1                   RECORD PROCESSED FLAG              00034000
+NDFLGRP  DS    CL2                   TSLOG GROUP NUMBER                 00035000
+NDFLRBA  DS    XL8                   TSLOG RECORD RBA         1035850   00036000
+         DS    XL6                   FILLER                   1035850   00037000
+NDFOCLG  EQU   *-NDFOCR              LENGTH OF THE OCCURRENCE           00038000

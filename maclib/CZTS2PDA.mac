@@ -1,0 +1,25 @@
+******************************* CZTS2PDA *****************************  00000010
+* COPY BOOK : DEFINICION DEL HEADER DE LA PDA PARA GRABAR EL TSLOG   *  00000020
+*             DE SYSTEMATICS.                                        *  00000020
+**********************************************************************  00000060
+PDAAREA  DS    0F            * INICIO DE COMMAREA                       00000070
+*                                                                       00000080
+PDAIDAPL DS    CL2           * INDICADOR DE APLICACION                  00000090
+*                            *   IM - IMPACS                            00000090
+*                            *   ST - SAVING/TIMES                      00000090
+*                            *   RM - CIS                               00000090
+PDACTRL1 DS    CL4           *                                          00000120
+PDACTRL2 DS    CL4           *                                          00000120
+PDACTRL3 DS    CL4           *                                          00000120
+PDACTRL4 DS    CL4           *                                          00000120
+*                            *                                          00000090
+PDACUENT DS   0CL14          *                                          00000120
+PDAACCFL DS    CL4           *                                          00000120
+PDAACCNB DS    CL10          *                                          00000120
+*                            *                                          00000090
+PDATYREC DS    CL1           * TIPO DE REGISTRP                         00000120
+*                            *   0 - HEADER                             00000090
+*                            *   1 - CLIENTE PERSONAL                   00000090
+*                            *   2 - CLIENTE COMERCIAL                  00000090
+*                            *   3 - RELACION CLIENTE- CUENTA           00000090
+PDAAREAL EQU   *-PDAAREA     * COMMAREA LENGTH                          00000770

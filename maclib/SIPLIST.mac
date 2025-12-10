@@ -1,0 +1,40 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&NAME    SIPLIST &P1,&P2                                                00000200
+         LCLA &N,&KAP1,&KAP2,&CNTR                                      00000300
+         LCLC &H,&MVER,&MMOD,&MDATE                                     00000400
+&H       SETC  '* FIPLIST - '                                           00000500
+&MVER    SETC  '01.00'                                                  00000600
+&MMOD    SETC  '00.00'                                                  00000700
+&MDATE   SETC  '05/15/85'                                               00000800
+         MNOTE '&H SYSTEMATICS  - VER &MVER MOD &MMOD - &MDATE'         00000900
+         AIF   ('&P1' EQ '').F                                          00001000
+         AIF   ('&P2' EQ '').A                                          00001100
+&N       SETA  N'&P2                                                    00001200
+&CNTR    SETA  1                                                        00001300
+&KAP1    SETA  K'&P1                                                    00001400
+&KAP2    SETA  K'&P2                                                    00001500
+         AIF   (N'&P2 GT 0).PARS                                        00001600
+.A       ANOP                                                           00001700
+         MNOTE 8,'2ND OPERAND MISSING - STATEMENT IGNORED'              00001800
+         MEXIT                                                          00001900
+.PARS    ANOP                                                           00002000
+         AIF   ('&P2'(1,1) EQ '(' AND '&P2'(&KAP2,1) EQ ')').D          00002100
+         MNOTE 8,'2ND OPND NOT ENCLOSED IN PARENTHESES'                 00002200
+         MEXIT                                                          00002300
+.D       ANOP                                                           00002400
+&NAME    LA    0,&P2(&CNTR)                                             00002500
+         AGO   .D2                                                      00002600
+.D1      ANOP                                                           00002700
+         LA    0,&P2(&CNTR)                                             00002800
+.D2      ANOP                                                           00002900
+         ST    0,&P1+(&CNTR-1)*4                                        00003000
+         AIF   (&CNTR EQ &N).DD                                         00003100
+&CNTR    SETA  &CNTR+1                                                  00003200
+         AGO   .D1                                                      00003300
+.DD      ANOP                                                           00003400
+         OI    &P1+(&CNTR-1)*4,X'80'                                    00003500
+         MEXIT                                                          00003600
+.F       ANOP                                                           00003700
+       MNOTE 8,'1ST OPND MISSING. STATEMENT IGNORED.'                   00003800
+         MEND                                                           00003900

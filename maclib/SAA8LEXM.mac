@@ -1,0 +1,97 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAA8LEXM &KEYWORD                                              00002000
+.* --------------------------------------------------------- *          00003000
+.* MACRO ID: SAA8LEXM                                        *          00004000
+.*    TITLE: LEXICAL ANALYSIS (PARSE)                        *          00005000
+.*     DATE: 09/08/89                                        *          00006000
+.*                                                           *          00007000
+.*     DESC: THIS MACRO IS USED TO PARSE OUT THE MULTI-      *          00008000
+.*           LEVELS OF POSITIONAL PARAMETERS OF A KEYWORD    *          00009000
+.*           PARAMETER.                                      *          00010000
+.*                                                           *          00011000
+.*    INPUT: &KEYWORD  NAME OF THE KEYWORD PARAMETER OF      *          00012000
+.*                     ANOTHER MACRO                         *          00013000
+.*                                                           *          00014000
+.*   OUTPUT: &PARM#    NBR OF LEVEL 1 POSITIONAL PARAMETERS  *          00015000
+.*           &OPER#    TABLE OF THE NBR OF LEVEL 2 POSITIONAL*          00016000
+.*                     PARAMETERS                            *          00017000
+.*           &OPER$    TABLE OF LEVEL 2 POSITIONAL PARAMETERS*          00018000
+.*                                                           *          00019000
+.* --------------------------------------------------------- *          00020000
+         GBLA  &OPER#(90),&PARM#                                        00021000
+         GBLC  &OPER$(90)                                               00022000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00023000
+         LCLB  &NEWOPER                                                 00024000
+         LCLA  &I,&J,&L,&K,&M,&N,&O                                     00025000
+         LCLC  &OPERAND                                                 00026000
+&MACNME  SETC  'SAA8LEXM'                                               00027000
+&MACVER  SETC  '0003'                                                   00028000
+&MACREL  SETC  '.000'                                                   00029000
+&MACDATE SETC  '03/29/90'                                               00030000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00031000
+               - &MACDATE'                                              00032000
+.LEX0010 ANOP                                                           00033000
+&J       SETA  N'&KEYWORD              SET NBR OF POSITIONAL OPERANDS   00034000
+&PARM#   SETA  &J                                                       00035000
+&I       SETA  0                                                        00036000
+&K       SETA  0                                                        00037000
+.LEX0020 ANOP                                                           00038000
+&I       SETA  &I+1                                                     00039000
+&K       SETA  &K+1                                                     00040000
+&OPER#(&I) SETA 0                                                       00041000
+&OPER$(&K) SETC ' '                                                     00042000
+         AIF   (K'&SYSLIST(1,&I) NE 0).LEX0026                          00043000
+         AGO   .LEX0028                                                 00044000
+.LEX0026 ANOP                                                           00045000
+&L       SETA  K'&SYSLIST(1,&I)                                         00046000
+&OPERAND SETC  '&SYSLIST(1,&I)'                                         00047000
+         AIF   ('&OPERAND'(1,1) EQ '(').LEX0030                         00048000
+&OPER#(&I) SETA  1                                                      00049000
+&OPER$(&K) SETC  '&SYSLIST(1,&I)'                                       00050000
+&L       SETA  0                                                        00051000
+.LEX0028 ANOP                                                           00052000
+&J       SETA  &J-1                                                     00053000
+         AIF   (&J GT 0).LEX0020                                        00054000
+         MEXIT                                                          00055000
+.LEX0030 ANOP                                                           00056000
+.*                  &L       SETA  K'&OPERAND                           00057000
+&M       SETA  1                                                        00058000
+&NEWOPER SETB  1                                                        00059000
+.LEX0040 ANOP                                                           00060000
+         AIF   ('&OPERAND'(&M,1) EQ '(').LEX0060                        00061000
+         AIF   ('&OPERAND'(&M,1) EQ ',').LEX0070                        00062000
+         AIF   ('&OPERAND'(&M,1) EQ ' ').LEX0070                        00063000
+         AIF   ('&OPERAND'(&M,1) EQ ')').LEX0070                        00064000
+         AIF   (NOT &NEWOPER).LEX0050                                   00065000
+&NEWOPER SETB  0                                                        00066000
+&N       SETA  &M                                                       00067000
+&O       SETA  0                                                        00068000
+.LEX0050 ANOP                                                           00069000
+&O       SETA  &O+1                                                     00070000
+         AGO   .LEX0080                                                 00071000
+.LEX0060 ANOP                                                           00072000
+&NEWOPER SETB  1                                                        00073000
+         AGO   .LEX0080                                                 00074000
+.LEX0070 ANOP                                                           00075000
+         AIF   (NOT &NEWOPER).LEX0076                                   00076000
+&OPER#(&I) SETA  &OPER#(&I)+1                                           00077000
+&OPER$(&K) SETC  ''                                                     00078000
+         AGO   .LEX0078                                                 00079000
+.LEX0076 ANOP                                                           00080000
+&OPER#(&I) SETA  &OPER#(&I)+1                                           00081000
+&OPER$(&K) SETC  '&OPERAND'(&N,&O)                                      00082000
+.LEX0078 ANOP                                                           00083000
+&K       SETA  &K+1                                                     00084000
+&NEWOPER SETB  1                                                        00085000
+         AIF   ('&OPERAND'(&M,1) NE ')').LEX0080                        00086000
+&J       SETA  &J-1                                                     00087000
+         AIF   (&J GT 0).LEX0080                                        00088000
+         MEXIT                                                          00089000
+.LEX0080 ANOP                                                           00090000
+&M       SETA  &M+1                                                     00091000
+&L       SETA  &L-1                                                     00092000
+         AIF   (&L GT 0).LEX0040                                        00093000
+&K       SETA  &K-1                                                     00094000
+         AGO   .LEX0020                                                 00095000
+         MEND                                                           00096000

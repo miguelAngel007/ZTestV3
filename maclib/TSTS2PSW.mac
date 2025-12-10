@@ -1,0 +1,53 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*                             TSTS2PSW                                * 00004000
+*                        TRANSACTION SYSTEM                           * 00005000
+*                      PASSWORD RECORD                                * 00006000
+*                                                                     * 00007000
+*---------------------------------------------------------------------* 00008000
+*                  ** HISTORY OF REVISIONS **                         * 00009000
+*                                                                     * 00010000
+* DESCRIPTION                                                 CHGID   * 00011000
+* __________________________________________________________  _______ * 00012000
+* 03/24/15 EXTEND PASSWORD LENGTH FOR SHA256                  1616795   00012996
+* 07/08/13 ADDITIONAL PASSWORD OCCURENCES                     1416481   00012998
+* 03/23/07 INITIAL RELEASE                                    GN5615  * 00013000
+*---------------------------------------------------------------------* 00014000
+*                                                                       00015000
+TSTSPSW  DSECT                                                          00016000
+PSW      DS    0X                                                       00017000
+PSWRLNG  DS    XL2          PSW RECORD LENGTH                           00018000
+*                           MAX. VALUE '+500'                 1616795   00019000
+         DS    XL2          FILLER                                      00020000
+*                                                                       00021000
+PSWKEY   DS    0CL21        PSW KEY                                     00022000
+PSWLVLS  DS    0CL5            REPORT LEVELS                            00023000
+PSWLVL1  DS    CL2             PSW-LEVEL-1                              00024000
+PSWLVL2  DS    CL3             PSW-LEVEL-2                              00025000
+PSWEMP   DS    CL8             EMPLOYEE ID                              00026000
+         DS    CL8             FILLER                                   00027000
+PSWCAFCL DS    XL1          FILE CONVERSION LEVEL                       00028000
+PSWCARCL DS    XL1          REC CONVERSION LEVEL                        00029000
+*                                                                       00030000
+PSWPWINF DS    0CL384       PASSWORD INFORMATION              1616795   00031000
+PSWPSWD  DS    CL32            EMPLOYEE PASSWORD              1616795   00032000
+PSWNWPWD DS    CL32            NEW PASSWORD                   1616795   00033000
+PSWPWHST DS    0CL320          PASSWORD HISTORY TABLE         1616795   00034000
+PSWPWHS1 DS    CL32               PASSWORD HISTORY ENTRY 1    1616795   00035000
+PSWHLEN  EQU   *-PSWPWHS1         SYMBOLIC LNG OF PSW  ENTRY  1416481   00035100
+PSWPWHS2 DS    CL32               PASSWORD HISTORY ENTRY 2    1616795   00036000
+PSWPWHS3 DS    CL32               PASSWORD HISTORY ENTRY 3    1616795   00037000
+PSWPWHS4 DS    CL32               PASSWORD HISTORY ENTRY 4    1616795   00038000
+PSWPWHS5 DS    CL32               PASSWORD HISTORY ENTRY 5    1616795   00039000
+PSWPWHS6 DS    CL32               PASSWORD HISTORY ENTRY 6    1616795   00039100
+PSWPWHS7 DS    CL32               PASSWORD HISTORY ENTRY 7    1616795   00039200
+PSWPWHS8 DS    CL32               PASSWORD HISTORY ENTRY 8    1616795   00039300
+PSWPWHS9 DS    CL32               PASSWORD HISTORY ENTRY 9    1616795   00039400
+PSWPWHS0 DS    CL32               PASSWORD HISTORY ENTRY 10   1616795   00039500
+         DS    CL81         FILLER                            1616795   00040000
+PSWHUSED DS    CL8          HASH PROGRAM USED                 1616795   00040100
+*                                                                       00041000
+PSWEND   EQU   *            SYMBOLIC END OF PSW                         00042000
+PSWLEN   EQU   *-PSW        SYMBOLIC LENGTH OF PSW                      00043000

@@ -1,0 +1,39 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+******************************************************************      00000100
+*DICTIONARY OBJECT SIDAGSIWKNM01                                 *      00000200
+* GENERATED 04/07/93  11.14.52                                   *      00000300
+*STD NAME SET INPUT                                              *      00000400
+******************************************************************      00000500
+SIDSNM01 DSECT                         NAMES INPUT COMMUNICATION AREA   00000600
+WK1WRDTB DS    CL2                     WORD-TABLE-REQ-CD                00000700
+WK1NAREQ DS    CL1                     STD-NAMES-REQ-IND                00000800
+WK1FMTCD DS    CL1                     REQ-FMT-CD                       00000900
+*                                      REQ-FMT-FREE    VALUE '1'.       00001000
+*                                      REQ-FMT-PARSED  VALUE '2'.       00001100
+*                                      REQ-FMT-BOTH    VALUE '3'.       00001200
+*                                      REQ-FMT-CNAME   VALUE '4'.       00001300
+WK1NAME  DS    4CL45                   NAME-LINES      OCCURS 0004      00001400
+WK1NBR   EQU   4                       NUMBER OF NAME LINES             00001500
+         ORG   WK1NAME                                                  00001800
+WK1LNTYP DS    CL1                     NAME LINE TYPE INDICATOR         00001900
+WK1FNBEG DS    CL2                     BEG-FAM-NAME                     00002000
+WK1FNEND DS    CL2                     END-FAM-NAME                     00002100
+WK1NMOFS EQU   *-WK1LNTYP              OFFSET TO NAME DATA              00002150
+WK1NALIN DS    CL40                    NAME-LINE                        00002200
+WK1NLLEN EQU   *-WK1LNTYP              LENTH OF ONE NAME LINE           00002250
+*                                                                       00002300
+WK1LNTY2 DS    CL1                     2ND NAME LINE TYPE INDICATOR     00002400
+WK1FNBE2 DS    CL2                     2ND BEG-FAM-NAME                 00002500
+WK1FNEN2 DS    CL2                     2ND END-FAM-NAME                 00002600
+WK1NALI2 DS    CL40                    2ND NAME-LINE                    00002700
+WK1LNTY3 DS    CL1                     3RD NAME LINE TYPE INDICATOR     00002800
+WK1FNBE3 DS    CL2                     3RD BEG-FAM-NAME                 00002900
+WK1FNEN3 DS    CL2                     3RD END-FAM-NAME                 00003000
+WK1NALI3 DS    CL40                    3RD NAME-LINE                    00003100
+WK1LNTY4 DS    CL1                     4TH NAME LINE TYPE INDICATOR     00003200
+WK1FNBE4 DS    CL2                     4TH BEG-FAM-NAME                 00003300
+WK1FNEN4 DS    CL2                     4TH END-FAM-NAME                 00003400
+WK1NALI4 DS    CL40                    4TH NAME-LINE                    00003500
+         ORG                                                            00003600
+         EJECT                                                          00003700

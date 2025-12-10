@@ -1,0 +1,30 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*            TSTS2MSI - COMMUNICATION AREA FOR USER PHASES            * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+MSI1COMM DS    0X                                                       00000600
+MSI1CAL  DS    XL2                   COMMON AREA LENGTH                 00000700
+MSI1NCA  DS    XL4                   NCA ADDR                           00000800
+MSI1SDAD DS    XL4                   SDR BEGINNING ADDR                 00000900
+MSI1SEG2 DS    XL4                   SDR SEGMENT 2 ADDR                 00001000
+MSI1SEG3 DS    XL4                   SDR SEGMENT 3 ADDR                 00001100
+MSI1SEG4 DS    XL4                   SDR SEGMENT 4 ADDR                 00001200
+MSI1SDET DS    XL4                   SDR DETAIL ADDR                    00001300
+MSI1SDED DS    XL26                  SDR DETAIL EDIT PICTURE            00001400
+MSI1SDMI DS    XL4                   SDR MASTER INFO ADDR               00001500
+MSI1MSTR DS    XL4                   MASTER RECORD ADDR                 00001600
+MSI1BGMA DS    XL4                   BEGINNING GETMAIN ADDR             00001700
+*                                     FOR TRANSACTION                   00001800
+MSI1GMAD DS    XL4                   BEGINNING GETMAIN ADDR             00001900
+*                                     FOR TCR IN PROCESS                00002000
+MSI1NFAD DS    XL4                   NEXT FREE ADDR IN GETMAIN AREA     00002100
+*                                     FOR TCR IN PROCESS                00002200
+MSI1RGML DS    XL2                   REMAINING GETMAIN LENGTH           00002300
+*                                     FOR TCR IN PROCESS                00002400
+MSI1UP1I DS    XL1                   USER PHASE 1 INDICATOR             00002500
+MSI1DPMX DS    XL2                   MAXIMUM TIMES DETAIL IS DISPLAYED  00002600
+MSI1DPCT DS    XL2                   # TIMES DETAIL HAS BEEN DISPLAYED  00002700
+MSI1COML EQU   *-MSI1COMM                                               00002800
+MSI1USER DS    XL200                 USER DATA                          00002900

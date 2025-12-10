@@ -1,0 +1,69 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00000100
+*********************************************************************** 00000200
+*           TSTS2QVA - GN MQSERIES QUEUE VALUES AREA                  * 00000300
+*                                                                     * 00000400
+*---------------------------------------------------------------------* 00000500
+*                   HISTORY OF REVISIONS                              * 00000501
+*   DESCRIPTION                                                CHG ID * 00000502
+* ----------------------------------------------------------- ------- * 00000503
+* 05/28/03 ADD RPT OPTIONS FOR MESSAGE ID, CORRELATION ID     0364780   00000994
+* 05/24/02 ADDED NEW VALUES FOR MESSAGE TYPE AND PERSISTENCE  2024508 * 00000996
+* 08/22/01 ADDED NEW VALUES AND CORRECTED SEQUENCE NUMBERS    2024376 * 00000998
+* 05/05/00 NEW COPYBOOK.                                              * 00000999
+*********************************************************************** 00001000
+*                                                                       00001100
+QVGMOWT  EQU 1                 GMO WAIT                                 00001300
+QVGMONWT EQU 0                 GMO NO WAIT                              00001400
+QVGMOSYN EQU 2                 GMO SYNCPOINT                  2024376   00001500
+QVGMOSYP EQU 4096              GMO SYNCPOINT IF PERSISTENT    2024376   00001600
+QVGMONOS EQU 4                 GMO NO SYNCPOINT               2024376   00001700
+QVGMOATR EQU 64                GMO ACCEPT TRUNCATED MESSAGE   2024376   00001800
+QVGMOFIQ EQU 8192              GMO FAIL IF QUIESCING          2024376   00001900
+QVGMONON EQU 0                 GMO NONE                       2024376   00002000
+QVGMOMSB EQU 128               GMO MARK SKIP BACKOUT          2024376   00002100
+* PUT OPTIONS                                                 2024376   00002110
+QVPMONON EQU 0                 PMO NONE                       2024376   00002120
+QVPMOSYN EQU 2                 PMO SYNCPOINT                  2024376   00002200
+QVPMONOS EQU 4                 PMO NO SYNCPOINT               2024376   00002300
+QVPMODCX EQU 32                PMO DEFAULT CONTEXT            2024376   00002310
+QVPMOPIC EQU 256               PMO PASS IDENTITY CONTEXT      2024376   00002320
+QVPMOPAC EQU 512               PMO PASS ALL CONTEXT           2024376   00002340
+QVPMOSIC EQU 1024              PMO SET IDENTITY CONTEXT       2024376   00002350
+QVPMOSAC EQU 2048              PMO SET ALL CONTEXT            2024376   00002360
+QVPMOFIQ EQU 8192              PMO FAIL IF QUIESCING          2024376   00002400
+QVPMOSNC EQU 16384             PMO SET NO CONTEXT             2024376   00002410
+*                                                             2024376   00002420
+QVMINONE EQU 0                 MI NONE                        2024376   00002600
+QVCINONE EQU 0                 CI NONE                        2024376   00002700
+QVCCOK   EQU 0                 CC OK                          2024376   00002800
+QVCCWARN EQU 1                 CC WARN                        2024376   00002900
+QVRCTRUN EQU 2079              RC TRUNCATED MSG ACCEPTED      2024376   00003000
+QVCCFAIL EQU 2                 CC FAILED                      2024376   00003100
+QVRCNOMS EQU 2033              RC NO MSG AVAILABLE            2024376   00003200
+* OPEN OPTIONS                                                2024376   00003300
+QVOOSAC  EQU 128               MQOO SAVE ALL CONTEXT          2024376   00003400
+QVOOPIC  EQU 256               MQOO PASS IDENTITY CONTEXT     2024376   00003500
+QVOOPAC  EQU 512               MQOO PASS ALL CONTEXT          2024376   00003600
+QVOOSIC  EQU 1024              MQOO SET IDENTITY CONTEXT      2024376   00003700
+QVOOSEC  EQU 2048              MQOO SET ALL CONTEXT           2024376   00003800
+QVOOBOO  EQU 16384             MQOO BIND ON OPEN              0364780   00003810
+QVOOBNF  EQU 32768             MQOO BIND NOT FIXED            0364780   00003815
+* MESSAGE TYPE                                                2024508   00003900
+QVMTSYFR EQU 1                 MQMT SYSTEM FIRST              2024508   00004000
+QVMTRQST EQU 1                 MQMT REQUEST                   2024508   00004100
+QVMTRPLY EQU 2                 MQMT REPLY                     2024508   00004200
+QVMTREPT EQU 4                 MQMT REPORT                    2024508   00004300
+QVMTDTGR EQU 8                 MQMT DATAGRAM                  2024508   00004400
+QVMTSYLS EQU 65535             MQMT SYSTEM LAST               2024508   00004500
+QVMTAPFR EQU 65536             MQMT APPL FIRST                2024508   00004600
+QVMTAPLS EQU 999999999         MQMT APPL LAST                 2024508   00004700
+* PERSISTENCE                                                 2024508   00004800
+QVPERNO  EQU 0                 MQPER NOT PERSISTENT           2024508   00004900
+QVPERYES EQU 1                 MQPER PERSISTENT               2024508   00005000
+QVPERDEF EQU 2                 MQPER PERSISTENT AS Q DEF      2024508   00005100
+* REPORT OPTIONS                                              0364780   00005200
+QVROMTOC EQU 0                 MQRO COPY MSGID TO CORRELID    0364780   00005300
+QVRONEWM EQU 0                 MQRO NEW MESSAGE ID            0364780   00005400
+QVROPASC EQU 64                MQRO PASS CORRELATION ID       0364780   00005500
+QVROPASM EQU 128               MQRO PASS MESSAGE ID           0364780   00005600

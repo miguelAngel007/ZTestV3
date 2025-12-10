@@ -1,0 +1,36 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                            SACTRCMA                                 * 00002000
+*                       TRANSACTION SYSTEM                            * 00003000
+*                COUNTRY CODE COMMUNICATIONS AREA                     * 00004000
+*                                                                     * 00005000
+*                      HISTORY OF REVISIONS                           * 00006000
+* DESCRIPTION                                                         * 00007000
+* --------------------------------------------------------------------* 00008000
+* 05-20-13 ADDED CURRENCY CODE, DECIMAL POSITION              1416478 * 00008096
+* 03-25-13 ADDED WAIVER REQUIRED, BI LATERAL AGREE            1336410 * 00008098
+* 08-02-12 ADDED TAX REPORTING FLAG                           1316278 * 00008100
+* 02-28-02 ADDED PROVINCE CODES                               2024327 * 00008200
+* 01-27-98 NEW COPYBOOK                                       9913615 * 00009000
+*---------------------------------------------------------------------* 00010000
+         SPACE 2                                                        00011000
+SACTRCMC DSECT                                                          00012000
+SACTCOMM DS    0CL265                SAPBCTRY COMM AREA       1416478   00013000
+SACTFUNC DS    CL1                   FUNCTION                           00014000
+*              'E'                      EDIT CTRY CODE                  00015000
+*              'L'                      LOOK UP CTRY CODE               00016000
+SACTCTL1 DS    XL2                   PARMS CONTROL-1                    00017000
+SACTLANG DS    CL2                   PARMS LANG-CD                      00018000
+SACTTYPE DS    CL3                   SACTRYCD CTRY CODE TYPE            00019000
+SACTCODE DS    CL5                   SACTRYCD CTRY CODE                 00020000
+         DS    CL72                  SACTRYCD EXTRA CODES               00021000
+SACTNAME DS    CL60                  SACTRYCD CTRY NAME       1416478   00022000
+SACTRC   DS    XL2                   RETURN CODE                        00023000
+SACTPDBY DS    CL6                   INTEREST PAID BY U.S.    2024327   00023100
+SACTTXFG DS    CL1                   TAX REPORTING FLAG       1316278   00023201
+         DS    CL5                   FILLER                   1316278   00023302
+SACTPRCD DS    50CL2                 PROVINCE CODES           2024327   00024000
+SACTWARQ DS    CL1                   WAIVER REQUIRED          1336410   00024005
+SACTBIAG DS    CL1                   BI-LATERAL AGREEMENT     1336410   00024010
+SACTCRCD DS    CL3                   CURRENCY CODE            1416478   00025000
+SACTDCPS DS    CL1                   DECIMAL POSITION         1416478   00026000

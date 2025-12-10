@@ -1,0 +1,40 @@
+***************************  CZTS2CM2  ******************************** 00010000
+*    COMMUNICATION AREA BETWEEN SAFE II HOST / TS NATIVE              * 00020000
+*********************************************************************** 00030000
+TSTS2CM2 DSECT               COMMUNICATION AREA                         00040000
+*                                                                       00050000
+*  INPUT / OUTPUT   PARAMETERS                                          00060009
+*                                                                       00070009
+CM2CATCH DS    CL8           EYE CATCHER = C'*SAF/TS*'                  00080009
+*                                                                       00090009
+CM2GTMAD DS    A             POINTER OF GETMAIN AREA FOR INPUT/OUTPUT   00100009
+CM2GTMSZ DS    H             GETMAIN AREA SIZE                          00110009
+CM2GTMRC DS    CL2           GETMAIN RETURN CODE                        00120009
+*                                                                       00130009
+CM2IPRT  DS    A             POINTER TO INPUT AREA                      00140009
+CM2ILEND DS    H             INPUT  LENGTH DATA (COPY: CZTS2IIS)        00150000
+CM2IRTCD DS    CL2           INPUT RETURN CODE                          00160009
+*                                                                       00170009
+CM2OPRT  DS    A             POINTER TO OUTPUT AREA                     00180009
+CM2OLEND DS    H             OUTPUT LENGTH DATA (COPY: CZTS2OIS)        00190000
+CM2ORTCD DS    CL2           OUTPUT RETURN CODE                         00200009
+*                                                                       00210009
+CM2WPRT  DS    A             POINTER TO WORK AREA                       00220009
+CM2WLEND DS    H             WORK LENGTH DATA                           00230000
+CM2WRTCD DS    CL2           WORK RETURN CODE                           00240009
+*                                                                       00250009
+CM2RETCD DS    CL2           RETURN CODE                                00260000
+CM2EIBRC DS    XL3           EIBRCODE                                   00270000
+CM2TYTRM DS    CL1           TYPE FRAME 1=TIBE 2=TWA 3=OTHER COPY       00280000
+*                                                                       00290000
+CM2CCIID DS    CL8           CICS ID                                    00300000
+CM2CTRID DS    CL4           CICS TERMINAL ID                           00310000
+CM2CTTRN DS    CL7           CICS TASK TRANSACTION NUMBER               00320000
+CM2NOMPR DS    CL8           NAME PROGRAM                               00330000
+CM2TYPEN DS    CL1           TYPE CONNECT 'T' TRANSACC 'B' BATCH TERM   00340000
+CM2IDEOF DS    CL1           INDICATOR END OF FILE                      00350000
+*                                                                       00360000
+CM2FILL3 DS    CL25          FILLER AVAILABLE                           00370000
+*                                                                       00380000
+         DS   0F             ALIGNMENT TO FULLWORD                      00390000
+CM2AREAL EQU   *-CM2CATCH    COMMUNICATION AREA LENGTH                  00400000

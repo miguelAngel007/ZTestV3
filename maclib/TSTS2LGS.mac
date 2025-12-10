@@ -1,0 +1,81 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                  ** COPYBOOK DESCRIPTION **                         * 00000110
+*                                                                     * 00000120
+*                 TSTS2LGS - STORAGE AREAS FOR LOGGING                * 00000130
+*                                                                     * 00000140
+*---------------------------------------------------------------------* 00000150
+*                  ** HISTORY OF REVISIONS **                         * 00000160
+*                                                                     * 00000170
+* DESCRIPTION                                                 CHNGID  * 00000180
+* __________________________________________________________  _______ * 00000190
+*                                                                     * 00000200
+* 06/23/11 LARGER MESSAGE LENGTH                              1226081   00000349
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000350
+* __________________________________________________________  _______ * 00000360
+*                                                             1035850   00000370
+*        STORAGE AREAS FOR LOGGING                            1035850   00000380
+*                                                             1035850   00000390
+DWRD     DS    D                     WORK DOUBLEWORD                    00000400
+SVXMTAD  DS    F                     ADDRESS OF TRANSMISSION            00000500
+SVXMLLN  DS    F                     LENGTH OF TRANSMISSION   1226081   00000600
+SVXMTLN  DS    H                     LENGTH OF TRANSMISSION   1226081   00000610
+HWORD    DS    0H                    WORK HALFWORD                      00000700
+HWRD     DS    H                     WORK HALFWORD (REDEFINES HWORD)    00000800
+SVPCAX   DS    CL1                   LENGTH OF TRANSMISSION   1226081   00000900
+SVTRAINF DS    CL1                   TRAINING FLAG (FROM EOR)           00001000
+SVARCHFL DS    CL1                   ARCHITECTURE FLAG (FROM AOR)       00001100
+SVSTGFLG DS    CL1                   DYNAMIC STG LOG AREA FLG 2600361   00001110
+SVCMPFLG DS    XL1                   SAVE COMPONENT FLAGES    2600361   00001112
+*                                                                       00001200
+*    FILE NAME                                                          00001300
+*                                                                       00001400
+SVFNAME  DS    0CL8                  FILENAME                           00001500
+SVFNAM   DS    CL5                   NAME                               00001600
+SVFGRP   DS    CL2                   GROUP                              00001700
+         DS    CL1                                                      00001800
+         SPACE                                                          00001900
+LGS1REGS DS    15F                   SAVE AREA FOR REGS                 00002000
+LGS2REGS DS    15F                   SAVE AREA FOR REGS                 00002100
+LGS3REGS DS    15F                   SAVE AREA FOR REGS                 00002200
+LGS4REGS DS    15F                   SAVE AREA FOR REGS                 00002300
+LGLGXRBA DS    0D                    SAVE LOG RBA             1035850   00002310
+         DS    F                     EXPANDED                 1035850   00002320
+LGLGRBA  DS    F                     4-BYTE RBA               1035850   00002330
+LGSAVE06 DS    F                     SAVE REGISTER 6 ONLY               00002400
+LGSAVE15 DS    F                     SAVE REGISTER 15 ONLY              00002500
+LGSVKDAE DS    F                     SAVE END ADDR OF KDA     2600361   00002510
+LGSVLOGA DS    F                     SAVE BEG ADDR OF LOG DATA2600361   00002520
+LGSVIPAB DS    F                     SAVE BEG ADDR OF LOG DATA AREA     00002600
+LGSVIPAE DS    F                     SAVE END ADDR OF LOG DATA AREA     00002700
+LGSVBANA DS    F                     SAVE BEG ADDR OF NEXT RBA AREA     00002800
+LGBINWK1 DS    F                     FWD WORD AREA FOR BIN/PACK CNVSN   00003000
+LGBINWK2 DS    F                     FWD WORD AREA FOR BIN/PACK CNVSN   00003100
+LGSVLGLN DS    F                     SAVE CURRENT OVERALL LEN 2600361   00003110
+LGSVRCLN DS    H                     SAVE INTERMEDIATE LOG REC LENGTH   00003200
+LGEIBTIM DS    CL7                   WORK FIELD FOR EIBTIME             00003300
+LGITLSN  DS    PL2                   INTERNAL TRANS LOG SEQUENCE NO     00003400
+LGWTTL8  DS    XL8                   WORK AREA FOR BINARY TO PACKED RTN 00003500
+LGWTTL9  DS    XL9                   WORK AREA FOR BINARY TO PACKED RTN 00003600
+LGWTTL17 DS    CL17                  WORK AREA FOR NUM TO PACKED RTNE   00003700
+SVPRCPDA DS    CL1                   PROCESS PDA FLAG         2500631   00003710
+SVPRCALA DS    CL1                   PROCESS ALA FLAG         2500631   00003720
+SVPDAADR DS    XL4                   SAVE PDA ADDRESS         2500631   00003730
+SVALAADR DS    XL4                   SAVE PDA ADDRESS         2500631   00003740
+SVPTRADR DS    XL4                   SAVE POINTER ADDRESS     2500631   00003750
+SVLCHDR  DS    XL4                   SAVE ADDR OF LOG HEADER  2500631   00003760
+LGSVEYEC DS    CL8                   EYE-CATCHER SAVE AREA              00003800
+LGEYECSW DS    CL1                   EYE-CATCHER SWITCH                 00003900
+*                                    VALUES: 0-NOT YET MOVED TO LOG     00004000
+*                                            1-HAS BEEN MOVED TO LOG    00004100
+LG1STWRT DS    CL1                   FIRST WRITE FLAG                   00004200
+*                                    VALUES: 0-LOG DATA NOT WRITTEN     00004300
+*                                            1-LOG DATA WRITTEN         00004400
+LGWKHSL  DS    CL1                   FORCE POST HIGHEST SEVERITY LEVEL  00004500
+*                                                                       00004600
+LGSWFETF DS    CL1                   FIRST EXTERNAL TRANS FLAG SWITCH   00004700
+*                                    1 INDICATES THIS FLAG HAS BEEN SET 00004800
+*                                                                       00004900
+*    COMMAREA FOR SAME DAY CORRECTIONS                                  00005000
+*                                                                       00005100
+         COPY  TSTS2SDC                                                 00005200

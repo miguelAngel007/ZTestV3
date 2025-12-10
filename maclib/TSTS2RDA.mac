@@ -1,0 +1,126 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                   ** COPYBOOK DESCRIPTION **                        * 00000110
+*                                                                     * 00000115
+*                                                                     * 00000200
+*      TSTS2RDA  ---  TRANSACTION SYSTEM RECOVERY DATA AREA (RDA)     * 00000300
+*                                                                     * 00000400
+*---------------------------------------------------------------------* 00000430
+         EJECT                                                1115989   00000435
+*---------------------------------------------------------------------* 00000440
+*                  ** HISTORY OF REVISIONS **                         * 00000445
+*                                                                     * 00000450
+* DESCRIPTION                                                 CHNGID  * 00000455
+* __________________________________________________________  _______ * 00000460
+* 04/05/16 LIMIT LENGTH OF KEY MOVE TO FIELD LENGTH           1727013   00000580
+* 04/14/14 ADD DB2 FLAG                                       1436560   00000581
+* 08/06/13 ADD FILE GROUP TYPE                                1426371   00000582
+* 09/20/10 EXPAND MAXIMUM KEY SIZE                            1115989   00000583
+*                                                                     * 00000585
+*---------------------------------------------------------------------* 00000590
+         EJECT                                                1115989   00000595
+*********************************************************************** 00000600
+*  NOTES:                                                             * 00000700
+*   ... RDA SIZE = 5 TIMES PDA SIZE (ACTUALLY USED).                  * 00000800
+*   ... RDA WILL BE CHAINED IF MORE SPACE IS REQUIRED.                * 00000900
+*   ... ADDITIONAL RDAS WILL BE GETMAINED AT 4K                       * 00001000
+*********************************************************************** 00001100
+         SPACE                                                          00001200
+TSTSRDA  DS    0C       *RECOVERY DATA AREA                             00001300
+         SPACE                                                          00001400
+*********************************************************************** 00001500
+*                    DESCRIPTION OF RDA IN LINKAGE                    * 00001600
+*********************************************************************** 00001700
+         SPACE                                                          00001800
+RDAOCCUR DSECT                                                          00001900
+RDASTART EQU   *        *START OF RDA DESCRIPTION                       00002000
+RDAECATC DS    CL8      *RDA EYE CATCHER                                00002100
+*                           VALUE: ** RDA**                             00002200
+RDAEATA  DS    XL4      *ENDING ADDRESS THIS AREA                       00002300
+RDAMAL   DS    XL2      *MAXIMUM AREA LENGTH                            00002400
+RDAASU   DS    XL2      *AMOUNT OF STORAGE USED (MINUS RDA STEM)        00002500
+RDABANA  DS    XL4      *BEGINNING ADDRESS NEXT AREA                    00002600
+         DS    CL10     *FILLER                                         00002700
+RDASLNG  EQU   *-RDASTART  *RDA STEM LENGTH                             00002800
+RDADR    DS    0C       *DATA TO BE RECOVERED IS COMPUTED AS:           00002900
+*                           5 TIMES PDA AREA USED MINUS RDA STEM        00003000
+         SPACE                                                          00003100
+RDARAA   DSECT          *RDA ACCOUNTING AREA                            00003200
+RDARAADL DS    XL2      *RDA LENGTH OF DATA IN THIS RDA                 00003300
+RDARAAKL DS    XL2      *RDA KEY DATA LNG (FIXED PLUS VARIABLE)         00003400
+RDARAAFI DS    CL1      *FORMAT INDICATOR                               00003500
+*                           R - RECORD                                  00003600
+*                           F - FIELD                                   00003700
+*                           T - TRAILER (ADD OR DELETE PER RDARFA)      00003800
+*                           E - CREATE RDA BUT DON'T UPDATE - ADD       00003900
+*                           X - CREATE RDA BUT DON'T UPDATE - DELETE    00004000
+*                           L - CREATE RDA FOR LOGGING BUT DON'T UPDATE 00004100
+RDARAACF DS    CL1      *RDA CONTINUATION FLAG                          00004200
+*                           Y - DATA CONTINUED                          00004300
+*                           N - DATA NOT CONTINUED                      00004400
+RDARAALN EQU   *-RDARAA *LENGTH OF RDA/RAA FIXED PORTION                00004500
+         SPACE                                                          00004600
+RDAKDD   DSECT          *RDA KEY DATA DETAIL                            00004700
+RDARKL   DS    XL2      *RECORD KEY LENGTH                              00004800
+RDAFN    DS    0CL8     *FILE NAME                            2501276   00004900
+RDAFNAP  DS    CL2      *FILE APPLICATION                     2501276   00004910
+RDAFNTP  DS    CL3      *FILE TYPE                            2501276   00004920
+RDAFNGP  DS    CL2      *FILE GROUP                           2501276   00004930
+         DS    CL1      *FILLER                               1436560   00004940
+RDARSN   DS    PL2      *RECORD SEQUENCE                                00005000
+RDAFGT   DS    CL1      *FILE GROUP TYPE                      1426371   00005100
+RDADB2F  DS    CL1      *DB2 FLAG                             1436560   00005110
+*                           Y - DB2 FILE                      1436560   00005115
+*                           N - NOT DB2 FILE                  1436560   00005120
+RDAKLNG  EQU   *-RDAKDD *LENGTH OF RDA/KDA FIXED PORTION                00005200
+RDARK    DS    0CL200   *RECORD KEY (MAXIMUM 200 BYTES)       1727013   00005300
+         EJECT                                                          00005400
+RDARDD   DSECT          *RECOVERY DATA DETAIL                           00005500
+* NOTE: THIS AREA IS INITIALIZED TO LOW VALUES BEFORE DATA IS MOVED IN. 00005600
+RDARRA   DS    CL1      *RECORD ACTION                                  00005700
+*                           A - ADD RECORD                              00005800
+*                           D - DELETE RECORD                           00005900
+         ORG   RDARRA                                                   00006000
+RDARFA   DS    CL1      *FIELD ACTION                                   00006100
+*                           A - ADD                                     00006200
+*                           S - SUBTRACT                                00006300
+*                           M - MOVE                                    00006400
+*                           T - TRAILER ADD                             00006500
+*                           D - DELETE TRAILER                          00006600
+RDARFL   DS    XL2      *RECORD OR FIELD LENGTH                         00006700
+*   IF RAA FORMAT INDICATOR = R, E, OR X, THIS IS RECORD LENGTH.        00006800
+*   IF RAA FORMAT INDICATOR = T, THIS IS TRAILER LENGTH.                00006900
+*   IF RAA FORMAT INDICATOR = F, THIS IS FIELD LENGTH IN DISPLAY        00007000
+*      FORMAT. MULTIPLY BY 2 FOR THE TOTAL LENGTH OF OLD AND CHG DATA.  00007100
+         SPACE                                                          00007200
+RDARDPOS DS    XL2      *DESTINATION POSITION                           00007300
+RDARDLNG DS    XL2      *DESTINATION LENGTH                             00007400
+RDARDFMT DS    CL1      *DESTINATION FORMAT                             00007500
+*                           B - BINARY                                  00007600
+*                           C - CHARACTER                               00007700
+*                           G - GROUP                                   00007800
+*                           N - NUMERIC                                 00007900
+*                           P - PACKED                                  00008000
+RDARSDEC DS    XL1      *DECIMAL POSITIONS                              00008100
+RDARDTYP DS    CL1      *DATE TYPE                                      00008200
+*  DATA DICTIONARY RECOVERY INFO                                        00008300
+RDARDN   DS    CL8      *DAG NAME                                       00008400
+RDARFID  DS    CL8      *FIELD ID                                       00008500
+RDARDIM  DS    0CL6     *DIMENSIONS                                     00008600
+RDARDIM1 DS    XL2      *DIMENSION 1                                    00008700
+RDARDIM2 DS    XL2      *DIMENSION 2                                    00008800
+RDARDIM3 DS    XL2      *DIMENSION 3                                    00008900
+         SPACE                                                          00009000
+RDARLNG  EQU   *-RDARDD  *LENGTH OF RECOVERY DATA FIXED PORTION         00009100
+RDAROD   DS    0C       *OLD DATA - WHAT THE FIELD CONTAINED PRIOR      00009200
+*                                   TO BEING UPDATED                    00009300
+RDARND   DS    0C       *CHG DATA - WHAT WAS USED TO UPDATE THE FIELD   00009400
+RDARRD   DS    0C       *RECORD DATA                                    00009500
+         SPACE 3                                                        00009600
+*********************************************************************** 00009700
+* ******************************************************************* * 00009800
+* *                                                                 * * 00009900
+* *                  END OF RECOVERY DATA AREA (RDA)                * * 00010000
+* *                                                                 * * 00010100
+* ******************************************************************* * 00010200
+*********************************************************************** 00010300

@@ -1,0 +1,144 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                TSTS2WPT  ---  WINDOW PROCESSING TABLE               * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+         SPACE                                                          00000600
+TSTS2WPT DSECT                                                          00000700
+WPT      EQU   *                                                        00000800
+*********************************************************************** 00000900
+*                 WINDOW TABLE STEM                                   * 00001000
+*********************************************************************** 00001100
+WPTCNTL  DS    CL1                     CONTROL BYTE                     00001200
+*                                        1 - REGULAR SCREEN             00001300
+*                                        2 - REG SCREEN WITH POP-UPS    00001400
+*                                        3 - FRAMER                     00001500
+WPTSSDRA DS    XL4                     SELECTED SDR STARTING ADDRESS    00001600
+WPTSDROL DS    XL2                     LENGTH OF ONE SELECTED SDR       00001700
+WPTSDRLN DS    XL2                     TOTAL LENGTH OF SELECTED SDRS    00001800
+WPTOPFLN DS    XL2                     OPTION FIELDS LENGTH             00001900
+WPTSTMLN EQU   *-WPT                   STEM LENGTH                      00002000
+*                                                                       00002100
+*********************************************************************** 00002200
+*           WINDOW FRAMER AREA / REGULAR SDR AREA (IF HAS POP-UPS)    * 00002300
+*********************************************************************** 00002400
+*                                                                       00002500
+WPTFRMDS DSECT                                                          00002600
+WPTFRAM  EQU   *                                                        00002700
+WPTFRMAD DS    XL4                     FRAMING SDR ADDRESS              00002800
+WPTFMXMA DS    XL4                     FRAMING XMN ADDRESS              00002900
+WPTFMXML DS    XL2                     FRAMING XMN LENGTH               00003000
+WPTFMBAD DS    XL4                     BEGINNING ADDRESS OF SEG 4       00003100
+WPTFMEAD DS    XL4                     ENDING ADDRESS OF SEG 4          00003200
+WPTFMPP1 DS    XL4                     PREVIOUS PROCESSOR 1             00003300
+WPTFMPP2 DS    XL4                     PREVIOUS PROCESSOR 2             00003400
+WPTFMPP3 DS    XL4                     PREVIOUS PROCESSOR 3             00003500
+WPTFMPP4 DS    XL4                     PREVIOUS PROCESSOR 4             00003600
+WPTFRMPF DS    CL1                     FRAMER FUNCTION KEYS USED        00003700
+WPTSDRNO DS    XL1                     NUMBER OF SDRS IN FRAM           00003800
+WPTSDRAC DS    XL1                     NUMBER OF ACTIVE SDRS IN FRAM    00003900
+WPTFRMLG DS    XL2                     FRAMER QUEUE LENGTH              00004000
+WPTMSGLN DS    XL2                     FRAMER MESSAGE LENGTH            00004100
+*                                                                       00004200
+WPTFMLNG EQU   *-WPTFRAM                                                00004300
+*                                                                       00004400
+*********************************************************************** 00004500
+*            DESCRIPTION OF ONE POP-UP ENTRY                          * 00004600
+*********************************************************************** 00004700
+*                                                                       00004800
+WPTPOPDS DSECT                                                          00004900
+WPTPOPEN EQU   *                                                        00005000
+WPTOCCTL DS    0CL252                  POP-UP CONTROL AREA              00005100
+WPTPOPDT DS    0CL28                   1 POP-UP ENTRY                   00005200
+WPTPOPKY DS    0CL10                   POP-UP ID (SDR ID)               00005300
+WPTPOPID DS    CL08                    POP-UP ID (SDR NAME)             00005400
+WPTPOPNB DS    CL02                    POP-UP ID (SDR NUMBER)           00005500
+WPTPOXMA DS    XL4                     POP-UP XMN ADDRESS               00005600
+WPTPOXML DS    XL2                     POP-UP XMN LENGTH                00005700
+WPTPOPFN DS    CL1                     POP-UP FUNCTION                  00005800
+WPTPOPPR DS    CL1                     POP-UP IS A PARENT FLAG          00005900
+WPTPOPCH DS    CL1                     POP-UP HAS CHILD FLAG            00006000
+WPTPOPLG DS    XL2                     POP-UP SCREEN LENGTH             00006100
+WPTPMSLG DS    XL2                     POP-UP MESSAGE LENGTH            00006200
+WPTPOPRW DS    XL1                     POP-UP DISPLAY STARTING ROW      00006300
+WPTPOPCL DS    XL1                     POP-UP DISPLAY STARTING COLUMN   00006400
+WPTPOPSR DS    XL1                     POP-UP SDR STARTING ROW          00006500
+WPTPOPA3 DS    XL1                     POP-UP CONTROL ACTION FLAG 3     00006600
+WPTPOPSP DS    XL1                     POP-UP TO BE DISPLAYED FLAG      00006700
+*                                      USED BY OAD1                     00006800
+WPTPOPLN EQU   *-WPTPOPDT                                               00006900
+         DS    CL224                   REMAINING POP-UP IDS AND SCR LEN 00007000
+*                                                                       00007100
+*                                                                       00007200
+WPTPOPTL EQU   *-WPTPOPEN                                               00007300
+*                                                                       00007400
+*********************************************************************** 00007500
+*            DESCRIPTION OF ONE SELECTED SDR ENTRY                    * 00007600
+*********************************************************************** 00007700
+*                                                                       00007800
+WPTDETL  DSECT                                                          00007900
+WPTENTRY EQU   *                                                        00008000
+WPTSDRNM DS    0CL10                   SDR ID                           00008100
+WPTSDRKY DS    CL08                    SDR NAME                         00008200
+WPTSDRKN DS    CL02                    SDR NUMBER                       00008300
+WPTSDRAD DS    XL4                     WINDOW 1 SDR ADDRESS             00008400
+WPTSDBAD DS    XL4                     BEGINNING ADDRESS OF SEG 4       00008500
+WPTSDEAD DS    XL4                     ENDING ADDRESS OF SEG 4          00008600
+WPTCTL   DS    CL1                     WINDOW 1 CONTROL FOR ACTIVITY    00008700
+*                                        0 - NOT USED                   00008800
+*                                        1 - USED AND ACTIVE            00008900
+*                                        2 - USED AND NOT ACTIVE        00009000
+*                                        3 - USED AND ACTV (SWAPPED IN) 00009100
+*                                        4 - NOT USED (SWAPPED OUT)     00009200
+WPTSDRPF DS    CL1                     SDR FUNCTION KEYS USED           00009300
+WPTROW   DS    XL1                     WINDOW 1 BEGINNING ROW           00009400
+WPTCOL   DS    XL1                     WINDOW 1 BEGINNING COLUMN        00009500
+WPTSROW  DS    XL1                     SDR STARTING ROW                 00009600
+WPTOVRID DS    CL1                     INQUIRY OVERRIDE                 00009700
+WPTERR   DS    CL1                     ERROR OCCURRED IN WINDOW         00009800
+WPTADCTL DS    CL1                     USER CONTROL                     00009900
+WPTDTLNG EQU   *-WPTENTRY                                               00010000
+*                                                                       00010100
+*********************************************************************** 00010200
+*            DESCRIPTION OF OPTIONAL FIELD CONTROL AREA               * 00010300
+*********************************************************************** 00010400
+*                                                                       00010500
+WPTOCLDS DSECT                                                          00010600
+WPTOCNTL EQU   *                                                        00010700
+WPTOPCNT DS    0CL400                                                   00010800
+WPTOPFDT DS    0CL16                   1 OPTIONAL FIELD CONTROL AREA    00010900
+WPTOPSDR DS    0CL10                   SDR KEY                          00011000
+WPTOPNAM DS    CL8                     SDR NAME                         00011100
+WPTOPSNO DS    CL2                     SDR NUMBER                       00011200
+WPTOPPRT DS    XL2                     SDR POINTER                      00011300
+WPTOPNUM DS    XL2                     NUMBER OF ENTRY                  00011400
+WPTOPUSE DS    XL2                     NUMBER USED                      00011500
+WPTOPCLN EQU   *-WPTOPFDT                                               00011600
+         DS    CL384                                                    00011700
+WPTOPCTL EQU   *-WPTOCNTL                                               00011800
+*                                                                       00011900
+*********************************************************************** 00012000
+*            DESCRIPTION OF ONE OPTIONAL FIELD                        * 00012100
+*********************************************************************** 00012200
+*                                                                       00012300
+WPTOPFDS DSECT                                                          00012400
+WPTOPENT EQU   *                                                        00012500
+WPTOPDET DS    0CL39                                          2500597   00012600
+WPTOPFLD DS    CL8                     FIELD ID                         00012700
+WPTOPSEL DS    CL1                     SELECTED FLAG                    00012800
+WPTOPSEQ DS    XL2                     SEQUENCE NUMBER                  00012900
+WPTOPELE DS    CL8                     ELEMENT ID                       00013000
+WPTOPDI1 DS    XL2                     DIMENSION 1                      00013100
+WPTOPDI2 DS    XL2                     DIMENSION 2                      00013200
+WPTOPDI3 DS    XL2                     DIMENSION 3                      00013300
+WPTOPMDT DS    CL1                     MDT                              00013400
+WPTOPATT DS    XL1                     ATTRIBUTE                        00013500
+WPTOPEXT DS    CL1                     EXTENTED ATTRIBUTE               00013600
+WPTOPCOL DS    CL1                     COLOR                            00013700
+WPTOPCUR DS    CL1                     SET CURSOR                       00013800
+WPTOPFG3 DS    XL1                     OPTIONAL FIELD FLAG              00013900
+WPTOPDAG DS    CL8                     DATA GROUP ID          2500597   00013910
+WPTOPLNG EQU   *-WPTOPENT                                               00014000
+*********************************************************************** 00014100
+*                                                                       00014200

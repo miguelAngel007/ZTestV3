@@ -1,0 +1,40 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAS9SQEM &DSECT=YES                                            00002000
+.********************************************************************** 00003000
+.*                                                                    * 00004000
+.*                    DB2 SQL ERROR INFORMATION                       * 00005000
+.*                                                                    * 00006000
+.*  THIS 1000 BYTE AREA IS OBTAINED BY SASERVO/B WHEN A DB2 TABLE IS  * 00007000
+.*  TO BE ACCESSED BY SASDMSC/B.  THE ADDRESS TO THIS AREA IS STORED  * 00008000
+.*  IN THE SAICNTLM COPYBOOK IN FIELD SDMSSQLE.                       * 00009000
+.*                                                                    * 00010000
+.********************************************************************** 00011000
+.*--------------------------------------------------------------------* 00012000
+.*                  ** HISTORY OF REVISIONS **                        * 00013000
+.*                                                                    * 00014000
+.* DESCRIPTION                                                CHNGID  * 00015000
+.* _________________________________________________________  _______ * 00016000
+.* 01/23/14 INITIAL RELEASE                                    GN6560   00017000
+.*--------------------------------------------------------------------* 00018000
+         AIF   ('&DSECT' EQ 'YES').DODSECT                              00019000
+SAS9SQED DS    0F                                                       00020000
+         AGO   .SKIPIT                                                  00021000
+.DODSECT ANOP                                                           00022000
+SAS9SQED DSECT                                                          00023000
+.SKIPIT  ANOP                                                           00024000
+SASQEYE  DS    CL16                LITERAL '*DB2 SQL ERROR *'           00025000
+SASQSCDE DS    XL4                 SQLCODE                              00026000
+SASQSSTE DS    CL5                 SQLSTATE                             00027000
+SASQTABL DS    CL8                 TABLE NAME                           00028000
+SASQDSN  DS    CL8                 DATASET                              00029000
+SASQSEG  DS    XL2                 SEGMENT                              00030000
+SASQMOD  DS    CL8                 MODULE                               00031000
+SASQKEY  DS    CL96                KEY                                  00032000
+SASQFDBK DS    0CL962              FEEDBACK AREA                        00033000
+SASQFLEN DS    XL2                 LENGTH OF FEEDBACK AREA +960         00034000
+SASQFTXT DS    8CL120              TEXT AREA                            00035000
+         DS    CL91                FILLER                               00036000
+SASQSLEN EQU   *-SASQEYE           LENGTH OF AREA                       00037000
+         SPACE                                                          00038000
+         MEND                                                           00039000

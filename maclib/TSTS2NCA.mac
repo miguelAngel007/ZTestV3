@@ -1,0 +1,401 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                      TRANSACTION SYSTEM                             * 00000300
+*                  NATIVE COMMUNICATIONS AREA                         * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+* 08/11/10 HA CREADO LA VARIABLE MDACM2A QUE ALMACENA LA      GNIB002 * 00000601
+*          DIRECCION DE TSTS2CM2                              GNIB002 * 00000603
+* 02/01/17 ADDED NEW TOTAL REVERSAL FIELDS                    1727146   00000660
+* 01/26/14 ADDED NEW FIELDS FOR DB2 AND ENCRYPTION            1436560   00000661
+* 03/30/11 ADDED NEW FIELDS FOR WEB SERVICES                  1226081   00000662
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000663
+* 01/11/10 ADDED FIELDS FOR EXTENDED RBA                      1035872   00000664
+* 08/09/06 ADDED NEW FLAG FOR LOGICAL UNIT OF WORK (LUW)      0725569   00000665
+* 08/17/06 NEW VALUES TO FLAG FOR ABD1 REBUILD/EXIT CALLED    0725525   00000666
+* 06/13/05 ADD NEW FLAG TO ID IF OPC1 REBUILT APC MSG         0625290   00000667
+* 11/10/04 ADD VALUES TO NCACASR FOR REVERSALS FROM THE       0525140 * 00000669
+*          TOUCHPOINT SALES & SERVICE APPLICATION             0525140 * 00000670
+* 05/18/04 ADD ADDRESS OF LOG AREA (GETSTOR AREA)             0445028 * 00000671
+* 08/20/03 ADD EOR CONTROL BLOCK PROCESSING                   0414797 * 00000673
+* 08/05/03 ADD BACKOUT THRESHOLD FIELD TO MQ SECTION          0364756   00000675
+* 05/27/03 ADD TRANSACTION COUNTER                            0364780   00000676
+* 03/14/03 ADDED FIELD TO STORE ADDRESS OF NNC                0354724 * 00000677
+* 02/01/02 ADD NEW CREATE TDA FLAG                            2024444 * 00000679
+* 11/26/01 ADDED FIELD  FOR EOR LANGUAGE                      2024378 * 00000680
+* 08/22/01 ADDED NEW FIELDS FOR MQ PROCESSING                 2024376 * 00000681
+* 12/18/00 ADDED FIELDS FOR XML PROCESSING                    2024235 * 00000682
+* 09/06/00 ADDED FIELDS FOR MQSERIES TRANS PROCESSING         2024078 * 00000684
+* 01/25/00 NCA EXPANSION                                      2023782 * 00000686
+* 11/10/99 ADDED SOURCE CODE AND ACCT FIELDS                  2021071 * 00000688
+* 04/30/98 ADDED NEW FIELD VALUES FOR DYNAMIC EORS            9913482 * 00000690
+* 11/11/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349 * 00000691
+* 10/21/97 ADDED VALUE 'H' TO NCACASR FOR 24X7.               9910919 * 00000692
+* 08/04/97 ADDED ITR PROCESSING FIELDS                        9910846 * 00000693
+* 10/30/95 ADDED ALPHA FLAG FOR AINQ                          2603062 * 00000694
+* 08/30/95 ADDED VALUE 'G' TO NCACASR.                         2602997* 00000696
+* 02/27/95 REMOVED COMMENT 'F' FROM NCACASR.                   2602442* 00000698
+*********************************************************************** 00000699
+TSTSNCA  DSECT                                                          00000700
+TSNCA    DS    0CL3500                 START OF COMMON AREA   2023782   00000800
+NCAEYEC  DS    CL8                     EYE CATCHER                      00000900
+NCAPROCA DS    0CL100                  PROCESSING ADDRESSES   2023782   00001000
+NCAECTSC DS    CL4                       'TSCB'               2023782   00001095
+NCATSCBA DS    XL4                       ADDR OF TS CONTROL BLOCK       00001100
+NCAECEOR DS    CL4                       'EOR*'               2023782   00001195
+NCAEORA  DS    XL4                       ADDR OF EOR RECORD             00001200
+NCAECITR DS    CL4                       'ITR*'               2023782   00001295
+NCAITRA  DS    XL4                       ADDR OF ITR RECORD             00001300
+NCAQSIA  DS    XL4                       ADDR OF QSI ITEM               00001400
+NCAECTRM DS    CL4                       'TRM*'               2023782   00001495
+NCATRMA  DS    XL4                       ADDR OF RECEIVE MESSAGE        00001500
+NCATTRA  DS    XL4                       ADDR OF TTR OCCURS             00001600
+NCACIFA  DS    XL4                       ADDR OF CIF RECORD             00001700
+NCAECSAC DS    CL4                       'SACB'               2023782   00001795
+NCASACBA DS    XL4                       ADDR OF SYSTEMS ARCHITECTURE   00001800
+*                                                CONTROL BLOCK          00001900
+NCAPARMA DS    XL4                       PARMS ADDRESS SAVE AREA        00002000
+NCAFDRA  DS    XL4                       ADDRESS OF FDR FILE IN CORE    00002100
+NCANSCAD DS    XL4                       ADDR OF NSC           TS006.00 00002110
+NCALCHDR DS    XL4                     ADDR PDA/ALA CHAIN HDRS2500631   00002250
+NCAAPDCA DS    XL4                     ADDR OF APDC AREA      2023782   00002255
+NCAADXML DS    XL4                     ADDR OF ORIGINAL XML   2024235   00002257
+NCANNCA  DS    XL4                     ADDR OF NNC            0354724   00002259
+NCALOGA  DS    XL4                     ADDR OF LOG AREA       0445028   00002261
+NCALIFAD DS    XL4                     ADDR OF LIF            0525140   00002265
+NCALIFLN DS    XL4                     LENGTH OF LIF          0525140   00002270
+* FOR EXPANSION TO PROCESSING ADDRESSES                       0445028   00002285
+         DS    XL8                                            0525140   00002290
+NCAFCAL  DS    XL2                     FIXED COMMAREA LENGTH            00002300
+NCATRND  DS    0CL225                  TRANSACTION DATA       2023782   00002400
+NCARETC  DS    XL8                       RETURN TRAN CODE     2023782   00002410
+NCAALPFG DS    XL1                       ALPHA FLAG           2603062   00002500
+*                                         VALUE: 0 - DEFAULT  2603062   00002501
+*                                                1 - FROM AINQ2603062   00002502
+NCAMDAFG DS    CL1                       MDA DAG SAVED FLAG   2602086   00002510
+NCATRML  DS    XL2                       RECEIVE MESSAGE LENGTH         00002600
+NCASCRN  DS    XL2                       SCREEN IN PROCESS              00002700
+NCACASR  DS    CL1                       COMMAREA SOURCE                00002800
+*                                         VALUE: 0 - FROM TSTSIRD1      00002900
+*                                                1 - RETURN FROM TASK   00003000
+*                                                2 - XCTL FROM TSTSOAD1 00003100
+*                                                3 - XCTL FROM TSTSXCT1 00003200
+*                                                4 - XCTL FROM SIGNON   00003300
+*                                                5 - TSTSNEH1 ABEND     00003400
+*                                                6 - XCTL FROM FIAS     00003500
+*                                                7 - XCTL FROM TSMN     00003600
+*                                                    FOR SIGNON         00003700
+*                                                8 - XCTL FROM TSEJ-AD  00003800
+*                                                9 - XCTL FROM TSEJ-TL  00003900
+*                                                A - TSTSNEH1 'SA' MSG  00004000
+*                                 B - REPROCESS SCR FOR ERROR 00702223  00004010
+*                                 C - REP SCR FOR ERR,PRO COMP00702223  00004020
+*                                 D - REPROCESS SCR FOR ERROR 2500961   00004030
+*                                 E - SDMS SECURITY           2511663   00004040
+*                                 G - REDISPLAY PROMPT FOR ERR2602997   00004050
+*                                 H - ACCOUNT CHAIN REVERSAL  9910919   00004060
+*                       I  -  PROCESSING AN MQ MESSAGE        0525140   00004062
+*                       J  -  XCTL FROM TP - ADMIN REVERSAL   0525140   00004064
+*                       K  -  XCTL FROM TP - PC TRAN REVERSAL 0525140   00004066
+NCAEMP   DS    CL8                       EMPLOYEE ID                    00004100
+NCAIFST  DS    CL2                       CIF STATUS INDICATOR           00004200
+NCACDRB  DS    CL1                       CDR BUILD INDICATOR            00004300
+*                                         VALUE: 0 - NOT CDR BUILD      00004400
+*                                                1 - CDR BUILD          00004500
+NCAEXTC  DS    CL8                       EXTERNAL TRAN CODE             00004600
+NCAPMFL  DS    CL1                       PROMPT FLAG                    00004700
+*                                         VALUE: 0 - NO PROMPT          00004800
+*                                                1 - PROMPT IS COMPLETE 00004900
+*                                                2 - PROMPT FIRST TIME  00005000
+*                                                3 - PROMPT IN PROCESS  00005100
+NCASPFL  DS    CL1                       SCREEN PROCESS FLAG            00005200
+*                                         VALUE: 0 - SCR NOT DISPLAYED  00005300
+*                                                1 - SCR DISPLAYED,     00005400
+*                                                    TRAN NOT COMPLETE  00005500
+*                                                2 - SCR DSP,TRN COMPL  00005600
+*                                                3 - SCR NOT  0712669   00005610
+*                                                    DSP,TRN  0712669   00005620
+*                                                    COMPLETE 0712669   00005630
+NCATSQU  DS    CL1                       TEMP STORAGE QUEUE FLAG        00005700
+*                                         VALUE: 0 - SCRN NOT IN QUEUE  00005800
+*                                                1 - SCREEN IN QUEUE    00005900
+NCASOFL  DS    CL1                       SIGNON TRANSACTION INDICATOR   00006000
+*                                         VALUE: 0 - NOT SIGNON         00006100
+*                                                1 - SIGNON             00006200
+*                                                2 - FORCE SIGNON       00006300
+*                                                3 - SIGNOFF            00006400
+*                                                4 - FORCE SIGNOFF      00006500
+NCAFKFL  DS    CL1                       FUNCTION KEY FLAG              00006600
+NCAMSFL  DS    CL1                       MDA SAVED FLAG                 00006700
+*                                         VALUE: 0 - NO                 00006800
+*                                                1 - YES                00006900
+NCATMFFL DS    CL1                       TELLER MESSAGE FORMAT          00007000
+*                                         VALUE: 0 - NORMAL FORMAT      00007100
+*                                                1 - OLD FORMAT         00007200
+*                                                2 - NEW FMT  2023782   00007210
+NCATSEQ  DS    CL8                       TELLER SEQUENCE NUMBER         00007300
+NCAFPFL  DS    CL1                       FORCED POST TRAN FLAG          00007400
+*                                         VALUE: 0 - NO                 00007500
+*                                                1 - YES                00007600
+NCAREVFL DS    CL1                       REVERSAL TRAN FLAG             00007700
+*                                         VALUE: 0 - NO                 00007800
+*                                                1 - YES                00007900
+*                                                2 - PARTIAL  0802653   00007910
+NCAUPDFL DS    CL1                       FILE UPDATE FLAG               00008000
+*                                         VALUE: 0 - FILE NOT UPDATED   00008100
+*                                                1 - FILE UPDATED       00008200
+NCAABDFL DS    CL1                       ABEND FLAG                     00008300
+*                                         VALUE: 0 - ABEND              00008400
+*                                                1 - TS ERROR           00008500
+NCAFKDAT DS    CL10                    FUNCTION KEY DATA                00008600
+NCATRNTY DS    CL1                     TRANS TYPE CODE        9913349   00008602
+*                                         VALUE: A - ADMIN    9913349   00008604
+*                                                T - TELLER   9913349   00008606
+*                                                P - PC       9913482   00008608
+NCAPRTYP DS    CL1                     ITR/EOR PROCESS FLAG   9913482   00008650
+*                                         VALUE: 0 - ORIGINAL 9913482   00008651
+*                                          1-DYN ITR/ORIG EOR 9913482   00008652
+*                                          2-ITRCB/ORIG EOR   9913482   00008653
+*                                          3-DYN ITR/DYN EOR  9913482   00008654
+*                                          4-ITRCB/DYN EOR    9913482   00008655
+NCASINTT DS    XL4                     SELECTED INTERNAL      0802653   00008706
+*                                      TRANSACTIONS BIT TABLE 0802653   00008707
+NCARVLOG DS    XL4                       REVERSAL LOG ADDRESS TS006.00  00008710
+NCARVREX DS    0XL8                      EXPANDED REV RBA     1035850   00008780
+         DS    XL4                       EXPANSION AREA       1035850   00008790
+NCARVRBA DS    XL4                       REVERSAL RBA                   00008800
+NCALOGGP DS    CL2                       LOG GROUP                      00008900
+NCANDYFL DS    CL1                       NEXT DAY TRAN FLAG             00009000
+*                                         VALUE: 0 - NO                 00009100
+*                                                1 - YES                00009200
+*                                                2 - N.D. BEING POSTED  00009300
+NCASPWFL DS    CL1                       SIGNON PASSWORD FLAG           00009400
+*                                         VALUE: 0 - NOT THRU SIGNON    00009500
+*                                                1 - BEEN THRU SIGNON   00009600
+NCAAMLGA DS    XL4                       AMS NEXT DAY LOG ADDRESS       00009700
+NCAAMLEX DS    0XL8                      AMS NEXTDAY LOG XRBA 1035850   00009780
+         DS    XL4                       EXPANSION AREA       1035850   00009790
+NCAAMLRB DS    XL4                       AMS NEXT DAY LOG RBA           00009800
+NCAAMAEX DS    0XL8                      EXPANDED AMS ACT RBA 1035850   00009880
+         DS    XL4                       EXPANSION AREA       1035850   00009890
+NCAAMARB DS    XL4                       AMS NEXT DAY ACCOUNT RBA       00009900
+NCADTCAP DS    CL1                       AMS DATA CAPTURE FLAG          00010000
+*                                         VALUE: 0 - NOT DATA CAPTURE   00010100
+*                                                1 - DATA CAPTURE       00010200
+NCAAMSES DS    CL1                       AMS SESSION MODE FLAG          00010300
+*                                         VALUE: 0 - NOT A SESSION MODE 00010400
+*                                                1 - START SESSION      00010500
+*                                                2 - END SESSION        00010600
+NCALIREX DS    0XL8                      EXPANDED INTERNL RBA 1035850   00010602
+         DS    XL4                       EXPANSION AREA       1035850   00010605
+NCALIRBA DS    XL4                     LAST INTERNAL RBA      0802653   00010610
+NCASGNON DS    CL1                     AUTO SIGNON FLAG       9910846   00010700
+NCAMULTI DS    CL1                     MULTI-INSTALL FLAG     9910846   00010710
+*                                         VALUE: 0 - SINGLE   9910846   00010720
+*                                                1 - MULTI    9910846   00010730
+NCASOUR  DS    XL2                     SRC CODE FROM INPUT MSG2023782   00010735
+NCAXMLML DS    XL4                     XML MESSAGE LENGTH     2024235   00010737
+NCAEORLN DS    CL2                     EOR LANGUAGE CODE      2024378   00010738
+NCAEORCB DS    XL1                     EORCB PROCESSING FLAG  0414797   00010739
+NCAOPCFL DS    XL1                     OPC1 APC FLAG          0625290   00010745
+NCAOPC01 EQU   X'01'                   - ABD1 EXIT CALLED     0725525   00010747
+NCAOPC04 EQU   X'04'                   - OPC1 REBUILT APC MSG 0625290   00010750
+NCAOPC08 EQU   X'08'                   - ABD1 REBUILT APC MSG 0725525   00010752
+NCAAGLUW DS    CL1                     'I'- INDIVIDUAL LUWS   0725569   00010753
+*                                      'C'- COMBINED LUW      0725569   00010754
+NCAICROC DS    XL2                      ICR OCCURENCE         1226081   00010755
+NCAICTBA DS    XL4                      ICR TABLE ADDRESS     1226081   00010780
+NCAXMSOA DS    XL4                      XML OUT MESS ADDR     1226081   00010785
+NCAXMSOL DS    XL4                      XML OUT MESS LENG     1226081   00010790
+* FOR EXPANSION TO TRANSACTION DATA                           1226081   00010794
+NCAOPTEA DS    XL4                     SASIOPTE ADDRESS       1436560   00010795
+NCAGNDB2 DS    CL1                     GN DB2 FLAG            1436560   00010796
+NCATREVF DS    CL1                     TOTAL REVERSAL FLAG    1727146   00010802
+NCATRDDB DS    CL3                     DROPPED DEBIT BUCKET   1727146   00010804
+NCATRDCB DS    CL3                     DROPPED CREDIT BUCKET  1727146   00010810
+         DS    XL71                                           1727146   00010812
+NCAERRD  DS    0CL2                    ERROR DATA             1727146   00010850
+NCAESTFL DS    CL1                       TSCB ESTABLISHED FLAG          00010900
+*                                         VALUE: 0 - NO                 00011000
+*                                                1 - YES                00011100
+NCAETSFL DS    CL1                       ERROR TRAN STATUS FLAG         00011200
+*                                         VALUE: 0 - CONTIN.PROCESSING  00011300
+*                                                1 - EDIT ONLY          00011400
+*                                                2 - ERROR OCCURRED IN  00011500
+*                                                    EDIT-THEN-POST     00011600
+*                                                3 - STOP PROCESSING    00011700
+NCASAPDF DS    XL4                     LENGTH OF FIXED DAG    TS006.00  00011710
+NCASAPDV DS    XL4                     LENGTH OF VARIABLE DAG TS006.00  00011720
+NCASCTFG DS    CL1                     SCREEN CHAINING FLAG   00702222  00011730
+*                                                0 - NO       00702222  00011740
+*                                                1 - YES      00702222  00011750
+NCATOT   DS    CL1                     CREATE TDA FLAG        2024444   00011753
+*                                                             2024444   00011756
+* FOR EXPANSION TO MISCELLANEOUS DATA                         2023782   00011760
+         DS    XL43                                           2024444   00011765
+NCAQUCTL DS    0CL30                   TEMP QUEUE CTL LIST    0712217   00011800
+NCAQUCT1 DS    CL1                     QUEUE CTL FLAG 1       0712217   00011805
+*                                      BLANK = CLEAR QUEUE    0712217   00011810
+*                                        WHEN APPL CHANGES    0712217   00011815
+*                                      S     = SAVE QUEUE     0712217   00011820
+*                                      D     = DELETE QUEUE   0712217   00011825
+*                                      A     = NEXT 2 BYTES   0712217   00011830
+*                                              ARE APPL ID    0712217   00011835
+NCAQUID1 DS    CL2                     QUEUE QUALIFIER ID 1   0712217   00011840
+NCAQUE   DS    CL27                    QUEUE OCCUR 2 THRU 10  0712217   00011845
+* FOR EXPANSION TO QUEUE DATA                                 2023782   00011850
+         DS    XL30                                           2023782   00011855
+* FOR MQSERIES USE ONLY                                       2023782   00011900
+NCAQPRFL DS    XL1                     QUEUE PROCESSING FLAG  2024078   00011910
+NCAQMSG  DS    XL4                     QUEUE MESSAGE ADDRESS  2024078   00011912
+NCAQMSGD DS    XL4                     QUEUE MSG DESCR ADDR   2024078   00011914
+NCAQTMSG DS    XL4                     TRIGGER MSG ADDRESS    2024078   00011916
+NCAQPEOR DS    XL8                     PROCESSING EOR ID      2024078   00011918
+NCAQREOR DS    XL1                     REFR EOR REC FLAG      2024078   00011920
+NCAQHOBJ DS    XL4                     APPL Q HANDLE OBJECT   2024078   00011922
+NCAQQCAA DS    XL4                     QUEUE CONTROL AREA ADDR2024376   00011924
+NCAQBKRQ DS    CL48                    BACKOUT REQUEUE Q NAME 2024376   00011926
+NCAQBKHO DS    XL4                     BACKOUT REQUEUE Q HOBJ 2024376   00011928
+NCAQTCTR DS    XL2                     TRANSACTION COUNTER    0364780   00011930
+NCAQBKTH DS    XL4                     BACKOUT THRESHOLD      0364756   00011931
+         DS    XL112                                          0364756   00011932
+* FOR CUSTOMER USE ONLY                                       2023782   00012000
+         DS    XL50                                           2023782   00012010
+*                                                             2023782   00012100
+NCAMDA   DS    CL2800                  MDA AREA               2023782   00012105
+NCALEN   EQU   *-TSNCA                 SYMBOLIC LENGTH OF NCA 2023782   00012110
+         EJECT                                                          00012200
+*********************************************************************** 00012300
+*                                                                     * 00012400
+*                       MESSAGE DATA AREA (MDA)                       * 00012500
+*                                                                     * 00012600
+*********************************************************************** 00012700
+         SPACE                                                          00012800
+*********************************************************************** 00012900
+*  NOTES:                                                             * 00013000
+*   ... NUMBER OF MESSAGES POSSIBLE FOR ANY EXTERNAL TRANSACTION      * 00013100
+*       WILL BE EITHER OF THE TWO CALCULATIONS BELOW.                 * 00013200
+*       ... FOR ADMINISTRATIVE TERMINALS:                             * 00013300
+*               TEN 175 BYTE MESSAGES PLUS                    2023782 * 00013400
+*               TWENTY 28 BYTE OVERFLOW MESSAGES.             2023782 * 00013500
+*       ... FOR INTELLIGENT TERMINALS:                                * 00013600
+*               FOURTEEN 175 BYTE MESSAGES.                   2023782 * 00013700
+*********************************************************************** 00013800
+*                                                                       00013900
+MDA      DS    0CL2800  *MESSAGE DATA AREA LENGTH             2023782   00014000
+*                          210 BYTE MDA STEM + TEN 175 BYTE   2023782   00014100
+*                          MSGS + TWENTY 28 BYTE OVERFLOW MSGS2023782   00014200
+*                        ***  OR  ***                                   00014300
+*                          210 BYTE MDA STEM + FOURTEEN 175   2023782   00014400
+*                          MSGS                               2023782   00014410
+         SPACE 2                                                        00014500
+*********************************************************************** 00014600
+*                 DESCRIPTION OF MDA STEM                             * 00014700
+*********************************************************************** 00014800
+*                                                                       00014900
+MDASTEM  DSECT                                                          00015000
+*                                                                       00015100
+MDASSTRT EQU   *        *START OF MDA STEM DESCRIPTION                  00015200
+MDAECATC DS    CL8      *MDA EYE CATCHER                                00015300
+*                           VALUE: ** MDA**                             00015400
+MDAEADR  DS    XL4      *MDA ENDING ADDRESS                             00015500
+MDANAP   DS    XL2      *MDA NEXT AVAILABLE POSITION                    00015600
+MDAFPHSL DS    CL1      *FORCE POST HIGHEST SEVERITY LEVEL              00015700
+*                           VALUE: 0 - NO ERRORS DURING FORCE POST      00015800
+*                                  1 - FORCE POST                       00015900
+*                                  2 - LOG ONLY                         00016000
+*                                  3 - STOP FORCE POST PROCESS          00016100
+MDAMHSL  DS    CL2      *MESSAGE HIGHEST SEVERITY LEVEL                 00016200
+MDAMHSC  DS    CL1      *MESSAGE HIGHEST SEVERITY CODE                  00016300
+*                           VALUES: A - IMMEDIATE ABEND                 00016400
+*                                   F - FATAL, STOP                     00016500
+*                                   E - FATAL, CONTINUE (EDIT ONLY)     00016600
+*                                   S - OVERRIDE, SUPERVISOR            00016700
+*                                   O - OVERRIDE, EMPLOYEE              00016800
+*                                   I - INFORMATIONAL                   00016900
+MDAMOIP  DS    XL2      *MESSAGE OCCURRENCE IN PROCESS                  00017000
+MDAMAXMG DS    XL2      *MAXIMUM MESSAGES FOR TERMINAL TYPE             00017100
+MDAOCRLN DS    XL2      *MDA OCCURRENCE LENGTH                          00017200
+MDAOCRDP DS    XL2      *MDA OCCURRENCE BEING DISPLAYED                 00017300
+*        DS    CL9      *FILLER                               2023782   00017400
+MDACM2A  DS    XL4      *TSTS2CM2 AD DRESS                    GNIB002   00017402
+         DS    CL5      *FILLER                               GNIB002   00017404
+         SPACE                                                          00017500
+*********************************************************************** 00017600
+* FORCE LOOKUP MESSAGE AREA -- ADMINISTRATIVE & INTELLIGENT TERMINALS * 00017700
+*********************************************************************** 00017800
+         SPACE                                                          00017900
+MDAFLA   DS    CL175    *FORCE LOOKUP MESSAGE AREA            2023782   00018000
+MDASLNG  EQU   *-MDASSTRT *MDA STEM LENGTH                              00018100
+MDATLMAR DS    CL2450   *TELLER 14 175-BYTE MESSAGES          2023782   00018110
+         ORG MDATLMAR                                         2023782   00018120
+MDAADMAR DS    CL1750   *ADMIN MESSAGE AREA                   2023782   00018200
+MDAADOAR DS    CL560    *ADMIN OVERFLOW MESSAGE AREA                    00018300
+         DS    CL140    *REMAINDER OF 14 175-BYTE MSGS        2023782   00018310
+*                        NOT TO BE USED AS FILLER!            2023782   00018320
+         DS    CL140    *FILLER FOR MDA EXPANSION             2023782   00018330
+         SPACE                                                          00018400
+*********************************************************************** 00018500
+*       ADMINISTRATIVE AND INTELLIGENT TERMINAL MDA DESCRIPTION       * 00018600
+*********************************************************************** 00018700
+         SPACE                                                          00018800
+MDAOCCUR DSECT                                                          00018900
+MDASTART EQU   *        *START OF MDA OCCURRENCE DESCRIPTION            00019000
+MDAAPAM  DS    XL4      *ADDRESS OF PCA ASSOCIATED WITH THIS MESSAGE    00019100
+MDADAG   DS    CL8      *DAG                                            00019200
+MDAFI    DS    CL8      *FIELD ID                                       00019300
+MDAFDMS  DS    0XL6     *FIELD DIMENSIONS                               00019400
+MDAFDM1  DS    XL2      *FIELD DIMEN 1                                  00019500
+MDAFDM2  DS    XL2      *FIELD DIMEN 2                                  00019600
+MDAFDM3  DS    XL2      *FIELD DIMEN 3                                  00019700
+MDASRTKY DS    0CL6     *MDA SORT KEY                                   00019800
+MDASCRPO DS    CL2          MDA SCREEN PROCESS ORDER                    00019900
+MDAOOLNG EQU   *-MDASTART *LENGTH OF OVERFLOW AREA                      00020000
+MDASEVF  DS    CL2          MDA SEVERITY LEVEL                          00020100
+MDAFLDRW DS    XL1          MDA FIELD ROW                               00020200
+MDAFLDCO DS    XL1          FIELD COLUMN                                00020300
+MDASRTLN EQU   *-MDASRTKY *LENGTH OF SORT KEY                           00020400
+MDAPI    DS    CL8      *PROGRAM ID                                     00020500
+MDACODE  DS    CL6      *MESSAGE CODE                                   00020600
+MDAVD    DS    0CL50    *VARIABLE DATA                                  00020700
+MDAVD1   DS    CL25     *VARIABLE DATA 1                                00020800
+MDAVD2   DS    CL25     *VARIABLE DATA 2                                00020900
+* NOTE: MDAVD1&2 IS USED BY MLK1 TO RETURN THE MESSAGE AFTER LOOK UP    00021000
+MDACURP  DS    CL2      *CURSOR POSITION                                00021100
+MDARF    DS    CL1      *ROUTING FLAG                                   00021200
+*                           VALUE: N - DO NOT ROUTE MESSAGE             00021300
+*                                  C - ROUTE TO CONSOLE                 00021400
+*                                  R - ROUTE TO DESTINATIONS            00021500
+*                                  B - ROUTE TO BOTH                    00021600
+MDASECF  DS    CL1      *SECURITY FLAG                                  00021700
+*                           VALUE: N - DO NOT LOG SEC ERROR             00021800
+*                                  Y - LOG SECURITY ERROR               00021900
+MDAFPF   DS    CL1      *FORCE POST FLAG                                00022000
+*                           VALUE: 1 - FORCE POST                       00022100
+*                                  2 - LOG ONLY                         00022200
+*                                  3 - STOP FORCE POST PROCESS          00022300
+MDAMSC   DS    CL1      *MESSAGE SEVERITY CODE                          00022400
+*                           VALUES: A - IMMEDIATE ABEND                 00022500
+*                                   F - FATAL, STOP                     00022600
+*                                   E - FATAL, CONTINUE (EDIT ONLY)     00022700
+*                                   S - OVERRIDE, SUPERVISOR            00022800
+*                                   O - OVERRIDE, EMPLOYEE              00022900
+*                                   I - INFORMATIONAL                   00023000
+*                                   L - LOG ONLY (FORCE POST)           00023100
+*                                   P - FORCE POSTED TRANSACTION        00023200
+MDAPRCFL DS    CL1      *PROCESSED FLAG                                 00023300
+*                           VALUE: 0 - MESSAGE NOT PROCESSED            00023400
+*                                  1 - MESSAGE TEXT FORMATTED           00023500
+*                                  2 - MESSAGE TEXT DISPLAYED           00023600
+*                                  3 - PARMS RESULT CODE                00023700
+*                                  4 - DATA DICTIONARY RESULT CODE      00023800
+MDAKEY   DS    CL50     *REPORTING ACCT KEY FROM THE KDA      2023782   00023810
+MDACTLLN DS    XL2      *REPORTING ACCT KEY CTLS LENGTH       2023782   00023820
+         DS    CL20     *FILLER                               2023782   00023900
+MDAOLNG  EQU   *-MDASTART  *ONE MDA OCCURRENCE LENGTH                   00024000
+         SPACE                                                          00024100
+*********************************************************************** 00024200
+*                    END OF MESSAGE DATA AREA (MDA)                   * 00024300
+*********************************************************************** 00024400

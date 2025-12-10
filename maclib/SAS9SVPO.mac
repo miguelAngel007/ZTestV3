@@ -1,0 +1,52 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+***                                                                 *** 00002000
+***         SYSTEMATICS EXTENDED APPLICATION ARCHITECTURE           *** 00003000
+***                                                                 *** 00004000
+***         ONLINE INSTALLATION PROCESSING OPTIONS (PROD. VERSION)  *** 00005000
+***                                                                 *** 00006000
+*********************************************************************** 00007000
+         GBLA  &SACTRSZ,&SACDLYC,&SACDLYI,&SACDLYF,&SACDLYN,&SACGUV     00008000
+         GBLA  &SACSUSI                                                 00009000
+         GBLC  &SACCONV                                                 00010000
+* *** INTERVAL FOR NN-SEC DELAY GROWS FROM 200 VERBS IN INCREMENTS      00011000
+* --- OF 100 (ALL).  ONCE IT REACHES 1000 VERBS, DON'T STRETCH IT OUT   00012000
+* --- ANY MORE (TSD).                                                   00013000
+* -GBLA-            -MEANING--------                                    00014000
+*                         -PROD VALUE-   -TEST VALUE-                   00015000
+&SACDLYF SETA 200   FIRST DELAY WILL BE AT VERB NUMBER NNN              00016000
+*                             200            200                        00017000
+&SACDLYI SETA 2     EXEC CICS DELAY NNN SECONDS                         00018000
+*                               2              4                        00019000
+&SACDLYN SETA 100   NEXT DELAY WILL BE THIS + CURRENT INTVL             00020000
+*                             100            100                        00021000
+&SACDLYC SETA 0     CAP # VERBS WHEN STRETCHING DELAY TIMES             00022000
+*                   (0 = NO CAP)                                        00023000
+*                               0           1000                        00024000
+* *** (TSD ONLY) ABEND AFTER NNN VERBS.  1000 IS THE DEFAULT.           00025000
+* --- A TEMPSTOR RECORD WITH AN OVERRIDE CAN BE ENTERED VIA             00026000
+* --- SAAB,NNNNNN.  TEMP OVERRIDE CAN BE DROPPED VIA SAAB,DROP.         00027000
+* --- AFFECTS ONLY TERMINAL WHERE OVERRIDE ENTERED.                     00028000
+* -GBLA-            -MEANING--------                                    00029000
+*                         -PROD VALUE-   -TEST VALUE-                   00030000
+&SACGUV  SETA 0     DEFAULT # VERBS BEFORE S924 ABEND                   00031000
+*                   (0 = NO "GOVERNOR")                                 00032000
+*                             0             1000                        00033000
+* *** INTERVAL BETWEEN EXEC CIC SUSPEND(S) IS IN NUMBER OF SA VERBS.    00034000
+* -GBLA-            -MEANING--------                                    00035000
+*                         -PROD VALUE-   -TEST VALUE-                   00036000
+&SACSUSI SETA 1000  # VERBS BETWEEN EXEC CICS SUSPEND(S)                00037000
+*                            1000           1000                        00038000
+* *** SET SIZE OF WRAP-AROUND EAA VERB TRACE TABLE (SATRACE).           00039000
+* -GBLA-            -MEANING--------                                    00040000
+*                         -PROD VALUE-   -TEST VALUE-                   00041000
+&SACTRSZ SETA 20    # ROWS IN WRAP-AROUND SATRACE                       00042000
+*                              20            100                        00043000
+* *** OPTION TO CONTROL CONVERSATIONAL READ AFTER FATAL ERROR DISPLAY.  00044000
+* --- IF SET TO 'Y', PAUSE AFTER LINE 24 FATAL MESSAGES WITH A (CON-    00045000
+* --- VERSATIONAL) EXEC CICS RECEIVE.  IF SET TO 'M', SEND LINE 24      00046000
+* --- MESSAGE, AND EXIT.  IF SET TO 'N', DO NEITHER.                    00047000
+* -GBLA-            -MEANING--------                                    00048000
+*                         -PROD VALUE-   -TEST VALUE-                   00049000
+&SACCONV SETC 'N'   SEND LINE 24 FATALS, PAUSE WITH CONV.READ           00050000
+*                             'N'            'Y'                        00051000

@@ -1,0 +1,41 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00001000
+* * * * * * *           S   A   R   B                   * * * * * * * * 00002000
+*                                                                     * 00003000
+*      INTERNAL REQUEST BLOCK STRUCTURE                               * 00004000
+*SAS9SARB                                                             * 00005000
+*********************************************************************** 00006000
+SARB     DS    0F                                                       00007000
+SARBSARB DS    CL4         LITERAL 'SARB' EYECATCHER                    00008000
+SARBVERB DS    CL8         EYE CATCHER FOR VERB                         00009000
+SARBVRBN DS    CL4         VECTOR NUMBER FOR VERB                       00010000
+SARBVNUM DS    XL1         SDMS VERB NUMBER FOR I/O REQUESTS            00011000
+SARBVUPD DS    XL1         UPDATE INTENT FOR THIS VERB (FROM VERBTBL)   00012000
+         DS    0F          PROVIDE FULLWORD BOUNDARIES FOR ADDRESSES    00013000
+SARBDMRB DS    XL4         DAG MANAGER REQUEST BLOCK ADDRESS            00014000
+SARBSCR  DS    CL8         SCRIPT ID                                    00015000
+SARBSCRA DS    XL4         BWD SARB POINTER                             00016000
+SARBDATA DS    XL4         POINTER TO VARIABLE DATA AREA                00017000
+SARBENTP DS    XL4         ENTRY POINT FOR PROGRAM MODULES              00018000
+SARBPARM DS    XL4         CONTROL MODULE PARM LIST ADDRESS             00019000
+SARBPLEN DS    XL4         LENGTH OF PARM LIST                          00020000
+SARBPLGM DS    XL4         LENGTH OF GETMAIN FOR PARM LIST              00021000
+SARBMODN DS    CL8         NAME OF MOD IN GCA AT ENTRY                  00022000
+SARBMOD  DS    XL4         ADDRESS OF CURRENT MODULE                    00023000
+SARBMODI DS    CL8         NAME OF CURRENT MODULE (SCRIPT STEP OR       00024000
+*                           RUNPGM) BEING EXECUTED                      00025000
+SARBPGME DS    XL4         ADDR OF PGM TABLE ENTRY                      00026000
+SARBVBA1 DS    XL4         ADDR OF VERB IF IN MAIN CSECT, OR ADDR       00027000
+*                           OF CSECT WHICH CONTAINS VERB IF NOT.        00028000
+SARBVBA2 DS    XL4         IF OTHER THAN MAIN CSECT, ADDR OF VERB IN    00029000
+*                           THAT CSECT.                                 00030000
+SARBTRAC DS    XL4         TRACE TABLE ENTRY FOR THIS ACTIVITY          00031000
+SARB$R14 DS    XL4         ACQSTOR/RELSTOR RTN RETURN ADDR              00032000
+SARB$ADR DS    XL4         ACQSTOR/RELSTOR STORAGE ADDRESS              00033000
+SARB$LEN DS    XL4         ACQSTOR/RELSTOR STORAGE LENGTH               00034000
+SARBSCTL DS    XL4         SDMSCNTL CONTROL BLOCK POINTER               00034100
+SARB$SYM DS    CL8         SYMBOLIC ADDRESS, USED IN MAYDAY MESSAGES    00034200
+         DS    3XL4                                                     00034300
+*                                                                     * 00035000
+*********************************************************************** 00036000

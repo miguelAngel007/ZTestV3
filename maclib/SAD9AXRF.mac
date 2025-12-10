@@ -1,0 +1,48 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAD9AXRF &PREFIX=SAXF                                          00002000
+*********************************************************************** 00003000
+* SAD9AXRF:  EAA DICTIONARY REPOSITORY-AUXILIARY ENTITY XREFERENCE    * 00004000
+*                                                                     * 00005000
+* THIS TABLE IDENTIFIES ALL REPOSITORY ENTITIES BY NAME AND  2602105  * 00006000
+* TYPE (SIMPLE OR HIERARCHICAL).  IT ALSO INDICATES          2602105  * 00006100
+* WHETHER THERE ARE CORRESPONDING AUXILIARY ENTITIES.  MULTIPLE       * 00007000
+* AUXILIARY ENTITY TYPES MAY CORRESPOND TO ONE REPOSITORY ENTITY      * 00008000
+* TYPE.  MULTIPLE AUXILIARY ENTITY TYPES MUST BE CONTIGUOUS, AND      * 00009000
+* ALL BUT THE LAST MUST SHOW A NON-BLANK CONTINUATION CHARACTER.      * 00010000
+*                                                                     * 00011000
+*                        HISTORY OF REVISIONS                         * 00012000
+* DESCRIPTION                                                 CHNGEID * 00013000
+* ----------------------------------------------------------  ------- * 00014000
+* 05/22/02 SYMBOLIC VARIABLE (VAR) SUPPORT                    2024369 * 00014900
+* MOD TO SHOW REPOSITORY ENTITY STRUCTURE                     2602105 * 00015000
+* SA0004.00  SA0290 INITIAL DISTRIBUTION                              * 00015100
+*                                                                     * 00016000
+*********************************************************************** 00017000
+         LCLC     &NM,&PF                                               00018000
+&PF      SETC  '&PREFIX'                                                00019000
+&NM      SETC  '&NAME'                                                  00020000
+         AIF   ('&NAME' NE '').DS                                       00021000
+&NM      SETC  '&PF'.'XREF'                                             00022000
+.DS      ANOP                                                           00023000
+&NM      DS 0F                ***  REPOSITORY-AUXILIARY XREF TABLE      00024000
+&PF.NUM  DC  A((&PF.END-&PF.BEG)/&PF.ELEN)  NUMBER TABLE ENTRIES        00025000
+&PF.BEG  EQU   *                                                        00026000
+&PF.RTYP DS    CL3                 REPOSITORY ENTITY NAME               00027000
+&PF.RETY DS    CL1                 REPOSITORY ENTITY TYPE     2602105   00027100
+&PF.HIER EQU   C'H'                REPOSITORY ENT: HIERARCH   2602105   00027200
+&PF.SIMP EQU   C'S'                REPOSITORY ENT: SIMPLE     2602105   00027300
+&PF.ATYP DS    CL3                 AUXILIARY ENTITY SUBTYPE NAME        00028000
+&PF.AFLG DS    CL1                 FLAG: AUX ENTITY CONTINUATION CHAR   00029000
+&PF.ELEN EQU   *-&PF.BEG                                                00030000
+         ORG   &PF.BEG                                                  00031000
+         DC    CL8'DAGHDAGX'                                  2602105   00032000
+         DC    CL8'DAGHDNMX'                                  2602105   00033000
+         DC    CL8'DAGHDSM '                                  2602105   00034000
+         DC    CL8'DSTHDST '                                  2602105   00035000
+         DC    CL8'ELES    '                                  2602105   00036000
+         DC    CL8'VARS    '                                  2024369   00036100
+&PF.END  EQU   *                                                        00037000
+&PF.LEN  EQU   *-&PF.BEG                                                00038000
+&PF.#ENT EQU   (&PF.LEN/&PF.ELEN) NUMBER TABLE ENTRIES                  00039000
+         MEND                                                           00040000

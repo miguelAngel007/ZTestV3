@@ -1,0 +1,441 @@
+         MACRO                                                          00010000
+         CZFMSTXT                                                      X00020000
+               &TYPE=,                                                 X00030000
+               &MODULE=,                                               X00040000
+               &NUMBER=,                                               X00050000
+               &TEXT=,                                                 X00060000
+               &HELP=            HELP FUNCTION                          00070000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00080000
+.*********                   P R O L O G                       ******** 00090000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00100000
+.*                                                                    * 00110000
+.*   MACRO NAME : CZFMSTXT                                            * 00120000
+.*                                                                    * 00130000
+.*   DESCRIPTIVE NAME : CREATION OF A MESSAGE TEXT ELEMENT            * 00140000
+.*                                                                    * 00150000
+.*   STATUS : VERSION 1                                               * 00160000
+.*            RELEASE LEVEL = 1                                       * 00170000
+.*            MODIFICATION LEVEL = 0                                  * 00180000
+.*                                                                    * 00190000
+.*   COPYRIGHT -                                                      * 00200000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00210000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00220000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00230000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00240000
+.*                                                                    * 00250000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00260000
+.*                                                                    * 00270000
+.*   FUNCTION: TO GENERATE MESSAGE TEXTS ELEMENTS TO BE USED AS PART  * 00280000
+.*             OF THE MODULES CZFHSD, CZFHAA (APPLICATION MODULES)    * 00290000
+.*             AND CZFACT (MESSAGES TABLE CREATION).                  * 00300000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00310000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00320000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00330000
+.*             FOR THE CONTROLLER MESSAGES GENERATES A CONTROL        * 00340000
+.*             HEADER THAT MUST EXIST FOR EVERY 10 MESSAGES.          * 00350000
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00360000
+.*             OF THE PARAMETERS TYPE, NUMBER AND TEXT. BASED         * 00370000
+.*             ON THESE PARAMETERS, A MESSAGE TEXT ELEMENT IS BUILT.  * 00380000
+.*             FOR THE HOST THE MESSAGE SIZE IS 1 TO 31 CHARACTERS.   * 00390000
+.*             FOR THE CONTROLLER THE MESSAGE SIZE IS ALWAYS 25.      * 00400000
+.*             FOR EVERY 10 MESSAGES A BLOCK OF 256 CHARACTERS IS     * 00410000
+.*             CREATED INCLUDING THE 2 BYTES HEADER AND A FILLER OF   * 00420000
+.*             4 BYTES.                                               * 00430000
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00440000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00450000
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00460000
+.*             THE BLOCK AT THE HOST. FOR THE CONTROLLER IT CREATES   * 00470000
+.*             THE LAST BLOCK OF 256 CHAR. CALCUALTING THE FILLER     * 00480000
+.*             REQUIRED.                                              * 00490000
+.*                                                                    * 00500000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00510000
+.*                                                                    * 00520000
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00530000
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00540000
+.*                                                                    * 00550000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00560000
+.*                                                                    * 00570000
+.*   CHARACTERISTICS :                                                * 00580000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00590000
+.*                                                                    * 00600000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :   NONE                   * 00610000
+.*                                                                    * 00620000
+.*   RESTRICTIONS:  NONE                                              * 00630000
+.*                                                                    * 00640000
+.*   PARAMETERS RECEIVED:                                             * 00650000
+.*             TYPE=              *MACRO TYPE (INITIAL,ENTRY,FINAL)   * 00660000
+.*             MODULE=            * MODULE BEING ASSEMBLED            * 00670000
+.*                                * CZFHSD SYSTEM DATA MODULE         * 00680000
+.*                                * CZFHAA APPLICATION MODULES        * 00690000
+.*                                * CZFACT CONTROLLER MESSAGES        * 00700000
+.*             TEXT=              *MESSAGE TEXT (1 TO 31 CHARACTERS)  * 00710000
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00720000
+.*                                                                    * 00730000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00740000
+.*                                                                    * 00750000
+.*       MESSAGE TEXT ELEMENT AT THE HOST (CZFHSD AND CZFHAA)         * 00760000
+.*                                                                    * 00770000
+.*   OFFSET    LENGTH          DESCRIPTION                            * 00780000
+.*  DEC  HEX                                                          * 00790000
+.*                                                                    * 00800000
+.*   0    0      2                *MESSAGE TEXT SIZE                  * 00810000
+.*   2    2      2                *MESSAGE NUMBER                     * 00820000
+.*   4    4    1-31               *MESSAGE TEXT                       * 00830000
+.*                                                                    * 00840000
+.*                                                                    * 00850000
+.*       MESSAGE TEXT INFORMATION AT THE CONTROLLER (CZFACT)          * 00860000
+.*                                                                    * 00870000
+.*          FOR EVERY BLOCK OF 256 CHARACTERS:                        * 00880000
+.*                                                                    * 00890000
+.*   OFFSET    LENGTH          DESCRIPTION                            * 00900000
+.*  DEC  HEX                                                          * 00910000
+.*                                                                    * 00920000
+.*   0    0      'M'              *HEADER IDENTIFIER                  * 00930000
+.*   1    1       1               *DISKETTE BLOCK IDENTIFIER (1,2,ETC.) 00940000
+.*                                   *INITIAL VALUE = 1. IT IS        * 00950000
+.*                                   *INCREMENTED BY 1 EVERY 10       * 00960000
+.*                                   *MESSAGES.                       * 00970000
+.*   2    2     250               *10 MESSAGES OF 25 CHARACTERS EACH  * 00980000
+.* 252   FC       4               *FILLER                             * 00990000
+.*                                                                    * 01000000
+.*   GENERATED CODE AT THE HOST (CZFHSD AND CZFHAA)                   * 01010000
+.*                                                                    * 01020000
+.*  DC   AL2(SIZE)                *MESSAGE TEXT SIZE                  * 01030000
+.*  DC   AL2(MESSAGE NUMBER)      *MESSAGE NUMBER                     * 01040000
+.*  DC   C'TEXT'                  *MESSAGE TEXT                       * 01050000
+.*                                                                    * 01060000
+.*   GENERATED CODE AT THE CONTROLLER (CZFACT)                        * 01070000
+.*                                                                    * 01080000
+.*                  HEADER TO INCLUDE EVERY 10 MESSAGES               * 01090000
+.*                                                                    * 01100000
+.*                                                                    * 01110000
+.*   DC   C'M'                    *IDENTIFIER                         * 01120000
+.*   DC   AL1(BLOCK NUMBER)       *DISKETTE BLOCK IDENTIFIER (1,2,ETC.) 01130000
+.*                                   *INITIAL VALUE = 1. IT IS        * 01140000
+.*                                   *INCREMENTED BY 1 EVERY 10       * 01150000
+.*                                   *MESSAGES.                       * 01160000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01170000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01180000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01190000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01200000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01210000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01220000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01230000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01240000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01250000
+.*   DC   CL25'TEXT'              *MESSAGE TEXT                       * 01260000
+.*   DC   XL4'00000000'           *FILLER                             * 01270000
+.*                                                                    * 01280000
+.*   NOTES:                                                           * 01290000
+.*                                                                    * 01300000
+.*                                                                    * 01310000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01320000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01330000
+.*                                                                    * 01340000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 01350000
+.*                                                                    * 01360000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01370000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      01380000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  01390000
+         GBLA  &MSTXT             *MACRO CZFMSTXT INDICATOR             01400000
+         GBLA  &MSTXT1            *TYPE=ENTRY INDICATOR                 01410000
+         GBLA  &TXTIND            *MODULE BEING ASSEMBLED INDICATOR     01420000
+         GBLA  &BLKNUM            *DISKETTE BLOCKS COUNTER              01430000
+         GBLA  &TXTNUM            *CONTROLLER MESSAGES COUNTER          01440000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         01450000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01460000
+.*                                                                    * 01470000
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 01480000
+.*                                                                    * 01490000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01500000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 01510000
+         LCLA  &SIZE              *MESSAGE TEXT SIZE                    01520000
+         LCLB  &ERRIND            *ERROR INDICATOR                      01530000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    01540000
+         LCLC  &WORKC             *WORK AREA FOR GENERATED CODE         01550000
+&ERRIND  SETB  0                  *INITIAL VALUE ERROR INDICATOR        01560000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01570000
+.*                                                                    * 01580000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 01590000
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 01600000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 01610000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 01620000
+.*   PERFORMED.                                                       * 01630000
+.*                                                                    * 01640000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01650000
+         CZFMHELP HELP=&HELP                                            01660000
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       01670000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01680000
+.*                                                                    * 01690000
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 01700000
+.*                                                                    * 01710000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01720000
+.P1VAL   ANOP                                                           01730000
+         AIF   (&MSTXT EQ 2).PCOMP   *PREVIOUS SET COMPLETE             01740000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01750000
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                01760000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01770000
+         AGO   .PUE1                                                    01780000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01790000
+.*                                                                    * 01800000
+.*   PROCESS OF MACRO TYPE=INITIAL.                                   * 01810000
+.*                                                                    * 01820000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01830000
+.P1V1    ANOP                                                           01840000
+         AIF (&MSTXT NE 0).P1E1   *DUPLICATE MACRO TYPE=INITIAL         01850000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01860000
+.*                                                                    * 01870000
+.*   VALIDATE MACRO TYPE=INITIAL PARAMETER MODULE=                    * 01880000
+.*                                                                    * 01890000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01900000
+         AIF   ('&MODULE' EQ 'CZFHSD').P1V1A   *SYSTEM DATA ASSEMBLY    01910000
+         AIF   ('&MODULE' EQ 'CZFACT').P1V1B   *CONTROLLER MESSAGES A.  01920000
+         AIF   ('&MODULE' EQ 'CZFHAA').P1V1C   *APPLICATION ASSEMBLY    01930000
+         AGO   .P1E2                                                    01940000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01950000
+.*                                                                    * 01960000
+.*   PARAMETER MODULE=CZFHSD. GENERATE HEADER FOR SYSTEM MODULE.      * 01970000
+.*                                                                    * 01980000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01990000
+.P1V1A   ANOP                                                           02000000
+         TITLE 'MESSAGES BLOCK'                                         02010000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02020000
+*                                                                    *  02030000
+*   MACRO NAME : CZFMSTXT                                            *  02040000
+*                                                                    *  02050000
+*   DESCRIPTIVE NAME : MESSAGES BLOCK GENERATION                     *  02060000
+*                                                                    *  02070000
+*   STATUS : VERSION 1                                               *  02080000
+*            RELEASE LEVEL = 0                                       *  02090000
+*            MODIFICATION LEVEL = 0                                  *  02100000
+*                                                                    *  02110000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02120000
+&TXTIND  SETA  1                                                        02130000
+         DS    0D                                                       02140000
+         DC    CL8'*TABLE= '           *TABLE HEADER                    02150000
+         DC    CL8'CZFMSTXT'           *TABLE NAME                      02160000
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         02170000
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               02180000
+         AGO   .TESTFIN                *VALIDATE RECEIPT OF PREV FINAL  02190000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02200000
+.*                                                                    * 02210000
+.*   PARAMETER MODULE=CZFACT. GENERATE CONTROLLER BLOCK PREFIX        * 02220000
+.*                                                                    * 02230000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02240000
+.P1V1B   ANOP                                                           02250000
+         TITLE 'MESSAGES BLOCK'                                         02260000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02270000
+*                                                                    *  02280000
+*   MACRO NAME : CZFMSTXT                                            *  02290000
+*                                                                    *  02300000
+*   DESCRIPTIVE NAME : MESSAGES BLOCK GENERATION                     *  02310000
+*                                                                    *  02320000
+*   STATUS : VERSION 1                                               *  02330000
+*            RELEASE LEVEL = 0                                       *  02340000
+*            MODIFICATION LEVEL = 0                                  *  02350000
+*                                                                    *  02360000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02370000
+&TXTIND  SETA  2                                                        02380000
+&BLKNUM  SETA  0                                                        02390000
+         DC    C'M'               *IDENTIFIER                           02400000
+         DC    YL1(&BLKNUM)       *DISKETTE BLOCK NUMBER                02410000
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV FINAL       02420000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02430000
+.*                                                                    * 02440000
+.*   PARAMETER MODULE=CZFHAA. GENERATE HEADER FOR APPLICATION MODULE  * 02450000
+.*                                                                    * 02460000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02470000
+.P1V1C   ANOP                                                           02480000
+         TITLE 'MESSAGES BLOCK'                                         02490000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02500000
+*                                                                    *  02510000
+*   MACRO NAME : CZFMSTXT                                            *  02520000
+*                                                                    *  02530000
+*   DESCRIPTIVE NAME : MESSAGES BLOCK GENERATION                     *  02540000
+*                                                                    *  02550000
+*   STATUS : VERSION 1                                               *  02560000
+*            RELEASE LEVEL = 0                                       *  02570000
+*            MODIFICATION LEVEL = 0                                  *  02580000
+*                                                                    *  02590000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02600000
+&TXTIND  SETA  3                                                        02610000
+         DS    0D                                                       02620000
+         DC    CL8'*TABLE= '           *TABLE HEADER                    02630000
+         DC    CL8'CZFMSTXT'           *TABLE NAME                      02640000
+         DC    CL8'V1 R0 L0'           *VERSION, RELEASE, LEVEL         02650000
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               02660000
+         AGO   .TESTFIN                *VALIDATE RECEIPT OF PREV FINAL  02670000
+.TESTFIN ANOP                     *VALIDATE CLOSURE OF PREV MACRO       02680000
+&MSTXT   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    02690000
+         AIF (&MFINAL GT 0).NOFINAL                                     02700000
+.SETMAC  ANOP                                                           02710000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            02720000
+&MACREC  SETC  'CZFMSTXT'         *NAME OF CURRENT MACRO                02730000
+         AGO   .END                                                     02740000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02750000
+.*                                                                    * 02760000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 02770000
+.*        .   MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED.      * 02780000
+.*                                                                    * 02790000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02800000
+.P2V1    ANOP                                                           02810000
+         AIF (&MSTXT NE 1).P2E1   *NO MACRO TYPE=INITIAL PROCESSED      02820000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02830000
+.*                                                                    * 02840000
+.*   VALIDATE PARAMETER  NUMBER IN MACRO TYPE=ENTRY:                  * 02850000
+.*        .     NUMBER    MUST BE IN THE RANGE 0001-9999              * 02860000
+.*        .     NUMBER    MUST HAVE 4 DIGITS                          * 02870000
+.*                                                                    * 02880000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02890000
+.P2V2    ANOP                                                           02900000
+         AIF   (T'&NUMBER EQ 'O').P2E2                  *IF OMITTED     02910000
+         AIF   (T'&NUMBER NE 'N').P2E2                  *IF NUMERIC     02920000
+         AIF   (&NUMBER LT 1 OR &NUMBER GT 9999).P2E2   *RANGE ERROR    02930000
+         AIF   (K'&NUMBER NE 4).P2E2                    *LENGTH ERROR   02940000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02950000
+.*                                                                    * 02960000
+.*   VALIDATE PARAMETER TEXT IN MACRO TYPE=ENTRY:                     * 02970000
+.*          - TEXT MUST BE FROM 1 TO 31 CHARACTERS ENCLOSED IN QUOTES * 02980000
+.*            FOR THE HOST MESSAGES.                                  * 02990000
+.*          - TEXT MUST BE FROM 1 TO 25 CHARACTERS ENCLOSED IN QUOTES * 03000000
+.*            FOR THE CONTROLLER MESSAGES.                            * 03010000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03020000
+.P2V3    ANOP                                                           03030000
+         AIF   (&TXTIND EQ 2).P2V3CTL  *VALIDATE CONTROLLER SIZE        03040000
+&SIZE    SETA   K'&TEXT           *GET MESSAGE TEXT SIZE                03050000
+         AIF   (K'&TEXT LT 3 OR K'&TEXT GT 33).P2E3  *LENGTH ERROR      03060000
+.*                                *TEST FIRST QUOTE                     03070000
+         AIF    ('&TEXT'(1,1) NE '''').P2E3                             03080000
+.*                                *TEST SECOND QUOTE                    03090000
+         AIF    ('&TEXT'(&SIZE,1) NE '''').P2E3                         03100000
+&SIZE    SETA   &SIZE-2           *TEXT SIZE WITHOUT COUNTING QUOTES    03110000
+         AGO    .P2V4                                                   03120000
+.P2V3CTL ANOP                                                           03130000
+&SIZE    SETA   K'&TEXT           *GET MESSAGE TEXT SIZE                03140000
+         AIF   (K'&TEXT LT 3 OR K'&TEXT GT 27).P2E3CTL  *LENGTH ERROR   03150000
+.*                                *TEST FIRST QUOTE                     03160000
+         AIF    ('&TEXT'(1,1) NE '''').P2E3CTL                          03170000
+.*                                *TEST SECOND QUOTE                    03180000
+         AIF    ('&TEXT'(&SIZE,1) NE '''').P2E3CTL                      03190000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03200000
+.*                                                                    * 03210000
+.*   AVAILABLE FOR ADDITIONAL PARAMETERS VALIDATION                   * 03220000
+.*   (NOT USED WITH CURRENT VERSION OF THE MACRO).                    * 03230000
+.*                                                                    * 03240000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03250000
+.P2V4    ANOP                                                           03260000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03270000
+.*                                                                    * 03280000
+.*   IF NOT ERROR FOUND, GENERATE THE MESSAGE TEXT ELEMENT            * 03290000
+.*                                                                    * 03300000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03310000
+         AIF   (&ERRIND).END      *SKIP GENERATION IF ERRORS FOUND      03320000
+&MSTXT1  SETA  1                  *GOOD ENTRY INPUT                     03330000
+         AIF   (&TXTIND EQ 2).P2GEN *CONTROLLER ASSEMBLY, GOTO GENERATE 03340000
+&WORKC   SETC  'MSG'.'&NUMBER'                                          03350000
+&WORKC   DS    0F                                                       03360000
+         DC    AL2(&SIZE)                            *MESSAGE TEXT SIZE 03370000
+         DC    AL2(&NUMBER)                          *MESSAGE NUMBER    03380000
+         DC    C&TEXT                                *MESSAGE TEXT      03390000
+         AGO   .END                                                     03400000
+.P2GEN   ANOP                                                           03410000
+&TXTNUM  SETA  &TXTNUM+1                                                03420000
+         AIF   (&TXTNUM LT 11).P2GENB                                   03430000
+&TXTNUM  SETA  1                  *RESTORE COUNTER OF EVEY 10 MESSAGES  03440000
+&BLKNUM  SETA  &BLKNUM+1          *INCREMENT DISKETTE BLOCK NUMBER      03450000
+         DC    4X'00'             *FILLER TO MAKE BLOCK = 256 CHAR      03460000
+         DC    C'M'               *IDENTIFIER                           03470000
+         DC    YL1(&BLKNUM)       *DISKETTE BLOCK NUMBER                03480000
+.P2GENB  ANOP                                                           03490000
+         DC    CL25&TEXT                             *MESSAGE TEXT      03500000
+         AGO   .END                                                     03510000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03520000
+.*                                                                    * 03530000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 03540000
+.*        .   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 03550000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 03560000
+.*            MACROS TYPE ENTRY                                       * 03570000
+.*        .   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 03580000
+.*            OF THE TABLE                                            * 03590000
+.*                                                                    * 03600000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03610000
+.P3V1    ANOP                                                           03620000
+         AIF (&MSTXT NE 1).P3E1   *NO MACRO TYPE=INITIAL PROCESSED      03630000
+         AIF (&MSTXT1 NE 1).P3E1  *ENTRY CARD PROCESSED?                03640000
+         AIF   (&ERRIND).END      *SKIP TABLE DELIMITER IF ERROR FOUND  03650000
+&MSTXT   SETA  2                  *SET MACRO TYPE=FINAL PROCESSED INDIC 03660000
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              03670000
+         AIF   (&TXTIND EQ 2).P3V1CTL *CONTROLLER.,GOTO FINAL FUNCTION  03680000
+         DS    0F                 *END OF THE MESSAGE TEXT TABLE        03690000
+         DC    40X'FF'            *END-OF-TABLE INDICATOR               03700000
+         AGO   .END                                                     03710000
+.P3V1CTL ANOP                                                           03720000
+&SIZE    SETA  10                                                       03730000
+&SIZE    SETA  &SIZE-&TXTNUM                                            03740000
+         DC    &SIZE.XL25'00'     *FILLER FOR LAST BLOCK.               03750000
+         DC    4X'00'             *FILLER TO COMPLETE BLOCK = 256       03760000
+         AGO   .END                                                     03770000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03780000
+.*                                                                    * 03790000
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 03800000
+.*    MESSAGES REQUIRED.                                              * 03810000
+.*                                                                    * 03820000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03830000
+.HELP    ANOP                                                           03840000
+         CZFMHIMS MSGNUM=998                                            03850000
+         CZFMHIMS MSGNUM=1                                              03860000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTXT                            03870000
+         CZFMHIMS MSGNUM=2                                              03880000
+         CZFMHIMS MSGNUM=63                                             03890000
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                03900000
+         CZFMHIMS MSGNUM=93                                             03910000
+         CZFMHIMS MSGNUM=4,MSGPARM=NUMBER                               03920000
+         CZFMHIMS MSGNUM=64                                             03930000
+         CZFMHIMS MSGNUM=10                                             03940000
+       AGO   .END                                                       03950000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03960000
+.*                                                                    * 03970000
+.*    REQUEST TO MACRO CZFMHIMS THE ERROR MESSAGES NEEDED             * 03980000
+.*                                                                    * 03990000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 04000000
+.NOFINAL ANOP                                                           04010000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            04020000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   04030000
+.PCOMP   ANOP                                                           04040000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTXT                            04050000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04060000
+         AGO   .END                                                     04070000
+.PUE1    ANOP                                                           04080000
+         CZFMHIMS MSGNUM=1                                              04090000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04100000
+         AGO   .END                                                     04110000
+.P1E1    ANOP                                                           04120000
+         CZFMHIMS MSGNUM=2                                              04130000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04140000
+         AGO   .END                                                     04150000
+.P1E2    ANOP                                                           04160000
+         CZFMHIMS MSGNUM=63                                             04170000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04180000
+         AGO   .END                                                     04190000
+.P2E1    ANOP                                                           04200000
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                04210000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04220000
+         AGO   .END                                                     04230000
+.P2E2    ANOP                                                           04240000
+         CZFMHIMS MSGNUM=4,MSGPARM=NUMBER                               04250000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04260000
+         AGO   .P2V3                                                    04270000
+.P2E3    ANOP                                                           04280000
+         CZFMHIMS MSGNUM=10                                             04290000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04300000
+         AGO   .P2V4                                                    04310000
+.P2E3CTL ANOP                                                           04320000
+         CZFMHIMS MSGNUM=64                                             04330000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04340000
+         AGO   .P2V4                                                    04350000
+.P3E1    ANOP                                                           04360000
+         CZFMHIMS MSGNUM=93                                             04370000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04380000
+         AGO   .END                                                     04390000
+.END     ANOP                                                           04400000
+         MEND                                                           04410000

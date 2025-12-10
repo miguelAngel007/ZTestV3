@@ -1,0 +1,49 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000100
+*                        TRANSACTION SYSTEM                          *  00000200
+*                          HOLIDAY TABLE                             *  00000300
+**********************************************************************  00000400
+*   TSTS2DTA, THE TS HOLIDAY TABLE , IS A LIST OF NON-PROCESSING OR  *  00000500
+*   ONLINE ONLY PROCESSING HOLIDAYS.  TABLE CONTAINS THE HOLIDAY     *  00000600
+*   (MMDDYY), AND A HOLIDAY PROCESSING FLAG : 0 - NOT A HOLIDAY      *  00000700
+*   PROCESSOR OR 1 - ONLINE HOLIDAY PROCESSOR                        *  00000800
+*                                                                    *  00000900
+*   EACH ENTRY IS FURTHER QUALIFIED BY AN CALENDAR NUMBER.  AN       *  00001000
+*   INSTALATION IS POINTED TO THE PROPER HOLIDAY CALENDAR BY THE     *  00001100
+*   SER CALENDAR-ID.  ANY NUMBER OF BANKS MAY USE A GIVEN HOLIDAY    *  00001200
+*   CALANDER.  HOWEVER BE AWARE THAT ONCE A BANK IS SET UP TO POINT  *  00001300
+*   TO A SPECIFIC HOLIDAY CALENDAR, ANY CHANGE TO THAT HOLIDAY       *  00001400
+*   CALENDAR WILL RESULT IN CHANGE FOR ALL BANKS REFERENCING IT.     *  00001500
+*                                                                    *  00001600
+*                        F O R M A T :                               *  00001700
+*                                                                    *  00001800
+*       TABLE PREFIX                                                 *  00001900
+*       ************                                                 *  00002000
+*       X(8)  TAB ID            TABLE NAME - CONSTANT 'TSTS6DTA'     *  00002100
+*       S9(8)B TAB LEN          TABLE LENGTH                         *  00002200
+*       S9(4)B ENT LEN          ENTRY LENGTH                         *  00002300
+*       S9(4)B ENT NUM          NUMBER TABLE ENTRIES                 *  00002400
+*                                                                    *  00002500
+*       TABLE ENTRY             MAX ENTRIES/TABLE = 400 (VARIABLE)   *  00002600
+*       ***********                                                  *  00002700
+*       X(2)  CAL ID              CALENDAR NUMBER       **KEY**      *  00002800
+*       X(6)  HOLIDAY             HOLIDAY (MMDDYY)      **KEY**      *  00002900
+*       X(1)  PROCESS FLAG        HOLIDAY PROCESSING CODE            *  00003000
+**********************************************************************  00003100
+TSDTTBL  DSECT                                                          00003200
+TSDTNM   DS    CL8                     TABLE NAME                       00003300
+TSDTLEN  DS    XL4                     TABLE LENGTH                     00003400
+TSDTELEN DS    XL2                     TABLE ENTRY LENGTH               00003500
+TSDT#E   DS    XL2                     TABLE NUMBER OF ENTRIES          00003600
+TSDTENTS DS    CL3600                  TABLE ENTRIES                    00003700
+*                                                                       00003800
+TSDTENT  DSECT                         TABLE ENTRY                      00003900
+TSDTENTL DS    0CL9                                                     00004000
+TSDTKEY  DS    0CL8                      SEARCH KEY                     00004100
+TSDTID   DS    CL2                         CALENDAR IDENTIFIER          00004200
+*                                          DEFINED IN THE SER           00004300
+TSDTHDY  DS    CL6                         HOLIDAY (MMDDYY)             00004400
+TSDTHPC  DS    CL1                         HOLIDAY PROCESSING CODE      00004500
+*            VALUES:                                                    00004600
+*                 0 - NOT A HOLIDAY PROCESSOR                           00004700
+*                 1 - ONLINE ONLY HOLIDAY PROCESSOR                     00004800

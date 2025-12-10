@@ -1,0 +1,40 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00010000
+*********************************************************************** 00020000
+*           TSTS2QMD - MQ MESSAGE DESCRIPTOR                          * 00030000
+*                                                                     * 00040000
+*                                                                     * 00050000
+*---------------------------------------------------------------------* 00060000
+*                   HISTORY OF REVISIONS                              * 00070000
+*   DESCRIPTION                                                CHG ID * 00080000
+* ----------------------------------------------------------- ------- * 00090000
+* 05/28/03 NEW COPYBOOK.                                      ~~~4780   00100000
+*********************************************************************** 00110000
+*                                                                       00120000
+TSTS2QMD DSECT                                                          00130000
+QMD      DS    0C            QUEUE MESSAGE DESCRIPTOR                   00140000
+QMDSTRUC DS    CL4             STRUCTURE                                00150000
+QMDVERSN DS    XL4             VERSION NUMBER                           00160000
+QMDREPRT DS    XL4             REPORT                                   00170000
+QMDMSGTY DS    XL4             MESSAGE TYPE                             00180000
+QMDEXPRY DS    XL4             EXPIRY                                   00190000
+QMDFEEDB DS    XL4             FEEDBACK                                 00200000
+QMDENCOD DS    XL4             ENCODING                                 00210000
+QMDCCHAR DS    XL4             CODED CHARACTER SET                      00220000
+QMDFORMT DS    CL8             FORMAT                                   00230000
+QMDPRIOR DS    XL4             PRIORITY                                 00240000
+QMDPERST DS    XL4             PERSISTENCE                              00250000
+QMDMSGID DS    CL24            MESSAGE ID                               00260000
+QMDCORID DS    CL24            CORRELATION ID                           00270000
+QMDBKCNT DS    XL4             BACKOUT COUNT                            00280000
+QMDRPLYQ DS    CL48            REPLY TO QUEUE                           00290000
+QMDRQMGR DS    CL48            REPLY TO QUEUE MANAGER                   00300000
+QMDUSRID DS    CL12            USER IDENTIFIER                          00310000
+QMDACTKN DS    XL32            ACCOUNT TOKEN                            00320000
+QMDAPLID DS    CL32            APPL IDENTITY DATA                       00330000
+QMDPAPTY DS    XL4             PUT APPL TYPE                            00340000
+QMDPAPNM DS    CL28            PUT APPL NAME                            00350000
+QMDPAPDT DS    CL8             PUT APPL DATE                            00360000
+QMDPAPTM DS    CL8             PUT APPL TIME                            00370000
+QMDAPORG DS    CL4             APPLICATION ORIGINATION DATA             00380000
+QMDLEN   EQU   *-QMD           LENGTH OF MESSAGE DESCRIPTOR             00390000

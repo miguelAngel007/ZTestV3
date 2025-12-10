@@ -1,0 +1,24 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*  TSTS4EDB - THIS COPYBOOK CAN BE USED IN ASSEMBLER PROGRAMS TO      * 00002000
+*             CALL TSEORDBX.                                          * 00003000
+*---------------------------------------------------------------------* 00004000
+*                    ** HISTORY OF REVISIONS **                       * 00005000
+*                                                                     * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* ___________________________________________________________ _______ * 00008000
+* 12/16/16 INITIAL DISTRIBUTION                                GN7046 * 00009000
+*********************************************************************** 00010000
+         MVC    PEOSYSDT,=CL8' '                                        00011000
+         MVC    PEOPURDT,=CL8' '                                        00012000
+         MVC    PEOSERCL,=CL8' '                                        00013000
+         SPACE                                                          00014000
+*        EXEC CICS LINK PROGRAM  ('TSEORDBX')                           00015000
+*                       COMMAREA (PEOLIST)                              00016000
+*                       LENGTH   (=Y(PEOLEN))                           00017000
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'TSEORDBX'),(______R*
+               F,PEOLIST),(FB_2,=Y(PEOLEN))
+         SPACE                                                          00018000
+         MVC    SVTSEORA,PEORECAD                                       00019000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

@@ -1,0 +1,58 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+******************************************************************      00000100
+*DICTIONARY OBJECT SIDAGSIWKAD02                                 *      00000200
+* GENERATED 04/07/93  16.37.41                                   *      00000300
+*FREE FORM STANDARADIZED ADDRESS COMM AREA                       *      00000400
+* ***CONTAINS MODIFICATIONS FOR INTERBANK GAP RM003           RMIB003   00000410
+******************************************************************      00000500
+SIDSAD02 DSECT                         STD-ADDR.                        00000600
+WK2RETCD DS    0CL2                    RETURN-CODES.                    00000700
+WK2ADRET DS    CL1                     ADDR-STD-RETURN-CD               00000800
+WK2CSRET DS    CL1                     CSZ-STD-RETURN-CD                00000900
+WK2NBRLI DS    PL1                     NBR-LINES                        00001000
+WK2ADDR  DS    4CL45                   ADDR-LINES      OCCURS 0004.     00001100
+WK2NBR   EQU   4                       NUMBER OF OCCURS                 00001200
+WK2ALLEN EQU   45                      LENGTH OF ONE OCCURS             00001300
+         ORG   WK2ADDR                                                  00001400
+WK2ADTYP DS    CL1                     1ST ADDR-TYPE-IND                00001500
+WK2STBEG DS    CL2                     1ST BEG-STRT-NAME                00001600
+WK2STEND DS    CL2                     1ST END-STRT-NAME                00001700
+WK2ADLIN DS    CL40                    1ST ADDR-LINE                    00001800
+*                                                                       00001900
+WK2ADTY2 DS    CL1                     2ND ADDR-TYPE-IND                00002000
+WK2STBE2 DS    CL2                     2ND BEG-STRT-NAME                00002100
+WK2STEN2 DS    CL2                     2ND END-STRT-NAME                00002200
+WK2ADLI2 DS    CL40                    2ND ADDR-LINE                    00002300
+WK2ADTY3 DS    CL1                     3RD ADDR-TYPE-IND                00002400
+WK2STBE3 DS    CL2                     3RD BEG-STRT-NAME                00002500
+WK2STEN3 DS    CL2                     3RD END-STRT-NAME                00002600
+WK2ADLI3 DS    CL40                    3RD ADDR-LINE                    00002700
+WK2ADTY4 DS    CL1                     4TH ADDR-TYPE-IND                00002800
+WK2STBE4 DS    CL2                     4TH BEG-STRT-NAME                00002900
+WK2STEN4 DS    CL2                     4TH END-STRT-NAME                00003000
+WK2ADLI4 DS    CL40                    4TH ADDR-LINE                    00003100
+         ORG                                                            00003200
+*WK2CSZ   DS    0CL52                   CITY-ST-ZIP.          RMIB003   00003300
+*WK2CSLEN EQU   52                  LENGTH OF CITY,STATE,ZIP  RMIB003   00003400
+*WK2CITY  DS    CL20                    CITY                  RMIB003   00003500
+*WK2ST    DS    CL20                    ST                    RMIB003   00003600
+WK2CSZ   DS    0CL72                   CITY-ST-ZIP.           RMIB003   00003602
+WK2CSLEN EQU   72                      LENGTH OF CSZ          RMIB003   00003604
+WK2CITY  DS    CL20                    DISTRICT               RMIB003   00003606
+WK2ST    DS    CL20                    PROVINCE               RMIB003   00003608
+         ORG   WK2ST                   ST-INFO  REDEFINES ST            00003700
+WK2STCD  DS    CL2                     ST-CD                            00003800
+         DS    CL18                    ST-INFO-FILLER                   00003900
+         ORG                                                            00004000
+WK2DEPT  DS    CL20                    DEPT                   RMIB003   00004010
+*WK2ZIPCD DS    CL10                    ZIP-CD                RMIB003   00004100
+WK2ZIPCD DS    CL10                    POSTAL CODE            RMIB003   00004101
+WK2WALK  DS    CL2                     WALK-SEQ-CD                      00004200
+         ORG                                                            00004300
+WK2CTRY  DS    CL20                    CTRY                             00004400
+WK2MAIL  DS    CL1                     MAIL-CD                          00004500
+WK2SPICD DS    CL1                     PRT-SPEC-INSTR-CD                00004510
+WK2PCIND DS    CL1                     PRT-CTRY-IND                     00004520
+WK2USPFL DS    CL1                     US-POSTAL-REQ-IND                00004530
+         EJECT                                                          00004600

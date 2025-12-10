@@ -1,0 +1,64 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                   TSTS2S13 --  SYSTEM TRANSACTION                   * 00000004
+*                       CHANGE PROCESS DATES                          * 00000005
+*                                                                     * 00000006
+*---------------------------------------------------------------------* 00000007
+*                  ** HISTORY OF REVISIONS **                         * 00000008
+*                                                                     * 00000009
+* DESCRIPTION                                                 CHNGID  * 00000010
+* __________________________________________________________  _______ * 00000011
+*                                                                     * 00000012
+* 12/22/04 ADD SER ATM DATE FIELD                             0525112   00000691
+* 01/95    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000692
+*             TS13CAID DS    CL8    CA CHANGE ID              2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL19        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TS13     DS    0CL80                 TRANSACTION AREA                   00000800
+TS13TRNC DS    CL4                   TRANSACTION CODE                   00000900
+*                    VALUE:  TS13 - CHANGE PROCESS DATES                00001000
+TS13SER  DS    0CL29                 SER DATA                           00001100
+TS13SERC DS    CL1                     DATE CHANGE CODE                 00001200
+*                    VALUES:   F - CHANGE FILE DATES                    00001300
+*                              D - CHANGE DYNAMIC STORAGE DATES         00001400
+*                              B - CHANGE BOTH DATES                    00001500
+*                              N - CHANGE NEITHER DATE                  00001600
+TS13CLAS DS    CL10                    CLASS                            00001700
+TS13PDTE DS    0CL6                    PREVIOUS DATE                    00001800
+TS13PMM  DS    CL2                       MONTH                          00001900
+TS13PDD  DS    CL2                       DAY                            00002000
+TS13PYY  DS    CL2                       YEAR                           00002100
+TS13CDTE DS    0CL6                    CURRENT DATE                     00002200
+TS13CMM  DS    CL2                       MONTH                          00002300
+TS13CDD  DS    CL2                       DAY                            00002400
+TS13CYY  DS    CL2                       YEAR                           00002500
+TS13NDTE DS    0CL6                    NEXT DATE                        00002600
+TS13NMM  DS    CL2                       MONTH                          00002700
+TS13NDD  DS    CL2                       DAY                            00002800
+TS13NYY  DS    CL2                       YEAR                           00002900
+TS13RPT  DS    0CL29                 RPT DATA                           00003000
+TS13RPTC DS    CL1                     DATE CHANGE CODE                 00003100
+*                    VALUES:   N - DON'T CHANGE RPT DATE                00003200
+*                              Y - CHANGE RPT DATE                      00003300
+TS13LVLS DS    0CL12                   REPORT LEVELS                    00003400
+TS13LVL1 DS    CL2                       LEVEL-1                        00003500
+TS13LVL2 DS    CL3                       LEVEL-2                        00003600
+TS13LVL3 DS    CL3                       LEVEL-3                        00003700
+TS13LVL4 DS    CL4                       LEVEL-4                        00003800
+TS13RDTE DS    0CL6                    PROCESS DATE                     00003900
+TS13RMM  DS    CL2                       MONTH                          00004000
+TS13RDD  DS    CL2                       DAY                            00004100
+TS13RYY  DS    CL2                       YEAR                           00004200
+TS13CNTF DS    CL1                     CONTINUE FLAG                    00004300
+TS13CAID DS    CL8                     CA CHANGE ID             2602105 00004310
+TS13ADTE DS    0CL6                    ATM DATE               0525112   00004315
+TS13AMM  DS    CL2                       MONTH                0525112   00004320
+TS13ADD  DS    CL2                       DAY                  0525112   00004325
+TS13AYY  DS    CL2                       YEAR                 0525112   00004330
+         DS    CL13                    FILLER                 0525112   00004400

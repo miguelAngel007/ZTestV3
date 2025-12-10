@@ -1,0 +1,288 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+         SAS9GCAM &DSECT=YES                                            00001000
+.********************************************************************** 00002000
+.*                                                                    * 00003000
+.* * * * * * * *             S  A  G  C  A               * * * * * * ** 00004000
+.*                                                                    * 00005000
+.*              NEW ARCHITECTURE GLOBAL COMMUNICATION AREA            * 00006000
+.* DAG NAME: SAS9GCAD                                                 * 00007000
+.********************************************************************** 00008000
+.*--------------------------------------------------------------------* 00008100
+.*                  ** HISTORY OF REVISIONS **                        * 00008110
+.*                                                                    * 00008120
+.* DESCRIPTION                                                 CHNGID * 00008130
+.* __________________________________________________________  _______* 00008140
+.* 06/23/14 INCREASE RETURN DAGS TO 10 FROM 6                 1516242   00008972
+.* 01/23/14 ADD ADDRESSES TO SAICNTLM, SAIDSETM AND DB2 I/O   1436560   00008973
+.*          MOD SQL ERROR FEEDBACK AREA; ADD ENCRYPTION FLAG  1436560   00008975
+.* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                         1035850   00008977
+.* 09/02/05 ADD FIELD TO HOLD COUNT FOR MAX ERRORS            0625223   00008979
+.* 05/05/05 MONETARY FIELDS MADE SPECIFIC TO CNTRY CODE       0545052   00008980
+.* 06/18/02 ADDED NO CHANGE FLAG FOR CNTL REC REPORTS         0264468 * 00008983
+.* 04/03/01 MODIFIED TO ADD OPTIONAL ERROR FLAG               2024312 * 00008985
+.* 02/19/01 MOVE SAS-RBA                                      2024274   00008986
+.* 11/10/99 MODIFIED TO ADD ADDITIONAL SEVERITY CODES         2022261 * 00008988
+.* 07/02/96 ADDED EOR LANG PREFERENCE                         9913481 * 00008990
+.* 03/28/96 ADDED COMMENTS FOR NEW ERROR CODE VALUES           2600661* 00008992
+.* 05/08/95 ADD DATE FMT, DATE SEP FIELDS                      2602420* 00008994
+.* 08/31/94 ADD REAL TIME APPLICATION FLAG                     2602019* 00008996
+.*--------------------------------------------------------------------* 00008998
+         AIF   ('&DSECT' EQ 'YES').DODSECT                              00009000
+SAS9GCAD DS    0F                                                       00010000
+         AGO   .SKIPIT                                                  00011000
+.DODSECT ANOP                                                           00012000
+SAS9GCAD DSECT                                                          00013000
+.SKIPIT  ANOP                                                           00014000
+SAGSACBA DS    XL4                 SACB ADDRESS                         00015000
+SAGCAEYE DS    CL8                 LITERAL '*SAGCA**' EYECATCHER        00016000
+         SPACE                                                          00017000
+SAGRETCD DS    0XL8                RETURN CODE FROM LAST COMPONENT      00018000
+SAGRETRC DS    XL4                 ... RETURN CODE(AND IN R15 IF BATCH) 00019000
+*                 0                     NO PENDING ERROR                00020000
+*                 4                     REQUEST SERVICED, WITH ERRORS   00021000
+*                 8                     REQUEST NOT SERVICED            00022000
+*                12                     COMPONENT FAILURE               00023000
+*                16                     REQUEST TO TERMINATE            00024000
+SAGRETEC DS    XL4                 ... ERROR CODE                       00025000
+*                 0                     NO PENDING ERROR                00026000
+*                 4                     END OF FILE                     00027000
+*                 8                     DUPLICATE RECORD                00028000
+*                16                     RECORD NOT FOUND                00029000
+*                20                     NOT OPEN, NOT AVAILABLE         00030000
+*                21                     NO SPACE                        00030010
+*                22                     LENGTH ERR                      00030020
+*                23                     ILLOGIC                         00030030
+*                24                     TIMEOUT               1436560   00030040
+*              NNNN                     FAILURE CODE, ERROR CODE        00031000
+         SPACE                                                          00032000
+SAGTRMNC DS    XL2                 TERMINATION CODE (ONLY RELEVANT IF   00033000
+*                                   SAGRETRC = 16)                      00034000
+*                 0                   "FLUSH SCRIPT"                    00035000
+*                 4                   CICS ABEND, OR PARTITION OR       00036000
+*                                       REGION DUMP                     00037000
+*                 8                   INVOKE SI DIAGNOSTIC DUMP         00038000
+         SPACE                                                          00039000
+SAGABCOD DS    CL4                 ABEND CODE OR DUMP I.D.              00040000
+         SPACE                                                          00041000
+* *** COMPONENT RETURN CODES/ERROR CODES                                00042000
+SAGAMDCD DS    0XL8                ALFA MODULE                          00043000
+SAGAMDRC DS    XL4                 ... RETURN CODE                      00044000
+SAGAMDEC DS    XL4                 ... ERROR CODE                       00045000
+         SPACE                                                          00046000
+SAGPARCD DS    0XL8                PARMS                                00047000
+SAGPARRC DS    XL4                 ... RETURN CODE                      00048000
+SAGPAREC DS    XL4                 ... ERROR CODE                       00049000
+         SPACE                                                          00050000
+SAGDMSCD DS    0XL8                SDMS                                 00051000
+SAGDMSRC DS    XL4                 ... RETURN CODE                      00052000
+SAGDMSEC DS    XL4                 ... ERROR CODE                       00053000
+         SPACE                                                          00054000
+SAGDICCD DS    0XL8                DICTIONARY                           00055000
+SAGDICRC DS    XL4                 ... RETURN CODE                      00056000
+SAGDICEC DS    XL4                 ... ERROR CODE                       00057000
+         SPACE                                                          00058000
+SAGSERCD DS    0XL8                SASERV                               00059000
+SAGSERRC DS    XL4                 ... RETURN CODE                      00060000
+SAGSEREC DS    XL4                 ... ERROR CODE                       00061000
+         SPACE                                                          00062000
+SAGEDTCD DS    0XL8                EDIT                                 00063000
+SAGEDTRC DS    XL4                 ... RETURN CODE                      00064000
+SAGEDTEC DS    XL4                 ... ERROR CODE                       00065000
+         SPACE                                                          00066000
+SAGERRCD DS    0XL8                ERROR MESSAGE PROCESSOR              00067000
+SAGERRRC DS    XL4                 ... RETURN CODE                      00068000
+SAGERREC DS    XL4                 ... ERROR CODE                       00069000
+         SPACE                                                          00070000
+SAGDATCD DS    0XL8                DATE ROUTINES PROCESSOR              00071000
+SAGDATRC DS    XL4                 ... RETURN CODE                      00072000
+SAGDATEC DS    XL4                 ... ERROR CODE                       00073000
+         SPACE                                                          00074000
+SAGEAACD DS    0XL8                GENERIC ERROR BUCKET                 00075000
+SAGEAARC DS    XL4                 ... RETURN CODE                      00076000
+SAGEAAEC DS    XL4                 ... ERROR CODE                       00077000
+         SPACE                                                          00077100
+SAGSECCD DS    0XL8                SECURITY ERROR BUCKET      2511663   00077200
+SAGSECRC DS    XL4                 ... RETURN CODE            2511663   00077300
+SAGSECEC DS    XL4                 ... ERROR CODE             2511663   00077400
+         SPACE                                                          00078000
+         DS    CL32                RESERVED:MORE RETURN CODES.2511663   00079000
+         DS    CL2                 FILLER                     2511663   00080000
+SAGSECTX DS    CL25                SECURITY TEXT MESSAGE      2511663   00080100
+SAGTSDAG DS    CL8                 RETURN VERB WRITEQ DAGNAME 2501124   00080480
+SAGTSQUE DS    CL8                 RETURN VERB WRITEQ QUEUE ID2501124   00080490
+SAGTSTY  DS    CL1                 WRITEQ TS QUEUE TYPE       2501124   00080500
+SAGTSTYM EQU   C'M'                 TS QUEUE TYPE = MAIN      2501124   00080510
+SAGTSTYA EQU   C'A'                 TS QUEUE TYPE = AUX       2501124   00080520
+SAGTSTYN EQU   C'N'                 TS QUEUE TYPE = UNSPECIFID2501124   00080530
+SAGFRRTE DS    CL1                 FORCED MESSAGE ROUTING WHICH SUPER-  00081000
+*                                   CEDES ALL OTHER ROUTING OVERRIDES.  00082000
+SAGPTRAC DS    CL1                 IF 'Y', SATRACE WILL PRINT TO SIMESS 00083000
+SAGSTEPC DS    XL2                 (OPTIONAL) STEP RETURN CODE.         00084000
+         SPACE                                                          00085000
+* *** ERROR PROCESSING CONTROLS                                         00086000
+SAGMXSEV DS    XL4                 MAXIMUM SEVERITY CODE ENCOUNTERED    00087000
+SAGERRCT DS    XL2                 ERROR COUNT                          00088000
+         SPACE                                                          00089000
+* *** *** ERROR PROCESSING REQUEST BLOCK (USED FOR COMMUNICATION        00090000
+* *** ***   WITH SASERV; HOLDS ERROR MESSAGE INFORMATION TO BE ADDED    00091000
+* *** ***   TO MCA OR PASSED TO SAS0ERR? FOR IMMEDIATE GCA REQUESTS.)   00092000
+SAGERB   EQU   *                                                        00093000
+SAGEBAPC DS    CL2                 OVERRIDE: APPLICATION ID             00094000
+SAGEBMES DS    XL4                 ERROR MESSAGE NUMBER                 00095000
+SAGEBFMT DS    C                   MESSAGE FORMAT                       00096000
+SAGEBMSV EQU   C'V'                V1 AND V2 ARE USED                   00097000
+SAGEBMSF EQU   C'F'                FULL MESSAGE HAS BEEN SUPPLIED       00098000
+SAGEBMSB EQU   C' '                USE MSG FROM PARMS AS-IS             00099000
+SAGEBMSE EQU   C'E'                ENHANCED VARIABLE SUBSTITUTION       00100000
+SAGEBSEV DS    XL2                 OVERRIDE: SEVERITY LEVEL             00101000
+SAGEBABE DS    C                   OVERRIDE: ABEND CODE                 00102000
+SAGEBRTE DS    C                   OVERRIDE: ROUTING CODE               00103000
+SAGEBTSF DS    0CL3                TS FLAGS                             00104000
+SAGEBTFP DS    CL1                 OVERRIDE: FORCE POST                 00105000
+SAGEBSEC DS    CL1                 OVERRIDE: SECURITY LOG               00106000
+         DS    CL1                 FILLER                               00107000
+SAGEBDAG DS    CL8                 FIELD IN ERROR: DAG NAME             00108000
+SAGEBELE DS    CL8                 FIELD IN ERROR: ELEMENT NAME         00109000
+SAGEBMTA DS    0CL100              MESSAGE TEXT AREA                    00110000
+SAGEBFTX DS    0CL80               FULL MESSAGE TEXT - FORMAT = F       00111000
+* THE FULL MESSAGE TEXT HAS THE FOLLOWING RESTRICTIONS:                 00112000
+*     ONLY THE FIRST 50 BYTES ARE USED IF ROUTED TO SAS9ETAB/C,         00113000
+*     ONLY THE FIRST 71 BYTES ARE USED IF ROUTED TO THE CONSOLE,        00114000
+*     ALL 80 BYTES ARE USED IF ROUTED TO SIMESS REPORT .                00115000
+SAGEB#V1 DS    CL25                USER VARIABLE &1 FOR MESSAGE TEXT    00116000
+SAGEB#V2 DS    CL25                USER VARIABLE &2 FOR MESSAGE TEXT    00117000
+         ORG SAGEB#V1              REDEFINE VAR AREA FOR ENHANCED VAR   00118000
+SAGEB#E1 DS    CL8                 ENHANCED VARIABLE SUBSTITUTION       00119000
+SAGEB#E2 DS    CL8                                                      00120000
+SAGEB#E3 DS    CL8                                                      00121000
+SAGEB#E4 DS    CL8                                                      00122000
+SAGEB#E5 DS    CL8                                                      00123000
+SAGEB#E6 DS    CL8                                                      00124000
+SAGEB#E7 DS    CL2                                                      00125000
+SAGEBPTX DS    CL50                PARMS MESSAGE TEXT                   00126000
+SAGEBPGM DS    CL8                 PROGRAM THAT ISSUED ERROR VERB       00127000
+SAGEBOC  DS    0CL6                OCCUR INFORMATION                    00128000
+SAGEBOC1 DS    XL2                 OCCUR 1                              00129000
+SAGEBOC2 DS    XL2                 OCCUR 1                              00130000
+SAGEBOC3 DS    XL2                 OCCUR 1                              00131000
+SAGEBIMM DS    CL1                 IMMEDIATE ACTION REQUESTED           00132000
+SAGEBNOP DS    CL1                 DO NOT LOOK MSG TEXT UP ON PARMS     00132010
+         DS    CL1                 RESERVED                   2022261   00133000
+SAGEPLSV DS    XL2                 PLATFORM SEVERITY          2022261   00133005
+SAGEADSV DS    XL2                 ADMIN SEVERITY             2500215   00133010
+SAGETLSV DS    XL2                 TELLSR SEVERTIY            2500215   00133020
+SAGEATSV DS    XL2                 ATM SEVERITY               2500215   00133030
+SAGERBZZ EQU   *-SAGERB            LGTH OF ERR REQUEST STORED IN MCA    00134000
+* *** ***                                                               00135000
+* *** ***                                                               00136000
+         SPACE 3                                                        00137000
+* *** TRANSACTION-RELATED INFORMATION                                   00138000
+SAGTRMID DS    CL8                 C.I.C.S. TERMINAL I.D. (4 BYTES)     00139000
+SAGOPID  DS    CL8                 OPERATOR I.D.  IF TS NATIVE,         00140000
+*                                   IT IS 4-CHAR LKCA-EMP-ID FROM       00141000
+*                                   LKCA-SYS-REPORT-KEY.  IF NOT TS     00142000
+*                                   NATIVE, IT IS 3-CHAR C.I.C.S. OP-   00143000
+*                                   ERATOR I.D.                         00144000
+SAGROPT  DS    CL1                 OPTIONAL NEXT ACTION A TOP-LEVEL     00145000
+*              X'0', C' ', C'0' :  RETURN WITH TRANSID                  00146000
+*              C'1'             :  EXECUTE A SCRIPT (NAME IN SAGRTXC)   00147000
+*              C'2'             :  EXECUTE AN API MOD (IN SAGRTXC)      00148000
+*              C'3'             :  XCTL TO PROGRAM NAMED IN SAGRTXC     00149000
+SAGRTXC  DS    CL8                 CICS TCODE FOR RETURN WITH TRANSID   00150000
+SAGCTRID DS    CL4                 CICS TRANCODE              2501124   00151000
+SAGCTSKN DS    PL4                 CICS TASK NUMBER           2501124   00151010
+SAGEMADR DS    XL4                 ADDRESS OF ERROR MESSAGE TABLE       00152000
+*                                  (VALID AFTER 'RUNERR')               00153000
+         DS    XL4                 FILLER                     2024274   00154000
+SAGTRAIN DS    C                   CICS: TRAINING MODE FLAG             00155000
+SAGSMODE DS    C                   CICS: SASERVO'S MODE OF EXECUTION    00156000
+*               'N'                 IF EXECUTING AS TS NATIVE           00157000
+*               'M'                 IF EXECUTING AS TS/BMS              00158000
+*               'S'                 IF EXECUTING AS PLAIN-O PLAIN-O     00159000
+*               'B'                 IF EXECUTING IN BATCH               00160000
+SAGRDNBR DS    XL2                 COUNT OF DAG NAMES WHICH FOLLOW      00161000
+SAGRODAG DS    CL48                OLD AREA FOR DAG NAMES FOR 1516242   00162000
+*                                  RETURN FOR COMPATIBILITY   1516242   00163000
+         DS    CL1                 FUTURE STUFF                         00164000
+SAGLUW   DS    XL2                 LOGICAL UNIT OF WORK (REL. TO 0)     00165000
+SAGNOSAV DS    CL2                 NOSAVE FOR ALL DAGS THIS AP2501124   00166000
+SAGNCFLG DS    C                   NO CHANGE FLAG FOR CNTL REC0264468   00166010
+* *** INTERNAL CONTROL INFO FOR ARCHITECTURE COMPONENTS                 00167000
+SAGOPTER DS    XL1                 OPTIONAL ERROR INVOKED     2024312   00167100
+SAGRECER EQU   B'00000001'         MAXIMUM REC LENGTH ERROR   2024312   00167110
+SAGMODID DS    CL8                 NAME OF LAST APPL PROGRAM INVOKED    00168000
+SAGMAXRC DS    XL2                 MAX. RC THRESHOLD TO PASS BACK       00169000
+SAGLGRBA DS    XL8                 LAST LOG REC R.B.A.        1035850   00170000
+SAGLLFG  DS    CL2                 LAST LOG FILE GROUP        2500631   00171000
+SAGLNDFG DS    CL1                 LAST NEXTDAY FLAG          2500631   00172000
+         DS    CL3                 FILLER                     1035850   00178000
+SAGSBXIN DS    C                   SORT BUILT/EXTRACT INDICATOR         00179000
+*                                   FOR SA41 PROCESSING                 00180000
+SAGJSCRP DS    CL8                 JOB STEP SCRIPT OR MODULE I.D.       00181000
+SAGSYSDT DS    PL5                 SYSTEM DATE                          00182000
+SAGSYSTM DS    PL4                 SYSTEM TIME                          00183000
+SAGORGTX DS    CL8                 ACTUAL CICS TRANCODE                 00184000
+SAGDB2FL DS    C                   Y IF ANY DB2 DSET ENCOUNTERED        00184100
+SAGPARMF DS    XL1                 PARMS FLAG                 0410567   00184110
+SAGSALOG EQU   X'80'               SAP0010C SHOULD WRITE SALOG0410567   00184120
+SAGPARMA DS    A                   ADDRESS OF THE PARM= STATEMENT DAG   00184200
+SAGMINSV DS    XL2                 MINIMUM SEVERITY PRT SIMESS0430674   00184300
+SAGIODD  DS    CL8                 LAST DDNAME USED FOR I/O   2500613   00184310
+SAGIOORG DS    CL4                 DSORG OF LAST DST/DD USED  2500613   00184320
+SAGTESTO DS    X                   'T' IF TESTING OPTS AVAIL  2500610   00184330
+SAGGUV   DS    XL4                 CURRENT EAA VERB LIMIT     2500610   00184340
+SAGIOMAX DS    XL4                 PHY MAXREC OF LAST I/O     2500610   00184350
+SAGIORLN DS    XL4                 CURR PHY RECSIZ OF LAST I/O2500610   00184360
+SAGIODST DS    CL8                 DST NAME FOR LAST I/O      2511663   00184370
+SAGIONSC DS    XL4                 NSC ADDR 4 SECURITY EXIT   2511663   00184380
+SAGIOVRB DS    CL3                 I/O FUNCTION IN PROGRESS   2511663   00184390
+*                                  'GET' - SOME FORM OF READ  2511663   00184400
+*                                  'UPD' - REWRITE            2511663   00184410
+*                                  'INS' - WRITE NEW RECORD   2511663   00184420
+*                                  'DEL' - DELETE             2511663   00184430
+SAGIOINT DS    CL1                 I/O ACCESS INTENT          2511663   00184440
+*                                  'R' - READ NOT FOR UPDATE  2511663   00184450
+*                                  'U' - READ WAS FOR UPDATE  2511663   00184460
+*                                   ALWAYS 'U' FOR UPD,INS,DEL2511663   00184470
+SAGLOGT  DS    XL4                 GROSS PDA+ALA PENDING      2511817   00184480
+SAGIOATI DS    CL1                 APPL TRAN INTENT IN TS...  2511663   00184490
+*                                  '0' - OTHER       ...TERMS 2511663   00184500
+*                                  '1' - CREDIT               2511663   00184510
+*                                  '2' - DEBIT                2511663   00184520
+*                                  '3' - INQUIRY              2511663   00184530
+*                                  '4' - MAINTENANCE          2511663   00184540
+SAGREALT DS    CL1                 APPL REAL TIME FLAG        2602019   00184550
+*                                  'Y' - YES - REAL TIME      2602019   00184560
+*                                  'N' - NO - NOT REAL TIME   2602019   00184570
+SAGDTFMT DS    CL6                 DATE FMT, FROM SIOPTNS     2602420   00184575
+*                                  MMDDYY, DDMMYY, OR YYMMDD  2602420   00184580
+SAGDTSEP DS    CL1                 DATE SEP, FROM SIOPTNS     2602420   00184585
+*                                  /, -, OR :                 2602420   00184590
+SAGLANG  DS    CL2                EOR LANG PREFERENCE         9913481   00184592
+SAGIORBA DS    XL8                 RBA FOR ESDS I/O           2024274   00184600
+SAGEORTH DS    XL1                 EOR THOUSAND DIVIDER       0545052   00184994
+SAGEORDC DS    XL1                 EOR DECIMAL DIVIDER        0545052   00184998
+SAGMERCT DS    XL2                 MAX ERROR COUNT            0625223   00185000
+SAGDSETM DS    XL4                ADDRESS TO SAIDSETM         1436560   00185100
+SAGCNTLM DS    XL4                ADDRESS TO SAICNTLM         1436560   00185200
+SAGSQLEA DS    XL4                DB2 I/O MOD SQL ERROR AREA  1436560   00185210
+SAGDB2SY DS    CL4                DB2 SYSTEM                  1436560   00185220
+SAGDB2PN DS    CL8                DB2 PLAN                    1436560   00185230
+SAGDB2CC DS    XL2                DB2 COMMITMENT COUNT        1436560   00185240
+SAGDB2CL DS    XL2                DB2 COMMITMENT LIMIT        1436560   00185245
+SAGEINFO DS    0CL36              ENCRYPTION INFO             1436560   00185250
+SAGCURDT DS    CL6                SER CURRENT DATE            1436560   00185255
+SAGENCRP DS    CL1                ENCRYPTION OPTION           1436560   00185260
+SAGENIOV DS    CL8                IO VERB                     1436560   00185265
+SAGENDAG DS    CL8                IO DAG                      1436560   00185270
+SAGENDD  DS    CL8                IO DD NAME                  1436560   00185275
+SAGENORG DS    CL4                IO FILE ORGANIZATION        1436560   00185280
+SAGENECD DS    XL4                IO ERROR CODE               1436560   00185285
+SAGENPRC DS    CL1                IO IN PROC(B4,AFTER,SKIP)   1436560   00185290
+SAGEIBLK DS    XL4                DFHEIBLK ADDRESS            1436560   00185295
+SAGRDAGS DS    CL80                DAG NAMES FOR RETURN WITH  1516242   00185300
+*                                  10 ENTRIES (1 USED BY GN)  1516242   00185305
+         DS    (1024-(*-SAS9GCAD))C   RESERVED                0625223   00185990
+SAGCAEND EQU *                                                          00186000
+         MEND                                                           00187000

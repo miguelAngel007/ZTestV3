@@ -1,0 +1,116 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAD9DXMA &PREFIX=SADDX,&DSECT=NO,&MAXSZ=256*1024               00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+*  SAD9DXMA: AUXILIARY DICTIONARY XML DATA EXTRACT  (DXM)             * 00005000
+*                                                                     * 00006000
+* THE DXM EXTRACT RECORD HAS ALL THE CHARACTERISTICS OF A DICTIONARY  * 00007000
+* AUXILIARY RECORD.  IT IS BUILT AT DICTIONARY DAG AUXGEN TIME AND    * 00008000
+* WRITTEN TO THE SAXML FILE.  IT IS BUILT/WRITTEN/READ BY DICTIONARY  * 00009000
+* SUPPORT SOFTWARE (SADAUXIB).                                        * 00010000
+*                                                                     * 00011000
+* THE XML EXTRACT WILL BE BUILT AS A SINGLE, CONTIGUOUS SEGMENT AND   * 00012000
+* STORED IN 8K PAGES ON THE SAXML FILE.  AT RETRIEVAL TIME, SADAUXIB  * 00013000
+* WILL RETURN TO THE REQUESTOR THE SINGLE, CONTIGUOUS SEGMENT.  THE   * 00014000
+* DXM IS SIMILAR IN CONCEPT TO THE DSM WITH REGARD TO THE WAY IT IS   * 00015000
+* BUILT/STORED, BOTH OF WHICH CONTRAST WITH THE DNM.                  * 00016000
+*                                                                     * 00017000
+*                                                                     * 00018000
+* KEY STRUCTURE:                                                      * 00019000
+*                                                                     * 00020000
+*   +0(02) APPLICATION CODE                                           * 00021000
+*   +2(03) REPOSITORY ENTITY TYPE (DAG)                               * 00022000
+*   +5(08) ENTITY NAME                                                * 00023000
+*  +13(03) AUXILIARY ENTITY TYPE (DXM)                                * 00024000
+*  +16(05) SLACK BYTES (BLANKS)                                       * 00025000
+*  +21(01) SLACK BYTE  (NULL OR LOW-VALUES)                           * 00026000
+*  +22(01) AUXILIARY SEGMENT NUMBER                                   * 00027000
+*  +23(01) SLACK BYTE  (NULL OR LOW-VALUES)                           * 00028000
+*  +24(01) AUXILIARY SEGMENT PAGE NUMBER                              * 00029000
+*                                                                     * 00030000
+*********************************************************************** 00031000
+*                      HISTORY OF REVISIONS                           * 00032000
+*                                                                     * 00033000
+* DESCRIPTION                                                 CHNG ID * 00034000
+* -------- -------------------------------------------------- --------* 00035000
+* 05/22/06 ADD SENSITIVE DATA FLAG                            0715441 * 00035996
+* 02/16/04 ADD BINARY DATA FOR XML FLAG TO EDT                0434950   00035998
+* 10/10/00 ORIGINAL DISTRIBUTION                              2024235 * 00036000
+*********************************************************************** 00037000
+         LCLC  &PFX                                                     00038000
+&PFX     SETC  '&PREFIX'                                                00039000
+         AIF   ('&DSECT' EQ 'YES').DSECT1                               00040000
+.CSECT1  ANOP                                                           00041000
+&PFX     DS    0D                                                       00042000
+         AGO   .DATA1                                                   00043000
+.DSECT1  ANOP                                                           00044000
+&PFX     DSECT                                                          00045000
+.DATA1   ANOP                                                           00046000
+&PFX.PKY DS   0CL25                AUX PHYS KEY                         00047000
+&PFX.PAP DS    CL2                 AUX PHYS KEY - APPL                  00048000
+&PFX.PRE DS    CL3                 AUX PHYS KEY - REP ENTITY TYPE       00049000
+&PFX.PNM DS    CL8                 AUX PHYS KEY - ENTITY NAME           00050000
+&PFX.PAE DS    CL3,CL5             AUX PHYS KEY - AUX ENTITY TYPE       00051000
+&PFX.PIN DS   0XL4                 AUX PHYS KEY - INDEX                 00052000
+         DS    XL1                   NOT USED (NULL VALUE)              00053000
+&PFX.PSN DS    HL1                   PHYSICAL SEGMENT NUMBER            00054000
+         DS    XL1                   NOT USED (NULL VALUE)              00055000
+&PFX.PPN DS    HL1                   PHYSICAL PAGE NUMBER               00056000
+&PFX.AUD DS   0CL32                AUDIT SEGMENT                        00057000
+&PFX.LMD DS    PL4                 AUDIT: LAST MNTE DATE - YYMMDD       00058000
+&PFX.LMT DS    PL4                 AUDIT: LAST MNTE TIME - HHMMSS       00059000
+&PFX.SOU DS   0CL8                 AUDIT: LAST MNTE SOURCE              00060000
+&PFX.OPR DS    CL8                 AUDIT: LAST MNTE OPERATOR            00061000
+&PFX.CID DS    CL8                 AUDIT: LAST MNTE CONTROL ID          00062000
+&PFX.ESL DS    FL4                 AUDIT: ENTITY SEGMENT LNGTH          00063000
+&PFX.FLV DS    XL1                 AUDIT: FILE FORMAT LEVEL             00064000
+&PFX.RLV DS    XL1                 AUDIT: RECORD FORMAT LEVEL           00065000
+&PFX.RSV DS    CL2                 RESERVED                             00066000
+&PFX.ROT DS   0C                   DXM ROOT DATA                        00067000
+&PFX.NFL DS    HL2                 NUMBER OF ITEMS (ELEMENTS)/DXM       00068000
+&PFX.DGL DS    HL2                 DAG DATA LENGTH                      00069000
+         DS    CL23                FILLER                               00070000
+&PFX.SLN   EQU   *-&PFX            LNTH OF DXM KEY + AUDIT + ROOT       00071000
+&PFX.HLN   EQU   *-&PFX.ROT        LNTH OF DXM ROOT DATA ONLY           00072000
+&PFX.DLN   EQU   (&MAXSZ-&PFX.SLN) LNTH OF DXM ITEM DATA                00073000
+         AIF   ('&DSECT' EQ 'YES').DSECT2                               00074000
+&PFX.ENT DS   0CL(&PFX.DLN)                                             00075000
+         AGO   .SEG                                                     00076000
+.DSECT2  ANOP                                                           00077000
+&PFX.ENT DSECT                                                          00078000
+.SEG     ANOP                                                           00079000
+&PFX.TAG DS    CL30                XML TAG                              00080000
+&PFX.EID DS    CL8                 ELEMENT ID                           00081000
+&PFX.LVL DS    HL1                 LEVEL NUMBER                         00082000
+&PFX.STY DS    CL1                 ELEMENT STORAGE TYPE                 00083000
+&PFX.EDT DS    XL1                 ELEMENT EDIT FLAG                    00084000
+&PFX.ELF   EQU   X'E0'             FLAG: EDIT AND LOG FLAGS             00085000
+&PFX.EDA   EQU   X'80'             FLAG: EDITED BY EDIT ALWAYS          00086000
+&PFX.LGM   EQU   X'40'             FLAG: LOGGED BY PARMS IF MNTE        00087000
+&PFX.LGA   EQU   X'20'             FLAG: LOGGED BY PARMS ALWAYS         00088000
+&PFX.SEN   EQU   X'10'             FLAG: SENSITIVE DATA       0715441   00088010
+&PFX.BIN   EQU   X'08'             FLAG: XML BINARY DATA      0434950   00088500
+&PFX.GRP   EQU   X'04'             FLAG: GROUP ITEM                     00089000
+&PFX.FLR   EQU   X'02'             FLAG: FILLER                         00090000
+&PFX.DKY   EQU   X'01'             FLAG: DATA KEY                       00091000
+&PFX.LEN DS    HL2                 ELEMENT (ITEM) LENGTH                00092000
+&PFX.POS DS    HL2                 ELEMENT RELATIVE POSITION            00093000
+&PFX.FMT DS    XL1                 FIELD FORMAT CODE                    00094000
+&PFX.REQ   EQU   X'80'             FLAG: EDIT REQUIRED                  00095000
+&PFX.SGN   EQU   X'40'             FLAG: DATA SIGNED                    00096000
+&PFX.NDP DS    HL1                 NUMBER OF DECIMAL POSITIONS          00097000
+&PFX.NOL DS    HL1                 NUMBER OF OCCURS LEVELS              00098000
+&PFX.OCR DS   0CL(3*4)             GROUP OCCURS DATA                    00099000
+&PFX.GO1 DS    HL2                 GROUP OCCURS LENGTH 1                00100000
+&PFX.MO1 DS    HL2                 GROUP MAXIMUM OCCURS 1               00101000
+&PFX.GO2 DS    HL2                 GROUP OCCURS LENGTH 2                00102000
+&PFX.MO2 DS    HL2                 GROUP MAXIMUM OCCURS 2               00103000
+&PFX.GO3 DS    HL2                 GROUP OCCURS LENGTH 3                00104000
+&PFX.MO3 DS    HL2                 GROUP MAXIMUM OCCURS 3               00105000
+&PFX.ELX   EQU   *-&PFX.ENT        MAXIMUM ELEMENT SEGMENT LENGTH       00106000
+&PFX.MXI   EQU   ((&MAXSZ-&PFX.SLN)/&PFX.ELX) MAX NUMBER ITEMS          00107000
+         AIF   ('&DSECT' EQ 'YES').END                                  00108000
+         DS    CL(&PFX.DLN-&PFX.ELX)                                    00109000
+.END     ANOP                                                           00110000
+         MEND                                                           00111000

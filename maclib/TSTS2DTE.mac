@@ -1,0 +1,90 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*  05/17/88, 11:30                                                    * 00000200
+*                            TSTS2DTE                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*                 COMMUNICATION AREA FOR DATE MACRO                   * 00000500
+*---------------------------------------------------------------------* 00000600
+*                  ** HISTORY OF REVISIONS **                         * 00000602
+* DESCRIPTION                                                 CHNGID  * 00000604
+* __________________________________________________________  _______ * 00000606
+* 02/23/05 ADD FORMAT CYYMMDD (CENTURY 01-00)                 0635191   00000693
+* 08/06/01 CHANGE DATEFMT TO MATCH EOR DATE VIEWING PREF      2024347 * 00000694
+* 04/22/98 ADD DATEFMT FOR SIOPTNS ENHANCEMENT                GN3483  * 00000696
+*---------------------------------------------------------------------* 00000698
+         SPACE 2                                                        00000700
+TSDTE    DS    0X                                                       00000800
+DTEFRDTE DS    CL10                    FROM DATE TO BE EDITED           00000900
+DTEFRLEN DS    XL1                     FROM LENGTH OF DATE              00001000
+DTEFRFMT DS    CL1                     FROM DATE FORMAT                 00001100
+*     1 - JULIAN       DDDYY                                            00001200
+*     2 - JULIAN       YYDDD                                            00001300
+*     3 - GREGORIAN    YYMMDD                                           00001400
+*     4 - GREGORIAN    YYYYMMDD                                         00001500
+*     5 - GREGORIAN    MMDDYY                                           00001600
+*     6 - GREGORIAN    MMDDYYYY                                         00001700
+*     7 - GREGORIAN    DDMMYY                                           00001800
+*     8 - GREGORIAN    DDMMYYYY                                         00001900
+*     9 - CENTURY      CYYMMDD                                0635191   00001910
+*               0-20TH: 1901-2000    1-21ST: 2001-2100        0635191   00001920
+*               2-22ND: 2101-2200    3-23RD: 2201-2300        0635191   00001930
+*               4-24TH: 2301-2400    5-25TH: 2401-2500        0635191   00001940
+*               6-26TH: 2501-2600    7-27TH: 2601-2700        0635191   00001950
+*               8-28TH: 2701-2800    9-19TH: 1801-1900        0635191   00001960
+DTEFRTYP DS    CL1                     FROM DATA FORMAT TYPE  080803015 00002000
+*     B - BINARY                                                        00002100
+*     C - CHARACTER                                                     00002200
+*     N - NUMERIC                                                       00002300
+*     P - PACKED                                                        00002400
+DTETODTE DS    CL10                    TO DT IS CONVERTED DT            00002500
+DTETOLEN DS    XL1                     TO LENGTH CONVERTED DT           00002600
+DTETOFMT DS    CL1                     TO DATE FORMAT                   00002700
+*     1 - JULIAN       DDDYY                                            00002800
+*     2 - JULIAN       YYDDD                                            00002900
+*     3 - GREGORIAN    YYMMDD                                           00003000
+*     4 - GREGORIAN    YYYYMMDD                                         00003100
+*     5 - GREGORIAN    MMDDYY                                           00003200
+*     6 - GREGORIAN    MMDDYYYY                                         00003300
+*     7 - GREGORIAN    DDMMYY                                           00003400
+*     8 - GREGORIAN    DDMMYYYY                                         00003500
+*     9 - CENTURY      CYYMMDD                                0635191   00003510
+*               0-20TH: 1901-2000    1-21ST: 2001-2100        0635191   00003520
+*               2-22ND: 2101-2200    3-23RD: 2201-2300        0635191   00003530
+*               4-24TH: 2301-2400    5-25TH: 2401-2500        0635191   00003540
+*               6-26TH: 2501-2600    7-27TH: 2601-2700        0635191   00003550
+*               8-28TH: 2701-2800    9-19TH: 1801-1900        0635191   00003560
+*     A - TIME ZONED JULIAN DDDYY                                       00003600
+*     B - TIME ZONED JULIAN YYDDD                                       00003700
+*     C - TIME ZONED GREG   YYMMDD                                      00003800
+*     D - TIME ZONED GREG   YYYYMMDD                                    00003900
+*     E - TIME ZONED GREG   MMDDYY                                      00004000
+*     F - TIME ZONED GREG   MMDDYYYY                                    00004100
+*     G - TIME ZONED GREG   DDMMYY                                      00004200
+*     H - TIME ZONED GREG   DDMMYYYY                                    00004300
+*     J - JULIAN            CCYYDDD                           2602675   00004310
+*     K - JULIAN            DDDCCYY                           2602675   00004320
+*     M - TIME ZONED JULIAN CCYYDDD                           2602675   00004330
+*     N - TIME ZONED JULIAN DDDCCYY                           2602675   00004340
+DTETOTYP DS    CL1                     TO DATA FORMAT TYPE              00004400
+*     B - BINARY                                                        00004500
+*     C - CHARACTER                                                     00004600
+*     N - NUMERIC (DEFAULT)                                             00004700
+*     P - PACKED                                                        00004800
+DTERETRN DS    CL1                     DATE CONVERT RETURN CODE         00004900
+*     0 - NO ERROR                                                      00005000
+*     1 - FROM LENGTH GREATER THAN 10                                   00005100
+*     2 - TO LENGTH GREATER THAN 10                                     00005200
+*     3 - FROM DATE DATA TYPE INVALID                                   00005300
+*     4 - FROM DATE INVALID                                             00005400
+*     5 - TO DATE INVALID                                               00005500
+*     6 - INVALID FROM DATE                                             00005600
+DTEDONLY DS    CL1                     EDIT DATE ONLY SWITCH            00005700
+*     0 - EDIT FROM DATE AND CONVERT                                    00005800
+*     1 - EDIT ONLY THE FROM DATE                                       00005900
+DTECNTRY DS    CL2                     CENTURY BASE YEAR FOR DATE CONV  00006000
+DTEFMT   DS    CL1                     VIEWING PREF FROM EOR  2024347   00006010
+*     M = MMDDYY                                              2024347   00006020
+*     Y = YYMMDD                                              2024347   00006030
+*     D = DDMMYY                                              2024347   00006040
+         DS    CL5                     FILLER                 2024347   00006050
+TSDTELN  EQU   *-TSDTE                 LENGTH OF COMMUNICATION AREA     00006100

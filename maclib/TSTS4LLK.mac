@@ -1,0 +1,25 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                            TSTS4LLK                                 * 00020000
+*                       TRANSACTION SYSTEM                            * 00030000
+*            LOAD AND LINK TO PROGRAMS INSIDE MACROS                  * 00040000
+*                                                                     * 00050000
+*---------------------------------------------------------------------* 00060000
+*                  ** HISTORY OF REVISIONS **                         * 00070000
+* DESCRIPTION                                                 CHGID   * 00080000
+* __________________________________________________________  _______ * 00090000
+*                                                                     * 00100000
+* 08/15/01 INITIAL RELEASE                                    2020218 * 00110000
+*---------------------------------------------------------------------* 00120000
+         SPACE                                                          00130000
+*        EXEC CICS LOAD PROGRAM ('&PROG')                               00140000
+         DFHECALL =X'0E0680000800000400',(CHA8,=CL8'&PROG')
+         SPACE                                                          00150000
+*        EXEC CICS LINK PROGRAM ('&PROG')                               00160000
+*                       COMMAREA (&COMMAREA)                            00170000
+*                       LENGTH (&COMMLEN)                               00180000
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'&PROG'),(______RF,&*
+               COMMAREA),(FB_2,&COMMLEN)
+         SPACE                                                          00190000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

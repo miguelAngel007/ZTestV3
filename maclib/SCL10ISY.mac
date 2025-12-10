@@ -1,0 +1,164 @@
+      *==============================================================*  00000010
+      *   SISTEMA  : CLIENTES                                        *  00000020
+      *   ARCHIVO  : MOVIMIENTO INTERFASE CLIENTES / SYSTEMATYCS     *  00000030
+      *   LONGITUD : 200 BYTES                     COPY : SCL10ISY   *  00000040
+      *==============================================================*  00000050
+      *   99/99/99 : CAMBIOS A LA ESTRUCTURA                         *  00000060
+      *==============================================================*  00000070
+       01  REG-INTERFASE-CLI-SYS.                                       00000080
+      *    FECHA DE PROCESO                                             00000090
+           02  ISY-FECPRO.                                              00000100
+ 1             04  ISY-SIGPRO                   PIC 9(02).              00000110
+ 3             04  ISY-ANOPRO                   PIC 9(02).              00000120
+ 5             04  ISY-MESPRO                   PIC 9(02).              00000130
+ 7             04  ISY-DIAPRO                   PIC 9(02).              00000140
+      *    CODIGO UNICO DEL CLIENTE                                     00000150
+ 009       02  ISY-CUNICO                       PIC 9(08).              00000160
+      *    TIPO DE LA OPERACION  A=ALTAS, B=BAJAS, C=CAMBIOS            00000170
+ 017       02  ISY-TIPOPER                      PIC X.                  00000180
+      *    IDENTIFICADOR DEL MOVIMIENTO : C=CABECERA D=DETALLE          00000190
+ 018       02  ISY-IDENTIF                      PIC X.                  00000200
+      *--------------------------------------------------------------*  00000210
+      *    DETALLE DE PERSONAS NATURALES                                00000220
+      *--------------------------------------------------------------*  00000230
+      *    NOMBRE Y FECHA DEL CLIENTE                                   00000240
+           02  ISY-DETALLE-101.                                         00000250
+      *    NUMERO DEL DETALLE                                           00000260
+ 019           04  ISY-ORIG101                  PIC 9(03).              00000270
+      *    APELLIDOS Y NOMBRES                                          00000280
+ 022           04  ISY-NOMCLI                   PIC X(40).              00000290
+      *    FECHA DE NACIMIENTO                                          00000300
+ 062           04  ISY-FECNAC.                                          00000310
+                   06  ISY-SIGNAC               PIC 9(02).              00000320
+                   06  ISY-ANONAC               PIC 9(02).              00000330
+                   06  ISY-MESNAC               PIC 9(02).              00000340
+                   06  ISY-DIANAC               PIC 9(02).              00000350
+      *    ESPACIO LIBRE                                                00000360
+ 070           04  FILLER                      PIC X(131).              00000370
+      *--------------------------------------------------------------*  00000380
+      *    DOCUMENTOS DE IDENTIDAD                                      00000390
+      *--------------------------------------------------------------*  00000400
+           02  ISY-DETALLE-102     REDEFINES    ISY-DETALLE-101.        00000410
+               04  FILLER                      PIC X(03).               00000420
+      *    CODIGO DOCUMENTO 01                                          00000430
+               04  ISY-CODDOC1                  PIC X(02).              00000440
+      *    NRO.DOCUMENTO 01                                             00000450
+               04  ISY-NRODOC1                  PIC X(15).              00000460
+      *    CODIGO DOCUMENTO 02                                          00000470
+               04  ISY-CODDOC2                  PIC X(02).              00000480
+      *    NRO.DOCUMENTO 02                                             00000490
+               04  ISY-NRODOC2                  PIC X(15).              00000500
+      *    CODIGO DE SECTORISTA                                         00000510
+               04  ISY-SECTORISTA-1.                                    00000520
+                   05  ISY-NS-DIVI-1            PIC X(02).              00000530
+                   05  ISY-NS-REGI-1            PIC X(02).              00000540
+                   05  ISY-NS-SUCU-1            PIC X(02).              00000550
+                   05  ISY-NS-SECT-1            PIC X(01).              00000560
+                   05  ISY-NS-OFCL-1            PIC X(02).              00000570
+      *    ESPACIO LIBRE                                                00000580
+               04  FILLER                      PIC X(136).              00000590
+      *--------------------------------------------------------------*  00000600
+      *    NACIONALIDAD, ESTADO CIVIL, SEXO                             00000610
+      *--------------------------------------------------------------*  00000620
+           02  ISY-DETALLE-103     REDEFINES    ISY-DETALLE-101.        00000630
+               04  FILLER                      PIC X(03).               00000640
+      *    NACIONALIDAD                                                 00000650
+               04  ISY-NACION                   PIC X.                  00000660
+      *    ESTADO CIVIL                                                 00000670
+               04  ISY-ESTCIV                   PIC X.                  00000680
+      *    SEXO                                                         00000690
+               04  ISY-SEXO                     PIC X.                  00000700
+      *    APELLIDO DE CASADA                                           00000710
+               04  ISY-APECAS                   PIC X(20).              00000720
+      *    ESPACIO LIBRE                                                00000730
+               04  FILLER                      PIC X(156).              00000740
+      *--------------------------------------------------------------*  00000750
+      *    ACTIVIDAD PRINCIPAL Y FORMA5-CIIU                            00000760
+      *--------------------------------------------------------------*  00000770
+           02  ISY-DETALLE-104     REDEFINES    ISY-DETALLE-101.        00000780
+               04  FILLER                      PIC X(03).               00000790
+      *    ACTIVIDAD PRINCIPAL                                          00000800
+               04  ISY-ACTPRI104                PIC X(50).              00000810
+      *    FORMA 5                                                      00000820
+               04  ISY-FORMA5104                PIC 9(03).              00000830
+      *    CODIGO CIIU                                                  00000840
+               04  ISY-CIIU104                  PIC 9(04).              00000850
+      *    ESPACIO LIBRE                                                00000860
+               04  FILLER                      PIC X(122).              00000870
+      *--------------------------------------------------------------*  00000880
+      *    DIRECCION DEL DOMICILIO                                      00000890
+      *--------------------------------------------------------------*  00000900
+           02  ISY-DETALLE-105     REDEFINES    ISY-DETALLE-101.        00000910
+               04  FILLER                      PIC X(03).               00000920
+      *    DIRECCION                                                    00000930
+               04  ISY-DIRECCION                PIC X(40).              00000940
+      *    URBANIZACION                                                 00000950
+               04  ISY-URBANIZACION             PIC X(40).              00000960
+      *    UBIGEO                                                       00000970
+               04  ISY-UBIGEO                   PIC X(35).              00000980
+      *    DEPARTAMENTO                                                 00000990
+               04  ISY-DEPARTAMENTO             PIC X(30).              00001000
+      *    DISTRITO                                                     00001010
+               04  ISY-DISTRITO                 PIC X(30).              00001020
+      *    ESPACIO LIBRE                                                00001030
+               04  FILLER                      PIC X(04).               00001040
+      *--------------------------------------------------------------*  00001050
+      *    TELEFONOS DEL DOMICILIO                                      00001060
+      *--------------------------------------------------------------*  00001070
+           02  ISY-DETALLE-107     REDEFINES    ISY-DETALLE-101.        00001080
+               04  FILLER                      PIC X(03).               00001090
+      *    TELEFONO 1                                                   00001100
+               04  ISY-TELE1107                 PIC X(16).              00001110
+      *    TELEFONO 2                                                   00001120
+               04  ISY-TELE2107                 PIC X(16).              00001130
+      *    ESPACIO LIBRE                                                00001140
+               04  FILLER                      PIC X(147).              00001150
+      *--------------------------------------------------------------*  00001160
+      *    CODIGO POSTAL DOMICILIO                                      00001170
+      *--------------------------------------------------------------*  00001180
+           02  ISY-DETALLE-108     REDEFINES    ISY-DETALLE-101.        00001190
+               04  FILLER                      PIC X(03).               00001200
+      *    APARTADO POSTAL                                              00001210
+               04  ISY-APART108                 PIC X(06).              00001220
+      *    CODIGO POSTAL                                                00001230
+               04  ISY-CODPT108                 PIC X(03).              00001240
+      *    ESPACIO LIBRE                                                00001250
+               04  FILLER                      PIC X(170).              00001260
+      *--------------------------------------------------------------*  00001270
+      *    DIRECCION A REMITIR CORRESPONDENCIA                          00001280
+      *--------------------------------------------------------------*  00001290
+           02  ISY-DETALLE-112     REDEFINES    ISY-DETALLE-101.        00001300
+               04  FILLER                      PIC X(03).               00001310
+      *    DIRECCION                                                    00001320
+               04  ISY-DIRECORR                 PIC X(40).              00001330
+      *    URBANIZACION                                                 00001340
+               04  ISY-URBACORR                 PIC X(40).              00001350
+      *    UBIGEO                                                       00001360
+               04  ISY-UBIGEO-CORR              PIC X(35).              00001370
+      *    ESPACIO LIBRE                                                00001380
+               04  FILLER                      PIC X(64).               00001390
+      *--------------------------------------------------------------*  00001400
+      *    DIRECCION DEL CENTRO DE TRABAJO                              00001410
+      *--------------------------------------------------------------*  00001420
+           02  ISY-DETALLE-116     REDEFINES    ISY-DETALLE-101.        00001430
+               04  FILLER                      PIC X(03).               00001440
+      *    DIRECCION                                                    00001450
+               04  ISY-DIRETRAB                 PIC X(40).              00001460
+      *    URBANIZACION                                                 00001470
+               04  ISY-URBATRAB                 PIC X(40).              00001480
+      *    UBIGEO                                                       00001490
+               04  ISY-UBIGEO-TRAB              PIC X(35).              00001500
+      *    ESPACIO LIBRE                                                00001510
+               04  FILLER                      PIC X(64).               00001520
+      *--------------------------------------------------------------*  00001530
+      *    TELEFONOS DEL CENTRO DE TRABAJO                              00001540
+      *--------------------------------------------------------------*  00001550
+           02  ISY-DETALLE-118     REDEFINES    ISY-DETALLE-101.        00001560
+               04  FILLER                      PIC X(03).               00001570
+      *    TELEFONO 1                                                   00001580
+               04  ISY-TELE1118                 PIC X(16).              00001590
+      *    TELEFONO 2                                                   00001600
+               04  ISY-TELE2118                 PIC X(16).              00001610
+      *    ESPACIO LIBRE                                                00001620
+               04  FILLER                      PIC X(147).              00001630
+      *--------------------------------------------------------------*  00001640

@@ -1,0 +1,62 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*             TSTL2ISC--ISC MESSAGE FORMAT AFTER TS DELIVERY          * 00000300
+*                                                                     * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+*                                                                       00000700
+*********************************************************************** 00000800
+*                       ISC INPUT MESSAGE INPUT AREA                  * 00000900
+*         HISTORY OF REVISIONS                                        * 00000910
+*  08/29/10 SAFE/TS TELLER INTERFACE(FO0628-PROYECTO MIGRACION  TS001 * 00000918
+*           TOLDII                                              TS001 * 00000919
+*  09/15/99 ADDED LANGUAGE CODE                               2024477 * 00000920
+*********************************************************************** 00001000
+PISCMSG  DS    0CL256                  TELLER INPUT MESSAGE             00001100
+         ORG   PISCMSG                                                  00001200
+PINMSG   DS    0CL256                  TELLER INPUT MESSAGE             00001300
+PCICSID  DS    CL4                     CICS TRANSACTION CODE 'TTOH'     00001400
+PSBARC1  DS    CL3                     1ST SBA,ROW,COLM TRIPLET         00001500
+PXTRNCD  DS    CL4                     EXTERNAL TRANCODE                00001600
+*PTELID   DS    CL4                     TELLER ID             TS001     00001700
+PTELID   DS    CL8                     TELLER ID              TS001     00001701
+*POVRTEL  DS    CL4                     OVERRIDE TELLER ID    TS001     00001800
+PSEQNUM  DS    CL4                     TRANSACTION SEQUENCE NUMBER      00001900
+PIND1    DS    XL1                     1ST STATUS BYTE                  00002000
+PIND2    DS    XL1                     SECOND STATUS BYTE               00002100
+PIND3    DS    XL1                     THIRD STATUS BYTE                00002200
+PTIME    DS    CL6                     TRANSACTION TIME 'HHMMSS'        00002300
+*PLANG    DS    CL2                     LANGUAGE CODE          2024477  00002310
+*         DS    CL6                     FILLER                 2024477  00002400
+POVRTEL  DS    CL8                     OVERRIDE TELLER ID      TS001    00002401
+PHDRLNG  EQU   *-PINMSG                LENGTH OF HEADER                 00002500
+PDTARC   DS    CL216                   REST OF TELLER TRANSMISSION      00002600
+*                                                                       00002700
+*********************************************************************** 00002800
+*                                                                     * 00002900
+*             TSTL2IS2--ISC MESSAGE FORMAT BEFORE TS DELIVERY         * 00003000
+*                                                                     * 00003100
+*                                                                     * 00003200
+*********************************************************************** 00003300
+*                                                                       00003400
+*********************************************************************** 00003500
+*                       ISC INPUT MESSAGE INPUT AREA                  * 00003600
+*********************************************************************** 00003700
+         ORG   PISCMSG                                                  00003800
+P2INMSG  DS    0CL256                  TELLER INPUT MESSAGE             00003900
+P2CICSID DS    CL4                     CICS TRANSACTION CODE 'TTOH'     00004000
+P2SBARC1 DS    CL3                     1ST SBA,ROW,COLM TRIPLET         00004100
+P2XTRNCD DS    CL4                     EXTERNAL TRANCODE                00004200
+*P2TELID  DS    CL4                     TELLER ID             TS001     00004300
+P2TELID  DS    CL8                     TELLER ID              TS001     00004301
+P2SEQNUM DS    CL4                     TRANSACTION SEQUENCE NUMBER      00004400
+P2IND1   DS    XL1                     1ST STATUS BYTE                  00004500
+P2IND2   DS    XL1                     SECOND STATUS BYTE               00004600
+P2TIME   DS    CL4                     TRANSACTION TIME 'HHMM'          00004700
+P2SBARC2 DS    CL3                     END OF HEADER TRIPLET            00004800
+P2HDRLNG EQU   *-P2INMSG               LENGTH OF HEADER                 00004900
+*        DS    CL228                   REST OF TELLER TRANSMISTS001     00005000
+         DS    CL224                   REST OF TELLER TRANSMISTS001     00005001
+*                                                                       00005100

@@ -1,0 +1,98 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         EJECT                                                          00001000
+*---------------------------------------------------------------------* 00001100
+*                   ** COPYBOOK DESCRIPTION **                        * 00001200
+*                                                                     * 00001300
+* SAP8003A - PARMS MESSAGE TABLE - MESSAGES AVAILABLE AS PARMS DATA   * 00001400
+*                                                                     * 00001500
+*        DS    H           RETURN CODE                                * 00001600
+*        DS    H           ERROR CODE                                 * 00001700
+*        DS    H           PARMS RESULT CODE                          * 00001800
+*        DS    XL40        MESSAGE TEXT                               * 00001900
+*---------------------------------------------------------------------* 00002000
+*                  ** HISTORY OF REVISIONS **                         * 00002100
+*                                                                     * 00002200
+* DESCRIPTION                                                 CHNGID  * 00002300
+* 07/19/92 MSGS FOR NXTENT ONLY ON GROUPED FILES              2602047 * 00008700
+*                                                                     * 00008800
+*---------------------------------------------------------------------* 00008900
+PT3MSGTB DS    0H                                                       00009000
+PT3#MSG  DC    A((PT3END-PT3MSG)/TELGTH)                                00010000
+PT3MSG   DC    0H'0'        1234567890123456789012345678901234567890    00011000
+*               ¦PARRC¦ ¦PAREC¦                                         00012000
+*               ¦SAEC¦     ¦ MSG TEXT                               ¦   00013000
+MSG0000  DC    H'0000',H'0000'                                          00014000
+         DC    H'0000',CL40'ACTION SUCCESSFUL'                          00015000
+MSG0101  DC    H'0012',H'0101'                                          00016000
+         DC    H'0002',CL40'INVALID PARMS RSLT CODE - NOT IN TABLE'     00017000
+MSG0110  DC    H'0004',H'0110'                                          00018000
+         DC    H'0110',CL40'INVALID ACTION'                             00019000
+MSG0111  DC    H'0004',H'0111'                                          00020000
+         DC    H'0111',CL40'STRUCTURE ID NOT FOUND'                     00021000
+MSG0112  DC    H'0008',H'0112'                                          00022000
+         DC    H'0112',CL40'INVALID SEARCH KEY DEFINITION NBR = 0'      00023000
+MSG0113  DC    H'0008',H'0113'                                          00024000
+         DC    H'0113',CL40'INV SEARCH KEY DEF NM-NOT IN FLD DEF TBL'   00025000
+MSG0114  DC    H'0004',H'0016'                                          00026000
+         DC    H'0114',CL40'MEMBER NOT FOUND'                           00027000
+MSG0115  DC    H'0004',H'0115'                                          00028000
+         DC    H'0115',CL40'INVALID COMBINATION OF FLDS ENTERED'        00029000
+MSG0116  DC    H'0008',H'0116'                                          00030000
+         DC    H'0116',CL40'INV SEARCH KEY DEF-INV SYSTEM LVL SK NM '   00031000
+MSG0117  DC    H'0004',H'0117'                                          00032000
+         DC    H'0117',CL40'DUP KEY WITH SEARCH KEY/ MBR KEY/EFF DTE'   00033000
+MSG0118  DC    H'0008',H'0118'                                          00034000
+         DC    H'0118',CL40'ADD ERROR IN I/O MANAGER      '             00035000
+MSG0119  DC    H'0008',H'0119'                                          00036000
+         DC    H'0119',CL40'DEL ERROR IN I/O MANAGER      '             00037000
+MSG0120  DC    H'0004',H'0004'                                          00038000
+         DC    H'0120',CL40'END OF ENTRIES                '             00039000
+MSG0121  DC    H'0008',H'0121'                                          00040000
+         DC    H'0121',CL40'INV SEARCH KEY VALUE IN MEMBER RECORD'      00041000
+MSG0122  DC    H'0008',H'0122'                                          00042000
+         DC    H'0122',CL40'CLOSE ERROR                   '             00043000
+MSG0123  DC    H'0008',H'0123'                                          00044000
+         DC    H'0123',CL40'INVALID SEARCH KEY FIELD DEFINITION TBL'    00045000
+MSG0124  DC    H'0004',H'0124'                                          00046000
+         DC    H'0124',CL40'INVALID EFFECTIVE DATE ENTERED'             00047000
+MSG0125  DC    H'0012',H'0125'                                          00048000
+         DC    H'0125',CL40'STRUCTURE DEF MEMBER COUNTER NOT UPDATED'   00049000
+MSG0126  DC    H'0004',H'0126'                                          00050000
+         DC    H'0126',CL40'ERRORS DETECTED - EXIT PROGRAM'             00051000
+MSG0127  DC    H'0004',H'0127'                                          00052000
+         DC    H'0127',CL40'ERRORS DETECTED - EDIT FACILITY'            00053000
+MSG0128  DC    H'0004',H'0128'                                          00054000
+         DC    H'0128',CL40'VARIABLE LGTH DAG W/O EXIT PGM SPECIFIED'   00055000
+MSG0151  DC    H'0012',H'0151' ERR-DSID                                 00056000
+         DC    H'0151',CL40'FILE NAME NOT FOUND'                        00057000
+MSG0152  DC    H'0012',H'0152' ERR-ILLO                                 00058000
+         DC    H'0152',CL40'ILLOGICAL CICS COMMAND'                     00059000
+MSG0153  DC    H'0012',H'0153' ERR-IREQ                                 00060000
+         DC    H'0153',CL40'INVALID COMMAND REQUEST'                    00061000
+MSG0154  DC    H'0012',H'0154' ERR-ITEM                                 00062000
+         DC    H'0154',CL40'INVALID CICS ITEM'                          00063000
+MSG0155  DC    H'0012',H'0155' ERR-QIDE                                 00064000
+         DC    H'0155',CL40'TEMP STORAGE QUEUE NOT FOUND'               00065000
+MSG0156  DC    H'0012',H'0156' ERR-DPKY                                 00066000
+         DC    H'0156',CL40'DUPLICATE KEY'                              00067000
+MSG0157  DC    H'0012',H'0157' ERR-LENG                                 00068000
+         DC    H'0157',CL40'REQUEST LENGTH TO LARGE'                    00069000
+MSG0158  DC    H'0012',H'0158' ERR-NSTG                                 00070000
+         DC    H'0158',CL40'PARMS DATA BASE FULL-NO SPACE'              00071000
+MSG0159  DC    H'0012',H'0159' ERR-NFND                                 00072000
+         DC    H'0159',CL40'RECORD NOT FOUND'                           00073000
+MSG0160  DC    H'0012',H'0160' ERR-NOPN                                 00074000
+         DC    H'0160',CL40'PARMS DATA BASE NOT OPEN'                   00075000
+MSG0161  DC    H'0012',H'0161' ERR-PGID                                 00076000
+         DC    H'0161',CL40'PROGRAM NOT FOUND'                          00077000
+MSG0162  DC    H'0012',H'0162' ERR-SEGI                                 00078000
+         DC    H'0162',CL40'MESSAGE TO SMALL'                           00079000
+MSG0163  DC    H'0012',H'0163' ERR-SYSI                                 00080000
+         DC    H'0163',CL40'CICS SYSTEM ID ERROR'                       00081000
+MSG0164  DC    H'0012',H'0164' ERR-MISS                                 00082000
+         DC    H'0164',CL40'CICS UNKNOWN ERROR OCCURED'                 00083000
+MSG0165  DC    H'0012',H'0165' ERR-GRP                        2602047   00083005
+         DC    H'0165',CL40'INVALID GROUP NUMBER'             2602047   00083010
+MSG0166  DC    H'0012',H'0166' ERR-GRP-NXTENT                 2602047   00083015
+         DC    H'0166',CL40'INV GROUP-TRY INQ BEFORE NXTENT'  2602047   00083020
+PT3END   DC    0H'0'                                                    00084000

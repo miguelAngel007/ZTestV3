@@ -1,0 +1,568 @@
+         MACRO                                                          00001000
+         ISREFMAC &OPSYS=MVS                                            00002000
+         LCLB  &DOS,&VSE2,&MVS                                          00003000
+         AIF   ('&OPSYS' EQ 'DOS').SETDOS                               00004000
+         AIF   ('&OPSYS' EQ 'VSE').SETDOS                               00005000
+         AIF   ('&OPSYS' EQ 'VSESP').SETDOS2                            00006000
+         AIF   ('&OPSYS' EQ 'VSE/SP').SETDOS2                           00007000
+         AIF   ('&OPSYS'(1,4) EQ 'VSE2').SETDOS2                        00008000
+         AIF   ('&OPSYS' EQ 'MVS').SETMVS                               00009000
+         AIF   ('&OPSYS' EQ 'OS').SETMVS                                00010000
+         MNOTE 'INVALID OPSYS PARAMETER, MACRO TERMINATED'              00011000
+         MEXIT                                                          00012000
+.SETDOS  ANOP                                                           00013000
+&DOS     SETB  1                                                        00014000
+         AGO   .START                                                   00015000
+.SETDOS2 ANOP                                                           00016000
+&DOS     SETB  1                                                        00017000
+&VSE2    SETB  1                                                        00018000
+         AGO   .START                                                   00019000
+.SETMVS  ANOP                                                           00020000
+&MVS     SETB  1                                                        00021000
+.START   ANOP                                                           00022000
+         TITLE 'ISREFPRT - UNIVERSAL REFORMATTOR DUMP'                  00023000
+ISREFPRT START 0                                                        00024000
+         EJECT                                                          00025000
+*        SIBASE BASEREG=(8),ID=ISREFPRT,TYPE=SUBRTN,RWNUM=0005,         00026000
+*              RWSUB=003                                                00027000
+         SIBASE BASEREG=(8),ID=ISREFPRT,TYPE=SUBRTN,RWNUM=0005,        X00028000
+               RWSUB=003                                                00029000
+         EJECT                                                          00030000
+*********************************************************************** 00031000
+*   I  S  R  E  F  P  R  T    -    COPYRIGHT SYSTEMATICS, INC.  1987  * 00032000
+*=====================================================================* 00033000
+*   'ISREFPRT' IS AN ASSEMBLER SUBROUTINE CALLED BY 'ISQUERY'.        * 00034000
+*   THIS ROUTINE WILL DUMP THE REFORMATTOR TABLE TO OUTPUT.           * 00035000
+*                                                                     * 00036000
+*   IN ORDER TO CLOSE THE PRINT FILE, MOVE HIGH-VALUES TO THE FIRST   * 00037000
+*   BYTE OF THE OUTPUT-RECORD-NME AND CALL THIS ROUTINE.              * 00038000
+*                                                                     * 00039000
+*   EXAMPLES OF THE CODING OF THE CALL TO THIS SUBROUTINE FOLLOWS.    * 00040000
+*                                                                     * 00041000
+*      EXAMPLE -- USED WHEN MAKING ONE CALL FOR EACH RECORD           * 00042000
+*                 CONVERSION.  THE WHOLE CONVERSION TABLE IS          * 00043000
+*                 PROCESSED WITH JUST ONE CALL.                       * 00044000
+*                                                                     * 00045000
+*        COBOL:  CALL 'ISREFPRT' USING INPUT-RECORD-ARRAY,            * 00046000
+*                                      CONV-TABLE-NME,                * 00047000
+*                                      OUTPUT-RECORD-NME,             * 00048000
+*                                      RECORD-NUMBER,                 * 00049000
+*                                      SQL-LINE-AREA,                 * 00050000
+*                                      ERROR-FLAG,                    * 00051000
+*                                      COUNT-ARRAY-AREA,              * 00052000
+*                                      WS-USER-DEFINED-PARMS.         * 00053000
+*           WHERE:  INPUT-RECORD-ARRAY IS THE NAME OF AN ARRAY OF     * 00054000
+*                        FULLWORDS SHOWING THE INPUT RECORD ADDRESSES * 00055000
+*                        FOUND USING INPUT-INDEX.                     * 00056000
+*                   CONV-TABLE-NME IS THE NAME OF THE ENTIRE TABLE.   * 00057000
+*                   OUTPUT-RECORD-NME IS THE NAME OF THE OUTPUT       * 00058000
+*                        RECORD.                                      * 00059000
+*                   RECORD-NUMBER IS THE CURRENT RECORD NUMBER BEING  * 00060000
+*                        PROCESSED.  (S9(9) COMP-3)                   * 00061000
+*                   SQL-LINE-AREA IS THE LOCATION OF THE SQL LINE     * 00062000
+*                   ERROR-FLAG IS A ONE-BYTE ERROR CODE FROM ISCALC   * 00063000
+*                   COUNT-ARRAY-AREA IS THE ARRAY HOLDING THE COUNTS  * 00064000
+*                   WS-USER-DEFINED-PARMS IS THE SIMS PARAMETER TBL   * 00065000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00066000
+*               R E G I S T E R   U S A G E   T A B L E               * 00067000
+* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = * 00068000
+*   R0 - NOT USED                                                     * 00069000
+*   R1 - @ OF PARM LIST / TRT RETURN REGISTER / WORK REGISTER         * 00070000
+*   R2 - @ OF TRANSLATE TABLE USED IN TRT INSTR / WORK REGISTER       * 00071000
+*   R3 - INPUT RECORD POINTER FOR DUMP LOGIC                          * 00072000
+*   R4 - RECORD ADDRESS FOR DUMP LOGIC                                * 00073000
+*   R5 - CHARACTER DUMP LINE POINTER                                  * 00074000
+*   R6 - HEX DUMP LINE POINTER                                        * 00075000
+*   R7 - HEX DUMP LINE POINTER                                        * 00076000
+*   R8 - SUBROUTINE BASE ADDRESS REGISTER                             * 00077000
+*   R9 - ADDRESS OF INPUT RECORD ARRAY TABLE                          * 00078000
+*   RA - ADDRESS OF CONVERSION TABLE / ADDRESS OF EA. TABLE ENTRY     * 00079000
+*   RB - ADDRESS OF OUTPUT RECORD                                     * 00080000
+*   RC - ADDRESS OF INPUT RECORD COUNT (S9(9) COMP-3)                 * 00081000
+*   RD - ADDRESS OF OUTPUT RECORD LENGTH / EXTERNAL RETURN REGISTER   * 00082000
+*   RF - INTERNAL BRANCH TO REGISTER / TEMP WORK REGISTER             * 00083000
+*                                                                     * 00084000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00085000
+         EJECT                                                          00086000
+RA       EQU   10                                                       00087000
+RB       EQU   11                                                       00088000
+RC       EQU   12                                                       00089000
+RD       EQU   13                                                       00090000
+RE       EQU   14                                                       00091000
+RF       EQU   15                                                       00092000
+         SPACE 1                                                        00093000
+         USING PARMLIST,R4                                              00094000
+         USING MOVPREFX,RA                                              00095000
+PARMLOAD EQU   *                                                        00096000
+         LM    R9,RC,0(R1)        R9 - INPUT ADDRESS ARRAY              00097000
+*                                 RA - ADDRESS OF CONVERSION TABLE      00098000
+*                                 RB - OUTPUT RECORD                    00099000
+*                                 RC - RECORD NUMBER (S9(9) COMP-3)     00100000
+         MVC   PARMTBL,28(R1)                                           00100100
+         ST    R1,PARMADR         R1 - STORE PARMLIST DSECT ADDRESS     00101000
+         LH    R1,NTRYLEN         R1 - LENGTH OF EA. ENTRY              00102000
+         STH   R1,HTRYLEN                                               00103000
+         LH    R5,NTRYNBR         R5 - ADDRESS OF THE LAST TABLE ENTRY  00104000
+         BCTR  R5,0                    R5=(ENTRIES-1)*(LGTH)+           00105000
+         MH    R5,NTRYLEN                 (TABLE START ADDRESS)         00106000
+         LA    R5,16(R5,RA)                                             00107000
+         ST    R5,HTRYADR                                               00108000
+         LA    RA,16(RA)          RA - ADDRESS OF 1ST TABLE ENTRY       00109000
+         ZAP   HTRYNUM,=P'1'      ZERO HTRYNUM                          00110000
+         CP    HRECNUM,0(5,RC)    Q. RECORD NUMBER LOW?                 00111000
+         BL    INITIAL            A. NO, GOTO HEADINGS                  00112000
+         ZAP   LINECTR,=P'99'     MAXIMIZE LINE COUNTER                 00113000
+         EJECT                                                          00114000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00115000
+*        INITIALIZE                                                   * 00116000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00117000
+         SPACE 1                                                        00118000
+INITIAL  EQU   *                                                        00119000
+         ZAP   HRECNUM,0(5,RC)         SAVE RECORD NUMBER               00120000
+         CLI   0(RB),X'FF'             Q. OUTPUT RECORD == HIGH-VALUES  00121000
+         BNE   MAINLINE                A. NO, GO TO MAINLINE            00122000
+         MVI   WSSPLCD,C'9'                                             00123000
+         MVI   PLCTL,C'9'                                               00124000
+         BAL   R4,CALLPRT              CALL SIPRINT TO CLOSE FILES      00125000
+         MVI   WSSPLCD,C'1'                                             00126000
+         MVI   OPENSWT,C'N'            MOVE 'N' TO OPENSWT              00127000
+         B     RETURN                  GO TO RETURN                     00128000
+         EJECT                                                          00129000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00130000
+*        MAINLINE                                                     * 00131000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00132000
+         USING MOVINFOR,RA                                              00133000
+MAINLINE EQU   *                                                        00134000
+         SR    R6,R6              ZERO OUT REGISTERS                    00135000
+         BAL   R4,GETIADD         GET INPUT ADDRESS                     00136000
+         ICM   R6,3,INPDISP       R6 = OFFSET TO INPUT FIELD            00137000
+         AR    R6,R1              R6 = ADDRESS OF INPUT RECORD          00138000
+         SR    R4,R4              ZERO OUT REGISTERS                    00139000
+         ICM   R4,1,INPLGTH       R4 = FIELD LENGTH                     00140000
+         LA    R4,1(R4)                                                 00141000
+         MVI   CONTSW,C'N'        MOVE 'N' TO CONTSW                    00142000
+DMPLOGIC EQU   *                                                        00143000
+         MVI   OLINE1,C' '                                              00144000
+         MVC   OLINE1+1(L'OLINE1-1),OLINE1                              00145000
+         MVC   OLINE2,OLINE1                                            00146000
+         MVC   OLINE,OLINE1                                             00147000
+         LR    R3,R6                                                    00148000
+         ST    R4,FULLWORD              R4 = DATA LENGTH                00149000
+         LA    R5,OLINE                                                 00150000
+         LA    R6,OLINE1                                                00151000
+         LA    R7,OLINE2                                                00152000
+         ZAP   CHARCTR,=P'0'            ZERO OUT THE CHARACTER COUNTER  00153000
+DMPLOOP  EQU   *                                                        00154000
+         AP    CHARCTR,=P'1'            ADD 1 TO CHAR COUNTER           00155000
+         CP    CHARCTR,=P'31'           Q. GREATER THAN +30             00156000
+         BE    DMPEXIT                  A. YES, GO TO DMPEXIT           00157000
+*                                                                       00158000
+DMPCONT  MVC   ARG(1),0(R3)             MOVE VALUE                      00159000
+*        SIEXLATE WAREA=AREA1           CONVERT TO HEX                  00160000
+         SIEXLATE WAREA=AREA1           CONVERT TO HEX                  00161000
+         MVC   0(1,R5),0(R3)                                            00162000
+         MVC   0(1,R6),HEXDCML                                          00163000
+         MVC   0(1,R7),HEXDCML+1                                        00164000
+         LA    R5,1(R5)                                                 00165000
+         LA    R6,1(R6)                                                 00166000
+         LA    R7,1(R7)                                                 00167000
+         LA    R3,1(R3)                 BUMP REG3                       00168000
+         BCT   R4,DMPLOOP               GO TO DMPLOOP R4 TIMES          00169000
+*                                                                       00170000
+DMPEXIT  EQU   *                                                        00171000
+         CLI   CONTSW,C'Y'        Q. CONTSW == Y                        00172000
+         BE    DMPOUTP            A. YES, GO DUMP OUTPUT TO PRINTER     00173000
+         MVC   ILINE,OLINE        MOVE OUTPUT TO STORAGE                00174000
+         MVC   ILINE1,OLINE1      *                                     00175000
+         MVC   ILINE2,OLINE2      *                                     00176000
+         LM    R4,R6,REGZERO      ZERO OUT REGISTERS                    00177000
+         ICM   R6,3,OUTDISP       R6 = OFFSET TO OUTPUT FIELD           00178000
+         AR    R6,RB              R6 = ADDRESS OF OUTPUT RECORD         00179000
+         ICM   R4,1,OUTLGTH       R4 = FIELD LENGTH                     00180000
+         LA    R4,1(R4)                                                 00181000
+         MVI   CONTSW,C'Y'        MOVE 'Y' TO CONTSW                    00182000
+         B     DMPLOGIC           GOTO DMPLOGIC                         00183000
+DMPOUTP  BAL   R14,DUMPPRT                                              00184000
+         ZAP   CHARCTR,=P'0'            ZERO OUT THE CHARACTER COUNTER  00185000
+         AP    HTRYNUM,=P'1'                                            00186000
+         EJECT                                                          00187000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00188000
+*        INCREMENT AND TEST FOR LOOP CONTROL                          * 00189000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00190000
+         SPACE 1                                                        00191000
+LOOPCTRL EQU   *                                                        00192000
+         L     R5,HTRYADR                                               00193000
+         LH    R1,HTRYLEN         R1 - LENGTH OF TABLE ENTRY            00194000
+         LA    RA,0(R1,RA)        RA - BUMP TO NEXT ENTRY               00195000
+         CR    RA,R5              Q. AT END OF TABLE?                   00196000
+         BNH   MAINLINE           A. NO, GO PROCESS ENTRY               00197000
+         EJECT                                                          00198000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00199000
+*        DUMP THE COUNT ARRAY TO PRINT                                * 00200000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00201000
+         SPACE 1                                                        00202000
+         L     R4,PARMADR         GAIN ADDRESSABLITY TO PARMLIST        00203000
+         L     R3,CTARRAY@        R3 - ADDRESS OF COUNT ARRAY           00204000
+CTLOOP1  EQU   *                                                        00205000
+         LA    R5,3               R5 - 3 TIMES LOOP                     00206000
+         LA    R6,PLINE           FIRST ENTRY ON LINE ADDRESS           00207000
+         LA    R6,10(R6)          *                                     00208000
+CTLOOP2  EQU   *                                                        00209000
+         CLI   0(R3),X'00'        Q. LOW-VALUES?                        00210000
+         BE    CTEXIT             A. YES, GOTO CTEXIT                   00211000
+         CLI   0(R3),X'5C'        Q. ASTERISKS?                         00212000
+         BE    CTEXIT             A. YES, GOTO CTEXIT                   00213000
+         MVC   0(10,R6),0(R3)                                           00214000
+         MVI   10(R6),C'='                                              00215000
+         MVC   12(L'CTEDITM,R6),CTEDITM                                 00216000
+         ED    12(L'CTEDITM,R6),17(R3)                                  00217000
+         LA    R3,26(R3)          BUMP TO NEXT ENTRY                    00218000
+         LA    R6,41(R6)          *                                     00219000
+         BCT   R5,CTLOOP2         GO TO LOOP2 R5 TIMES                  00220000
+         AP    LINECTR,=P'1'      *                                     00221000
+         CP    LINECTR,LINELMT    Q. PRINT HEADINGS                     00222000
+         BL    CTPRT              A. NO, GO TO CTPRT                    00223000
+         BAL   R2,REPHEAD         PRINT HEADINGS                        00224000
+CTPRT    BAL   R4,CALLPRT         PRINT LINE                            00225000
+         B     CTLOOP1            GO TO CTLOOP1                         00226000
+         SPACE 1                                                        00227000
+CTEXIT   CLI   PLINE+20,C' '      Q. ENTRY ON LINE?                     00228000
+         BE    CTEXIT2            A. NO, GO TO CTEXIT2                  00229000
+         BAL   R4,CALLPRT         PRINT LINE                            00230000
+CTEXIT2  EQU   *                                                        00231000
+         AP    LINECTR,=P'1'      *                                     00232000
+         BAL   R4,CALLPRT         DOUBLE SPACE                          00233000
+         EJECT                                                          00234000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00235000
+*        RESTORE REGISTERS AND RETURN TO CALLING PROGRAM              * 00236000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00237000
+         SPACE 1                                                        00238000
+RETURN   EQU   *                                                        00239000
+*        SIRETRN RC=0                                                   00240000
+         SIRETRN RC=0                                                   00241000
+         EJECT                                                          00242000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00243000
+*        CALLED ROUTINE TO PRINT REPORT DETAIL LINE                   * 00244000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00245000
+         SPACE 1                                                        00246000
+DUMPPRT  EQU   *                                                        00247000
+         ST    R14,SAVER14               SAVE R14                       00248000
+         CP    LINECTR,LINELMT           Q. PAGE OVERFLOW?              00249000
+         BL    PRTDUMP                   A. NO, PRINT REPORT            00250000
+         BAL   R2,REPHEAD                                               00251000
+PRTDUMP  AP    LINECTR,=P'4'             ADD +4 TO LINE COUNTER         00252000
+         CP    HTRYNUM,=P'1'             Q. IF FIRST FIELD PRT RECNUM   00253000
+         BNE   PRTDCNT2                  A. NO, SKIP RECNUM PRINT       00254000
+         MVC   PLINE+2(6),=XL6'402020202120'                            00255000
+         ED    PLINE+2(6),2(RC)                                         00256000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00257000
+*        INPUT SIDE OF REFORMATTOR TABLE                              * 00258000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00259000
+         SPACE 1                                                        00260000
+PRTDCNT2 EQU   *                                                        00261000
+         SR    R1,R1                                                    00262000
+         ICM   R1,3,INPDISP                                             00263000
+         CVD   R1,DBLWORD                                               00264000
+         UNPK  PLINE+42(4),DBLWORD                                      00265000
+         OI    PLINE+45,X'F0'                                           00266000
+         SR    R1,R1                                                    00267000
+         ICM   R1,1,INPLGTH                                             00268000
+         CVD   R1,DBLWORD                                               00269000
+         UNPK  PLINE+47(4),DBLWORD                                      00270000
+         OI    PLINE+50,X'F0'                                           00271000
+         MVC   PLINE+52(2),INPFORM                                      00272000
+         SR    R1,R1                                                    00273000
+         ICM   R1,3,DECIMAL#                                            00274000
+         CVD   R1,DBLWORD                                               00275000
+         UNPK  PLINE+55(2),DBLWORD                                      00276000
+         OI    PLINE+56,X'F0'                                           00277000
+         EJECT                                                          00278000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00279000
+*        OUTPUT SIDE OF REFORMATTOR TABLE                             * 00280000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00281000
+         SPACE 1                                                        00282000
+         SR    R1,R1                                                    00283000
+         ICM   R1,3,OUTDISP                                             00284000
+         CVD   R1,DBLWORD                                               00285000
+         UNPK  PLINE+92(4),DBLWORD                                      00286000
+         OI    PLINE+95,X'F0'                                           00287000
+         SR    R1,R1                                                    00288000
+         ICM   R1,1,OUTLGTH                                             00289000
+         CVD   R1,DBLWORD                                               00290000
+         UNPK  PLINE+97(4),DBLWORD                                      00291000
+         OI    PLINE+100,X'F0'                                          00292000
+         MVC   PLINE+102(2),OUTFORM                                     00293000
+         SR    R1,R1                                                    00294000
+         ICM   R1,3,DECIMAL#                                            00295000
+         CVD   R1,DBLWORD                                               00296000
+         UNPK  PLINE+105(2),DBLWORD                                     00297000
+         OI    PLINE+106,X'F0'                                          00298000
+         EJECT                                                          00299000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00300000
+*        COMMON SIDE OF REFORMATTOR TABLE                             * 00301000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00302000
+         SPACE 1                                                        00303000
+         L     R4,PARMADR                                               00304000
+         L     R1,MSCFLAG@                                              00305000
+         MVC   PLINE+108(1),0(R1)                                       00306000
+         SR    R1,R1                                                    00307000
+         ICM   R1,3,GOTO#                                               00308000
+         CVD   R1,DBLWORD                                               00309000
+         UNPK  PLINE+110(2),DBLWORD                                     00310000
+         OI    PLINE+111,X'F0'                                          00311000
+         SR    R1,R1                                                    00312000
+         ICM   R1,3,ERROR#                                              00313000
+         CVD   R1,DBLWORD                                               00314000
+         UNPK  PLINE+113(3),DBLWORD                                     00315000
+         OI    PLINE+115,X'F0'                                          00316000
+         SR    R1,R1                                                    00317000
+         ICM   R1,3,ADDRIDX                                             00318000
+         CVD   R1,DBLWORD                                               00319000
+         UNPK  PLINE+117(3),DBLWORD                                     00320000
+         OI    PLINE+119,X'F0'                                          00321000
+         SR    R1,R1                                                    00322000
+         ICM   R1,3,FCTIDX                                              00323000
+         CVD   R1,DBLWORD                                               00324000
+         UNPK  PLINE+121(3),DBLWORD                                     00325000
+         OI    PLINE+123,X'F0'                                          00326000
+         MVC   PLINE+126(1),KEYIND                                      00327000
+         L     R1,PARMTBL                                               00327100
+         USING ISDSPARM,R1                                              00327200
+         TR    ILINE(L'ILINE),LOTUSTBL   TRANSLATE TO PRINTABLE CHAR    00328000
+         TR    OLINE(L'OLINE),LOTUSTBL   TRANSLATE TO PRINTABLE CHAR    00329000
+         MVC   PLINE+10(L'ILINE),ILINE   MOVE CHARACTER LINE            00330000
+         MVC   PLINE+60(L'OLINE),OLINE   MOVE CHARACTER LINE            00331000
+         BAL   R4,CALLPRT                PRINT CHARACTER LINE           00332000
+         MVC   PLINE+10(L'ILINE1),ILINE1 MOVE FIRST HEX LINE            00333000
+         MVC   PLINE+60(L'OLINE1),OLINE1 MOVE FIRST HEX LINE            00334000
+         BAL   R4,CALLPRT                PRINT FIRST HEX LINE           00335000
+         MVI   PLINE+4,C'F'              PRINT FIELD NUMBER             00336000
+         UNPK  PLINE+5(3),HTRYNUM        *                              00337000
+         OI    PLINE+7,X'F0'             *                              00338000
+         MVI   PLCTL,C'2'                SET CARRIAGE CONTROL           00339000
+         MVC   PLINE+10(L'ILINE2),ILINE2 MOVE SECOND HEX LINE           00340000
+         MVC   PLINE+60(L'OLINE2),OLINE2 MOVE SECOND HEX LINE           00341000
+         BAL   R4,CALLPRT                PRINT SECOND HEX LINE          00342000
+         L     R14,SAVER14               RESTORE R14                    00343000
+         BR    R14                       BRANCH BACK                    00344000
+         EJECT                                                          00345000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00346000
+*        CALLED ROUTINE TO PRINT DETAIL                               * 00347000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00348000
+         SPACE 1                                                        00349000
+CALLPRT  EQU   *                                                        00350000
+         NOP   CP0010                                                   00351000
+         OI    *-3,X'F0'                                                00352000
+         LA    R1,PRTLINE                                               00353000
+         ST    R1,PARM1                                                 00354000
+         LA    R1,SIWSSPAR                                              00355000
+         ST    R1,PARM2                                                 00356000
+         OI    PARM2,X'80'                                              00357000
+         AIF   (&DOS).D0001                                             00358000
+*        LOAD  EP=SIPRINT              WRITE DETAIL REPORT LINE         00359000
+         LOAD  EP=SIPRINT              WRITE DETAIL REPORT LINE         00360000
+         ST    R0,APRINT                                                00361000
+         AGO   .C0001                                                   00362000
+.D0001   ANOP                                                           00363000
+         L     R15,=V(SIPRINT)                                          00364000
+         ST    R15,APRINT                                               00365000
+.C0001   ANOP                                                           00366000
+CP0010   EQU   *                                                        00367000
+         LA    R1,PARM1                                                 00368000
+         L     R15,APRINT                                               00369000
+         BALR  R14,R15                                                  00370000
+         MVI   PLCTL,C'1'              SET CARRIAGE CONTROL             00371000
+         MVI   PLINE,C' '              CLEAR LINE TO SPACES             00372000
+         MVC   PLINE+1(131),PLINE      *                                00373000
+         BR    R4                      BRANCH BACK                      00374000
+         EJECT                                                          00375000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00376000
+*        ROUTINE TO FETCH THE INPUT RECORD ADDRESS INTO R1            * 00377000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00378000
+         SPACE 1                                                        00379000
+GETIADD  EQU   *                                                        00380000
+         LM    R1,R2,REGZERO      ZERO OUT REGISTERS                    00381000
+         ICM   R1,3,ADDRIDX        R1 - INDEX VALUE                     00382000
+         SLL   R1,2               MULTIPLY BY 4                         00383000
+         LR    R2,R9              R2 - ADDRESS OF FIRST PARAMETER       00384000
+         AR    R2,R1              R2 - ADD OFFSET TO SELECT PARAMETER   00385000
+         L     R1,0(R2)           R1 - INPUT RECORD ADDRESS             00386000
+         BR    R4                 BRANCH BACK                           00387000
+         EJECT                                                          00388000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00389000
+*        PRINT HEADING ROUTINE                                        * 00390000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00391000
+         SPACE 1                                                        00392000
+REPHEAD  EQU   *                                                        00393000
+         STM   R2,R5,SAVREGS                                            00394000
+         AP    PAGECTR,=P'1'                                            00395000
+         ZAP   LINECTR,=P'6'                                            00396000
+         UNPK  T1PAGE,PAGECTR                                           00397000
+         OI    T1PAGE+3,X'F0'                                           00398000
+         MVI   PLCTL,C'P'                                               00399000
+         BAL   R4,CALLPRT                                               00400000
+         MVC   PRTLINE(L'TITLE1),TITLE1                                 00401000
+         BAL   R4,CALLPRT                                               00402000
+         L     R4,PARMADR                                               00403000
+         L     R3,SQLLINE@                                              00404000
+         SR    R5,R5                                                    00405000
+         MVI   PLCTL,C'2'                                               00406000
+         MVC   PLINE+5(5),=CL5'SQL ='                                   00407000
+REPLOOP1 CLI   0(R3),X'00'                                              00408000
+         BE    REPEXIT1                                                 00409000
+         LA    R5,1(R5)                                                 00410000
+         LA    R3,1(R3)                                                 00411000
+         B     REPLOOP1                                                 00412000
+REPEXIT1 L     R3,SQLLINE@                                              00413000
+REPLOOP2 MVC   PLINE+10(117),0(R3)                                      00414000
+         AP    LINECTR,=P'1'                                            00415000
+         BAL   R4,CALLPRT                                               00416000
+         S     R5,=F'117'                                               00417000
+         C     R5,=F'0'                                                 00418000
+         BL    REPEXIT2                                                 00419000
+         LA    R3,117(R3)                                               00420000
+         B     REPLOOP2                                                 00421000
+REPEXIT2 MVC   PRTLINE(L'TITLE2),TITLE2                                 00422000
+         BAL   R4,CALLPRT                                               00423000
+         MVC   PRTLINE(L'TITLE3),TITLE3                                 00424000
+         BAL   R4,CALLPRT                                               00425000
+         LM    R2,R5,SAVREGS                                            00426000
+         BR    R2                                                       00427000
+         EJECT                                                          00428000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00429000
+*        WORKING STORAGE AND OTHER SUCH JUNK                          * 00430000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00431000
+         SPACE 1                                                        00432000
+         DS    0F                                                       00433000
+DBLWORD  DC    D'0'                                                     00434000
+FULLWORD DC    F'0'                                                     00435000
+REGZERO  DC    5F'0'                                                    00436000
+SAVREGS  DC    8F'0'                                                    00437000
+SAVER14  DC    F'0'                                                     00438000
+PARMADR  DC    F'0'                                                     00439000
+HTRYADR  DC    F'0'                                                     00440000
+PARM1    DC    F'0'                                                     00441000
+PARM2    DC    F'0'                                                     00442000
+APRINT   DC    F'0'                                                     00443000
+PARMTBL  DC    F'0'                                                     00443100
+HTRYLEN  DC    H'0'                                                     00444000
+HTRYNUM  DC    PL2'0'                                                   00445000
+HRECNUM  DC    PL5'0'                                                   00446000
+OPENSWT  DC    C'N'                                                     00447000
+PAGECTR  DC    PL4'0'                  PAGE COUNTER                     00448000
+LINECTR  DC    PL4'99'                 PAGE COUNTER                     00449000
+CHARCTR  DC    PL4'0'                  CHAR COUNTER                     00450000
+LINELMT  DC    PL4'56'                 LINE COUNT LIMIT                 00451000
+MATCHSW  DC    CL1'N'                  MATCH SWITCH                     00452000
+CONTSW   DC    CL1'N'                  CONTINUE SWITCH                  00453000
+DEBUGSW  DC    CL1'N'                  DEBUG SWITCH                     00454000
+CTEDITM  DC    XL23'4020206B2020206B2020206B2020206B2020206B202120'     00455000
+SPACES   DC    133C' '                                                  00456000
+PRTLINE  DS    0CL133                                                   00457000
+PLCTL    DS    CL1                                                      00458000
+PLINE    DS    CL132                                                    00459000
+         ORG   PLINE                                                    00460000
+         DS    CL132                                                    00461000
+         ORG                                                            00462000
+ILINE    DC    CL30' '                                                  00463000
+ILINE1   DC    CL30' '                                                  00464000
+ILINE2   DC    CL30' '                                                  00465000
+*                                                                       00466000
+OLINE    DC    CL30' '                                                  00467000
+OLINE1   DC    CL30' '                                                  00468000
+OLINE2   DC    CL30' '                                                  00469000
+         EJECT                                                          00470000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00471000
+*        WORKING STORAGE SPOOL AREA                                   * 00472000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00473000
+         SPACE 1                                                        00474000
+SIWSSPAR DS    0CL77                                                    00475000
+WSSPLCD  DC    C'1'                                                     00476000
+WSSPLFM  DC    C'B'                                                     00477000
+WSSPLPGM DC    C'ISREFPRT'                                              00478000
+WSRPTNUM DC    C'000'                                                   00479000
+WSBCRBRK DC    C' '                                                     00480000
+WSBCRCTL DC    CL22'0000000000000000000000'                             00481000
+WSRPTBRK DC    C' '                                                     00482000
+WSRPTCTL DC    CL22'0000000000000000000000'                             00483000
+WSBLSTSW DC    C'0'                                                     00484000
+WSLNSEQ  DC    PL4'0'                                                   00485000
+WSLNTYPE DC    C' '                                                     00486000
+WSLNSTYP DC    C' '                                                     00487000
+WSRCPLVL DC    C'0'                                                     00488000
+WSPRTID  DC    C' '                                                     00489000
+WSEXTFL  DC    C' '                                                     00490000
+WSEXTLN  DC    X'0085'                 133 LENGTH                       00491000
+WSPRTXLT DC    C' '                                                     00492000
+         DC    CL5' '                                                   00493000
+         EJECT                                                          00494000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00495000
+*        TITLES                                                       * 00496000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00497000
+         SPACE 1                                                        00498000
+TITLE1   DS    0CL133                                                   00499000
+         DC    XL1'11'                                                  00500000
+         DC    CL38' SYSTEMATICS REFORMATTOR DUMP V5.00   '             00501000
+         DC    CL52' '                                                  00502000
+T1DATE   DC    CL8'        '                                            00503000
+         DC    CL5' '                                                   00504000
+T1TIME   DC    CL8'        '                                            00505000
+         DC    CL11' '                                                  00506000
+         DC    CL5'PAGE '                                               00507000
+T1PAGE   DC    CL4'   0'                                                00508000
+         DC    CL1' '                                                   00509000
+*                                                                       00510000
+TITLE2   DS    0CL133                                                   00511000
+         DC    XL1'09'                                                  00512000
+         DC    CL40'          ----------------- I N P U T --'           00513000
+         DC    CL40'-----------------   ----------------- O '           00514000
+         DC    CL40'U T P U T ----------------- F GO     ADD'           00515000
+         DC    CL12' FCT KEY    '                                       00516000
+*                                                                       00517000
+TITLE3   DS    0CL133                                                   00518000
+         DC    XL1'09'                                                  00519000
+         DC    CL40'  RECORD  ....+....1....+....2....+....3'           00520000
+         DC    CL40'  DISP LGTH FT DC   ....+....1....+....2'           00521000
+         DC    CL40'....+....3  DISP LGTH FT DC G TO ERR IDX'           00522000
+         DC    CL12' IDX IND    '                                       00523000
+         EJECT                                                          00524000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00546000
+*    SIEXLATE ASSEMBLER MACRO PARAMETERS FOR IT'S USE                 * 00547000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00548000
+         SPACE 1                                                        00549000
+         DS    0F                                                       00550000
+AREA1    DS    0CL6                                                     00551000
+ARG      DC    XL1'00'                                                  00552000
+HEXDCML  DC    XL2'0000'                                                00553000
+DECIMAL  DC    XL3'000000'                                              00554000
+         EJECT                                                          00555000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00556000
+*        LTORG                                                        * 00557000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00558000
+         SPACE 1                                                        00559000
+         LTORG                                                          00560000
+         EJECT                                                          00561000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00562000
+*        DSECTS                                                       * 00563000
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00564000
+         SPACE 1                                                        00565000
+PARMLIST DSECT                                                          00566000
+INPRECD@ DS    F                                                        00567000
+CONVTBL@ DS    F                                                        00568000
+OUTRECD@ DS    F                                                        00569000
+RECNUMB@ DS    F                                                        00570000
+SQLLINE@ DS    F                                                        00571000
+MSCFLAG@ DS    F                                                        00572000
+CTARRAY@ DS    F                                                        00573000
+*                                                                       00573050
+ISDSPARM DSECT                                                          00573100
+SLASH    DS    X                       BACK SLASH                       00573150
+QUOTE    DS    X                       QOUTE                            00573200
+EXCLMTN  DS    X                       EXCLAMATION POINT                00573250
+         DS    X                                                        00573300
+MAILMTBL DS    XL256                   MAIL MERGE FORMAT TABLE          00573350
+LOTUSTBL DS    XL256                   LOTUS FORMAT TABLE               00573400
+SLASHTB  DS    XL256                   FORWARD TO BACK SLASH TABLE      00573450
+UPRCASE  DS    XL256                   LOWER TO UPPER CASE TABLE        00573500
+LWRCASE  DS    XL256                   UPPER TO LOWER CASE TABLE        00573550
+         MEND                                                           00574000

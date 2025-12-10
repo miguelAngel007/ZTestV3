@@ -1,0 +1,66 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                            SASIOPEA                                 * 00000200
+*                       TRANSACTION SYSTEM                            * 00000300
+*                     SA SI ENVIRONMENT OPTIONS                       * 00000400
+*                                                                     * 00000500
+*                      HISTORY OF REVISIONS                           * 00000600
+* DESCRIPTION                                                         * 00000700
+* --------------------------------------------------------------------* 00000800
+* 02/01/17 ADDED FIELDS FOR TOTAL REVERSAL                    1727146   00000880
+* 02/14/14 ADDED FLAGS FOR GN DB2 AND ENCRYPTION              1436560   00000881
+* 12/22/09 ADDED FLAG FOR XRBA                                1035872   00000882
+* 04/18/08 ADDED FLAG FOR MAKER/CHECKER PROCESSING   GN5688   0835688   00000883
+* 03-14-07 ADDED DAG MESSAGE TRACE                            0735619   00000884
+* 12-21-06 ADDED MAX NON PROCESSING DAYS                      0725573   00000885
+* 05-22-06 ADDED COMMENTS TO DESCRIBE PRE IM EXPANDED ACCT    0645467   00000886
+* 11-19-04 ADDED KEY TRANSFORMATION EXIT PHASE NAME           0535153   00000888
+* 11/04/04 ADD TELLER/MQ PROCESS                              0525126   00000890
+* 10/27/04 REMOVED RSYSDTE FIELD                              0525112   00000892
+* 04/09/03 ADDED IMPACS EXPANDED ACCOUNT NUMBER FLAG          0414738 * 00000894
+* 06-21-01 ADDED SDTOPT FIELD FOR TSSCF PROCESSING            2024349 * 00000896
+* 12-15-99 ADDED MULTSAXT FIELD                               2024207 * 00000898
+* 11-10-97 ADDED COPYBOOK FOR SASIOPTE                        9913483 * 00000900
+*---------------------------------------------------------------------* 00001000
+         SPACE 2                                                        00001100
+SASIOPTE DSECT                                                          00001200
+SIOPTE   DS    0CL300                GN ENVIRONMENT CONTROLS            00001300
+SIOPELNG DS    XL2                   RECORD LENGTH                      00001400
+         DS    CL2                   FILLER                             00001500
+SIOPERK  DS    0CL60                 RECORD KEY                         00001600
+SIOPESN  DS    CL8                          STRUCTURE NAME              00001700
+SIOPEC1  DS    XL2                          CNTL-1                      00001800
+SIOPESK  DS    CL50                         SEARCH KEY                  00001900
+SIOPEDT  DS    PL5                   LAST MAINT DATE                    00002000
+SIOPETM  DS    PL5                   LAST MAINT TIME                    00002100
+LANG     DS    CL2                   LANGUAGE                           00002200
+DECIMAL  DS    CL1                   DECIMAL POINT CHARACTER            00002300
+DIVIDER  DS    CL1                   MONETARY DIVIDER                   00002400
+DATEFMT  DS    CL6                   FORMAT FOR DATE                    00002500
+DATESEP  DS    CL1                   DATE SEPARATOR                     00002600
+MLTLANG  DS    CL1                   LANGUAGE PRINT                     00002700
+FLOATDC  DS    CL1                   FLOATING DECIMAL                   00002800
+         DS    CL1                   FILLER                   0525112   00002910
+MULTSAXT DS    CL1                   MULTIPLE SAXTR FILES     2024207   00002950
+SDTOPT   DS    CL1                   SHARED DATA TABLE OPTION 2024349   00002960
+IMEXACT  DS    CL1                   IMPACS EXPANDED ACCT NBR 0414738   00002965
+*              N - DO NOT USE EXPANDED ACCOUNT NBR FOR IMPACS 0414738   00002970
+*              Y - USE EXPANDED ACCOUNT NBR FOR IMPACS        0414738   00002975
+*              P - THE INSTALLED IM RELEASE IS PRIOR TO       0645467   00002977
+*                  THE EXPANDED ACCOUNT NUMBER ENHANCEMENT.   0645467   00002978
+TLLERMQ  DS    CL1                   TELLER MQ/ONLINE PROC    0525126   00002980
+KTFPHASE DS    CL8                   KEY TRANSFORMATION EXIT  0535153   00002985
+KTFCAADR DS    CL4                   KTF COMMAREA ADDRESS     0535153   00002990
+OPTEMNPD DS    CL2                   MAX NON PROC DAYS        0725573   00002995
+DAGMSGTR DS    CL1                   DAG MESSAGE TRACE        0735619   00002997
+SECAUTHF DS    CL1                   MAKER/CHECKER FLAG       0835688   00002999
+EXLOGUSE DS    CL1                   EXTENDED LOG USED?       1035872   00003000
+SIOPEDB2 DS    CL1                   DB2 FLAG                 1436560   00003005
+SIOPEEFL DS    CL1                   ENCRYPTION OPTION FLAG   1436560   00003007
+SIOPEGNX DS    CL8                   GN ENCRYPTION EXIT       1436560   00003010
+SIOPETRF DS    CL1                   TOTAL REVERSAL FLAG      1727146   00003014
+SIOPEDDB DS    CL3                   DROPPED DEBIT BUCKET     1727146   00003016
+SIOPEDCB DS    CL3                   DROPPED CREDIT BUCKET    1727146   00003018
+         DS    CL164                 FILLER                   1727146   00003098
+OPTECUST DS    CL10                  RESERVED FOR CLIENT      1035872   00003099
+OPTELEN  EQU   *-SIOPTE              SYMBOLIC LGTH SASIOPTE             00003100

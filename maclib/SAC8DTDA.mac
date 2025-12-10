@@ -1,0 +1,16 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*        SYSTEM DEFAULTS TABLE                                        * 00002000
+*********************************************************************** 00003000
+*   THIS TABLE IS USED BY THE CHANGE CONTROL DRIVER PROGRAM TO LOCATE * 00004000
+*   THE PROGRAMS AND KEYWORD TABLES FOR EACH APPLICATION USING THE NEW* 00005000
+*   ARCHITECTURE CHANGE CONTROL FACILITY.                             * 00006000
+*********************************************************************** 00007000
+SAC8DTDA DSECT                                                          00008000
+SACDSET  DS    CL8               SYSTEM ID                              00009000
+SACDKTDA DS    AL4               TABLE ADDRESS                          00010000
+SACDSPGM DS    CL8               SETUP PROGRAM DEFAULT                  00011000
+SACDAPGM DS    CL8               APPLY PROGRAM DEFAULT                  00012000
+SACDCPGM DS    CL8               COPY  PROGRAM DEFAULT                  00013000
+SACDEPGM DS    CL8               EXTRACT PROGRAM DEFAULT                00014000
+SACDSETL EQU   *-SACDSET         ENTRY LENGTH                           00015000

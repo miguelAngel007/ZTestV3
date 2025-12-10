@@ -1,0 +1,53 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*  MSG AREA LAYOUT = SAMSGHDR                                         * 00001000
+*                    SAMSGENT (# BASED ON SAMSGALC)                   * 00002000
+*                    SAMOAHDR (IF SAMOAAVL NOT = 0) (ONLINE ONLY)     * 00003000
+*                    SAMOAENT (# BASED ON SAMOAALC) (ONLINE ONLY)     * 00004000
+*********************************************************************** 00005000
+SAMSGHDR DSECT                                                          00006000
+SAMSGALC DS    XL2                     # OF MSG ENTRIES ALLOCATED       00007000
+SAMOAALC DS    XL2                     # OF OVERFLOW ENTRIES ALLOCATED  00008000
+SAMSGSRT DS    CL1                     TABLE SORTED FLAG                00009000
+SAMSGLMP DS    XL2                     LAST MESSAGE PROCESSED           00010000
+SAMSGLMS DS    XL2                     LAST MESSAGE SENT                00011000
+SAMSGMSV DS    CL2                     MAX SEVERITY                     00012000
+SAMSGHDL EQU   *-SAMSGHDR                                               00013000
+*                                                                       00014000
+SAMSGENT DSECT                                                          00015000
+SAMSGSPN DS    CL2                     SCREEN PROCESSING NBR (ONLINE)   00016000
+SAMSGSEV DS    CL2                     ENTRY SEVERITY                   00017000
+SAMSGROW DS    XL1                     FIELD ROW             (ONLINE)   00018000
+SAMSGCOL DS    XL1                     FIELD COLUMN          (ONLINE)   00019000
+SAMSGDAG DS    CL8                     DATA GROUP ID                    00020000
+SAMSGFLD DS    CL8                     FIELD ID                         00021000
+SAMSGOC1 DS    XL2                     OCCURS LEVEL 1                   00022000
+SAMSGOC2 DS    XL2                     OCCURS LEVEL 2                   00023000
+SAMSGOC3 DS    XL2                     OCCURS LEVEL 3                   00024000
+SAMSGPRC DS    CL1                     PROCESSED FLAG                   00025000
+SAMSGCUR DS    CL2                     CURSOR POSITION       (ONLINE)   00026000
+SAMSGRTE DS    CL1                     ROUTE FLAG                       00027000
+SAMSGSEC DS    CL1                     SECURITY LOG FLAG                00028000
+SAMSGPGM DS    CL8                     PROGRAM ID                       00029000
+SAMSGMCD DS    0CL6                    MESSAGE CODE (APPL & NUMBER)     00030000
+SAMSGAPL DS    CL2                     APPLICATION ID                   00031000
+SAMSGMES DS    CL4                     MESSAGE NUMBER                   00032000
+SAMSGTXT DS    CL50                    MESSAGE TEXT                     00033000
+SAMSGOSV DS    CL2                     ONLINE MSG SEVERITY    2500215   00033100
+SAMSGFIL DS    CL21                    FILLER                           00034000
+SAMSGEL  EQU   *-SAMSGENT                                               00035000
+*                                      (ONLINE ONLY)                    00036000
+SAMOAHDR DSECT                         MESSAGE OVERFLOW HEADER          00037000
+SAMOALMP DS    XL2                     LAST MESSAGE PROCESSED           00038000
+         DS    CL4                     FILLER                           00039000
+SAMOAHDL EQU   *-SAMOAHDR                                               00040000
+*                                                                       00041000
+SAMOAENT DSECT                         MESSAGE OVERFLOW AREA (ONLINE)   00042000
+SAMOASPN DS    CL2                     SCREEN PROCESSING NUMBER         00043000
+SAMOADAG DS    CL8                     DATA GROUP ID                    00044000
+SAMOAFLD DS    CL8                     FIELD ID                         00045000
+SAMOAOC1 DS    XL2                     OCCURS LEVEL 1                   00046000
+SAMOAOC2 DS    XL2                     OCCURS LEVEL 2                   00047000
+SAMOAOC3 DS    XL2                     OCCURS LEVEL 3                   00048000
+         DS    CL6                                                      00049000
+SAMOAEL  EQU   *-SAMOAENT                                               00050000

@@ -1,0 +1,890 @@
+**********************************************************************  00000010
+**    * TC0278 22/10/10 TECNOCOM.LIB.PROG.V101022           REC=19325*  00000020
+*IDAPL*CDA                                                              00000040
+*OBJET****************************************************************  00000050
+      *-------------------------------------------------------------*   00000060
+      *                          TECNOCOM                           *   00000070
+      *                           CDAE765                            *  00000080
+      *                                                             *   00000090
+      *                                                             *   00000100
+      *  DESCRIPCION: ESTE PROGRAMA SE ENCARGA DE RECIBIR BLOQUEOS  *   00000110
+      *  DESDE EL TERMINAL FINANCIERO O DESDE EL SIA Y SU POSTERIOR *   00000120
+      *  COMUNICACION  AL FRONT-OFFICE                              *   00000130
+      *->BDS-INI-21-01-2003                                             00000140
+      *  MODIFICACION TIPO BLOQUEO PARA AMEX                            00000150
+      *->BDS-INI-21-01-2003                                             00000160
+      *-------------------------------------------------------------*   00000170
+      * A61001 BRS 21-04-2009                                       *   00000180
+      * CORREGIR LLAMADAS A RUTINAS                                 *   00000190
+      *-------------------------------------------------------------*   00000200
+      * A61004 MMF 07-05-2009                                       *   00000210
+      * SE MODIFICA PARA LLAMAR A CDSY0SW                           *   00000220
+      *-------------------------------------------------------------*   00000230
+390SAT***************************************************************   00000240
+390SAT* FECHA       : 10/12/2004                                    *   00000250
+390SAT* AUTOR       : TECNOCOM                                      *   00000260
+390SAT* ETIQUETA    : 390SAT                                        *   00000270
+390SAT* DESCRIPCISN : MIGRACISN OS390SAT-UNIX                       *   00000280
+390SAT***************************************************************   00000290
+                                                                        00000300
+      *------------------------*                                        00000310
+       IDENTIFICATION DIVISION.                                         00000320
+      *------------------------*                                        00000330
+                                                                        00000340
+       PROGRAM-ID.      CDAD765.                                        00000350
+       AUTHOR TECNOCOM.                                                 00000360
+       DATE-WRITTEN.    30 DE JULIO DE 2001.                            00000370
+                                                                        00000380
+      *-------------------------------------------------------------*   00000390
+      *                    ENVIRONMENT DIVISION                     *   00000400
+      *                   =====================                     *   00000410
+      *-------------------------------------------------------------*   00000420
+                                                                        00000430
+      *---------------------*                                           00000440
+       ENVIRONMENT DIVISION.                                            00000450
+      *---------------------*                                           00000460
+                                                                        00000470
+       CONFIGURATION SECTION.                                           00000480
+                                                                        00000490
+       SPECIAL-NAMES.                                                   00000500
+           DECIMAL-POINT IS COMMA.                                      00000510
+                                                                        00000520
+      *------------------------------------------------------------*    00000530
+      *                     DATA DIVISION                          *    00000540
+      *                    ===============                         *    00000550
+      *------------------------------------------------------------*    00000560
+                                                                        00000570
+       DATA DIVISION.                                                   00000580
+                                                                        00000590
+       WORKING-STORAGE SECTION.                                         00000600
+                                                                        00000610
+      *------------------------------------------------------------*    00000620
+      *           CONSTANTES DEL PROGRAMA                          *    00000630
+      *------------------------------------------------------------*    00000640
+                                                                        00000650
+       01  CT-CONSTANTES.                                               00000660
+                                                                        00000670
+      *->BDS-INI-21-01-2003 - HASTA QUE SE CAMBIE LA TABLA CDDT118      00000680
+                                                                        00000690
+           05  CT-AMEX                   PIC 9(4) VALUE  3.             00000700
+                                                                        00000710
+           05  CT-BLOQUEO-03             PIC X(2) VALUE '3 '.           00000720
+                                                                        00000730
+           05  CT-BLOQUEO-04             PIC X(2) VALUE '4 '.           00000740
+                                                                        00000750
+           05  CT-BLOQUEO-05             PIC X(2) VALUE '5 '.           00000760
+                                                                        00000770
+           05  CT-BLOQUEO-11             PIC X(2) VALUE '11'.           00000780
+                                                                        00000790
+           05  CT-BLOQUEO-22             PIC X(2) VALUE '22'.           00000800
+                                                                        00000810
+           05  CT-BLOQUEO-91             PIC X(2) VALUE '91'.           00000820
+                                                                        00000830
+           05  CT-BLOQUEO-3000           PIC X(4) VALUE '3000'.         00000840
+                                                                        00000850
+           05  CT-BLOQUEO-3702           PIC X(4) VALUE '3702'.         00000860
+                                                                        00000870
+           05  CT-BLOQUEO-3001           PIC X(4) VALUE '3001'.         00000880
+                                                                        00000890
+           05  CT-BLOQUEO-3002           PIC X(4) VALUE '3002'.         00000900
+                                                                        00000910
+           05  CT-BLOQUEO-3700           PIC X(4) VALUE '3700'.         00000920
+                                                                        00000930
+           05  CT-BLOQUEO-3701           PIC X(4) VALUE '3701'.         00000940
+                                                                        00000950
+      *->BDS-FIN-21-01-2003                                             00000960
+                                                                        00000970
+           05  CT-B                        PIC X(1) VALUE 'B'.          00000980
+           05  CT-O                        PIC X(1) VALUE 'O'.          00000990
+                                                                        00001000
+           05  CT-UNO                      PIC 9(1) VALUE 1.            00001010
+                                                                        00001020
+           05  CT-DOS                      PIC 9(1) VALUE 2.            00001030
+                                                                        00001040
+           05  CT-8                        PIC 9(1) VALUE 8.            00001050
+                                                                        00001060
+           05  CT-9                        PIC 9(1) VALUE 9.            00001070
+                                                                        00001080
+           05  CT-23                       PIC 9(2) VALUE 23.           00001090
+                                                                        00001100
+           05  CT-32                       PIC 9(2) VALUE 32.           00001110
+                                                                        00001120
+           05  CT-01                       PIC 9(2) VALUE 01.           00001130
+                                                                        00001140
+           05  CT-09                       PIC 9(2) VALUE 09.           00001150
+                                                                        00001160
+           05  CT-10                       PIC 9(2) VALUE 10.           00001170
+                                                                        00001180
+           05  CT-SI                       PIC X(1) VALUE 'S'.          00001190
+                                                                        00001200
+           05  CT-CLACONT                PIC X(8) VALUE 'ENVIOSIA'.     00001210
+                                                                        00001220
+           05  CT-MP                     PIC X(2) VALUE 'MP'.           00001230
+                                                                        00001240
+           05  CT-TABLENAME69            PIC X(08) VALUE 'CDDT069'.     00001250
+                                                                        00001260
+           05  CT-TABLENAME60            PIC X(08) VALUE 'CDDT060'.     00001270
+                                                                        00001280
+           05  CT-TABLENAME158           PIC X(08) VALUE 'CDDT158'.     00001290
+                                                                        00001300
+           05  CT-OPEN                   PIC X(4) VALUE 'OPEN'.         00001310
+                                                                        00001320
+           05  CT-UPDATE                 PIC X(6) VALUE 'UPDATE'.       00001330
+                                                                        00001340
+           05  CT-FETCH                  PIC X(5) VALUE 'FETCH'.        00001350
+                                                                        00001360
+           05  CT-CERRAR                 PIC X(6) VALUE 'CERRAR'.       00001370
+                                                                        00001380
+           05  CT-SELECT                 PIC X(6) VALUE 'SELECT'.       00001390
+                                                                        00001400
+           05  CT-ERROR-4                PIC X(8) VALUE 'MPE0004'.      00001410
+                                                                        00001420
+A61007     05  CT-MPE2094                PIC X(8) VALUE 'MPE2094'.      00001430
+A61007     05  CT-MPE2095                PIC X(8) VALUE 'MPE2095'.      00001440
+A61007     05  CT-MPE2096                PIC X(8) VALUE 'MPE2096'.      00001450
+                                                                        00001460
+           05 CT-PROGRAMAS.                                             00001470
+                                                                        00001480
+              10  CT-SIA                   PIC X(8) VALUE 'SIA6    '.   00001490
+                                                                        00001500
+              10  CT-RU7CCON0              PIC X(8) VALUE 'RU7CCON0'.   00001510
+                                                                        00001520
+              10  CT-CDAE765                PIC X(8) VALUE 'CDAE765'.   00001530
+                                                                        00001540
+              10  CT-CDAE756                PIC X(8) VALUE 'CDAE756'.   00001550
+                                                                        00001560
+              10  CT-CDAY752                PIC X(08) VALUE 'CDAY752'.  00001570
+                                                                        00001580
+              10  CT-CDAY751                PIC X(08) VALUE 'CDAY751'.  00001590
+                                                                        00001600
+              10  CT-CDAD700                PIC X(08) VALUE 'CDAD700'.  00001610
+A61004*       10  CT-CDAYSW1                PIC X(08) VALUE 'CDAYSW1'.  00001620
+A61004        10  CT-CDSY0SW               PIC X(08) VALUE 'CDSY0SW'.   00001630
+                                                                        00001640
+      *------------------------------------------------------------*    00001650
+      *                        VARIABLES                           *    00001660
+      *------------------------------------------------------------*    00001670
+       01 WS-VARIABLES.                                                 00001680
+                                                                        00001690
+          05  IN-FRAN                      PIC 9(1)  VALUE 1.           00001700
+          05  IN-BLQSIA                    PIC 9(1)  VALUE 1.           00001710
+          05  IN-PAN                       PIC 9(2)  VALUE ZEROS.       00001720
+          05  WS-PAN                      PIC X(22) VALUE SPACES.       00001730
+          05  T-PAN                       REDEFINES  WS-PAN.            00001740
+              10 TAB-PAN                  OCCURS  22.                   00001750
+                 15  E-PAN                   PIC X(1).                  00001760
+                                                                        00001770
+          05  WS-FECHA-SISTEMA             PIC X(14) VALUE ZEROS.       00001780
+                                                                        00001790
+          05  WS-FECHA-FIN.                                             00001800
+                                                                        00001810
+              10 WS-AA-FIN                 PIC 9(4)  VALUE ZEROS.       00001820
+              10 FILLER                    PIC X     VALUE SPACES.      00001830
+              10 WS-MES-FIN                PIC 9(2)  VALUE ZEROS.       00001840
+              10 FILLER                    PIC X     VALUE SPACES.      00001850
+              10 WS-DIA-FIN                PIC 9(2)  VALUE ZEROS.       00001860
+                                                                        00001870
+          05  WS-FECHA-FIN-AGRUP.                                       00001880
+                                                                        00001890
+              10 WS-AA-FIN-AGRUP           PIC 9(4)  VALUE ZEROS.       00001900
+              10 WS-MES-FIN-AGRUP          PIC 9(2)  VALUE ZEROS.       00001910
+              10 WS-DIA-FIN-AGRUP          PIC 9(2)  VALUE ZEROS.       00001920
+                                                                        00001930
+          05  WS-FECHA-FIN-AGRUP-NUM       REDEFINES                    00001940
+              WS-FECHA-FIN-AGRUP           PIC 9(8).                    00001950
+                                                                        00001960
+          05  WS-FECHA-CAD.                                             00001970
+                                                                        00001980
+              10 WS-AA-CAD                 PIC 9(4) VALUE ZEROS.        00001990
+              10 WS-MM-CAD                 PIC 9(2) VALUE ZEROS.        00002000
+                                                                        00002010
+          05  WS-FECHA-CAD-10.                                          00002020
+                                                                        00002030
+              10 WS-AA-CAD-10              PIC 9(4) VALUE ZEROS.        00002040
+              10 WS-MM-CAD-10              PIC 9(2) VALUE ZEROS.        00002050
+              10 WS-DD-CAD-10              PIC 9(2) VALUE 01.           00002060
+                                                                        00002070
+          05  WS-FECHA-SIS.                                             00002080
+                                                                        00002090
+              10 WS-AA-SISTEMA             PIC 9(4) VALUE ZEROS.        00002100
+              10 FILLER                    PIC X    VALUE SPACES.       00002110
+              10 WS-MM-SISTEMA             PIC 9(2) VALUE ZEROS.        00002120
+              10 FILLER                    PIC X    VALUE SPACES.       00002130
+              10 WS-DD-SISTEMA             PIC 9(2) VALUE ZEROS.        00002140
+                                                                        00002150
+          05  WS-HORA-SIS.                                              00002160
+                                                                        00002170
+              10 WS-HH-SISTEMA             PIC 9(2) VALUE ZEROS.        00002180
+              10 FILLER                    PIC X    VALUE SPACES.       00002190
+              10 WS-MI-SISTEMA             PIC 9(2) VALUE ZEROS.        00002200
+              10 FILLER                    PIC X    VALUE SPACES.       00002210
+              10 WS-SS-SISTEMA             PIC 9(2) VALUE ZEROS.        00002220
+                                                                        00002230
+          05  WS-FECHA-HORA-SIS.                                        00002240
+                                                                        00002250
+              10 WS-AA-FEC-HORA            PIC 9(4) VALUE ZEROS.        00002260
+              10 WS-MM-FEC-HORA            PIC 9(2) VALUE ZEROS.        00002270
+              10 WS-DD-FEC-HORA            PIC 9(2) VALUE ZEROS.        00002280
+              10 WS-HH-FEC-HORA            PIC 9(2) VALUE ZEROS.        00002290
+              10 WS-MI-FEC-HORA            PIC 9(2) VALUE ZEROS.        00002300
+              10 WS-SS-FEC-HORA            PIC 9(2) VALUE ZEROS.        00002310
+                                                                        00002320
+          05  WS-FECHA-HORA-SIS-NUM        REDEFINES                    00002330
+              WS-FECHA-HORA-SIS            PIC 9(14).                   00002340
+                                                                        00002350
+          05  WS-SQLERRM                   PIC X(70) VALUE SPACES.      00002360
+          05  WS-REFERENCIA                PIC X(20) VALUE SPACES.      00002370
+          05  WS-PROGRAMA                  PIC X(6)  VALUE SPACES.      00002380
+          05  WS-TABLENAME                 PIC X(7)  VALUE SPACES.      00002390
+          05  WS-SQLCODE                   PIC S9(4) VALUE ZEROS.       00002400
+      *   05  WS-SECUENCIAL                PIC 9(6) VALUE ZEROS.        00002410
+          05  WS-SECUENCIAL                PIC 9(9) VALUE ZEROS.        00002420
+          05  WS-IDTMSJ.                                                00002430
+              10  WS-CAMPO1             PIC X(6) VALUE '000003'.        00002440
+              10  WS-MM                 PIC 9(2) VALUE ZEROS.           00002450
+              10  WS-DD                 PIC 9(2) VALUE ZEROS.           00002460
+              10  WS-SECUE              PIC 9(9) VALUE ZEROS.           00002470
+      *       10  WS-SECUE              PIC 9(6) VALUE ZEROS.           00002480
+                                                                        00002490
+390SAT*                                                                 00002500
+390SAT*    EXEC SQL BEGIN DECLARE SECTION END-EXEC.                     00002510
+390SAT*                                                                 00002520
+                                                                        00002530
+      *------------------------------------------------------------*    00002540
+      *                        TABLAS-SQL                          *    00002550
+      *------------------------------------------------------------*    00002560
+      *  TABLA DE SECUENCIALES.                                         00002570
+                                                                        00002580
+           EXEC SQL                                                     00002590
+              INCLUDE CDDT069                                           00002600
+           END-EXEC.                                                    00002610
+                                                                        00002620
+      *  TABLA DE BLOQUEOS.                                             00002630
+                                                                        00002640
+           EXEC SQL                                                     00002650
+              INCLUDE CDDT060                                           00002660
+           END-EXEC.                                                    00002670
+                                                                        00002680
+      *  TABLA DE ENCAMINAMIENTO DE BLOQUEOS                            00002690
+                                                                        00002700
+           EXEC SQL                                                     00002710
+              INCLUDE CDDT158                                           00002720
+           END-EXEC.                                                    00002730
+                                                                        00002740
+      *----------------------------------------------------------------*00002750
+      *          DECLARACION DEL AREA DE COMUNICACION DE DB2           *00002760
+      *----------------------------------------------------------------*00002770
+                                                                        00002780
+           EXEC SQL                                                     00002790
+               INCLUDE SQLCA                                            00002800
+           END-EXEC.                                                    00002810
+390SAT*                                                                 00002820
+390SAT*    EXEC SQL END DECLARE SECTION END-EXEC.                       00002830
+390SAT*                                                                 00002840
+                                                                        00002850
+      *------------------------------------------------------------*    00002860
+      *                           COPYS                            *    00002870
+      *                       ===============                      *    00002880
+      *------------------------------------------------------------*    00002890
+                                                                        00002900
+      * COPY LLAMADA TITULARES                                          00002910
+                                                                        00002920
+       01  WS-CD000401.                                                 00002930
+           COPY CD000401.                                               00002940
+                                                                        00002950
+      * COPY LLAMADA SIA                                                00002960
+                                                                        00002970
+A61002*01  WS-CDECCOP.                                                  00002980
+A61002*    COPY CDECCOP.                                                00002990
+A61002 01  WS-CDCOSWI.                                                  00003000
+A61002     COPY CDCOSWI.                                                00003010
+                                                                        00003020
+       01  WS-CDMSJAUT.                                                 00003030
+           COPY CDMSJAUT.                                               00003040
+                                                                        00003050
+      * COPY PARA LA RUTINA DE ERRORES DB2                              00003060
+                                                                        00003070
+       01  WS-CDSQLERR.                                                 00003080
+           COPY CDSQLERR.                                               00003090
+                                                                        00003100
+       01 WS-DES-COM.                                                   00003110
+          COPY CDMSJCOM.                                                00003120
+          COPY CDMSJDES.                                                00003130
+          COPY CDERRCOM.                                                00003140
+                                                                        00003150
+      *----------------------------------------------------------------*00003160
+      *          DECLARACION DE CURSORES                               *00003170
+      *----------------------------------------------------------------*00003180
+           EXEC SQL                                                     00003190
+                                                                        00003200
+           DECLARE CDAE765_1 CURSOR                                     00003210
+              FOR SELECT VALCONT,                                       00003220
+                         CODENTUMO,                                     00003230
+                         CODOFIUMO,                                     00003240
+                         USUARIOUMO,                                    00003250
+                         CODTERMUMO,                                    00003260
+                         CONTCUR                                        00003270
+              FROM CDDT069                                              00003280
+              WHERE CODENT  =:DCLCDDT069.CODENT                         00003290
+              AND   CLACONT =:DCLCDDT069.CLACONT                        00003300
+              FOR UPDATE OF VALCONT,                                    00003310
+                            CODENTUMO,                                  00003320
+                            CODOFIUMO,                                  00003330
+                            USUARIOUMO,                                 00003340
+                            CODTERMUMO,                                 00003350
+                            CONTCUR                                     00003360
+           END-EXEC.                                                    00003370
+                                                                        00003380
+      *------------------------------------------------------------*    00003390
+      *                       LINKAGE SECTION                      *    00003400
+      *                       ===============                      *    00003410
+      *------------------------------------------------------------*    00003420
+                                                                        00003430
+      *----------------*                                                00003440
+       LINKAGE SECTION.                                                 00003450
+      *----------------*                                                00003460
+390SAT*01  DFHCOMMAREA                 PIC X(4820).                     00003470
+       01  LI-CDUSCOM.                                                  00003480
+          COPY CDUSCOM.                                                 00003490
+      *------------------------------------------------------------*    00003500
+      *               PROCEDURE DIVISION                           *    00003510
+      *               ==================                           *    00003520
+      *------------------------------------------------------------*    00003530
+                                                                        00003540
+       PROCEDURE DIVISION USING LI-CDUSCOM.                             00003550
+                                                                        00003560
+      *---------------*                                                 00003570
+       INICIO-CDAE765.                                                  00003580
+      *---------------*                                                 00003590
+                                                                        00003600
+           PERFORM 1000-INICIO                                          00003610
+                                                                        00003620
+           PERFORM 2000-PROCESO                                         00003630
+                                                                        00003640
+           PERFORM 3000-FIN-PROCESO.                                    00003650
+                                                                        00003660
+      *-----------*                                                     00003670
+       1000-INICIO.                                                     00003680
+      *-----------*                                                     00003690
+      * SE INFORMA LA COPY DE COMUNICACISN PARA BLOQUEOS DE TARJETA     00003700
+      * ESTA COPY SE UTILIZA TANTO PARA LA LLAMADA A LA RUTINA DE       00003710
+      * BLOQUEOS COMO PARA LA LLAMADA A LA RUTINA DE FRANQUICIAS        00003720
+      * POR TANTO ESTA COPY ES USADA POR EL MOD. AUTORIZADOR            00003730
+      * Y POR EL PROGRAMA DE BLOQUEOS ON LINE QUE COMUNICA CON          00003740
+      * EL TERMINAL FINANCIERO                                          00003750
+                                                                        00003760
+390SAT*    MOVE  DFHCOMMAREA          TO LI-CDUSCOM                     00003770
+           MOVE  CDUSCOM-E-DATOS     TO CD000401                        00003780
+           SET RETORNO-OK            TO TRUE                            00003790
+                                                                        00003800
+           INITIALIZE CDMSJDES                                          00003810
+                      CDMSJCOM                                          00003820
+                      CDMSJAUT.                                         00003830
+                                                                        00003840
+      *     PERFORM  1200-OBTENER-SECUENCIAL.                           00003850
+                                                                        00003860
+ITB   *  <-- ITB-INI-121010                                             00003870
+ITB         PERFORM  1200-OBTENER-SECUENCIAL.                           00003880
+ITB   *  <-- ITB-FIN-121010                                             00003890
+                                                                        00003900
+      *------------*                                                    00003910
+       2000-PROCESO.                                                    00003920
+      *------------*                                                    00003930
+                                                                        00003940
+           PERFORM 2200-GENERAR-MENSAJE                                 00003950
+                                                                        00003960
+           PERFORM 2300-COMPRIMIR-MENSAJE.                              00003970
+                                                                        00003980
+390SAT*    PERFORM 2400-LLAMADA-SIA.                                    00003990
+A61002     PERFORM 2400-LLAMADA-SIA.                                    00004000
+                                                                        00004010
+      *-----------------------*                                         00004020
+       1200-OBTENER-SECUENCIAL.                                         00004030
+      *-----------------------*                                         00004040
+                                                                        00004050
+           PERFORM 1210-ABRIR-CURSOR-CDAE765-1                          00004060
+           PERFORM 1220-LEER-CURSOR-CDAE765-1                           00004070
+           PERFORM 1230-MODIFICAR-VALCONT                               00004080
+           PERFORM 1240-CERRAR-CURSOR-CDAE765-1.                        00004090
+                                                                        00004100
+      *---------------------------*                                     00004110
+       1210-ABRIR-CURSOR-CDAE765-1.                                     00004120
+      *---------------------------*                                     00004130
+                                                                        00004140
+           MOVE R401-CODENT(IN-FRAN)   TO CODENT     OF DCLCDDT069      00004150
+           MOVE CT-CLACONT             TO CLACONT    OF DCLCDDT069      00004160
+                                                                        00004170
+           EXEC SQL                                                     00004180
+                OPEN CDAE765_1                                          00004190
+           END-EXEC                                                     00004200
+                                                                        00004210
+390SAT     MOVE SQLCODE                TO CDSQLERR                      00004220
+                                                                        00004230
+           IF NOT ACCESO-CORRECTO-BD                                    00004240
+              SET  RETORNO-ERRORDB2   TO TRUE                           00004250
+              MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00004260
+              MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00004270
+              MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00004280
+              MOVE CT-TABLENAME69     TO CDUSCOM-S-NOMBRE-TABLA         00004290
+              MOVE CT-OPEN            TO CDUSCOM-S-OPERACION            00004300
+A61003*       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00004310
+A61003        MOVE CT-ERROR-4         TO CDUSCOM-S-COD-ERROR1           00004320
+              PERFORM 3000-FIN-PROCESO                                  00004330
+           END-IF.                                                      00004340
+                                                                        00004350
+      *--------------------------*                                      00004360
+       1220-LEER-CURSOR-CDAE765-1.                                      00004370
+      *--------------------------*                                      00004380
+      *LECTURA DEL CURSOR                                               00004390
+                                                                        00004400
+           EXEC SQL                                                     00004410
+               FETCH CDAE765_1                                          00004420
+                   INTO                                                 00004430
+                      :DCLCDDT069.VALCONT,                              00004440
+                      :DCLCDDT069.CODENTUMO,                            00004450
+                      :DCLCDDT069.USUARIOUMO,                           00004460
+                      :DCLCDDT069.CODOFIUMO,                            00004470
+                      :DCLCDDT069.CODTERMUMO,                           00004480
+                      :DCLCDDT069.CONTCUR                               00004490
+            END-EXEC                                                    00004500
+                                                                        00004510
+390SAT*                                                                 00004520
+390SAT     MOVE SQLCODE                TO CDSQLERR                      00004530
+390SAT*                                                                 00004540
+                                                                        00004550
+           IF ACCESO-CORRECTO-BD                                        00004560
+              MOVE  VALCONT OF DCLCDDT069   TO WS-SECUENCIAL            00004570
+           ELSE                                                         00004580
+              SET  RETORNO-ERRORDB2   TO TRUE                           00004590
+              MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00004600
+              MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00004610
+              MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00004620
+              MOVE CT-TABLENAME69     TO CDUSCOM-S-NOMBRE-TABLA         00004630
+              MOVE CT-FETCH           TO CDUSCOM-S-OPERACION            00004640
+A61003*       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00004650
+A61003        MOVE CT-ERROR-4         TO CDUSCOM-S-COD-ERROR1           00004660
+              PERFORM 3000-FIN-PROCESO                                  00004670
+           END-IF.                                                      00004680
+                                                                        00004690
+      *-----------------------*                                         00004700
+       1230-MODIFICAR-VALCONT.                                          00004710
+      *-----------------------*                                         00004720
+                                                                        00004730
+           ADD  CT-UNO                 TO VALCONT    OF DCLCDDT069      00004740
+           MOVE CDUSCOM-E-ENTIDAD      TO CODENTUMO  OF DCLCDDT069      00004750
+           MOVE CDUSCOM-E-CENTRO-CONT  TO CODOFIUMO  OF DCLCDDT069      00004760
+           MOVE CDUSCOM-E-USERID       TO USUARIOUMO OF DCLCDDT069      00004770
+           MOVE CDUSCOM-E-TERMINAL     TO CODTERMUMO OF DCLCDDT069      00004780
+                                                                        00004790
+           EXEC SQL                                                     00004800
+                UPDATE CDDT069                                          00004810
+                SET   VALCONT         =:DCLCDDT069.VALCONT,             00004820
+                      CODENTUMO       =:DCLCDDT069.CODENTUMO,           00004830
+                      CODOFIUMO       =:DCLCDDT069.CODOFIUMO,           00004840
+                      USUARIOUMO      =:DCLCDDT069.USUARIOUMO,          00004850
+                      CODTERMUMO      =:DCLCDDT069.CODTERMUMO,          00004860
+390SAT                  CONTCUR     = CURRENT TIMESTAMP                 00004870
+390SAT*                 CONTCUR     =                                   00004880
+390SAT*                TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24.MI.SS')¨¨ '.0'  00004890
+390SAT*             ¨¨ TO_CHAR(SYSDATE,'SSSSS')                         00004900
+               WHERE  CURRENT OF CDAE765_1                              00004910
+               END-EXEC                                                 00004920
+                                                                        00004930
+390SAT*                                                                 00004940
+390SAT     MOVE SQLCODE                TO CDSQLERR                      00004950
+390SAT*                                                                 00004960
+                                                                        00004970
+           IF NOT ACCESO-CORRECTO-BD                                    00004980
+              SET  RETORNO-ERRORDB2   TO TRUE                           00004990
+              MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00005000
+              MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00005010
+              MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00005020
+              MOVE CT-TABLENAME69     TO CDUSCOM-S-NOMBRE-TABLA         00005030
+              MOVE CT-UPDATE          TO CDUSCOM-S-OPERACION            00005040
+A61003*       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00005050
+A61003        MOVE CT-ERROR-4         TO CDUSCOM-S-COD-ERROR1           00005060
+              PERFORM 3000-FIN-PROCESO                                  00005070
+           END-IF.                                                      00005080
+                                                                        00005090
+      *----------------------------*                                    00005100
+       1240-CERRAR-CURSOR-CDAE765-1.                                    00005110
+      *----------------------------*                                    00005120
+      *SE REALIZA EL CIERRE DEL CURSOR                                  00005130
+                                                                        00005140
+           EXEC SQL                                                     00005150
+               CLOSE CDAE765_1                                          00005160
+           END-EXEC                                                     00005170
+                                                                        00005180
+390SAT*                                                                 00005190
+390SAT     MOVE SQLCODE                TO CDSQLERR                      00005200
+390SAT*                                                                 00005210
+                                                                        00005220
+           IF NOT ACCESO-CORRECTO-BD                                    00005230
+              SET  RETORNO-ERRORDB2   TO TRUE                           00005240
+              MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00005250
+              MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00005260
+              MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00005270
+              MOVE CT-TABLENAME69     TO CDUSCOM-S-NOMBRE-TABLA         00005280
+              MOVE CT-CERRAR          TO CDUSCOM-S-OPERACION            00005290
+A61003*       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00005300
+A61003        MOVE CT-ERROR-4         TO CDUSCOM-S-COD-ERROR1           00005310
+              PERFORM 3000-FIN-PROCESO                                  00005320
+           END-IF.                                                      00005330
+                                                                        00005340
+      *--------------------*                                            00005350
+       2200-GENERAR-MENSAJE.                                            00005360
+      *--------------------*                                            00005370
+      * SI PROVIENE EL MENSAJE DE SIA NO DEBE ENVIARSE EL BLOQUEO A LA  00005380
+      * FRANQUICIA SIA PORQUE YA TIENE LA INFORMACION                   00005390
+                                                                        00005400
+           SET  CDMSJAUT-SOL-ACTU-TIT       TO  TRUE                    00005410
+           SET  CDMSJDES-SOL-ACTU-TIT       TO  TRUE                    00005420
+           SET  CDMSJDES-PET-GEST-FICHERO   TO  TRUE                    00005430
+                                                                        00005440
+                                                                        00005450
+           MOVE  CT-UNO                     TO  IN-BLQSIA               00005460
+                                                                        00005470
+           MOVE R401-PAN(IN-FRAN)           TO   CDMSJDES-TJT-PAN-NU    00005480
+                                                 WS-PAN                 00005490
+                                                                        00005500
+           MOVE  1                          TO   IN-PAN                 00005510
+                                                                        00005520
+           PERFORM 2210-BUSCAR-LONG                                     00005530
+             UNTIL E-PAN(IN-PAN) EQUAL SPACES OR IN-PAN EQUAL CT-23     00005540
+                                                                        00005550
+           SUBTRACT  CT-UNO  FROM  IN-PAN    GIVING                     00005560
+                      CDMSJDES-LONG-TJT-PAN-NU                          00005570
+                                                                        00005580
+           MOVE CDUSCOM-E-FECHA-TRANS2      TO WS-FECHA-SIS             00005590
+           MOVE CDUSCOM-E-HORA              TO WS-HORA-SIS              00005600
+           MOVE WS-AA-SISTEMA               TO WS-AA-FEC-HORA           00005610
+           MOVE WS-MM-SISTEMA               TO WS-MM-FEC-HORA           00005620
+           MOVE WS-DD-SISTEMA               TO WS-DD-FEC-HORA           00005630
+           MOVE WS-HH-SISTEMA               TO WS-HH-FEC-HORA           00005640
+           MOVE WS-MI-SISTEMA               TO WS-MI-FEC-HORA           00005650
+           MOVE WS-SS-SISTEMA               TO WS-SS-FEC-HORA           00005660
+           MOVE WS-FECHA-HORA-SIS-NUM       TO CDMSJDES-FHOTRANS        00005670
+           MOVE WS-MM-SISTEMA               TO WS-MM                    00005680
+           MOVE WS-DD-SISTEMA               TO WS-DD                    00005690
+390SAT*    MOVE EIBTASKN                    TO WS-SECUE                 00005700
+      *    MOVE WS-SECUENCIAL               TO WS-SECUE                 00005710
+ITB   *  <-- ITB-INI-121010                                             00005720
+ITB        MOVE WS-SECUENCIAL               TO WS-SECUE                 00005730
+ITB   *  <-- ITB-FIN-121010                                             00005740
+           MOVE WS-IDTMSJ                   TO CDMSJDES-NUM-IDENT-TRANS 00005750
+           MOVE CDUSCOM-E-ENTIDAD           TO CDMSJDES-ENTIDAD-ADQ     00005760
+           MOVE SPACES                      TO CDMSJDES-REFER-OPERAC    00005770
+           SET  CDMSJDES-LONG-COD-USUA      TO TRUE                     00005780
+           SET  CDMSJDES-COD-COD-USUA       TO TRUE                     00005790
+           MOVE CDUSCOM-E-TERMINAL   TO CDMSJDES-VALOR-COD-USUARIO(1:8) 00005800
+           MOVE CDUSCOM-E-USERID     TO CDMSJDES-VALOR-COD-USUARIO(9:8) 00005810
+           SET  CDMSJDES-TITULARSAT        TO TRUE                      00005820
+                                                                        00005830
+      *   MODIFICACION 25-02-2003 -                                     00005840
+                                                                        00005850
+      *    IF  CDUSCOM-E-PRGANT   NOT EQUAL CT-CDAE756                  00005860
+           PERFORM  2220-RELLENAR-REG-SIA                               00005870
+      *    END-IF                                                       00005880
+                                                                        00005890
+      *   MODIFICACION 25-02-2003 -                                     00005900
+           PERFORM  2230-RELLENAR-TABLA                                 00005910
+             UNTIL  IN-FRAN EQUAL CT-9                                  00005920
+                            OR R401-PAN(IN-FRAN) EQUAL SPACES           00005930
+                                                                        00005940
+      *-> INI MOD 21-01-2003                                            00005950
+                            OR R401-TIPFRAN(IN-FRAN) EQUAL ZEROES       00005960
+      *-> FIN MOD 21-01-2003                                            00005970
+                                                                        00005980
+           MOVE LENGTH OF CDMSJDES-COD-ACCI-RED   TO                    00005990
+                                        CDMSJDES-LONG-COD-ACCI-RED.     00006000
+                                                                        00006010
+      *----------------*                                                00006020
+       2210-BUSCAR-LONG.                                                00006030
+      *----------------*                                                00006040
+                                                                        00006050
+           ADD  CT-UNO                  TO   IN-PAN.                    00006060
+                                                                        00006070
+      *---------------------*                                           00006080
+       2220-RELLENAR-REG-SIA.                                           00006090
+      *---------------------*                                           00006100
+                                                                        00006110
+           MOVE  CT-UNO   TO CDMSJDES-RED-DESTINO1(IN-BLQSIA)           00006120
+                                                                        00006130
+      * INI MOD. 21-01-2003                                             00006140
+           IF  R401-INDBLQ  EQUAL CT-B                                  00006150
+      * FIN MOD. 21-01-2003                                             00006160
+                                                                        00006170
+               SET  CDMSJDES-ALTA-MOD-REG(IN-BLQSIA) TO TRUE            00006180
+           ELSE                                                         00006190
+               SET  CDMSJDES-ELIMINAR-REG(IN-BLQSIA) TO TRUE            00006200
+           END-IF                                                       00006210
+                                                                        00006220
+           IF  R401-CODBLQ(IN-FRAN) EQUAL ZEROES                        00006230
+               MOVE  ZEROES  TO  CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA)     00006240
+           ELSE                                                         00006250
+               PERFORM  2221-ACCESO-TBCODBLQ                            00006260
+               MOVE  CODBLQSIA OF DCLCDDT060                            00006270
+                              TO CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA)     00006280
+           END-IF                                                       00006290
+                                                                        00006300
+           MOVE  SPACES       TO CDMSJDES-AREA-DESTINO(IN-BLQSIA)       00006310
+           MOVE  R401-FECCADTAR(IN-FRAN) TO WS-FECHA-CAD                00006320
+           MOVE  WS-AA-CAD               TO WS-AA-CAD-10                00006330
+           MOVE  WS-MM-CAD               TO WS-MM-CAD-10                00006340
+           MOVE  WS-FECHA-CAD-10         TO CDMSJDES-FECHA(IN-BLQSIA)   00006350
+                                                                        00006360
+           ADD   CT-UNO                  TO  IN-BLQSIA.                 00006370
+      *    ADD   CT-UNO                  TO  IN-FRAN.                   00006380
+                                                                        00006390
+      *---------------------*                                           00006400
+       2221-ACCESO-TBCODBLQ.                                            00006410
+      *---------------------*                                           00006420
+                                                                        00006430
+            MOVE R401-CODENT(IN-FRAN)   TO CODENT OF DCLCDDT060         00006440
+            MOVE R401-CODBLQ(IN-FRAN)   TO CODBLQ OF DCLCDDT060         00006450
+                                                                        00006460
+            EXEC SQL                                                    00006470
+                                                                        00006480
+                 SELECT CODBLQSIA                                       00006490
+                 INTO   :DCLCDDT060.CODBLQSIA                           00006500
+                 FROM CDDT060                                           00006510
+                 WHERE CODENT = :DCLCDDT060.CODENT                      00006520
+                 AND   CODBLQ = :DCLCDDT060.CODBLQ                      00006530
+                                                                        00006540
+            END-EXEC                                                    00006550
+                                                                        00006560
+390SAT*                                                                 00006570
+390SAT     MOVE SQLCODE                TO CDSQLERR                      00006580
+390SAT*                                                                 00006590
+                                                                        00006600
+           IF NOT ACCESO-CORRECTO-BD                                    00006610
+              SET  RETORNO-ERRORDB2   TO TRUE                           00006620
+              MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00006630
+              MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00006640
+              MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00006650
+              MOVE CT-TABLENAME60     TO CDUSCOM-S-NOMBRE-TABLA         00006660
+              MOVE CT-SELECT          TO CDUSCOM-S-OPERACION            00006670
+A61003*       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00006680
+A61003        MOVE CT-ERROR-4         TO CDUSCOM-S-COD-ERROR1           00006690
+              PERFORM 3000-FIN-PROCESO                                  00006700
+           END-IF.                                                      00006710
+                                                                        00006720
+      *-------------------*                                             00006730
+       2230-RELLENAR-TABLA.                                             00006740
+      *-------------------*                                             00006750
+      * RELLENO LA TABLA HASTA QUE NO HAYA MAS FRANQUICIAS (COMO        00006760
+      * MAXIMO PUEDE HABER 8 FRANQUICIAS)                               00006770
+                                                                        00006780
+      * MODIFICACION 25-02-2003 -                                       00006790
+                                                                        00006800
+           IF R401-INDCOMBLQ(IN-FRAN) EQUAL CT-O                        00006810
+                                                                        00006820
+      * MODIFICACION 25-02-2003 -                                       00006830
+                                                                        00006840
+              PERFORM 2331-INFORMAR-TABLA                               00006850
+                                                                        00006860
+           END-IF                                                       00006870
+                                                                        00006880
+           ADD   CT-UNO             TO  IN-FRAN                         00006890
+           ADD   CT-UNO             TO  IN-BLQSIA.                      00006900
+                                                                        00006910
+      *-------------------*                                             00006920
+       2331-INFORMAR-TABLA.                                             00006930
+      *-------------------*                                             00006940
+                                                                        00006950
+           MOVE  R401-FECFINBLQ(IN-FRAN) TO WS-FECHA-FIN                00006960
+           MOVE  WS-AA-FIN               TO WS-AA-FIN-AGRUP             00006970
+           MOVE  WS-MES-FIN              TO WS-MES-FIN-AGRUP            00006980
+           MOVE  WS-DIA-FIN              TO WS-DIA-FIN-AGRUP            00006990
+           MOVE  WS-FECHA-FIN-AGRUP-NUM  TO CDMSJDES-FECHA(IN-BLQSIA)   00007000
+                                                                        00007010
+           MOVE  R401-TIPSWI(IN-FRAN)                                   00007020
+                                 TO CDMSJDES-RED-DESTINO1(IN-BLQSIA)    00007030
+                                                                        00007040
+      *    MOVE  TIPSWI OF DCLCDDT158                                   00007050
+      *                          TO CDMSJDES-RED-DESTINO1(IN-BLQSIA)    00007060
+                                                                        00007070
+      * INI MOD. 21-01-2003                                             00007080
+      *    IF  R401-INDBLQ(IN-FRAN)  EQUAL CT-B                         00007090
+           IF  R401-INDBLQ  EQUAL CT-B                                  00007100
+      * FIN MOD. 21-01-2003                                             00007110
+               SET  CDMSJDES-ALTA-MOD-REG(IN-BLQSIA) TO TRUE            00007120
+           ELSE                                                         00007130
+               SET  CDMSJDES-ELIMINAR-REG(IN-BLQSIA) TO TRUE            00007140
+           END-IF                                                       00007150
+                                                                        00007160
+      *->BDS-INI-21-01-2003                                             00007170
+                                                                        00007180
+           IF R401-TIPFRAN(IN-FRAN) = CT-AMEX                           00007190
+               EVALUATE R401-BLQFRA(IN-FRAN)                            00007200
+                   WHEN CT-BLOQUEO-03                                   00007210
+                        MOVE CT-BLOQUEO-3000 TO                         00007220
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007230
+                   WHEN CT-BLOQUEO-04                                   00007240
+                        MOVE CT-BLOQUEO-3702 TO                         00007250
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007260
+                   WHEN CT-BLOQUEO-05                                   00007270
+                        MOVE CT-BLOQUEO-3001 TO                         00007280
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007290
+                   WHEN CT-BLOQUEO-11                                   00007300
+                        MOVE CT-BLOQUEO-3002 TO                         00007310
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007320
+                   WHEN CT-BLOQUEO-22                                   00007330
+                        MOVE CT-BLOQUEO-3700 TO                         00007340
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007350
+                   WHEN CT-BLOQUEO-91                                   00007360
+                        MOVE CT-BLOQUEO-3701 TO                         00007370
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007380
+               END-EVALUATE                                             00007390
+           ELSE                                                         00007400
+               MOVE  R401-BLQFRA(IN-FRAN)    TO                         00007410
+                                     CDMSJDES-CODIGO-BLOQUEO(IN-BLQSIA) 00007420
+           END-IF                                                       00007430
+                                                                        00007440
+      *->BDS-INI-21-01-2003                                             00007450
+                                                                        00007460
+           MOVE  R401-ZONASBLQ(IN-FRAN)  TO                             00007470
+                                       CDMSJDES-AREA-DESTINO(IN-BLQSIA).00007480
+                                                                        00007490
+      *->BDS-FIN-21-01-2003                                             00007500
+                                                                        00007510
+      *->BDS-INI-21-01-2003                                             00007520
+      *----------------*                                                00007530
+      *2231-RED-DESTINO.                                                00007540
+      *----------------*                                                00007550
+                                                                        00007560
+      *     MOVE R401-CODENT(IN-FRAN)   TO   CODENT OF DCLCDDT158       00007570
+      *     MOVE R401-CODMAR(IN-FRAN)   TO   CODMAR OF DCLCDDT158       00007580
+      *     MOVE R401-INDTIPT(IN-FRAN)  TO   INDTIPT OF DCLCDDT158      00007590
+      *     MOVE R401-TIPFRAN(IN-FRAN)  TO   TIPFRAN OF DCLCDDT158      00007600
+                                                                        00007610
+      *     EXEC SQL                                                    00007620
+                                                                        00007630
+      *          SELECT TIPSWI                                          00007640
+      *          INTO   :DCLCDDT158.TIPSWI                              00007650
+      *          FROM CDDT158                                           00007660
+      *          WHERE CODENT = :DCLCDDT158.CODENT                      00007670
+      *          AND   CODMAR = :DCLCDDT158.CODMAR                      00007680
+      *          AND   INDTIPT = :DCLCDDT158.INDTIPT                    00007690
+      *          AND   TIPFRAN = :DCLCDDT158.TIPFRAN                    00007700
+      *     END-EXEC                                                    00007710
+                                                                        00007720
+390SAT*                                                                 00007730
+390SAT*    MOVE SQLCODE                TO CDSQLERR                      00007740
+390SAT*                                                                 00007750
+                                                                        00007760
+      *    IF NOT ACCESO-CORRECTO-BD                                    00007770
+      *       SET  RETORNO-ERRORDB2   TO TRUE                           00007780
+      *       MOVE CT-MP              TO CDUSCOM-S-NOMBRE-BD            00007790
+      *       MOVE CT-CDAE765          TO CDUSCOM-S-NOMBRE-RUTINA       00007800
+      *       MOVE SQLCODE            TO CDUSCOM-S-SQLCODE              00007810
+      *       MOVE CT-TABLENAME158    TO CDUSCOM-S-NOMBRE-TABLA         00007820
+      *       MOVE CT-SELECT          TO CDUSCOM-S-OPERACION            00007830
+      *       MOVE CT-ERROR-4         TO CDUSCOM-S-SQLERRM              00007840
+      *       PERFORM 3000-FIN-PROCESO                                  00007850
+      *    END-IF.                                                      00007860
+                                                                        00007870
+      *->BDS-FIN-21-01-2003                                             00007880
+                                                                        00007890
+      *----------------------*                                          00007900
+       2300-COMPRIMIR-MENSAJE.                                          00007910
+      *----------------------*                                          00007920
+                                                                        00007930
+      * LLAMAMOS A LA RUTINA DE COMPRESION DE MENSAJES PASANDOLE        00007940
+      * TODO EL MENSAJE                                                 00007950
+                                                                        00007960
+A61001     CALL CT-CDAY752    USING WS-DES-COM                          00007970
+                                                                        00007980
+      * CONTROLAMOS EL ERROR EN LA RUTINA.                              00007990
+           IF NOT CDERRCOM-PROCESO-OK                                   00008000
+A61007        MOVE CT-CDAY752        TO CDUSCOM-S-NOMBRE-RUTINA         00008010
+A61007        MOVE CT-MPE2094       TO CDUSCOM-S-COD-ERROR1             00008020
+                                                                        00008030
+              PERFORM 9999-RESPUESTA-ERROR                              00008040
+           ELSE                                                         00008050
+              MOVE CDMSJCOM-LONG-MSJ     TO  CDMSJAUT-DATOS-LONG-MENS   00008060
+              ADD  CT-32                 TO  CDMSJCOM-LONG-MSJ          00008070
+              MOVE  CDMSJCOM-MENSAJE     TO  CDMSJAUT-DATOS-PS7-SOLI    00008080
+           END-IF.                                                      00008090
+                                                                        00008100
+      *----------------*                                                00008110
+390SAT 2400-LLAMADA-SIA.                                                00008120
+      *----------------*                                                00008130
+                                                                        00008140
+A61002     INITIALIZE WS-CDCOSWI  REPLACING ALPHANUMERIC DATA BY SPACES 00008150
+                                  NUMERIC  DATA BY ZEROES               00008160
+                                                                        00008170
+           MOVE R401-CODENT(CT-UNO) TO  COP-CODENT                      00008180
+           MOVE CT-SIA       TO   COP-CODPETICION                       00008190
+           MOVE CDMSJDES-NUM-IDENT-TRANS(15:5)  TO                      00008200
+                                   CDMSJAUT-DATOS-CODI-IDEN             00008210
+           MOVE CDMSJAUT     TO   COP-DATOS1                            00008220
+                                                                        00008230
+A61004*    CALL CT-CDAYSW1    USING WS-CDCOSWI                          00008240
+A61004     CALL CT-CDSY0SW   USING WS-CDCOSWI                           00008250
+                                                                        00008260
+           PERFORM 2410-RESP-CONECTOR.                                  00008270
+                                                                        00008280
+      *--------------------*                                            00008290
+390SAT 2410-RESP-CONECTOR.                                              00008300
+      *--------------------*                                            00008310
+                                                                        00008320
+      * MODIFICACION 20-02-2003 - AVISO DE FALLA LA COMUNICACION        00008330
+                                                                        00008340
+           IF COP-CODERR NOT EQUAL ZEROES                               00008350
+                     AND NOT EQUAL SPACES                               00008360
+A61003*       MOVE SPACES        TO CDUSCOM                             00008370
+A61003*       SET RETORNO-AVISO  TO TRUE                                00008380
+A61003        SET RETORNO-ERROR  TO TRUE                                00008390
+A61007        MOVE CT-CDSY0SW       TO CDUSCOM-S-NOMBRE-RUTINA          00008400
+A61007        MOVE CT-MPE2095       TO CDUSCOM-S-COD-ERROR1             00008410
+              PERFORM 3000-FIN-PROCESO                                  00008420
+                                                                        00008430
+              PERFORM 9999-RESPUESTA-ERROR                              00008440
+                                                                        00008450
+      * MODIFICACION 20-02-2003 - AVISO DE FALLA LA COMUNICACION        00008460
+           ELSE                                                         00008470
+              MOVE COP-DATOS1         TO CDMSJAUT                       00008480
+              PERFORM 2411-RUTINA-DESCOM                                00008490
+              IF CDMSJDES-COD-RESPUESTA  NOT EQUAL ZEROES               00008500
+                 PERFORM 9999-RESPUESTA-ERROR                           00008510
+              END-IF                                                    00008520
+           END-IF.                                                      00008530
+                                                                        00008540
+      *--------------------*                                            00008550
+390SAT 2411-RUTINA-DESCOM.                                              00008560
+      *--------------------*                                            00008570
+      * LLAMAMOS A LA RUTINA DE DESCOMPRESION DE MENSAJES PASANDOLE     00008580
+      * UNICAMENTE EL DETALLE DEL MENSAJE (NO LA CABECERA).             00008590
+                                                                        00008600
+           MOVE CDMSJAUT-DATOS-PS7-SOLI          TO  CDMSJCOM           00008610
+                                                                        00008620
+A61001     CALL CT-CDAY751    USING WS-DES-COM                          00008630
+                                                                        00008640
+      * CONTROLAMOS EL ERROR EN LA RUTINA                               00008650
+           IF NOT CDERRCOM-PROCESO-OK                                   00008660
+A61007        MOVE CT-CDAY751        TO CDUSCOM-S-NOMBRE-RUTINA         00008670
+A61007        MOVE CT-MPE2096       TO CDUSCOM-S-COD-ERROR1             00008680
+                                                                        00008690
+              PERFORM 9999-RESPUESTA-ERROR                              00008700
+           END-IF.                                                      00008710
+                                                                        00008720
+      *--------------------*                                            00008730
+       9999-RESPUESTA-ERROR.                                            00008740
+      *--------------------*                                            00008750
+                                                                        00008760
+A61003*    MOVE SPACES                   TO CDUSCOM                     00008770
+           SET RETORNO-ERROR             TO TRUE                        00008780
+           PERFORM 3000-FIN-PROCESO.                                    00008790
+                                                                        00008800
+      *-----------------*                                               00008810
+       3000-FIN-PROCESO.                                                00008820
+      *-----------------*                                               00008830
+                                                                        00008840
+390SAT*    MOVE  LI-CDUSCOM    TO DFHCOMMAREA                           00008850
+           GOBACK.                                                      00008860
+                                                                        00008870
+                                                                        00008880
+                                                                        00008890
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

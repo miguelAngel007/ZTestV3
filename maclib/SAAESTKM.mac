@@ -1,0 +1,69 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAAESTKM &CMD,&STK                                             00002000
+.* --------------------------------------------------------- *          00003000
+.* MACRO ID: SAAESTKM                                        *          00004000
+.*    TITLE: REGISTER 14 STACK                               *          00005000
+.*     DATE: 12/07/89                                        *          00006000
+.*                                                           *          00007000
+.*     DESC: THIS MACRO IS USED TO SAVE AND/OR RESTORE       *          00008000
+.*           REGISTER 14 UPON ENTRY AND/OR EXIT OF LOW       *          00009000
+.*           LEVEL ROUTINES.                                 *          00010000
+.*                                                           *          00011000
+.*           &CMD - MACRO EXPANSION FUNCTION; PUSH, POP      *          00012000
+.*           &STK - NAME OF THE STORAGE VECTOR WHERE R14     *          00013000
+.*                  IS TO BE STORED TO OR LOADED FROM.       *          00014000
+.*                                                           *          00015000
+.*      INV: MVS, VSE                                        *          00016000
+.*                                                           *          00017000
+.*  REG USE: R01 - MODIFIED                                  *          00018000
+.*           R14 - SAVED OR RESTORED                         *          00019000
+.*                                                           *          00020000
+.*    MAINT:                                                 *          00021000
+.*                                                           *          00022000
+.* --------------------------------------------------------- *          00023000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00024000
+         LCLC  &STKV                                                    00025000
+&MACNME  SETC  'SAAESTKM'                                               00026000
+&MACVER  SETC  '0003'                                                   00027000
+&MACREL  SETC  '.000'                                                   00028000
+&MACDATE SETC  '03/30/90'                                               00029000
+&STKV    SETC  'RESA'                                                   00030000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00031000
+               - &MACDATE'                                              00032000
+         AIF   (T'&CMD EQ 'O').ERR0010                                  00033000
+         AIF   ('&CMD' NE 'PUSH' AND '&CMD' NE 'POP').ERR0020           00034000
+         AIF   (T'&STK EQ 'O').ESTK020                                  00035000
+&STKV    SETC  '&STK'                                                   00036000
+.ESTK010 ANOP                                                           00037000
+.*       AIF   (T'&STK EQ 'F' OR T'&STK EQ 'A').ESTK020                 00038000
+.*       AGO   .ERR0030                                                 00039000
+.ESTK020 ANOP                                                           00040000
+         AIF   ('&CMD' EQ 'PUSH').ESTK100                               00041000
+         AIF   ('&CMD' EQ 'POP').ESTK200                                00042000
+         AGO   .ERR0020                                                 00043000
+.ESTK100 ANOP  ***PUSH***                                               00044000
+&LABEL   L     R1,&STKV           LOAD CURRENT INDEX VALUE              00045000
+         A     R1,=F'4'           INCR TO NEXT ENTRY                    00046000
+         ST    R1,&STKV           SAVE NEW INDEX VALUE                  00047000
+         ST    RE,&STKV.(R1)      SAVE REGISTER 14                      00048000
+         MEXIT                                                          00049000
+.ESTK200 ANOP  ***POP***                                                00050000
+&LABEL   L     R1,&STKV           LOAD CURRENT INDEX VALUE              00051000
+         L     RE,&STKV.(R1)      RESTORE REGISTER 14                   00052000
+         S     R1,=F'4'           DECR TO PREVIOUS ENTRY                00053000
+         ST    R1,&STKV           SAVE NEW INDEX VALUE                  00054000
+         MEXIT                                                          00055000
+.ERR0010 ANOP                                                           00056000
+         MNOTE 08,'&MACNME - COMMAND PARAMETER WAS OMITED, MACRO EXPANS+00057000
+               ION IGNORED'                                             00058000
+         AGO   .ESTK999                                                 00059000
+.ERR0020 ANOP                                                           00060000
+         MNOTE 08,'&MACNME - COMMAND &CMD IS INVALID, MACRO EXPANSION I+00061000
+               GNORED'                                                  00062000
+         AGO   .ESTK999                                                 00063000
+.ERR0030 ANOP                                                           00064000
+         MNOTE 08,'&MACNME - REGISTER STACK VECTOR MUST BE ALIGNED ON A+00065000
+                FULL WORD, MACRO EXPANSION IGNORED'                     00066000
+.ESTK999 ANOP                                                           00067000
+         MEND                                                           00068000

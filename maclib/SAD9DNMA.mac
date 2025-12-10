@@ -1,0 +1,127 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAD9DNMA &PREFIX=SADDN,&DSECT=NO,&MAXSZ=65504                  00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+*  SAD9DNMA: AUXILIARY DICTIONARY DATANAMES MAP  (DNM)                * 00005000
+*                                                                     * 00006000
+*                                                                     * 00007000
+* MODULES WHICH USE DICTIONARY INTERFACE MODULES TO READ/WRITE        * 00008000
+* AUXILIARY ENTITIES MAY USE THE AUXILIARY LOGICAL KEY.  THIS IS      * 00009000
+* THE KEY STRUCTURE USED FOR AUXILIARY ENTITIES PRIOR TO SA0004       * 00010000
+* AND HAS THE STRUCTURE WITHIN THE KEY AREA:                          * 00011000
+*                                                                     * 00012000
+*   +0(03) AUXILIARY ENTITY TYPE (LITERAL 'DNM')                      * 00013000
+*   +3(08) AUXILIARY ENTITY NAME                                      * 00014000
+*  +11(14) SLACK BYTES (BLANKS)                                       * 00015000
+*                                                                     * 00016000
+* MODULES WHICH READ/WRITE AUXILIARY ENTITIES DIRECTLY FROM THE       * 00017000
+* AUXILIARY DICTIONARY MUST USE THE AUXILIARY PHYSICAL KEY.  MODULES  * 00018000
+* CALLING THE DICTIONARY INTERFACE MODULES TO ACCESS THE AUXILIARY    * 00019000
+* AS OF SA0004 OR LATER MAY USE THE AUXILIARY PHYSICAL KEY, WHICH     * 00020000
+* KEY HAS THE STRUCTURE WITHIN THE KEY AREA:                          * 00021000
+*                                                                     * 00022000
+*   +0(02) APPLICATION CODE                                           * 00023000
+*   +2(03) REPOSITORY ENTITY TYPE                                     * 00024000
+*   +5(08) ENTITY NAME                                                * 00025000
+*  +13(03) AUXILIARY ENTITY TYPE                                      * 00026000
+*  +16(05) SLACK BYTES (BLANKS)                                       * 00027000
+*  +21(01) SLACK BYTE  (NULL OR LOW-VALUES)                           * 00028000
+*  +22(01) AUXILIARY SEGMENT NUMBER                                   * 00029000
+*  +23(01) SLACK BYTE  (NULL OR LOW-VALUES)                           * 00030000
+*  +24(01) AUXILIARY SEGMENT PAGE NUMBER                              * 00031000
+*                                                                     * 00032000
+*********************************************************************** 00033000
+*        HISTORY OF REVISIONS                                         * 00034000
+*                                                                     * 00035000
+* RELEASE# RSEC#  DESCRIPTION OF MODIFICATION                         * 00036000
+* -------- ------ ----------------------------------------------------* 00037000
+* 09/25/97 GN3569 INCR ENTITY SEG LENGTH FROM HWORD TO FWORD  9913569 * 00037998
+* SA000400 SA0290 REDESIGN DAG STRUCTURE, CREATE DNM ENTITY           * 00038000
+*                                                                     * 00039000
+*********************************************************************** 00040000
+.********************************************************************** 00041000
+.* NOTE: IT IS IMPERATIVE TO MAINTAIN THE DNM HEADER AND ITEM DATA AT   00042000
+.* A 16-BYTE MULTIPLE ALIGNMENT.  THE DNM POINTERS IN THE DAG AND IN    00043000
+.* THE DSM ARE IN THE FORMAT OOOS, WHERE S IS THE DNM SEGMENT ID AND    00044000
+.* OOO IS THE 16-BYTE-MULTIPLE OFFSET FROM THE ENTITY KEY.  FOR EXAMPLE 00045000
+.* IF THE DNM POINTER IS X'1234', THE DNM ITEM DATA IS IN THE 5TH       00046000
+.* DNM SEGMENT AT ENTITY KEY LOCATION + X'1230'.                        00047000
+.********************************************************************** 00048000
+         LCLC  &PFX                                                     00049000
+&PFX     SETC  '&PREFIX'                                                00050000
+         AIF   ('&DSECT' EQ 'YES').DSECT1                               00051000
+&PFX     DS    0D                                                       00052000
+         AGO   .DATA1                                                   00053000
+.DSECT1  ANOP                                                           00054000
+&PFX     DSECT                                                          00055000
+.DATA1   ANOP                                                           00056000
+&PFX.PKY DS   0CL25                AUX PHYS KEY                         00057000
+&PFX.PAP DS    CL2                 AUX PHYS KEY - APPL                  00058000
+&PFX.PRE DS    CL3                 AUX PHYS KEY - REP ENTITY TYPE       00059000
+&PFX.PNM DS    CL8                 AUX PHYS KEY - ENTITY NAME           00060000
+&PFX.PAE DS    CL3,CL5             AUX PHYS KEY - AUX ENTITY TYPE       00061000
+&PFX.PIN DS   0XL4                 AUX PHYS KEY - INDEX                 00062000
+         DS    XL1                   NOT USED (NULL VALUE)              00063000
+&PFX.PSN DS    HL1                   PHYSICAL SEGMENT NUMBER            00064000
+         DS    XL1                   NOT USED (NULL VALUE)              00065000
+&PFX.PPN DS    HL1                   PHYSICAL PAGE NUMBER               00066000
+         ORG   &PFX.PKY                                                 00067000
+&PFX.KEY DS   0CL25                AUX LOGICAL KEY (REQUEST FORMAT)     00068000
+&PFX.LET DS    CL3                   LOGICAL ENTITY TYPE: LITERAL 'DNM' 00069000
+&PFX.NAM DS    CL8,CL14              DNM NAME                           00070000
+&PFX.AUD DS   0CL32                AUDIT SEGMENT                        00071000
+&PFX.LMD DS    PL4                 AUDIT: LAST MNTE DATE - YYMMDD       00072000
+&PFX.LMT DS    PL4                 AUDIT: LAST MNTE TIME - HHMMSS       00073000
+&PFX.SOU DS   0CL8                 AUDIT: LAST MNTE SOURCE              00074000
+&PFX.OPR DS    CL8                 AUDIT: LAST MNTE OPERATOR            00075000
+&PFX.CID DS    CL8                 AUDIT: LAST MNTE CONTROL ID          00076000
+&PFX.ESL DS    FL4                 AUDIT: ENTITY SEGMENT LNGTH9913569   00077000
+&PFX.FLV DS    XL1                 AUDIT: FILE FORMAT LEVEL             00078000
+&PFX.RLV DS    XL1                 AUDIT: RECORD FORMAT LEVEL           00079000
+&PFX.RSV DS    CL2                 RESERVED                   9913569   00080000
+&PFX.DDS DS    CL60                DAG LEVEL DESCRIPTION                00081000
+&PFX.DBN DS    CL8                 DAG DATABASE NAME                    00082000
+&PFX.PFX DS    CL9                 DAG COBOL NAME PREFIX                00083000
+&PFX.CNM DS    CL30                DAG COBOL NAME (01 LEVEL)            00084000
+&PFX.DRD DS    CL30                DAG REDEFINES NAME (01 LEVEL)        00085000
+         DS    CL24                RESERVED (SLACK BYTES)               00086000
+&PFX.NFS DS    HL2                 DNM NUMBER OF FIELDS (ITEMS)/CUR SEG 00087000
+&PFX.NFL DS    HL2                 DNM NUMBER OF FIELDS (ITEMS)/TOTAL   00088000
+&PFX.BST DS    HL2                 DNM BINARY SEARCH STARTING OFFSET    00089000
+&PFX.SLN   EQU   *-&PFX            LNTH OF DNM KEY + AUDIT + ROOT       00090000
+&PFX.DLN   EQU   (&MAXSZ-&PFX.SLN) LNTH OF DNM ITEM DATA                00091000
+         AIF   ('&DSECT' EQ 'YES').DSECT2                               00092000
+&PFX.ENT DS   0CL(&PFX.DLN)                                             00093000
+         AGO   .SEG                                                     00094000
+.DSECT2  ANOP                                                           00095000
+&PFX.ENT DSECT                                                          00096000
+.SEG     ANOP                                                           00097000
+&PFX.BLO DS    HL2                 BINARY SEARCH OFFSET - LOWER         00098000
+&PFX.BHI DS    HL2                 BINARY SEARCH OFFSET - HIGHER        00099000
+&PFX.CDL DS    HL2                 COMPRESSED ITEM DATA LENGTH          00100000
+&PFX.LIN DS    HL2                 DAG LOGICAL ITEM INDEX               00101000
+&PFX.SIN DS    HL2                 DAG SUBSET (DSM) LOG ITEM INDEX      00102000
+&PFX.EID DS    CL8                 ITEM ELEMENT ID                      00103000
+&PFX.USL DS    XL1                 L'USER SHORT NAME FIELD              00104000
+&PFX.USN DS    CL20                ITEM USER SHORT NAME (ALIAS)         00105000
+&PFX.ECL DS    XL1                 L'COBOL NAME FIELD                   00106000
+&PFX.ECN DS    CL30                ITEM ELEMENT COBOL NAME              00107000
+&PFX.ERL DS    XL1                 L'REDEFINES NAME FIELD               00108000
+&PFX.ERD DS    CL30                ITEM ELEMENT REDEFINES NAME          00109000
+&PFX.X1L DS    XL1                 L'INDEX/RENAMES DATANAME-1 FIELD     00110000
+&PFX.X1N DS    CL30                ITEM INDEX/RENAMES DATANAME-1        00111000
+&PFX.X2L DS    XL1                 L'INDEX/RENAMES DATANAME-2 FIELD     00112000
+&PFX.X2N DS    CL30                ITEM INDEX/RENAMES DATANAME-2        00113000
+&PFX.PIL DS    XL1                 L'COBOL PICTURE FIELD                00114000
+&PFX.PIC DS    CL60                ITEM COBOL PICTURE                   00115000
+&PFX.EDL DS    XL1                 L'ELEMENT DESCRIPTION FIELD          00116000
+&PFX.EDS DS    CL60                ITEM ELEMENT DESCRIPTION             00117000
+&PFX.VLL DS    XL1                 L'ITEM VALUE FIELD                   00118000
+&PFX.VLU DS    CL122               ITEM VALUE                           00119000
+         DS    CL8                 16-BYTE ALIGNMENT                    00120000
+&PFX.ELN   EQU   *-&PFX.ENT        L'DNM ITEM OCCURRENCE                00121000
+         AIF   ('&DSECT' EQ 'YES').END                                  00122000
+         DS    CL(&PFX.DLN-&PFX.ELN)                                    00123000
+.END     ANOP                                                           00124000
+         MEND                                                           00125000

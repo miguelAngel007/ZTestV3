@@ -1,0 +1,254 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000000
+*                                                                     * 00001000
+*                 TSTS2LKC--LINKAGE COMMON AREA                       * 00002000
+*                                                                     * 00003000
+*         THIS COPYBOOK IS USED IN THE FOLLOWING PROGRAMS:            * 00004000
+*                                                                     * 00005000
+*  TSTSIAD1  TSTSIFL1  TSTSOUT1  TSTSABD1  TSTS3DBK  TSTSITL1         * 00006000
+*  TSTSIVC1  TSTSMSI1  TSTSOAD1  TSTSOTL1  TSTSVCM1  TSTSITL1         * 00007000
+*                                                                     * 00008000
+*********************************************************************** 00009000
+         SPACE 2                                                        00010000
+*********************************************************************** 00011000
+*                                                                     * 00012000
+*        S P E C I A L   N E W   A R C H I T E C T U R E              * 00013000
+*                                                                     * 00014000
+*                      T E S T   V E R S I O N                        * 00015000
+*                                                                     * 00016000
+*        SATS2LKC, COPY OF TSTS2LKC OBTAINED FROM TESTCOM             * 00017000
+*        THUR, 10/8/87 1610.  TSTS2LKC HAD A MAINTENANCE DATE         * 00018000
+*        ON TESTCOM OF 10/7/87.  THE ONLY DIFFERENCE THIS             * 00019000
+*        HAS FROM 'TSTS...' IS THE ADDITION OF FIELD                  * 00020000
+*        NAMED 'LKSACBAD', WHICH CONTAINS THE NEW ARCHITECTURE        * 00021000
+*        SACB ADDRESS.                                                * 00022000
+*                                                                     * 00023000
+*********************************************************************** 00024000
+         SPACE 2                                                        00025000
+*****************************************************                   00026000
+*        TRANSACTION SYSTEM - LINKAGE COMMON AREA   *                   00027000
+*****************************************************                   00028000
+LKCA     DSECT                                                          00029000
+LKCASTRT EQU   *                                                        00030000
+LKCALEN  DS    XL4      *LENGTH OF ACQUIRED LINKAGE                     00031000
+LKCASRKY DS    0CL12    *SYSTEM CONTROL KEY                             00032000
+LKCARLC  DS    0CL12      SYSTEM REPORT LEVELS                          00033000
+LKCARL1  DS    CL2          SYSTEM REPORT LEVEL 1                       00034000
+LKCARL2  DS    CL3          SYSTEM REPORT LEVEL 2                       00035000
+LKCARL3  DS    CL3          SYSTEM REPORT LEVEL 3                       00036000
+LKCARL4  DS    CL4          SYSTEM REPORT LEVEL 4                       00037000
+LKCAEMID DS    CL4      *EMPLOYEE ID                                    00038000
+************************************************************            00039000
+*           TERMINAL DATA                                  *            00040000
+************************************************************            00041000
+LKCATRTY DS    CL2          TERMINAL TYPE                               00042000
+*                           VALUE 'TL' - TELLER TERMINAL                00043000
+*                           VALUE 'AT' - ATM                            00044000
+*                           VALUE 'AD' - ADMINISTRATIVE TERMINAL        00045000
+************************************************************            00046000
+*           TRANSACTION CONTROL DATA                       *            00047000
+************************************************************            00048000
+LKCACUPD DS    CL6      *TRANSACTION DATE                               00049000
+LKCAISC  DS    0CL8     *ISC DATA                                       00050000
+LKCATRAN DS    CL4        ISC EXTERNAL TRANSACTION CODE                 00051000
+LKCARESP DS    CL3        ISC RESPONSE TIMING                           00052000
+         DS    CL1        FILLER                                        00053000
+LKCASERN DS    CL8      *SERIAL NUMBER                                  00054000
+LKCAOVLV DS    CL2      *OVERRIDE LEVEL                                 00055000
+LKCAOVEM DS    CL4      *OVERRIDE EMPLOYEE NUMBER                       00056000
+LKCASYUS DS    CL20     *SYSTEM USER AREA                               00057000
+LKCACLAM DS    CL6      *CLOSE AMOUNT                                   00058000
+LKCAEPST DS    CL1      *EDIT THEN POST FLAG 0 - NO  1 - YES            00059000
+         DS    CL2      *FILLER                                         00060000
+LKCATRFL DS    0CL13    *SYSTEM TRANSACTION FLAGS                       00061000
+LKCADOFL DS    CL1        DASD OVERRIDE FLAG                            00062000
+LKCARVFL DS    CL1        REVERSAL (CORRECTION) FLAG                    00063000
+LKCAREFL DS    CL1        REENTRY FLAG                                  00064000
+LKCATEFF DS    CL6        TRAN EFFECTIVE DATE                           00065000
+LKCARTFL DS    CL1        RETURN FLAG                                   00066000
+         DS    CL1      *FILLER                                TS004    00067000
+LKCATRCL DS    CL1        CLOSE TRANSACTION FLAG                        00068000
+*                         *      0 = NOT CLOSE TRANSACTION              00069000
+*                         *      1 = CLOSE TRANSACTION                  00070000
+LKCABKWH DS    CL1        BACKUP WITHHOLDING FLAG                       00071000
+*                         *      0 = DO NOT TAKE BKUP WH ON CLOSE       00072000
+*                         *      1 = DO TAKE BKUP WH FOR CLOSE          00073000
+LKCANWBR DS    CL4        NEW EMPLOYEE BRANCH USED BY TOTALLING         00074000
+LKCANXDY DS    CL1        NEXT DAY FLAG                                 00075000
+LKCASGON DS    CL1        SIGN-ON FLAG                                  00076000
+LKCARBFL DS    CL1        REBID FLAG                                    00077000
+         DS    CL7        FILLER                                        00078000
+************************************************************            00079000
+*           FILE PROCESSING DATA                           *            00080000
+************************************************************            00081000
+LKCAADS  DS    0CL144   *SYSTEM ADDRESS INFORMATION                     00082000
+LKFILADS DS    0CL20      ACQUIRED RECORD ADDRESSES                     00083000
+LKINPADR DS    XL4        ADDRESS OF INPUT DATA CARDS                   00084000
+LKITRADR DS    XL4        ITR ADDRESS                                   00085000
+LKEORADR DS    XL4        EOR RECORD AREA                               00086000
+LKTCRADR DS    XL4        TCR RECORD AREA                               00087000
+* ***                                                                   00088000
+LKSACBAD DS    XL4        NEW ARCHITECTURE SACB ADDRESS                 00089000
+* ***                                                                   00090000
+LKFLPMAX DS    XL2        MAXIMUM NUMBER OF FILE POINTERS               00091000
+LKFLPUSE DS    XL2        NUMBER OF FILE POINTERS USED                  00092000
+LKFILPTR DS    0CL120     FILE ADDRESS POINTERS 10 SLOTS                00093000
+LKFLPTR1 DS    0CL12      1ST OCCURRENCE OF FILE POINTERS               00094000
+LKFLPTRA DS    CL2          FILE APPLICATION ID                         00095000
+LKFLPTRF DS    CL3          FILE ID                                     00096000
+LKFILADR DS    XL4          ADDRESS OF FILES RECORD                     00097000
+LKFILUPD DS    CL1          FILE UPDATE FLAG                            00098000
+LKFILLNG DS    XL2          FILE RECORDS LENGTH                         00099000
+         DS    CL108      OCCURANCE 2-10 OF FILE POINTERS               00100000
+LKLOGRBA DS    XL4      *LOG RBA                                        00101000
+LKRCVMSA DS    XL4      *RECEIVED MESSAGE ADDRESS                       00102000
+LKRCVMSL DS    XL2      *RECEIVED MESSAGE LENGTH               TS003.00 00103000
+         DS    CL4      *FILLER                                TS003.00 00104000
+LKERBDIP DS    XL2      *ERROR BACKOUT PREV FILE NUM                    00105000
+LKERBDAT DS    0CL900   *ERROR BACKOUT PREV DATA                        00106000
+LKERBDA1 DS    0CL45      PREV DATA OCCURANCE                           00107000
+LKERBDAF DS    CL8          PREV DATA FILE                              00108000
+LKERBDAK DS    CL36         PREV DATA RECORD KEY                        00109000
+LKERBDAI DS    CL1          PREV DATA RECORD ID                         00110000
+         DS    CL855      2ND THRU 20TH OCCURANCES OF PREV DATA         00111000
+************************************************************            00112000
+*           TRANSACTION PROCESSING DATA                    *            00113000
+************************************************************            00114000
+LKTRANPR DS    0CL13    *PROCESSING DATA                                00115000
+LKTRNEBF DS    CL1        ERROR BACKOUT FLAG                            00116000
+LKTRNGLF DS    CL1        GL FLAG                                       00117000
+LKTRNTOF DS    CL1        TOTALLING FLAG                                00118000
+LKTRNPME DS    CL1        PROCESS MODULE ERROR BACKOUT FLAG   TS004     00119000
+         DS    CL49       FILLER                                        00120000
+LKNUMTCR DS    XL2        NUMBER OF TCR OCCURANCES                      00121000
+LKNUMDAT DS    XL2        NUMBER OF INPUT FORM OCCURANCES               00122000
+LKINPTCR DS    XL2        TCR OCCURANCE IN PROCESS                      00123000
+LKINPTCS DS    XL2        TCR STEP IN PROCESS                           00124000
+LKINPDAT DS    XL2        INPUT FORM OCCURANCE IN PROCESS               00125000
+F        EQU   *-LKCASTRT  *SYMBOLIC LENGTH OF FIXED PART OF LINKAGE    00126000
+************************************************************            00127000
+*           TCR OCCURANCES                                 *            00128000
+************************************************************            00129000
+LKTCR    DS    0CL10080 *10 OCCURANCES OF TCR DATA                      00130000
+LKTCRO   DS    CL1008     FIRST TCR OCCUR-DESCRIBED BY TCROCUR DSECT    00131000
+         DS    CL9072     2ND THRU 10TH TCR OCCURANCE (VARIABLE)        00132000
+LKCAEND  EQU   *                                                        00133000
+LKCADFLN EQU   *-LKCASTRT  *SYMBOLIC LENGTH OF LARGEST POSS LINKAGE     00134000
+         EJECT                                                          00135000
+***********************************************                         00136000
+* DESCRIPTION OF ONE TCR OCCURANCE IN LINKAGE *                         00137000
+***********************************************                         00138000
+         SPACE                                                          00139000
+TCROCUR  DSECT                                                          00140000
+         SPACE                                                          00141000
+TCRSTART EQU   *       *START OF TCR OCCURANCE DESCRIPTION              00142000
+TCRKEY   DS    0CL11   *KEY FOR TCR RECORD ACCESS                       00143000
+TCRKCLS  DS    CL5        TCR CLASS                                     00144000
+TCRKTCOD DS    0CL4       TRAN CODE                                     00145000
+TCRKAPL  DS    CL2          APPLICATION                                 00146000
+TCRKBTR  DS    CL2          BATCH TRAN CODE                             00147000
+TCRKSUB  DS    CL2        SUBFUNCTION CODE                              00148000
+TCRPRO   DS    CL1     *PROCESS LOG FLAG                                00149000
+TCRSTEP  DS    0CL75   *TCR PROCESS STEPS                               00150000
+TCRSTEP1 DS    0CL5       1ST OCCURANCE OF TCR PROCESS STEPS            00151000
+TCRSTEPF DS    CL1        TCR PROCESS FLAG                              00152000
+TCRSTEPP DS    CL4        TCR PROCESS PHASE                             00153000
+         DS    CL70       2ND THRU 15TH OCCURANCES OF TCR PROCESS STEPS 00154000
+         DS    CL25    *FILLER                                          00155000
+TCRNUMTR DS    CL2     *NUMBER OF INPUT FORMS WHICH GO WITH THIS TCR    00156000
+TCRSKIPF DS    CL1     *TCR SKIP FLAG 0 - DO NOT SKIP 1 - SKIP          00157000
+TCRSPUPD DS    CL1     *SPECIAL FIELD UPD FLAG 0 - NO 1 - YES           00158000
+TCRTOFR  DS    CL1     *TRNSFR TO FROM INDICATOR BLANK - NOT A TRANSFER 00159000
+*                      *       1 - TO ACCT  2 - FROM ACCT               00160000
+TCRSACCT DS    CL1     *SAME-ACCOUNT-AS-PREVIOUS FLAG                   00161000
+TCRCAPCT DS    CL1     *CHANGE APPL CONTROLS FLAG                       00162000
+*                      *       0 - NO CHANGE 1- CHANGED                 00163000
+         DS    CL5     *FILLER                                          00164000
+TCRDRCR  DS    CL1     *DEBIT/CREDIT FLAG (0=OTH,1=CR,2=DR,3=FM,4=INQ   00165000
+TCRIEFL  DS    CL1     *INQUIRY/ENTRY FLAG (0=NONE,1=INQ,2=ENT,3=BOTH)  00166000
+TCRSPRO  DS    CL1     *SYSTEM PROCESS CODE (1-9, A-I): 4,9,A FOR PBK   00167000
+TCRSUBPB DS    CL1     *SYSTEM PRO SUBFUNC-PBOOK:0,1=PRI PBK,2,3        00168000
+TCRSUBOA DS    CL1     *SYSTEM PRO SUBFUNC-OA:SP,1=CKFEE,2=ITD,3=CA,4,5 00169000
+TCRSAPL  DS    CL2     *SYSTEM APPLICATION MNEUMONIC                    00170000
+TCRSTRUN DS    CL1     *SYSTEM TRUNCATION FLAG                          00171000
+TCRTOTAM DS    CL10    *AMOUNT FOR TOTALLING                            00172000
+TCRACCT  DS    CL36    *ACCOUNT KEY FOR DASD                            00173000
+TCRAPGN  DS    CL2     *APPLICATION FILE GROUP NUMBER                   00174000
+TCRSDRNA DS    0CL8    *SDR NAMR                                        00175000
+TCRSDRAP DS    CL2     *ID:ST OR DD                                     00176000
+TCRSDRCD DS    CL2        INQUIRY CODE                                  00177000
+TCRSDRLT DS    CL3        LITERAL 'INQ'                                 00178000
+         DS    CL1        FILLER                                        00179000
+TCRERRLG DS    XL4     *ERR LOG RBA                                     00180000
+TCRGLFLG DS    CL1     *GL PROCESS FLAG                                 00181000
+TCRTOFLG DS    CL1     *TOTAL FLAG                                      00182000
+TCRAORAP DS    XL2     *AOR APPL SUBSCRIPT                              00183000
+         DS    CL1     *FILLER                                 TS004    00184000
+TCRTKPEN DS    CL1     *TAKE PENALTY FLAG                      TS004    00185000
+TCRMEMPO DS    CL1     *MEMO POST FLAG                                  00186000
+TCRRPDSC DS    CL8     *REPT DESC                                       00187000
+TCRRPEXC DS    CL2     *REPORT EXCEPTION CODE                           00188000
+TCRUTCOD DS    CL4     *TRAN USER CODE ##                               00189000
+TCRCATEG DS    CL1     *ACCOUNT CATEGORY CODE                           00190000
+TCRNWACC DS    CL1     *NEW ACCOUNT CODE                                00191000
+TCRTTITP DS    CL1     *TRAN GRID INTERNAL TYPE                         00192000
+TCRMSREW DS    CL1     *MASTER REWRITTEN FLAG                           00193000
+TCRMEREW DS    CL1     *MEMO REWRITTEN FLAG                             00194000
+         DS    CL4     *FILLER                                          00195000
+TCRALTPH DS    CL8     *ALTERNATE PROCESS MODULE PHASE                  00196000
+         DS    CL6     *FILLER                                          00197000
+TCRGLDAT DS    CL198   *GENERAL LEDGER / FM DATA                        00198000
+TCRUSER  DS    0CL15   *USER (LOG) AREA                                 00199000
+TCRPSCD  DS    CL4       ENTERED PASSCODE                               00200000
+TCRTLSUP DS    CL1       ISC TELLER/SUPV KEY                            00201000
+TCRBKCRD DS    CL1       BOOK TO CARD FROM SCREEN                       00202000
+         DS    CL9       UNUSED PART OF USER LOG AREA                   00203000
+TCRSDRAD DS    XL4     *SDR RECORD ADDRESS                              00204000
+TCRSDRDT DS    XL4     *SDR DATA ADDRESS                                00205000
+TCRTBRAD DS    XL4     *TBR RECORD ADDRESS                              00206000
+TCRTARAD DS    XL4     *TAR RECORD ADDRESS                              00207000
+TCRSORAD DS    XL4     *SOR RECORD ADDRESS                              00208000
+TCRAORAD DS    XL4     *AOR RECORD ADDRESS                              00209000
+TCRLPGAD DS    XL4     *LOADED PROGRAM ADDRESS                          00210000
+TCRTOTAD DS    XL4     *ADDRESS OF TOTALLING DATA                       00211000
+TCRTOTNM DS    XL2     *NUMBER OF TOTALLING OCCURRENCES                 00212000
+         DS    CL15    *FILLER                                          00213000
+TCRDSPLY DS    0CL510  *TCR OCCURANCE DISPLAY AREA                      00214000
+TCRDRPLY DS    CL1       DISPLAY REPLY CODE                             00215000
+TCRDPPCD DS    CL1       DISPLAY PB PROC CODE                           00216000
+TCRDAMPR DS    XL2       DISPLAY AMOUNT PROC                            00217000
+TCRDSCDE DS    CL2       DISPLAY TRANS CODE (1ST OCC)                   00218000
+TCRDSAMT DS    PL6       DISPLAY AMOUNT (1ST OCC)                       00219000
+         DS    CL56      2ND THRU 8TH OCC'S OF DISPLAY AMT AREA         00220000
+TCRDSHRT DS    CL13      DISPLAY SHORT NAME                             00221000
+TCRDLSTN DS    CL6       DISPLAY LAST TRANSACTION DATE                  00222000
+TCRDLSFM DS    CL6       DISPLAY LAST FILE MAINENANCE DATE              00223000
+TCRDSPNM DS    XL2      *DISPLAY PROCESS NUM                            00224000
+TCRDSPPR DS    XL2      *DISPLAY PROCESS                                00225000
+TCRDMSGS DS    10CL37   *DISPLAY MESSAGES - DESCRIBED BY TCRMSG DSECT   00226000
+TCRDSTAT DS    10CL3    *DISPLAY OLI STATUS CODES                       00227000
+TCRDUSER DS    CL10     *DISPLAY USER DATA AREA                         00228000
+TCRTCINM DS    XL1      *TCR TCI OCCURENCE NUMBER                       00229000
+         DS    CL2      *FILLER                                         00230000
+         SPACE                                                          00231000
+V        EQU   *-TCRSTART  *SYMBOLIC LENGTH OF ONE TCR OCCURANCE        00232000
+         SPACE                                                          00233000
+TCRMSG   DSECT          *DISPLAY MESSAGE AREA OCCURS 10 TIMES PER TCR   00234000
+TCRMPROG DS    CL4       *MESSAGE LAST FOUR BYTES OF PROGRAM NAME       00235000
+TCRMCODE DS    CL3       *MESSAGE CODE NUMBER                           00236000
+TCRMACT  DS    CL1       *MESSAGE ACTION                                00237000
+TCRMSGOP DS    CL1       *MESSAGE SEGMENT ORDER POINTER                 00238000
+TCRMAER  DS    CL1       *MESSAGE ORIGINAL BYTE FOR ERROR ADMIN         00239000
+TCRMTEXT DS    0CL27     *MESSAGE TEXT                                  00240000
+TCRMPRE  DS    CL17      *MESSAGE ERROR - PRECEDES MESSAGE (PREFIX)     00241000
+TCRMSUF  DS    CL10      *MESSAGE ERROR - TRAILS MESSAGE (SUFFIX)       00242000
+TCRMLEN  EQU   *-TCRMSG *LENGTH OF TCR DISPLAY MESSAGE AREA             00243000
+         EJECT                                                          00244000
+INFORMA  DSECT                                                          00245000
+         DS    CL2400                                                   00246000
+         SPACE                                                          00247000
+INFORM   DSECT            *DESCRIPTIONS OF INPUT FORMS                  00248000
+         SPACE                                                          00249000
+FORMAT80 EQU   *                                                        00250000
+INPDATAR DS    CL80       *INPUT DATA RECORD                            00251000
+C        EQU   *-FORMAT80       SYMBOLIC LENGTH OF INPUT RECORD         00252000

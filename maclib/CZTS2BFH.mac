@@ -1,0 +1,50 @@
+**************************** CZTS2BFH ********************************* 00001000
+*        INPUT FIELD OF BASE FORMAT CORRESPONDING TO HEADER           * 00000900
+*********************************************************************** 00001000
+BFHDSECT DSECT                                                          00000700
+BFH      DS   0H                                                        00000700
+BFHSIZE  DS    XL1           TRAILER LENGTH                             00001700
+BFHIDENT DS    XL1           TRAILER IDENTIFICATION                     00001700
+BFHFIELD EQU   C'B'          - 'B' BASE INPUT FIELD'S TRAILER           00001700
+BFHFLNAM DS    CL18          FIELD NAME                                 00001700
+BFHFLCHR DS    CL1           FIELD CHARACTERISTICS                      00001700
+*                            - 'C' CONSTANT
+*                            - 'V' VARIABLE
+*                            - 'F' FILLER
+BFHFLLOC DS    PL2           FIELD LOCATION INTO HEADER                 00001700
+BFHFLLEN DS    PL2           FIELD LENGTH                               00001700
+BFHFLTYP DS    CL1           FIELD TYPE                                 00001700
+*                            - 'N' NUMERIC                              00000240
+*                            - 'C' CHARACTER                            00000250
+*                            - 'L' LITERAL                              00000260
+*                            - 'P' PACKED                               00001700
+*                            - 'U' PACKED UNSIGNED                      00001700
+*                            - 'B' BINARY                               00001700
+*                            - 'H' HEXADECIMAL
+*                            - 'E' EIBDATE                              00000270
+*                            - 'T' EIBTIME                              00000280
+*                            - 'S' SENSE                                00000290
+*                            - 'X' TRAN ID                              00000300
+BFHFLBLC DS    XL1           BIT LOCATION                               00001700
+BFHFLFRM DS    CL1           FIELD'S FORMAT                             00001700
+*                            - ' ' NOT A DATE - SPACES                  00000320
+*                            - '1' JULIAN    - DDDYY                    00000330
+*                            - '2' JULIAN    - YYDDD                    00000340
+*                            - '3' GREGORIAN - YYMMDD                   00000350
+*                            - '4' GREGORIAN - YYYYMMDD                 00000360
+*                            - '5' GREGORIAN - MMDDYY                   00000370
+*                            - '6' GREGORIAN - MMDDYYYY                 00000380
+*                            - '7' GREGORIAN - DDMMYY                   00000390
+*                            - '8' GREGORIAN - DDMMYYYY                 00000400
+*                            - 'A' TIME ZONED JULIAN - DDDYY            00000410
+*                            - 'B' TIME ZONED JULIAN - YYDDD            00000420
+*                            - 'C' TIME ZONED GREG - YYMMDD             00000430
+*                            - 'D' TIME ZONED GREG - YYYYMMDD           00000440
+*                            - 'E' TIME ZONED GREG - MMDDYY             00000450
+*                            - 'F' TIME ZONED GREG - MMDDYYYY           00000460
+*                            - 'G' TIME ZONED GREG - DDMMYY             00000470
+*                            - 'H' TIME ZONED GREG - DDMMYYYY           00000480
+*                            - 'T' TIME ZONED EIBTIME - HHMMSS          00000490
+BFHFLINI DS    XL16          FIELD'S INITIAL VALUE                      00001700
+BFHFILL  DS    CL6           FILLER                                     00001700
+BFHLENG  EQU   *-BFH         LENGTH OF INPUT HEADER                     00002500

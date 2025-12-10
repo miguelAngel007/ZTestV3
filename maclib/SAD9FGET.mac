@@ -1,0 +1,124 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAD9FGET &PREFIX=SADFG,   1ST 5 CHARACTERS OF LOCATION NAMES  X00002000
+               &DFN=,              A(DFN RECORD FOR REP INPUT RECORD)  X00003000
+               &REQ=,              A(DFN SEGMENTS / FLDS T/B LOCATED)  X00004000
+               &WKAREA=            A(6-FULLWORD WORK AREA)              00005000
+*---------------------------------------------------------------------* 00006000
+* SAD9FGET - GET ADDRESS AND LENGTH FOR SPECIFIED REPOSITORY DATA     * 00007000
+*---------------------------------------------------------------------* 00008000
+.*                                                                    * 00009000
+.* VARIABLES MAY BE SPECIFIED AS INDICATED BELOW:                     * 00010000
+.*                                                                    * 00011000
+.*   VARIABLE       REQUIRED   DATANAME  REGISTER  DATAVALUE(CONSTANT)* 00012000
+.*   -----------    --------   --------  --------  ------------------ * 00013000
+.*     &PREFIX                                          X             * 00014000
+.*     &DFN             X          X       2-12                       * 00015000
+.*     &REQ             X          X       2-12                       * 00016000
+.*     &WKAREA          X          X       0-15                       * 00017000
+.*                                                                    * 00018000
+.*  VALUES SPECIFIED AS DATANAME WILL BE USED IN LOAD-ADDRESS         * 00019000
+.*  INSTRUCTIONS.  VALUES SPECIFIED IN REGISTER NOTATION WILL BE      * 00020000
+.*  USED IN LOAD-REGISTER INSTRUCTIONS.                               * 00021000
+.*                                                                    * 00022000
+.* ALL VARIABLES EXCEPT &PREFIX ARE REQUIRED.  &DFN SPECIFIES INPUT   * 00023000
+.* DEFINITION RECORD WHICH HAS BEEN MAPPED BY SAD9MAPN.  &REQ SPECI-  * 00024000
+.* FIES THE COMMUNICATION AREA, WHICH HAS THE SAME FORMAT AS A        * 00025000
+.* SUBSET OF THE DEFINITION RECORD, AND WHICH CONTAINS FIELD NAMES    * 00026000
+.* FOR THE DESIRED DATA FIELDS (CALLER KNOWS POSITION OF SPECIFIC     * 00027000
+.* DATA FIELDS WITHIN THE COMMUNICATION AREA LAYOUT).  &WKAREA IS A   * 00028000
+.* 6-FULLWORD WORK AREA USED TO SAVE THE CALLER'S REGISTERS 1-6.      * 00029000
+.*                                                                    * 00030000
+.* THIS MACRO ASSUMES THE PRESENCE OF THE MACRO SAD9RDFN TO PROVIDE   * 00031000
+.* A MAP TO REPOSITORY DEFINITION RECORDS.  IT ALSO ASSUMES REGISTER  * 00032000
+.* EQUATES (R1 EQU 1, ETC.)                                           * 00033000
+.*                                                                    * 00034000
+.* SAD9FGET USES A COMMUNICATION AREA (&REQ) MATCHING THE REPOSITORY  * 00035000
+.* DICTIONARY FORMAT DEFINITION RECORDS, FIELDS SADFN#FL THRU         * 00036000
+.* SADFNFLN.  SADFN#FL IS A HALFWORD CONTAINING THE NUMBER OF         * 00037000
+.* FIELDS TO BE PROCESSED.  SADFNFSG, THE DATA FIELD DEFINITION       * 00038000
+.* SEGMENT, OCCURS AS MANY TIMES AS INDICATED BY SADFN#FL.            * 00039000
+.*                                                                    * 00040000
+.* SAD9FGET ASSUMES THAT INPUT REPOSITORY DEFINITION RECORD (&DFN)    * 00041000
+.* HAS BEEN MAPPED BY SAD9MAPN ROUTINE AND ADDRESS OF INPUT DEFINITION* 00042000
+.* RECORD IS SPECIFIED AS &DFN.  SAD9FGET WILL THEN LOCATE THE        * 00043000
+.* FIELD DEFINITION SEGMENT ON THE INPUT DEFINITION RECORD            * 00044000
+.* WHICH MATCHES THE FIELD NAME IN THE COMMUNICATION AREA FIELD       * 00045000
+.* DEFINITION SEGMENT AND LOAD THE ADDRESS-&-LENGTH FROM THE INPUT    * 00046000
+.* DEFINITION RECORD TO THE COMMUNICATION AREA FLD DFN SEGMENT.       * 00047000
+.*                                                                    * 00048000
+.* IF THE FIELD NAME INDICATED IN THE COMMUNICATION AREA SEGMENT      * 00049000
+.* DOES NOT MATCH AN INPUT FIELD DEFINITION SEGMENT, SAD9FGET WILL    * 00050000
+.* RETURN X'00' IN BOTH COMMUNICATION SEGMENT ADDRESS AND LENGTH      * 00051000
+.* FIELDS.                                                            * 00052000
+.*                                                                    * 00053000
+.* HISTORY OF REVISIONS:                                              * 00054000
+.* ---------------------                                              * 00055000
+.* CORRECT MAX LEN INIT ON REQUEST BLK WHEN FLD NOT IN $$DFN  2603158 * 00055098
+.* ORIGINAL DIST TO SUPPORT SADAUXIB AUX GEN                  0400290 * 00056000
+.*                                                                    * 00057000
+.*--------------------------------------------------------------------* 00058000
+         LCLA  &LEN                                                     00059000
+         LCLC  &P,&S,&REG                                               00060000
+&P       SETC  '&PREFIX'                                                00061000
+&S       SETC  '&SYSNDX'                                                00062000
+&S       SETC  '&S'(3,2)                                                00063000
+         AIF   ('&WKAREA'(1,1) NE '(').@FG01A                           00064000
+&LEN     SETA  K'&WKAREA-2                                              00065000
+&REG     SETC  '&WKAREA'(2,&LEN)                                        00066000
+         LR    R14,&REG            R14 = A(MACRO WORKAREA)              00067000
+         AGO   .@FG01B                                                  00068000
+.@FG01A  ANOP                                                           00069000
+         LA    R14,&WKAREA         R14 = A(MACRO WORK AREA)             00070000
+.@FG01B  ANOP                                                           00071000
+         STM   R1,R6,0(R14)        SAVE CONTENTS OF WORK REGS NEEDED    00072000
+         AIF   ('&DFN'(1,1) NE '(').@FG02A                              00073000
+&LEN     SETA  K'&DFN-2                                                 00074000
+&REG     SETC  '&DFN'(2,&LEN)                                           00075000
+         LR    R15,&REG            R15 = A(INPUT DEFINITION RECORD)     00076000
+         AGO   .@FG02B                                                  00077000
+.@FG02A  ANOP                                                           00078000
+         LA    R15,&DFN            R15 = A(INPUT DEFINITION RECORD)     00079000
+.@FG02B  ANOP                                                           00080000
+         AIF   ('&REQ'(1,1) NE '(').@FG03A                              00081000
+&LEN     SETA  K'&REQ-2                                                 00082000
+&REG     SETC  '&REQ'(2,&LEN)                                           00083000
+         LR    R1,&REG             R1 = A(REQUEST COMMUNICATION AREA)   00084000
+         AGO   .@FG03B                                                  00085000
+.@FG03A  ANOP                                                           00086000
+         LA    R1,&REQ             R1 = A(REQUEST COMMUNICATION AREA)   00087000
+.@FG03B  ANOP                                                           00088000
+         LA    R2,0                R2 = INDEX FOR REQUEST COMM AREA     00089000
+         LA    R4,0                R4 = CLEARED                         00090000
+         ICM   R4,B'0011',0(R1)    R4 = # FIELDS TO LOCATE              00091000
+&P&S.1   DS   0H                                                        00092000
+         LA    R3,0(R2,R1)         R3 = A(BASE FOR INPUT FLD DFN SEG)   00093000
+         LR    R5,R15              R5 = A(INPUT DEFINITION RECORD)      00094000
+         USING SADFNBAS,R5                                              00095000
+         LA    R6,0                R6 = CLEARED                         00096000
+         ICM   R6,B'0011',SADFN#FL R6 = # FIELD DFNS ON INPUT DFN REC   00097000
+&P&S.2   DS   0H                                                        00098000
+         CLC   SADFNFNM,SADFNFNM-SADFN#FL(R3) DO WE HAVE INPUT DFN SEG  00099000
+         BE    &P&S.3                Y. SKIP TO LOAD ADDRESS/LENGTH     00100000
+         LA    R5,L'SADFNFSG(,R5)    N. INCR TO NEXT INPUT FLD DFN SEG  00101000
+         BCT   R6,&P&S.2           LOOP TO SEARCH FOR FLD NAME MATCH    00102000
+         MVI   SADFNFAD-SADFN#FL(R3),0 IF NO-HIT, INIT TO ZERO          00103000
+         MVC   SADFNFAD-SADFN#FL+1(4,R3),SADFNFAD-SADFN#FL(R3)          00104000
+         B     &P&S.5              SKIP TO LOAD NEXT FLD REQ  2602105   00105000
+&P&S.3   DS   0H                                                        00106000
+         MVC   SADFNFAD-SADFN#FL(5,R3),SADFNFAD  SETUP ADDRESS/LENGTH   00107000
+         CLI   SADFNFAT-SADFN#FL(R3),C' ' IS ATTRIBUTE SPEC IN REQ BLK  00108000
+         BH    &P&S.4                       Y. LEAVE AS IS              00109000
+         MVC   SADFNFAT-SADFN#FL(1,R3),SADFNFAT  N. SET ATTRIB FROM DFN 00110000
+&P&S.4   DS   0H                                                        00111000
+         OC    SADFNFML-SADFN#FL(2,R3),SADFNFML-SADFN#FL(R3) MAXLEN 0?  00112000
+         BNZ   &P&S.5                          N. LEAVE AS IS           00113000
+         MVC   SADFNFML-SADFN#FL(2,R3),SADFNFML  Y. SET MAXLEN FROM DFN 00114000
+&P&S.5   DS   0H                                                        00115000
+         LA    R2,L'SADFNFSG(,R2)  R2 = INDEX TO COMMAREA FLD REQUEST   00116000
+         BCT   R4,&P&S.1           LOOP TO PROCESS ALL FIELD REQUESTS   00117000
+&P&S.9   DS    0H                                                       00118000
+         LM    R1,R6,0(R14)        LOAD CALLER'S REGISTERS              00119000
+         SPACE                                                          00120000
+         DROP  R5                                                       00121000
+         MEND                                                           00122000

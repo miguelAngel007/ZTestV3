@@ -1,0 +1,58 @@
+***************************** CZTS2IMW ******************************** 00000010
+* CZTS2IMW: WORK FIELDS FOR IMPACS                                    * 00000030
+*********************************************************************** 00000040
+         DS    0D                  * ALIGN ON DOUBLE-WORD BOUNDARY      00000180
+SPMWORK  DS    2D                  * DOUBLE WORD                        00000190
+DBLWORD  DS    D                   * DOUBLE WORD                        00000190
+*
+FULLWORD DS    F                   * FULL HORD
+FLWSAV01 DS    F                   * SAVE AREA 1 FOR PROGRAM            00000210
+FLWSAV02 DS    F                   * SAVE AREA 2 FOR PROGRAM            00000220
+FLWSAV03 DS    F                   * SAVE AREA 3 FOR PROGRAM            00000230
+FLWSAV04 DS    F                   * SAVE AREA 4 FOR PROGRAM            00000240
+*
+HWORD    DS    H                   * HALF HORD
+*
+TRANSOK  DS    XL1                 * INDICATOR CODE RETURN              00000600
+*********************************************************************** 00000090
+*        WORK FIELDS FOR SAVE AREAS                                   * 00000100
+*********************************************************************** 00000110
+         DS    0F                  * ALIGN ON FULL-WORD BOUNDARY        00000180
+WKSVANCA DS    F                   * ADDRESS OF NATIVE COMM AREA        00000240
+WKSVASCB DS    F                   * ADDRESS OF TS CONTROL BLOCK
+WKSVAPI  DS    F                   * ADDRESS OF PCA IN PROCESS
+WKSVSAPD DS    F                   * STARTING ADDRESS OF PROCESSING PDA
+WKSVRMIT DS    F                   * ADDRESS OF RMITS RECORD
+*********************************************************************** 00000090
+*        WORK FIELDS FOR KEY - RM INTERFACE                           * 00000100
+*********************************************************************** 00000110
+WKKEY    DS   0CL33                * CLAVE DE ACCESO
+WKIDAPL  DS    CL2                 *   APLICACION SYSTEMATICS
+*                                  *     IM - IMPACS
+*                                  *     ST - SAVING/TIMES
+*                                  *     RM - CIS
+WKCTRL1  DS    CL4                 *   CONTROL 1
+WKCTRL2  DS    CL4                 *   CONTROL 2
+WKCTRL3  DS    CL4                 *   CONTROL 3
+WKCTRL4  DS    CL4                 *   CONTROL 4
+*                                  *
+WKCUENT  DS   0CL14                *   NRO DE CUENTA / CODIGO CLIENTE
+WKACCFL  DS    CL4                 *     FILLER
+WKACCNB  DS    CL10                *     NUMERO DE CUENTA
+*                                  *
+WKTYREC  DS    CL1                 *   TIPO DE REGISTRO
+*                                  *     0 - HEADER
+*                                  *     1 - CLIENTE PERSONAL
+*                                  *     2 - CLIENTE COMERCIAL
+*                                  *     3 - RELACION CLIENTE- CUENTA
+*                                  *     4 - CREACION DE CUENTA
+*********************************************************************** 00000120
+*        OTHERS WORK FIELDS                                           * 00000100
+*********************************************************************** 00000170
+WKNPO    DS    XL2                 * NUMBER OF PCA OCCURRENCES
+WKPOIP   DS    XL2                 * PCA OCCURRENCE IN PROCESS
+WKLPDA   DS    XL2                 * LENGTH OF PROCESSING DATA AREA
+WKERRSW  DS    CL1                 * SWITCH HANDLE ERROR
+*********************************************************************** 00000760
+*                          END OF CZTS2STW                            * 00000770
+*********************************************************************** 00000780

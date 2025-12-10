@@ -1,0 +1,221 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+******************************************************************      00000100
+*DICTIONARY OBJECT SIDAGSIWKNM03                                 *      00000200
+* GENERATED 04/07/93  13.39.43                                   *      00000300
+*ELEMENTIZED NAMES                                               *      00000400
+******************************************************************      00000500
+SIDSNM03 DSECT                          ELEMENTIZED NAMES COMM AREA     00000600
+WK3RETCD DS    CL1                      NAMES-RETURN-CD                 00000700
+*              C'G'                     TOO MANY NAME LINES             00000800
+*              C'H'                     FAMILY NAME MAY BE WRONG        00000900
+*              C'I'                     TOO MANY NAMES ON 1 LINE        00001000
+*              C'L'                     FIELD TOO LONG                  00001010
+*              C'Z'                     FATAL ERROR                     00001100
+*              C'4'                     SUFFIX AT BEGINNING OF LINE     00001200
+WK3NUSED DS    CL1                      NUMBER OF ENTRIES USED          00001300
+WK3NAMES DS    8CL246                   ELEMENTIZED-NAMES OCCURS 8      00001400
+WK3NBR   EQU   8                        NUMBER OF OCCURS                00001500
+WK3NMLEN EQU   246                      LENGTH OF ONE ENTRY             00001600
+         ORG   WK3NAMES                                                 00001800
+WK3LNTYP DS    CL1                     LINE-TYP-CD                      00001900
+*                                          LINE-TYP-PERS   VALUE 'P'.   00002000
+*                                          LINE-TYP-COML   VALUE 'C'.   00002100
+*                                          LINE-TYP-DESC   VALUE 'D'.   00002200
+WK3NMOFS EQU   *-WK3NAMES              OFFSET TO NAME DATA              00002250
+WK3PRSNM DS    0CL201                  PERSONAL-NAME.                   00002300
+WK3PREFX DS    CL25                    PREFIX-CONNECTOR                 00002400
+WK3SALUT DS    CL25                    SALUTATION                       00002500
+WK3FNAME DS    CL25                    FIRST-NAME                       00002600
+WK3MNAME DS    CL25                    MIDDLE-NAME                      00002700
+WK3LNAME DS    CL25                    FAMILY-NAME                      00002800
+WK3NSUFX DS    CL25                    NAME-SUFFIX                      00002900
+WK3TITLE DS    CL25                    NAME-TITLE                       00003000
+WK3SUFXC DS    CL25                    SUFFIX-CONNECTOR                 00003100
+WK3NASEQ DS    CL1                     NAME-ORDER-CD                    00003200
+*                                          FIRST-MIDDLE-LAST VALUE '1'. 00003300
+*                                          LAST-FIRST-MIDDLE VALUE '2'. 00003400
+*                                          FIRST-LAST-MIDDLE VALUE '3'. 00003500
+WK3CNBEG DS    CL2                     BEGIN POSITION OF LAST NAME      00003600
+WK3CNEND DS    CL2                     END POSITION OF LAST NAME        00003610
+WK3CNAME DS    CL40                    CUSTOMER-NAME                    00003620
+*                                                                       00003700
+WK3LITY2 DS    CL1                 2ND LINE-TYP-CD                      00003800
+WK3PRSN2 DS    0CL201              2ND PERSONAL-NAME.                   00003900
+WK3PREF2 DS    CL25                2ND PREFIX-CONNECTOR                 00004000
+WK3SALU2 DS    CL25                2ND SALUTATION                       00004100
+WK3FNAM2 DS    CL25                2ND FIRST-NAME                       00004200
+WK3MNAM2 DS    CL25                2ND MIDDLE-NAME                      00004300
+WK3LNAM2 DS    CL25                2ND FAMILY-NAME                      00004400
+WK3NSUF2 DS    CL25                2ND NAME-SUFFIX                      00004500
+WK3TITL2 DS    CL25                2ND NAME-TITLE                       00004600
+WK3SUFX2 DS    CL25                2ND SUFFIX-CONNECTOR                 00004700
+WK3NASE2 DS    CL1                 2ND NAME-ORDER-CD                    00004800
+WK3CNBE2 DS    CL2                 2ND BEGIN POSITION OF LAST NAME      00004810
+WK3CNEN2 DS    CL2                 2ND END POSITION OF LAST NAME        00004820
+WK3CNAM2 DS    CL40                2ND CUSTOMER-NAME                    00004900
+*                                                                       00005000
+WK3LITY3 DS    CL1                 3RD LINE-TYP-CD                      00005100
+WK3PRSN3 DS    0CL201              3RD PERSONAL-NAME.                   00005200
+WK3PREF3 DS    CL25                3RD PREFIX-CONNECTOR                 00005300
+WK3SALU3 DS    CL25                3RD SALUTATION                       00005400
+WK3FNAM3 DS    CL25                3RD FIRST-NAME                       00005500
+WK3MNAM3 DS    CL25                3RD MIDDLE-NAME                      00005600
+WK3LNAM3 DS    CL25                3RD FAMILY-NAME                      00005700
+WK3NSUF3 DS    CL25                3RD NAME-SUFFIX                      00005800
+WK3TITL3 DS    CL25                3RD NAME-TITLE                       00005900
+WK3SUFX3 DS    CL25                3RD SUFFIX-CONNECTOR                 00006000
+WK3NASE3 DS    CL1                 3RD NAME-ORDER-CD                    00006100
+WK3CNBE3 DS    CL2                 3RD BEGIN POSITION OF LAST NAME      00006110
+WK3CNEN3 DS    CL2                 3RD END POSITION OF LAST NAME        00006120
+WK3CNAM3 DS    CL40                3RD CUSTOMER-NAME                    00006200
+*                                                                       00006300
+WK3LITY4 DS    CL1                 4TH LINE-TYP-CD                      00006400
+WK3PRSN4 DS    0CL201              4TH PERSONAL-NAME.                   00006500
+WK3PREF4 DS    CL25                4TH PREFIX-CONNECTOR                 00006600
+WK3SALU4 DS    CL25                4TH SALUTATION                       00006700
+WK3FNAM4 DS    CL25                4TH FIRST-NAME                       00006800
+WK3MNAM4 DS    CL25                4TH MIDDLE-NAME                      00006900
+WK3LNAM4 DS    CL25                4TH FAMILY-NAME                      00007000
+WK3NSUF4 DS    CL25                4TH NAME-SUFFIX                      00007100
+WK3TITL4 DS    CL25                4TH NAME-TITLE                       00007200
+WK3SUFX4 DS    CL25                4TH SUFFIX-CONNECTOR                 00007300
+WK3NASE4 DS    CL1                 4TH NAME-ORDER-CD                    00007400
+WK3CNBE4 DS    CL2                 4TH BEGIN POSITION OF LAST NAME      00007410
+WK3CNEN4 DS    CL2                 4TH END POSITION OF LAST NAME        00007420
+WK3CNAM4 DS    CL40                4TH CUSTOMER-NAME                    00007500
+*                                                                       00007600
+WK3LITY5 DS    CL1                 5TH LINE-TYP-CD                      00007700
+WK3PRSN5 DS    0CL201              5TH PERSONAL-NAME.                   00007800
+WK3PREF5 DS    CL25                5TH PREFIX-CONNECTOR                 00007900
+WK3SALU5 DS    CL25                5TH SALUTATION                       00008000
+WK3FNAM5 DS    CL25                5TH FIRST-NAME                       00008100
+WK3MNAM5 DS    CL25                5TH MIDDLE-NAME                      00008200
+WK3LNAM5 DS    CL25                5TH FAMILY-NAME                      00008300
+WK3NSUF5 DS    CL25                5TH NAME-SUFFIX                      00008400
+WK3TITL5 DS    CL25                5TH NAME-TITLE                       00008500
+WK3SUFX5 DS    CL25                5TH SUFFIX-CONNECTOR                 00008600
+WK3NASE5 DS    CL1                 5TH NAME-ORDER-CD                    00008700
+WK3CNBE5 DS    CL2                 5TH BEGIN POSITION OF LAST NAME      00008710
+WK3CNEN5 DS    CL2                 5TH END POSITION OF LAST NAME        00008720
+WK3CNAM5 DS    CL40                5TH CUSTOMER-NAME                    00008800
+*                                                                       00008900
+WK3LITY6 DS    CL1                 6TH LINE-TYP-CD                      00009000
+WK3PRSN6 DS    0CL201              6TH PERSONAL-NAME.                   00009100
+WK3PREF6 DS    CL25                6TH PREFIX-CONNECTOR                 00009200
+WK3SALU6 DS    CL25                6TH SALUTATION                       00009300
+WK3FNAM6 DS    CL25                6TH FIRST-NAME                       00009400
+WK3MNAM6 DS    CL25                6TH MIDDLE-NAME                      00009500
+WK3LNAM6 DS    CL25                6TH FAMILY-NAME                      00009600
+WK3NSUF6 DS    CL25                6TH NAME-SUFFIX                      00009700
+WK3TITL6 DS    CL25                6TH NAME-TITLE                       00009800
+WK3SUFX6 DS    CL25                6TH SUFFIX-CONNECTOR                 00009900
+WK3NASE6 DS    CL1                 6TH NAME-ORDER-CD                    00010000
+WK3CNBE6 DS    CL2                 6TH BEGIN POSITION OF LAST NAME      00010010
+WK3CNEN6 DS    CL2                 6TH END POSITION OF LAST NAME        00010020
+WK3CNAM6 DS    CL40                6TH CUSTOMER-NAME                    00010100
+*                                                                       00010200
+WK3LITY7 DS    CL1                 7TH LINE-TYP-CD                      00010300
+WK3PRSN7 DS    0CL201              7TH PERSONAL-NAME.                   00010400
+WK3PREF7 DS    CL25                7TH PREFIX-CONNECTOR                 00010500
+WK3SALU7 DS    CL25                7TH SALUTATION                       00010600
+WK3FNAM7 DS    CL25                7TH FIRST-NAME                       00010700
+WK3MNAM7 DS    CL25                7TH MIDDLE-NAME                      00010800
+WK3LNAM7 DS    CL25                7TH FAMILY-NAME                      00010900
+WK3NSUF7 DS    CL25                7TH NAME-SUFFIX                      00011000
+WK3TITL7 DS    CL25                7TH NAME-TITLE                       00011100
+WK3SUFX7 DS    CL25                7TH SUFFIX-CONNECTOR                 00011200
+WK3NASE7 DS    CL1                 7TH NAME-ORDER-CD                    00011300
+WK3CNBE7 DS    CL2                 7TH BEGIN POSITION OF LAST NAME      00011310
+WK3CNEN7 DS    CL2                 7TH END POSITION OF LAST NAME        00011320
+WK3CNAM7 DS    CL40                7TH CUSTOMER-NAME                    00011400
+*                                                                       00011500
+WK3LITY8 DS    CL1                 8TH LINE-TYP-CD                      00011600
+WK3PRSN8 DS    0CL201              8TH PERSONAL-NAME.                   00011700
+WK3PREF8 DS    CL25                8TH PREFIX-CONNECTOR                 00011800
+WK3SALU8 DS    CL25                8TH SALUTATION                       00011900
+WK3FNAM8 DS    CL25                8TH FIRST-NAME                       00012000
+WK3MNAM8 DS    CL25                8TH MIDDLE-NAME                      00012100
+WK3LNAM8 DS    CL25                8TH FAMILY-NAME                      00012200
+WK3NSUF8 DS    CL25                8TH NAME-SUFFIX                      00012300
+WK3TITL8 DS    CL25                8TH NAME-TITLE                       00012400
+WK3SUFX8 DS    CL25                8TH SUFFIX-CONNECTOR                 00012500
+WK3NASE8 DS    CL1                 8TH NAME-ORDER-CD                    00012600
+WK3CNBE8 DS    CL2                 8TH BEGIN POSITION OF LAST NAME      00012610
+WK3CNEN8 DS    CL2                 8TH END POSITION OF LAST NAME        00012620
+WK3CNAM8 DS    CL40                8TH CUSTOMER-NAME                    00012700
+*                                                                       00012800
+         ORG   WK3PRSNM                                                 00012900
+WK3COMNM DS    0CL201                  COMMERCIAL-NAME                  00013000
+WK3SWD1  DS    CL25                    SIGNIFICANT-WORD-1               00013100
+WK3SWD2  DS    CL25                    SIGNIFICANT-WORD-2               00013200
+WK3SWD3  DS    CL25                    SIGNIFICANT-WORD-3               00013300
+WK3SWD4  DS    CL25                    SIGNIFICANT-WORD-4               00013400
+WK3SWD5  DS    CL25                    SIGNIFICANT-WORD-5               00013500
+WK3GARWD DS    CL76                    GARBAGE-WORDS                    00013600
+*                                                                       00013700
+         ORG   WK3PRSN2                                                 00013800
+WK3COMN2 DS    0CL201              2ND COMMERCIAL-NAME                  00013900
+WK3SWD12 DS    CL25                2ND SIGNIFICANT-WORD-1               00014000
+WK3SWD22 DS    CL25                2ND SIGNIFICANT-WORD-2               00014100
+WK3SWD32 DS    CL25                2ND SIGNIFICANT-WORD-3               00014200
+WK3SWD42 DS    CL25                2ND SIGNIFICANT-WORD-4               00014300
+WK3SWD52 DS    CL25                2ND SIGNIFICANT-WORD-5               00014400
+WK3GARW2 DS    CL76                2ND GARBAGE-WORDS                    00014500
+*                                                                       00014600
+         ORG   WK3PRSN3                                                 00014700
+WK3COMN3 DS    0CL201              3RD COMMERCIAL-NAME                  00014800
+WK3SWD13 DS    CL25                3RD SIGNIFICANT-WORD-1               00014900
+WK3SWD23 DS    CL25                3RD SIGNIFICANT-WORD-2               00015000
+WK3SWD33 DS    CL25                3RD SIGNIFICANT-WORD-3               00015100
+WK3SWD43 DS    CL25                3RD SIGNIFICANT-WORD-4               00015200
+WK3SWD53 DS    CL25                3RD SIGNIFICANT-WORD-5               00015300
+WK3GARW3 DS    CL76                3RD GARBAGE-WORDS                    00015400
+*                                                                       00015500
+         ORG   WK3PRSN4                                                 00015600
+WK3COMN4 DS    0CL201              4TH COMMERCIAL-NAME                  00015700
+WK3SWD14 DS    CL25                4TH SIGNIFICANT-WORD-1               00015800
+WK3SWD24 DS    CL25                4TH SIGNIFICANT-WORD-2               00015900
+WK3SWD34 DS    CL25                4TH SIGNIFICANT-WORD-3               00016000
+WK3SWD44 DS    CL25                4TH SIGNIFICANT-WORD-4               00016100
+WK3SWD54 DS    CL25                4TH SIGNIFICANT-WORD-5               00016200
+WK3GARW4 DS    CL76                4TH GARBAGE-WORDS                    00016300
+*                                                                       00016400
+         ORG   WK3PRSN5                                                 00016500
+WK3COMN5 DS    0CL201              5TH COMMERCIAL-NAME                  00016600
+WK3SWD15 DS    CL25                5TH SIGNIFICANT-WORD-1               00016700
+WK3SWD25 DS    CL25                5TH SIGNIFICANT-WORD-2               00016800
+WK3SWD35 DS    CL25                5TH SIGNIFICANT-WORD-3               00016900
+WK3SWD45 DS    CL25                5TH SIGNIFICANT-WORD-4               00017000
+WK3SWD55 DS    CL25                5TH SIGNIFICANT-WORD-5               00017100
+WK3GARW5 DS    CL76                5TH GARBAGE-WORDS                    00017200
+*                                                                       00017300
+         ORG   WK3PRSN6                                                 00017400
+WK3COMN6 DS    0CL201              6TH COMMERCIAL-NAME                  00017500
+WK3SWD16 DS    CL25                6TH SIGNIFICANT-WORD-1               00017600
+WK3SWD26 DS    CL25                6TH SIGNIFICANT-WORD-2               00017700
+WK3SWD36 DS    CL25                6TH SIGNIFICANT-WORD-3               00017800
+WK3SWD46 DS    CL25                6TH SIGNIFICANT-WORD-4               00017900
+WK3SWD56 DS    CL25                6TH SIGNIFICANT-WORD-5               00018000
+WK3GARW6 DS    CL76                6TH GARBAGE-WORDS                    00018100
+*                                                                       00018200
+         ORG   WK3PRSN7                                                 00018300
+WK3COMN7 DS    0CL201              7TH COMMERCIAL-NAME                  00018400
+WK3SWD17 DS    CL25                7TH SIGNIFICANT-WORD-1               00018500
+WK3SWD27 DS    CL25                7TH SIGNIFICANT-WORD-2               00018600
+WK3SWD37 DS    CL25                7TH SIGNIFICANT-WORD-3               00018700
+WK3SWD47 DS    CL25                7TH SIGNIFICANT-WORD-4               00018800
+WK3SWD57 DS    CL25                7TH SIGNIFICANT-WORD-5               00018900
+WK3GARW7 DS    CL76                7TH GARBAGE-WORDS                    00019000
+*                                                                       00019100
+         ORG   WK3PRSN8                                                 00019200
+WK3COMN8 DS    0CL201              8TH COMMERCIAL-NAME                  00019300
+WK3SWD18 DS    CL25                8TH SIGNIFICANT-WORD-1               00019400
+WK3SWD28 DS    CL25                8TH SIGNIFICANT-WORD-2               00019500
+WK3SWD38 DS    CL25                8TH SIGNIFICANT-WORD-3               00019600
+WK3SWD48 DS    CL25                8TH SIGNIFICANT-WORD-4               00019700
+WK3SWD58 DS    CL25                8TH SIGNIFICANT-WORD-5               00019800
+WK3GARW8 DS    CL76                8TH GARBAGE-WORDS                    00019900
+*                                                                       00020000
+         ORG                                                            00020100
+         EJECT                                                          00020200

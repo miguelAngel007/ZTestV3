@@ -1,0 +1,97 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** HISTORY OF REVISIONS **                         * 00002000
+*                                                                     * 00003000
+* DESCRIPTION                                                 CHNGID  * 00004000
+* __________________________________________________________  _______ * 00005000
+* 07/25/05 INITIAL DISTRIBUTION                                GN5284 * 00006000
+*---------------------------------------------------------------------* 00007000
+STHDAREA DS    0D            STANDARD HEADINGS AREA                     00008000
+STDHD1   DS    0CL133                                                   00009000
+STH1PCTL DC    CL1'1'        HEADING 1 PRINT CONTROL CHARACTER          00010000
+STH1C1DS DC    CL10' '       HEADING 1 CONTROL 1 DESCRIPTION            00011000
+         DC    CL1' '                                                   00012000
+STH1C1A  DS    0CL34                                                    00013000
+STH1C1   DC    CL2' '        CONTROL 1                                  00014000
+         DC    CL2' '                                                   00015000
+STH1C1L  DC    CL30' '       CONTROL 1 LUF                              00016000
+         DC    CL5' '                                                   00017000
+STH1SYNM DC    CL32'SYSTEMATICS SYSTEM NAME'                            00018000
+         DC    CL14' '                                                  00019000
+         DC    CL1'*'                                                   00020000
+STH1PH   DC    CL8' '        PROGRAM NAME                               00021000
+         DC    CL6'*'                                                   00022000
+STH1PGLT DC    CL11'PAGE NO'                                            00023000
+STDHD1PG DS    CL10                                                     00024000
+STDHD2   DS    0CL133                                                   00025000
+STH2PCTL DC    CL1'1'        HEADING 2 PRINT CONTROL CHARACTER          00026000
+STH2C2DS DC    CL10' '       HEADING 2 CONTROL 2 DESCRIPTION            00027000
+         DC    CL1' '                                                   00028000
+STH2C2A  DS    0CL34                                                    00029000
+STH2C2   DC    CL3' '        CONTROL 2                                  00030000
+         DC    CL1' '                                                   00031000
+STH2C2L  DC    CL30' '       CONTROL 2 LUF                              00032000
+         DC    CL5' '                                                   00033000
+STH2BKNM DC    CL40' '       BANK NAME                                  00034000
+         DC    CL6' '                                                   00035000
+STH2WKDY DC    CL9' '        WEEKDAY                                    00036000
+         DC    CL6' '                                                   00037000
+STH2PDLT DC    CL12'PROCESS DATE'                                       00038000
+         DC    CL1' '                                                   00039000
+STH2DATE DS    0CL8          PROCESS DATE                               00040000
+STH2MO   DC    CL2' '        PROCESS MONTH                              00041000
+STH2SL1  DC    CL1'/'                                                   00042000
+STH2DA   DC    CL2' '        PROCESS DAY                                00043000
+STH2SL2  DC    CL1'/'                                                   00044000
+STH2YR   DC    CL2' '        PROCESS YEAR                               00045000
+STDHD3   DS    0CL133                                                   00046000
+STH3PCTL DC    CL1'1'        HEADING 3 PRINT CONTROL CHARACTER          00047000
+STH3C3DS DC    CL10' '       HEADING 3 CONTROL 3 DESCRIPTION            00048000
+         DC    CL1' '                                                   00049000
+STH3C3A  DS    0CL34                                                    00050000
+STH3C3   DC    CL3' '        CONTROL 3                                  00051000
+         DC    CL1' '                                                   00052000
+STH3C3L  DC    CL30' '       CONTROL 3 LUF                              00053000
+         DC    CL5' '                                                   00054000
+STH3RPT  DC    CL40' '       REPORT NAME                                00055000
+         DC    CL2' '                                                   00056000
+STH3APNM DC    CL16' '       APPLICATION NAME                           00057000
+         DC    CL3' '                                                   00058000
+STH3PDLT DC    CL12'PROCESS THRU'                                       00059000
+         DC    CL1' '                                                   00060000
+STH3DTTM DS    0CL8          PROCESS DATE                               00061000
+STH3MOHR DC    CL2' '        PROCESS MONTH/HOUR                         00062000
+STH3SL1  DC    CL1'/'                                                   00063000
+STH3DAMN DC    CL2' '        PROCESS DAY/MINUTE                         00064000
+STH3SL2  DC    CL1'/'                                                   00065000
+STH3YRSC DC    CL2' '        PROCESS YEAR/SECOND                        00066000
+STDHD4   DS    0CL133                                                   00067000
+STH4PCTL DC    CL1'1'        HEADING 4 PRINT CONTROL CHARACTER          00068000
+STH4C4DS DC    CL10' '       HEADING 4 CONTROL 4 DESCRIPTION            00069000
+         DC    CL1' '                                                   00070000
+STH4C4A  DS    0CL34                                                    00071000
+STH4C4   DC    CL4' '        CONTROL 4                                  00072000
+         DC    CL1' '                                                   00073000
+STH4C4L  DC    CL30' '       CONTROL 4 LUF                              00074000
+         DC    CL65' '                                                  00075000
+STH4PDLT DC    CL12' '                                                  00076000
+         DC    CL1' '                                                   00077000
+STH4DTTM DS    0CL8          PROCESS DATE                               00078000
+STH4MOHR DC    CL2' '        PROCESS MONTH/HOUR                         00079000
+STH4SL1  DC    CL1'/'                                                   00080000
+STH4DAMN DC    CL2' '        PROCESS DAY/MINUTE                         00081000
+STH4SL2  DC    CL1'/'                                                   00082000
+STH4YRSC DC    CL2' '        PROCESS YEAR/SECOND                        00083000
+STDHDCTL DS    0C            HEADING CONTROL AREA                       00084000
+STDFULPG DC    PL2'56'       NO. LINES PER PAGE                         00085000
+STDPGCTR DC    PL5'0'        PAGE COUNTER                               00086000
+STDLNCTR DC    PL4'0'        LINE COUNTER                               00087000
+STDHDBRK DC    CL1'X'        FORCE HEADINGS FLAG                        00088000
+STHDNOHD EQU   C' '          DO-NOT-PRODUCE-HEADINGS                    00089000
+STHDDOHD EQU   C'X'          PRODUCE-HEADINGS                           00090000
+STDSCBRK DC    CL1' '        FORCE SECONDARY HEADINGS FLAG              00091000
+STHD2ND  EQU   C'X'          PRODUCE-SECONDARY-HEADINGS                 00092000
+STDSCSTR DC    PL2'1'        SECONDARY HEADINGS START LINE              00093000
+STDSCNO  DC    PL2'0'        NUMBER OF SECONDARY HEADING LINES          00094000
+         DC    CL8' '                                                   00095000
+STDSCHD  DC    10CL133' '                                               00096000

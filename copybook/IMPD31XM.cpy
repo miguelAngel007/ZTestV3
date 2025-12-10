@@ -1,0 +1,416 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+000100*--------------------------------------------------------------*
+000200*    MAINTENANCE TO THE EXTERNAL INVESTMENT FIELDS             *
+000300*--------------------------------------------------------------*
+000400*--------------------------------------------------------------*
+000500*    2005 - EXT INV LINK INDICATOR                             *
+000600*--------------------------------------------------------------*
+000700 K5001-2005.
+000800     IF  TR-FM-FLD-NO     NOT EQUAL  '2005'
+000900         GO TO K5001-2006.
+001000     IF  TR-FM-NEW-BYTE (1)   EQUAL  ' '
+001100     AND (WMS-XINV-LINK-IND   EQUAL  'A' OR 'I' OR 'P'
+001200     OR   WXI-LINK-IND-IN     EQUAL  'D')
+001300         GO TO K5001-2005-NULL.
+001400     IF  TR-FM-NEW-BYTE (1)   EQUAL  'A'
+001500     AND (WMS-XINV-LINK-IND   EQUAL  ' ' OR 'I'
+001600     OR   WXI-LINK-IND-IN     EQUAL  'D')
+001700         GO TO K5001-2005-ADD.
+001800     IF  TR-FM-NEW-BYTE (1)   EQUAL  'D'
+001900     AND (WMS-XINV-LINK-IND   EQUAL  'A' OR 'L')
+002000         GO TO K5001-2005-DEL.
+002100     IF  TR-FM-NEW-BYTE (1)   EQUAL  'I'
+002200     AND (WMS-XINV-LINK-IND   EQUAL  ' ' OR 'A'
+002300     OR   WXI-LINK-IND-IN     EQUAL  'D')
+002400         GO TO K5001-2005-ADD.
+002500     IF  TR-FM-NEW-BYTE (1)   EQUAL  'P'
+002600     AND (WMS-XINV-LINK-IND   EQUAL  ' '
+002700     OR   WXI-LINK-IND-IN     EQUAL  'D')
+002800         GO TO K5001-2005-ADD.
+002900*
+003000*--------------------------------------------------------------*
+003100*    NO ADDITIONAL EDITING IF OLD AND NEW VALUES ARE EQUAL     *
+003200*--------------------------------------------------------------*
+003300     IF  (TR-FM-NEW-BYTE (1)  EQUAL  ' '
+003400     AND WMS-XINV-LINK-IND    EQUAL  ' ')
+003500     OR  (TR-FM-NEW-BYTE (1)  EQUAL  'A'
+003600     AND WMS-XINV-LINK-IND    EQUAL  'A')
+003700     OR  (TR-FM-NEW-BYTE (1)  EQUAL  'D'
+003800     AND WMS-XINV-LINK-IND    EQUAL  'D')
+003900     OR  (TR-FM-NEW-BYTE (1)  EQUAL  'I'
+004000     AND WMS-XINV-LINK-IND    EQUAL  'I')
+004100     OR  (TR-FM-NEW-BYTE (1)  EQUAL  'P'
+004200     AND WMS-XINV-LINK-IND    EQUAL  'P')
+004300         GO TO K5100.
+004400*
+004500     GO TO K5001-2005-ERR.
+004600*
+004700*--------------------------------------------------------------*
+004800*    CHANGE FROM A (ADDED THROUGH XINV APPLICATION ONLY)       *
+004900*        OR FROM D (DELINKED)                                  *
+005000*        OR FROM I (ADDED THROUGH IMPACS ONLY)                 *
+005100*        OR FROM P (BANK POSITION ACCOUNT)                     *
+005200*             TO SPACES (NOT LINKED)                           *
+005300*--------------------------------------------------------------*
+005400 K5001-2005-NULL.
+005500*
+005600***  XINV BALANCE AND ACCRUED DIVIDENDS MUST BE ZERO
+005700*
+005800     IF  WMS-XINV-BALANCE     EQUAL  ZERO
+005900     AND WMS-XINV-ACCR-DIV    EQUAL  ZERO
+006000         MOVE TR-FM-NEW-BYTE (1) TO  WXI-LINK-IND-OUT
+006100         GO TO K5100
+006200     ELSE
+006300         GO TO K5001-2005-ERR.
+006400*
+006500*--------------------------------------------------------------*
+006600*    CHANGE FROM A (ADDED THROUGH XINV APPLICATION ONLY)       *
+006700*        OR FROM L (LINKED)                                    *
+006800*             TO D (DELINKED BY XINV APPLICATION)              *
+006900*    SET WXI-LINK-IND-OUT TO SPACE SO THAT A CHANGE CAN BE     *
+007000*    DETECTED AFTER ALL MAINTENANCE IS COMPLETED               *
+007100*--------------------------------------------------------------*
+007200 K5001-2005-DEL.
+007300*
+007400***  FOR SAME-DAY PROCESSING, MUST BE TRAN 95 AND
+007500***  XINV BALANCE AND ACCRUED DIVIDENDS MUST BE ZERO
+007600*
+007700     IF  WMS-XINV-PROCESS-IND EQUAL  '2'
+007800     OR (WMS-XINV-PROCESS-IND EQUAL  '1'
+007900     AND TR-CLASS             EQUAL  '95'
+008000     AND WMS-XINV-BALANCE     EQUAL  +0
+008100     AND WMS-XINV-ACCR-DIV    EQUAL  +0)
+008200         MOVE ' '                TO  WXI-LINK-IND-OUT
+008300         MOVE WBC-CAPTURE-DA     TO  WMS-XINV-DELINK-DA           0266741
+008400         MOVE WBC-CAPTURE-MO     TO  WMS-XINV-DELINK-MO           0266741
+008500         MOVE WBC-CAPTURE-YR     TO  WMS-XINV-DELINK-YR           0266741
+008600         IF  WBC-CAPTURE-YR LESS THAN WBC-NEXT-CENT-YR            0266741
+008700             MOVE '20'           TO  WMS-XINV-DELINK-CC
+008800             GO TO K5100
+008900         ELSE
+009000             MOVE '19'           TO  WMS-XINV-DELINK-CC
+009100             GO TO K5100
+009200     ELSE
+009300         GO TO K5001-2005-ERR.
+009400*
+009500*--------------------------------------------------------------*
+009600*    CHANGE FROM SPACE (NOT LINKED)                            *
+009700*        OR FROM D (DELINKED BY XINV APPLICATION)              *
+009800*        OR FROM I (ADDED BY IMPACS)                           *
+009900*             TO A (ADDED BY XINV APPLICATION)                 *
+010000*                                                              *
+010100*    CHANGE FROM SPACE (NOT LINKED)                            *
+010200*        OR FROM A (ADDED BY XINV APPLICATION)                 *
+010300*        OR FROM D (DELINKED BY XINV APPLICATION)              *
+010400*             TO I (ADDED BY IMPACS)                           *
+010500*                                                              *
+010600*    CHANGE FROM SPACE (NOT LINKED)                            *
+010700*        OR FROM D (DELINKED BY XINV APPLICATION)              *
+010800*             TO P (BANK POSITION ACCOUNT)                     *
+010900*--------------------------------------------------------------*
+011000 K5001-2005-ADD.
+011100*
+011200***  BCR MUST HAVE XINV APPLICATION(S) INSTALLED
+011300*
+011400     IF  WBC-XINV-INSTALLED   EQUAL  '0'                          0266741
+011500         GO TO K5001-2005-ERR.
+011600*
+011700***  BCR MUST HAVE SAME-DAY APPLICATION(S) INSTALLED
+011800***  FOR A VALUE OF "P" TO BE VALID
+011900*
+012000     IF  WBC-XINV-INSTALLED   EQUAL  '2'                          0266741
+012100     AND TR-FM-NEW-BYTE (1)   EQUAL  'P'
+012200         GO TO K5001-2005-ERR.
+012300*
+012400***  PRODUCT MUST ALLOW EXTERNAL INVESTMENTS
+012500*
+012600     MOVE '0'                    TO  WXI-PROD-ALLOW.
+012700     SET PRD-INX                 TO  1.
+012800     SEARCH PRD-TABLE-ITEM
+012900         WHEN
+013000             PRD-TYPE (PRD-INX) EQUAL WMS-ACCT-TYPE
+013100             MOVE PRD-XINV-ALLOWED (PRD-INX)
+013200                                 TO  WXI-PROD-ALLOW.
+013300     IF  WXI-PROD-ALLOW       EQUAL  '0'
+013400         GO TO K5001-2005-ERR.
+013500*
+013600***  DDA STATUS MUST BE 00 (ACTIVE) OR 07 (INACTIVE)
+013700*
+013800     IF  WMS-STATUS       NOT EQUAL  '00' AND '07'
+013900         GO TO K5001-2005-ERR.
+014000*
+014100***  BCR MUST REACTIVATE IF STATUS IS 07 (INACTIVE)
+014200*
+014300     IF  WMS-STATUS           EQUAL  '07'
+014400         IF  WBC-POST-INACTIVE NOT EQUAL '4'                      0266741
+014500             GO TO K5001-2005-ERR.
+014600*
+014700***  CANNOT HAVE AN ACTIVE SAVINGS TRAILER WITH CMA
+014800*
+014900     IF  WMS-SAVINGS-TRLR     EQUAL  '1'
+015000         IF  WMS-CMA-INDICATOR NOT EQUAL '0'
+015100             GO TO K5001-2005-ERR.
+015200*
+015300***  CANNOT HAVE A SAVINGS TRAILER WITH MAXIMUM DDA BALANCE
+015400*
+015500     IF  WMS-SAVINGS-TRLR     EQUAL  '1'
+015600         IF  WMS-DDA-MAX-FLAG NOT EQUAL '0'
+015700             GO TO K5001-2005-ERR.
+015800*
+015900***  CANNOT HAVE AN ACTIVE SAVINGS TRAILER WITH INVESTMENT
+016000*
+016100     IF  WMS-INVESTMENT-TRLR NOT EQUAL '0'
+016200         GO TO K5001-2005-ERR.
+016300*
+016400***  CANNOT BE FUNDING CHILD
+016500*
+016600     IF  WMS-FUNDING-FLAG NOT EQUAL  ' ' AND '0' AND 'P'
+016700         GO TO K5001-2005-ERR.
+016800*
+016900***  CANNOT BE ZBA CHILD
+017000*
+017100     IF  WMS-TARGET-AMT-TRLR  EQUAL  '1'
+017200         IF  WMS-NB-ZB-PAR-CHILD  EQUAL  'B' OR 'C'
+017300         OR  WMS-NB-ZB-LVL-NBR    GREATER THAN  '1'
+017400             GO TO K5001-2005-ERR.
+017500*
+017600***  CANNOT BE MMDA (MONEY MARKET)/STATEMENT SAVINGS              0437111
+017700*
+017800     IF  WMS-MMDA-INDICATOR   EQUAL  '1' OR '2' OR '3'            0437111
+017900         GO TO K5001-2005-ERR.
+018000*
+018100***  MUST ALLOW ACH DEBITS AND CREDITS
+018200*
+018300     IF  WMS-ACH-FLAG     NOT EQUAL  '3'
+018400         GO TO K5001-2005-ERR.
+018500*
+018600***  SAME DAY CANNOT HAVE LOAN TRAILER USING AUTO PAYMENT FEATURE
+018700*
+018800     IF  WMS-XINV-PROCESS-IND EQUAL  '1'
+018900     AND WMS-LOAN-TRLR        EQUAL  '1'
+019000         IF  (WMS-LOAN-STATUS EQUAL  '0' OR '1' OR '5')
+019100         AND (WMS-AUTO-PYMT   EQUAL  '1')
+019200             GO TO K5001-2005-ERR.
+019300*
+019400*--------------------------------------------------------------*
+019500*    XINV LINK INDICATOR EDITING COMPLETED SUCCESSFULLY        *
+019600*--------------------------------------------------------------*
+019700*
+019800***  IF BOTH "A" AND "I" MAINTENANCE HAVE BEEN RECEIVED,
+019900***  THEN CHANGE THE WXI-LINK-IND-OUT TO AN "L" (LINKED)
+020000*
+020100     IF  WXI-LINK-IND-OUT NOT EQUAL  'L'
+020200         MOVE TR-FM-NEW-BYTE (1) TO  WXI-LINK-IND-OUT.
+020300     IF  (TR-FM-NEW-BYTE (1)  EQUAL  'A'
+020400     AND WMS-XINV-LINK-IND    EQUAL  'I')
+020500     OR  (TR-FM-NEW-BYTE (1)  EQUAL  'I'
+020600     AND WMS-XINV-LINK-IND    EQUAL  'A')
+020700         MOVE 'L'                TO  WXI-LINK-IND-OUT
+020800         MOVE WBC-CAPTURE-DA     TO  WMS-XINV-LINK-DA             0266741
+020900         MOVE WBC-CAPTURE-MO     TO  WMS-XINV-LINK-MO             0266741
+021000         MOVE WBC-CAPTURE-YR     TO  WMS-XINV-LINK-YR             0266741
+021100         IF  WBC-CAPTURE-YR LESS THAN WBC-NEXT-CENT-YR            0266741
+021200             MOVE '20'           TO  WMS-XINV-LINK-CC
+021300         ELSE
+021400             MOVE '19'           TO  WMS-XINV-LINK-CC.
+021500*
+021600***  SAVE EXCEPTION DATA FOR QA OR QD EXCEPTION
+021700*
+021800     MOVE TR-FILE-MAINT          TO  WXI-FILE-MAINT.
+021900*
+022000     GO TO K5100.
+022100*
+022200*--------------------------------------------------------------*
+022300*    CREATE D0DQ REPORT EXCEPTION, REASON CODE 94              *
+022400*--------------------------------------------------------------*
+022500 K5001-2005-ERR.
+022600     MOVE 'DQ'                   TO  EXCODE-2.
+022700     MOVE '094'                  TO  REJRESN.                     0717565
+022800     GO TO K5085.
+022900*
+023000*--------------------------------------------------------------*
+023100*    2006 - EXT INV PROCESS INDICATOR                          *
+023200*--------------------------------------------------------------*
+023300 K5001-2006.
+023400     IF  TR-FM-FLD-NO     NOT EQUAL  '2006'
+023500         GO TO K5001-2008.
+023600*
+023700***  BCR MUST HAVE INSTALLED APPROPRIATE XINV APPLICATION(S)
+023800***  BASED ON THE PROCESS INDICATOR (SAME-DAY OR NEXT-DAY)
+023900*
+024000     IF  (WBC-XINV-INSTALLED  EQUAL  '0' OR '1')                  0266741
+024100     AND TR-FM-NEW-BYTE (1)   EQUAL  '2'
+024200         MOVE 'DQ'               TO  EXCODE-2
+024300         MOVE '038'              TO  REJRESN                      0717565
+024400         GO TO K5085.
+024500*
+024600     IF  (WBC-XINV-INSTALLED  EQUAL  '0' OR '2')                  0266741
+024700     AND TR-FM-NEW-BYTE (1)   EQUAL  '1'
+024800         MOVE 'DQ'               TO  EXCODE-2
+024900         MOVE '038'              TO  REJRESN                      0717565
+025000         GO TO K5085.
+025100*
+025200***  CANNOT CHANGE PROCESS INDICATOR ON A LINKED ACCOUNT
+025300*
+025400     IF  (WXI-LINK-IND-IN     EQUAL  'L' OR 'I')
+025500         IF  (WMS-XINV-LINK-IND    NOT EQUAL ' ' AND 'D')
+025600         AND (WMS-XINV-PROCESS-IND NOT EQUAL '0')
+025700             MOVE 'DQ'           TO  EXCODE-2
+025800             MOVE '095'          TO  REJRESN                      0717565
+025900             GO TO K5085.
+026000*
+026100***  NEXT-DAY SWEEP NOT VALID FOR BANK POSITION ACCOUNT
+026200*
+026300     IF  TR-FM-NEW-BYTE (1)   EQUAL  '2'
+026400     AND WMS-XINV-LINK-IND    EQUAL  'P'
+026500         MOVE 'DQ'               TO  EXCODE-2
+026600         MOVE '095'              TO  REJRESN                      0717565
+026700         GO TO K5085.
+026800*
+026900     GO TO K5100.
+027000*
+027100*--------------------------------------------------------------*
+027200*    2008 - EXT INV FUND                                       *
+027300*--------------------------------------------------------------*
+027400 K5001-2008.
+027500     IF  TR-FM-FLD-NO     NOT EQUAL  '2008'
+027600         GO TO K5001-2011.
+027700*
+027800***  IF NOT LINKED, FUND CAN ONLY BE CHANGED TO SPACES
+027900*
+028000     IF  (WXI-LINK-IND-OUT NOT EQUAL 'L' AND 'P' AND 'A')
+028100     AND (TR-FM-NEW-BYTE (1) NOT EQUAL ' ')
+028200         MOVE '038'              TO  REJRESN                      0717565
+028300         GO TO K5085.
+028400*
+028500***  IF FUND IS CHANGED, CREATE REPORT EXCEPTION QC
+028600*
+028700     MOVE TR-FM-NEW-DATA         TO  WXI-FM-NEW.
+028800     IF  (WMS-XINV-FUND NOT EQUAL SPACES)
+028900     AND (WMS-XINV-FUND NOT EQUAL WXI-FM-NEW-FUND)
+029000         MOVE '15'               TO  IMEX-REC-NO
+029100         MOVE 'QC'               TO  IMEX-CODE-1
+029200         PERFORM K5100-CONT
+029300         MOVE TR-FILE-MAINT      TO  EX15-FM-TRAN
+029400         MOVE WMS-DATE-LAST-MAINT
+029500                                 TO  EX15-DATE-LAST-MAINT
+029600         PERFORM WRITE-EXCEPT  THRU  WRITE-EX-EXIT.
+029700*
+029800     GO TO K5100.
+029900*
+030000*--------------------------------------------------------------*
+030100*    2011 - EXT INV BALANCE                                    *
+030200*--------------------------------------------------------------*
+030300 K5001-2011.
+030400*
+030500***  IF NOT LINKED, XINV BALANCE CAN ONLY BE CHANGED TO ZERO
+030600***  IF EXTERNAL INVESTMENT IS CHANGED, CREATE REPORT EXC QM
+030700*
+030800     IF  TR-FM-FLD-NO     NOT EQUAL  '2011'
+030900         GO TO K5001-2012.
+031000*
+031100     IF  (WMS-XINV-LINK-IND NOT EQUAL 'L' AND 'P')
+031200     AND (TR-FM-NEW-AMT   NOT EQUAL  ZERO)
+031300         MOVE '038'              TO  REJRESN                      0717565
+031400         GO TO K5085.
+031500*
+031600     IF  (WMS-XINV-PROCESS-IND NOT EQUAL '1' AND '2')
+031700     AND (TR-FM-NEW-AMT   NOT EQUAL  ZERO)
+031800         MOVE '038'              TO  REJRESN                      0717565
+031900         GO TO K5085.
+032000*
+032100     MOVE '15'                   TO  IMEX-REC-NO.
+032200     MOVE 'QM'                   TO  IMEX-CODE-1.
+032300     PERFORM K5100-CONT.
+032400     MOVE TR-FILE-MAINT          TO  EX15-FM-TRAN.
+032500     MOVE WMS-DATE-LAST-MAINT    TO  EX15-DATE-LAST-MAINT.
+032600     PERFORM WRITE-EXCEPT      THRU  WRITE-EX-EXIT.
+032700     GO TO K5100.
+032800*
+032900*--------------------------------------------------------------*
+033000*    2012 - EXT INV ACCRUED DIVIDEND                           *
+033100*--------------------------------------------------------------*
+033200 K5001-2012.
+033300*
+033400***  IF NOT LINKED, XINV ACCRUED DIVIDENDS CAN ONLY CHANGE TO 0
+033500*
+033600     IF  TR-FM-FLD-NO     NOT EQUAL  '2012'
+033700         GO TO K5001-2020.
+033800*
+033900     IF  (WMS-XINV-LINK-IND NOT EQUAL 'L')
+034000     AND (TR-FM-NEW-AMT   NOT EQUAL  ZERO)
+034100         MOVE '038'              TO  REJRESN                      0717565
+034200         GO TO K5085.
+034300*
+034400     IF  (WMS-XINV-PROCESS-IND NOT EQUAL '1' AND '2')
+034500     AND (TR-FM-NEW-AMT   NOT EQUAL  ZERO)
+034600         MOVE '038'              TO  REJRESN                      0717565
+034700         GO TO K5085.
+034800*
+034900     GO TO K5100.
+035000*
+035100*--------------------------------------------------------------*
+035200*    2020 - EXT INV ACCOUNT NUMBER                             *
+035300*--------------------------------------------------------------*
+035400 K5001-2020.
+035500     IF  TR-FM-FLD-NO     NOT EQUAL  '2020'
+035600         GO TO K5001-0562.
+035700*
+035800***  IF NOT LINKED, ACCT NUMBER CAN ONLY BE CHANGED TO SPACES
+035900*
+036000     IF  (WXI-LINK-IND-OUT NOT EQUAL 'L' AND 'P' AND 'A')
+036100     AND (TR-FM-NEW-DATA   NOT EQUAL SPACES)
+036200         MOVE '038'              TO  REJRESN                      0717565
+036300         GO TO K5085.
+036400*
+036500     GO TO K5100.
+036600*
+036700*--------------------------------------------------------------*
+036800*    MAINTENANCE TO FIELDS AFFECTING EXTERNAL INVESTMENT       *
+036900*--------------------------------------------------------------*
+037000*--------------------------------------------------------------*
+037100*    0022 - ACCOUNT TYPE (PRODUCT)                             *
+037200*--------------------------------------------------------------*
+037300 K5001-0022.
+037400     IF  TR-FM-FLD-NO     NOT EQUAL  '0022'
+037500         GO TO K5001-EXIT.
+037600*
+037700***  IF LINKED, ENSURE THAT PRODUCT ALLOWS EXTERNAL INVESTMENT
+037800*
+037900     IF  WMS-XINV-LINK-IND    EQUAL  ' ' OR 'D'
+038000         GO TO K5100.
+038100*
+038200     MOVE '0'                    TO  WXI-PROD-ALLOW.
+038300     MOVE TR-FM-NEW-DATA         TO  WXI-FM-NEW.
+038400     SET PRD-INX                 TO  1.
+038500     SEARCH PRD-TABLE-ITEM
+038600         WHEN
+038700             PRD-TYPE (PRD-INX) EQUAL WXI-FM-NEW-PROD
+038800             MOVE PRD-XINV-ALLOWED (PRD-INX)
+038900                                 TO  WXI-PROD-ALLOW.
+039000     IF  WXI-PROD-ALLOW       EQUAL  '0'
+039100             MOVE '038'          TO  REJRESN                      0717565
+039200             GO TO K5085.
+039300*
+039400     GO TO K5100.
+039500*
+039600*
+039700*--------------------------------------------------------------*
+039800*    0562 - EXT INV PEG (DDA MINIMUM BALANCE)                  *
+039900*--------------------------------------------------------------*
+040000 K5001-0562.
+040100     IF  TR-FM-FLD-NO     NOT EQUAL  '0562'
+040200         GO TO K5001-EXIT.
+040300*
+040400***  IF NOT LINKED, DO NOT ALLOW MAINTENANCE TO PEG FROM FSU
+040500*
+040600     IF  TR-FM-REQ-BY         EQUAL 'FSU'
+040700         IF  (WXI-LINK-IND-OUT NOT EQUAL 'L' AND 'P' AND 'A')
+040800             MOVE '038'          TO  REJRESN                      0717565
+040900             GO TO K5085.
+041000*
+041100     GO TO K5100.
+041200*
+041300 K5001-EXIT.
+041400     EXIT.
+041500*

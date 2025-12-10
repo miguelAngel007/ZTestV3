@@ -1,0 +1,57 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                      ** COPYBOOK DESCRIPTION **                     * 00000002
+*                                                                     * 00000003
+*                               TSTS2EBR                              * 00000004
+*                          TRANSACTION SYSTEM                         * 00000005
+*                       EMPLOYEE BULLETIN RECORD                      * 00000006
+*---------------------------------------------------------------------* 00000007
+*                      ** HISTORY OF REVISIONS **                     * 00000008
+*                                                                     * 00000009
+* DESCRIPTION                                                 CHGID   * 00000010
+* ___________________________________________________________ _______ * 00000011
+* 01/23/03 EXPAND RECORD SIZE (INCREASE TITLE FIELD AND       0334659 * 00000694
+*          NUMBER OF TEXT LINES)                              0334659 * 00000695
+* 12/02/02 COPYBOOK ADDED                                     0324574 * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSEBR  DSECT                                                          00000700
+EBR      DS    0X                                                       00000800
+*                                                                       00000900
+EBRLNG   DS    XL2          EBR RECORD LENGTH                           00001000
+*                           MAX. VALUE '+17434'               0334659   00001100
+         DS    XL2          FILLER                                      00001200
+*                                                                       00001300
+EBRKEY   DS    0CL18        EBR KEY                                     00001400
+EBRCLAS  DS    CL10            EBR CLASS ID                             00001500
+EBRCAT   DS    CL4             EBR CATEGORY                             00001600
+EBRSECT  DS    CL4             EBR SECTION                              00001700
+*                                                                       00001800
+EBRLMINF DS    0CL24        LAST MAINTENANCE INFORMATION                00001900
+EBRLMDAT DS    CL6             LAST MAINT DATE MMDDYY                   00002000
+EBRLMTIM DS    CL6             LAST MAINT TIME HHMMSS                   00002100
+EBRLMEMP DS    CL8             LAST MAINT EMPLOYEE ID                   00002200
+EBRLMTRM DS    CL4             LAST MAINT TERM ID                       00002300
+*                                                                       00002400
+         DS    CL20         FILLER                            0334659   00002500
+*                                                                       00002600
+EBRLMCID DS    0CL8         LAST MAINTENANCE CHANGE ID                  00002700
+EBRLMDAP DS    CL2             LAST MAINT DISTAPPL                      00002800
+EBRLMRSC DS    CL4             LAST MAINT RSEC                          00002900
+EBRLMDCT DS    CL2             LAST MAINT DISTCTL                       00003000
+*                                                                       00003100
+EBRSECTT DS    CL40         EBR SECTION TITLE                 0334659   00003200
+*                                                                       00003300
+EBRMAXD  DS    PL2          MAX NUM DATA                                00003400
+*                           VALUE:  234                       0334659   00003500
+*                                                                       00003600
+EBRDUSD  DS    PL2          NUM DATA USED                               00003700
+*                           VALUE:  MAINTAINED BY PROGRAM               00003800
+*                                                                       00003900
+EBRDTTB  DS    0CL17316     EBR DETAIL TABLE                  0334659   00004000
+EBRDATA  DS    CL74         EBR DATA                                    00004100
+         DS    XL17242      REMAINING 233 ENTRIES             0334659   00004200
+*                                                                       00004300
+EBREND   EQU   *            SYMBOLIC END OF EBR                         00004400
+EBRLEN   EQU   *-EBR        SYMBOLIC LENGTH OF EBR                      00004500
+         EJECT                                                          00004600

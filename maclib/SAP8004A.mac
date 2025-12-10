@@ -1,0 +1,73 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*        SAP8004A                                                       00001000
+*--------------------------------------------------------------------*  00001010
+*                  ** HISTORY OF REVISIONS **                        *  00001020
+* DESCRIPTION                                               CHNGID   *  00001030
+* ________________________________________________________  ________ *  00001040
+*                                                                    *  00001045
+* 10/07/06 ADD ACCTFORM AND MISSING INVESTOR                  1626911 * 00001989
+* 07/21/06 ADD 1 SEARCH KEYS: ELEID                           0715441 * 00001991
+* 11/25/02 ADD FIELDS  FOR AUTO LEASE LENDING                 0324623*  00001992
+* 02/03/98 CHG DESC FOR #17                                   9913615*  00001994
+* 05/01/97 TRANSLATION ENABLE                                 9913481*  00001995
+* 09/18/95 ADD NEW INTERNATIONAL SEARCH KEY FIELD           2602986  *  00001996
+*                                                                    *  00001997
+*--------------------------------------------------------------------*  00001998
+         SPACE 2                                                        00001999
+**********************************************************************  00002000
+*        FIELD DESCRIPTION TABLE                                     *  00003000
+**********************************************************************  00004000
+*        DS    XL2       FIELD NUMBER                                   00005000
+*        DS    CL10      FIELD DESCRIPTION                              00006000
+**********************************************************************  00007000
+T04DSCTB DS    0F                                                       00008000
+T04#FLD  DC    A((T04END-T04DSC)/12)                                    00009000
+T04DSC   DC    0H'0'                                                    00010000
+*              ¦FLD#¦   ¦LGTH¦  ¦DSPL¦ ¦TY¦ ¦FILLER¦                    00011000
+         DC    H'0001',CL10'USER GRP 1'                                 00012000
+         DC    H'0002',CL10'USER GRP 2'                                 00013000
+         DC    H'0003',CL10'USER GRP 3'                                 00014000
+         DC    H'0004',CL10'USER GRP 4'                                 00015000
+         DC    H'0005',CL10'USER GRP 5'                                 00016000
+         DC    H'0006',CL10'USER GRP 6'                                 00017000
+         DC    H'0007',CL10'USER GRP 7'                                 00018000
+         DC    H'0008',CL10'USER GRP 8'                                 00019000
+         DC    H'0009',CL10'USER GRP 9'                                 00020000
+         DC    H'0010',CL10' XXXX CODE'                                 00021000
+         DC    H'0011',CL10'   OFFICER'                                 00022000
+         DC    H'0012',CL10'PRCSS TYPE'                                 00023000
+         DC    H'0013',CL10' ACCT TYPE'                                 00024000
+         DC    H'0014',CL10'XXXXX TYPE'                                 00025000
+         DC    H'0015',CL10'COUNTRY CD'                                 00026000
+         DC    H'0016',CL10' XXXX CODE'                                 00027000
+         DC    H'0017',CL10'CTRY CD TY'                       9913615   00028000
+         DC    H'0018',CL10'STATE CODE'                                 00029000
+         DC    H'0019',CL10'    STATUS'                                 00030000
+         DC    H'0020',CL10'    SOURCE'                                 00031000
+         DC    H'0021',CL10'   PRODUCT'                                 00032000
+         DC    H'0022',CL10'   APPL ID'                                 00033000
+         DC    H'0023',CL10'      CTL2'                                 00034000
+         DC    H'0024',CL10'      CTL3'                                 00035000
+         DC    H'0025',CL10'      CTL4'                                 00036000
+         DC    H'0026',CL10'  ACCT NBR'                                 00037000
+         DC    H'0027',CL10'    BRANCH'                                 00038000
+         DC    H'0028',CL10'SUB APL ID'                                 00039000
+         DC    H'0029',CL10'ACCRUAL ST'                                 00040000
+         DC    H'0030',CL10'PROCESS ST'                                 00041000
+         DC    H'0031',CL10'LEGAL STAT'                                 00042000
+         DC    H'0032',CL10'  OPERATOR'                                 00043000
+         DC    H'0033',CL10'    DAG ID'                                 00044000
+         DC    H'0034',CL10'    CLASS '                                 00045000
+         DC    H'0035',CL10' SCREEN NM'                                 00046000
+         DC    H'0036',CL10'SCREEN SEQ'                                 00047000
+         DC    H'0037',CL10'      TRAN'                                 00048000
+         DC    H'0038',CL10'    REGION'                                 00049000
+         DC    H'0039',CL10'  LANGUAGE'                       2602986   00050000
+         DC    H'0040',CL10'  CURRENCY'                       9913481   00051000
+         DC    H'0041',CL10'  CMCL IND'                       0324623   00051005
+         DC    H'0042',CL10' SNGL/BALL'                       0324623   00051010
+         DC    H'0043',CL10'ELEMENT ID'                       0715441   00051015
+         DC    H'0044',CL10'  INVESTOR'                       1626911   00051017
+         DC    H'0045',CL10'     GROUP'                       1626911   00051020
+         DC    H'0046',CL10'  ACCTFORM'                       1626911   00051022
+T04END   DC    0H'0'                                          9913481   00052000

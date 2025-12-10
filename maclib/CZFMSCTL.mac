@@ -1,0 +1,351 @@
+         MACRO                                                          00000010
+         CZFMSCTL                                                      X00000020
+               &TYPE=,                                                 X00000030
+               &APUSED=SAFEII,                                         X00000040
+               &CTLRID=,                                               X00000050
+               &CI=,                                                   X00000060
+               &CT=,                                                   X00000070
+               &PUID=,           NOMBRE DE LA PS/2 PU (SAFEII PS/2)    X00000080
+               &HELP=            HELP FUNCTION                          00000090
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000100
+.*********                   P R O L O G                       ******** 00000110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000120
+.*                                                                    * 00000130
+.*   MACRO NAME : CZFMSCTL                                            * 00000140
+.*                                                                    * 00000150
+.*   DESCRIPTIVE NAME : CONTROLLER DEFINITION MACRO                   * 00000160
+.*                                                                    * 00000170
+.*   STATUS : VERSION 1                                               * 00000180
+.*            RELEASE LEVEL = 1                                       * 00000190
+.*            MODIFICATION LEVEL = 1                                  * 00000200
+.*                                                                    * 00000210
+.*       COPY CZFCCNOT                                                  00000220
+.*                                                                    * 00000230
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00000240
+.*                   01 JUNE      1984                                * 00000250
+.*                                                                    * 00000260
+.*   FUNCTION:  TO GENERATE THE FIELD DESCRIPTOR TABLE. THIS TABLE    * 00000270
+.*              WILL BE TRANSMITTED TO THE AP.                        * 00000280
+.*                                                                    * 00000290
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00000300
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00000310
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00000320
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00000330
+.*             OF THE PARAMETERS APUSED, CTLRID, CI AND CT.           * 00000340
+.*             BASED ON THESE PARAMETERS, ONE ENTRY IS BUILT.         * 00000350
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00000360
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00000370
+.*                                                                    * 00000380
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00000390
+.*                                                                    * 00000400
+.*   EXTERNAL MODULE(S) CALL :  CZFMHELP TO VALIDATE HELP REQUESTS    * 00000410
+.*                              CZFMHIMS TO PRINT REQUESTED MESSAGES  * 00000420
+.*                                                                    * 00000430
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00000440
+.*                                                                    * 00000450
+.*   CHARACTERISTICS :                                                * 00000460
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00000470
+.*                                                                    * 00000480
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00000490
+.*                                                                    * 00000500
+.*   RESTRICTIONS: NONE                                               * 00000510
+.*                                                                    * 00000520
+.*   PARAMETERS RECEIVED:                                             * 00000530
+.*                                                                    * 00000540
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00000550
+.*             APUSED=            *TYPE OF AP RUNNING IN THE CONTROLLER 00000560
+.*                                *   IT MUST BE EQUAL TO:            * 00000570
+.*                                *   SAFEII (DEFAULT) OR SAFE3600    * 00000580
+.*             CTLRID=            *CONTROLLER ID  (THREE DIGITS FROM  * 00000590
+.*                                *   001 TO 255). THIS MUST BE UNIQUE* 00000600
+.*                                *   FOR EVERY CONTROLLER IN THE     * 00000610
+.*                                *   NETWORK.                        * 00000620
+.*             CI=                *MODULE NAME FOR SYSTEM USERS AND   * 00000630
+.*                                *   PASSWORDS FOR EVERY CONTROLLER  * 00000640
+.*                                *   CZFACIXX  (WHERE XX ARE NUMERIC)* 00000650
+.*             CT=                *MODULE NAME CONTAINING TABLES FOR  * 00000660
+.*                                *   TRANSACTIONS PROCESSING.        * 00000670
+.*                                *   CZFACTXX  (WHERE XX ARE NUMERIC)* 00000680
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00000690
+.*                                                                    * 00000700
+.*   CONTROL BLOCK(S) BUILT :                                         * 00000710
+.*                                                                    * 00000720
+.*            CONTROLLER TABLE ELEMENT                                * 00000730
+.*                                                                    * 00000740
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00000750
+.* DEC  HEX                                                           * 00000760
+.*                                                                    * 00000770
+.*  0    0        1       INDICATOR FOR CONTROLLER STATUS             * 00000780
+.*                           BIT 0      - CONTROLLER TRANSMITTING     * 00000790
+.*                           BIT 1 TO 7 - RESERVED                    * 00000800
+.*  1    1        4       CONTROLLER ID - CXXX OR SXXX (WHERE XXX IS  * 00000810
+.*                                        THE CONTROLLER NUMBER)      * 00000820
+.*                                        THE FIRST LETTER IS:        * 00000830
+.*                                        "C" IF APUSED=SAFEII        * 00000840
+.*                                        "S" IF APUSED=SAFE3600      * 00000850
+.*  5    5        8       CI MODULE NAME                              * 00000860
+.* 13    D        8       CT MODULE NAME                              * 00000870
+.* 21   15        1       CONTROLLER NUMBER IN BINARY                 * 00000880
+.* 22   16        2       RESERVED                                    * 00000890
+.*                                                                    * 00000900
+.*   GENERATED CODE :                                                 * 00000910
+.*                                                                    * 00000920
+.*         DC    B'XXXXXXXX'           *CONTROLLER STATUS INDICATOR   * 00000930
+.*                                     *  BIT 0 ON - CNTL TRANSMITTING* 00000940
+.*                                     *  BIT 1 TO 7 - RESERVED       * 00000950
+.*         DC    CL4'&TYPEAP&CTLRID'   *CONTROLLER ID (CXXX) FOR SAFEII 00000960
+.*                                     *   OR (SXXX) FOR SAFE3600     * 00000970
+.*         DC    CL8'CZFACIXX'         *CI MODULE NAME                * 00000980
+.*         DC    CL8'CZFACTXX'         *CT MODULE NAME                * 00000990
+.*         DC    YL1(&CTLRID)          *CONTROLLER NUMBER IN BINARY   * 00001000
+.*         DC    XL2'00'               *RESERVED                      * 00001010
+.*                                                                    * 00001020
+.*   NOTES:                                                           * 00001030
+.*                                                                    * 00001040
+.*   CHANGE ACTIVITY:                                                 * 00001050
+.*         PARAMETER APUSED ADDED TO INDICATE TYPE OF AP RUNNING      * 00001060
+.*         AT THE CONTROLLER (15 OCTOBER 1983).                       * 00001070
+.*                                                                    * 00001080
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001090
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001100
+.*                                                                    * 00001110
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00001120
+.*                                                                    * 00001130
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001140
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00001150
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00001160
+         GBLA  &MSCTL             *MACRO CZFMSCTL INDICATOR             00001170
+         GBLA  &MSCTL1            *TYPE=ENTRY INDICATOR                 00001180
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00001190
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001200
+.*                                                                    * 00001210
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00001220
+.*                                                                    * 00001230
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001240
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00001250
+         LCLB  &ERRIND            *ERROR INDICATOR                      00001260
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00001270
+         LCLC  &TYPEAP            *TYPE OF AP RUNNING AT THE CNTRLLER   00001280
+         LCLC  &LABEL2            *2ND LABEL FOR CONTROLLER BLOCK       00001290
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     00001300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001310
+.*                                                                    * 00001320
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00001330
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00001340
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00001350
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00001360
+.*   PERFORMED.                                                       * 00001370
+.*                                                                    * 00001380
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001390
+         CZFMHELP HELP=&HELP         IS HELP FUNCTION REQUIRED ?        00001400
+         AIF (&HELPARM EQ 1).HELP                                       00001410
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001420
+.*                                                                    * 00001430
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00001440
+.*                                                                    * 00001450
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001460
+.P1VAL   ANOP                                                           00001470
+         AIF   (&MSCTL EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00001480
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00001490
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                00001500
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                00001510
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 00001520
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001530
+.*                                                                    * 00001540
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 00001550
+.*                                                                    * 00001560
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001570
+.P1V1    ANOP                                                           00001580
+         AIF (&MSCTL NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00001590
+&MSCTL   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00001600
+         AIF (&MFINAL GT 0).NOFINAL                                     00001610
+.SETMAC  ANOP                                                           00001620
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00001630
+&MACREC  SETC  'CZFMSCTL'         *NAME OF CURRENT MACRO                00001640
+         TITLE 'CONTROLLER DEFINITION'                                  00001650
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00001660
+*                                                                    *  00001670
+*   MACRO NAME : CZFMSCTL                                            *  00001680
+*                                                                    *  00001690
+*   DESCRIPTIVE NAME : CONTROLLER DEFINITION MACRO                   *  00001700
+*                                                                    *  00001710
+*   STATUS : VERSION 1                                               *  00001720
+*            RELEASE LEVEL = 1                                       *  00001730
+*            MODIFICATION LEVEL = 1                                  *  00001740
+*                                                                    *  00001750
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00001760
+         DS    0D                                                       00001770
+         DC    CL8'*TABLE= '           *TABLE HEADER                    00001780
+         DC    CL8'CZFMSCTL'           *TABLE NAME                      00001790
+         DC    CL8'V1 R1 L1'           *VERSION, RELEASE, LEVEL         00001800
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               00001810
+         AIF (&ERRIND).END        *EXIT FROM THE MACRO                  00001820
+CZFCNTLR DS    0D                                                       00001830
+         AGO   .END               *EXIT FROM THE MACRO                  00001840
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001850
+.*                                                                    * 00001860
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 00001870
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 00001880
+.*                                                                    * 00001890
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001900
+.P2V1    ANOP                                                           00001910
+         AIF (&MSCTL NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00001920
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001930
+.*                                                                    * 00001940
+.*   VALIDATE PARAMETER APUSED IN MACRO TYPE=ENTRY :                  * 00001950
+.*        - MUST BE EQUAL TO SAFEII (DEFAULT) OR SAFE3600             * 00001960
+.*                                                                    * 00001970
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001980
+.P2V1A   ANOP                                                           00001990
+         AIF    (T'&APUSED EQ 'O').P2V1B         *CHECK IF OMITTED      00002000
+         AIF    ('&APUSED' EQ 'SAFEII').P2V1B    *CHECK IF SAFEII       00002010
+         AIF    ('&APUSED' EQ 'SAFE3600').P2V1C  *CHECK IF SAFE3600     00002020
+         AGO   .P2E1A                                                   00002030
+.P2V1B   ANOP                                                           00002040
+&TYPEAP  SETC  'C'                     *INDICATE SAFE II CONTROLLER     00002050
+&LABEL2  SETC  'S'                     *SET 2ND LABEL FOR CNTL BLOCK    00002060
+         AGO   .P2V2                                                    00002070
+.P2V1C   ANOP                                                           00002080
+&TYPEAP  SETC  'S'                     *INDICATE SAFE3600 CONTROLLER    00002090
+&LABEL2  SETC  'C'                     *SET 2ND LABEL FOR CNTL BLOCK    00002100
+         AGO   .P2V2                                                    00002110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002120
+.*                                                                    * 00002130
+.*   VALIDATE PARAMETER CTLRID IN MACRO TYPE=ENTRY :                  * 00002140
+.*        - MUST BE NUMERIC, THREE DIGITS FROM 001 TO 255             * 00002150
+.*                                                                    * 00002160
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002170
+.P2V2    ANOP                                                           00002180
+.*                                                                      00002190
+         AIF    (T'&CTLRID NE 'N').P2E2                                 00002200
+         AIF    (K'&CTLRID NE 3).P2E2                                   00002210
+         AIF    (&CTLRID LT 001 OR &CTLRID GT 255).P2E2                 00002220
+         AGO   .P2V21                                                   00002230
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002240
+.*                                                                    * 00002250
+.*   VALIDATE PARAMETER PUID   IN MACRO TYPE=ENTRY :                  * 00002260
+.*        - FOUR CHARS                                                * 00002270
+.*                                                                    * 00002280
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002290
+.*                                                                      00002300
+.P2V21   ANOP                                                           00002310
+         AIF    (K'&PUID NE 4).P2E2                                     00002320
+         AGO   .P2V3                                                    00002330
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002340
+.*                                                                    * 00002350
+.*   VALIDATE PARAMETER CI IN MACRO TYPE=ENTRY:                       * 00002360
+.*          - IT MUST BE: 8 CHARACTERS LONG                           * 00002370
+.*                        THE FIRST 6 CHARACTERS MUST EQUAL TO CZFACI * 00002380
+.*                        THE LAST 2 MUST BE NUMERIC                  * 00002390
+.*                                                                    * 00002400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002410
+.P2V3    ANOP                                                           00002420
+         AIF    (T'&CI EQ 'O').P2E3                                     00002430
+         AIF    (K'&CI NE 8).P2E3                                       00002440
+         AIF    ('&CI'(1,6) NE 'CZFACI').P2E3                           00002450
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002460
+.*                                                                    * 00002470
+.*   VALIDATE PARAMETER CT IN MACRO TYPE=ENTRY:                       * 00002480
+.*          - IT MUST BE: 8 CHARACTERS LONG                           * 00002490
+.*                        THE FIRST 6 CHARACTERS MUST EQUAL TO CZFACT * 00002500
+.*                        THE LAST 2 MUST BE NUMERIC                  * 00002510
+.*                                                                    * 00002520
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002530
+.P2V4    ANOP                                                           00002540
+         AIF    (T'&CT EQ 'O').P2E4                                     00002550
+         AIF    (K'&CT NE 8).P2E4                                       00002560
+         AIF    ('&CT'(1,6) NE 'CZFACT').P2E4                           00002570
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002580
+.*                                                                    * 00002590
+.*   IF NOT ERROR FOUND, GENERATE THE FIELD DESCRIPTION ELEMENT       * 00002600
+.*                                                                    * 00002610
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002620
+.P2V5    ANOP                                                           00002630
+         AIF   (&ERRIND).END                                            00002640
+&MSCTL1  SETA  1                  *GOOD ENTRY INPUT                     00002650
+&TYPEAP&CTLRID DS    0F           *CONTROLLER BLOCK                     00002660
+&LABEL2&CTLRID DS    0F           *2ND LABEL FOR CONTROLLER BLOCK       00002670
+         DC    XL1'00'            *CONTROLLER STATUS INDICATOR          00002680
+         DC    CL4'&PUID'         *PUID DE LA PS/2 SERVER (SAFEII PS/2) 00002690
+         DC    CL8'&CI'           *CI MODULE NAME                       00002700
+         DC    CL8'&CT'           *CT MODULE NAME                       00002710
+         DC    YL1(&CTLRID)       *CONTROLLER NUMBER IN BINARY          00002720
+         DC    XL2'00'            *RESERVED                             00002730
+         AGO   .END                                                     00002740
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002750
+.*                                                                    * 00002760
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00002770
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00002780
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 00002790
+.*            MACROS TYPE ENTRY                                       * 00002800
+.*        -   UPDATES THE NUMBER OF ENTRIES EXISTING ON THE TABLE     * 00002810
+.*                                                                    * 00002820
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002830
+.P3V1    ANOP                                                           00002840
+         AIF (&MSCTL NE 1).P3E1                                         00002850
+         AIF (&MSCTL1 NE 1).P3E1  *ENTRY CARD PROCESSED?                00002860
+         AIF   (&ERRIND).END                                            00002870
+&MSCTL   SETA  2                                                        00002880
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00002890
+         DS    0F                 *CONTROLLER BLOCK                     00002900
+         DC    24X'FF'            *END OF TABLE                         00002910
+         AGO   .END                                                     00002920
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002930
+.*                                                                    * 00002940
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00002950
+.*    MESSAGES REQUIRED.                                              * 00002960
+.*                                                                    * 00002970
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002980
+.HELP    ANOP                                                           00002990
+         CZFMHIMS MSGNUM=998                                            00003000
+         CZFMHIMS MSGNUM=1                                              00003010
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSCTL                            00003020
+         CZFMHIMS MSGNUM=2                                              00003030
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                00003040
+         CZFMHIMS MSGNUM=93                                             00003050
+         CZFMHIMS MSGNUM=120                                            00003060
+         CZFMHIMS MSGNUM=76                                             00003070
+         CZFMHIMS MSGNUM=77                                             00003080
+         CZFMHIMS MSGNUM=78                                             00003090
+       AGO   .END                                                       00003100
+.NOFINAL ANOP                                                           00003110
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00003120
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00003130
+.PCOMP   ANOP                                                           00003140
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSCTL                            00003150
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003160
+         AGO   .END                                                     00003170
+.PUE1    ANOP                                                           00003180
+         CZFMHIMS MSGNUM=1                                              00003190
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003200
+         AGO   .END                                                     00003210
+.P1E1    ANOP                                                           00003220
+         CZFMHIMS MSGNUM=2                                              00003230
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003240
+         AGO   .END                                                     00003250
+.P2E1    ANOP                                                           00003260
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                00003270
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003280
+         AGO   .END                                                     00003290
+.P2E1A   ANOP                                                           00003300
+         CZFMHIMS MSGNUM=120                                            00003310
+&ERRIND  SETB   1                                                       00003320
+         AGO   .P2V2                                                    00003330
+.P2E2    ANOP                                                           00003340
+         CZFMHIMS MSGNUM=76                                             00003350
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003360
+         AGO   .P2V3                                                    00003370
+.P2E3    ANOP                                                           00003380
+         CZFMHIMS MSGNUM=77                                             00003390
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003400
+         AGO   .P2V4                                                    00003410
+.P2E4    ANOP                                                           00003420
+         CZFMHIMS MSGNUM=78                                             00003430
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003440
+         AGO   .P2V5                                                    00003450
+.P3E1    ANOP                                                           00003460
+         CZFMHIMS MSGNUM=93                                             00003470
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00003480
+         AGO   .END                                                     00003490
+.END     ANOP                                                           00003500
+         MEND                                                           00003510

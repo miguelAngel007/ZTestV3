@@ -1,0 +1,86 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000002
+*                  ** COPYBOOK DESCRIPTION **                         * 00000004
+*                                                                     * 00000006
+*                   TRANSACTION SYSTEM                                * 00000008
+*                 FIELD IDENTIFIER RECORD (FIR)                       * 00000010
+*                                                                     * 00000012
+*---------------------------------------------------------------------* 00000014
+*                  ** HISTORY OF REVISIONS **                         * 00000016
+*                                                                     * 00000018
+* DESCRIPTION                                                 CHNGID  * 00000020
+* __________________________________________________________  _______ * 00000022
+*                                                                     * 00000024
+* 10/04/02 ADD CA CHANGE ID                                   0314611 * 00000089
+* 05/01/97 NEW FIELD DATA TYPES M, 1, 2, 3, 4, R, V, I.       9913481 * 00000090
+* 09/05/95 YEAR 2000 FORMATS J, K, M, AND N.                  2602675 * 00000092
+*                                                                     * 00000094
+*---------------------------------------------------------------------* 00000096
+*                                                                       00000098
+**********************************************************************  00000100
+*             TSTS2FIR - FIELD IDENTIFIER RECORD              0802933*  00000200
+*                                                                    *  00000300
+**********************************************************************  00000400
+         SPACE 2                                                        00000500
+TSTSFIR  DSECT                                                          00000600
+FIR      DS    0X                                                       00000700
+FIRLNG   DS    XL2                     FIR RECORD LENGTH                00000800
+*                                      VALUE '+110'                     00000900
+FIRLNGFL DS    XL2                     FILLER LOW VALUES                00001000
+FIRKEY   DS    0CL23                   KEY                              00001100
+FIRRECID DS    CL3                     RECORD ID 'FIR'                  00001200
+FIRCLAS  DS    CL10                    CLASS                            00001300
+FIRFLDID DS    CL8                     FIELD ID                         00001400
+FIRSEQN  DS    CL2                     SEQUENCE NUMBER - VALUE '00'     00001500
+*     END OF KEY                                                        00001600
+FIRLMNT  DS    0CL28                   LAST MAINTENANCE INFO  0314611   00001610
+FIRLMDT  DS    CL6                     LAST MAINTENCE DATE MMDDYY       00001700
+FIRLMTM  DS    CL6                     LAST MAINTENCE TIME HHMMSS       00001800
+FIRLMEM  DS    CL8                     LAST MAINTENCE EMPLOYEE ID       00001900
+FIRLCID  DS    CL8                     CHANGE ID              0314611   00002000
+FIRLFLR  DS    CL4                     FILLER                 0314611   00002010
+FIRLGTH  DS    PL2                     FIELD ID LENGTH                  00002100
+FIRTYPE  DS    CL1                     FIELD ID TYPE                    00002200
+*                                      'N'  NUMERIC                     00002300
+*                                      'M'  MONETARY          9913481   00002302
+*                                      '1'  CTL1              9913481   00002304
+*                                      '2'  CTL2              9913481   00002306
+*                                      '3'  CTL3              9913481   00002308
+*                                      '4'  CTL4              9913481   00002310
+*                                      'C'  CHARACTER                   00002400
+*                                      'I'  IDEOGRAPHIC       9913481   00002402
+*                                      'R'  CURRENCY          9913481   00002404
+*                                      'V'  VARIABLE          9913481   00002406
+*                                      'L'  LITERAL                     00002500
+*                                      'E'  EIBDATE                     00002600
+*                                      'T'  EIBTIME                     00002700
+*                                      'S'  SENSE                       00002800
+*                                      'X'  TRAN ID                     00002900
+FIRDTTP  DS    CL1                     DATE FORMAT FLAG                 00003000
+*                                      ' '  NOT A DATE - SPACES         00003100
+*                                      '1'  JULIAN    - DDDYY           00003200
+*                                      '2'  JULIAN    - YYDDD           00003300
+*                                      '3'  GREGORIAN - YYMMDD          00003400
+*                                      '4'  GREGORIAN - YYYYMMDD        00003500
+*                                      '5'  GREGORIAN - MMDDYY          00003600
+*                                      '6'  GREGORIAN - MMDDYYYY        00003700
+*                                      '7'  GREGORIAN - DDMMYY          00003800
+*                                      '8'  GREGORIAN - DDMMYYYY        00003900
+*                                      'A'  TIME ZONED JULIAN - DDDYY   00004000
+*                                      'B'  TIME ZONED JULIAN - YYDDD   00004100
+*                                      'C'  TIME ZONED GREG - YYMMDD    00004200
+*                                      'D'  TIME ZONED GREG - YYYYMMDD  00004300
+*                                      'E'  TIME ZONED GREG - MMDDYY    00004400
+*                                      'F'  TIME ZONED GREG - MMDDYYYY  00004500
+*                                      'G'  TIME ZONED GREG - DDMMYY    00004600
+*                                      'H'  TIME ZONED GREG - DDMMYYYY  00004700
+*                            'J'  JULIAN          - CCYYDDD   2602675   00004710
+*                            'K'  JULIAN          - DDDCCYY   2602675   00004720
+*                            'M'  TIME ZONED JUL  - CCYYDDD   2602675   00004730
+*                            'N'  TIME ZONED JUL  - DDDCCYY   2602675   00004740
+*                                      'T'  TIME ZONED EIBTIME - HHMMSS 00004800
+FIRDESC  DS    CL25                    FIELD ID DESCRIPTION             00004900
+FIRFILR  DS    CL22                    FILLER - VALUE SPACES  0314611   00005000
+*                                                                       00005100
+FIREND   EQU   *                       SYMBOLIC END OF FIR              00005200
+FIRLEN   EQU   *-FIR                   SYMBOLIC LENGTH OF FIR           00005300

@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*    SAD9DERA: REQUEST BLOCK FOR SADSDEXB/C (AUXILIARY INTERFACE).    * 00002000
+*********************************************************************** 00003000
+*                    ** HISTORY OF REVISIONS **                       * 00004000
+* DESCRIPTION                                                 CHNGID  * 00005000
+* ----------------------------------------------------------- --------* 00006000
+* 11/15/00 SUPPORT DXM REQUEST                                2024235 * 00006990
+* 09/15/97 SUPPORT MULTIPLE REQUESTS PER CALL                 9913569 * 00006992
+* 06/28/94 ADD REQ BY ELE NUM & FIX COMMENTS (SADERRDD & -DM) 2600590 * 00006994
+* 04/15/92 ENHANCE FUNCTION CODES                             0300290 * 00006996
+*                                                                     * 00006998
+*********************************************************************** 00007000
+SAD9DERA DSECT                                                          00008000
+SADERPFX DS   0CL16                REQUEST BLK PREFIX         9913569   00008100
+SADEREYE DS    CL8                 REQ BLK EYEBALL: SAD9DERD  9913569   00008200
+SADERLVL DS    HL2                 REQ BLK LEVEL              9913569   00008300
+SADER#IP DS    HL2                 # ITEMS PROCESSED          9913569   00008400
+SADER#AR DS    HL2                 # ARGUMENTS SENT           9913569   00008500
+SADER#IR DS    HL2                 # ITEMS REQ (IF #ARG=1)    9913569   00008600
+SAD9DERO EQU   *                   REQ BLK ORIGINAL START     9913569   00008700
+SADERFNC DS   0CL3                 FUNCTION CODE                        00009000
+SADERARG DS    CL1                 REQUEST ARGUMENT TYPE                00010000
+SADERARA EQU   C'A'                REQ ARG TYPE: ALIAS (SHORT NAME)     00011000
+SADERARD EQU   C'D'                REQ ARG TYPE: DAG ID (VERIFY ONLY)   00012000
+SADERARE EQU   C'E'                REQ ARG TYPE: ELEMENT ID             00013000
+SADERARP EQU   C'P'                REQ ARG TYPE: DNM ITEM POINTER       00014000
+SADERPSN DS    CL1                 REQ POSITION TYPE                    00015000
+SADERPSS EQU   C'S'                REQ POSITION TYPE: SIMPLE            00016000
+SADERPSX EQU   C'X'                REQ POSITION TYPE: EXTENDED          00017000
+SADERRDT DS    CL1                 REQ RETURN DATA TYPE                 00018000
+SADERRDD EQU   C'D'                REQ DATA TYPE: DSM+SHORTNM 2600590   00019000
+SADERRDM EQU   C'M'                REQ DATA TYPE: DSMDATA ONLY2600590   00020000
+SADERRDU EQU   C'U'                REQ DATA TYPE: USER SHORT NAME ONLY  00021000
+SADERRDN EQU   C'N'                REQ DATA TYPE: DSM + DNM DATA        00022000
+SADERRDV EQU   C'V'                REQ DATA TYPE: NO REQD (VERIFY ONLY) 00023000
+SADERRDX EQU   C'X'                REQ DATA TYPE: DXM DATA    2024235   00023100
+SADERDAG DS    CL8                 DATAGROUP NAME                       00024000
+SADERITM DS   0CL30                ITEM DATA (MAY OCCUR >=1)  9913569   00024100
+SADERUSN DS   0CL20                SEARCH ARGUMENT: USER SHORT NAME     00025000
+SADERELE DS   0CL20                SEARCH ARGUMENT: ELEMENT ID (20)     00026000
+SADEREID DS   0CL8                 SEARCH ARGUMENT: ELEMENT ID (8)      00027000
+SADERDNM DS   0HL2                 SEARCH ARGUMENT: DNM PTR   2600590   00028000
+SADEREL# DS    HL2                 SEARCH ARGUMENT: ELE NUM   2600590   00028100
+SADERELN DS    HL2                 ELEMENT LOCATED NUMBER     2600590   00028200
+SADERELO DS    FL4                 ELEMENT LOCATED OFFSET     2600590   00028300
+         DS    CL12                FILLER                               00029000
+SADERETC DS   0XL4                 RETURN CODE                          00030000
+SADESEVR DS    HL2                 SEVERITY CODE                        00031000
+SADERESN DS    HL2                 REASON CODE                          00032000
+SADEROC1 DS    HL2                 LEVEL 1 OCCURS SUBSCRIPT (ELX)       00033000
+SADEROC2 DS    HL2                 LEVEL 2 OCCURS SUBSCRIPT (ELX)       00034000
+SADEROC3 DS    HL2                 LEVEL 3 OCCURS SUBSCRIPT (ELX)       00035000
+SADERILN EQU   *-SADERITM          L'ARGUMENT DATA PER ITEM   9913569   00035100
+SADERLEN EQU   *-SAD9DERA                                               00036000

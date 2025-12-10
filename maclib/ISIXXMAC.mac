@@ -1,0 +1,926 @@
+         MACRO                                                          00001000
+&LABEL   ISIXXMAC &OPSYS=MVS                                            00002000
+         LCLB  &DOS,&MVS                                                00003000
+         LCLC  &DDNAME                                                  00004000
+         AIF   ('&OPSYS' EQ 'DOS').SETDOS                               00005000
+         AIF   ('&OPSYS' EQ 'VSE').SETDOS                               00006000
+         AIF   ('&OPSYS' EQ 'VSESP').SETDOS                             00007000
+         AIF   ('&OPSYS' EQ 'VSE/SP').SETDOS                            00008000
+         AIF   ('&OPSYS'(1,4) EQ 'VSE2').SETDOS                         00009000
+         AIF   ('&OPSYS' EQ 'MVS').SETMVS                               00010000
+         AIF   ('&OPSYS' EQ 'OS').SETMVS                                00011000
+         MNOTE 'INVALID OPSYS PARAMETER, MACRO TERMINATED'              00012000
+         MEXIT                                                          00013000
+.SETDOS  ANOP                                                           00014000
+&DOS     SETB  1                                                        00015000
+&DDNAME  SETC  'XXXXXX'                                                 00016000
+&DDNAME  SETC  '&LABEL'(1,6)                                            00017000
+         AGO   .START                                                   00018000
+.SETMVS  ANOP                                                           00019000
+&DDNAME  SETC  'XXXXXX'                                                 00020000
+&DDNAME  SETC  '&LABEL'(1,6)                                            00021000
+&MVS     SETB  1                                                        00022000
+.START   ANOP                                                           00023000
+         TITLE 'VARIABLE OR FIXED VSAM STANDARD ACCESS PROGRAM'         00024000
+&LABEL   START 0                                                        00025000
+**************************************************************          00026000
+* NOTE: SPECIAL LOGIC ADDED TO ALLOW MULTI-POSITION IN FILE  *          00027000
+**************************************************************          00028000
+*        SIBASE BASEREG=(10,11,12),ID=&LABEL                            00029000
+         SIBASE BASEREG=(10,11,12),ID=&LABEL                            00030000
+         USING SIDSCNTL,3                                               00031000
+         USING LBLINFO,5                                                00032000
+         LM    R3,R5,0(R1)        LOAD PARAMETER ADDRESSES              00033000
+*                                     REG 3 = I-O-CONTROL-AREA          00034000
+*                                     REG 4 = RETURN-AREA               00035000
+*                                     REG 5 = I/O INFO                  00036000
+         LA    R6,FILERPL         DEFAULT VSAM RPL                      00037000
+         CLI   LBLALRPL,C'@'      Q. ALTERNATE RPL USED                 00038000
+         BNE   MAINLOG            A. NO, GO TO MAINLOG                  00039000
+         LA    R6,FILERPL2        LOAD ALTERNATE VSAM RPL               00040000
+         MVC   RECADDR,=F'0'      CLEAR RECORD ADDRESS                  00041000
+         MVC   RBAADDR,=F'0'      CLEAR RBA ADDRESS                     00042000
+         EJECT                                                          00043000
+**************************************************************          00044000
+**************************************************************          00045000
+*                                                            *          00046000
+*   MAINLINE LOGIC ROUTINE                                   *          00047000
+*                                                            *          00048000
+**************************************************************          00049000
+**************************************************************          00050000
+         SPACE 3                                                        00051000
+MAINLOG  CLI   IOOPER,C'O'           IF OPEN THE FILE? (KEY ACCESS)     00052000
+         BE    OPENFILE                   GO TO OPENFILE                00053000
+         CLI   IOOPER,C'P'           IF OPEN THE FILE? (ADR ACCESS)     00054000
+         BE    OPENFILE                   GO TO OPENFILE                00055000
+         CLI   IOOPER,C'E'           IF CLOSE THE FILE?                 00056000
+         BE    CLSFILE                    GO TO CLSFILE                 00057000
+         CLI   OPENSWT,C'Y'          IF THE FILE NOT OPEN?              00058000
+         BNE   ERROR10                    GO TO ERROR10                 00059000
+**************************************************************          00060000
+*    SET RECORD AND KEY ADDRESS IN THE RPL                   *          00061000
+**************************************************************          00062000
+         C     R4,RECADDR            IF RECORD ADDRESS = RECADDR?       00063000
+         BE    CHKESDS                  YES, GO TO CHKESDS              00064000
+         ST    R4,RECADDR            SAVE RECORD ADDRESS                00065000
+*        MODCB RPL=(6),AREA=(4)  MODIFY RETURN AREA TO RECADDR          00066000
+         MODCB RPL=(6),AREA=(4)  MODIFY RETURN AREA TO RECADDR          00067000
+         LTR   R15,R15               IF ERROR?                          00068000
+         BNZ   ERROR4                   YES, GO TO ERROR4               00069000
+         CLI   SAVERKP,X'FF'         IF KEYED ACCESS (KSDS)?            00070000
+         BE    CHKESDS                   NO, GO TO CHKESDS              00071000
+         L     R9,KEYADDR            LOAD SAVE KEY ADDRESS (R9)         00072000
+         LR    R7,R4                 LOAD NEW KEY ADDRESS (R7)          00073000
+         CR    R7,R9                 IF NEW KEY ADDR = OLD KEY ADDR?    00074000
+         BE    CHKOPER                  YES, GO TO CHKOPEN              00075000
+         ST    R7,KEYADDR            SAVE KEY ADDRESS                   00076000
+*        MODCB RPL=(6),ARG=(7)       MODIFY KEY ADDRESS                 00077000
+         MODCB RPL=(6),ARG=(7)       MODIFY KEY ADDRESS                 00078000
+         LTR   R15,R15               IF ERROR?                          00079000
+         BNZ   ERROR4                   YES, GO TO ERROR4               00080000
+CHKESDS  EQU   *                                                        00081000
+         CLI   SAVERKP,X'FF'         IF ENTRY ACCESS (ESDS)?            00082000
+         BNE   CHKOPER                   NO, GO TO CHKOPER              00083000
+         LA    R7,IORBA              LOAD IORBA ADDRESS IN R7           00084000
+         C     R7,RBAADDR            IF CONTROL ADDRESS = RBAADDR?      00085000
+         BE    CHKOPER                  YES, GO TO CHKOPER              00086000
+         ST    R7,RBAADDR            SAVE CONTROL ADDRESS               00087000
+*        MODCB RPL=(6),ARG=(7)   MODIFY ARGUMENT AREA TO IORBA          00088000
+         MODCB RPL=(6),ARG=(7)   MODIFY ARGUMENT AREA TO IORBA          00089000
+         LTR   R15,R15               IF ERROR?                          00090000
+         BNZ   ERROR4                   YES, GO TO ERROR4               00091000
+**************************************************************          00092000
+*    CHECK PROCESSING OPTIONS                                *          00093000
+**************************************************************          00094000
+CHKOPER  EQU   *                                                        00095000
+         CLI   IOOPER,C'R'           IF CONTINUE SEQUENTIAL READ?       00096000
+         BE    CONTSEQR                 YES, GO TO CONTSEQR             00097000
+         CLI   IOOPER,C'S'           IF START SEQUENTIAL READ?          00098000
+         BE    STRTSEQR                 YES, GO TO STRTSEQR             00099000
+         CLI   IOOPER,C'T'           IF START SEQUENTIAL READ (KGE)?    00100000
+         BE    STRTTOPR                 YES, GO TO STRTTOPR             00101000
+         CLI   IOOPER,C'K'           IF READ BY KEY?                    00102000
+         BE    KEYREAD                  YES, GO TO KEYREAD              00103000
+         CLI   IOOPER,C'W'           IF REWRITE LAST RECORD READ?       00104000
+         BE    REWRITE                  YES, GO TO REWRITE              00105000
+         CLI   IOOPER,C'A'           IF ADD RECORD?                     00106000
+         BE    ADDREC                   YES, GO TO ADDREC               00107000
+         CLI   IOOPER,C'D'           IF ERASE RECORD?                   00108000
+         BE    ERASER                   YES, GO TO ERASER               00109000
+         CLI   IOOPER,C'C'           IF RETURN ACB STATISTICS?          00110000
+         BE    CHKDSK                   YES, GO TO CHKDSK               00111000
+         CLI   IOOPER,C'L'           IF LOAD FILE?                      00112000
+         BE    LOADFLE                  YES, GO TO LOADFLE              00113000
+         B     ERROR1                    NO, GO TO ERROR1               00114000
+EOF      EQU   *                                                        00115000
+         CLI   OPER,C'S'             IF EOF ON A START BROUSE           00116000
+         BE    NOTFOUND                 YES, GO TO NOTFOUND             00117000
+         LH    R15,=H'4'             LOAD R15 WITH A +4                 00118000
+         STH   R15,IORETCOD          SAVE R15 INTO IORETCOD             00119000
+         B     RETURN                GO TO RETURN                       00120000
+EXIT     EQU   *                                                        00121000
+         SR    R15,R15               LOAD R15 WITH A +0                 00122000
+         STH   R15,IORETCOD          SAVE R15 INTO IORETCOD             00123000
+         B     RETURN                GO TO RETURN                       00124000
+ERREXIT  EQU   *                                                        00125000
+         STM   R0,R15,SAVEAREA                                          00126000
+         STH   R15,IORETCOD                                             00127000
+         MVC   MESSPGM,=CL8'&LABEL'                                     00128000
+         AIF   (&DOS).D0001                                             00129000
+*        LINK  EP=SIMESS,PARAM=(SIDSMESS)                               00130000
+         LINK  EP=SIMESS,PARAM=(SIDSMESS)                               00131000
+         AGO   .C0001                                                   00132000
+.D0001   ANOP                                                           00133000
+         L     R15,=V(SIMESS)        LOAD ADDRESS OF 'SIMESS'           00134000
+         LA    R1,SIDSMESS           SAVE PARAMETER LIST TO SIMESS      00135000
+         ST    R1,SAVEAREA           *                                  00136000
+         LA    R1,SAVEAREA           *                                  00137000
+         BALR  R14,R15               PASS CONTROL TO 'SIMESS'           00138000
+.C0001   ANOP                                                           00139000
+         LH    R15,IORETCOD                                             00140000
+RETURN   EQU   *                                                        00141000
+*        SIRETRN RC=(15)                                                00142000
+         SIRETRN RC=(15)                                                00143000
+         EJECT                                                          00144000
+**************************************************************          00145000
+**************************************************************          00146000
+*                                                            *          00147000
+*   OPEN FILE ROUTINE - OPERATOR = 'O' OR 'P'                *          00148000
+*                                                            *          00149000
+*       'O' -- OPEN FOR KEYED SEQUENTIAL DATA SET (KSDS)     *          00150000
+*              WILL EXPECT A KEY TO BE IN THE KEY AREA       *          00151000
+*                                                            *          00152000
+*       'P' -- OPEN FOR ENTRY SEQUENTIAL DATA SET (ESDS)     *          00153000
+*              WILL EXPECT A FULL-WORD RBA ADDRESS IN THE    *          00154000
+*              KEY AREA,I.E 'IORBA'                          *          00155000
+*                                                            *          00156000
+**************************************************************          00157000
+**************************************************************          00158000
+         SPACE 3                                                        00159000
+OPENFILE EQU   *                                                        00160000
+         CLI   OPENSWT,C'Y'          IF FILE IS OPEN?                   00161000
+         BE    ERROR11                  YES, GO TO ERROR11              00162000
+         AIF   (&DOS).D0011                                             00162010
+         AGO   .C0011                                                   00162020
+.D0011   ANOP                                                           00162030
+         STM   R8,R9,SAVER89                                            00162040
+         L     R9,ACBLNTH                                               00162050
+         CLI   IOOPER,C'P'           IF ESDS FILE?                      00162060
+         BNE   OPENK                    NO, USE KSDS ACB                00162070
+         LA    R8,ACBESDS                                               00162080
+         EX    R9,OPENEX                                                00162090
+         LM    R8,R9,SAVER89                                            00162100
+         B     OPEN1                 CONTINUE                           00162110
+OPENK    EQU   *                                                        00162120
+         LA    R8,ACBKSDS                                               00162130
+         EX    R9,OPENEX                                                00162140
+         LM    R8,R9,SAVER89                                            00162150
+         B     OPEN1                 CONTINUE                           00162160
+OPENEX   MVC   FILEACB(0),0(R8)                                         00162170
+.C0011   ANOP                                                           00162180
+OPEN1    EQU   *                                                        00162190
+*        MODCB ACB=FILEACB,MACRF=(NRS) MODIFY ACB FOR NON-REUSE MODE    00163000
+         MODCB ACB=FILEACB,MACRF=(NRS) MODIFY ACB FOR NON-REUSE MODE    00164000
+         LTR   R15,R15               IF ERROR?                          00165000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00166000
+         MVC   SAVDDN,DDNAME         SAVE DEFAULT DDNAME                00167000
+         CLI   IOACCESS,C'I'         *                                  00169000
+         BNE   OPEN1A                  *   CHECK FOR VALID IOACCESS     00170000
+         MVC   DDNAME+6(1),IOACCESS      *     THEN MODIFY THE 7TH      00171000
+*        MODCB ACB=FILEACB,MACRF=(IN)     *    BYTE OF THE DDNAME       00172000
+         MODCB ACB=FILEACB,MACRF=(IN)     *    BYTE OF THE DDNAME       00173000
+         LTR   R15,R15                    *    AND SET ACB FOR INPUT    00174000
+         BNZ   ERROR4                     *    OR OUTPUT/UPDATE ACCESS  00175000
+         B     OPEN2                      *    TO THE VSAM FILE BEFORE  00176000
+OPEN1A   EQU   *                                                        00177000
+*        MODCB ACB=FILEACB,MACRF=(OUT)    *    THE OPEN IS PERFORMED.   00178000
+         MODCB ACB=FILEACB,MACRF=(OUT)    *    THE OPEN IS PERFORMED.   00179000
+         LTR   R15,R15                    *                             00180000
+         BNZ   ERROR4                     *                             00181000
+         CLI   IOACCESS,C'O'                 *                          00182000
+         BNE   OPEN1B                          *                        00183000
+         MVC   DDNAME+6(1),IOACCESS              *                      00184000
+         B     OPEN2                               *                    00185000
+OPEN1B   CLI   IOACCESS,C'U'                     *                      00186000
+         BNE   OPEN1C                          *                        00187000
+         MVC   DDNAME+6(1),IOACCESS          *                          00188000
+         B     OPEN2                      *                             00189000
+OPEN1C   CLI   IOACCESS,C'L'           *                                00190000
+         BNE   ERROR16               *                                  00191000
+         MVC   DDNAME+6(1),IOACCESS                                     00192000
+         MVI   OPER,C'L'             MOVE 'L' TO OPER                   00193000
+*        TESTCB ACB=FILEACB,STRNO=1                                     00194000
+         TESTCB ACB=FILEACB,STRNO=1                                     00195000
+         BE    OPEN2                                                    00196000
+         AIF   (&DOS).D0002                                             00197000
+*        MODCB ACB=FILEACB,STRNO=1,BSTRNO=1                             00198000
+         MODCB ACB=FILEACB,STRNO=1,BSTRNO=1                             00199000
+         AGO   .C0002                                                   00200000
+.D0002   ANOP                                                           00201000
+*        MODCB ACB=FILEACB,STRNO=1                                      00202000
+         MODCB ACB=FILEACB,STRNO=1                                      00203000
+.C0002   ANOP                                                           00204000
+         LTR   R15,R15               IF ERROR?                          00205000
+         BNZ   ERROR4                   YES, GO TO ERROR4               00206000
+OPEN2    EQU   *                                                        00207000
+         MVC   DDNAME(7),LBLDDN         YES, MOVE IN DDN FROM 3RD PARM  00208000
+*        MODCB ACB=FILEACB,DDNAME=(*,DDNAME)                            00209000
+         MODCB ACB=FILEACB,DDNAME=(*,DDNAME)                            00210000
+         LTR   R15,R15               IF ERROR?                          00211000
+         BNZ   ERROR4                   YES, GO TO ERROR4               00212000
+OPEN3    EQU   *                     OPEN FILE                          00213000
+*        OPEN  FILEACB               OPEN FILE                          00214000
+         OPEN  FILEACB               OPEN FILE                          00215000
+         LTR   R15,R15               IF ERROR?                          00216000
+         BZ    OPEN4                    NO, GO TO OPEN4                 00217000
+         CLI   OPENERR,C'Y'          IF 2RD ATTEMPT AT OPEN FAILS?      00218000
+         BE    ERROR2                  YES, GO TO ERROR2                00219000
+*        SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(ERROR)       00220000
+         SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(ERROR)       00221000
+         LTR   R15,R15               IF ERROR?                          00222000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00223000
+         CLI   IOACCESS,C'I'         IF IN INPUT MODE?                  00224000
+         BNE   ERROR2A                  NO, GO TO ERROR2A               00225000
+         CLC   FEEDBACK+3(1),=X'A0'  IF POSSIBLE EMPTY FILE CONDITION?  00226000
+         BNE   ERROR2A                  NO, GO TO ERROR2A               00227000
+*        MODCB ACB=FILEACB,MACRF=(OUT) YES, TRY AGAIN WITH MODE 'OUT'   00228000
+         MODCB ACB=FILEACB,MACRF=(OUT) YES, TRY AGAIN WITH MODE 'OUT'   00229000
+         LTR   R15,R15               IF ERROR?                          00230000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00231000
+         MVI   OPENERR,C'Y'          MOVE 'Y' TO OPENERR                00232000
+         B     OPEN3                 GO TO OPEN3                        00233000
+OPEN4    EQU   *                                                        00234000
+*        SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(LRECL)       00235000
+         SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(LRECL)       00236000
+         LTR   R15,R15               IF ERROR?                          00237000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00238000
+         L     R9,FEEDBACK           R9 = LRECL OF ACB                  00239000
+*        MODCB RPL=FILERPL,AREALEN=(R9)                                 00240000
+         MODCB RPL=FILERPL,AREALEN=(R9)                                 00241000
+         LTR   R15,R15               IF ERROR?                          00242000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00243000
+*        MODCB RPL=FILERPL,RECLEN=(R9)                                  00244000
+         MODCB RPL=FILERPL,RECLEN=(R9)                                  00245000
+         LTR   R15,R15               IF ERROR?                          00246000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00247000
+*        MODCB RPL=FILERPL2,AREALEN=(R9)                                00248000
+         MODCB RPL=FILERPL2,AREALEN=(R9)                                00249000
+         LTR   R15,R15               IF ERROR?                          00250000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00251000
+*        MODCB RPL=FILERPL2,RECLEN=(R9)                                 00252000
+         MODCB RPL=FILERPL2,RECLEN=(R9)                                 00253000
+         LTR   R15,R15               IF ERROR?                          00254000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00255000
+         MVI   OPENSWT,C'Y'          MOVE 'Y' TO OPENSWT                00256000
+         CLI   IOOPER,C'O'           IF OPEN FOR KSDS PROCESSING?       00257000
+         BE    OPEN6                   YES, GO TO OPEN6                 00258000
+OPEN5    EQU   *                        NO, OPEN FOR ESDS PROCESSING    00259000
+*        MODCB RPL=FILERPL,OPTCD=(ADR,NUP) MODIFY FOR ESDS              00260000
+         MODCB RPL=FILERPL,OPTCD=(ADR,NUP) MODIFY FOR ESDS              00261000
+         LTR   R15,R15               IF ERROR?                          00262000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00263000
+*        MODCB RPL=FILERPL2,OPTCD=(ADR,NUP) MODIFY FOR ESDS             00264000
+         MODCB RPL=FILERPL2,OPTCD=(ADR,NUP) MODIFY FOR ESDS             00265000
+         LTR   R15,R15               IF ERROR?                          00266000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00267000
+         CLI   IOACCESS,C'U'         IF UPDATE MODE?                    00268000
+         BNE   OPEN7                    NO, GO TO OPEN7                 00269000
+*        MODCB RPL=FILERPL,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESSING 00270000
+         MODCB RPL=FILERPL,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESSING 00271000
+         LTR   R15,R15               IF ERROR?                          00272000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00273000
+*        MODCB RPL=FILERPL2,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESS   00274000
+         MODCB RPL=FILERPL2,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESS   00275000
+         LTR   R15,R15               IF ERROR?                          00276000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00277000
+         MVI   ACCESS,C'U'           MOVE 'U' TO ACCESS                 00278000
+         B     OPEN7                 GO TO OPEN7                        00279000
+OPEN6    EQU   *                                                        00280000
+*        MODCB RPL=FILERPL,OPTCD=(KEY,NUP) MODIFY FOR KSDS PROCESSING   00281000
+         MODCB RPL=FILERPL,OPTCD=(KEY,NUP) MODIFY FOR KSDS PROCESSING   00282000
+         LTR   R15,R15               IF ERROR?                          00283000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00284000
+*        MODCB RPL=FILERPL2,OPTCD=(KEY,NUP) MODIFY FOR KSDS PROCESSING  00285000
+         MODCB RPL=FILERPL2,OPTCD=(KEY,NUP) MODIFY FOR KSDS PROCESSING  00286000
+         LTR   R15,R15               IF ERROR?                          00287000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00288000
+*        SHOWCB ACB=FILEACB,AREA=SAVKLEN,LENGTH=8,FIELDS=(KEYLEN,RKP)   00289000
+         SHOWCB ACB=FILEACB,AREA=SAVKLEN,LENGTH=8,FIELDS=(KEYLEN,RKP)   00290000
+         LTR   R15,R15               IF ERROR?                          00291000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00292000
+         CLI   IOACCESS,C'U'         IF UPDATE MODE?                    00293000
+         BNE   OPEN7                    NO, GO TO OPEN7                 00294000
+*        MODCB RPL=FILERPL,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESSING 00295000
+         MODCB RPL=FILERPL,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESSING 00296000
+         LTR   R15,R15               IF ERROR?                          00297000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00298000
+*        MODCB RPL=FILERPL2,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESS   00299000
+         MODCB RPL=FILERPL2,OPTCD=(UPD) MODIFY RPL FOR UPDATE PROCESS   00300000
+         LTR   R15,R15               IF ERROR?                          00301000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00302000
+         MVI   ACCESS,C'U'           MOVE 'U' TO ACCESS                 00303000
+         B     OPEN7                 GO TO OPEN7                        00304000
+OPEN7    EQU   *                     CHECK HIGH RBA ADDRESS             00305000
+         AIF   (&DOS).D0003                                             00306000
+*        SHOWCB ACB=FILEACB,AREA=SAVEHRBA,LENGTH=4,FIELDS=(ENDRBA)      00307000
+         SHOWCB ACB=FILEACB,AREA=SAVEHRBA,LENGTH=4,FIELDS=(ENDRBA)      00308000
+         AGO   .C0003                                                   00309000
+.D0003   ANOP                                                           00310000
+*        SHOWCB ACB=FILEACB,AREA=SAVEHRBA,LENGTH=4,FIELDS=(NLOGR)       00311000
+         SHOWCB ACB=FILEACB,AREA=SAVEHRBA,LENGTH=4,FIELDS=(NLOGR)       00312000
+.C0003   ANOP                                                           00313000
+         LTR   R15,R15               IF ERROR?                          00314000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00315000
+         SR    R15,R15               PUT ZEROS INTO THE IORETCOD        00316000
+         STH   R15,IORETCOD          *                                  00317000
+OPEN8    EQU   *                                                        00318000
+         L     R1,SAVEHRBA           LOAD HIGH RBA ADDRESS              00319000
+         CLI   OPENERR,C'Y'          IF 2RD ATTEMPT TO OPEN SUCCESS?    00320000
+         BE    OPEN9                   YES, GO TO OPEN9                 00321000
+         C     R1,=F'0'              IF HIGH RBA EQUAL ZEROS            00322000
+         BNE   EXIT                     NO, GO TO EXIT                  00323000
+         LH    R15,=H'12'            LOAD R15 WITH A +12                00324000
+         STH   R15,IORETCOD          STORE R15 INTO IORETCOD            00325000
+         B     RETURN                GO TO RETURN                       00326000
+OPEN9    EQU   *                                                        00327000
+         MVC   MESSNO,=CL4'0403'                                        00328000
+         C     R1,=F'0'              IF HIGH RBA = ZEROS                00329000
+         BNE   OPEN10                   NO, GO TO OPEN10                00330000
+         MVC   MESSOPT(31),=CL31'BECAUSE OF EMPTY FILE CONDITION'       00331000
+         LH    R15,=H'12'            LOAD R15 WITH A +12                00332000
+         STH   R15,IORETCOD          STORE R15 INTO IORETCOD            00333000
+         B     ERREXIT               GO TO ERREXIT                      00334000
+OPEN10   EQU   *                                                        00335000
+         MVC   MESSOPT(32),=CL32'ERROR CORRECTED WITH MODE CHANGE'      00336000
+         B     ERREXIT               GO TO ERREXIT                      00337000
+         EJECT                                                          00338000
+**************************************************************          00339000
+**************************************************************          00340000
+*                                                            *          00341000
+*   CLOSE FILE ROUTINE - OPERATOR = 'E'                      *          00342000
+*                                                            *          00343000
+**************************************************************          00344000
+**************************************************************          00345000
+         SPACE 3                                                        00346000
+CLSFILE  EQU   *                                                        00347000
+         CLI   OPENSWT,C'Y'          IF FILE OPEN?                      00348000
+         BNE   ERROR12                  NO, GO TO ERROR12               00349000
+*        CLOSE FILEACB               CLOSE FILE                         00350000
+         CLOSE FILEACB               CLOSE FILE                         00351000
+         MVI   OPENERR,C'X'          *                                  00352000
+         MVI   OPER,C'X'             *                                  00353000
+         MVI   ACCESS,C'X'             *                                00354000
+         MVI   OPENSWT,C'N'              *  RESET SWITCHES AND          00355000
+         MVC   SAVERKP(4),=X'FFFFFFFF'     *    SOME FIELDS             00356000
+         MVC   KEYADDR(4),=X'00000000'       *                          00357000
+         MVC   RECADDR(4),=X'00000000'      *                           00358000
+         MVC   RBAADDR(4),=X'00000000'      *                           00359000
+         MVC   DDNAME,SAVDDN               *                            00360000
+*        TESTCB ACB=FILEACB,STRNO=2                                     00361000
+         TESTCB ACB=FILEACB,STRNO=2                                     00362000
+         BE    EXIT                                                     00363000
+         AIF   (&DOS).D0004                                             00364000
+*        MODCB ACB=FILEACB,STRNO=2,BSTRNO=2                             00365000
+         MODCB ACB=FILEACB,STRNO=2,BSTRNO=2                             00366000
+         AGO   .C0004                                                   00367000
+.D0004   ANOP                                                           00368000
+*        MODCB ACB=FILEACB,STRNO=2                                      00369000
+         MODCB ACB=FILEACB,STRNO=2                                      00370000
+.C0004   ANOP                                                           00371000
+         LTR   R15,R15                                                  00372000
+         BNZ   ERROR4                                                   00373000
+         B     EXIT                                                     00374000
+         EJECT                                                          00375000
+**************************************************************          00376000
+**************************************************************          00377000
+*                                                            *          00378000
+*   SEQUENTIAL READ ROUTINE - OPERATOR = 'R'                 *          00379000
+*                                                            *          00380000
+**************************************************************          00381000
+**************************************************************          00382000
+         SPACE 3                                                        00383000
+CONTSEQR EQU   *                                                        00384000
+         CLI   OPER,C'R'             IF LAST OPERATION WAS READ?        00385000
+         BE    CONTSEQ3                YES, GO TO CONTSEQ3              00386000
+         CLI   OPER,C'S'             IF LAST OPERATION WAS START?       00387000
+         BE    CONTSEQ3                YES, GO TO CONTSEQ3              00388000
+*        TESTCB RPL=(6),OPTCD=(SEQ) IF RPL IS IN SEQUENTIAL MODE?       00389000
+         TESTCB RPL=(6),OPTCD=(SEQ) IF RPL IS IN SEQUENTIAL MODE?       00390000
+         BE    CONTSEQ1                   YES, GO TO CONTSEQ1           00391000
+*        MODCB RPL=(6),OPTCD=(SEQ) MODIFY RPL TO SEQUENTIAL MODE        00392000
+         MODCB RPL=(6),OPTCD=(SEQ) MODIFY RPL TO SEQUENTIAL MODE        00393000
+         LTR   R15,R15               IF ERROR?                          00394000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00395000
+CONTSEQ1 EQU   *                                                        00396000
+         CLI   LBLEXCUS,C'U'      Q. EXCLUSIVE USE OF RECORDS           00397000
+         BE    CONTSEQ2           A. YES, GO TO CONTSEQ2                00398000
+*        MODCB RPL=(6),OPTCD=(NUP)                                      00399000
+         MODCB RPL=(6),OPTCD=(NUP)                                      00400000
+         LTR   R15,R15               IF ERROR?                          00401000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00402000
+         B     CONTSEQ3           GO TO CONTSEQ3                        00403000
+CONTSEQ2 EQU   *                                                        00404000
+*        MODCB RPL=(6),OPTCD=(UPD)                                      00405000
+         MODCB RPL=(6),OPTCD=(UPD)                                      00406000
+         LTR   R15,R15               IF ERROR?                          00407000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00408000
+CONTSEQ3 EQU   *                                                        00409000
+         MVI   OPER,C'R'             SET LAST OPERATION AREA            00410000
+*        GET   RPL=(6)           GET RECORD                             00411000
+         GET   RPL=(6)           GET RECORD                             00412000
+         LTR   R15,R15               IF ERROR?                          00413000
+         BNZ   ERROR5                  YES, GO TO ERROR5                00414000
+*        SHOWCB RPL=(6),AREA=CHKDSKA,LENGTH=8,FIELDS=(RBA,RECLEN)       00415000
+         SHOWCB RPL=(6),AREA=CHKDSKA,LENGTH=8,FIELDS=(RBA,RECLEN)       00416000
+         LTR   R15,R15               IF ERROR?                          00417000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00418000
+         MVC   SAVERBA,CHKDSKA                                          00419000
+         MVC   LBLLRECL,CHKDSKA+6                                       00420000
+         MVC   IORBA,SAVERBA         MOVE RECORD RBA TO IORBA           00421000
+         B     EXIT                  GO TO EXIT                         00422000
+         EJECT                                                          00423000
+**************************************************************          00424000
+**************************************************************          00425000
+*                                                            *          00426000
+*   START SEQUENTIAL READ ROUTINE - OPERATOR = 'S' OR 'T'    *          00427000
+*                                                            *          00428000
+**************************************************************          00429000
+**************************************************************          00430000
+         SPACE 3                                                        00431000
+STRTTOPR EQU   *                                                        00432000
+*        MODCB RPL=(6),OPTCD=(KGE)                                      00433000
+         MODCB RPL=(6),OPTCD=(KGE)                                      00434000
+         LTR   R15,R15               IF ERROR?                          00435000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00436000
+         B     STRTSEQ1              GO TO STRTSEQ1                     00437000
+STRTSEQR EQU   *                                                        00438000
+*        MODCB RPL=(6),OPTCD=(KEQ)                                      00439000
+         MODCB RPL=(6),OPTCD=(KEQ)                                      00440000
+         LTR   R15,R15               IF ERROR?                          00441000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00442000
+STRTSEQ1 EQU   *                                                        00443000
+*        TESTCB RPL=(6),OPTCD=(SEQ,FKS)                                 00444000
+         TESTCB RPL=(6),OPTCD=(SEQ,FKS)                                 00445000
+         BE    STRTSEQ2                                                 00446000
+*        MODCB RPL=(6),OPTCD=(SEQ,FKS)                                  00447000
+         MODCB RPL=(6),OPTCD=(SEQ,FKS)                                  00448000
+         LTR   R15,R15                                                  00449000
+         BNZ   ERROR4                                                   00450000
+STRTSEQ2 EQU    *                                                       00451000
+         CLI   LBLEXCUS,C'U'      Q. EXCLUSIVE USE OF RECORDS           00452000
+         BE    STRTSEQ3           A. YES, GO TO STRTSEQ3                00453000
+*        MODCB RPL=(6),OPTCD=(NUP)                                      00454000
+         MODCB RPL=(6),OPTCD=(NUP)                                      00455000
+         LTR   R15,R15               IF ERROR?                          00456000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00457000
+         B     STRTSEQ4           GO TO STRTSEQ4                        00458000
+STRTSEQ3 EQU   *                                                        00459000
+*        MODCB RPL=(6),OPTCD=(UPD)                                      00460000
+         MODCB RPL=(6),OPTCD=(UPD)                                      00461000
+         LTR   R15,R15               IF ERROR?                          00462000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00463000
+STRTSEQ4 EQU   *                                                        00464000
+         MVI   OPER,C'S'             MOVE 'S' TO LAST OPERATION         00465000
+*        POINT RPL=(6)           DO A POINT                             00466000
+         POINT RPL=(6)           DO A POINT                             00467000
+         LTR   R15,R15               IF ERROR?                          00468000
+         BNZ   NOTFOUND                YES, GO TO NOTFOUND              00469000
+         MVI   IOOPER,C'R'           MOVE 'R' TO IOOPER                 00470000
+         B     EXIT                  GO TO EXIT                         00471000
+         EJECT                                                          00472000
+**************************************************************          00473000
+**************************************************************          00474000
+*                                                            *          00475000
+*   KEYED DIRECT ACCESS - OPERATOR = 'K'                     *          00476000
+*                                                            *          00477000
+**************************************************************          00478000
+**************************************************************          00479000
+         SPACE 3                                                        00480000
+KEYREAD  EQU   *                             *                          00481000
+         CLI   ACCESS,C'U'                     *  PUT IN NO-UPDATE      00482000
+         BE    KEYREAD1                          *   AND REMEMBER       00483000
+*        TESTCB RPL=(6),OPTCD=(DIR,FKS,NSP,KEQ) *   POSITION            00484000
+         TESTCB RPL=(6),OPTCD=(DIR,FKS,NSP,KEQ) *   POSITION            00485000
+         BE    KEYREAD2                              *    MODE          00486000
+*        MODCB RPL=(6),OPTCD=(DIR,FKS,NSP,KEQ)  *                       00487000
+         MODCB RPL=(6),OPTCD=(DIR,FKS,NSP,KEQ)  *                       00488000
+         LTR   R15,R15                            *                     00489000
+         BNZ   ERROR4                           *                       00490000
+         B     KEYREAD2                                                 00491000
+KEYREAD1 EQU   *                                *                       00492000
+*        TESTCB RPL=(6),OPTCD=(DIR,FKS,UPD,KEQ) *  PUT IN UPDATE        00493000
+         TESTCB RPL=(6),OPTCD=(DIR,FKS,UPD,KEQ) *  PUT IN UPDATE        00494000
+         BE    KEYREAD2                               *     MODE        00495000
+*        MODCB RPL=(6),OPTCD=(DIR,FKS,UPD,KEQ)       *                  00496000
+         MODCB RPL=(6),OPTCD=(DIR,FKS,UPD,KEQ)       *                  00497000
+         LTR   R15,R15                                *                 00498000
+         BNZ   ERROR4                              *                    00499000
+KEYREAD2 EQU   *                                                        00500000
+         MVI   OPER,C'K'             MOVE 'K' TO LAST OPERATION         00501000
+*        GET   RPL=(6)           GET RECORD                             00502000
+         GET   RPL=(6)           GET RECORD                             00503000
+         LTR   R15,R15               IF ERROR?                          00504000
+         BZ    KEYREAD3                 NO, GO TO KEYREAD3              00505000
+*        SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=FDBK              00506000
+         SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=FDBK              00507000
+         LTR   R15,R15               IF ERROR?                          00508000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00509000
+         CLI   FEEDBACK+3,X'10'      IF RECORD NOT FOUND?               00510000
+         BNE   ERROR5                   NO, GO TO ERROR5                00511000
+         B     NOTFOUND                YES, GO TO NOTFOUND              00512000
+KEYREAD3 EQU   *                                                        00513000
+*        SHOWCB RPL=(6),AREA=CHKDSKA,LENGTH=8,FIELDS=(RBA,RECLEN)       00514000
+         SHOWCB RPL=(6),AREA=CHKDSKA,LENGTH=8,FIELDS=(RBA,RECLEN)       00515000
+         LTR   R15,R15               IF ERROR?                          00516000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00517000
+         MVC   SAVERBA,CHKDSKA                                          00517100
+         MVC   LBLLRECL,CHKDSKA+6                                       00517200
+         MVC   IORBA,SAVERBA         MOVE RECORD RBA TO IORBA           00518000
+         B     EXIT                  GO TO EXIT                         00519000
+         EJECT                                                          00520000
+**************************************************************          00521000
+**************************************************************          00522000
+*                                                            *          00523000
+*   REWRITE LAST RECORD READ - OPERATOR 'W'                  *          00524000
+*                                                            *          00525000
+**************************************************************          00526000
+**************************************************************          00527000
+         SPACE 3                                                        00528000
+REWRITE  EQU   *                                                        00529000
+         CLI   OPER,C'K'             IF LAST OPERATION WAS DIRECT?      00530000
+         BE    REWRITE1                YES, GO TO REWRITE1              00531000
+         CLI   OPER,C'R'             IF LAST OPERATION WAS READ?        00532000
+         BE    REWRITE1                YES, GO TO REWRITE1              00533000
+         B     ERROR6                   NO, GO TO ERROR6                00534000
+REWRITE1 EQU   *                                                        00535000
+         CLI   LBLRECFM,C'V'         IF NOT VARIABLE LENGTH?            00536000
+         BNE   REWRITE2                YES, GO TO REWRITE2              00537000
+         LH    R9,0(R4)              LOAD NEW RECORD LENGTH IN R9       00538000
+*        MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00539000
+         MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00540000
+         LTR   R15,R15               IF ERROR?                          00541000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00542000
+REWRITE2 MVI   OPER,C'W'             MOVE 'W' TO LAST OPERATION         00543000
+*        PUT   RPL=(6)           PUT RECORD BACK                        00544000
+         PUT   RPL=(6)           PUT RECORD BACK                        00545000
+         LTR   R15,R15               IF ERROR?                          00546000
+         BNZ   ERROR7                  YES, GO TO ERROR7                00547000
+         B     EXIT                  GO TO EXIT                         00548000
+         EJECT                                                          00549000
+**************************************************************          00550000
+**************************************************************          00551000
+*                                                            *          00552000
+*   INSERT A NEW RECORD - OPERATOR = 'A'                     *          00553000
+*                                                            *          00554000
+**************************************************************          00555000
+**************************************************************          00556000
+         SPACE 3                                                        00557000
+ADDREC   EQU   *                            *                           00558000
+*        TESTCB RPL=(6),OPTCD=(DIR,NUP)   *  PUT IN DIRECT AND          00559000
+         TESTCB RPL=(6),OPTCD=(DIR,NUP)   *  PUT IN DIRECT AND          00560000
+         BE    ADDREC1                          *  NO-UPDATE MODE       00561000
+*        MODCB RPL=(6),OPTCD=(DIR,NUP)    *  FOR A DIRECT INSERT        00562000
+         MODCB RPL=(6),OPTCD=(DIR,NUP)    *  FOR A DIRECT INSERT        00563000
+         LTR   R15,R15                      *                           00564000
+         BNZ   ERROR4                    *                              00565000
+ADDREC1  EQU   *                                                        00566000
+         CLI   LBLRECFM,C'V'         IF NOT VARIABLE LENGTH?            00567000
+         BNE   ADDREC2                 YES, GO TO ADDREC2               00568000
+         LH    R9,0(R4)              LOAD NEW RECORD LENGTH IN R9       00569000
+*        MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00570000
+         MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00571000
+         LTR   R15,R15               IF ERROR?                          00572000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00573000
+ADDREC2  MVI   OPER,C'A'             MOVE 'A' TO LAST OPERATION         00574000
+*        PUT   RPL=(6)               DO INSERT                          00575000
+         PUT   RPL=(6)               DO INSERT                          00576000
+         LTR   R15,R15               IF ERROR?                          00577000
+         BNZ   ERROR17                 YES, GO TO ERROR7                00578000
+*        SHOWCB RPL=(6),AREA=SAVERBA,LENGTH=4,FIELDS=(RBA)              00579000
+         SHOWCB RPL=(6),AREA=SAVERBA,LENGTH=4,FIELDS=(RBA)              00580000
+         LTR   R15,R15               IF ERROR?                          00581000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00582000
+         MVC   IORBA,SAVERBA         MOVE SAVERBA TO IORBA              00583000
+         CLI   ACCESS,C'U'           IF IN UPDATE MODE?                 00584000
+         BNE   EXIT                     NO, GO TO EXIT                  00585000
+*        MODCB RPL=(6),OPTCD=(UPD) PUT BACK IN UPDATE MODE              00586000
+         MODCB RPL=(6),OPTCD=(UPD) PUT BACK IN UPDATE MODE              00587000
+         LTR   R15,R15               IF ERROR?                          00588000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00589000
+         B     EXIT                  GO TO EXIT                         00590000
+         EJECT                                                          00591000
+**************************************************************          00592000
+**************************************************************          00593000
+*                                                            *          00594000
+*   ERASE PREVIOUS READ RECORD - OPERATOR 'D'                *          00595000
+*                                                            *          00596000
+**************************************************************          00597000
+**************************************************************          00598000
+         SPACE 3                                                        00599000
+ERASER   EQU   *                                                        00600000
+         CLI   SAVERKP,X'FF'         IF IN ESDS PROCESSING MODE?        00601000
+         BE    ERROR14                 YES, GO TO ERROR14               00602000
+         CLI   OPER,C'K'             IF LAST OPERATION WAS DIRECT?      00603000
+         BE    ERASER1                 YES, GO TO ERASER1               00604000
+         CLI   OPER,C'R'             IF LAST OPERATION WAS READ?        00605000
+         BE    ERASER1                 YES, GO TO ERASER1               00606000
+         B     ERROR8                   NO, GO TO ERROR8                00607000
+ERASER1  EQU   *                                                        00608000
+         MVI   OPER,C'D'             MOVE 'D' TO LAST OPERATION         00609000
+*        ERASE RPL=(6)           ERASE RECORD                           00610000
+         ERASE RPL=(6)           ERASE RECORD                           00611000
+         LTR   R15,R15               IF ERROR?                          00612000
+         BNZ   ERROR9                  YES, GO TO ERROR9                00613000
+         B     EXIT                  GO TO EXIT                         00614000
+         EJECT                                                          00615000
+**************************************************************          00616000
+**************************************************************          00617000
+*                                                            *          00618000
+*   LOAD NEW FILE - OPERATOR = 'L'                           *          00619000
+*                                                            *          00620000
+**************************************************************          00621000
+**************************************************************          00622000
+         SPACE 3                                                        00623000
+LOADFLE  EQU   *                           *                            00624000
+*        TESTCB RPL=(6),OPTCD=(SEQ,NUP)  *  PUT IN SEQUENTIAL           00625000
+         TESTCB RPL=(6),OPTCD=(SEQ,NUP)  *  PUT IN SEQUENTIAL           00626000
+         BE    LOADFLE1                        *  AND NO-UPDATE         00627000
+*        MODCB RPL=(6),OPTCD=(SEQ,NUP)   *        MODE                  00628000
+         MODCB RPL=(6),OPTCD=(SEQ,NUP)   *        MODE                  00629000
+         LTR   R15,R15                     *                            00630000
+         BNZ   ERROR4                   *                               00631000
+LOADFLE1 EQU   *                                                        00632000
+         CLI   LBLRECFM,C'V'         IF NOT VARIABLE LENGTH?            00633000
+         BNE   LOADFLE2                YES, GO TO LOADFLE2              00634000
+         LH    R9,0(R4)              LOAD NEW RECORD LENGTH IN R9       00635000
+*        MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00636000
+         MODCB RPL=(6),RECLEN=(9) MODIFY TO NEW RECORD LENGTH           00637000
+         LTR   R15,R15               IF ERROR?                          00638000
+         BNZ   ERROR4                  YES, GO TO ERROR4                00639000
+LOADFLE2 MVI   OPER,C'L'             MOVE 'L' TO LAST OPERATION         00640000
+*        PUT   RPL=(6)           WRITE RECORD                           00641000
+         PUT   RPL=(6)           WRITE RECORD                           00642000
+         LTR   R15,R15               IF ERROR?                          00643000
+         BNZ   ERROR7                  YES, GO TO ERROR7                00644000
+*        SHOWCB RPL=(6),AREA=SAVERBA,LENGTH=4,FIELDS=(RBA)              00645000
+         SHOWCB RPL=(6),AREA=SAVERBA,LENGTH=4,FIELDS=(RBA)              00646000
+         LTR   R15,R15               IF ERROR?                          00647000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00648000
+         MVC   IORBA,SAVERBA         MOVE RECORD RBA TO IORBA           00649000
+         B     EXIT                  GO TO EXIT                         00650000
+         EJECT                                                          00651000
+**************************************************************          00652000
+**************************************************************          00653000
+*                                                            *          00654000
+*   CHECK THE ACB STATISTICS - OPERATOR = 'C'                *          00655000
+*                                                            *          00656000
+**************************************************************          00657000
+**************************************************************          00658000
+         SPACE 3                                                        00659000
+CHKDSK   EQU   *                                                        00660000
+         AIF   (&DOS).D0005                                             00661000
+*        SHOWCB ACB=FILEACB,LENGTH=28,AREA=CHKDSKA,                     00662000
+*              FIELDS=(AVSPAC,CINV,LRECL,NLOGR,NEXT,ENDRBA,HALCRBA)     00663000
+         SHOWCB ACB=FILEACB,LENGTH=28,AREA=CHKDSKA,                    X00664000
+               FIELDS=(AVSPAC,CINV,LRECL,NLOGR,NEXT,ENDRBA,HALCRBA)     00665000
+         AGO   .C0005                                                   00666000
+.D0005   ANOP                                                           00667000
+*        SHOWCB ACB=FILEACB,LENGTH=28,AREA=CHKDSKA,                     00668000
+*              FIELDS=(AVSPAC,CINV,LRECL,NLOGR,NEXT)                    00669000
+         SHOWCB ACB=FILEACB,LENGTH=28,AREA=CHKDSKA,                    X00670000
+               FIELDS=(AVSPAC,CINV,LRECL,NLOGR,NEXT)                    00671000
+.C0005   ANOP                                                           00672000
+         LTR   R15,R15               IF ERROR?                          00673000
+         BNZ   ERROR13                 YES, GO TO ERROR13               00674000
+         MVC   0(28,R4),CHKDSKA      MOVE FEEDBACK AREA                 00675000
+         B     EXIT                  GO TO EXIT                         00676000
+         EJECT                                                          00677000
+**************************************************************          00678000
+**************************************************************          00679000
+*                                                            *          00680000
+*   ERRORS                                                   *          00681000
+*                                                            *          00682000
+**************************************************************          00683000
+**************************************************************          00684000
+         SPACE 1                                                        00685000
+ERROR1   EQU   *                                                        00686000
+         MVC   MESSNO,=CL4'0901'                                        00687000
+         MVC   MESSOPT(11),=CL11'OPERATOR = '                           00688000
+         MVC   MESSOPT+11(1),IOOPER                                     00689000
+         B     ERREXIT                                                  00690000
+         SPACE 1                                                        00691000
+ERROR2   EQU   *                                                        00692000
+*        SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(ERROR)       00693000
+         SHOWCB ACB=FILEACB,LENGTH=4,AREA=FEEDBACK,FIELDS=(ERROR)       00694000
+         LTR   R15,R15                                                  00695000
+         BNZ   ERROR13                                                  00696000
+ERROR2A  MVC   ARG(2),FEEDBACK+3                                        00697000
+*        SIEXLATE WAREA=AREA1                                           00698000
+         SIEXLATE WAREA=AREA1                                           00699000
+         MVC   ERRMSG+20(3),DECIMAL                                     00700000
+         MVC   ERRMSG+24(2),HEXDCML                                     00701000
+         MVC   MESSNO,=CL4'0802'                                        00702000
+         MVC   MESSOPT(40),ERRMSG                                       00703000
+         B     ERREXIT                                                  00704000
+         SPACE 1                                                        00705000
+ERROR4   EQU   *                                                        00706000
+         MVC   MESSNO,=CL4'0904'                                        00707000
+         B     ERREXIT                                                  00708000
+         SPACE 1                                                        00709000
+ERROR5   EQU   *                                                        00710000
+*        SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00711000
+         SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00712000
+         LTR   R15,R15                                                  00713000
+         BNZ   ERROR13                                                  00714000
+         MVC   ARG(2),FEEDBACK+3                                        00715000
+*        SIEXLATE WAREA=AREA1                                           00716000
+         SIEXLATE WAREA=AREA1                                           00717000
+         MVC   ERRMSG+20(3),DECIMAL                                     00718000
+         MVC   ERRMSG+24(2),HEXDCML                                     00719000
+         MVC   MESSNO,=CL4'0905'                                        00720000
+         MVC   MESSOPT(40),ERRMSG                                       00721000
+         B     ERREXIT                                                  00722000
+         SPACE 1                                                        00723000
+ERROR6   EQU   *                                                        00724000
+         MVC   MESSNO,=CL4'0906'                                        00725000
+         B     ERREXIT                                                  00726000
+         SPACE 1                                                        00727000
+ERROR7   EQU   *                                                        00728000
+*        SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00729000
+         SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00730000
+         LTR   R15,R15                                                  00731000
+         BNZ   ERROR13                                                  00732000
+         MVC   ARG(2),FEEDBACK+3                                        00733000
+*        SIEXLATE WAREA=AREA1                                           00734000
+         SIEXLATE WAREA=AREA1                                           00735000
+         MVC   ERRMSG+20(3),DECIMAL                                     00736000
+         MVC   ERRMSG+24(2),HEXDCML                                     00737000
+         MVC   MESSNO,=CL4'0907'                                        00738000
+         MVC   MESSOPT(40),ERRMSG                                       00739000
+         B     ERREXIT                                                  00740000
+         SPACE 1                                                        00741000
+ERROR8   EQU   *                                                        00742000
+         MVC   MESSNO,=CL4'0908'                                        00743000
+         B     ERREXIT                                                  00744000
+         SPACE 1                                                        00745000
+ERROR9   EQU   *                                                        00746000
+*        SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00747000
+         SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00748000
+         LTR   R15,R15                                                  00749000
+         BNZ   ERROR13                                                  00750000
+         MVC   ARG(2),FEEDBACK+3                                        00751000
+*        SIEXLATE WAREA=AREA1                                           00752000
+         SIEXLATE WAREA=AREA1                                           00753000
+         MVC   ERRMSG+20(3),DECIMAL                                     00754000
+         MVC   ERRMSG+24(2),HEXDCML                                     00755000
+         MVC   MESSOPT(40),ERRMSG                                       00756000
+         MVC   MESSNO,=CL4'0909'                                        00757000
+         B     ERREXIT                                                  00758000
+         SPACE 1                                                        00759000
+ERROR10  EQU   *                                                        00760000
+         MVC   MESSNO,=CL4'0910'                                        00761000
+         B     ERREXIT                                                  00762000
+         SPACE 1                                                        00763000
+ERROR11  EQU   *                                                        00764000
+         MVC   MESSNO,=CL4'0911'                                        00765000
+         B     ERREXIT                                                  00766000
+         SPACE 1                                                        00767000
+ERROR12  EQU   *                                                        00768000
+         MVC   MESSNO,=CL4'0912'                                        00769000
+         B     ERREXIT                                                  00770000
+         SPACE 1                                                        00771000
+ERROR13  EQU   *                                                        00772000
+         ST    R0,FEEDBACK                                              00773000
+         MVC   ARG(2),FEEDBACK+3                                        00774000
+*        SIEXLATE WAREA=AREA1                                           00775000
+         SIEXLATE WAREA=AREA1                                           00776000
+         MVC   ERRMSG+20(3),DECIMAL                                     00777000
+         MVC   ERRMSG+24(2),HEXDCML                                     00778000
+         MVC   MESSNO,=CL4'0913'                                        00779000
+         MVC   MESSOPT(40),ERRMSG                                       00780000
+         B     ERREXIT                                                  00781000
+         SPACE 1                                                        00782000
+ERROR14  EQU   *                                                        00783000
+         MVC   MESSNO,=CL4'0914'                                        00784000
+         B     ERREXIT                                                  00785000
+         SPACE 1                                                        00786000
+ERROR16  EQU   *                                                        00787000
+         MVC   MESSNO,=CL4'0916'                                        00788000
+         MVC   MESSOPT(9),=CL9'ACCESS = '                               00789000
+         MVC   MESSOPT+9(1),IOACCESS                                    00790000
+         B     ERREXIT                                                  00791000
+         SPACE 1                                                        00792000
+ERROR17  EQU   *                                                        00793000
+*        SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00794000
+         SHOWCB RPL=(6),LENGTH=4,AREA=FEEDBACK,FIELDS=(FDBK)            00795000
+         LTR   R15,R15                                                  00796000
+         BNZ   ERROR13                                                  00797000
+         MVC   IORETCOD(2),FEEDBACK+2                                   00798000
+         LH    R15,IORETCOD                                             00799000
+         B     RETURN                                                   00800000
+         SPACE 1                                                        00801000
+NOTFOUND EQU   *                                                        00802000
+         MVC   MESSNO,=CL4'0401'                                        00803000
+         LH    R15,=H'8'                                                00804000
+         CLI   SAVERKP,X'FF'                                            00805000
+         BE    ERREXIT                                                  00806000
+         L     R6,SAVKLEN                                               00807000
+         L     R7,KEYADDR                                               00808000
+         BCTR  R6,0                                                     00809000
+         EX    R6,MSGKEY                                                00810000
+         MVC   MESSOPT(20),=CL20'KEY VALUE EQUALS ='                    00811000
+         B     ERREXIT                                                  00812000
+MSGKEY   MVC   MESSOPT+20(0),0(R7)                                      00813000
+         EJECT                                                          00814000
+**************************************************************          00815000
+**************************************************************          00816000
+*                                                            *          00817000
+*   WORKING STORAGE AREA                                     *          00818000
+*                                                            *          00819000
+**************************************************************          00820000
+**************************************************************          00821000
+         SPACE 3                                                        00822000
+X        DS    0F                                                       00823000
+SAVEAREA DC    16F'0'             REGISTER SAVE AREA                    00824000
+ERRMSG   DC    CL40'VSAM RETURN CODE RC=DDD(XX)             '           00825000
+**************************************************************          00826000
+*    SHOWCB RETURN AREA                                      *          00827000
+**************************************************************          00828000
+SAVEHRBA DC    1F'0'              SAVE HIGH RBA ADDRESS                 00829000
+SAVERBA  DC    1F'0'              SAVE RECORD RBA                       00830000
+SAVKLEN  DC    1F'0'              SAVE KEY LENGTH                       00831000
+SAVERKP  DC    XL4'FFFFFFFF'      SAVE RELATIVE KEY PLACEMENT           00832000
+*                                                                       00833000
+KEYADDR  DC    1F'0'              SAVE RECORD KEY ADDRESS AREA          00834000
+RECADDR  DC    1F'0'              SAVE RECORD ADDRESS AREA              00835000
+RBAADDR  DC    1F'0'              SAVE CONTROL RBA ADDRESS AREA (ESDS)  00836000
+FEEDBACK DC    1F'0'              VSAM ERROR FDBK AREA                  00837000
+CHKDSKA  DC    7F'0'              CHKDSK AREA                           00838000
+OPENSWT  DC    C'X'               FILE STATUS SWITCH                    00839000
+OPENERR  DC    C'X'               FILE OPEN ERROR SWITCH                00840000
+OPER     DC    C'X'               LAST OPERATION AREA                   00841000
+ACCESS   DC    C'X'               ACCESS MODE (U=UPDATE)                00842000
+BINARY   DC    X'FF',255X'00'     CHECK FOR BINARY ZEROS                00843000
+**************************************************************          00844000
+*    SIEXLATE MACRO WORK AREAS                               *          00845000
+**************************************************************          00846000
+AREA1    DS    0CL6                                                     00847000
+ARG      DC    XL1'00'                                                  00848000
+HEXDCML  DC    XL2'0000'                                                00849000
+DECIMAL  DC    XL3'000000'                                              00850000
+         LTORG                                                          00851000
+         EJECT                                                          00852000
+**************************************************************          00853000
+**************************************************************          00854000
+*                                                            *          00855000
+*   VSAM ACB AREA                                            *          00856000
+*                                                            *          00857000
+**************************************************************          00858000
+**************************************************************          00859000
+*FILERPL  RPL   ACB=FILEACB,OPTCD=(LOC)                                 00860000
+FILERPL  RPL   ACB=FILEACB,OPTCD=(LOC)                                  00861000
+*FILERPL2 RPL   ACB=FILEACB,OPTCD=(LOC)                                 00862000
+FILERPL2 RPL   ACB=FILEACB,OPTCD=(LOC)                                  00863000
+*EXITLST  EXLST AM=VSAM,EODAD=EOF                                       00864000
+EXITLST  EXLST AM=VSAM,EODAD=EOF                                        00865000
+         AIF   (&DOS).D0006                                             00866000
+*FILEACB  ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST,          00867000
+*               STRNO=2,BUFND=6,BUFNI=6,BSTRNO=2                        00868000
+FILEACB  ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST,          X00869000
+               STRNO=2,BUFND=6,BUFNI=6,BSTRNO=2                         00870000
+         AGO   .C0006                                                   00871000
+.D0006   ANOP                                                           00872000
+*FILEACB  ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST,          00873000
+*               STRNO=2,BUFND=6,BUFNI=6                                 00874000
+FILEACB  ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST,          X00875000
+               STRNO=2,BUFND=6,BUFNI=6                                  00876000
+ACBLNTH  DC    A(ACBLNTH-FILEACB)                                       00876010
+ACBKSDS  ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST,          X00876020
+               STRNO=2,BUFND=6,BUFNI=6                                  00876030
+ACBESDS  ACB   AM=VSAM,MACRF=(ADR,SEQ,DIR),EXLST=EXITLST,              X00876040
+               STRNO=2,BUFND=6,BUFNI=6                                  00876050
+SAVER89  DC    2F'0'                                                    00876060
+.C0006   ANOP                                                           00877000
+DDNAME   DS    0CL8                                                     00878000
+         DC    CL6'&DDNAME'                                             00879000
+         DC    CL1'U'                                                   00880000
+         DC    CL1' '                                                   00881000
+SAVDDN   DC    CL8' '                                                   00882000
+         EJECT                                                          00883000
+**************************************************************          00884000
+*    CONTROL AREA COPYS                                      *          00885000
+**************************************************************          00886000
+         COPY  SIDSMESS                                                 00887000
+         COPY  SIDSCNTL                                                 00888000
+         EJECT                                                          00889000
+**************************************************************          00890000
+*    DSECT                                                   *          00891000
+**************************************************************          00892000
+LBLINFO  DSECT                                                          00893000
+LBLDDN   DS    CL8                                                      00894000
+LBLRECFM DS    CL1                                                      00895000
+LBLBLKSZ DS    XL4                                                      00896000
+LBLLRECL DS    XL2                                                      00897000
+LBLALRPL DS    CL1                                                      00898000
+LBLEXCUS DS    CL1                                                      00899000
+         MEND                                                           00900000

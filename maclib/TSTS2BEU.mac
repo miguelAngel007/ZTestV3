@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*        TSTS2BEU -- TSBEU AREA (CICS LINK AREA FOR TSTSBEU1)         * 00004000
+*                                                                     * 00005000
+*---------------------------------------------------------------------* 00006000
+*                  ** HISTORY OF REVISIONS **                         * 00007000
+*                                                                     * 00008000
+* DESCRIPTION                                                 CHNGID  * 00009000
+* __________________________________________________________  _______ * 00010000
+*                                                                     * 00011000
+* 10/31/16 SUPPORT ALWAYS ON                                  1727046 * 00011996
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00011997
+* 11/10/09  TS LOG FILE GROUPING ENHANCEMENT                  1025861   00011998
+* 01/05/05  INITIAL RELEASE                                    GN5112 * 00012000
+*---------------------------------------------------------------------* 00013000
+*                                                                       00014000
+TS1BEU   DSECT                                                          00015000
+* BOD/EOD FLAG                                                          00016000
+TSBEUBE  DS    CL1         ' ', B, E, M, R, 6, D, S ARE VALID 1727046   00017000
+TSBEUSET DS    CL2         KEY TO TSSETDB TABLE               1727046   00017010
+TSBEUPSF DS    CL1         PAUSE/STOP FLAG - 'N', 'P', 'S'    1727046   00017020
+* ROLL DATE FLAG                                                        00018000
+TSBEURDT DS    CL1              ' ' & 'Y' VALID, ROLL DATES?            00019000
+* ROLL ATM DATE FLAG                                                    00021000
+TSBEURAT DS    CL1              ' ' & 'Y' VALID, ROLL ATM?              00022000
+* ATM OVERRIDE DATE                                                     00023000
+TSBEUORD DS    CL6              6-BYTE DATE FIELD MMDDYY                00024000
+* SER CLASS (MAY CONTAIN GENERIC PATTERN)                               00025000
+TSBEUCLS DS    CL10             10-BYTE SER CLASS                       00026000
+* LOG RBA                                                               00027000
+TSBEURLG DS    CL2              LOG TO UPDATE WITH RBA        1025861   00027100
+TSBEURBA DS    XL8              8-BYTE LOG RBA                1035850   00028000
+TSBEUR99 DS    99CL10                                         1025861   00028100
+* NUMBER OF SERS THAT TSTSBEU1 UPDATED                                  00029000
+TSBEUNUM DS    CL5              5-BYTE NUMBER OF SERS UPDTD             00030000
+* SER NEXT DAY POST CPL                                                 00031000
+TSBEUNPC DS    CL1              1-BYTE FLAG                             00032000
+* SER NEXT DAY FLAG                                                     00033000
+TSBEUNFL DS    CL1              1-BYTE FLAG                             00034000
+TSBEUGRP DS    CL2              LOG GROUP                     1025861   00034100
+TSBEUCNI DS    CL1              CD/ND INDICATOR - 'C' 'N'     1025861   00034200
+* TSTSBEU1 RETURN CODE (0 = OK)                                         00035000
+TSBEURTN DS    CL2              2-BYTE RETURN CODE                      00036000
+*                                                                       00037000

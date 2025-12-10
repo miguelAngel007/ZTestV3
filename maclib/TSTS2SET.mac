@@ -1,0 +1,33 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+          TITLE 'TSTS2SET - TSSETDB LAYOUT'                             00001000
+*********************************************************************** 00002000
+* TSTS2SET - THIS COPYBOOK DESCRIBES THE TSSETDB DB2 SYSTEM           * 00003000
+*            ENVIRONMENT TABLE.                                       * 00004000
+*---------------------------------------------------------------------* 00005000
+*                     ** HISTORY OF REVISIONS **                      * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* ----------------------------------------------------------  ------- * 00008000
+* 10/31/16 INITIAL RELEASE                                     GN7046 * 00009000
+*********************************************************************** 00010000
+TSTSSET  DSECT                                                          00011000
+SET      DS    0X                                                       00012000
+SETKEY   DS    CL2                   KEY                                00013000
+SETPAUSE DS    CL1                   PAUSE/STOP FLAG N/P/S              00014000
+SETNXTDY DS    CL1                   NEXT DAY FLAG Y/N                  00015000
+SETNDPCP DS    CL1                   NEXT DAY POSTING COMPLETE Y/N      00016000
+SETIGNND DS    CL1                   IGNORE NEXT DAY FLAG               00017000
+SETDATBL DS    CL8                   NON-PROCESS DATE TABLE             00018000
+SETCALID DS    CL2                   CALENDAR ID (IN DATE TABLE)        00019000
+SETPRSAT DS    CL1                   PROCESS SATURDAY FLAG              00020000
+SETPRSUN DS    CL1                   PROCESS SUNDAY FLAG                00021000
+SETEIBDT DS    PL4                   EIBDATE                            00022000
+SETPREDT DS    CL6                   PREVIOUS PROCESS DATE              00023000
+SETPDOW  DS    CL1                   PREVIOUS DAY OF WEEK               00024000
+SETCURDT DS    CL6                   CURRENT  PROCESS DATE              00025000
+SETCDOW  DS    CL1                   CURRENT DAY OF WEEK                00026000
+SETCURHD DS    CL1                   CURRENT DAY HOLIDAY                00027000
+SETNXTDT DS    CL6                   NEXT BUSINESS DATE                 00028000
+SETNDOW  DS    CL1                   NEXT DAY OF WEEK                   00029000
+SETATMDT DS    CL6                   ATM CURRENT DATE                   00030000
+SETADOW  DS    CL1                   ATM DAY OF WEEK                    00031000
+SETLEN   EQU   *-SET                 SYMBOLIC LENGTH                    00032000

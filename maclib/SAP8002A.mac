@@ -1,0 +1,80 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*        SAP8002A                                                       00001000
+*---------------------------------------------------------------------* 00001001
+*                  ** COPYBOOK DESCRIPTION **                         * 00001002
+*                                                                     * 00001003
+*        FIELD DEFINITION TABLE                                       * 00001004
+*---------------------------------------------------------------------* 00001005
+*                  ** HISTORY OF REVISIONS **                         * 00001006
+* DESCRIPTION                                                 CHNGID  * 00001008
+* __________________________________________________________  _______ * 00001009
+*                                                                     * 00001010
+* 10/05/15 ADD ACCOUNT FORM SEARCH KEY                        1626911 * 00001986
+* 10/05/12 ADD INVESTOR AND GROUP SEARCH KEYS                 1336338 * 00001988
+* 07/21/06 ADD 1 SEARCH KEYS: ELEID                           0715441 * 00001989
+* 11/25/02 ADD FIELD DEFINITIONS FOR AUTO LEASE LENDING       0324623 * 00001990
+* 02/03/98 CHANGE COUNTRY CODE ENTRIES                        9913615 * 00001993
+* 05/01/97 TRANSLATION ENABLE                                 9913481 * 00001994
+* 09/18/95 ADD NEW LANG CODE FOR INTERNATIONAL DBDC           2602986 * 00001995
+* 02/17/95 INCREASED DISPLACEMENTS BY 10 FOR CHANGE AUDIT.    2602105 * 00001996
+*                                                                     * 00001997
+*---------------------------------------------------------------------* 00001998
+*                                                                       00001999
+**********************************************************************  00004000
+*        DS    XL2       FIELD NUMBER                                   00005000
+*        DS    XL2       FIELD LENGTH                                   00006000
+*        DS    XL2       FIELD DISPLACEMENT IN PARMS COMM DG (SAP9000D) 00007000
+*        DS    CL1       FIELD TYPE                                     00008000
+*        DS    CL1       FILLER ALIGNMENT                               00009000
+**********************************************************************  00010000
+T02FLDTB DS    0F                                                       00011000
+T02#FLD  DC    A((T02END-T02FLD)/8)                                     00012000
+T02FLD   DC    0H'0'                                                    00013000
+*              ¦FLD#¦   ¦LGTH¦  ¦DSPL¦ ¦TY¦ ¦CTL LV¦                    00014000
+         DC    H'0001',H'0004',H'0161',C'C',C' ' USER GROUP 1           00015000
+         DC    H'0002',H'0004',H'0165',C'C',C' ' USER GROUP 2           00016000
+         DC    H'0003',H'0004',H'0169',C'C',C' ' USER GROUP 3           00017000
+         DC    H'0004',H'0004',H'0173',C'C',C' ' USER GROUP 4           00018000
+         DC    H'0005',H'0004',H'0177',C'C',C' ' USER GROUP 5           00019000
+         DC    H'0006',H'0004',H'0181',C'C',C' ' USER GROUP 6           00020000
+         DC    H'0007',H'0004',H'0185',C'C',C' ' USER GROUP 7           00021000
+         DC    H'0008',H'0004',H'0189',C'C',C' ' USER GROUP 8           00022000
+         DC    H'0009',H'0004',H'0193',C'C',C' ' USER GROUP 9           00023000
+         DC    H'0010',H'0003',H'0197',C'C',C' ' XXXX CODE              00024000
+         DC    H'0011',H'0005',H'0200',C'C',C' ' OFFICER                00025000
+         DC    H'0012',H'0002',H'0205',C'C',C' ' PROCESS TYPE           00026000
+         DC    H'0013',H'0003',H'0208',C'C',C' ' ACCT TYPE              00027000
+         DC    H'0014',H'0003',H'0211',C'C',C' ' XXXXX TYPE             00028000
+         DC    H'0015',H'0005',H'0214',C'C',C' ' COUNTRY CD   9913615   00029000
+         DC    H'0016',H'0001',H'0219',C'C',C' ' XXXX CODE    9913615   00030000
+         DC    H'0017',H'0003',H'0220',C'C',C' ' CTRY CD TY   9913615   00031000
+         DC    H'0018',H'0002',H'0223',C'C',C' ' STATE CODE             00032000
+         DC    H'0019',H'0002',H'0225',C'C',C' ' STATUS                 00033000
+         DC    H'0020',H'0001',H'0227',C'C',C' ' SOURCE                 00034000
+         DC    H'0021',H'0004',H'0228',C'C',C' ' PRODUCT                00035000
+         DC    H'0022',H'0002',H'0232',C'C',C' ' APPL ID                00036000
+         DC    H'0023',H'0003',H'0238',C'N',C'Y' CTL2                   00037000
+         DC    H'0024',H'0003',H'0241',C'N',C'Y' CTL3                   00038000
+         DC    H'0025',H'0004',H'0244',C'N',C'Y' CTL4                   00039000
+         DC    H'0026',H'0024',H'0248',C'C',C' ' ACCOUNT NUMBER         00040000
+         DC    H'0027',H'0005',H'0272',C'C',C' ' BRANCH                 00041000
+         DC    H'0028',H'0002',H'0277',C'C',C' ' SUB APPL ID            00042000
+         DC    H'0029',H'0002',H'0279',C'C',C' ' ACCRUAL STATUS         00043000
+         DC    H'0030',H'0002',H'0281',C'C',C' ' PROCESS STATUS         00044000
+         DC    H'0031',H'0002',H'0283',C'C',C' ' LEGAL STATUS           00045000
+         DC    H'0032',H'0008',H'0285',C'C',C' ' OPERATOR               00046000
+         DC    H'0033',H'0008',H'0293',C'C',C' ' DAG ID                 00047000
+         DC    H'0034',H'0010',H'0301',C'C',C' ' CLASS                  00048000
+         DC    H'0035',H'0008',H'0311',C'C',C' ' SCREEN NAME            00049000
+         DC    H'0036',H'0002',H'0319',C'C',C' ' SCREEN SEQUENCE NUMBER 00050000
+         DC    H'0037',H'0004',H'0321',C'C',C' ' TRANSACTION            00051000
+         DC    H'0038',H'0005',H'0325',C'C',C' ' REGION                 00052000
+         DC    H'0039',H'0002',H'0330',C'C',C' ' LANG CODE    2602986   00053000
+         DC    H'0040',H'0003',H'0332',C'C',C' ' CURR CODE    9913481   00054000
+         DC    H'0041',H'0001',H'0335',C'C',C' ' CMCL IND     0324623   00054005
+         DC    H'0042',H'0001',H'0336',C'C',C' ' SNGL/BALLOON 0324623   00054010
+         DC    H'0043',H'0008',H'0337',C'C',C' ' ELEMENT ID   0715441   00054015
+         DC    H'0044',H'0005',H'0345',C'C',C' ' INVESTOR ID  1336338   00054020
+         DC    H'0045',H'0011',H'0350',C'C',C' ' GROUP ID     1336338   00054025
+         DC    H'0046',H'0001',H'0361',C'C',C' ' ACCOUNT FORM 1626911   00054030
+T02END   DC    0H'0'                                          9913481   00055000

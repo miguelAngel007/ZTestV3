@@ -1,0 +1,156 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAIDSETM &DSECT=YES                                            00002000
+.********************************************************************** 00002100
+.* SAIDSETM: DATA LAYOUT FOR DST (DOES NOT INCLUDE KEY OR AUDIT SEGMT)* 00002200
+.*                                                                    * 00002300
+.********************************************************************** 00002400
+.*        HISTORY OF REVISIONS                                        * 00002500
+.* -------- ----------------------------------------------------------* 00002600
+.* 01/21/14 MODIFY FOR DB2                                    1436560   00002981
+.* 02/15/06 ADD NEW INTENT DEFINITIONS                        0635339 * 00002982
+.* 05/07/04 ADD FIELDS FOR BATCH EIC                          0514798 * 00002983
+.* 05/22/02 ADD EXTENDED LENGTH (XLEN) PROCESSING SUPPORT     2024355 * 00002984
+.* 02/19/01 MOVE SAS-RBA                                      2024274 * 00002986
+.* 02/29/96 ADD FDR FILE TYPE TO DST LAYOUT                   2603158 * 00002988
+.* 06/26/95 ADD SDMSESBR FOR ESDS BROWSE INDICATOR            2602019 * 00002990
+.* 10/04/94 MOD DST TO DEFINE CONTROLS-LENGTH                 2602399 * 00002992
+.* 10/23/93 MOD DST TO INCLUDE SECURITY EXIT NAME & FILLER    2511663 * 00002994
+.*                                                                    * 00002996
+.********************************************************************** 00002998
+         AIF   ('&DSECT' EQ 'YES').DODSECT                              00003000
+SDMSDSET DS    0F                                                       00004000
+         AGO   .SKIPDST                                                 00005000
+.DODSECT ANOP                                                           00006000
+SDMSDSET DSECT                                                          00007000
+.SKIPDST ANOP                                                           00008000
+SDMSDDN  DS    CL8                     DATABASE (OR DD) NAME            00009000
+SDMSVSFB DS    F                       VSAM FEEDBACK (RPL OR ACB)       00010000
+SDMSACB  DS    A                       ACB ADDRESS                      00011000
+SDMSDCB  EQU   SDMSACB                 DCB ADDRESS                      00012000
+SDMSRPL  DS    A                       RPL ADDRESS                      00013000
+SDMSBUFA DS    A                       BUFFER ADDRESS                   00014000
+SDMSWRKA DS    A                       WORK BUFFER ADDRESS              00015000
+SDMSXLWK DS   0A                       XLEN WK AREA (ONLINE)  2024355   00015100
+SDMSMODC DS    A                       WORK AREA FOR MODCB AND SHOWCB   00016000
+SDMSOFST DS    A                       CURRENT LDS OFFSET               00017000
+SDMSDB2S DS    A                       DB2 SEG TABLE ADDRESS  1436560   00018000
+SDMSLREC DS    A                       CURRENT RECORD LENGTH            00019000
+SDMSMREC DS    A                       MAXIMUM RECORD LENGTH            00020000
+SDMSIOA1 DS    XL04                    VSE DTF IOAREA1 ADDRESS          00021000
+SDMSIOA2 DS    XL04                    VSE DTF IOAREA2 ADDRESS          00022000
+SDMSIOAS DS    XL04                    VSE DTF IOAREA SIZE              00023000
+SDMSBLKS DS    XL04                    VSE BLOCK SIZE                   00024000
+SDMSCSIX DS    0CL16                                          2500610   00024005
+SDMSCXPN DS    CL08                    APPL EXPAND NAME 4 CICS2500610   00024010
+SDMSCCPR DS    CL08                    APPL CMPRES NAME 4 CICS2500610   00024020
+SDMSRTYP DS    XL01                    READ EXIT TYPE         2500610   00025000
+SDMSREXP EQU   B'00000001'             EXPAND                 2500610   00025005
+SDMSWTYP DS    XL01                    WRITE EXIT TYPE        2500610   00025010
+SDMSWCMP EQU   B'00000001'             COMPRESS               2500610   00025015
+SDMSDB2E DS    CL01                    DB2 ENVIRONMENT        1436560   00025020
+SDMSFLG3 DS    XL01                                           2500610   00025030
+SDMSSIXC EQU   B'10000000'             SI EXPAND/COMPRESS FILE2500610   00025040
+SDMSRQXL EQU   B'01000000'             CURR REQ FOR XLEN DATA 2024355   00025045
+SDMSDB2C EQU   B'00100000'             USE CURSORS            1436560   00025050
+SDMSF3OP EQU   B'00011111'             FLAGS NOT USED         1436560   00025055
+SDMSRCFM DS    CL02                    VSE RECORD FORMAT                00026000
+SDMSCSYS DS    XL01                    VSE CARD INPUT SYS LUB NUMBER    00027000
+SDMSPSYS DS    XL01                    VSE PUNCH      SYS LUB NUMBER    00028000
+SDMSLSYS DS    XL01                    VSE PRINT      SYS LUB NUMBER    00029000
+SDMSTILB DS    CL01                    VSE INPUT TAPE FILE LABEL TYPE   00030000
+SDMSTOLB DS    CL01                    VSE OUTPUT TAPE FILE LABEL TYPE  00031000
+SDMSTSL  EQU   C'S'                    VSE TAPE STANDARD LABEL          00032000
+SDMSTUL  EQU   C'U'                    VSE TAPE UNLABELED               00033000
+SDMSISYS DS    XL01                    VSE INPUT TAPE SYS LUB NUMBER    00034000
+SDMSTIRU DS    CL01                    VSE INPUT TAPE REW/UNLOAD OPT    00035000
+SDMSOSYS DS    XL01                    VSE OUTPUT TAPE SYS LUB NUMBER   00036000
+SDMSTORU DS    CL01                    VSE OUTPUT TAPE REW/UNLOAD OPT   00037000
+SDRWD    EQU   C'R'                    VSE REWIND ONLY                  00038000
+SDNORWD  EQU   C'N'                    VSE NO REWIND OR UNLOAD          00039000
+SDUNLOAD EQU   C'U'                    VSE REWIND AND UNLOAD            00040000
+SDMSMEDI DS    CL01                    VSE MEDIA                        00041000
+SDDMEDI  EQU   C'D'                    VSE MEDIA IS DISK                00042000
+SDTMEDI  EQU   C'T'                    VSE MEDIA IS TAPE                00043000
+SDCMEDI  EQU   C'C'                    VSE MEDIA IS CARD                00044000
+SDLMEDI  EQU   C'L'                    VSE MEDIA IS LIST                00045000
+SDPMEDI  EQU   C'P'                    VSE MEDIA IS PUNCH               00046000
+SDMSBSIX DS    0CL16                                          2500610   00046010
+SDMSBXPN DS    CL08                    APPL EXPAND NAME 4 BATC2500610   00046020
+SDMSBCPR DS    CL08                    APPL CMPRES NAME 4 BATC2500610   00047010
+SDMSTYPE DS    X                       TYPE OF DATASET                  00048000
+SDMSSEQ  EQU   B'10000000'             SEQUENTIAL DATASET               00049000
+SDMSVSAM EQU   B'01000000'             VSAM KSDS DATASET                00050000
+SDMSDLI  EQU   B'00100000'             DL/1 DATASET                     00051000
+SDMSDB2  EQU   B'00010000'             DB2 DATASET                      00052000
+SDMSVIRT EQU   B'00001000'             VIRTUAL DATA SET                 00053000
+SDMSNPFX EQU   B'00000100'             ROOT ONLY WITH NO PREFIX         00054000
+SDMSNLEN EQU   B'00000010'             NO IMBEDDED LENGTH IN SEGMENT    00055000
+SDMSDUMY EQU   B'00000001'             DATASET IS ALLOCATED TO NULLFILE 00056000
+*                                      MUST HAVE NPFX ON TO USER NLEN   00057000
+SDMSFLAG DS    X                       FLAGS                            00058000
+SDMSWBUF EQU   B'10000000'             CURRENT BUFFER HAS BEEN MODIFIED 00059000
+SDMSSTOR EQU   B'01000000'             STORAGE ACQUIRED                 00060000
+SDMSACBO EQU   B'00100000'             ACB HAS BEEN OPENED              00061000
+SDMSWRIT EQU   B'00010000'             INSERT NEW RECORD                00062000
+SDMSINIT EQU   B'00001000'             INITIALIZE DSET ON FIRST PASS    00063000
+SDMSSUPM EQU   B'00000100'             SEQUENTIAL UPDATE MASTER         00064000
+SDMSWLOG EQU   B'00000010'             LOG RECORD CREATED               00065000
+SDMSNMOV EQU   B'00000001'             DON'T MOVE TO SDMSAREA           00066000
+SDMSITNT DS    X                       PROCESSING INTENT                00067000
+SDMSREAD EQU   B'10000000'             READ ONLY INTENT                 00068000
+SDMSUPDT EQU   B'01000000'             UPDATE INTENT                    00069000
+SDMSLOAD EQU   B'00100000'             LOAD INTENT (FILE MUST BE EMPTY) 00070000
+SDMSESBR EQU   B'00010000'             ESDS BROWSE            2602019   00070010
+SDMSIDIR EQU   B'00001000'             KSDS DIRECT INTENT     0635339   00070020
+SDMSISEQ EQU   B'00000100'             KSDS SEQUENTIAL INTENT 0635339   00070030
+SDMSRCVR EQU   B'00000001'             RECOVERABLE DATASET              00071000
+SDMSFLG2 DS    X                       FLAGS                            00072000
+SDMSEODF EQU   B'10000000'             END OF DATASET REACHED           00073000
+SDMSPLCM EQU   B'01000000'             PCH/LST CTL CHAR IS MACHINE      00074000
+SDMSPLCA EQU   B'00100000'             PCH/LST CTL CHAR IS ASA          00075000
+SDMSGUPD EQU   B'00010000'             PREVIOUS GET WAS FOR UPDATE      00076000
+SDMSGNEW EQU   B'00001000'             SUPM GET NEW RECORD              00077000
+SDMSXPAN EQU   B'00000100'             EXPANDED W/APPL E/C ROT2500610   00077010
+SDMSBKWD EQU   B'00000010'             BROWSE BACKWARDS ACTIVE2500610   00077020
+SDMSTSSG EQU   B'00000001'             NO TS SEGMENTATION INFO2500610   00077030
+SDMSLVLS DS    H                       NUMBER OF LEVELS                 00078000
+SDMSSEGS DS    H                       NUMBER OF SEGMENTS               00079000
+SDMSSEXT DS    CL8                     SECURITY EXIT NAME     2511663   00079100
+SDMSCTLN DS    H                       FILE CONTROLS LENGTH   2602399   00079110
+SDMSFLTY DS    CL1                     FILE TYPE (SEE FDR)    2603158   00079120
+         DS    CL1                     RESERVED (FWORD ALIGN) 2024355   00079125
+SDMSXLEN DS    FL4                     MAX EXTEND LENGTH REC  2024355   00079130
+SDMSBUFL DS    FL4                     LENGTH OF SDMS BUFFER  2024355   00079140
+SDMSBUFX DS    FL4                     SDMS BUFFER TIE-BRKER  2024355   00079150
+SDMSRPLN DS    FL4                     L'PFX REQD FOR QSAM RDW2024355   00079160
+SDMSQNM  DS    CL10                    QUEUE NAME ENCODE      0514798   00079165
+SDMSQRP  DS    CL10                    REPLY QUEUE NAME EC    0514798   00079170
+SDMSQNMG DS    CL10                    QUEUE NAME MAN ENCODE  0514798   00079175
+SDMSQRMG DS    CL10                    REPLY QUEUE MAN ENCODE 0514798   00079180
+SDMSCOMT DS    CL1                     COMMIT FLAG            1436560   00079185
+SDMSSEGM DS    CL2                     SEGMENTATION CODE      1436560   00079190
+SDMSLOWV DS    CL1                     LOW VALUE RECORD READ? 1436560   00079195
+SDMSCMTT DS    CL1                     COMMITMENT TABLES?     1436560   00079200
+SDMSDB2B DS    CL1                     DB2 UNLOADED TO BUFFER 1436560   00079205
+SDMSDB2M DS    CL3                     DB2 MODULE SUFFIX      1436560   00079210
+SDMSDBRB DS    CL1                     DB2 ROLLBACK FLAG      1436560   00079215
+         DS    CL118                   RESERVED - FUTURE DEVL 1436560   00079220
+SDMSXRBA DS    XL8                     RBA VSAM RCD JUST RD   2024274   00079300
+         ORG   SDMSXRBA                RBA VSAM RCD JUST RD   2024274   00079400
+SDMSHIG  DS    XL4                     RBA VSAM RCD JUST RD   2024274   00079500
+SDMSRBA  DS    XL4                     RBA VSAM RCD JUST RD   2024274   00079600
+         DS    0F                                                       00080000
+SDMSBASE EQU   *                                                        00081000
+SDMSSTAB DS    0XL36                                          0514798   00082000
+SDMSLDS  DS    CL8                     LOGICAL DATA SEGMENT NAME        00083000
+SDMSKEYN DS    CL8                     KEY FIELD NAME                   00084000
+SDMSSEGC DS    X                       INTERNAL SEGMENT CODE            00085000
+SDMSSEGL DS    X                       SEGMENT LEVEL                    00086000
+SDMSLNTH DS    H                       SEGMENT LENGTH (ZERO MEANS VAR   00087000
+SDMSKEYP DS    H                       SEGMENT KEY POSITION             00088000
+SDMSKEYL DS    H                       SEGMENT KEY LENGTH               00089000
+SDMSPOSN DS    A                       POSITIONING FOR THIS SEGMENT     00090000
+SDMSINTE DS    CL8                     INITIALIZATION EXIT    0514798   00090010
+.* **SISS** SAIDSETM-003-TAE-11/29/88 DTE=11/29/88 TME=13.45.40         00091000
+         MEND                                                           00092000

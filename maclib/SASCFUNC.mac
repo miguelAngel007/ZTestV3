@@ -1,0 +1,188 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*        PRINT OFF                                                      00000000
+*                                                                       00001000
+         MACRO                                                          00002000
+&NAME    SAPASS  &R                                                     00003000
+         GBLA  &PASS$                                                   00004000
+         GBLA  &L                                                       00005000
+         LCLA  &N                                                       00006000
+&N       SETA  &PASS$*4                                                 00007000
+&NAME    ST    &R,PASS$&L+&N                                            00008000
+&PASS$   SETA  &PASS$+1                                                 00009000
+         MEND                                                           00010000
+*                                                                       00011000
+         MACRO                                                          00012000
+&NAME    SACCALL                                                        00013000
+         GBLA  &PASS$                                                   00014000
+         GBLA  &PASS$$                                                  00015000
+         GBLA  &L                                                       00016000
+         AIF   (&PASS$$ GE &PASS$).DOCALL                               00017000
+&PASS$$  SETA  &PASS$                                                   00018000
+.DOCALL  ANOP                                                           00019000
+         LA    R1,PASS$&L                                               00020000
+         BALR  R14,R15                                                  00021000
+&PASS$   SETA  0                                                        00022000
+         MEND                                                           00023000
+*                                                                       00024000
+         MACRO                                                          00025000
+         SAVE  &NUM                                                     00026000
+         GBLA  &SAVE$$                                                  00027000
+         GBLA  &SAVE$                                                   00028000
+         GBLA  &L                                                       00029000
+SAVE$    LOC   &NUM.F                                                   00030000
+&SAVE$   SETA  0                                                        00031000
+&SAVE$$  SETA  0                                                        00032000
+         MEND                                                           00033000
+*                                                                       00034000
+         MACRO                                                          00035000
+&NAME    SASAVE &R                                                      00036000
+         GBLA  &SAVE$                                                   00037000
+         GBLA  &L                                                       00038000
+&NAME    ST    &R,SAVE$&L+&SAVE$                                        00039000
+&SAVE$   SETA  &SAVE$+4                                                 00040000
+         MEND                                                           00041000
+*                                                                       00042000
+         MACRO                                                          00043000
+&NAME    SAREST &R                                                      00044000
+         GBLA  &SAVE$                                                   00045000
+         GBLA  &SAVE$$                                                  00046000
+         GBLA  &L                                                       00047000
+         AIF   (&SAVE$$ GE &SAVE$).DOPUL                                00048000
+&SAVE$$  SETA  &SAVE$                                                   00049000
+.DOPUL   ANOP                                                           00050000
+&SAVE$   SETA  &SAVE$-4                                                 00051000
+&NAME    L     &R,SAVE$&L+&SAVE$                                        00052000
+         MEND                                                           00053000
+*                                                                       00054000
+         MACRO                                                          00055000
+&NAME    ARG   &TYPE                                                    00056000
+         GBLA  &ARGC$                                                   00057000
+         GBLC  &ARGV$(100)                                              00058000
+         GBLC  &ARGT$(100)                                              00059000
+         GBLA  &L                                                       00060000
+&ARGV$(&ARGC$+0) SETC '&NAME.&L'                                        00061000
+&ARGT$(&ARGC$+0) SETC '&TYPE'                                           00062000
+&ARGC$   SETA  &ARGC$+1                                                 00063000
+         MEND                                                           00064000
+*                                                                       00065000
+         MACRO                                                          00066000
+         ARGS                                                           00067000
+         GBLA  &ARGC$                                                   00068000
+         GBLC  &ARGV$(100)                                              00069000
+         GBLC  &ARGT$(100)                                              00070000
+         GBLA  &L                                                       00071000
+         LCLA  &I                                                       00072000
+         SPACE                                                          00073000
+ARG$&L   DSECT                                                          00074000
+&I       SETA  1                                                        00075000
+.ARGLOOP AIF   (&I GE &ARGC$).ARGEND                                    00076000
+&ARGV$(&I+0) DS  &ARGT$(&I+0)                                           00077000
+&I       SETA  &I+1                                                     00078000
+         AGO   .ARGLOOP                                                 00079000
+.ARGEND  ANOP                                                           00080000
+         SPACE                                                          00081000
+&ARGC$   SETA  1                                                        00082000
+         MEND                                                           00083000
+*                                                                       00084000
+         MACRO                                                          00085000
+&NAME    LOC   &TYPE                                                    00086000
+         GBLA  &LOCC$                                                   00087000
+         GBLC  &LOCV$(100)                                              00088000
+         GBLC  &LOCT$(100)                                              00089000
+         GBLA  &L                                                       00090000
+&LOCV$(&LOCC$+0) SETC '&NAME.&L'                                        00091000
+&LOCT$(&LOCC$+0) SETC '&TYPE'                                           00092000
+&LOCC$   SETA  &LOCC$+1                                                 00093000
+         MEND                                                           00094000
+*                                                                       00095000
+         MACRO                                                          00096000
+         LOCS                                                           00097000
+         GBLA  &LOCC$                                                   00098000
+         GBLC  &LOCV$(100)                                              00099000
+         GBLC  &LOCT$(100)                                              00100000
+         GBLA  &L                                                       00101000
+         LCLA  &I                                                       00102000
+         SPACE                                                          00103000
+LOC$&L   DSECT                                                          00104000
+&I       SETA  1                                                        00105000
+.LOCLOOP AIF   (&I GE &LOCC$).LOCEND                                    00106000
+&LOCV$(&I+0) DS  &LOCT$(&I+0)                                           00107000
+&I       SETA  &I+1                                                     00108000
+         AGO   .LOCLOOP                                                 00109000
+.LOCEND  ANOP                                                           00110000
+END$&L   DS    0F                                                       00111000
+         SPACE                                                          00112000
+&LOCC$   SETA  1                                                        00113000
+         MEND                                                           00114000
+*                                                                       00115000
+         MACRO                                                          00116000
+&NAME    SAFUNC                                                         00117000
+         GBLA  &L                                                       00118000
+         GBLA  &GEN                                                     00119000
+         EJECT                                                          00120000
+&NAME    CSECT                                                          00121000
+         USING &NAME,R7                                                 00122000
+         USING ARG$&L,R8                                                00123000
+         USING LOC$&L,R9                                                00124000
+         AIF   (&GEN NE 0).SNOGEN                                       00125000
+         PRINT NOGEN                                                    00126000
+.SNOGEN  ANOP                                                           00127000
+         STM   R14,R12,12(R13)    SAVE REGISTERS                        00128000
+         LR    R7,R15             ADDRESS CODE                          00129000
+         LR    R8,R1              ADDRESS ARGUMENTS                     00130000
+         LA    R9,72(,R13)        ADDRESS LOCALS                        00131000
+         LA    R1,72+END$&L-LOC$&L.(,R13)  GET NEW SAVE AREA            00132000
+         ST    R1,8(,R13)         CREATE CHAIN                          00133000
+         ST    R13,4(,R1)         CREATE CHAIN                          00134000
+         LR    R13,R1                                                   00135000
+         MEND                                                           00136000
+*                                                                       00137000
+         MACRO                                                          00138000
+&NAME    SAFEND                                                         00139000
+         GBLA  &GEN                                                     00140000
+         GBLA  &L                                                       00141000
+         GBLA  &SAVE$$                                                  00142000
+         GBLA  &PASS$$                                                  00143000
+         LCLA  &S                                                       00144000
+         SPACE 2                                                        00145000
+&NAME    DS    0H                                                       00146000
+         L     R13,4(,R13)        RELOAD OLD SAVE AREA                  00147000
+         L     R14,12(,R13)                                             00148000
+         LM    R0,R12,20(R13)                                           00149000
+         BR    R14                                                      00150000
+         AIF   (&GEN NE 0).SGEN                                         00151000
+         PRINT GEN                                                      00152000
+.SGEN    ANOP                                                           00153000
+         LTORG                                                          00154000
+&S       SETA  (&SAVE$$/4)                                              00155000
+PASS$    LOC   &PASS$$.F                                                00156000
+         SAVE &S                                                        00157000
+         ARGS                                                           00158000
+         LOCS                                                           00159000
+&PASS$$  SETA  0                                                        00160000
+&L       SETA  &L+1                                                     00161000
+         MEND                                                           00162000
+         SPACE                                                          00163000
+         GBLC  &NAME                                                    00164000
+         GBLA  &MAXDST                                                  00165000
+         GBLA  &PASS$                                                   00166000
+         GBLA  &PASS$$                                                  00167000
+         GBLA  &SAVE$                                                   00168000
+         GBLA  &SAVE$$                                                  00169000
+         GBLA  &GEN                                                     00170000
+         GBLA  &ARGC$                                                   00171000
+         GBLC  &ARGV$(100)                                              00172000
+         GBLC  &ARGT$(100)                                              00173000
+         GBLA  &LOCC$                                                   00174000
+         GBLC  &LOCV$(100)                                              00175000
+         GBLC  &LOCT$(100)                                              00176000
+         GBLA  &L                                                       00177000
+&ARGC$   SETA  1                                                        00178000
+&LOCC$   SETA  1                                                        00179000
+&L       SETA  0                                                        00180000
+&GEN     SETA  0                                                        00181000
+&PASS$   SETA  0                                                        00182000
+&PASS$$  SETA  0                                                        00183000
+&SAVE$   SETA  0                                                        00184000
+&SAVE$$  SETA  0                                                        00185000
+*        PRINT ON                                                       00186000

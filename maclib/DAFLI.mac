@@ -1,0 +1,28 @@
+000100****************************************************************
+000200*    INPUT FILE HANDLING ROUTINES;  DEFAULT ROUTINE = DAFSSQI  *
+000300*                                                              *
+000400*    REQ'D FIELDS:  DA-LNK-I-OPER                              *
+000500*                   DA-LNK-I-ROUT                              *
+000600*                   DA-LNK-I-RTNC                              *
+000700*                   DA-LNK-I-EDIT                              *
+000800****************************************************************
+000900 V0010-I-OPEN.
+001000     MOVE 'OPEN'                 TO DA-LNK-I-OPER.
+001100     GO TO V0099-I-CALL.
+001200 V0020-I-READ.
+001300     MOVE 'READ'                 TO DA-LNK-I-OPER.
+001400     GO TO V0099-I-CALL.
+001500 V0030-I-CLOS.
+001600     MOVE 'CLOS'                 TO DA-LNK-I-OPER.
+001700     GO TO V0099-I-CALL.
+001800 V0040-I-EDIT.
+001900     IF DA-LNK-I-EDIT NOT EQUAL SPACES
+002000         CALL 'SILINK'  USING       DA-LNK-I-EDIT
+002100                                    DA-LINK-AREA.
+002200     GO TO V0099-I-EXIT.
+002300 V0099-I-CALL.
+002400     MOVE 'N'                    TO DA-LNK-I-RTNC.
+002500     CALL 'SILINK'      USING       DA-LNK-I-ROUT
+002600                                    DA-LINK-AREA.
+002700 V0099-I-EXIT.
+002800     EXIT.

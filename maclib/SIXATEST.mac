@@ -1,0 +1,45 @@
+         MACRO                                                          00000100
+&LABEL   SIXATEST &WSTOR=,&R=14                                         00000200
+         GBLB  &VSE                                           2602231   00000210
+         GBLA  &VSEVER                                        2602231   00000220
+         AIF   ('&WSTOR' NE 'WSTOR').MACSI                              00000300
+XAFLAG   DS    CL1                   XAMODE FLAG                        00000400
+*                                    VALUES: 0 - VSE/370                00000500
+*                                            3 - MVS/370                00000600
+*                                            5 - MVS/XA                 00000700
+*                                            6 - VSE/ESA                00000800
+*                                            7 - MVS/ESA                00000900
+         MEXIT                                                          00001000
+.MACSI   ANOP                                                           00001100
+         AIF   (&VSE).OSVSE                                   2602231   00001110
+*                                                                       00001200
+*        MVS OPERATING SYSTEM / CHECK XAMODE                            00001300
+*                                                                       00001400
+         AIF   ('&R' EQ '').ERR3                                        00001500
+&LABEL   DS    0H                                                       00001600
+         MVI   XAFLAG,C'5'         PRESET TO MVS/XA MODE                00001700
+         L     &R,16               GET CVT ADDRESS                      00001800
+         TM    116(&R),X'80'       ARE WE XA                            00001900
+         BO    *+8                 YES - XAMODE ALREADY SET             00002000
+         MVI   XAFLAG,C'3'         SET TO MVS/370 MODE                  00002100
+         MEXIT                                                          00002200
+.ERR3    ANOP                                                           00002300
+         MNOTE 12,'''R'' MUST BE SPECIFIED'                             00002400
+         MEXIT                                                2602231   00002405
+.OSVSE   ANOP                                                 2602231   00002410
+         AIF   ('&VSEVER' LE '4').NOTESA                      2602231   00002415
+*                                                             2602231   00002420
+*        VSE/ESA OPERATING SYSTEM / CHECK AMODE               2602231   00002425
+*                                                             2602231   00002430
+         MVI   XAFLAG,C'0'             PRESET TO VSE/370 MODE 2602231   00002435
+         AMODESW QRY                   CHECK AMODE            2602231   00002440
+         LTR   R1,R1                   ARE WE IN 31 BIT MODE? 2602231   00002445
+         BZ    *+8                     NO - DEFAULT TO 24 BIT 2602231   00002450
+         MVI   XAFLAG,C'6'             YES - SET VSE/ESA MODE 2602231   00002455
+         MEXIT                                                2602231   00002460
+.NOTESA  ANOP                                                 2602231   00002465
+*                                                             2602231   00002470
+*        VSE OPERATING SYSTEM / XA MODE NOT AVAILABLE         2602231   00002475
+*                                                             2602231   00002480
+         MVI   XAFLAG,C'0'             SET TO VSE/370 MODE    2602231   00002485
+         MEND                                                           00002500

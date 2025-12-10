@@ -1,0 +1,77 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* SADSLOCA - LOCAL DICTIONARY BUFFER USED FOR REPOSITORY              * 00001100
+*                                                                     * 00001200
+*                     HISTORY OF REVISIONS                            * 00001300
+* DESCRIPTION                                                 CHNGID  * 00001400
+* ----------------------------------------------------------  --------* 00001500
+* 10/03/02 PROVIDE ELEMENTARY ITEMS FOR CHANGE ID             0324574 * 00001994
+* 09/25/97 SUPPORT MULTI-INDEX RECORDS/LENGTH IN AUDIT SEG    9913569 * 00001996
+* 01/15/95 MOD FOR REPOSITORY RECORD AUDIT SEGMENT            2602105 * 00001998
+*********************************************************************** 00002000
+DILOCAL  EQU *                                                          00003000
+DILOCEND DS    A                  A(INDEX BNDARY/INDEX WKAREA)9913569   00003100
+DIMVLEN  DS    F                  LENGTH TO MOVE                        00004000
+DIMVBLK  DS    F                  BLOCK SIZE TO MOVE                    00005000
+DIMVFRM  DS    F                  FROM ADDRESS                          00006000
+DIMVTO   DS    F                  TO ADDRESS                            00007000
+DILBCPOS DS    F                  CURRENT POSITION                      00008000
+DILBPOS  DS    F                  POSITION FOR MOVE                     00009000
+DILBLEN  DS    H                  LENGTH OF DATA                        00010000
+DIUSRLEN DS    H                  LENGTH OF USERS DATA                  00011000
+DIFLDNUM DS    CL1                FIELD NUMBER                          00012000
+DILBFCNT DS    CL1                FIELD NUMBER COUNTER                  00013000
+DILBMODE DS    CL1                READ MODE                             00014000
+DILBKGE  EQU   C'G'               KGE READ                              00015000
+DILBKEQ  EQU   C'E'               KEQ READ                              00016000
+DILBFLAG DS    CL1                FLAG                                  00017000
+DILBPFLG DS    CL1                LEVEL INDICATOR FOR DILBPUT           00018000
+DILBFUNC DS    CL1                FUNCTION                              00019000
+DICBDMOD DC    CL1' '             M = DATA WAS MODIFIED                 00020000
+DICIDMOD DC    CL1' '             M = DATA WAS MODIFIED                 00021000
+DICIINS  DC    CL1' '             I = INSERT INTO INDEX                 00022000
+DIHANDLE DC    CL1' '             Y = HANDLE CONDITION SHOULD BE DONE   00023000
+DICINDX  DS    CL4                PHYSICAL INDEX HOLDER                 00024000
+DIINDXRD DS    CL25               INDEX 'REPLACE DATA' WORKAR 9913569   00024100
+         DS    CL32               RESERVED - SLACK BYTES      9913569   00024200
+*                                                                       00025000
+* THIS IS THE REPOSITORY DATA RECORD BUFFER WORKAREA          2602105   00026000
+*                                                             2602105   00027000
+         SAD9REPA  PFIXAR=YES,DSECT=NO REPOSITORY DATA BUFFER 2602105   00028000
+*                                                                       00066000
+* THIS IS THE INDEX BUFFER                                              00067000
+*                                                                       00068000
+         LCLA  &INDXBUF           ,                           9913569   00068100
+&INDXBUF SETA  3                  ,                           9913569   00068200
+DIIDXBUF EQU *                                                          00069000
+DICIRECL DC    XL2'0'             LENGTH OF RECORD                      00070000
+DICIFIX  EQU   25                 LENGTH OF FIXED PORTION               00071000
+DICIKEY  DS    0CL25              DICTIONARY ACCESS KEY                 00072000
+DICIKEY1 DS    0CL13              DICTIONARY ACCESS KEY SEG1            00073000
+DICIKAPL DC    CL2' '                  APPLICATION CODE                 00074000
+DICIKFRM DC    CL3' '                  DEFINITION TYPE                  00075000
+DICIKNAM DC    CL8' '                  ENTITY NAME                      00076000
+DICIKFLD DC    CL8' '                  FORMAT FIELD NAME (BLANKS)       00077000
+DICIKIDX DC    XL4'0'                  PHYSICAL INDEX                   00078000
+DICIEASG DS   0CL32               ENTITY AUDIT SEGMENT        2602105   00079000
+DICIEAUD DS   0CL24               ENT AUDIT DATA FROM CALLER  2602105   00079050
+DICIELMD DS    PL4                ENT LAST MNTE DATE-YYMMDD   2602105   00079100
+DICIELMT DS    PL4                ENT LAST MNTE TIME-HHMMSS   2602105   00079150
+DICIESOU DS   0CL8                ENT LAST MNTE SOURCE        2602105   00079200
+DICIEOPR DS    CL8                ENT LAST MNTE OPERATOR      2602105   00079250
+DICIECID DS   0CL8                ENT LAST MNTE CHANGE ID     0324574   00079300
+DICIEAPP DS    CL2                ENT DISTRIBUTION APPL       0324574   00079305
+DICIERSC DS    CL4                ENT RSEC NUMBER             0324574   00079310
+DICIEDCT DS    CL2                ENT DIST CTL ID             0324574   00079315
+DICIEESL DS    FL4                ENTITY SEGMENT LENGTH       9913569   00079350
+DICIEFLV DS    XL1                REPOSITORY FILE LEVEL       2602105   00079400
+DICIERLV DS    XL1                ENT RECORD LEVEL            2602105   00079450
+         DS    CL2                 FILLER                     2602105   00079500
+DICIDAVL DC    XL2'0'             NEXT AVAILABLE INDEX NUMBER           00080000
+DICIDNUM DC    XL2'0'             NUMBER OF FIELDS PRESENT              00081000
+DICIDATA DS    ((&INDXBUF*4096)-(*-DICIKEY))C INDEX WORK AREA 9913569   00082000
+DICLBSZI EQU   *-DICIKEY                                                00083000
+DIINDXDL DS    CL4096             INDEX INPUT AREA/DELETE     9913569   00083100
+*                                                                       00084000
+* THIS IS THE SIZE OF THE STORAGE NEEDED                                00085000
+DILBSIZE EQU   *-DILOCAL                                                00086000

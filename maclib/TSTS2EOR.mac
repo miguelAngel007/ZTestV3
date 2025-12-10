@@ -1,0 +1,335 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                             TSTS2EOR                                * 00000004
+*                        TRANSACTION SYSTEM                           * 00000005
+*                      EMPLOYEE OPTIONS RECORD                        * 00000006
+*                                                                     * 00000007
+*---------------------------------------------------------------------* 00000008
+*                  ** HISTORY OF REVISIONS **                         * 00000009
+*                                                                     * 00000010
+* DESCRIPTION                                                 CHGID   * 00000011
+* __________________________________________________________  _______ * 00000012
+* 02/14/14 MODIFY FOR DB2                                     1436560   00000664
+* 07/01/13 FIR SEC STD PASSWORD                               1416481   00000665
+* 03/01/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000667
+* 01/03/2008 ADDED PHYSICAL LOCATION OVERRIDE                 0825667 * 00000669
+* 12/03/07 EOR EXPANSION, ADD FILLER FOR DEV AND CLIENT USE   0825695 * 00000670
+* 03/20/07 ADD ONE-BYTE FIELD EORPSWFL                        0815615   00000671
+* 03/19/04 ADD SIGN ON VIOLATION FLAG                         0434831   00000672
+* 04/10/02 ADDED NEW FIELDS FOR DIVIDERS(DECIMAL-THOUS)       2024478 * 00000674
+* 08/20/01 ADDED COMMENT FOR MQ RECORD TYPE                   2024376 * 00000676
+* 06/26/01 ADDED NEW FIELDS FOR COUNTRY AND DATE              2024347 * 00000677
+* 10/30/00 ADDED NEW FIELDS FOR PROCESSING ITR MODEL          2024239 * 00000678
+*          OVERRIDES                                          2024239 * 00000679
+*             EOROMOD  DS    CL4         OVERRIDE DEFAULT ITR 2024239 * 00000680
+* 04/30/98 ADDED NEW FIELDS FOR DYNAMIC EORS                  9913482 * 00000681
+* 06/30/97 ADDED CDR BUILD FLAG AND TERM, ITR MODEL PTR AND   9910846 * 00000682
+*          SIGNON TIME FOR ITRCB PROCESSING                   9910846 * 00000683
+* 05/01/97 ALLOW SDR TRANSLATION                              9913481 * 00000684
+* 02/15/97 ADDED NEW FIELDS FOR 24X7 PROCESSING               9910919 * 00000685
+* 10/25/95 ADDED THE NNC ADDRESS FOR TCP/IP                   2603016 * 00000686
+*                                                             2602105 * 00000687
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             EOCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             EOCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000691
+*             EOCACHID DS    CL8         CA CHANGE ID         2602105 * 00000692
+*          REPLACED FILLER AFTER AUDIT END DATE               2602105 * 00000693
+*             EORECHID DS    CL8         EMPLOYEE CHANGE ID   2602105 * 00000694
+*             EOCACIDR DS    CL1         CA CHG ID REQD FLAG  2602105 * 00000695
+*                      DS    CL3         FILLER               2602105 * 00000696
+*                                                             2602105 * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                             2602105   00000699
+TSTSEOR  DSECT                                                          00000700
+EOR      DS    0X                                                       00000800
+EORLNG   DS    XL2          EOR RECORD LENGTH                           00000900
+*                           MAX. VALUE '+3440'                0722973   00001000
+         DS    XL2          FILLER                                      00001100
+*                                                                       00001200
+EORKEY   DS    0CL21        EOR KEY                                     00001300
+EORCLAS  DS    CL5             CLASS ID                                 00001400
+EOREMP   DS    CL8             EMPLOYEE ID                              00001500
+         DS    CL8             FILLER                                   00001600
+EOCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001610
+EOCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001620
+*                                                                       00001700
+EORLMINF DS    0CL28        LAST MAINTENANCE INFORMATION        2602105 00001800
+EORLMDAT DS    CL6             LAST MAINT DATE MMDDYY                   00001900
+EORLMTIM DS    CL6             LAST MAINT TIME HHMMSS                   00002000
+EORLMEMP DS    CL8             LAST MAINT EMPLOYEE ID                   00002100
+EOCACHID DS    CL8                     CA CHANGE ID             2602105 00002200
+*                                                                       00002400
+EORCTINF DS    0CL75        CURRENT TOTAL INFORMATION                   00002500
+EORCURSO DS    0CL32           CURRENT SIGNON INFORMATION               00002600
+EORCURKY DS    0CL22              EOR CURRENT TOTAL KEY                 00002700
+EORPHYL  DS    CL4                   PHYSICAL LOCATION                  00002800
+EORCURCY DS    CL3                   CURRENCY                 0722348   00002810
+EORDEPT  DS    CL3                   DEPT                     0722348   00002820
+EORBATCH DS    CL5                   BATCH                    0722348   00002900
+EORSBTCH DS    CL5                   SUB-BATCH                0722348   00003000
+EORTRNFL DS    CL1                   TRAINING MODE FLAG                 00003100
+*                                    VALUE:  0 - NOT IN TRAINING        00003200
+*                                            1 - IN TRAINING            00003300
+EORNDFL  DS    CL1                   NEXT DAY FLAG                      00003400
+*                                    VALUE:  0 - NOT IN NEXT DAY        00003500
+*                                            1 - IN NEXT DAY            00003600
+         DS    XL10               FILLER                                00003700
+EORTOINF DS    0CL32           EOR TOTAL INFORMATION                    00003800
+EORTOTKY DS    0CL22              EOR TOTAL KEY                         00003900
+EORTOTPL DS    CL4                   PHYSICAL LOCATION                  00004000
+EORTOTCU DS    CL3                   CURRENCY                 0722348   00004010
+EORTOTDP DS    CL3                   DEPT                     0722348   00004020
+EORTOTBT DS    CL5                   BATCH                    0722348   00004100
+EORTOTSB DS    CL5                   SUB-BATCH                0722348   00004200
+EORTOTTR DS    CL1                   TOTALS TRAINING FLAG               00004300
+*                                    VALUE:  0 - NOT IN TRAINING        00004400
+*                                            1 - IN TRAINING            00004500
+EORTOTND DS    CL1                   TOTALS NEXT DAY FLAG               00004600
+*                                    VALUE:  0 - NOT IN NEXT DAY        00004700
+*                                            1 - IN NEXT DAY            00004800
+         DS    XL10               FILLER                                00004900
+EORNNCA  DS    XL4             NNC ADDRESS                    2603016   00004910
+EOROMOD  DS    CL4             OVERRIDE DEFAULT ITR MODEL     2024239   00004920
+EOROPHY  DS    PL3             OVERRIDE PHYSICAL LOCATION     0825667   00005000
+*                                                                       00005100
+EOREMINF DS    0CL200       EMPLOYEE INFORMATION                        00005200
+EOREMPIN DS    CL3             EMPLOYEE INITIALS                        00005300
+EORSHNAM DS    CL20            EMPLOYEE SHORT NAME                      00005400
+EORPSWD  DS    CL11            EMPLOYEE PASSWORD                        00005500
+EORADTRM DS    CL4             ADMIN  TERMINAL ID                       00005600
+EORTLTRM DS    CL4             TELLER TERMINAL ID                       00005700
+EOREDFLG DS    CL1             ENABLE/DISABLE FLAG                      00005800
+EORINDTB DS    CL6             INACTIVE BEGIN DATE                      00006000
+EORINDTE DS    CL6             INACTIVE END DATE                        00006100
+EORLSODT DS    CL6             LAST SIGN-ON DATE                        00006200
+EORAUDTB DS    CL6             AUDIT BEGIN DATE                         00006300
+EORAUDTE DS    CL6             AUDIT END DATE                           00006400
+EORECHID DS    CL8                     EMPLOYEE CHANGE ID       2602105 00006500
+EOCACIDR DS    CL1                     CA CHG ID REQD FLAG      2602105 00006510
+EORSOVIO DS    CL1                     SIGN ON VIOLATION FLAG 0434831   00006512
+         DS    CL2                     FILLER                 0434831   00006520
+EORPWINF DS    0CL90           PASSWORD INFORMATION                     00006600
+EORNWPWD DS    CL11               NEW PASSWORD                          00006700
+EORNPWED DS    CL6                NEW PASSWORD EFF DATE                 00006800
+EORPWLMD DS    CL6                PASSWORD LAST MAINT DATE              00006900
+EORPWCHT DS    CL1                PASSWORD CHANGED TODAY FLAG           00007000
+EORPWHST DS    0CL55              PASSWORD HISTORY TABLE                00007100
+EORPWHS1 DS    CL11                  PASSWORD HISTORY ENTRY 1           00007200
+EORPWHS2 DS    CL11                  PASSWORD HISTORY ENTRY 2           00007300
+EORPWHS3 DS    CL11                  PASSWORD HISTORY ENTRY 3           00007400
+EORPWHS4 DS    CL11                  PASSWORD HISTORY ENTRY 4           00007500
+EORPWHS5 DS    CL11                  PASSWORD HISTORY ENTRY 5           00007600
+EORNDECP DS    CL8                NEW PASSWORD DECRYPTION PHASE         00007700
+EORNPWIN DS    CL1                NEW PASSWORD INDICATOR                00007800
+EORNPWLT DS    CL2                NEW PASSWORD LENGTH                   00007900
+EORORIG  DS    0CL12           PASSWORD INFO AT ORIGINATION   9913482   00008000
+EORDECPH DS    CL8                PASSWORD DECRYPTION PHASE             00008100
+EORPWIND DS    CL1                PASSWORD INDICATOR                    00008200
+EORPWLTH DS    CL2                PASSWORD LENGTH                       00008300
+         DS    XL1                FILLER                      9913482   00008400
+EORMBINF DS    0CL13           MODEL BUILD INFO               9913482   00008410
+EORMODRL DS    CL5                MODEL REPORT LEVELS         9913482   00008415
+EORMODPT DS    CL8                MODEL POINTER               9913482   00008420
+*                                                                       00008500
+EORFLAGS DS    0CL25        FLAGS                                       00008600
+EORSAVFL DS    CL1             SAVE FLAG                                00008700
+EORSONFL DS    CL1             SIGN ON FLAG                             00008800
+*                              VALUE: 0-NOT SIGNED ON         2501474   00008810
+*                                     1-SIGNED ON             2501474   00008820
+*                                     2-SIGNED ON AND CHANGED 2501474   00008830
+*                                       CONTROLS TO ANOTHER   2501474   00008840
+*                                       DCR CLASS             2501474   00008850
+*                                     3-SIGNED ON AND CHANGED 2501474   00008860
+*                                       SELECTED CONTROLS     2501474   00008870
+EORFSOFL DS    CL1             FORCED SIGN OFF FLAG                     00008900
+EORFOFFL DS    CL1             FORCE SELF OFF FLAG                      00009000
+*                              VALUE:  0 - CANNOT FORCE SELF OFF        00009100
+*                                      1 - CAN FORCE SELF OFF           00009200
+EORBALFL DS    CL1             BALANCED FLAG                            00009300
+EORTOIFL DS    CL1             TOTALS INQUIRY FLAG                      00009400
+*                              VALUE:  0 - NO TOT INQ  1 - INQ TO SELF  00009500
+*                                      2 - INQ OTHERS  3 - LOCATION INQ 00009600
+*                                      4 - INSTITUTION                  00009700
+EORSTAFL DS    CL1             EMPLOYEE STATUS FLAG                     00009800
+*                              VALUE:  A - ACTIVE      I - INACTIVE     00009900
+*                                      D - DELETE             2501441   00010000
+EORAUDFL DS    CL1             AUDIT FLAG                               00010100
+*                              VALUE:  0 - DO NOT AUDIT  1 - DO AUDIT   00010200
+EORSGTDY DS    CL1             SIGNON TODAY                             00010300
+*                              VALUE:  0 - EMPLOYEE HAS NOT SIGNED ON   00010400
+*                                       1 - EMPLOYEE HAS SIGNED ON      00010500
+EORBIRUP DS    CL1             BIR UPDATED                              00010600
+*                              VALUE:  0 - BIR NOT UPDATED              00010700
+*                                      1 - BIR UPDATED                  00010800
+EORUETR  DS    CL1             UPDATE ETR FLAG                          00010900
+*                              VALUE:  0 - CREATE NEW ETR AT CTL BREAK  00011000
+*                                      1 - READ/UPDATE ETR AT CTL BREAK 00011100
+EORIETR  DS    CL1             ETR INQUIRY FLAG                         00011200
+*                              VALUE:  0 - NO ETR FOR THIS EMPLOYEE     00011300
+*                                      1 - AT LEAST 1 ETR FOR EMPLOYEE  00011400
+EORTOTUS DS    CL1             TOTALS USED                              00011500
+*                              VALUE:  0 - TOTALS NOT USED              00011600
+*                                      1 - TOTALS USED                  00011700
+EORTOTRQ DS    CL1             TOTALS REQUIRED FLAG                     00011800
+*                              VALUE:  0 - NO TOTALLING FOR EMPLOYEE    00011900
+*                                      1 - TOTALS MAINTAINED FOR EMPL   00012000
+EORSELOG DS    CL1             LOG SECURITY ERRORS FLAG                 00012100
+*                              VALUE:  0 - DO NOT LOG SECURITY ERRORS   00012200
+*                                      1 - LOG SECURITY ERRORS          00012300
+EORFFIAS DS    XL1             FROM FIAS FLAG                           00012400
+*                              VALUE:  0 - DON'T SKIP FORCE SIGNOFF CHK 00012500
+*                                      1 - BEEN IN FIAS W/OUT TIME UPDT 00012600
+*                                          (SKIP FORCE SIGNOFF CHECK)   00012700
+EORCHGDP DS    XL1             CHANGE DEPT FLAG               0722348   00012710
+*                              VALUE:  0 - EMPLOYEE CANNOT    0722348   00012720
+*                                          CHANGE DEPT        0722348   00012730
+*                                      1 - EMPLOYEE ALLOWED   0722348   00012740
+*                                          TO CHANGE DEPT     0722348   00012750
+EORBALLV DS    XL1             BALANCE LEVEL FLAG             0722348   00012760
+*                              VALUE:  0 - EMPLOYEE NOT       0722348   00012770
+*                                          ALLOWED TO BALANCE 0722348   00012780
+*                                      1 - EMPLOYEE CAN ONLY  0722348   00012790
+*                                          BALANCE SELF       0722348   00012800
+*                                      2 - EMPLOYEE CAN       0722348   00012810
+*                                          BALANCE FOR OTHERS 0722348   00012820
+*                                          WITHIN SAME RPT    0722348   00012830
+*                                          LVLS 1,2           0722348   00012840
+*                                      3 - EMPLOYEE CAN       0722348   00012850
+*                                          BALANCE FOR OTHERS 0722348   00012860
+*                                          WITHIN SAME RPT    0722348   00012870
+*                                          LVL 1              0722348   00012880
+*                                      4 - EMPLOYEE CAN       0722348   00012890
+*                                          BALANCE FOR OTHERS 0722348   00012900
+*                                          WITHIN DIFFERENT   0722348   00012910
+*                                          RPT LVLS 1 & 2     0722348   00012920
+EORBALOR DS    XL1             BALANCE OVERRIDE FLAG          0722348   00012930
+*                              VALUE:  0 - EMPLOYEE CANNOT    0722348   00012940
+*                                          OVERRIDE BALANCING 0722348   00012950
+*                                      1 - EMPLOYEE CAN       0722348   00012960
+*                                          OVERRIDE BALANCING 0722348   00012970
+EORBLFLG DS    XL1             FILLER                         9910846   00012972
+EORRECTY DS    CL2             RECORD TYPE                    9913482   00012974
+*                              VALUE: OG - ORIGINAL EOR       9913482   00012975
+*                                     DY - DYNAMIC EOR        9913482   00012976
+*                                     GN - GN MODEL EOR       9913482   00012977
+*                                     IP - TCP/IP MODEL EOR   9913482   00012978
+*                                     MA - MA MODEL EOR       9913482   00012979
+*                                     MQ - MQ MODEL EOR       2024376   00012980
+EORDECDV DS    XL1             DECIMAL DIVIDER VALUE          2024478   00012982
+EORTHSDV DS    XL1             THOUSANDS DIVIDER VALUE        2024478   00012984
+EORPSWFL DS    XL1             TSPSW FLAG                     0815615   00012985
+*                                                             0722348   00012990
+EORUSINF DS    0CL200       USER INFORMATION                            00013000
+EORSVARE DS    CL164           EOR USER SAVE AREA                       00013100
+EORSVKEY DS    CL36            EOR USER SAVE KEY                        00013200
+*                                                                       00013300
+EORLTINF DS    0CL57        LAST TRAN INFORMATION             2024347   00013400
+EORLTSER DS    CL8             LAST SERIAL NUMBER                       00013500
+EORLTTRM DS    CL4             LAST TERMINAL ID                         00013600
+EORLTTIM DS    CL6             TIME OF LAST TRAN                        00013700
+EORLTOVR DS    CL3             LAST TRAN OVERRIDE                       00013800
+EORLTAMT DS    PL9             LAST TRAN AMOUNT                         00013900
+EORLTXTC DS    CL8             LAST TRAN EXTERNAL TRAN CODE             00014000
+EORNXSER DS    PL5             NEXT TRANSACTION SERIAL NUMBER           00014100
+EORTRTYP DS    CL1             LAST TRAN TYPE                           00014200
+*                              VALUE:  T - TS  F - FI                   00014300
+         DS    XL13            FILLER                         1035850   00014400
+*                                                             2024347   00014700
+EORCTYCD DS    CL2             COUNTRY CODE                   2024347   00014710
+EORDTFMT DS    0CL2            DATE FORMAT                    2024347   00014720
+EORDTTYP DS    CL1             DATE TYPE                      2024347   00014730
+*                              M=MMDDYY, D=DDMMYY, Y=YYMMDD   2024347   00014740
+EORDTSEP DS    CL1             DATE SEPARATOR (/,-,:)         2024347   00014750
+*                                                                       00014800
+EORDTRAN DS    XL4          TSTSXCT1 DESTINATION TRANSACTION ID         00014900
+*                                                                       00015000
+EORCLINF DS    0CL120       CLASS INFORMATION                           00015100
+EORAORCL DS    CL10            AOR CLASS ID                             00015200
+EORDCRCL DS    CL10            DCR CLASS ID                             00015300
+EORGLRCL DS    CL10            GLR CLASS ID                             00015400
+EORSARCL DS    CL10            SAR CLASS ID                             00015500
+EORSERCL DS    CL10            SER CLASS ID                             00015600
+EORSORCL DS    CL10            SOR CLASS ID                             00015700
+EORTARCL DS    CL10            TAR CLASS ID                             00015800
+EORVCRCL DS    CL10            VCR CLASS ID                             00015900
+EORVTRCL DS    CL10            VTR CLASS ID                             00016000
+EORVDRCL DS    CL10            VDR CLASS ID                   0722348   00016010
+EORDCRPC DS    CL10            DCR PROCESSING CLASS           2501474   00016100
+EORSDRCL DS    CL10            OVERRIDE SDR CLASS ID          9913481   00016150
+*                                                                       00016200
+EORTRDAT DS    0CL500       TRANSFER DATA                     0722973   00016300
+EORTRUSE DS    XL2             LENGTH OF DATA USED            0722973   00016400
+         DS    CL498           DATA                           0722973   00016500
+*                                                                       00016600
+EORTSINF DS    0CL200       TRAN STACK INFORMATION            2500212   00016700
+EORTSTOP DS    H            TRAN STACK TOP POINTER            2500212   00016800
+EORTSOLD DS    H            TRAN STACK OLD TOP POINTER        2500212   00016810
+EORTSNEW DS    H            TRAN STACK NEW TOP POINTER        2500212   00016820
+         DS    CL2          FILLER                            2500212   00016900
+EORTSXID DS    CL8          TRAN ID ENTRY                     2500212   00017000
+         DS    CL184        REMAINING 23 ENTRIES              2500212   00017100
+EORTSBOT EQU   *            BOTTOM OF TRAN STACK              2500212   00017110
+*                                                                       00017800
+EOROTINF DS    0CL200       OTHER INFORMATION                           00017900
+EORSBIRS DS    PL2             SAVE BIR SEQUENCE NUMBER                 00018000
+EORSBIRO DS    XL2             SAVE BIR OCCURRENCE                      00018100
+EORSERNO DS    CL8             TRANSACTION SERIAL NUMBER                00018200
+EORUSERA DS    XL60            USER DATA AREA                           00018300
+EORLSTPP DS    CL8             LAST PREVIOUS PROCESSOR SDR              00018400
+EORPBDTE DS    CL6             PBK EFF DATE FOR REBID        TS006.00   00018410
+EORPBSEQ DS    PL2             PBK SEQ NUM  FOR REBID        TS006.00   00018420
+EORQUCTL DS    0CL30           TEMPORARY QUEUE CONTROL LIST   0712217   00018425
+EORQUCT1 DS    CL1             QUEQUE CONTROL FLAG            0712217   00018430
+*                              BLANK = CLEAR QUEUE WHEN       0712217   00018435
+*                                      APPLICATION CHANGES    0712217   00018440
+*                              S = DO NOT CLEAR THIS QUEUE    0712217   00018445
+*                              D = QUEUE NEEDS TO BE DELETED  0712217   00018450
+*                              A = THE NEXT 2 BYTES ARE THE   0712217   00018455
+*                                  APPLICATION ID             0712217   00018460
+EORQUID1 DS    CL2             QUEUE QUALIFIER CODE           0712217   00018465
+EORQUE   DS    CL27            QUEUE OCCURENCE 2 THRU 10      0712217   00018470
+EORBATDA DS    0XL26           BATCHING DATA AREA             0722348   00018475
+EORDEFBF DS    0XL13              DEFAULT BATCHING FIELDS     0722348   00018480
+EORDEFDP DS    CL3                   DEFAULT DEPT             0722348   00018485
+EORDEFBA DS    CL5                   DEFAULT BATCH            0722348   00018490
+EORDEFSB DS    CL5                   DEFAULT SUB-BATCH        0722348   00018495
+EORADMBS DS    0XL13              ADMIN BATCHING SAVE AREA    0722348   00018500
+EORADMDP DS    CL3                   ADMIN SAVE DEPT          0722348   00018505
+EORADMBA DS    CL5                   ADMIN SAVE BATCH         0722348   00018510
+EORADMSB DS    CL5                   ADMIN SAVE SUB-BATCH     0722348   00018515
+EOREMBFT DS    0CL40           EMPLOYEE BALANCE FIELDS TABLE  0722348   00018520
+EOREMBFP DS    0CL8               EMP BAL FLAGS AND PHYS LOC  0722348   00018525
+EOREMBFG DS    CL1                   EMP BALANCING FLAG       0722348   00018530
+         DS    CL3                   REMAINING BALANCING FLAGS0722348   00018535
+EOREMBPL DS    CL4                   EMP BALANCING PHYS LOC   0722348   00018540
+         DS    XL32               REMAINING 4 ENTRIES         0722348   00018545
+EORLANG  DS    XL2             LANGUAGE PREFERANCE            9913481   00018550
+EORBLTRM DS    CL4          CDR BUILD RECEIVING TERM-ID       9910846   00018552
+EORMODEL DS    CL4          ITR MODEL POINTER                 9910846   00018554
+EORSGNON DS    PL4          SIGNON TIME, FOR ITRCB PROC       9910846   00018556
+         DS    CL2            FILLER                          1035850   00018605
+EORLGRBA DS    XL8             LAST LOG RBA                   1035850   00018606
+EORLLFG  DS    CL2             LAST LOG FILE GROUP            1035850   00018607
+EORLNDFG DS    CL1             LAST NEXTDAY FLAG              1035850   00018608
+EORLNRBA DS    XL8             LAST NEXTDAY RBA               1035850   00018609
+EORLNFG  DS    CL2             LAST NEXTDAY FILE GROUP        1035850   00018610
+EORXMTK  DS    CL8             XRBA MARKER                    1416481   00018615
+EORPWRDT DS    0CL6            RESET PASSWORD DATE            1416481   00018620
+EORPWRM  DS    CL2             RESET PSW MM                   1416481   00018625
+EORPWRD  DS    CL2             RESET PSW DD                   1416481   00018630
+EORPWRY  DS    CL2             RESET PSW YY                   1416481   00018635
+EORSERDT DS    CL6          SER CURRENT DATE                  1436560   00018636
+EORFDEV  DS    CL357        FILLER FOR FUTURE DEVELOPMENT     1436560   00018640
+EORFCLNT DS    CL200        FILLER RESERVED FOR CLIENT USE    0825695   00018650
+*                                                                       00018700
+EORTOTNO DS    PL2             NUMBER OF TOTALS               1035850   00018710
+EORTOTL1 DS    0XL12        1ST OCCUR OF CURRENT AND NEXT DAYS TOTALS   00018800
+EORTLAMT DS    PL9          TOTAL AMOUNT                                00018900
+EORTLCNT DS    PL3          TOTAL COUNT                                 00019000
+EORTOTL2 DS    XL1788       2ND-150TH OCCUR OF TOTALS                   00019100
+*                                                                       00019200
+EOREND   EQU   *            SYMBOLIC END OF EOR                         00019300
+EORLEN   EQU   *-EOR        SYMBOLIC LENGTH OF EOR                      00019400

@@ -1,0 +1,123 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000000
+*        COMMAND LIST TABLE                                           * 00001000
+*********************************************************************** 00002000
+FIELDS   EQU   0                  FIELD PROCESSING INDEX                00003000
+TYPES    EQU   1                  TYPE PROCESSING INDEX                 00004000
+WHERE    EQU   2                  WHERE  PROCESSING INDEX               00005000
+ENTITY   EQU   3                  ENTITY NAME INDEX                     00006000
+FUNCAX   EQU   4                  FUNCTION EXTRACT FOR AUXIO            00007000
+FUNCMS   EQU   5                  FUNCTION EXTRACT FOR MAIN DICTIONARY  00008000
+EMPTY    EQU   X'FF'              NULL TABLE ENTRY                      00009000
+DSCLTAB  EQU   *                                                        00010000
+         DC    CL6'AUXIO '        AUXILIARY I/O                         00011000
+         DC    AL1(FUNCAX)                                              00012000
+         DC    AL1(EMPTY)                                               00013000
+         DC    AL1(EMPTY)                                               00014000
+         DC    AL1(EMPTY)                                               00015000
+         DC    AL1(EMPTY)                                               00016000
+         DC    AL1(EMPTY)                                               00017000
+         DC    AL1(EMPTY)                                               00018000
+         DC    AL1(EMPTY)                                               00019000
+         DC    AL1(EMPTY)                                               00020000
+DICLENT  EQU   *-DSCLTAB                                                00021000
+         DC    CL6'MASTER'        MAIN DICTIONARY I/O                   00022000
+         DC    AL1(FUNCMS)                                              00023000
+         DC    AL1(EMPTY)                                               00024000
+         DC    AL1(EMPTY)                                               00025000
+         DC    AL1(EMPTY)                                               00026000
+         DC    AL1(EMPTY)                                               00027000
+         DC    AL1(EMPTY)                                               00028000
+         DC    AL1(EMPTY)                                               00029000
+         DC    AL1(EMPTY)                                               00030000
+         DC    AL1(EMPTY)                                               00031000
+         DC    CL6'CREATE'        CREATE TYPE OR FIELD DEFINITION       00032000
+         DC    AL1(TYPES)                                               00033000
+         DC    AL1(FIELDS)                                              00034000
+         DC    AL1(EMPTY)                                               00035000
+         DC    AL1(EMPTY)                                               00036000
+         DC    AL1(EMPTY)                                               00037000
+         DC    AL1(EMPTY)                                               00038000
+         DC    AL1(EMPTY)                                               00039000
+         DC    AL1(EMPTY)                                               00040000
+         DC    AL1(EMPTY)                                               00041000
+         DC    CL6'DROP  '        REMOVE TYPE OR FIELD DEFINITION       00042000
+         DC    AL1(TYPES)                                               00043000
+         DC    AL1(FIELDS)                                              00044000
+         DC    AL1(EMPTY)                                               00045000
+         DC    AL1(EMPTY)                                               00046000
+         DC    AL1(EMPTY)                                               00047000
+         DC    AL1(EMPTY)                                               00048000
+         DC    AL1(EMPTY)                                               00049000
+         DC    AL1(EMPTY)                                               00050000
+         DC    AL1(EMPTY)                                               00051000
+         DC    CL6'BUILD '        BUILD AUXILIARY TABLE RECORD          00052000
+         DC    AL1(ENTITY)                                              00053000
+         DC    AL1(FIELDS)                                              00054000
+         DC    AL1(TYPES)                                               00055000
+         DC    AL1(WHERE)                                               00056000
+         DC    AL1(EMPTY)                                               00057000
+         DC    AL1(EMPTY)                                               00058000
+         DC    AL1(EMPTY)                                               00059000
+         DC    AL1(EMPTY)                                               00060000
+         DC    AL1(EMPTY)                                               00061000
+         DC    CL6'SELECT'        SELECT TYPE OR FIELD INFORMATION      00062000
+         DC    AL1(FIELDS)                                              00063000
+         DC    AL1(TYPES)                                               00064000
+         DC    AL1(WHERE)                                               00065000
+         DC    AL1(EMPTY)                                               00066000
+         DC    AL1(EMPTY)                                               00067000
+         DC    AL1(EMPTY)                                               00068000
+         DC    AL1(EMPTY)                                               00069000
+         DC    AL1(EMPTY)                                               00070000
+         DC    AL1(EMPTY)                                               00071000
+         DC    CL6'INSERT'        INSERT TYPE OR FIELD INFORMATION      00072000
+         DC    AL1(TYPES)                                               00073000
+         DC    AL1(FIELDS)                                              00074000
+         DC    AL1(EMPTY)                                               00075000
+         DC    AL1(EMPTY)                                               00076000
+         DC    AL1(EMPTY)                                               00077000
+         DC    AL1(EMPTY)                                               00078000
+         DC    AL1(EMPTY)                                               00079000
+         DC    AL1(EMPTY)                                               00080000
+         DC    AL1(EMPTY)                                               00081000
+         DC    CL6'DELETE'        DELETE TYPE OR FIELD INFORMATION      00082000
+         DC    AL1(TYPES)                                               00083000
+         DC    AL1(WHERE)                                               00084000
+         DC    AL1(EMPTY)                                               00085000
+         DC    AL1(EMPTY)                                               00086000
+         DC    AL1(EMPTY)                                               00087000
+         DC    AL1(EMPTY)                                               00088000
+         DC    AL1(EMPTY)                                               00089000
+         DC    AL1(EMPTY)                                               00090000
+         DC    AL1(EMPTY)                                               00091000
+         DC    CL6'UPDATE'        UPDATE TYPE OR FIELD INFORMATION      00092000
+         DC    AL1(TYPES)                                               00093000
+         DC    AL1(FIELDS)                                              00094000
+         DC    AL1(WHERE)                                               00095000
+         DC    AL1(EMPTY)                                               00096000
+         DC    AL1(EMPTY)                                               00097000
+         DC    AL1(EMPTY)                                               00098000
+         DC    AL1(EMPTY)                                               00099000
+         DC    AL1(EMPTY)                                               00100000
+         DC    AL1(EMPTY)                                               00101000
+         DC    CL6'END   '        CLOSE DICTIONARY                      00102000
+         DC    AL1(EMPTY)                                               00103000
+         DC    AL1(EMPTY)                                               00104000
+         DC    AL1(EMPTY)                                               00105000
+         DC    AL1(EMPTY)                                               00106000
+         DC    AL1(EMPTY)                                               00107000
+         DC    AL1(EMPTY)                                               00108000
+         DC    AL1(EMPTY)                                               00109000
+         DC    AL1(EMPTY)                                               00110000
+         DC    AL1(EMPTY)                                               00111000
+         DC    6X'FF'             END OF TABLE                          00112000
+         DC    AL1(EMPTY)                                               00113000
+         DC    AL1(EMPTY)                                               00114000
+         DC    AL1(EMPTY)                                               00115000
+         DC    AL1(EMPTY)                                               00116000
+         DC    AL1(EMPTY)                                               00117000
+         DC    AL1(EMPTY)                                               00118000
+         DC    AL1(EMPTY)                                               00119000
+         DC    AL1(EMPTY)                                               00120000
+         DC    AL1(EMPTY)                                               00121000

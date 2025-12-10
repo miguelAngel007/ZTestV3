@@ -1,0 +1,48 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+000100*
+000200*--------------------------------------------------------------*
+000300*  THIS COPYBOOK WILL HOLD ONE OCCURENCE OF THE PROCESS        *
+000400*  THROUGH DATE TABLE FOR THE MINIMUM AND MAXIMUM INTEREST     *
+000500*  RATES FOR EACH DIFFERENT RATE TYPE IN THE ZERO HEADER       *
+000600*  RECORD OF THE RATE FILE FOR THAT PARTICULAR CONTROL ONE.    *
+000700*--------------------------------------------------------------*
+000800*
+000900 01  WS-RMA-ZERO-KEY-REC.
+001000     05  WS-RMA-PROC-THRU-DATE-TABLE.
+001100         10  WS-RMA-LO-RUN-DATE             PIC X(8).
+001200         10  WS-RMA-HI-PREV-PROC-THRU-DT    PIC X(8).
+001300         10  WS-RMA-DATE-DIFF               PIC X(1).
+001400         10  WS-RMA-RATE-HIST-RETEN         PIC S999 COMP-3.
+001500         10  WS-RMA-IOD-INT-RATES                    COMP-3.
+001600             15  WS-RMA-MAX-IOD-INT         PIC S9V9(8).          9915845
+001700             15  WS-RMA-MAX-IOD-INT-R       REDEFINES
+001800                 WS-RMA-MAX-IOD-INT         PIC S999V9(6).        9915845
+002000             15  WS-RMA-MIN-IOD-INT         PIC S9V9(8).          9915845
+002100             15  WS-RMA-MIN-IOD-INT-R       REDEFINES
+002200                 WS-RMA-MIN-IOD-INT         PIC S999V9(6).        9915845
+002400         10  WS-RMA-TIERED-INT-RATES        COMP-3.
+002500             15  WS-RMA-MAX-TIERED-INT      PIC S9V9(8).          9915845
+002600             15  WS-RMA-MAX-TIERED-INT-R    REDEFINES
+002700                 WS-RMA-MAX-TIERED-INT      PIC S999V9(6).        9915845
+002900             15  WS-RMA-MIN-TIERED-INT      PIC S9V9(8).          9915845
+003000             15  WS-RMA-MIN-TIERED-INT-R    REDEFINES
+003100                 WS-RMA-MIN-TIERED-INT      PIC S999V9(6).        9915845
+003300         10  WS-RMA-OD-INT-RATES            COMP-3.
+003400             15  WS-RMA-MAX-OD-INT          PIC S9V9(8).          9915845
+003500             15  WS-RMA-MAX-OD-INT-R        REDEFINES
+003600                 WS-RMA-MAX-OD-INT          PIC S999V9(6).        9915845
+003800             15  WS-RMA-MIN-OD-INT          PIC S9V9(8).          9915845
+003900             15  WS-RMA-MIN-OD-INT-R        REDEFINES
+004000                 WS-RMA-MIN-OD-INT          PIC S999V9(6).        9915845
+004200         10  WS-RMA-LOAN-INT-RATES          COMP-3.
+004300             15  WS-RMA-MAX-LOAN-INT        PIC S9V9(8).          9915845
+004400             15  WS-RMA-MAX-LOAN-INT-R      REDEFINES
+004500                 WS-RMA-MAX-LOAN-INT        PIC S999V9(6).        9915845
+004600             15  WS-RMA-MIN-LOAN-INT        PIC S9V9(8).          9915845
+004700             15  WS-RMA-MIN-LOAN-INT-R      REDEFINES             9915845
+004900                 WS-RMA-MIN-LOAN-INT        PIC S999V9(6).        9915845
+005100         10  WS-RMA-PRIME-MAX-RATES         COMP-3.
+005200             15  WS-RMA-PRIME-MAX-RATE      OCCURS 5 TIMES.
+005300                 20  WS-RMA-PRIME-MAX-INT   PIC S9V9(8).          9915845
+005400                 20  WS-RMA-PRIME-MAX-INT-R REDEFINES
+005500                     WS-RMA-PRIME-MAX-INT   PIC S999V9(6).        9915845

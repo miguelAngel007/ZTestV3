@@ -1,0 +1,111 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*GNBI1/2TOT COPYBOOK TO DESCRIBE TOTALING AREA FOR EIC                * 00004000
+*                                                                     * 00005000
+*                                                                     * 00006000
+*---------------------------------------------------------------------* 00007000
+*                  ** HISTORY OF REVISIONS **                         * 00008000
+*                                                                     * 00009000
+* DESCRIPTION                                                 CHNGID  * 00010000
+* ___________________________________________________________________ * 00011000
+*                                                                     * 00012000
+* 05/13/04 GN5191 EXPAND TOTLVLS, CHANGE OCCURS FOR AP TOTS   0635191   00012990
+* 04/09/04 GN4798 INITIAL RELEASE                                     * 00013000
+* ___________________________________________________________ _______ * 00014000
+*                                                                     * 00015000
+GNTOTA   DSECT                                                          00016000
+GNTOT    DS    0CL10706                                       0635191   00017000
+TOTBKLV  DS    CL1            HOLDING AREA FOR BRK LV                   00018000
+TOTLVLS  DS    0CL70          HOLDING AREA FOR LVLS           0635191   00018100
+TOTLVL1  DS    CL14           HOLDING AREA FOR LVL1           0635191   00019000
+TOTLVL2  DS    CL14           HOLDING AREA FOR LVL2           0635191   00020000
+TOTLVL3  DS    CL14           HOLDING AREA FOR LVL3           0635191   00021000
+TOTLVL4  DS    CL14           HOLDING AREA FOR LVL4           0635191   00022000
+TOTLVL5  DS    CL14           HOLDING AREA FOR LVL5           0635191   00022100
+TOTCURR  DS    CL3            HOLDING AREA FOR CURRENCY                 00023000
+TOT1LVL  DS    0CL33          LEVEL 1 BKS                               00024000
+TOT1DBA  DS    PL9            LEVEL 1 DEBIT AMOUNT                      00025000
+TOT1DBC  DS    PL5            LEVEL 1 DEBIT COUNT                       00026000
+TOT1CRA  DS    PL9            LEVEL 1 CREDIT AMOUNT                     00027000
+TOT1CRC  DS    PL5            LEVEL 1 CREDIT COUNT                      00028000
+TOT1NMC  DS    PL5            LEVEL 1 NON MONETARY COUNT                00029000
+TOT2LVL  DS    0CL33          LEVEL 2 BKS                               00030000
+TOT2DBA  DS    PL9            LEVEL 2 DEBIT AMOUNT                      00031000
+TOT2DBC  DS    PL5            LEVEL 2 DEBIT COUNT                       00032000
+TOT2CRA  DS    PL9            LEVEL 2 CREDIT AMOUNT                     00033000
+TOT2CRC  DS    PL5            LEVEL 2 CREDIT COUNT                      00034000
+TOT2NMC  DS    PL5            LEVEL 2 NON MONETARY COUNT                00035000
+TOT3LVL  DS    0CL33          LEVEL 3 BKS                               00036000
+TOT3DBA  DS    PL9            LEVEL 3 DEBIT AMOUNT                      00037000
+TOT3DBC  DS    PL5            LEVEL 3 DEBIT COUNT                       00038000
+TOT3CRA  DS    PL9            LEVEL 3 CREDIT AMOUNT                     00039000
+TOT3CRC  DS    PL5            LEVEL 3 CREDIT COUNT                      00040000
+TOT3NMC  DS    PL5            LEVEL 3 NON MONETARY COUNT                00041000
+TOT4LVL  DS    0CL33          LEVEL 4 BKS                               00042000
+TOT4DBA  DS    PL9            LEVEL 4 DEBIT AMOUNT                      00043000
+TOT4DBC  DS    PL5            LEVEL 4 DEBIT COUNT                       00044000
+TOT4CRA  DS    PL9            LEVEL 4 CREDIT AMOUNT                     00045000
+TOT4CRC  DS    PL5            LEVEL 4 CREDIT COUNT                      00046000
+TOT4NMC  DS    PL5            LEVEL 4 NON MONETARY COUNT                00047000
+TOTLVLL  EQU   *-GNTOT        LENGTH BREAK TOTAL + HOLD                 00048000
+TOTAPTL  DS    0CL1015        ONE OCCUR APPL TOTAL BKS        0635191   00049000
+TOTAPPL  DS    CL2            APPLICATION                               00050000
+TOTABKS  DS    0CL33          APPL BUCKETS                              00051000
+TOTADBA  DS    PL9            APPL DEBIT AMOUNT                         00052000
+TOTADBC  DS    PL5            APPL DEBIT COUNT                          00053000
+TOTACRA  DS    PL9            APPL CREDIT AMOUNT                        00054000
+TOTACRC  DS    PL5            APPL CREDIT COUNT                         00055000
+TOTANMC  DS    PL5            APPL NON MONETARY COUNT                   00056000
+TOTDGTL  DS    0CL49          ONE OCCUR DAG ELE BKS                     00057000
+TOTDDAG  DS    CL8            DAG NAME                                  00058000
+TOTDELE  DS    CL8            ELE NAME                                  00059000
+TOTDBKS  DS    0CL33          DAG.ELE BUCKETS                           00060000
+TOTDDBA  DS    PL9            DAG.ELE DEBIT AMOUNT                      00061000
+TOTDDBC  DS    PL5            DAG.ELE DEBIT COUNT                       00062000
+TOTDCRA  DS    PL9            DAG.ELE CREDIT AMOUNT                     00063000
+TOTDCRC  DS    PL5            DAG.ELE CREDIT COUNT                      00064000
+TOTDNMC  DS    PL5            DAG.ELE NON MONETARY COUNT                00065000
+TOTDPLN  EQU   *-TOTDGTL      LENGTH OF ONE DAG.ELE OCC                 00066000
+TOTDOCC  DS    CL931          2-20 OCCUR DAG.ELE BKS          0635191   00067000
+TOTAPLN  EQU   *-TOTAPTL      LENGTH OF ONE APPL OCCR                   00068000
+TOTAOCC  DS    CL9135         2-10 OCCUR APPL/DAG.ELE BKS     0635191   00069000
+TOTAPPN  EQU   *-TOTAPTL      LENGTH OF ALL APPL OCCUR                  00070000
+         DS    CL350          FILLER                          0635191   00070100
+TOTRECL  EQU   *-GNTOT        LENGTH OF RECORD                          00071000
+*                                                                       00072000
+GNTOTB   DSECT                OCCURS OF APPL - TOTALS                   00073000
+*                                                                       00074000
+TOTBAPTL DS    0CL1015        ONE OCCUR APPL TOTAL BKS        0635191   00075000
+TOTBAPPL DS    CL2            APPLICATION                               00076000
+TOTBABKS DS    0CL33          APPL BUCKETS                              00077000
+TOTBADBA DS    PL9            APPL DEBIT AMOUNT                         00078000
+TOTBADBC DS    PL5            APPL DEBIT COUNT                          00079000
+TOTBACRA DS    PL9            APPL CREDIT AMOUNT                        00080000
+TOTBACRC DS    PL5            APPL CREDIT COUNT                         00081000
+TOTBANMC DS    PL5            APPL NON MONETARY COUNT                   00082000
+TOTBDGTL DS    0CL49          ONE OCCUR DAG ELE BKS                     00083000
+TOTBDDAG DS    CL8            DAG NAME                                  00084000
+TOTBDELE DS    CL8            ELE NAME                                  00085000
+TOTBDBKS DS    0CL33          DAG.ELE BUCKETS                           00086000
+TOTBDDBA DS    PL9            DAG.ELE DEBIT AMOUNT                      00087000
+TOTBDDBC DS    PL5            DAG.ELE DEBIT COUNT                       00088000
+TOTBDCRA DS    PL9            DAG.ELE CREDIT AMOUNT                     00089000
+TOTBDCRC DS    PL5            DAG.ELE CREDIT COUNT                      00090000
+TOTBDNMC DS    PL5            DAG.ELE NON MONETARY COUNT                00091000
+TOTBDPLN EQU   *-TOTBDGTL      LENGTH OF ONE DAG.ELE OCC                00092000
+TOTBDOCC DS    CL931          2-20 OCCUR DAG.ELE BKS          0635191   00093000
+TOTBAPLN EQU   *-TOTBAPTL      LENGTH OF ONE APPL OCCR                  00094000
+*                                                                       00095000
+GNTOTC   DSECT              OCCURS OF DAG ELE AMOUNT                    00096000
+*                                                                       00097000
+TOTCDGTL DS    0CL49          ONE OCCUR DAG ELE BKS                     00098000
+TOTCDDAG DS    CL8            DAG NAME                                  00099000
+TOTCDELE DS    CL8            ELE NAME                                  00100000
+TOTCDBKS DS    0CL33          DAG.ELE BUCKETS                           00101000
+TOTCDDBA DS    PL9            DAG.ELE DEBIT AMOUNT                      00102000
+TOTCDDBC DS    PL5            DAG.ELE DEBIT COUNT                       00103000
+TOTCDCRA DS    PL9            DAG.ELE CREDIT AMOUNT                     00104000
+TOTCDCRC DS    PL5            DAG.ELE CREDIT COUNT                      00105000
+TOTCDNMC DS    PL5            DAG.ELE NON MONETARY COUNT                00106000

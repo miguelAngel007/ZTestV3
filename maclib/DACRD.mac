@@ -1,0 +1,17 @@
+000100 01  DA-CARD-REC.
+000200     03  DA-CRD-SELECT           PIC X(9).
+000300     03  DA-CRD-KEY-NAME         PIC X(8).
+000400     03  FILLER                  PIC X(3).
+000500     03  DA-CRD-TITLE            PIC X(40).
+000510     03  DA-VSAM                 PIC X(4).
+000600     03  FILLER                  PIC X(16).
+000700 01  DA-CARD-REC-R REDEFINES     DA-CARD-REC.
+000800     03  DA-CRD-FUNCTION         PIC X(9).
+000900     03  DA-CRD-KEY-1            PIC X(30).
+001000     03  DA-CRD-CNT REDEFINES DA-CRD-KEY-1.
+001100         05  DA-CRD-EVERY-CNT PIC 9(7).
+001200         05  FILLER              PIC X(23).
+001300     03  FILLER                  PIC X.
+001400     03  DA-CRD-KEY-2            PIC X(30).
+001500     03  FILLER                  PIC X(10).
+001600     EJECT

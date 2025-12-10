@@ -1,0 +1,188 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*                   TRANSACTION SYSTEM                                * 00004000
+*GNBI1/2COM COPYBOOK TO DESCRIBE COM AREA FOR GNHLD/TOTALING          * 00005000
+*                                                                     * 00006000
+*                                                                     * 00007000
+*---------------------------------------------------------------------* 00008000
+*                  ** HISTORY OF REVISIONS **                         * 00009000
+*                                                                     * 00010000
+* DESCRIPTION                                                 CHNGID  * 00011000
+* __________________________________________________________  _______ * 00012000
+*                                                                     * 00013000
+* 05/13/05 GN5191 ADD DSECT  FOR GNBICB STORAGE AREA          0635191   00013980
+*                 DELETE GNTOT AMOUNT COMM AREA FROM COMB     0635191   00013990
+* 04/09/04 GN4798 INITIAL RELEASE                                     * 00014000
+* ___________________________________________________________________ * 00015000
+*                                                                     * 00016000
+GNCOMB   DSECT                                                          00017000
+GNCOM    DS    0CL681                                                   00018000
+COMCALL  DS    CL1            TYPE OF TOT/HLD CALL                      00019000
+*                             D ELEMENT LOOKUP                0635191   00019100
+*                             H HEADER/RUN                              00020000
+*                             J FILE HEADER                             00021000
+*                             Q QUEUE NAME                              00022000
+*                             R HOLDING RECORD                          00023000
+*                             T TOTAL                                   00024000
+*                             W FILE TRAILER                            00025000
+COMBRK   DS    CL1            BREAK LVL IF USED                         00026000
+*                             1 LVL1 BREAK                              00027000
+*                             2 LVL2 BREAK                              00028000
+*                             3 LVL3 BREAK                              00029000
+*                             4 LVL4/BATCH BREAK                        00030000
+COMBOJ   DS    CL1            BEGINNING OF JOB                          00031000
+COMEOJ   DS    CL1            END OF JOB                                00032000
+COMCURR  DS    CL3            CURRENCY                                  00033000
+COMSCTL  DS    0CL4           SAIN CONTROL                              00034000
+COMSCTP  DS    CL2                                                      00035000
+COMSCTN  DS    CL2                                                      00036000
+COMSUSQ  DS    0CL11          SAIN SOURCE/SEQ/QUE                       00037000
+COMSOUR  DS    CL8            SAIN SOURCE                               00038000
+COMSEQ   DS    CL3            SAIN SEQUENCE                             00039000
+COMBKDT  DS    CL1            SAIN BACKDATE                             00040000
+*  OLD BREAK INFORMATION SEE GNMPTBRK FOR NEW                 0635191   00041000
+COMTRI   DS    0CL18          TOTALING HLD RECORD INFO                  00042000
+COMLVL1  DS    CL4            LEVEL1 FROM PARSER                        00043000
+COMLVL2  DS    CL4            LEVEL2 FROM PARSER                        00044000
+COMLVL3  DS    CL4            LEVEL3 FROM PARSER                        00045000
+COMLVL4  DS    CL4            LEVEL4 FROM PARSER                        00046000
+*  APPLICATION                                                0635191   00046100
+COMAPPL  DS    CL2            APPLICATION                               00047000
+*  HOLDING RECORD INFORMATION                                           00048000
+COMHRI   DS    0CL22          HOLDING RECORD INFO                       00049000
+COMHRS   DS    CL8            RECORD DST                                00050000
+COMHRD   DS    CL8            RECORD DAG                                00051000
+COMHRL   DS    XL2            RECORD LENGTH                             00052000
+COMHRA   DS    XL4            RECORD ADDRESS                            00053000
+*  TOTALING INFORMATION                                                 00054000
+COMTOIA  DS    0CL5           TOTALING INFO                   0635191   00055000
+COMUTRCD DS    CL4            USER TRANCODE FROM PARSER                 00056000
+COMDCN   DS    CL1            DEBIT CREDIT OR NON FROM PARSER           00057000
+COMFIL   DS    CL249          FILLER                          0635191   00059000
+COMGWRET DS    CL1            RETURN CODE FROM GETWHILE       0635191   00059100
+*  USER WORK AREA                                             0635191   00065000
+COMHDRT  DS    0CL44  USER WORK AREA                          0635191   00066000
+COMHDTE  DS    0CL6           PROCESS DATE                              00067000
+COMHDMO  DS    CL2            PROCESS MO                                00068000
+COMHDDA  DS    CL2            PROCESS DA                                00069000
+COMHDYR  DS    CL2            PROCESS YR                                00070000
+COMHBTH  DS    CL4            BATCH NUMBER                              00071000
+COMHBDT  DS    CL1            BACKDATE                                  00072000
+COMHDAT  DS    PL9            DEBIT AMOUNT                              00073000
+COMHDCT  DS    PL5            DEBIT COUNT                               00074000
+COMHCAT  DS    PL9            CREDIT AMOUNT                             00075000
+COMHCCT  DS    PL5            CREDIT COUNT                              00076000
+COMHNCT  DS    PL5            NON MONETARY COUNT                        00077000
+*  QUEUE INFORMATION READ FROM GNHLD                                    00078000
+COMQIFO  DS    0CL63          QUEUE INFORMATION FROM GNHLD              00079000
+COMQKEY  DS    CL10           QUEUE KEY FROM DST                        00080000
+COMQNME  DS    CL48           QUEUE NAME/MGR FROM GNHLD                 00081000
+COMQISB  DS    CL4            QUE INPUT OPTION                          00082000
+COMQICT  DS    CL1            QUE INPUT CONTEXT 1-6                     00083000
+COMQIRE  DS    CL1            QUE INPUT USE REPLY FOR ERR Q             00084000
+COMQOOP  DS    CL4            QUE OUTPUT OPTION                         00085000
+COMQOCT  DS    CL1            QUE OUTPUT CONTEXT 1-6                    00086000
+*  PROCESS DATE READ FROM GNHLD                                         00087000
+COMCYMD  DS    0CL8  PROCESS DATE WITH CENT                             00088000
+COMDTCC  DS    CL2            CENT                                      00089000
+COMDATE  DS    0CL6  PROCESS DATE FROM GNHLD                            00090000
+COMDTYR  DS    CL2            YEAR                                      00091000
+COMDTMO  DS    CL2            MONTH                                     00092000
+COMDTDA  DS    CL2            DAY                                       00093000
+*  PROCESS INFORMATION                                                  00094000
+COMRETC  DS    CL1            RETURN CODE                               00095000
+*                                                                       00096000
+GNCOMC   DSECT                                                          00097000
+*                                                                       00098000
+COMCTO1  DS    0CL26          TOTALING OCCURS FROM PARSER     0635191   00099000
+COMCAMT  DS    PL9            AMOUNT FROM PARSER              0635191   00100000
+COMCDAG  DS    CL8            DAG NAME FROM PARSER            0635191   00101000
+COMCELE  DS    CL8            ELE NAME FROM PARSER            0635191   00102000
+COMCDCNF DS    CL1            DR, CR, COUNT PARSER            0635191   00102100
+*                                                             0635191   00103000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0635191   00103999
+GNBICB   DSECT                                                          00104000
+*                                                             0635191   00105000
+GNBICBA  DS    0CL1185                                        0635191   00106000
+*  TOTALING INFORMATION                                       0635191   00107000
+COMTOI   DS    0CL520         TOTALING INFO                   0635191   00108000
+*          AMOUNT DAG AND ELE OCCURS 20 TIMES                 0635191   00109000
+COMTOT   DS    0CL520         TOTALING OCCURS INFO            0635191   00110000
+COMTO1   DS    0CL26          FIRST OCCURS                    0635191   00111000
+COMAMT   DS    PL9            AMOUNT FROM PARSER              0635191   00112000
+COMDAG   DS    CL8            DAG NAME FROM PARSER            0635191   00113000
+COMELE   DS    CL8            ELE NAME FROM PARSER            0635191   00114000
+COMDCNF  DS    CL1            DR, CR, COUNT PARSER            0635191   00115000
+COMTOOC  DS    CL494  OCCURS 2   20                           0635191   00116000
+         DS    CL80                                           0635191   00117000
+GNMPTBRK DS    0CL70          MAP TOTAL BREAK LVLS            0635191   00118000
+BRKLVLS  DS    0CL70          LEVEL BREAK DATA                0635191   00119000
+BRKLVL1D DS    0CL14          LEVEL 1  DATA                   0635191   00120000
+BRKLVL1  DS    CL4            LEVEL 1  FIRST 4                0635191   00121000
+BRKLVL1A DS    CL10           LEVEL 1  LAST 10                0635191   00122000
+BRKLVL2D DS    0CL14          LEVEL 2  DATA                   0635191   00123000
+BRKLVL2  DS    CL4            LEVEL 2  FIRST 4                0635191   00124000
+BRKLVL2A DS    CL10           LEVEL 2  LAST 10                0635191   00125000
+BRKLVL3D DS    0CL14          LEVEL 3  DATA                   0635191   00126000
+BRKLVL3  DS    CL4            LEVEL 3  FIRST 4                0635191   00127000
+BRKLVL3A DS    CL10           LEVEL 3  LAST 10                0635191   00128000
+BRKLVL4D DS    0CL14          LEVEL 4  DATA                   0635191   00129000
+BRKLVL4  DS    CL4            LEVEL 4  FIRST 4                0635191   00130000
+BRKLVL4A DS    CL10           LEVEL 4  LAST 10                0635191   00131000
+BRKLVL5D DS    CL14           LEVEL 5  DATA                   0635191   00131100
+         DS    CL80           FILLER                          0635191   00132000
+*                                                             0635191   00133000
+GNMPRHDR DS    0CL11          MAP BALANCING HEADER            0635191   00134000
+*  FILE HEADER                                                0635191   00135000
+HDRHDRT  DS    0CL11          FILE HEADER                     0635191   00136000
+HDRHDTE  DS    0CL6           PROCESS DATE                    0635191   00137000
+HRDHDMO  DS    CL2            PROCESS MO                      0635191   00138000
+HRDHDDA  DS    CL2            PROCESS DA                      0635191   00139000
+HDRHDYR  DS    CL2            PROCESS YR                      0635191   00140000
+HDRHBTH  DS    CL4            BATCH NUMBER                    0635191   00141000
+HDRHBDT  DS    CL1            BACKDATE                        0635191   00142000
+         DS    CL80           FILLER                          0635191   00143000
+*                                                             0635191   00144000
+GNMPRTRL DS    0CL44          MAP BALANCING TRAILER           0635191   00145000
+*  FILE TRAILER                                               0635191   00146000
+TRLHDRT  DS    0CL44  FILE TRAILER IN GN FORMAT               0635191   00147000
+TRLHDTE  DS    0CL6           PROCESS DATE                    0635191   00148000
+TRLHDMO  DS    CL2            PROCESS MO                      0635191   00149000
+TRLHDDA  DS    CL2            PROCESS DA                      0635191   00150000
+TRLHDYR  DS    CL2            PROCESS YR                      0635191   00151000
+TRLHBTH  DS    CL4            BATCH NUMBER                    0635191   00152000
+TRLHBDT  DS    CL1            BACKDATE                        0635191   00153000
+TRLHDAT  DS    PL9            DEBIT AMOUNT                    0635191   00154000
+TRLHDCT  DS    PL5            DEBIT COUNT                     0635191   00155000
+TRLHCAT  DS    PL9            CREDIT AMOUNT                   0635191   00156000
+TRLHCCT  DS    PL5            CREDIT COUNT                    0635191   00157000
+TRLHNCT  DS    PL5            NON MONETARY COUNT              0635191   00158000
+*                                                             0635191   00159000
+*   MULTI TBR WORK AREA                                       0635191   00160000
+*                                                             0635191   00161000
+LKTBR2AS DS    F               SAVE TBR2A START ADDRESS       0635191   00162000
+LKTBR2AC DS    F               SAVE TBR2A CURRENT ADDRESS     0635191   00163000
+         DS    F               FILLER                         0635191   00164000
+SVTOT2AS DC    PL2'0'          SAVED # ICRS FROM TBR STEM     0635191   00165000
+WSTBR2A# DC    PL2'0'          CURRENT TBR 2A SEG WE ARE ON   0635191   00166000
+         DC    PL2'0'                                         0635191   00167000
+         DC    PL2'0'                                         0635191   00168000
+SVMPBRK  DS    CL1                   SPECIAL MAPBRK           0635191   00169000
+SVMPHT   DS    CL1                   SPECIAL MAP HDR OR TRL   0635191   00170000
+         DS    CL58           FILLER                          0635191   00171000
+*                                                             0635191   01159000
+*   MULTI PUT MQ WORK AREA                                    0635191   01160000
+*                                                             0635191   01161000
+MQWORK   DS    0CL220                                         0635191   01171000
+MQDAG    DS    CL8                   DAG TO BE PUT TO QUEUE   0635191   01190000
+MQPUTHDR DS    CL1                   PUT W/ APC(1) W/OUT(0)   0635191   01260000
+MQPUTDST DS    CL8                   DST NAME FOR PUT         0635191   01270000
+MQPUTQUE DS    CL48                  PUT QUEUE NAME           0635191   01280000
+MQPUTRQU DS    CL48                  REPLY QUEUE  FOR PUT     0635191   01290000
+MQPUTMGR DS    CL48                  PUT QUEUE MANAGER        0635191   01300000
+MQPUTRMG DS    CL48                  REPLY QUE MGR FOR PUT    0635191   01310000
+MQPUTOPT DS    XL4                   PUT OPTION               0635191   01320000
+MQPUTOCT DS    CL1                   PUT CONTEXT              0635191   01330000
+         DS    CL6                                            0635191   01340000

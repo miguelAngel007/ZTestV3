@@ -1,0 +1,29 @@
+******************************* CZTS2ITS *****************************  00000010
+* SISTEMA   : APERTURA RAPIDA DESDE GINA                             *  00000020
+* COPY BOOK : ARCHIVO DE INTERFASE ENTRE RM & TSLOG/IM/ST            *  00000020
+**********************************************************************  00000060
+ITSAREA  DS   0F             * INICIO DE COMMAREA                       00000070
+*                                                                       00000080
+ITSKEY   DS   0CL33          * CLAVE DE ACCESO                          00000090
+ITSIDAPL DS    CL2           *   APLICACION SYSTEMATICS                 00000090
+*                            *     IM - IMPACS                          00000090
+*                            *     ST - SAVING/TIMES                    00000090
+*                            *     RM - CIS                             00000090
+ITSCTRL1 DS    CL4           *   CONTROL 1                              00000120
+ITSCTRL2 DS    CL4           *   CONTROL 2                              00000120
+ITSCTRL3 DS    CL4           *   CONTROL 3                              00000120
+ITSCTRL4 DS    CL4           *   CONTROL 4                              00000120
+*                            *                                          00000090
+ITSCUENT DS   0CL14          *   NUMERO DE CUENTA / CODIGO DE CLIENTE   00000120
+ITSACCFL DS    CL4           *     FILLER                               00000120
+ITSACCNB DS    CL10          *     NUMERO DE CUENTA                     00000120
+*                            *                                          00000090
+ITSTYREC DS    CL1           *   TIPO DE REGISTRO                       00000120
+*                            *     0 - HEADER                           00000090
+*                            *     1 - CLIENTE PERSONAL                 00000090
+*                            *     2 - CLIENTE COMERCIAL                00000090
+*                            *     3 - RELACION CLIENTE- CUENTA         00000090
+*                            *     4 - CREACION DE CUENTA               00000090
+ITDETREG DS    CL484         *                                          00000120
+*                                                                       00000760
+ITSAREAL EQU   *-ITSAREA     * RECORD LENGTH                            00000770

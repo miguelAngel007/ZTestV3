@@ -1,0 +1,141 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SADNMGET &WKAREA,         MACRO WORK/SCHAIN RETURN AREA       X00002000
+               &SNAME,             REQUESTED USER SHORT NAME (ARG)     X00003000
+               &PFX=DSN,           MACRO LABEL PREFIX                  X00004000
+               &DNM=SADDN,         DNM   LABEL PREFIX                  X00005000
+               &SCHAIN=NO          SEARCH CHAIN REQUIRED (YES/NO)       00006000
+.*********************************************************************  00007000
+.*                                                                    * 00008000
+.* SADNMGET MACRO                                                     * 00009000
+.*                                                                    * 00010000
+.* LAST MAINTENANCE DATE: 02/22/92  / SA0004                          * 00011000
+.*                                                                    * 00012000
+.* SADNMGET SEARCHES A DNM FOR A GIVEN USER SHORT NAME AND RETURNS    * 00013000
+.* THE ADDRESS FOR THE INDICATED DNM ITEM.                            * 00014000
+.*                                                                    * 00015000
+.* THE DNM ITEM CONTAINS MULTIPLE DATA FIELDS, MULTIPLE DATA FIELDS   * 00016000
+.* BEING VARIABLE LENGTH AND PRECEDED BY A ONE-BYTE LENGTH FIELD.     * 00017000
+.* USER SHORT NAME IS THE FIRST VARIABLE LENGTH DATA FIELD WITHIN THE * 00018000
+.* DNM, OCCURING AT A FIXED OFFSET FROM THE BEGINNING OF THE DNM ITEM.* 00019000
+.* (TO FIND POSITION OF VARIABLE LENGTH DATA FIELDS WITHIN THE DNM,   * 00020000
+.* USERS MUST CONSIDER RELATIVE POSITION OR SEQUENCE AND LENGTHS OF   * 00021000
+.* PRECEDING VARIABLE LENGTH DATA FIELDS.)                            * 00022000
+.*                                                                    * 00023000
+.* SADNMGET CAN ALSO RETURN USER SHORT NAME AND DISPLACEMENT FOR ALL  * 00024000
+.* ITEMS IN THE BINARY SEARCH CHAIN, IF REQUESTED.  THIS MAY BE USE-  * 00025000
+.* FUL IN VERIFYING BINARY SEARCH TREE DATA.                          * 00026000
+.*                                                                    * 00027000
+.* SADNMGET ASSUMES THE FOLLOWING:                                    * 00028000
+.*   1) CSECT ISSUING SADNMGET MACRO WILL ALSO INCLUDE 'SAD9DNMA'     * 00029000
+.*      MACRO FOR THE DNM, PROVIDE ADDRESSABILITY, AND EQUATE REGS    * 00030000
+.*      X TO RX.                                                      * 00031000
+.*                                                                    * 00032000
+.*   2) FORMAT FOR THE MACRO CALL IS:                                 * 00033000
+.*                                                                    * 00034000
+.*      SADNMGET SNAME,WKAREA,PFX=DSN,DNM=SADDN,SCHAIN=NO             * 00035000
+.*                 |¦    |      |      |          |.....SCHAIN REQD   * 00036000
+.*                 |¦    |      |      |................DNM LABEL PFX * 00037000
+.*                 |¦    |      |.......................MACRO LBL PFX * 00038000
+.*                 |     |..............................A(WORK AREA)  * 00039000
+.*                 |....................................A(SHORT NAME) * 00040000
+.*                                                                    * 00041000
+.*     ANY OR ALL OPERANDS MAY BE OMITTED, AS EXPLAINED BELOW.        * 00042000
+.*                                                                    * 00043000
+.*   3) IF WKAREA IS NOT SPECIFIED, IT IS ASSUMED THAT REGISTER 1     * 00044000
+.*      CONTAINS THE ADDRESS OF A WORKAREA SUFFICIENTLY LONG TO       * 00045000
+.*      HOLD THE FOLLOWING:                                           * 00046000
+.*        (BASIC WORKAREA SIZE REQUIREMENT)                           * 00047000
+.*           A) 20-BYTE SEARCH ARGUMENT (USER SHORT NAME)             * 00048000
+.*           B) 20-BYTE FIXED LENGTH USER SHORT NAME FROM DNM ITEM    * 00049000
+.*           C) 4-BYTE RETURN AREA FOR ADDRESS OF REQUESTED DNM ITEM  * 00050000
+.*           D) 4-BYTE COUNTER FOR # NODES SEARCHED                   * 00051000
+.*        (IF SCHAIN=YES IS SPECIFIED)                                * 00052000
+.*           E) 4-BYTE ADDRESS FOR SCHAIN DATA - NEXT SLOT            * 00053000
+.*           F) SCHAIN DATA (MAX NUMBER DNM ITEMS * (20+2))           * 00054000
+.*                                                                    * 00055000
+.*   4) IF USER SHORT NAME IS NOT SPECIFIED, SADNMGET ASSUMES THAT    * 00056000
+.*      THE USER SHORT NAME SEARCH ARGUMENT IS PLACED AT OFFSET ZERO  * 00057000
+.*      (0) IN THE WORKAREA FOR LENGTH OF 20 (PADDED W/BLANKS).       * 00058000
+.*                                                                    * 00059000
+.*   5) IF SEARCH PATH DATA IS REQUIRED, SPECIFY SCHAIN=YES, IN WHICH * 00060000
+.*      CASE THE WORKAREA MUST BE LARGE ENOUGH TO CONTAIN THE SCHAIN  * 00061000
+.*      DATA IN ADDITION TO BASE WORKAREA SIZE REQUIREMENT.           * 00062000
+.*                                                                    * 00063000
+.*   6) LABELS WILL HAVE THE FORMAT &PFX&Z.?, WHERE &PFX DEFAULTS TO  * 00064000
+.*      TO 'DSN', &Z EQUATES TO &SYSNDX, WHICH IS A UNIQUE 4-DIGIT    * 00065000
+.*      NUMBER SET BY THE ASSEMBLER, AND ? IS A UNIQUE QUALIFIER.     * 00066000
+.*      IF THIS DOES NOT CREATE UNIQUE LABELS OR IF OTHERWISE         * 00067000
+.*      DESIRABLE, THE KEYWORD PARAMETER &PFX MAY BE SPECIFIED        * 00068000
+.*      AS REQUIRED.                                                  * 00069000
+.*                                                                    * 00070000
+.*   7) SADNMGET WILL USE ONLY REGISTERS 14, 15, 0, AND 1.            * 00071000
+.*                                                                    * 00072000
+.*   8) ON RETURN,                                                    * 00073000
+.*          REG 15 = RETURN CODE = SUCCESSFUL(00) OR UNSUCCESSFUL(16) * 00074000
+.*          REG  0 = NUMBER NODES SEARCHED                            * 00075000
+.*          REG  1 = A(REQUESTED DNM ITEM)                            * 00076000
+.*                                                                    * 00077000
+.********************************************************************** 00078000
+         LCLC  &Z                                                       00079000
+&Z       SETC  '&SYSNDX'                                                00080000
+&LABEL   DS    0H                                                       00081000
+         AIF   ('&WKAREA' EQ '').DSN001                                 00082000
+         LA    R1,&WKAREA         R1 = A(MACRO WORK AREA)               00083000
+.DSN001  ANOP                                                           00084000
+         AIF   ('&SNAME' EQ '').DSN002                                  00085000
+         MVC   0(20,R1),&SNAME     SAVE USER SHORT NAME                 00086000
+.DSN002  ANOP                                                           00087000
+         AIF   ('&SCHAIN' NE 'YES').DSN003                              00088000
+         LA    R14,((2*20)+(3*4))(,R1) R14 = A(SCHAIN RETURN AREA)      00089000
+         STCM  R14,B'1111',48(R1)  SAVE A(SCHAIN RETURN AREA/NEXT SLOT) 00090000
+.DSN003  ANOP                                                           00091000
+         XC    44(4,R1),44(R1)     INIT NUMBER NODES SEARCHED = 0       00092000
+         LA    R14,0                                                    00093000
+         ICM   R14,B'0011',&DNM.BST R14=BINSRCH START OFFSET            00094000
+         BZ    &PFX&Z.C            SKIP TO ERR-EXIT IF NO VALID START   00095000
+&PFX&Z.A DS 0H                                                          00096000
+         LA    R15,1               R15 = NUMBER NODES SEARCHED INCR (1) 00097000
+         ICM   R0,B'1111',44(R1)   R0  = NUMBER NODES SEARCHED - PREV   00098000
+         AR    R0,R15              R0  = NUMBER NODES SEARCHED - NEW    00099000
+         STCM  R0,B'1111',44(R1)   STORE NUMBER NODES SEARCHED - NEW    00100000
+         LA    R15,SADDN(R14)      R15 = CURRENT (NEXT) ITEM ADDR       00101000
+         LR    R0,R14              R0  = DISPLACEMENT / CURRENT NODE    00102000
+         MVI   20(R1),C' '                                              00103000
+         MVC   21(19,R1),20(R1)    CLEAR USER SHORT NAME FIXED AREA     00104000
+         LA    R14,0               R14 = EXECUTE REGISTER CLEARED       00105000
+         ICM   R14,B'0001',(SADDNUSL-SADDNENT)(R15) R14 = L'SHORT NAME  00106000
+         BZ    &PFX&Z.B            DONT MOVE IF ZERO LENGTH             00107000
+         BCTR  R14,0               R14 = LC'USER SHORT NAME             00108000
+         EX    R14,&PFX&Z.$        MOVE SHORT NAME TO FIXED LENGTH AREA 00109000
+         B     &PFX&Z.B            (SKIP EXECUTE INSTRUCTION)           00110000
+&PFX&Z.$ MVC   20(0,R1),(&DNM.USN-&DNM.ENT)(R15) FIXED AREA = SHORT NM  00111000
+&PFX&Z.B DS   0H                                                        00112000
+         AIF   ('&SCHAIN' NE 'YES').DSN007                              00113000
+         ICM   R14,B'1111',48(R1)  R14 = A(SCHAIN RTN AREA-NEXT ITEM)   00114000
+         MVC   0(20,R14),20(R1)    SAVE SHORTNAME/CURNODE               00115000
+         STCM  R0,B'0011',20(R14)  SAVE DISPLACEMENT/CURR NODE (ITEM)   00116000
+         LA    R14,22(,R14)        R14 = A(NEXT ITEM TABLE SLOT)        00117000
+         STCM  R14,B'1111',48(R1)  STORE A(SCHAIN RTN AREA-NEXT SLOT)   00118000
+.DSN007  ANOP                                                           00119000
+         CLC   0(20,R1),20(R1)     IS THIS THE REQUESTED ITEM           00120000
+         BE    &PFX&Z.D              Y. RETURN REQUESTED DATA           00121000
+         LA    R14,0                 NL. R14 = INDEX 0 (SEARCH LOWER)   00122000
+         BL    *+4+4               CHECK FOR SEARCH ARGUMENT LO/HI      00123000
+         LA    R14,2                 NH. R14 = INDEX 2 (SEARCH HIGHER)  00124000
+*+4+4    EQU   *                                                        00125000
+         LA    R14,(&DNM.BLO-&DNM.ENT)(R14,R15) R14=A(NX SEG OFFST)     00126000
+         ICM   R14,B'1100',0(R14)  R14 = NEXT ITEM OFFSET (LJ)          00127000
+         SRL   R14,16              R14 = NEXT ITEM OFFSET (RJ)          00128000
+         BNZ   &PFX&Z.A            LOOP TO CK NEXT NODE IF VALID OFFSET 00129000
+&PFX&Z.C DS 0H                  ** USER SHORT NAME NOT FOUND            00130000
+         LA    R15,16              R15= RTNCODE = 16 (UNSUCCESSFUL)     00131000
+         XC    40(4,R1),40(R1)     RTNAD = NULL (ITEM NOT FOUND)        00132000
+         B     &PFX&Z.E            SKIP TO COMMON EXIT                  00133000
+&PFX&Z.D DS 0H                  ** USER SHORT NAME FOUND                00134000
+         STCM  R15,B'1111',40(R1)  RTNAD  = A(RESULT ITEM)              00135000
+         LA    R15,0               R15= RTNCODE = 00 (SUCCESSFUL)       00136000
+&PFX&Z.E DS 0H                                                          00137000
+         ICM   R0,B'1111',44(R1)   R0  = NUMBER NODES SEARCHED          00138000
+         ICM   R1,B'1111',40(R1)   R1  = A(REQUESTED DSM ITEM)          00139000
+         MEND                                                           00140000

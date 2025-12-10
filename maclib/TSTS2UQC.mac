@@ -1,0 +1,160 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                   ** COPYBOOK DESCRIPTION **                        * 00000110
+*                                                                     * 00000120
+*                              TSTS2UQC                               * 00000200
+*                         TRANSACTION SYSTEM                          * 00000300
+*                     UPDATE NCA QUEUE CONTROL LIST                   * 00000400
+*---------------------------------------------------------------------* 00000500
+         EJECT                                                2024183   00000505
+*---------------------------------------------------------------------* 00000510
+*                  ** HISTORY OF REVISIONS **                         * 00000515
+*                                                                     * 00000520
+* DESCRIPTION                                                 CHNGID  * 00000525
+* __________________________________________________________  _______ * 00000530
+* 03/14/00 MODIFY FOR 31-BIT                                  2024183   00000585
+*                                                                     * 00000590
+*---------------------------------------------------------------------* 00000595
+         SPACE                                                          00000600
+UPDQU000 CSECT                                                          00000700
+UPDQU000 AMODE 31                                             2024183   00000710
+UPDQU000 RMODE ANY                                            2024183   00000720
+         STM   R14,R12,WKQREGS         SAVE REGISTERS                   00000800
+         LR    R10,R15                                                  00000900
+         USING UPDQU000,R10                                             00001000
+         L     R8,DFHEICAP             POINT TO NCA                     00001100
+         USING TSTSNCA,R8              ESTABLISH ADDRESSABILITY         00001200
+         MVC   WKQLIST(30),SPACES      INITIALIZE WORKING NCA           00001300
+         MVC   WKQOF(6),SPACES         INITIALIZE WORKING NCA OVERFLOW  00001400
+         MVC   WKQAPPL(2),NCAEXTC      SET APPL TO CURRENT APPL         00001500
+         MVC   WKQSAVE(30),NCAQUCTL    SAVE NCA QUEUE CTL LIST          00001600
+         MVI   WKQRETCD,C'0'           INITIALIZE RETURN CODE           00001700
+         LA    R6,NCAQUCTL             POINT TO NCA QUEUE CTL LIST      00001800
+         LA    R7,WKQLIST              POINT TO WORKING NCA             00001900
+         LA    R9,10                   MAXIMUM # OF OCCUR IN NCA        00002000
+         CLI   WKQFLAG,C'E'            IS THIS AN ERASE FLAG            00002100
+         BE    UPDQU076                GO ERASE ENTRY                   00002200
+UPDQU010 EQU   *                                                        00002300
+         CLI   0(R6),C'A'              IS THIS AN APPL ENTRY            00002400
+         BNE   UPDQU015                NO, BUMP TO NEXT ENTRY           00002500
+         CLC   1(2,R6),WKQAPPL         IS 'A' ENTRY FOR THIS APPL       00002600
+         BE    UPDQU025                YES, GO MOVE 'A' ENTRY           00002700
+UPDQU015 EQU   *                                                        00002800
+         CLC   0(3,R6),SPACES          IS THIS ENTRY EMPTY              00002900
+         BE    UPDQU020                YES, SKIP IT                     00003000
+         CLC   0(3,R6),LOWVALU         IS THIS ENTRY EMPTY              00003100
+         BE    UPDQU020                YES, SKIP IT                     00003200
+         MVC   0(3,R7),0(R6)           NO, MOVE ENTRY TO WORK NCA       00003300
+         MVC   0(3,R6),SPACES          SPACE OUT ENTRY IN NCA           00003400
+         LA    R7,3(R7)                BUMP TO NEXT WORKING ENTRY       00003500
+UPDQU020 EQU   *                                                        00003600
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00003700
+         BCT   R9,UPDQU010             LOOP THRU ALL NCA QUEUE ENTRIES  00003800
+         MVI   0(R7),C'A'              ADD AN 'A' ENTRY TO WORKING NCA  00003900
+         MVC   1(2,R7),WKQAPPL         MOVE IN APPL ID FOR 'A' ENTRY    00004000
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00004100
+         MVC   0(1,R7),WKQFLAG         ADD QUEUE ENTRY                  00004200
+         MVC   1(2,R7),WKQID           MOVE IN QUEUE ID FOR ENTRY       00004300
+         B     UPDQU075                BRANCH TO EXIT                   00004400
+UPDQU025 EQU   *                                                        00004500
+         MVC   0(3,R7),0(R6)           MOVE ENTRY INTO WORKING NCA      00004600
+         LA    R7,3(R7)                BUMP TO NEXT WORKING ENTRY       00004700
+         MVC   0(3,R6),SPACES          MOVE SPACES TO NCA ENTRY         00004800
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00004900
+         BCTR  R9,0                    SUBTRACT ONE FROM COUNT          00005000
+UPDQU030 EQU   *                                                        00005100
+         CLI   0(R6),C'A'              IS THIS AN 'A' ENTRY             00005200
+         BE    UPDQU040                YES, COMPARE APPLICATIONS        00005300
+         CLC   1(2,R6),WKQID           IS ENTRY FOR THIS QID            00005400
+         BE    UPDQU045                YES, MOVE ENTRY TO WORKING NCA   00005500
+         CLC   0(3,R6),SPACES          IS ENTRY EMPTY                   00005600
+         BE    UPDQU032                YES, MAKE NEW ENTRY              00005700
+         CLC   0(3,R6),LOWVALU         IS ENTRY EMPTY                   00005800
+         BNE   UPDQU035                NO, GO TO MOVE                   00005900
+UPDQU032 EQU   *                                                        00006000
+         MVC   0(1,R7),WKQFLAG         YES, ADD ENTRY TO WORKING NCA    00006100
+         MVC   1(2,R7),WKQID           MOVE IN QID SENT TO ROUTINE      00006200
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00006300
+         B     UPDQU060                GO MOVE THE REST                 00006400
+UPDQU035 EQU   *                                                        00006500
+         MVC   0(3,R7),0(R6)           MOVE NCA ENTRY TO WORKING NCA    00006600
+         MVC   0(3,R6),SPACES          SPACE OUT ENTRY IN NCA           00006700
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00006800
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00006900
+         BCT   R9,UPDQU030             LOOP THRU ALL NCA QUEUE ENTRIES  00007000
+UPDQU040 EQU   *                                                        00007100
+         MVC   0(1,R7),WKQFLAG         MOVE ENTRY INTO WORKING NCA      00007200
+         MVC   1(2,R7),WKQID           MOVE QID INTO WORKING NCA        00007300
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00007400
+         B     UPDQU060                MOVE REMAINING NCA ENTRIES       00007500
+UPDQU045 EQU   *                                                        00007600
+         MVC   0(1,R7),WKQFLAG         MOVE ENTRY FOR QID TO WRKING NCA 00007700
+         MVC   1(2,R7),WKQID           MOVE QID INTO WORKING NCA        00007800
+         LA    R7,3(R7)                POINT TO NEXT WORKING NCA ENTRY  00007900
+UPDQU048 EQU   *                                                        00008000
+         MVC   0(3,R6),SPACES          CLEAR OUT NCA ENTRY              00008100
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00008200
+         BCT   R9,UPDQU050             SUBTRACT ONE FROM COUNT2602878   00008300
+         B     UPDQU060                AT LAST ENTRY          2602878   00008310
+UPDQU050 EQU   *                                                        00008400
+         CLI   0(R6),C'A'              IS THIS AN APPL ENTRY            00008500
+         BE    UPDQU060                YES, GO MOVE THE REST            00008600
+         CLC   0(3,R6),SPACES          NO, IS THIS ENTRY EMPTY          00008700
+         BE    UPDQU055                YES, SKIP IT                     00008800
+         CLC   0(3,R6),LOWVALU         IS THIS ENTRY EMPTY              00008900
+         BE    UPDQU055                YES, SKIP IT                     00009000
+         MVC   0(3,R7),0(R6)           NO, MOVE ENTRY TO WORKING NCA    00009100
+         MVC   0(3,R6),SPACES          SPACE OUT NCA ENTRY              00009200
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00009300
+UPDQU055 EQU   *                                                        00009400
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00009500
+         BCT   R9,UPDQU050             LOOP THRU ALL NCA ENTRIES        00009600
+UPDQU060 EQU   *                       MOVE REMAINING NCA ENTRIES       00009700
+         LA    R6,NCAQUCTL             POINT TO FIRST NCA QUEUE CTL     00009800
+         LA    R9,10                   MAX # OF OCCUR IN NCA QUEUE CTL  00009900
+UPDQU065 EQU   *                                                        00010000
+         CLC   0(3,R6),SPACES          IS ENTRY PRESENT                 00010100
+         BE    UPDQU070                NO, BUMP TO NEXT ENTRY           00010200
+         CLC   0(3,R6),LOWVALU         IS ENTRY PRESENT                 00010300
+         BE    UPDQU070                NO, BUMP TO NEXT ENTRY           00010400
+         MVC   0(3,R7),0(R6)           MOVE ENTRY TO WORKING NCA ENTRY  00010500
+         MVC   0(3,R6),SPACES          MOVE SPACES TO NCA ENTRY         00010600
+         LA    R7,3(R7)                BUMP TO NEXT WORKING NCA ENTRY   00010700
+UPDQU070 EQU   *                                                        00010800
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00010900
+         BCT   R9,UPDQU065             LOOP THRU ALL NCA QUEUE CTL      00011000
+UPDQU075 EQU   *                                                        00011100
+         CLC   WKQOF(6),SPACES         ARE THERE MORE THAN 10 ENTRIES   00011200
+         BE    UPDQU080                YES, EXIT -- NO UPDATE           00011300
+         MVC   NCAQUCTL,WKQSAVE        RESTORE NCA QUE CTL LIST         00011400
+         MVI   WKQRETCD,C'1'           SET ERROR RETURN CODE ON         00011500
+         B     UPDQU100                BRANCH TO EXIT                   00011600
+UPDQU076 EQU   *                                                        00011700
+         CLI   0(R6),C'A'              IS THIS AN APPL ENTRY            00011800
+         BNE   UPDQU077                NO, GO CHECK QID                 00011900
+         MVC   SVQAPPL(2),1(R6)        SAVE APPLICATION                 00012000
+         MVC   0(3,R7),0(R6)           MOVE ENTRY TO WRKING NCA         00012100
+         MVC   0(3,R6),SPACES          SPACE OUT NCA ENTRY              00012200
+         LA    R7,3(R7)                BUMP TO NEXT WRKING ENTRY        00012300
+         LA    R6,3(R6)                BUMP TO NEXT NCA ENTRY           00012400
+         BCTR  R9,0                    SUBTRACT ONE FROM COUNT          00012500
+UPDQU077 EQU   *                                                        00012600
+         CLC   1(2,R6),WKQID           IS MATCH ON QID                  00012700
+         BNE   UPDQU078                NO, MOVE ENTRY TO WRKING NCA     00012800
+         CLC   WKQAPPL,SVQAPPL         IS APPL SAME                     00012900
+         BNE   UPDQU078                NO, MOVE ENTRY TO WRKING NCA     00013000
+         MVC   0(3,R6),SPACES          CLEAR ENTRY IN NCA               00013100
+         B     UPDQU079                BUMP TO NEXT NCA ENTRY           00013200
+UPDQU078 EQU   *                                                        00013300
+         MVC   0(3,R7),0(R6)           MOVE WRKING ENTRY TO NCA         00013400
+         MVC   0(3,R6),SPACES          SPACE OUT NCA ENTRY              00013500
+         LA    R7,3(R7)                BUMP TO NEXT WRKING ENTRY        00013600
+UPDQU079 EQU   *                                                        00013700
+         LA    R6,3(R6)                BUMP TO NEXT ENTRY IN NCA        00013800
+         BCT   R9,UPDQU076             LOOP THRU ALL NCA ENTRIES        00013900
+UPDQU080 EQU   *                                                        00014000
+         MVC   NCAQUCTL,WKQLIST        UPDATE NCA QUEUE CTL LIST        00014100
+UPDQU100 EQU   *                                                        00014200
+         LM    R14,R12,WKQREGS         RESTORE REGISTERS                00014300
+         BR    R14                     RETURN                           00014400
+         DROP  R8                                                       00014500

@@ -1,0 +1,106 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*            TSTS2SSR - SEGMENT SPECIFICATION RECORD                  * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 05/02    ALLOW EXTENDED LENGTH RECORDS FLAG ON SSR          2024355 * 00000686
+* 06/00    ALLOW IM SEGMENTATION WITH ACCOUNT                 2023258 * 00000687
+* 06/97    ADDED ITR MODEL POINTER FIELD                      9910846 * 00000688
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000689
+*             SSCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000690
+*             SSCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             SSCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL13        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSSSR  DSECT                                                          00000700
+SSR      DS    0X                                                       00000800
+SSRLNG   DS    XL2                   SSR RECORD LENGTH                  00000900
+*                                    MAX. VALUE = +80                   00001000
+         DS    XL2                   FILLER                             00001100
+SSRKEY   DS    0CL33                 KEY                                00001200
+SSRAPP   DS    CL2                   APPLICATION IDENTIFIER             00001300
+SSRFILID DS    CL3                   APPLICATION FILE ID                00001310
+SSRCTLS  DS    0CL14                 CONTROLS                 2602017   00001320
+SSRFILKY DS    CL28                  APPLICATION FILE KEY     2602017   00001400
+         ORG   SSRFILKY                                       2602017   00001500
+SSRF1CTL DS    0CL12                 FORMAT 1 CONTROLS        2602017   00001600
+SSRF1CT1 DS    CL2                       CONTROL-1                      00001700
+SSRF1CT2 DS    CL3                       CONTROL-2                      00001800
+SSRF1CT3 DS    CL3                       CONTROL-3                      00001900
+SSRF1CT4 DS    CL4                       CONTROL-4                      00002000
+SSRF1ACT DS    CL14                      ACCOUNT NUMBER       2602017   00002010
+         DS    CL2                       FILLER                         00002100
+         ORG   SSRFILKY                                       2602017   00002200
+SSRF2CTL DS    0CL12                 FORMAT 2 CONTROLS        2602017   00002300
+SSRF2CT1 DS    CL2                       CONTROL-1                      00002400
+SSRF2CT2 DS    CL10                      CONTROL-2                      00002500
+         DS    CL16                      FILLER               2602017   00002600
+         ORG   SSRFILKY                                       2602017   00002700
+SSRF3CTL DS    0CL11                 FORMAT 3 CONTROLS        2602017   00002800
+SSRF3CT1 DS    CL2                       CONTROL-1                      00002900
+SSRF3CT2 DS    CL3                       CONTROL-2                      00003000
+SSRF3CT3 DS    CL3                       CONTROL-3                      00003100
+SSRF3CT4 DS    CL3                       CONTROL-4                      00003200
+SSRF3ACT DS    CL14                      ACCOUNT NUMBER       2602017   00003210
+         DS    CL3                       FILLER                         00003300
+         ORG   SSRFILKY                                       2602017   00003400
+SSRF4CTL DS    0CL8                  FORMAT 4 CONTROLS        2602017   00003500
+SSRF4CT1 DS    CL2                       CONTROL-1                      00003600
+SSRF4CT2 DS    CL3                       CONTROL-2                      00003700
+SSRF4CT3 DS    CL3                       CONTROL-3                      00003800
+SSRF4ACT DS    CL14                      ACCOUNT NUMBER       2602017   00003810
+         DS    CL6                       FILLER                         00003900
+         ORG   SSRFILKY                                       2602017   00004000
+SSRF5CTL DS    0CL5                  FORMAT 5 CONTROLS        2602017   00004100
+SSRF5CT1 DS    CL2                       CONTROL-1                      00004200
+SSRF5CT2 DS    CL3                       CONTROL-2                      00004300
+SSRF5ACT DS    CL14                      ACCOUNT NUMBER       2602017   00004310
+         DS    CL9                       FILLER                         00004400
+         ORG   SSRFILKY                                       2602017   00004500
+SSRF6CTL DS    0CL4                  FORMAT 6 CONTROLS        2602017   00004600
+SSRF6CT1 DS    CL4                       CONTROL-1                      00004700
+SSRF6ACT DS    CL14                      ACCOUNT NUMBER       2602017   00004710
+         DS    CL10                      FILLER                         00004800
+         ORG   SSRFILKY                                         ~~~3258 00004810
+SSRF7CTL DS    0CL12                 FORMAT 7 CONTROLS          ~~~3258 00004820
+SSRF7CT1 DS    CL2                       CONTROL-1              ~~~3258 00004830
+SSRF7CT2 DS    CL3                       CONTROL-2              ~~~3258 00004840
+SSRF7CT3 DS    CL3                       CONTROL-3              ~~~3258 00004850
+SSRF7CT4 DS    CL4                       CONTROL-4              ~~~3258 00004860
+SSRF7ACT DS    CL10                      ACCOUNT NUMBER         ~~~3258 00004870
+         DS    CL6                       FILLER                 ~~~3258 00004880
+         ORG                                                            00004900
+*                                                               2602105 00004910
+SSCAFCL  DS    XL1                   FILE CONVERSION LEVEL      2602105 00004920
+SSCARCL  DS    XL1                   REC CONVERSION LEVEL       2602105 00004930
+*                                                               2602105 00004940
+SSRLMINF DS    0CL43                 LAST MAINT INFORMATION             00005000
+SSRLMDTE DS    CL6                       DATE                           00005100
+SSRLMTIM DS    CL6                       TIME                           00005200
+SSRLMEMP DS    CL8                       EMPLOYEE ID                    00005300
+SSCACHID DS    CL8                       CA CHANGE ID           2602105 00005400
+         DS    CL13                  FILLER                     2602105 00005500
+         ORG   SSRLMINF                                                 00005600
+SSRSEGFM DS    CL1                   SEGMENT FORMAT INDICATOR           00005610
+SSRBTSEG DS    CL2                   BATCH SEGEMENT                     00005700
+SSROLGPS DS    0CL6                  ONLINE GROUP NUMBERS               00005800
+SSRMSTGP DS    CL2                       MASTER RECORD                  00005900
+SSRCTLGP DS    CL2                       CONTROL RECORD                 00006000
+SSRALPGP DS    CL2                       ALPHA RECORD                   00006100
+SSRRECSQ DS    CL1                   RELATED SEGMENT INDICATOR2511946   00006200
+SSRMODEL DS    CL4                   ITR MODEL POINTER        9910846   00006210
+SSRXLNRC DS    CL1                   EXTENDED LENGTH REC IND  2024355   00006220
+         DS    CL26                  FILLER                   2024355   00006300
+         ORG                                                            00006400

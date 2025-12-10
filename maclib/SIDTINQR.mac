@@ -1,0 +1,35 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                  ** HISTORY OF REVISIONS **                         * 00000020
+*                                                                     * 00000030
+* DESCRIPTION                                                 CHNGID  * 00000040
+* __________________________________________________________  _______ * 00000050
+* 07/01/95 ADDED MULTI-LANG INQUIRY CAPABILITY USING TRC      9913481 * 00000096
+*---------------------------------------------------------------------* 00000098
+INQREC   DS    0CL188        INQUIRY RECORD DESCRIPTION       9913481   00000100
+INQBCRCL DS    0CL22         BCR CONTROLS                               00000200
+INQBCRC1 DS    CL2               CONTROL 1                              00000300
+INQBCRC2 DS    CL3               CONTROL 2                              00000400
+INQBCRC3 DS    CL3               CONTROL 3                              00000500
+INQBCRC4 DS    CL4               CONTROL 4                              00000600
+         DS    CL10              FILLER FOR FMS                         00000700
+         ORG   INQBCRCL                                                 00000800
+INXBCRC1 DS    CL4               FMS CUSTOMER NUMBER                    00000900
+INXRESP  DS    CL18              FMS RESPONSIBILITY NUMBER              00001000
+         ORG                                                            00001100
+INQPGM   DS    0CL8          PROGRAM                                    00001200
+INQAPPL  DS    CL2               APPLICATION                            00001300
+INQMAIN  DS    CL2               MAINLINE NUMBER                        00001400
+INQUSER  DS    CL4               USER IDENTIFICATION                    00001500
+INQRPTNO DS    CL3           REPORT NUMBER                              00001600
+INQPGCTR DS    PL3           PAGE COUNTER (PACKED S9(5))                00001700
+INQLNCTR DS    PL2           LINE COUNTER (PACKED S999)                 00001800
+INQLNENO DS    PL4           LINE NUMBER (PACKED S9(7))                 00001900
+INQLNETY DS    CL1           LINE TYPE                                  00002000
+INQSUBTY DS    CL1           SUB TYPE                                   00002100
+INQPRTID DS    CL1           PRINT FILE ID                              00002110
+         DS    CL9           FILLER                                     00002200
+INQPRTLN DS    0CL134        PRINT LINE                       9913481   00002300
+INQPLCTL DS    CL1           PRINT CONTROL CHARACTER                    00002400
+INQPLTRC DS    CL1           PRINT TRC                        9913481   00002410
+INQPRTDT DS    CL132         PRINT LINE DATA                            00002500

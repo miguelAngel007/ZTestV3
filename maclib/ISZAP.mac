@@ -1,0 +1,47 @@
+         MACRO                                                          00000100
+&LABEL   ISZAP &TO,&LENGTH                                              00000200
+         LCLB  &FREG,&TREG,&LREG,&FNOREG,&TNOREG,&LNOREG                00000300
+         LCLC  &TOREG,&LNREG                                            00000400
+         AIF   (T'&TO NE 'O').TOOK                                      00000500
+         MNOTE 'TO OPERAND MISSING, REG 14 ASSUMED'                     00000600
+&TREG    SETB  1                                                        00000700
+.TOOK    AIF   (T'&LENGTH NE 'O').FRMOK                                 00000800
+         MNOTE 'LENGTH OPERAND MISSING, REG 15 ASSUMED'                 00000900
+&LREG    SETB  1                                                        00001000
+.FRMOK   AIF   (T'&TO EQ 'O').TOK                                       00001100
+         AIF   ('&TO'(1,1) EQ '(').TOK                                  00001200
+&TNOREG  SETB  1                                                        00001300
+&TREG    SETB  1                                                        00001400
+.TOK     AIF   (T'&LENGTH EQ 'O').FIXREG                                00001500
+         AIF   ('&LENGTH'(1,1) EQ '(').FIXREG                           00001600
+&LNOREG  SETB  1                                                        00001700
+&LREG    SETB  1                                                        00001800
+.FIXREG  AIF   (&TNOREG).CKLNOR                                         00001900
+&TOREG   SETC  '&TO(1)'                                                 00002000
+.CKLNOR  AIF   (&LNOREG).TOFIX                                          00002100
+&LNREG   SETC  '&LENGTH(1)'                                             00002200
+.TOFIX   AIF   (NOT &TREG).LNFIX                                        00002300
+&TOREG   SETC  '14'                                                     00002400
+.LNFIX   AIF   (NOT &LREG).ENDFIX                                       00002500
+&LNREG   SETC  '15'                                                     00002600
+.ENDFIX  ANOP                                                           00002700
+         AIF   (T'&LABEL EQ 'O').NOLABL                                 00002800
+&LABEL   EQU   *                                                        00002900
+.NOLABL  AIF   (NOT &TNOREG).CHKLNO                                     00003000
+         LA    14,&TO                                                   00003100
+.CHKLNO  AIF   (NOT &LNOREG).MSTRT                                      00003200
+         L     15,&LENGTH                                               00003300
+.MSTRT   LR    1,&LNREG                                                 00003400
+         SRA   1,8                                                      00003500
+         LTR   1,1                                                      00003600
+         BZ    *+26                                                     00003700
+         BM    *+40                                                     00003800
+         XC    0(256,&TOREG),0(&TOREG)                                  00003900
+         SH    &LNREG,=H'256'                                           00004000
+         LA    &TOREG,256(0,&TOREG)                                     00004100
+         BCT   1,*-14                                                   00004200
+         SH    &LNREG,=H'1'                                             00004300
+         BM    *+14                                                     00004400
+         STC   &LNREG,*+5                                               00004500
+         XC    0(0,&TOREG),0(&TOREG)                                    00004600
+         MEND                                                           00004700

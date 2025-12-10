@@ -1,0 +1,57 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                               SIDTSPAR                              * 00000020
+*                              SISPOOL AREA                           * 00000030
+*---------------------------------------------------------------------* 00000040
+*                  ** HISTORY OF REVISIONS **                         * 00000050
+* DESCRIPTION                                                 CHNGID  * 00000060
+* __________________________________________________________  _______ * 00000070
+* 06/22/95 REMOVE THE SPLXLATE FLAG                           2602409 * 00000098
+*---------------------------------------------------------------------* 00000099
+SIDTSPAR DS    0D                      SPOOL CONTROL AREA               00000100
+SPLCD    DC    CL1'1'                  CODE                             00000200
+SPLFORM  DC    CL1'A'                  FORM                             00000300
+SPLPGM   DS    0CL8                    PROGRAM                          00000400
+SPLAPPL  DC    CL2' '                      APPLICATION                  00000500
+SPLMAIN  DC    CL2' '                      MAINLINE NUMBER              00000600
+SPLUSER  DC    CL4' '                      USER IDENTIFICATION          00000700
+SPLRPTNO DC    CL3'000'                REPORT NUMBER                    00000800
+SPLBCRSW DC    CL1' '                  BCR CONTROL BREAK SWITCH         00000900
+SPLBCRBK EQU   C'X'                    FORCE BCR BREAK                  00001000
+SPLBCRCL DS    0CL12                   BCR CONTROLS                     00001100
+SPLBCRC1 DC    CL2'00'                     CONTROL 1                    00001200
+SPLBCRC2 DC    CL3'000'                    CONTROL 2                    00001300
+SPLBCRC3 DC    CL3'000'                    CONTROL 3                    00001400
+SPLBCRC4 DC    CL4'0000'                   CONTROL 4                    00001500
+         DC    CL10'0000000000'        FILLER                           00001600
+SPLRPTSW DC    CL1' '                  RPT CONTROL BREAK SWITCH         00001700
+SPLRPTCL DS    0CL12                   RPT CONTROLS                     00001800
+SPLRPTC1 DC    CL2'00'                     CONTROL 1                    00001900
+SPLRPTC2 DC    CL3'000'                    CONTROL 2                    00002000
+SPLRPTC3 DC    CL3'000'                    CONTROL 3                    00002100
+SPLRPTC4 DC    CL4'0000'                   CONTROL 4                    00002200
+         DC    CL10'0000000000'        FILLER                           00002300
+SPLBSTAT DC    CL1'0'                  BILL STATUS SWITCH               00002400
+SPLLNENO DC    PL4'0'                  LINE NUMBER (PACKED S9(7))       00002500
+SPLLNETY DC    CL1' '                  LINE TYPE                        00002600
+SPLSUBTY DC    CL1' '                  SUB TYPE                         00002700
+SPLRPTLV DC    CL1'0'                  REPORT LEVEL                     00002800
+SPLPRTID DC    CL1' '                  PRINT FILE ID                    00002900
+SPLEXTFL DC    CL1' '                  3800 EXTENDED PROCESSING FLAG    00003000
+SPLEXTLN DC    AL2(133)                3800 LINE LENGTH BINARY          00003100
+         DC    CL1' '                  FILLER                 2602409   00003200
+SPLSAPPL DC    CL2' '                  SUB-APPLICATION                  00003210
+SPLSKID  DC    XL2'0000'               RPT SEARCH KEY RPTID             00003220
+SPLFCVER DC    CL1' '                  FORM CHNG TBLE VERS NO 2120563   00003300
+*                                                                       00003400
+         ORG   SPLBCRCL                                                 00003500
+SPXBCRC1 DS    CL4                     FMS CUSTOMER NUMBER              00003600
+SPXRESP  DS    CL18                    FMS RESPONSIBILITY NUMBER        00003700
+         ORG   SPXRESP                                        2120563   00003710
+SPYRESP  DS    CL10                    FMS VER 2 RESP NUMBER  2120563   00003720
+         ORG   SPLRPTCL                                                 00003800
+SPXRPRC1 DS    CL4                     FMS CUSTOMER NUMBER              00003900
+SPXRPRSP DS    CL18                    FMS RESPONSIBILITY NUMBER        00004000
+         ORG   SPXRPRSP                                       2120563   00004010
+SPYRPRSP DS    CL10                    FMS VER 2 RESP NUMBER  2120563   00004020
+         ORG                                                            00004100

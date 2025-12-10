@@ -1,0 +1,122 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+***  ONLINE EXTENSION OF SACB - FIELDS DEFINITELY NOT USED IN BATCH.    00001000
+*..  ONLINE EXTENSION OF SACB                                           00002000
+***********************************************************   2600213   00002002
+*                 HISTORY OF REVISIONS                    *   2600213   00002004
+* 08-27-14  ADDED DAG INDEX TABLE FIELDS                  *   1526190   00002983
+* 01-23-14  ADDED SACBOPAA (SASIOPTA ADDRESS)             *   1436560   00002984
+* 06-23-05  ADDED SACBAORS (AOR RECORD STORAGE FLAG)      *   0545240   00002985
+* 05-23-05  ADDED SACBSESS, SECONDARY SACB ADDRESS        *   0545225   00002987
+* 09-08-04  ADDED SACBVCRA, SACBVCRS AND SACBSORS TO HELP *   0515064   00002989
+*           MANAGE (REUSE/DELETE) VCR AND SOR RECORDS     *   0515064   00002990
+* 05-22-02  ADDED SAADATEO'S OWN STORAGE AREA             *   2024355   00002992
+* 10-30-95  ADDED NON NATIVE COMMAREA ADDRESS             *   2603016   00002994
+* 01-05-95  ADDED PARMS FIID AND APPL                     *   2522423   00002995
+* 11-11-94  ADDED FULLWORD WORKAREA - SACBFWD             *   2600213   00002996
+***********************************************************   2600213   00002998
+SACBBACA DS    XL4                 APPL'S ACA ADDR FOR TS/BMS           00003000
+SACBBACN DS    CL8                 APPL'S ACA DAG NAME FOR TS/BMS       00004000
+SACBNCAL DS    XL2                 LENGTH OF TS NCA: IF NCA CAME        00005000
+*                                   FROM XCTCOMAD, THIS IS XCTCOMLN.    00006000
+*                                   IF NCA WAS COMMAREA (NATIVE),       00007000
+*                                   THIS IS EIBCALEN.                   00008000
+SACBAPPL DS    CL2                 APPLICATION CODE SET FROM FIRST      00009000
+*                                   SCRIPT OR PROGRAM INVOKED.          00010000
+SACBCVF1 DS    XL1                 CONVERSION FLAG: WHAT KIND OF        00011000
+*                                   ERROR PROCESSING DOES THIS TXN      00012000
+*                                   WANT?  PRE-TS/BMS OR POST?          00013000
+SACBSKSD DS    XL1                 COPY OF THE "SKIP SDR" VALUE FROM    00014000
+*                                   CALLER'S TS/BMS INITIAL REQUEST.    00015000
+*                                   USED TO SET THAT VALUE DURING       00016000
+*                                   ANY INTERNALLY-GENERATED CALL       00017000
+*                                   TO TSTSBRQ1.                        00018000
+SACBMMRV DS    XL1                 TS/BMS REVERSAL MODE FLAG.  X'01'    00019000
+*                                   IF INVOKED IN REVERSAL MODE VIA     00020000
+*                                   TSEJ.                               00021000
+SACBTMST DS    CL1                 TABLE MANAGER STATISTICS GATHERING   00022000
+*                                   WILL BE DONE IF VALUE 'Y'.          00023000
+SACBVRBZ DS    F                   VERB COUNT AT LAST EXECUTION OF      00024000
+*                                   'EXEC CICS DELAY INTERVAL(1)'.      00025000
+SACBVRBI DS    F                   INCREMENTAL VERB COUNT THRESHOLD.    00026000
+*                                   STARTS AT 200.  WHENEVER THE        00027000
+*                                   DIFFERENCE BETWEEN SACBVRBZ         00028000
+*                                   AND THE CURRENT VERB COUNT          00029000
+*                                   (SASTVRBC) EXCEEDS THIS NUMBER,     00030000
+*                                   COPY SASTVRBC TO SACBVRBZ, INCREASE 00031000
+*                                   THIS NUMBER BY 100, AND DO A        00032000
+*                                   'EXEC CICS DELAY INTERVAL(1)'.      00033000
+* *** TS/NATIVE PDA INFO                                                00034000
+SACBPDAA DS    F                   TS/NATIVE PDA ADDRESS                00035000
+SACBPDAL DS    H                   TS/NATIVE PDA LENGTH                 00036000
+SACBFFDN DS    XL8                 TS/NATIVE PDA FF DAG NAME FROM ICR   00037000
+SACBFFDL DS    H                   TS/NATIVE     FF DAG LENGTH          00038000
+SACBTFDN DS    XL8                 TS/NATIVE PDA TF DAG NAME FROM ICR   00039000
+SACBTFDL DS    H                   TS/NATIVE     TF DAG LENGTH          00040000
+SACBPDAZ EQU   *                   END OF PDA POOP                      00041000
+* ***                                                                   00042000
+SACBSAAB DS    XL4                 ABEND AFTER NN VERBS.                00043000
+SACBSDMC DS    XL4                 ADDRESS OF STORAGE FOR SASDMSC       00044000
+SACBSDML DS    XL4                 LENGTH      ' '                      00045000
+SACBWKSL DS    XL4                 LENGTH OF SERVSTOR         2500610   00046000
+*                                   (WORKING-STORAGE)         2500610   00046010
+SACBDYNO DS    XL4                 OFFSET TO DYNAMIC STG CHAIN2500610   00047000
+*                                   FORWARD POINTER.  BACKWARD2500610   00048000
+*                                   POINTER IS THIS OFFST + 4.2500610   00048010
+SACBTMWA DS    XL4                 ADDRESS OF STORAGE FOR SATBLMGC      00049000
+SACBTMWL DS    XL4                 LENGTH      ' '                      00050000
+SACBQSIA DS    XL4                 TS QSI ADDRESS             2500610   00051000
+SACBSSRX DS    XL4                 1ST OR ONLY SSR INDX BLOCK 2500610   00052000
+         DS    0F                                                       00053000
+SACBBASE DS    2F                  SASERVO'S TASK BASE REGS   2500610   00054000
+SACBFCOM DS    XL4                 FIAS COMMAREA ADDRESS FOR  2500610   00054010
+*                                   EXPAND/COMPRESS ROUTINES. 2500610   00054020
+SACBLOGT DS    A                   TOTL OF PDA SIZES ACCUM.   2500631   00054030
+*                                   (USED BY SALOG)           2500631   00054040
+SACBLOGF DS    A                   1ST USER PDA AREA IN CHAIN 2500631   00054050
+*                                   (WILL GO IN PDA SECTION   2500631   00054060
+*                                   OF TS LOG REC)            2500631   00054070
+SACBLOGL DS    A                   LAST USER PDA AREA IN CHAIN2500631   00054080
+SACBLGAF DS    A                   1ST USER ALA AREA IN CHAIN 2500631   00054090
+*                                   (WILL GO IN ALA SECTION   2500631   00054100
+*                                   OF TS LOG REC)            2500631   00054110
+SACBLGAL DS    A                   LAST USER ALA AREA IN CHAIN2500631   00054120
+SACBQCAR DS    XL4                 USER-REQUESTED COMMAREA PTR2501124   00054130
+SACBQCAL DS    XL4                           ' '        LENGTH2501124   00054140
+SACBQOPT DS    X                   QUIT OPTION FLAGS          2501124   00054150
+SACBQLIT EQU   B'10000000'         NATIVE QUIT "LITE" REQUESTD2501124   00054160
+SACBIWQD DS    C                   WRITEQ TYPE FOR INTERNAL QS2501124   00054170
+SACBPWQD DS    C                   WRITEQ DFLT FOR PUBLIC Q'S 2501124   00054180
+SACBEC1  DS    X                   CICS-ONLY ENVIRONMENT FLAG12511663   00054190
+SACBEC1S EQU   B'10000000'          FILE SECURITY EXIT RUNNING2511663   00054200
+SACBEC1U EQU   B'01111111'          UNASSIGNED FLAGS          2511663   00054210
+SACBAIAS DS    A                   SADAUXIC ACQD STG ANCHOR   2511663   00054220
+SACBSORA DS    A                   ADDRESS OF COPIED APPL SOR 2511663   00054230
+SACBVCRA DS    A                   ADDRESS OF VCR INDEX RECORD0515064   00054240
+SACBFWD  DS    A                   FULLWORD WORK AREA         2600213   00054250
+SACBPGAP DS    CL2             PARMS FILE GROUP APPLICATION   2522423   00054260
+SACBPGFI DS    H               PARMS FILE IDENTIFIER          2522423   00054270
+SACBNNCA DS    F               NON NATIVE COMMAREA ADDRESS    2603016   00054280
+SACBDATC DS    XL4             SAADATEO ADDRESS OF STORAGE    2024355   00054300
+SACBDATL DS    XL4             LENGTH      ' '                2024355   00054400
+SACBSORS DS    CL1             INDICATES HOW STG WAS OBTAINED 0515064   00054410
+*                              '1' - GETSTOR                  0515064   00054420
+*                              '2' - GETMAIN                  0515064   00054430
+*                              '3' - STG NOT ACQ, REC IN CORE 0515064   00054440
+SACBVCRS DS    CL1             INDICATES HOW STG WAS OBTAINED 0515064   00054450
+*                              '1' - GETSTOR                  0515064   00054460
+*                              '2' - GETMAIN                  0515064   00054470
+*                              '3' - STG NOT ACQ, REC IN CORE 0515064   00054480
+SACBSESS DS    A               SECONDARY SACB ADDRESS         0545225   00054490
+SACBAORS DS    CL1             INDICATES HOW STG WAS OBTAINED 0545240   00054500
+*                              '1' - GETSTOR                  0545240   00054510
+*                              '2' - GETMAIN                  0545240   00054520
+*                              '3' - STG NOT ACQ, REC IN CORE 0545240   00054530
+SACBOPAA DS    CL4             SASIOPTA STORAGE ADDRESS       1436560   00054540
+SACBDNXT DS    XL4         FIRST BYTE OF DAG INDEX TABLE      1526190   00054550
+SACBDNXZ DS    XL4         LAST BYTE OF DAG INDEX TABLE       1526190   00054560
+SACBDNXF DS    XL2         USED ENTRIES OF DAG INDEX TABLE    1526190   00054570
+         DS    CL35            FILLER                         1526190   00054590
+*..  ONLINE EXTENSION OF SACB                                           00055000
+***  ONLINE EXTENSION OF SACB                                           00056000
+         SPACE 3                                                        00057000
+         DS    0D                                                       00058000

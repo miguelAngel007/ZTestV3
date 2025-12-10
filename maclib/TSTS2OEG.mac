@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+* TSTS2OEG - ONLINE EVENT GENERATION COMMUNICATION AREA               * 00000300
+*                                                                     * 00000400
+* THIS AREA IS USED TO COMMUNICATION BETWEEN APPLICATION MODULES      * 00000500
+* AND THE TS ONLINE EVENT GENERATION REQUEST MODULE, TSTSEVG1.        * 00000600
+*---------------------------------------------------------------------* 00000700
+*                  ** HISTORY OF REVISIONS **                         * 00000800
+* DESCRIPTION                                                 CHNGID  * 00000900
+* __________________________________________________________  _______ * 00001000
+*                                                                     * 00001100
+* 09/14/05 INITIAL RELEASE                                     GN5280 * 00002015
+*********************************************************************** 00002100
+         DS    0F                                                       00002200
+TSOEG    DS    0CL850                START OF COMMAREA                  00002300
+OEGEYEC  DS    CL8                   EYECATCHER '** OEG**'              00002400
+OEGSACBA DS    XL4                   SACB ADDRESS                       00002500
+OEGNCAA  DS    XL4                   NCA ADDRESS                        00002600
+OEGBRQA  DS    XL4                   BRQ ADDRESS                        00002700
+OEGSKAPP DS    CL2                   APPL FOR EVENT SEARCH KEY          00002800
+OEGSKSUB DS    CL2                   SUB-APPL FOR EVENT SEARCH KEY      00002900
+OEGSKCLS DS    0CL14                 CONTROLS FOR EVENT SEARCH KEY      00003000
+OEGSKCL1 DS    CL2                     CONTROL 1                        00003100
+OEGSKCLX DS    CL2                     CONTROL 1X - FUTURE USE          00003200
+OEGSKCL2 DS    CL3                     CONTROL 2                        00003300
+OEGSKCL3 DS    CL3                     CONTROL 3                        00003400
+OEGSKCL4 DS    CL4                     CONTROL 4                        00003500
+OEGEVCAL DS    CL1                   EVENT CALL TYPE ('N' NON-API)      00003600
+OEGEVETB DS    0CL52                 EVENT TABLE                        00003700
+OEGEVCTR DS    PL2                     EVENT COUNTER                    00003800
+OEGEVECD DS    CL5                     EVENT CODE 1                     00003900
+         DS    CL45                    EVENT CODES 2 - 10               00004000
+OEGEVDTB DS    0CL700                EVENT DAG TABLE                    00004100
+OEGEVDOC DS    0CL14                   EVENT DAG OCCURRENCE             00004200
+OEGEVDAG DS    CL8                       EVENT DAG NAME                 00004300
+OEGEVDAD DS    XL4                       EVENT DAG ADDRESS              00004400
+OEGEVDLG DS    XL2                       EVENT DAG LENGTH               00004500
+OEGEVDOL EQU   *-OEGEVDOC              EVENT DAG OCCURRENCE LENGTH      00004600
+         DS    CL686                   OCCURRENCES 2 - 50               00004700
+OEGEVRET DS    XL4                   EVENT RETURN CODE                  00004800
+OEGCALNG DS    XL2                   COMMAREA LENGTH (+850)             00004900
+         DS    CL53                  FILLER                             00005000
+OEGLEN   EQU   *-TSOEG               SYMBOLIC LENGTH OF COMMAREA        00005100

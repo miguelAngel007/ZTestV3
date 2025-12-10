@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+* PARMS USER DATA GROUP CONTROL AREA.                                 * 00000003
+*                                                                     * 00000004
+*---------------------------------------------------------------------* 00000005
+*                  ** HISTORY OF REVISIONS **                         * 00000006
+*                                                                     * 00000007
+* DESCRIPTION                                                 CHNG ID * 00000008
+* __________________________________________________________  _______ * 00000009
+* 03/24/03 ADD NEW CHANGE ID FIELDS                           0334673 * 00000988
+* 12/10/98 REDEFINED LEVEL FIELD AS P30LEVEL (2 BYTES)        9913251 * 00000990
+* 12/31/94 ADDED THE FOLLOWING FIELDS:                        2602105 * 00000991
+*       P30FCLV  DS    XL1           FILE CONTROL LEVEL       2602105 * 00000992
+*       P30RCLV  DS    XL1           RECORD CONTROL LEVEL     2602105 * 00000993
+*     CHANGED THE LENGTH OF THE RELEASE CONTROL NUMBER        2602105 * 00000994
+*       P30LMRC  DS    CL8           CHANGE ID                2602105 * 00000995
+*                                                             2602105 * 00000996
+*---------------------------------------------------------------------* 00000997
+         EJECT                                                2602105   00000998
+P30AREA  DSECT             USER DATA GROUP CNTL AREA          2602105   00000999
+**********************************************************************  00001000
+*        LAYOUT OF PHYSICAL DATA GROUP CONTROL AREA                  *  00002000
+**********************************************************************  00003000
+P30LEFDT DS    XL4                     EFFECTIVE DATE COMPLEMENT        00004000
+P30LEXDT DS    XL4                     EXPIRATION DATE                  00005000
+P30LEVEL DS    XL2                     FILE-DATA-USER LEVEL   9913251   00005100
+P30FLEVL EQU   0                       FILE LEVEL             9913251   00005200
+P30OWN   DS    CL3         OWNERSHIP                                    00006000
+P30HIUS  DS    CL1         HIGH USE INDICATOR                           00007000
+P30DEACT DS    CL1         DEACTIVATED ENTRY                            00008000
+P30LMDT  DS    XL4         LAST MAINT: DATE                             00009000
+P30LMTM  DS    XL4                     TIME                             00010000
+P30LMRC  DS    0CL8                    CHANGE ID              0334673   00011000
+P30DAP   DS    CL2                       DIST APPLID          0334673   00011010
+P30FIL   DS    CL4                       FILLER               0334673   00011015
+P30DCTL  DS    CL2                       DIST CONTROL         0334673   00011020
+P30LMOP  DS    CL8                     OPERATOR                         00012000
+P30LMSR  DS    CL8                     SOURCE                           00013000
+P30EXP   DS    CL1         EXPORTED:   INDICATOR                        00014000
+P30EXDT  DS    XL4                     DATE                             00015000
+P30EXTM  DS    XL4                     TIME                             00016000
+P30EXOP  DS    CL8                     OPERATOR                         00017000
+P30EXSR  DS    CL8                     SOURCE                           00018000
+P30LGTH  EQU   *-P30AREA                                                00019000
+*                                                                       00020000

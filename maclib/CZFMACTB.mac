@@ -1,0 +1,230 @@
+         MACRO                                                          00010000
+         CZFMACTB                                                      X00020000
+               &TYPE=,                                                 X00030000
+               &HELP=            HELP FUNCTION                          00040000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00050000
+.*********                   P R O L O G                       ******** 00060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00070000
+.*                                                                    * 00080000
+.*   MACRO NAME : CZFMACTB                                            * 00090000
+.*                                                                    * 00100000
+.*   DESCRIPTIVE NAME : WORKSTATION DATA TABLE INSERTION MACRO        * 00110000
+.*                                                                    * 00120000
+.*   STATUS : VERSION 1                                               * 00130000
+.*            RELEASE LEVEL = 1                                       * 00140000
+.*            MODIFICATION LEVEL = 0                                  * 00150000
+.*                                                                    * 00160000
+.*   COPYRIGHT:                                                       * 00170000
+.*                                                                    * 00180000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00190000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00200000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00210000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00220000
+.*                                                                    * 00230000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00240000
+.*                                                                    * 00250000
+.*   FUNCTION:  TO INSERT THE TABLE CONTAINING THE WORKSTATION DATA   * 00260000
+.*              AT SEGMENT XX. THE INFORMATION                        * 00270000
+.*              CONTAINED IN THE TABLES IS PREDEFINED.                * 00280000
+.*                                                                    * 00290000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00300000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00310000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00320000
+.*          2) THE MACRO TYPE=ENTRY PROCESS -    CHECKS IF IT IS      * 00330000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00340000
+.*             THE PREDEFINED INFORMATION IS PUT IN PLACE.            * 00350000
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00360000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00370000
+.*                                                                    * 00380000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00390000
+.*                                                                    * 00400000
+.*   EXTERNAL MODULE(S) CALL :  CZFMHELP TO VALIDATE HELP REQUESTS    * 00410000
+.*                              CZFMHIMS TO PRINT REQUESTED MESSAGES  * 00420000
+.*                                                                    * 00430000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00440000
+.*                                                                    * 00450000
+.*   CHARACTERISTICS :                                                * 00460000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00470000
+.*                                                                    * 00480000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00490000
+.*                                                                    * 00500000
+.*   RESTRICTIONS: NONE                                               * 00510000
+.*                                                                    * 00520000
+.*   PARAMETERS RECEIVED:                                             * 00530000
+.*                                                                    * 00540000
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00550000
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00560000
+.*                                                                    * 00570000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00580000
+.*                                                                    * 00590000
+.*           WORKSTATIONS INFORMATION TABLE                           * 00600000
+.*                                                                    * 00610000
+.*   GENERATED CODE :                                                 * 00620000
+.*                                                                    * 00630000
+.*           WORKSTATIONS INFORMATION TABLE                           * 00640000
+.*                                                                    * 00650000
+.*   NOTES:  NONE                                                     * 00660000
+.*                                                                    * 00670000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00680000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00690000
+.*                                                                    * 00700000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00710000
+.*                                                                    * 00720000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00730000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00740000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00750000
+         GBLA  &MACTB             *MACRO CZFMACTB INDICATOR             00760000
+         GBLA  &MACTB1            *MACRO CZFMACTB INDICATOR FOR ENTRY   00770000
+         GBLA  &CTUSERS           *NUMBER OF USERS                      00780000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00790000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00800000
+.*                                                                    * 00810000
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00820000
+.*                                                                    * 00830000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00840000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00850000
+         LCLB  &ERRIND            *ERROR INDICATOR                      00860000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00870000
+&ERRIND  SETB  0                  *INITIALIZE VALUE OF ERROR INDICATOR  00880000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00890000
+.*                                                                    * 00900000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00910000
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00920000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00930000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00940000
+.*   PERFORMED.                                                       * 00950000
+.*                                                                    * 00960000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00970000
+         CZFMHELP HELP=&HELP         IS HELP FUNCTION REQUIRED ?        00980000
+         AIF (&HELPARM EQ 1).HELP                                       00990000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01000000
+.*                                                                    * 01010000
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 01020000
+.*                                                                    * 01030000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01040000
+.P1VAL   ANOP                                                           01050000
+         AIF   (&MACTB EQ 2).PCOMP   *PREVIOUS SET COMPLETE             01060000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01070000
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                01080000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01090000
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 01100000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01110000
+.*                                                                    * 01120000
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 01130000
+.*                                                                    * 01140000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01150000
+.P1V1    ANOP                                                           01160000
+         AIF (&MACTB NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   01170000
+&MACTB   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    01180000
+         AIF (&MFINAL GT 0).NOFINAL                                     01190000
+.SETMAC  ANOP                                                           01200000
+&MFINAL  SETA  1                                                        01210000
+&MACREC  SETC  'CZFMACTB'                                               01220000
+         TITLE 'OPERATOR BLOCKS INSERTION'                              01230000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01240000
+*                                                                    *  01250000
+*   MACRO NAME : CZFMACTB                                            *  01260000
+*                                                                    *  01270000
+*   DESCRIPTIVE NAME : OPERATOR BLOCKS INSERTION MACRO               *  01280000
+*                                                                    *  01290000
+*   STATUS : VERSION 1                                               *  01300000
+*            RELEASE LEVEL = 0                                       *  01310000
+*            MODIFICATION LEVEL = 0                                  *  01320000
+*                                                                    *  01330000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01340000
+         AGO   .END               *EXIT FROM THE MACRO                  01350000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01360000
+.*                                                                    * 01370000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 01380000
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 01390000
+.*                                                                    * 01400000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01410000
+.P2V1    ANOP                                                           01420000
+         AIF (&MACTB NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 01430000
+         AIF (&MACTB1 NE 0).P2E1A *MORE THAN ONE TYPE ENTRY RECEIVED    01440000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01450000
+.*                                                                    * 01460000
+.*   IF NOT ERROR FOUND, INSERT TABLES AND CONSTANTS                  * 01470000
+.*                                                                    * 01480000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01490000
+.P2V2    ANOP                                                           01500000
+         AIF   (&ERRIND).END                                            01510000
+&MACTB1  SETA  1                  *SET ON MACRO ENTRY RECEIVED IND      01520000
+.*                                          *INSERTION BEGINS           01530000
+*********************************************************************** 01540000
+*                                                                     * 01550000
+*                                                                     * 01560000
+*          ONE 256-BYTE BLOCK RESERVED FOR:                           * 01570000
+*          . EACH OPERATOR DEFINED BY CZFMSUSE                        * 01580000
+*          . DATA TRANSMISSION WORKSTATION                            * 01590000
+*          . REMOTE BATCH PRINT WORKSTATION                           * 01600000
+*                                                                     * 01610000
+*                                                                     * 01620000
+*********************************************************************** 01630000
+CZFAOB   CSECT                                                          01640000
+         DC    &CTUSERS.XL256'00' *FILLER FOR OPERATOR BLOCKS           01650000
+         DC    XL256'00'          *FILLER FOR DATA XMIT WORKSTATION     01660000
+         DC    XL256'00'          *FILLER FOR RBP WORKSTATION           01670000
+OBLEN    EQU   *-CZFAOB                                                 01680000
+         AGO   .END                                                     01690000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01700000
+.*                                                                    * 01710000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 01720000
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 01730000
+.*            A MACRO TYPE=INITIAL AND A MACRO TYPE=ENTRY             * 01740000
+.*                                                                    * 01750000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01760000
+.P3V1    ANOP                                                           01770000
+         AIF (&MACTB NE 1).P3E1                                         01780000
+         AIF (&MACTB1 NE 1).P3E1A                                       01790000
+&MACTB   SETA  2                                                        01800000
+&MFINAL  SETA  0                  *RECEIVED TYPE=FINAL                  01810000
+         AGO   .END                                                     01820000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01830000
+.*                                                                    * 01840000
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 01850000
+.*    MESSAGES REQUIRED.                                                01860000
+.*                                                                    * 01870000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01880000
+.HELP    ANOP                                                           01890000
+         CZFMHIMS MSGNUM=998                                            01900000
+         CZFMHIMS MSGNUM=84                                             01910000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTB                            01920000
+         CZFMHIMS MSGNUM=2                                              01930000
+         CZFMHIMS MSGNUM=85                                             01940000
+         CZFMHIMS MSGNUM=75                                             01950000
+         CZFMHIMS MSGNUM=86                                             01960000
+       AGO   .END                                                       01970000
+.NOFINAL ANOP                                                           01980000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            01990000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   02000000
+.PCOMP   ANOP                                                           02010000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTB                            02020000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02030000
+         AGO   .END                                                     02040000
+.PUE1    ANOP                                                           02050000
+         CZFMHIMS MSGNUM=84                                             02060000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02070000
+         AGO   .END                                                     02080000
+.P1E1    ANOP                                                           02090000
+         CZFMHIMS MSGNUM=2                                              02100000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02110000
+         AGO   .END                                                     02120000
+.P2E1    ANOP                                                           02130000
+         CZFMHIMS MSGNUM=85                                             02140000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02150000
+         AGO   .END                                                     02160000
+.P2E1A   ANOP                                                           02170000
+         CZFMHIMS MSGNUM=75                                             02180000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02190000
+         AGO   .END                                                     02200000
+.P3E1    ANOP                                                           02210000
+         CZFMHIMS MSGNUM=86                                             02220000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02230000
+         AGO   .END                                                     02240000
+.P3E1A   ANOP                                                           02250000
+         CZFMHIMS MSGNUM=87                                             02260000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02270000
+         AGO   .END                                                     02280000
+.END     ANOP                                                           02290000
+         MEND                                                           02300000

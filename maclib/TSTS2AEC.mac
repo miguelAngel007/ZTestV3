@@ -1,0 +1,68 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                                                                     * 00000020
+*                  ** COPYBOOK DESCRIPTION **                         * 00000030
+*           TSTS2AEC -  ADJUSTMENT EXIT COMMUNICATIONS AREA           * 00000040
+*                                                                     * 00000050
+*---------------------------------------------------------------------* 00000060
+*                     ** HISTORY OF REVISIONS **                      * 00000070
+* DATE     DESCRIPTION                                        CHNGID  * 00000080
+*___________________________________________________________  _______ * 00000090
+* 10/31/16 SUPPORT ALWAYS ON                                  1727046 * 00000994
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000996
+* 11/96    INITIAL DISTRIBUTION                               9910919 * 00000998
+*---------------------------------------------------------------------* 00001000
+TSTSAEC  DSECT                                                          00002000
+TSAEC    DS    0CL175                  START OF COMMON AREA             00003000
+AECEYEC  DS    CL8                     EYE CATCHER                      00004000
+*                                        VALUE: '** AEC**'              00005000
+AECREQST DS    CL1                     ADJUSTMENT FUNCTION REQUEST      00006000
+*                                        VALUE: L - LOG                 00007000
+*                                               P - POST                00008000
+*                                               C - CHAIN               00009000
+AECKEY   DS    0CL54                   ADJUSTMENT RECORD KEY            00010000
+AECAPPL  DS    CL2                       APPLICATION CODE               00011000
+AECACCT  DS    CL50                      ACCOUNT KEY                    00012000
+AECSEQ   DS    XL2                       SEQUENCE NUMBER                00013000
+AECAPGP  DS    CL2                     APPLICATION FILE GROUP           00014000
+AECLGRBA DS    XL8                     RBA OF ACCOUNT LOG     1035850   00015000
+AECLGGRP DS    CL2                     LOG GROUP OF RBA                 00016000
+AECNCAAD DS    XL4                     NCA ADDRESS                      00017000
+AECSACBA DS    XL4                     SACB ADDRESS (IF NO NCA)         00018000
+AECITRAD DS    XL4                     ITR ADDRESS (IF NO NCA)          00019000
+AECEORAD DS    XL4                     EOR ADDRESS (IF NO NCA)          00020000
+AECCHREQ DS    CL1                     CHAIN REQUEST                    00021000
+*                                         VALUE: 1 - ALL RBAS           00022000
+*                                                2 - ALL UNPOSTED       00023000
+*                                                3 - NEXT RBA           00024000
+*                                                4 - NEXT UNPOSTED      00025000
+AECCHINF DS    0CL35                   CHAIN INFORMATION                00026000
+AECNXCHN DS    0CL27                     NEXT OCCURRENCE IN CHAIN       00027000
+AECNXPST DS    CL1                         NEXT RBA POSTED FLAG         00028000
+AECNXRBA DS    XL8                         NEXT RBA IN CHAIN  1035850   00029000
+AECNXGRP DS    CL2                         NEXT RBA GROUP               00030000
+AECNXUSR DS    CL10                        NEXT RBA USER AREA           00031000
+AECNXLGA DS    XL4                         NEXT LOG REC ADDR  1727046   00031010
+         DS    CL2                         NEXT OCCUR FILLER  1727046   00032000
+AECNXSEQ DS    XL2                       SEQUENCE OF NEXT RBA           00033000
+AECNXOCC DS    XL2                       SEQ. OCCURRENCE OF NEXT RBA    00034000
+AECCHADR DS    XL4                       CHAIN AREA ADDRESS             00035000
+AECRETRN DS    CL1                     RETURN CODE                      00036000
+*                                         VALUE: 0 - SUCCESSFUL         00037000
+*                                                1 - ERROR              00038000
+AECERRMS DS    CL6                     ERROR MESSAGE NUMBER             00039000
+AECERRVA DS    CL25                    ERROR VARIABLE                   00040000
+AECSERDT DS    CL6                     PASS CURR DATE TO U402 1727046   00040010
+AECSETKY DS    CL2                     PASS TSSET KEY TO U402 1727046   00040020
+         DS    CL8                     FILLER                 1727046   00041000
+AECLNGTH EQU   *-TSAEC                 AEC LENGTH                       00042000
+*                                                                       00043000
+AECCHAIN DSECT                                                          00044000
+AECCHAD2 DS    XL4                     NEXT CHAIN AREA                  00045000
+AECCHCNT DS    XL2                     RBA COUNT                        00046000
+AECCHOCC DS    0CL27                   RBA OCCURRENCE                   00047000
+AECCHPST DS    CL1                       POSTED                         00048000
+AECCHRBA DS    XL8                       RBA                  1035850   00049000
+AECCHGRP DS    CL2                       GROUP                          00050000
+AECCHUSR DS    CL10                      USER AREA                      00051000
+         DS    CL6                       FUTURE USE AREA      1035850   00052000

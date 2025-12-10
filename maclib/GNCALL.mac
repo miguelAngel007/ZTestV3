@@ -1,0 +1,97 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LABEL   GNCALL &PROG,&PARMS,&TYPE=,&WORKREG=R15                        00000200
+         GBLB  &VSE                                           2024183   00000300
+         LCLA  &PL1,&PL2                                                00000400
+.*--------------------------------------------------------------------* 00000500
+.*                  ** MACRO DESCRIPTION **                           * 00000600
+.*                                                                    * 00000700
+.*        GNCALL PROG,(PARM1,PARM2,PARM3, ...)                        * 00000800
+.*                                                                    * 00000900
+.* THIS ROUTINE WILL DYNAMICALLY LOAD A MODULE                        * 00001000
+.* AND CALL IT WITH THE SPECIFIED PARAMETERS.                         * 00001100
+.* TYPE=LOAD WILL ONLY LOAD AND RETURN THE ADDRESS.                   * 00001200
+.*                                                                    * 00001300
+.* -------------------------------------------------------------------* 00001400
+.*                 ** HISTORY OF REVISIONS **                         * 00001500
+.*                                                                    * 00001600
+.*DESCRIPTION                                                 CHNGID  * 00001700
+.*__________________________________________________________  _______ * 00001800
+.*03/03/00 MODIFIED FOR 31-BIT                                2024183 * 00001894
+.*05/27/98 MODIFIED TO CORRECT CDLOAD                         9913845 * 00001896
+.*03/27/98 MODIFIED FOR 24-BIT CALLING 31-BIT                 9913793 * 00001898
+.*10/20/97 MODIFIED TO CORRECT SINGLE PARAMETER IN PAREN      9913437 * 00001900
+.*                                                                    * 00002000
+.*--------------------------------------------------------------------* 00002100
+&LABEL   DS    0H                                                       00002200
+         AIF   (&VSE).V1                                      2024183   00002300
+         AIF ('&TYPE' EQ 'LOAD').SACLOAD                                00002400
+         AIF (T'&PARMS NE 'O').S1                                       00002500
+         CALL  &PROG                                          2024183   00002600
+         MEXIT                                                          00002700
+.SACLOAD ANOP                                                           00002800
+         L     &WORKREG,=V(&PROG)                                       00002900
+         MEXIT                                                          00003000
+.S1      ANOP                                                           00003100
+         CALL  &PROG,&PARMS                                   2024183   00003200
+         MEXIT                                                          00003300
+.V1      ANOP                                                           00003400
+         AIF ('&TYPE' EQ 'LOAD').L2                           2024183   00003500
+         AIF (T'&PARMS EQ 'O').V1P2                                     00003600
+         AIF ('&PARMS'(1,1) NE '(').V1P1                                00003700
+&PL2     SETA  N'&PARMS                                                 00003800
+&PL1     SETA  1                                                        00003900
+         CNOP  0,4                                                      00004000
+         LA    R1,*+8                                         9913793   00004100
+         B     @GNC1&SYSNDX                                   9913793   00004110
+         AIF (&PL2 EQ &PL1).PL2                                         00004200
+.PL1     ANOP                                                           00004300
+         DC    A(&PARMS(&PL1))                                          00004400
+&PL1     SETA  &PL1+1                                                   00004500
+         AIF (&PL2 GT &PL1).PL1                                         00004600
+.PL2     ANOP                                                           00004700
+         DC    AL4(&PARMS(&PL2)+X'80000000')                  9913793   00004900
+         AGO   .V1P2                                                    00005000
+.V1P1    ANOP                                                           00005100
+         LA    R1,&PARMS                                                00005200
+.V1P2    ANOP                                                           00005300
+@GNC1&SYSNDX DS   0H                                                    00005400
+         L     R15,@GNCA&SYSNDX     GET ENTRY POINT                     00005500
+         LTR   R15,R15                                                  00005600
+         BNZ   @GNC&SYSNDX          ALREADY LOADED, SKIP                00005700
+         ST    R1,24(R13)           SAVE REGISTER 1                     00005800
+         CDLOAD &PROG,RETPNF=YES                              9913845   00005900
+         LTR   R15,R15              CDLOAD SUCCESSFUL?                  00006000
+         BZ    @GNCJ&SYSNDX         YES, CONTINUE                       00006100
+         JDUMP                      ABEND IF CDLOAD FAILED              00006200
+@GNCJ&SYSNDX DS   0H                                                    00006300
+         LR    R15,R1                                                   00006400
+         ST    R15,@GNCA&SYSNDX     SAVE THE ENTRY POINT                00006500
+         L     R1,24(R13)           RELOAD REGISTER 1                   00006600
+         B     @GNC&SYSNDX                                              00006700
+@GNCA&SYSNDX DC F'0'                ENTRY POINT SAVE AREA               00006800
+@GNC&SYSNDX DS   0H                                                     00006900
+         BASSM R14,R15              CALL PROGRAM              9913793   00007700
+         MEXIT                                                          00009000
+.L2      ANOP                                                           00009500
+         L     &WORKREG,@GNCS&SYSNDX  GET ENTRY POINT                   00009600
+         LTR   &WORKREG,&WORKREG                                        00009700
+         BNZ   @GNC&SYSNDX          ALREADY LOADED, SKIP                00009800
+         STM   R14,R1,@GNCE&SYSNDX  SAVE R14,R15,R0,R1                  00009900
+         CNOP  0,4                  ALIGN                               00010000
+         B     *+24                 GO LOAD                             00010100
+@GNCS&SYSNDX DC F'00'             ENTRY POINT SAVE AREA                 00010200
+@GNCE&SYSNDX DC F'00'             R14 SAVE AREA                         00010300
+@GNCF&SYSNDX DC F'00'             R15 SAVE AREA MUST                    00010400
+@GNC0&SYSNDX DC F'00'             R0  SAVE AREA FOLLOW                  00010500
+@GNC1&SYSNDX DC F'00'             R1  SAVE AREA R14                     00010600
+         CDLOAD &PROG,RETPNF=YES                              9913845   00010700
+         LTR   R15,R15              CDLOAD SUCCESSFUL?                  00010800
+         BZ    @GNCJ&SYSNDX         YES, CONTINUE                       00010900
+         JDUMP                      ABEND IF CDLOAD FAILED              00011000
+@GNCJ&SYSNDX DS   0H                                                    00011100
+         ST    R1,@GNCS&SYSNDX    SAVE THE ENTRY POINT                  00011200
+         LM    R14,R1,@GNCE&SYSNDX  RESTORE R14-R1                      00011300
+         L     &WORKREG,@GNCS&SYSNDX  GET ENTRY POINT                   00011400
+@GNC&SYSNDX DS   0H                                                     00011500
+         MEND                                                           00011600

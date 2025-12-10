@@ -1,0 +1,85 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAD9UXCA  &DSECT=NO                                            00002000
+*********************************************************************** 00003000
+* SAD9UXCA - COMMUNICATION AREA FOR SADSUTIL EXIT MODULES             * 00004000
+*********************************************************************** 00005000
+*                      HISTORY OF REVISIONS                           * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* ----------------------------------------------------------  ------- * 00008000
+* 01/01/95 INITIAL RELEASE FOR SADSUTIL EXIT SUPPORT          2602105 * 00009000
+*********************************************************************** 00010000
+         AIF   ('&DSECT' EQ 'NO').CSECT                                 00011000
+SADUXCMA DSECT                     COMM/WORK AREA / EXITS               00012000
+SADUXFLG DS   0CL4                 FLAGS                                00013000
+SADUXFL1 DS    XL1                 FLAG 1                               00014000
+SADUXBRC EQU   X'80'                 CUR CALL TO PRE(BEFORE)-READ MOD   00015000
+SADUXARC EQU   X'40'                 CUR CALL TO POST(AFTER)-READ MOD   00016000
+SADUXBWC EQU   X'20'                 CUR CALL TO PRE(BEFORE)-WRITE MOD  00017000
+SADUXAWC EQU   X'10'                 CUR CALL TO POST(AFTER)-WRITE MOD  00018000
+SADUXXTC EQU   SADUXBRC+SADUXARC+SADUXBWC+SADUXAWC EXITS CALLED FLAGS   00019000
+         DS    XL3                 RESERVED FOR FUTURE REQUIREMENTS     00020000
+SADUXLIN DS    FL4                 HIERARCHICAL ITEM LOGICAL INDEX      00021000
+SADUXXTN DS   0CL(4*8)             EXIT MODULE NAMES                    00022000
+SADUXBRN DS    CL8                   PRE(BEFORE)-READ EXIT MODULE NAME  00023000
+SADUXARN DS    CL8                   POST(AFTER)-READ EXIT MODULE NAME  00024000
+SADUXBWN DS    CL8                   PRE(BEFORE)-WRITE EXIT MODULE NAME 00025000
+SADUXAWN DS    CL8                   POST(AFTER)-WRITE EXIT MODULE NAME 00026000
+SADUX@IO DS    AL4                 A(SASDMSB)                           00027000
+SADUX@DS DS   0CL(4*4)             A(SADSUTIL DSTS)                     00028000
+SADUX@RI DS    AL4                 A(SAREPI DST)                        00029000
+SADUX@RO DS    AL4                 A(SAREPO DST)                        00030000
+SADUX@AI DS    AL4                 A(SAAUXI DST)                        00031000
+SADUX@AO DS    AL4                 A(SAAUXO DST)                        00032000
+SADUX@WK DS    AL4                 A(4K WORK AREA)                      00033000
+SADUXDTM DS   0CL8                 CURRENT DATE/TIME                    00034000
+SADUXDAT DS    PL4                 CURRENT DATE (YYMMDD)                00035000
+SADUXTIM DS    PL4                 CURRENT TIME (HHMMSS)                00036000
+SADUXVAR DS   0CL84                VARIABLE - INIT ON EACH CALL/RTN     00037000
+SADUXDDN DS    CL8                 DDNAME                               00038000
+SADUXDFN DS    AL4                 A(SAREP $$ DFN)                      00039000
+SADUXREC DS    AL4                 A(DATA RECORD)                       00040000
+SADUXRLN DS    FL4                 RECORD LENGTH                        00041000
+SADUXMSG DS   0CL64                MESSAGE DATA - RETURNED BY EXIT MOD  00042000
+SADUXMNO DS    CL4                 MESSAGE NUMBER                       00043000
+SADUXMCD DS    XL2                 MESSAGE CODE                         00044000
+SADUXMTX DS    CL58                MESSAGE TEXT                         00045000
+SADUXLEN EQU   *-SADUXCMA          LENGTH OF SADUXCMA COMMAREA          00046000
+         MEXIT                                                          00047000
+.CSECT   ANOP                                                           00048000
+SADUXCMA DS   0D                   COMM/WORK AREA / EXITS               00049000
+SADUXFLG DS   0CL4                 FLAGS                                00050000
+SADUXFL1 DC    XL1'00'             FLAG 1                               00051000
+SADUXBRC EQU   X'80'                 CUR CALL TO PRE(BEFORE)-READ MOD   00052000
+SADUXARC EQU   X'40'                 CUR CALL TO POST(AFTER)-READ MOD   00053000
+SADUXBWC EQU   X'20'                 CUR CALL TO PRE(BEFORE)-WRITE MOD  00054000
+SADUXAWC EQU   X'10'                 CUR CALL TO POST(AFTER)-WRITE MOD  00055000
+SADUXXTC EQU   SADUXBRC+SADUXARC+SADUXBWC+SADUXAWC EXITS CALLED FLAGS   00056000
+         DS    3X'00'              RESERVED FOR FUTURE REQUIREMENTS     00057000
+SADUXLIN DC    FL4'0'              HIERARCHICAL ITEM LOGICAL INDEX      00058000
+SADUXXTN DS   0CL(4*8)             EXIT MODULE NAMES                    00059000
+SADUXBRN DC    CL8' '                PRE(BEFORE)-READ EXIT MODULE NAME  00060000
+SADUXARN DC    CL8' '                POST(AFTER)-READ EXIT MODULE NAME  00061000
+SADUXBWN DC    CL8' '                PRE(BEFORE)-WRITE EXIT MODULE NAME 00062000
+SADUXAWN DC    CL8' '                POST(AFTER)-WRITE EXIT MODULE NAME 00063000
+SADUX@IO DC    AL4(0)              A(SASDMSB)                           00064000
+SADUX@DS DS   0CL(4*4)             A(SADSUTIL DSTS)                     00065000
+SADUX@RI DC    AL4(0)              A(SAREPI DST)                        00066000
+SADUX@RO DC    AL4(0)              A(SAREPO DST)                        00067000
+SADUX@AI DC    AL4(0)              A(SAAUXI DST)                        00068000
+SADUX@AO DC    AL4(0)              A(SAAUXO DST)                        00069000
+SADUX@WK DC    AL4(0)              A(4K WORK AREA)                      00070000
+SADUXDTM DS   0CL8                 CURRENT DATE/TIME                    00071000
+SADUXDAT DC    PL4'0'              CURRENT DATE (YYMMDD)                00072000
+SADUXTIM DC    PL4'0'              CURRENT TIME (HHMMSS)                00073000
+SADUXVAR DS   0CL84                VARIABLE - INIT ON EACH CALL/RTN     00074000
+SADUXDDN DC    CL8' '              DDNAME                               00075000
+SADUXDFN DC    AL4(0)              A(SAREP $$ DFN)                      00076000
+SADUXREC DC    AL4(0)              A(DATA RECORD)                       00077000
+SADUXRLN DC    FL4'0'              RECORD LENGTH                        00078000
+SADUXMSG DS   0CL64                MESSAGE DATA - RETURNED BY EXIT MOD  00079000
+SADUXMNO DC    CL4' '              MESSAGE NUMBER                       00080000
+SADUXMCD DC    XL2'00'             MESSAGE CODE                         00081000
+SADUXMTX DC    CL58' '             MESSAGE TEXT                         00082000
+SADUXLEN EQU   *-SADUXCMA          LENGTH OF SADUXCMA COMMAREA          00083000
+         MEND                                                           00084000

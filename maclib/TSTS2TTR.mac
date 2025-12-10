@@ -1,0 +1,212 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                TSTS2TTR - TERMINAL TYPE RECORD                      * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 02/24/14 ADDED WEB MASKING FLAG                             1436598   00000671
+* 05/16/07 TTR EXPANSION                                      0735633 * 00000673
+* 11/11/99 MODIFIED PLATFORM SEGMENT                          2022277 * 00000674
+* 03/26/98 ADDED SEGMENT DELIMITER FOR ARGO                   9913719 * 00000676
+* 07/97    ADDED THE FOLLOWING FIELDS:                        9910846 * 00000678
+*             TTRRLVLO DS    XL3     REPORT LEVELS LOCATION   9910846 * 00000680
+*             TTRRLVLN DS    XL1     REPORT LEVELS LENGTH     9910846 * 00000682
+*             TTRPHYLO DS    XL3     PHYSICAL LOCATION LOC    9910846 * 00000684
+*             TTRPHYLN DS    XL1     PHYSICAL LOCATION LENGTH 9910846 * 00000686
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             TTCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             TTCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             TTRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             TTCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL4         FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSTTR  DSECT                                                          00000700
+TTR      DS    0X                                                       00000800
+TTRLNG   DS    XL2             TTR RECORD LENGTH - MAX 1650   0735633   00000900
+         DS    XL2             FILLER                                   00001000
+TTRKEY   DS    0CL23           KEY                                      00001100
+TTRRECID DS    CL3             RECORD ID  'TTR'                         00001200
+TTRCLASS DS    CL10            CLASS                                    00001300
+         DS    XL10            FILLER                                   00001400
+*                                                                       00001500
+TTCAFCL  DS    XL1             FILE CONVERSION LEVEL            2602105 00001510
+TTCARCL  DS    XL1             REC CONVERSION LEVEL             2602105 00001520
+*                                                               2602105 00001530
+TTRLMNT  DS    0CL28           LAST MAINT INFO                  2602105 00001540
+TTRLMDAT DS    CL6               LAST MAINT DATE MMDDYY                 00001600
+TTRLMTIM DS    CL6               LAST MAINT TIME HHMMSS                 00001700
+TTRLMEMP DS    CL8               LAST MAINT EMPLOYEE ID                 00001800
+TTCACHID DS    CL8               CA CHANGE ID                   2602105 00001900
+         DS    CL4             FILLER                           2602105 00002000
+TTRMXDES DS    PL2             MAX NUM OF TERMINAL DESCRIPTIONS +4      00002100
+TTRUSDES DS    PL2             NUM OF TERMINAL DESCRIPTIONS USED        00002200
+*                                                                       00002300
+         DS    XL21            FILLER                         0735633   00002400
+TTRSTMLG EQU   *-TTR           SYMBOLIC LENGTH OF TTR STEM=86 0735633   00002500
+TTRDESOC DS    CL1564          TERMINAL DESCRIPTION OCCURRENCE0735633   00002600
+TTREND   EQU   *               SYMBOLIC END OF TTR                      00002700
+TTRLEN   EQU   *-TTR           SYMBOLIC LENGTH OF TTR=1650    0735633   00002800
+*                                                                       00002900
+TTRDESCR DSECT                 TERMINAL DESCRIPTION OCCURRENCE0735633   00003000
+TTRTRDES DS    0CL391          ONE TERMINAL DESCRIPTION       0735633   00003100
+TTRTRMNC DS    CL2             TERMINAL MNEMONIC                        00003200
+*                              AD = ADMINISTRATIVE                      00003300
+*                              AT = ATM                                 00003400
+*                              PL = PLATFORM                  2022277   00003410
+*                              TL = TELLER                              00003500
+TTRSGNON DS    CL1             SIGNON SUPPORTED                         00003600
+TTRPWSUP DS    CL1             PASSWORD SUPPORTED                       00003700
+TTRRLVLO DS    XL3             REPORT LEVELS LOCATION         9910846   00003800
+TTRRLVLN DS    XL1             REPORT LEVELS LENGTH           9910846   00003810
+TTRSFINT DS    CL2             SIGNOFF INTERVAL IN MINUTES              00003900
+TTRSFABN DS    CL1             SIGNOFF ABNORMAL SHUTDOWN INDICATOR      00004000
+*                              0 = NO ABNORMAL SHUTDOWN SIGNOFF         00004100
+*                              1 = ABNORMAL SHUTDOWN SIGNOFF            00004200
+TTRFLDLM DS    CL1             FIELD DELIMITER                          00004300
+TTRFIDLG DS    CL1             FIELD ID LENGTH                          00004400
+TTRFIDTY DS    CL1             FIELD ID TYPE                            00004500
+*                              C = CHARACTER                            00004600
+*                              H = HEXIDECIMAL                          00004700
+*                              N = NUMERIC                              00004800
+TTRROWS  DS    CL2             NUMBER OF ROWS                           00004900
+TTRCOLS  DS    CL3             NUMBER OF COLUMNS                        00005000
+TTRPLSEG DS    CL1             SEGMENT DELIMITER              9913719   00005010
+         DS    XL1             FILLER                         9913719   00005100
+TTRLLGPH DS    CL8             LOCATE LOG USER EXIT           2602107   00005150
+TTRTBRCL DS    CL10            TBR AND DIR CLASS                        00005200
+TTRTBRGP DS    CL2             TBR AND DIR GROUP                        00005300
+TTRSDRCL DS    CL10            SDR/CDR CLASS                            00005400
+TTRSDRGP DS    CL2             SDR/CDR GROUP                            00005500
+TTRPHYLO DS    XL3             PHYSICAL LOCATION LOCATION     9910846   00005600
+TTRPHYLN DS    XL1             PHYSICAL LOCATION LENGTH       9910846   00005610
+TTRABDPH DS    CL8             ABEND HANDLER USER EXIT        2602107   00005650
+TTRINPPH DS    CL8             INPUT  ANALYSIS PROGRAM                  00005700
+TTROUTPH DS    CL8             OUTPUT ANALYSIS PROGRAM                  00005800
+TTRTLSO2 DS    XL8             TELLER SIGNON TRANID 2         00702252  00005900
+TTROMNOR DS    CL30            OUTPUT MESSAGE NORMAL                    00006000
+TTROMTSE DS    CL30            OUTPUT MESSAGE TRANSACTION SYSTEM ERROR  00006100
+TTROMSEC DS    CL30            OUTPUT MESSAGE SECURITY ERROR            00006200
+         DS    CL30            FILLER                         2501446   00006300
+         DS    CL30            FILLER                         2501446   00006400
+         DS    XL24            FILLER                         0735633   00006500
+TTRTLSF2 DS    XL8             TELLER SIGNOFF TRANID 2        00702252  00006510
+TTRFETRS DS    CL120           TERMINAL FEATURES              0735633   00006600
+         ORG   TTRFETRS                                       0735633   00006700
+TTRTLFET DS    0CL120          TELLER TERMINAL FEATURES       0735633   00006800
+TTRTLMSO DS    CL1             TELLER MULTIPLE TERMINAL SIGNON          00006900
+TTRTLCBT DS    CL4             CDR BUILD TRAN                           00007000
+TTRTLTML DS    CL3             TIME LOCATION IN TRANS.        00707264  00007100
+TTRTLTMN DS    CL1             TIME LENGTH IN TRANS.          00707264  00007110
+TTRTLSRF DS    CL4             TELLER SERIAL ON REV FIELD ID  00702252  00007120
+TTRTLCSR DS    CL1             CHECK SERIAL ON REVERSAL                 00007200
+*                              0 = DO NOT CHECK SERIAL ON REVERSAL      00007300
+*                              1 = CHECK SERIAL ON REVERSAL             00007400
+TTRPBLIN DS    CL2             NUMBER OF PASSBOOK LINES                 00007500
+TTRWRTTS DS    CL1             WRITE TEMPORARY STORAGE ON OVERRIDE      00007600
+*                              0 = NO TEMP STORAGE WRITE ON OVERRIDES   00007700
+*                              1 = TEMP STORAGE WRITE ON OVERRIDES      00007800
+TTRPBMSG DS    CL1             PASSBOOK MSGS FIRST                      00007900
+*                              0 = PBK DISPLAY MSGS DISPLAYED           00008000
+*                                  AFTER PBK LINES ARE PRINTED          00008100
+*                              1 = PBK DISPLAY MSGS DISPLAYED           00008200
+*                                  BEFORE PBK LINES PRINTED             00008300
+TTRTLRFP DS    CL1             TELLER REENTRY FORCE POST                00008400
+*                              0 = NORMAL PROCESSING                    00008500
+*                              1 = FORCE POST                           00008600
+         DS    XL2             FILLER                                   00008700
+TTRTLPBT DS    CL1             PASSBOOK TRAN FLAG                       00008800
+TTRTLPBN DS    CL1             PASSBOOK NOBOOK FLAG                     00008900
+TTRTLPBR DS    CL1             PASSBOOK REENTRY FLAG                    00009000
+TTRTLPBP DS    CL1             PASSBOOK BALANCE PRINT FLAG              00009100
+TTRTLPBI DS    CL1             PASSBOOK TERM INIT BOOK FLAG             00009200
+TTRTLPBX DS    CL1             PASSBOOK XRFT FLAG                       00009300
+         DS    XL2             FILLER                                   00009400
+TTRTLSOT DS    CL8             TELLER SIGNON TRAN CODE                  00009500
+TTRTLSOL DS    CL1             TELLER SIGNON TRAN CODE LENGTH           00009600
+TTRTLSFT DS    CL8             TELLER SIGNOFF TRAN CODE                 00009700
+TTRTLSFL DS    CL1             TELLER SIGNOFF TRAN CODE LENGTH          00009800
+TTRTLEIL DS    CL3             TELLER EMP ID LOCATION IN TRANS          00009900
+TTRTLEIN DS    CL1             TELLER EMP ID LENGTH                     00010000
+TTRTLTIL DS    CL3             TELLER TRAN ID LOCATION IN TRANS         00010100
+TTRTLTLN DS    CL1             TELLER TRAN ID LENGTH                    00010200
+TTRTLNIT DS    CL3             TELLER SEQ NUM LOCATION IN TRANS         00010300
+TTRTLNLN DS    CL1             TELLER SEQ NUM LENGTH                    00010400
+TTRTLRIT DS    CL3             TELLER REENTRY FLAG LOC IN TRANS         00010500
+TTRTLRBT DS    CL1             TELLER REENTRY BIT                       00010600
+TTRTLCIB DS    CL3             TELLER CORRECTION FLAG LOC IN TRANS      00010700
+TTRTLCIT DS    CL1             TELLER CORRECTION BIT                    00010800
+TTRTLOL2 DS    CL1             TELLER SIGNON 2  TRANID LENGTH 00702252  00010810
+TTRTLFL2 DS    CL1             TELLER SIGNOFF 2 TRANID LENGTH 00702252  00010820
+         DS    XL51            FILLER                         0735633   00010900
+         ORG   TTRFETRS                                       0735633   00011000
+TTRADFET DS    0CL120          ADMIN TERMINAL FEATURES        0735633   00011100
+         DS    XL1             FILLER                                   00011200
+TTREXTAT DS    0CL3            EXTENDED ATTRIBUTES                      00011300
+TTREXTHL DS    CL1             EXTENDED HIGHLIGHTING                    00011400
+TTREXTVL DS    CL1             EXTENDED VALIDATION                      00011500
+TTREXTCL DS    CL1             EXTENDED COLOR                           00011600
+         DS    XL15            FILLER                                   00011700
+TTRERATT DS    0CL3            ERROR ATTRIBUTES                         00011800
+TTRERINT DS    CL1             ERROR INTENSITY                          00011900
+TTREREXT DS    CL1             ERROR EXTENDED ATTRIBUTE                 00012000
+TTRERCLR DS    CL1             ERROR COLOR                              00012100
+TTRADSOT DS    CL8             ADMIN SIGNON TRAN CODE                   00012200
+TTRADSOL DS    CL1             ADMIN SIGNON TRAN CODE LENGTH            00012300
+TTRADSFT DS    CL8             ADMIN SIGNOFF TRAN CODE                  00012400
+TTRADSFL DS    CL1             ADMIN SIGNOFF TRAN CODE LENGTH           00012500
+         DS    XL80            FILLER                         0735633   00012600
+         ORG   TTRFETRS                                                 00012700
+TTRPLFET DS    0CL120          PLATFORM TERMINAL FEATURES     0735633   00012800
+TTRPLRFP DS    CL1             PLATFORM REENTRY FORCE POST              00012900
+*                              0 = NORMAL PROCESSING                    00013000
+*                              1 = FORCE POST                           00013100
+TTRPLSIN DS    CL1         PLATFORM SOURCE CODE LENGTH        2022277   00013200
+         DS    CL3         FILLER                             2022277   00013210
+TTRPLCSR DS    XL1         PLATFORM CHK SERIAL ON REVERSAL    2022277   00013220
+TTRPLRIN DS    XL1         PLATFORM ORIG SERIAL LEN FOR REV   2022277   00013300
+TTRPLCCP DS    CL8         PLATFORM MESSAGE CHAR FORMAT PHASE 2022277   00013400
+TTRPLCCL DS    CL3         PLATFORM MESS CHAR FORMAT LOC BYTE 2022277   00013500
+TTRPLCMP DS    CL8         PLATFORM COMPRESSION PHASE         2022277   00013510
+TTRPLCML DS    CL3         PLATFORM COMPRESSION LOCATION BYTE 2022277   00013520
+TTRPLECP DS    CL8         PLATFORM ENCRYPTION PHASE          2022277   00013600
+TTRPLECL DS    CL3         PLATFORM ENCRYPTION KEY LOCATION   2022277   00013610
+TTRPLECN DS    CL1         PLATFORM ENCRYPTION KEY LENGTH     2022277   00013620
+TTRPLENL DS    CL3         PLATFORM ENCODING LOCATION BYTE    2022277   00013700
+TTRPLEIL DS    CL3             PLATFORM EMP ID LOCATION IN TRANS        00013800
+TTRPLEIN DS    CL1             PLATFORM EMP ID LENGTH                   00013900
+TTRPLTIL DS    CL3             PLATFORM TRAN ID LOCATION IN TRANS       00014000
+TTRPLTIN DS    CL1             PLATFORM TRAN ID LENGTH                  00014100
+TTRPLNIT DS    CL3             PLATFORM SEQ NUM LOCATION IN TRANS       00014200
+TTRPLNLN DS    CL1             PLATFORM SEQ NUM LENGTH                  00014300
+TTRPLRIT DS    CL3             PLATFORM REENTRY FLAG LOC IN TRANS       00014400
+TTRPLRBT DS    CL1             PLATFORM REENTRY BIT                     00014500
+TTRPLCIT DS    CL3             PLATFORM CORRECTION FLAG LOC IN TRANS    00014600
+TTRPLCIB DS    CL1             PLATFORM CORRECTION BIT                  00014700
+TTRPLRIL DS    CL3         PLATFORM ORIG SEQ NUM FOR REV LOC  2022277   00014750
+TTRPLSIL DS    CL3         PLATFORM SOURCE CODE LOCATION      2022277   00014800
+TTRPLLIN DS    CL2         PL NUMBER OF PASSBOOK LINES        0735633   00014900
+TTRPLMSG DS    CL1         PL PASSBOOK MSGS FIRST             0735633   00015000
+*                             0 = PBK DISPLAY MSGS DISPLAYED  0735633   00015100
+*                                 AFTER PBK LINES ARE PRINTED 0735633   00015200
+*                             1 = PBK DISPLAY MSGS DISPLAYED  0735633   00015300
+*                                 BEFORE PBK LINES PRINTED    0735633   00015400
+TTRPLPBT DS    CL1         PL PASSBOOK TRAN FLAG              0735633   00015500
+TTRPLPBN DS    CL1         PL PASSBOOK NOBOOK FLAG            0735633   00015600
+TTRPLPBR DS    CL1         PL PASSBOOK REENTRY FLAG           0735633   00015700
+TTRPLPBP DS    CL1         PL PASSBOOK BALANCE PRINT FLAG     0735633   00015800
+TTRPLPBI DS    CL1         PL PASSBOOK TERM INIT BOOK FLAG    0735633   00015900
+TTRPLPBX DS    CL1         PL PASSBOOK XRFT FLAG              0735633   00016000
+TTRPLWSM DS    CL1         PL WEB SERV MASKING                1436598   00016010
+         DS    XL40        FILLER                             1436598   00016100
+TTRAPPLG EQU   *-TTRTRMNC  SYMBOLIC LENGTH OF 1 TERM DESC=391 0735633   00016200

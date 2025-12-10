@@ -1,0 +1,49 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                               SIDHTMLA                              * 00020000
+*                              SIHTML  AREA                           * 00030000
+*---------------------------------------------------------------------* 00040000
+*                  ** HISTORY OF REVISIONS **                         * 00050000
+* DESCRIPTION                                                 CHNGID  * 00060000
+* __________________________________________________________  _______ * 00070000
+* 06/24/05 INITIAL CREATION                                   GN5297  * 00080000
+*---------------------------------------------------------------------* 00090000
+HTMLREC  DS    0CL333        HTML RECORD DESCRIPTION                    00100000
+HSPLAR   DS    0CL77         SPOOL CONTROL AREA                         00110000
+HCD      DS    CL1           CODE                                       00120000
+HFORM    DS    CL1           FORM                                       00130000
+HPGM     DS    0CL8          PROGRAM                                    00140000
+HAPPL    DS    CL2               APPLICATION                            00150000
+HMAIN    DS    CL2               MAINLINE NUMBER                        00160000
+HUSER    DS    CL4               USER IDENTIFICATION                    00170000
+HRPTNO   DS    CL3           REPORT NUMBER                              00180000
+HBCRSW   DS    CL1           BCR CONTROL BREAK SWITCH                   00190000
+HBCRCL   DS    0CL22         BCR CONTROLS                               00200000
+HBCRC1   DS    CL2               CONTROL 1                              00210000
+HBCRC2   DS    CL3               CONTROL 2                              00220000
+HBCRC3   DS    CL3               CONTROL 3                              00230000
+HBCRC4   DS    CL4               CONTROL 4                              00240000
+         DS    CL10              FILLER                                 00250000
+         ORG   HBCRCL                                                   00260000
+HXBCRC1  DS    CL4           FMS CUSTOMER NUMBER                        00270000
+HXRESP   DS    CL18          FMS RESPONSIBILITY NUMBER                  00280000
+         ORG                                                            00290000
+HRPTSW   DS    CL1           RPT CONTROL BREAK SWITCH                   00300000
+HRPTCL   DS    0CL22         RPT CONTROLS                               00310000
+HRPTC1   DS    CL2               CONTROL 1                              00320000
+HRPTC2   DS    CL3               CONTROL 2                              00330000
+HRPTC3   DS    CL3               CONTROL 3                              00340000
+HRPTC4   DS    CL4               CONTROL 4                              00350000
+         DS    CL10              FILLER                                 00360000
+HBSTAT   DS    CL1           BILLING STATUS SWITCH                      00370000
+HLNENO   DS    PL4           LINE NUMBER (PACKED S9(7))                 00380000
+HLNETY   DS    CL1           LINE TYPE                                  00390000
+HSUBTY   DS    CL1           SUB TYPE                                   00400000
+HRPTLV   DS    CL1           REPORT LEVEL                               00410000
+HPRTID   DS    CL1           PRINT FILE ID                              00420000
+HEXTFL   DS    CL1           3800 EXTENDED PROCESSING FLAG              00430000
+HEXTLN   DS    XL2           3800 LINE LENGTH BINARY                    00440000
+         DS    CL1           FILLER                                     00450000
+         DS    CL5           FILLER                                     00460000
+HPRTLN   DS    0CL256        PRINT LINE                                 00470000
+HPRTLND  DS    CL256         PRINT LINE DETAIL                          00480000

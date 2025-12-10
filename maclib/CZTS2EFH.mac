@@ -1,0 +1,54 @@
+**************************** CZTS2EFH ********************************* 00001000
+*        EXTERNAL INPUT FIELD FORMAT TRAILER DSECT                    * 00000900
+*********************************************************************** 00001000
+EFHDSECT DSECT                                                          00000700
+EFH      DS   0H                                                        00000700
+EFHSIZE  DS    XL1           TRAILER LENGTH                             00001700
+EFHIDENT DS    XL1           TRAILER IDENTIFICATION                     00001700
+EFHFIELD EQU   C'E'          - 'E' EXTERNAL HEADER INPUT FIELD'S        00001700
+*                                  TRAILER                              00001700
+EFHTYPE  DS    CL1           TRAILER FIELD TYPE                         00001700
+*                            - 'C' CONSTANT                             00000240
+*                            - 'V' VARIABLE                             00000250
+EFHTGLOC DS    PL2           TARGET FIELD LOCATION INTO HEADER          00001700
+EFHTGLEN DS    PL2           TARGET FIELD LENGTH                        00001700
+EFHTGTYP DS    CL1           TARGET FIELD TYPE                          00001700
+*                            - 'N' NUMERIC                              00000240
+*                            - 'C' CHARACTER                            00000250
+*                            - 'L' LITERAL                              00000260
+*                            - 'P' PACKED                               00001700
+*                            - 'U' PACKED UNSIGNED                      00001700
+*                            - 'B' BINARY                               00001700
+*                            - 'H' HEXADECIMAL
+*                            - 'E' EIBDATE                              00000270
+*                            - 'T' EIBTIME                              00000280
+*                            - 'S' SENSE                                00000290
+*                            - 'X' TRAN ID                              00000300
+EFHTGBLC DS    PL2           TARGET BIT LOCATION                        00001700
+EFHTGFRM DS    CL1           TARGET FIELD'S FORMAT                      00001700
+*                            - ' ' NOT A DATE - SPACES                  00000320
+*                            - '1' JULIAN    - DDDYY                    00000330
+*                            - '2' JULIAN    - YYDDD                    00000340
+*                            - '3' GREGORIAN - YYMMDD                   00000350
+*                            - '4' GREGORIAN - YYYYMMDD                 00000360
+*                            - '5' GREGORIAN - MMDDYY                   00000370
+*                            - '6' GREGORIAN - MMDDYYYY                 00000380
+*                            - '7' GREGORIAN - DDMMYY                   00000390
+*                            - '8' GREGORIAN - DDMMYYYY                 00000400
+*                            - 'A' TIME ZONED JULIAN - DDDYY            00000410
+*                            - 'B' TIME ZONED JULIAN - YYDDD            00000420
+*                            - 'C' TIME ZONED GREG - YYMMDD             00000430
+*                            - 'D' TIME ZONED GREG - YYYYMMDD           00000440
+*                            - 'E' TIME ZONED GREG - MMDDYY             00000450
+*                            - 'F' TIME ZONED GREG - MMDDYYYY           00000460
+*                            - 'G' TIME ZONED GREG - DDMMYY             00000470
+*                            - 'H' TIME ZONED GREG - DDMMYYYY           00000480
+*                            - 'T' TIME ZONED EIBTIME - HHMMSS          00000490
+EFHSRLOC DS    PL2           SOURCE FIELD LOCATION INTO HEADER          00001700
+EFHSRLEN DS    PL2           SOURCE FIELD LENGTH                        00001700
+EFHSRTYP DS    CL1           SOURCE FIELD TYPE                          00001700
+EFHSRBLC DS    PL2           SOURCE BIT LOCATION                        00001700
+EFHSRFRM DS    CL1           SOURCE FIELD'S FORMAT                      00001700
+EFHDESCR DS    CL8           CONSTANT DESCRIPTION                       00001700
+EFHFILL  DS    CL23          FILLER                                     00001700
+EFHLENG  EQU   *-EFH         LENGTH OF INPUT HEADER                     00002500

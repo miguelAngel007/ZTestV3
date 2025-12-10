@@ -1,0 +1,103 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*          RETURN BUFFER FOR DICTIONARY INTERFACE 'SADSDEXB'          * 00002000
+*                                                                     * 00003000
+*********************************************************************** 00004000
+*                    ** HISTORY OF REVISIONS **                       * 00005000
+* DESCRIPTION                                                 CHNGID  * 00006000
+* ___________________________________________________________ _______ * 00007000
+* 06/17/16 CREATED FOR 32K DAG LIMIT REMOVAL                  1626852 * 00007898
+*********************************************************************** 00011000
+SAD8XXTA DSECT                   * CALLING PGM DATA RTN AREA            00012000
+DEXPREFX DS   0CL48                DATA RTN AREA PREFIX                 00013000
+DEXIBALL DS    CL8                 RTN AREA EYEBALL:SAD8XXTD            00014001
+DEXFLEVL DS    XL2                 RTN AREA FORMAT LEVEL                00015000
+         DS    CL6                 RESERVED                             00016000
+DEXAUDT  DS   0CL32                DSM AUDIT DATA                       00017000
+DEXLMDT  DS    PL4                 DSM LAST MNTE DATE                   00018000
+DEXLMTM  DS    PL4                 DSM LAST MNTE TIME                   00019000
+DEXLMOP  DS    CL8                 DSM LAST MNTE SOURCE-OPERID          00020000
+DEXLMCID DS    CL8                 DSM LAST MNTE CONTROL ID             00021000
+DEXSEGLN DS    FL4                 DSM ENTITY SEGMENT LENGTH            00022000
+DEXFILLV DS    XL1                 AUXILIARY FILE LEVEL                 00023000
+DEXRECLV DS    XL1                 DSM RECORD FORMAT LEVEL              00024000
+         DS    CL2                 RESERVED                             00025000
+DEXROOT  DS   0CL35                DSM ROOT DATA                        00026000
+DEX#ITMS DS    HL2                 # ITEMS IN DATAGROUP                 00027000
+DEXDAGLN DS    FL4                 DAG DATA LENGTH                      00028000
+DEXDAGFM DS    CL1                 DAG FORMAT                           00029000
+DEXTYPE  DS    CL1                 DAG PROCESSING TYPE                  00030000
+DEXTYPSD EQU   C'D'                  DAG TYPE: SDMS                     00031000
+DEXTYPPR EQU   C'P'                  DAG TYPE: PARMS                    00032000
+DEXTYPWK EQU   C'W'                  DAG TYPE: WORK                     00033000
+DEXDSTNM DS    CL8                 DATABASE (DST) NAME                  00034000
+DEXEDTHR DS    HL2                 EDIT THRESHOLD                       00035000
+DEXCRITF DS    CL1                 CRITERIA EDIT INDICATOR              00036000
+DEXKYIT# DS    HL2                 KEY ITEM NUMBER                      00037000
+DEXDNMLS DS    XL1                 DNM LAST SETMENT ID                  00038000
+DEXDNMLN DS    FL4                 DNM TOTAL ENTITY LENGTH              00039000
+         DS    CL15                RESERVED                             00040000
+SAD8EXTO EQU   *                   REQ BLK ORIGINAL START               00041000
+DEXDAGNM DS    CL8                 ENTITY NAME                          00042000
+DEXITEM  EQU   *                   DSM ITEM DATA                        00043000
+DEXELENM DS    CL8                 ELEMENT NAME                         00044000
+DEXLEVEL DS    XL1                 ELEMENT COBOL LEVEL                  00045000
+DEXSTGTY DS    XL1                 ELEMENT STORAGE TYPE                 00046000
+DEXLEN   DS    FL4                 ELEMENT LENGTH                       00047000
+DEXPOS   DS    FL4                 ELEMENT POSITION (OFFSET)            00048000
+DEXFORMT DS    XL1                 ELEMENT FORMAT CODE                  00049000
+DEXDECML DS    XL1                 ELEMENT DECIMAL POSITIONS            00050000
+DEX#OCRS DS    XL2                 ELEMENT # OCCURS LEVELS              00051000
+DEXOCCUR DS    CL12                ELEMENT OCCURS DATA                  00052000
+DEXDESC  DS    CL20                USER SHORT NAME                      00053000
+DEXDNMXD EQU   *                   DNM EXTENDED DATA RTN AREA           00054000
+DEXCOBNM DS    CL30                COBOL NAME                           00055000
+DEXREDEF DS    CL30                COBOL REDEFINES NAME                 00056000
+DEXINDX1 DS    CL30                COBOL INDEX/RENAMES NAME-1           00057000
+DEXINDX2 DS    CL30                COBOL INDEX/RENAMES NAME-2           00058000
+DEXPIC   DS    CL60                COBOL PICTURE                        00059000
+DEXLDESC DS    CL60                LONG DESCRIPTION                     00060000
+DEXVALUE DS    CL122               INITIAL VALUE                        00061000
+DEXFLAGS DS    XL1                 FLAGS: EDIT/LOG/GRP/FLR/KEY          00062000
+DEXFEDIT EQU   X'80'                 FLAGS: EDIT ALWAYS                 00063000
+DEXFLOGA EQU   X'40'                 FLAGS: LOG ALWAYS                  00064000
+DEXFLOGM EQU   X'20'                 FLAGS: LOG IF MAINTAINED           00065000
+DEXFGRP  EQU   X'04'                 FLAGS: GROUP ITEM                  00066000
+DEXFFLR  EQU   X'02'                 FLAGS: FILLER ITEM                 00067000
+DEXFKEY  EQU   X'01'                 FLAGS: KEY ITEM                    00068000
+DEXTSINQ DS    HL1                 TS SECURITY/INQUIRY                  00069000
+DEXTSUPD DS    HL1                 TS SECURITY/UPDATE                   00070000
+DEXITMLN EQU   *-DEXITEM           L'ITEM DATA RETURN SEGMENT           00071000
+DEXLENG  EQU   *-SAD8XXTA          LENGTH OF REQUEST BLOCK              00072000
+*---------------------------------------------------------------------* 00073000
+* DXM ITEM LAYOUT MUST MATCH EXACTLY TO SAD9DXMA ITEM LAYOUT.         * 00074000
+* SAD9DXMA ITEM DATA WILL BE MOVED TO SAD8XXTA DXM ITEM DATA          * 00075000
+* IN ITEM DATAGROUP INCREMENTS.                                       * 00076000
+*---------------------------------------------------------------------* 00077000
+         ORG   DEXROOT                                                  00078000
+DXMDAGNM DS    CL8                 DXM KEY: ENTITY NAME                 00079002
+DXMROOT  DS   0CL27                DXM ROOT DATA                        00080000
+DXM#ITMS DS    HL2                 # ITEMS IN DATAGROUP                 00081000
+DXMDAGLN DS    FL4                 DAG DATA LENGTH                      00082000
+         DS    CL23                RESERVED                             00083000
+DXMITEM  DS   0C                   DXM ITEM DATA                        00084000
+DXMTAGNM DS    CL30                DXM ITEM XLM TAG NAME                00085000
+DXMELENM DS    CL8                 ELEMENT NAME                         00086000
+DXMLEVEL DS    XL1                 ELEMENT COBOL LEVEL                  00087000
+DXMSTGTY DS    XL1                 ELEMENT STORAGE TYPE                 00088000
+DXMFLAGS DS    XL1                 FLAGS: EDIT/LOG/GRP/FLR/KEY          00089000
+DXMFEDIT EQU   X'80'                 FLAGS: EDIT ALWAYS                 00090000
+DXMFLOGA EQU   X'40'                 FLAGS: LOG ALWAYS                  00091000
+DXMFLOGM EQU   X'20'                 FLAGS: LOG IF MAINTAINED           00092000
+DXMFGRP  EQU   X'04'                 FLAGS: GROUP ITEM                  00093000
+DXMFFLR  EQU   X'02'                 FLAGS: FILLER ITEM                 00094000
+DXMFKEY  EQU   X'01'                 FLAGS: KEY ITEM                    00095000
+DXMLEN   DS    FL4                 ELEMENT LENGTH                       00096000
+DXMPOS   DS    FL4                 ELEMENT POSITION (OFFSET)            00097000
+DXMFORMT DS    XL1                 ELEMENT FORMAT CODE                  00098000
+DXMDECML DS    HL1                 ELEMENT DECIMAL POSITIONS            00099000
+DXM#OCRS DS    HL1                 ELEMENT # OCCURS LEVELS              00100000
+DXMOCCUR DS   0CL12,(3*2)HL2       ELEMENT OCCURS DATA                  00101000
+DXMITMLN EQU   *-DXMITEM           L'ITEM DATA RTN SEGMT/DXM            00102000
+DXMLENG  EQU   *-SAD8XXTA          L'DATA RTN AREA W/1 DXM SEG          00103000
+         ORG   ,                                                        00104000

@@ -1,0 +1,436 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAANTSTM &FLD,       NAME1|N(L,RN)                            +00002000
+               &FLDPTR=,     ANAME1|FNAME1|XNAME1|(RN)|(R1)            +00003000
+               &FORMAT=,     CHAR|CH|C|ZONE|ZD|Z|PACK|PD|P             +00004000
+               &LENGTH=,     FNAME2|HNAME2|XNAME2|LIT2|(RN)|(R2)       +00005000
+               &EXLGTH=      FNAME2|HNAME2|XNAME2|LIT2|(RN)|(R2)        00006000
+.* --------------------------------------------------------- *          00007000
+.* MACRO ID: SAANTSTM                                        *          00008000
+.*    TITLE: NUMERIC TEST                                    *          00009000
+.*     DATE: 04/14/88                                        *          00010000
+.*                                                           *          00011000
+.*     DESC: THIS MACRO IS USED TO GENERATE THE NECESSARY    *          00012000
+.*           CODE TO TEST THE NUMERIC VALIDITY OF A FIELD.   *          00013000
+.*                                                           *          00014000
+.*           THE FOLLOWING EAA/SA OBJECT MODULES WILL BE     *          00015000
+.*           AUTO INCLUDED AT LINKEDIT TIME:                 *          00016000
+.*                                                           *          00017000
+.*             UNSIGNED EXTERNAL DECIMAL (CH)                *          00018000
+.*             MVS(ILBOWTB0) VSE(ILBDWTB0) SA(SAATUZDA)      *          00019000
+.*                                                           *          00020000
+.*             EXTERNAL DECIMAL (ZD)                         *          00021000
+.*             MVS(ILBOETB0) VSE(ILBDETB0) SA(SAATSZDA)      *          00022000
+.*                                                           *          00023000
+.*             INTERNAL DECIMAL (PD)                         *          00024000
+.*             MVS(ILBOITB0) VSE(ILBDITB0) SA(SAATSPDA)      *          00025000
+.*                                                           *          00026000
+.*           OTHER AVAILABLE COBOL MODULES ARE:              *          00027000
+.*                                                           *          00028000
+.*             ALPHA                                         *          00029000
+.*             MVS(ILBOATB0) VSE(        )                   *          00030000
+.*                                                           *          00031000
+.*             TRANSFORMATION                                *          00032000
+.*             MVS(ILBOTRN0) VSE(        )                   *          00033000
+.*                                                           *          00034000
+.*             UNSIGNED INTERNAL DECIMAL                     *          00035000
+.*             MVS(ILBOUTB0) VSE(        )                   *          00036000
+.*                                                           *          00037000
+.*      INV: IF SA TABLES ARE USED ALL OPERATING SYSTEMS     *          00038000
+.*              ARE SUPPORTED.                               *          00039000
+.*                                                           *          00040000
+.*    INPUT: FLD      LABEL OF FIELD TO BE TESTED FOR        *          00041000
+.*                    NUMERIC.                               *          00042000
+.*           FLDPTR   ADDRESS OF THE FIELD TO BE TESTED      *          00043000
+.*                    FOR NUMERIC.                           *          00044000
+.*           FORMAT   (CHAR|CH|C) - UNSIGNED ZONE DECIMAL    *          00045000
+.*                                  TEST.                    *          00046000
+.*                    (ZONE|ZD|Z) - SIGNED ZONE DECMIAL      *          00047000
+.*                                  TEST.                    *          00048000
+.*                    (PACK|PD|P) - SIGNED PACK DECIMAL      *          00049000
+.*                                  TEST.                    *          00050000
+.*           LENGTH   A NUMERIC LITERAL, A BINARY FIELD,     *          00051000
+.*                    OR REGISTER NOTATION.  THE VALUE       *          00052000
+.*                    WILL BE REDUCED BY 1 FOR EXECUTION     *          00053000
+.*                    PURPOSES.                              *          00054000
+.*           EXLGTH   A NUMERIC LITERAL, A BINARY FIELD,     *          00055000
+.*                    OR REGISTER NOTATION.  THE VALUE       *          00056000
+.*                    IS ASSUMED TO BE IN EXECUTABLE FORM.   *          00057000
+.*                                                           *          00058000
+.*   OUTPUT: R15      0 = NUMERIC                            *          00059000
+.*                    4 = NOT NUMERIC                        *          00060000
+.*                                                           *          00061000
+.*  REG USE: R1  - FIELD ADDRESS (DEFAULT)                   *          00062000
+.*           R2  - FIELD LENGTH (DEFAULT)                    *          00063000
+.*           R15 - ADDRESS OF TRANSLATE TABLE                *          00064000
+.*                 RETURN CODE                               *          00065000
+.*                                                           *          00066000
+.* --------------------------------------------------------- *          00067000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00068000
+         LCLB  &EXECSW                                                  00069000
+         LCLC  &TRGT                                                    00070000
+         LCLC  &INIT1,&INIT2                                            00071000
+         LCLC  &INITA,&INITB                                            00072000
+         LCLC  &INST1,&INST2,&INST3                                     00073000
+         LCLC  &INSTA,&INSTB,&INSTC                                     00074000
+         LCLC  &LEN                                                     00075000
+&MACNME  SETC  'SAANTSTM'                                               00076000
+&MACVER  SETC  '0003'                                                   00077000
+&MACREL  SETC  '.000'                                                   00078000
+&MACDATE SETC  '03/26/90'                                               00079000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00080000
+               - &MACDATE'                                              00081000
+&EXECSW  SETB  0                                                        00082000
+&LEN     SETC  '0'                                                      00083000
+         AIF   (T'&FLD EQ 'O' AND T'&FLDPTR EQ 'O').ERR001              00084000
+         AIF   (T'&LENGTH NE 'O' AND T'&EXLGTH NE 'O').ERR004           00085000
+         AIF   (T'&FLDPTR NE 'O').NTST200                               00086000
+         AIF   (T'&FLD NE 'O').NTST100                                  00087000
+.ERR001  ANOP                                                           00088000
+         MNOTE 8,'&MACNME - NO TARGET FIELD WAS SPECIFIED, MACRO EXPANS+00089000
+               ION IGNORED'                                             00090000
+         MEXIT                                                          00091000
+.NTST100 ANOP                                                           00092000
+&TRGT    SETC  '&FLD'                                                   00093000
+         AIF   (T'&LENGTH EQ 'O' AND T'&EXLGTH EQ 'O').NTST102          00094000
+         MNOTE 4,'&MACNME - LENGTH PARAMETER IS INVALID FOR THIS EXPANS+00095000
+               ION, LENGTH PARAMETER IS IGNORED'                        00096000
+.NTST102 ANOP                                                           00097000
+         AIF   (T'&FLD EQ 'C').NTSTCH                                   00098000
+         AIF   (T'&FLD EQ 'Z').NTSTZD                                   00099000
+         AIF   (T'&FLD EQ 'P').NTSTPD                                   00100000
+         AIF   (T'&FORMAT NE 'O').NTST110                               00101000
+         MNOTE 8,'&MACNME - FORMAT PARAMETER WAS OMITTED, MACRO EXPANSI+00102000
+               ON IGNORED'                                              00103000
+         MEXIT                                                          00104000
+.NTST110 ANOP                                                           00105000
+         AIF   ('&FORMAT' EQ 'C' OR '&FORMAT' EQ 'CH' OR               +00106000
+               '&FORMAT' EQ 'CHAR').NTSTCH                              00107000
+         AIF   ('&FORMAT' EQ 'Z' OR '&FORMAT' EQ 'ZD' OR               +00108000
+               '&FORMAT' EQ 'ZONE').NTSTZD                              00109000
+         AIF   ('&FORMAT' EQ 'P' OR '&FORMAT' EQ 'PD' OR               +00110000
+               '&FORMAT' EQ 'PACK').NTSTPD                              00111000
+         MNOTE 8,'&MACNME - FORMAT PARAMETER IS INVALID, MACRO EXPANSIO+00112000
+               N IGNORED'                                               00113000
+         MEXIT                                                          00114000
+.NTST200 ANOP                                                           00115000
+         AIF   (T'&FLDPTR EQ 'A' OR T'&FLDPTR EQ 'F').NTST230           00116000
+         AIF   (T'&FLDPTR EQ 'X').NTST220                               00117000
+         AIF   ('&FLDPTR'(1,1) EQ '(').NTST210                          00118000
+         MNOTE 8,'&MACNME - FLDPTR PARAMETER IS INVALID, MACRO EXPANSIO+00119000
+               N IGNORED'                                               00120000
+         MEXIT                                                          00121000
+.NTST210 ANOP                                                           00122000
+         AIF   ('&FLDPTR(1)' EQ '0' OR '&FLDPTR(1)' EQ 'R0' OR         +00123000
+               '&FLDPTR(1)' EQ 'R00').ERR002                            00124000
+         AIF   ('&FLDPTR(1)' EQ '2' OR '&FLDPTR(1)' EQ 'R2' OR         +00125000
+               '&FLDPTR(1)' EQ 'R02').ERR002                            00126000
+         AIF   ('&FLDPTR(1)' EQ '15' OR '&FLDPTR(1)' EQ 'RF' OR        +00127000
+               '&FLDPTR(1)' EQ 'R15').ERR002                            00128000
+         AIF   ('&FLDPTR(1)' EQ '1' OR '&FLDPTR(1)' EQ 'R1' OR         +00129000
+               '&FLDPTR(1)' EQ 'R01').NTST299                           00130000
+&INST1   SETC  'LR   '                                                  00131000
+&INSTA   SETC  'R1,&FLDPTR(1)'                                          00132000
+         AGO   .NTST299                                                 00133000
+.NTST220 ANOP                                                           00134000
+         AIF   (L'&FLDPTR EQ 4).NTST224                                 00135000
+         AIF   (L'&FLDPTR EQ 3).NTST222                                 00136000
+         MNOTE 8,'&MACNME - FLDPTR PARAMETER HAS AN INVALID LENGTH, MAC+00137000
+               RO EXPANSION IGNORED'                                    00138000
+         MEXIT                                                          00139000
+.NTST222 ANOP                                                           00140000
+&INIT1   SETC  'XR   '                                                  00141000
+&INITA   SETC  'R1,R1'                                                  00142000
+&INST1   SETC  'ICM  '                                                  00143000
+&INSTA   SETC  'R1,7,&FLDPTR'                                           00144000
+         AGO   .NTST299                                                 00145000
+.NTST224 ANOP                                                           00146000
+&INST1   SETC  'ICM  '                                                  00147000
+&INSTA   SETC  'R1,15,&FLDPTR'                                          00148000
+         AGO   .NTST299                                                 00149000
+.NTST230 ANOP                                                           00150000
+&INST1   SETC  'L    '                                                  00151000
+&INSTA   SETC  'R1,&FLDPTR'                                             00152000
+         AGO   .NTST299                                                 00153000
+.NTST299 ANOP                                                           00154000
+.NTST300 ANOP                                                           00155000
+         AIF   (T'&LENGTH NE 'O' OR T'&EXLGTH NE 'O').NTST310           00156000
+         MNOTE 8,'&MACNME - LENGTH PARAMETER WAS OMITTED, MACRO EXPANSI+00157000
+               ON IGNORED'                                              00158000
+         MEXIT                                                          00159000
+.NTST310 ANOP                                                           00160000
+         AIF   (T'&EXLGTH NE 'O').NTST400                               00161000
+         AIF   (T'&LENGTH EQ 'A' OR T'&LENGTH EQ 'F').NTST360           00162000
+         AIF   (T'&LENGTH EQ 'Y' OR T'&LENGTH EQ 'H').NTST350           00163000
+         AIF   (T'&LENGTH EQ 'X').NTST340                               00164000
+         AIF   ('&LENGTH'(1,1) EQ '(').NTST330                          00165000
+         AIF   (T'&LENGTH EQ 'N').NTST320                               00166000
+.*       MNOTE 8,'&MACNME - LENGTH PARAMETER IS INVALID, MACRO EXPANSIO 00167000
+.*             N IGNORED'                                               00168000
+.*       MEXIT                                                          00169000
+.NTST320 ANOP                                                           00170000
+&LEN     SETC  '&LENGTH'                                                00171000
+         AGO   .NTST399                                                 00172000
+.NTST330 ANOP                                                           00173000
+&EXECSW  SETB  1                                                        00174000
+         AIF   ('&LENGTH(1)' EQ '0' OR '&LENGTH(1)' EQ 'R0' OR         +00175000
+               '&LENGTH(1)' EQ 'R00').ERR003                            00176000
+         AIF   ('&LENGTH(1)' EQ '1' OR '&LENGTH(1)' EQ 'R1' OR         +00177000
+               '&LENGTH(1)' EQ 'R01').ERR003                            00178000
+         AIF   ('&LENGTH(1)' EQ '15' OR '&LENGTH(1)' EQ 'RF' OR        +00179000
+               '&LENGTH(1)' EQ 'R15').ERR003                            00180000
+         AIF   ('&LENGTH(1)' EQ '2' OR '&LENGTH(1)' EQ 'R2' OR         +00181000
+               '&LENGTH(1)' EQ 'R02').NTST370                           00182000
+&INST2   SETC  'LR   '                                                  00183000
+&INSTB   SETC  'R2,&LENGTH(1)'                                          00184000
+&INST3   SETC  'BCTR '                                                  00185000
+&INSTC   SETC  'R2,R0'                                                  00186000
+         AGO   .NTST399                                                 00187000
+.NTST340 ANOP                                                           00188000
+&EXECSW  SETB  1                                                        00189000
+         AIF   (L'&LENGTH EQ 4).NTST348                                 00190000
+         AIF   (L'&LENGTH EQ 3).NTST346                                 00191000
+         AIF   (L'&LENGTH EQ 2).NTST344                                 00192000
+         AIF   (L'&LENGTH EQ 1).NTST342                                 00193000
+         MNOTE 8,'&MACNME - LENGTH PARAMETER HAS AN INVALID LENGTH, MAC+00194000
+               RO EXPANSION IGNORED'                                    00195000
+         MEXIT                                                          00196000
+.NTST342 ANOP                                                           00197000
+&INIT2   SETC  'XR   '                                                  00198000
+&INITB   SETC  'R2,R2'                                                  00199000
+&INST2   SETC  'ICM  '                                                  00200000
+&INSTB   SETC  'R2,1,&LENGTH'                                           00201000
+&INST3   SETC  'BCTR '                                                  00202000
+&INSTC   SETC  'R2,R0'                                                  00203000
+         AGO   .NTST399                                                 00204000
+.NTST344 ANOP                                                           00205000
+&INIT2   SETC  'XR   '                                                  00206000
+&INITB   SETC  'R2,R2'                                                  00207000
+&INST2   SETC  'ICM  '                                                  00208000
+&INSTB   SETC  'R2,3,&LENGTH'                                           00209000
+&INST3   SETC  'BCTR '                                                  00210000
+&INSTC   SETC  'R2,R0'                                                  00211000
+         AGO   .NTST399                                                 00212000
+.NTST346 ANOP                                                           00213000
+&INIT2   SETC  'XR   '                                                  00214000
+&INITB   SETC  'R2,R2'                                                  00215000
+&INST2   SETC  'ICM  '                                                  00216000
+&INSTB   SETC  'R2,7,&LENGTH'                                           00217000
+&INST3   SETC  'BCTR '                                                  00218000
+&INSTC   SETC  'R2,R0'                                                  00219000
+         AGO   .NTST399                                                 00220000
+.NTST348 ANOP                                                           00221000
+&INST2   SETC  'ICM  '                                                  00222000
+&INSTB   SETC  'R2,15,&LENGTH'                                          00223000
+&INST3   SETC  'BCTR '                                                  00224000
+&INSTC   SETC  'R2,R0'                                                  00225000
+         AGO   .NTST399                                                 00226000
+.NTST350 ANOP                                                           00227000
+&EXECSW  SETB  1                                                        00228000
+&INST2   SETC  'LH   '                                                  00229000
+&INSTB   SETC  'R2,&LENGTH'                                             00230000
+&INST3   SETC  'BCTR '                                                  00231000
+&INSTC   SETC  'R2,R0'                                                  00232000
+         AGO   .NTST399                                                 00233000
+.NTST360 ANOP                                                           00234000
+&EXECSW  SETB  1                                                        00235000
+&INST2   SETC  'L    '                                                  00236000
+&INSTB   SETC  'R2,&LENGTH'                                             00237000
+&INST3   SETC  'BCTR '                                                  00238000
+&INSTC   SETC  'R2,R0'                                                  00239000
+         AGO   .NTST399                                                 00240000
+.NTST370 ANOP                                                           00241000
+&INST3   SETC  'BCTR '                                                  00242000
+&INSTC   SETC  'R2,R0'                                                  00243000
+         AGO   .NTST399                                                 00244000
+.NTST399 ANOP                                                           00245000
+.NTST400 ANOP                                                           00246000
+         AIF   (T'&LENGTH NE 'O').NTST499                               00247000
+         AIF   (T'&EXLGTH EQ 'A' OR T'&EXLGTH EQ 'F').NTST460           00248000
+         AIF   (T'&EXLGTH EQ 'Y' OR T'&EXLGTH EQ 'H').NTST450           00249000
+         AIF   (T'&EXLGTH EQ 'X').NTST440                               00250000
+         AIF   ('&EXLGTH'(1,1) EQ '(').NTST430                          00251000
+         AIF   (T'&EXLGTH EQ 'N').NTST420                               00252000
+.*       MNOTE 8,'&MACNME - EXLGTH PARAMETER IS INVALID, MACRO EXPANSIO 00253000
+.*             N IGNORED'                                               00254000
+.*       MEXIT                                                          00255000
+.NTST420 ANOP                                                           00256000
+&LEN     SETC  '&EXLGTH.+1'                                             00257000
+         AGO   .NTST499                                                 00258000
+.NTST430 ANOP                                                           00259000
+&EXECSW  SETB  1                                                        00260000
+         AIF   ('&EXLGTH(1)' EQ '0' OR '&EXLGTH(1)' EQ 'R0' OR         +00261000
+               '&EXLGTH(1)' EQ 'R00').ERR013                            00262000
+         AIF   ('&EXLGTH(1)' EQ '1' OR '&EXLGTH(1)' EQ 'R1' OR         +00263000
+               '&EXLGTH(1)' EQ 'R01').ERR013                            00264000
+         AIF   ('&EXLGTH(1)' EQ '15' OR '&EXLGTH(1)' EQ 'RF' OR        +00265000
+               '&EXLGTH(1)' EQ 'R15').ERR013                            00266000
+         AIF   ('&EXLGTH(1)' EQ '2' OR '&EXLGTH(1)' EQ 'R2' OR         +00267000
+               '&EXLGTH(1)' EQ 'R02').NTST499                           00268000
+&INST2   SETC  'LR   '                                                  00269000
+&INSTB   SETC  'R2,&EXLGTH(1)'                                          00270000
+         AGO   .NTST499                                                 00271000
+.NTST440 ANOP                                                           00272000
+&EXECSW  SETB  1                                                        00273000
+         AIF   (L'&EXLGTH EQ 4).NTST448                                 00274000
+         AIF   (L'&EXLGTH EQ 3).NTST446                                 00275000
+         AIF   (L'&EXLGTH EQ 2).NTST444                                 00276000
+         AIF   (L'&EXLGTH EQ 1).NTST442                                 00277000
+         MNOTE 8,'&MACNME - EXLGTH PARAMETER HAS AN INVALID LENGTH, MAC+00278000
+               RO EXPANSION IGNORED'                                    00279000
+         MEXIT                                                          00280000
+.NTST442 ANOP                                                           00281000
+&INIT2   SETC  'XR   '                                                  00282000
+&INITB   SETC  'R2,R2'                                                  00283000
+&INST2   SETC  'ICM  '                                                  00284000
+&INSTB   SETC  'R2,1,&EXLGTH'                                           00285000
+         AGO   .NTST499                                                 00286000
+.NTST444 ANOP                                                           00287000
+&INIT2   SETC  'XR   '                                                  00288000
+&INITB   SETC  'R2,R2'                                                  00289000
+&INST2   SETC  'ICM  '                                                  00290000
+&INSTB   SETC  'R2,3,&EXLGTH'                                           00291000
+         AGO   .NTST499                                                 00292000
+.NTST446 ANOP                                                           00293000
+&INIT2   SETC  'XR   '                                                  00294000
+&INITB   SETC  'R2,R2'                                                  00295000
+&INST2   SETC  'ICM  '                                                  00296000
+&INSTB   SETC  'R2,7,&EXLGTH'                                           00297000
+         AGO   .NTST499                                                 00298000
+.NTST448 ANOP                                                           00299000
+&INST2   SETC  'ICM  '                                                  00300000
+&INSTB   SETC  'R2,15,&EXLGTH'                                          00301000
+         AGO   .NTST499                                                 00302000
+.NTST450 ANOP                                                           00303000
+&EXECSW  SETB  1                                                        00304000
+&INST2   SETC  'LH   '                                                  00305000
+&INSTB   SETC  'R2,&EXLGTH'                                             00306000
+         AGO   .NTST499                                                 00307000
+.NTST460 ANOP                                                           00308000
+&EXECSW  SETB  1                                                        00309000
+&INST2   SETC  'L    '                                                  00310000
+&INSTB   SETC  'R2,&EXLGTH'                                             00311000
+         AGO   .NTST499                                                 00312000
+.NTST499 ANOP                                                           00313000
+&TRGT    SETC  '0(&LEN.,R1)'                                            00314000
+.NTST500 ANOP                                                           00315000
+         AIF   (T'&FORMAT NE 'O').NTST510                               00316000
+         MNOTE 8,'&MACNME - FORMAT PARAMETER WAS OMITTED, MACRO EXPANSI+00317000
+               ON IGNORED'                                              00318000
+         MEXIT                                                          00319000
+.NTST510 ANOP                                                           00320000
+         AIF   ('&FORMAT' EQ 'C' OR '&FORMAT' EQ 'CH' OR               +00321000
+               '&FORMAT' EQ 'CHAR').NTSTCH                              00322000
+         AIF   ('&FORMAT' EQ 'Z' OR '&FORMAT' EQ 'ZD' OR               +00323000
+               '&FORMAT' EQ 'ZONE').NTSTZD                              00324000
+         AIF   ('&FORMAT' EQ 'P' OR '&FORMAT' EQ 'PD' OR               +00325000
+               '&FORMAT' EQ 'PACK').NTSTPD                              00326000
+         MNOTE 8,'&MACNME - FORMAT PARAMETER IS INVALID, MACRO EXPANSIO+00327000
+               N IGNORED'                                               00328000
+         MEXIT                                                          00329000
+.NTSTCH  ANOP                                                           00330000
+.*       ***   MACRO=SAANTSTM FORMAT=CH                                 00331000
+         AIF   ('&INIT1' EQ '').NTST802                                 00332000
+         &INIT1 &INITA                                                  00333000
+.NTST802 ANOP                                                           00334000
+         AIF   ('&INST1' EQ '').NTST804                                 00335000
+         &INST1 &INSTA                                                  00336000
+.NTST804 ANOP                                                           00337000
+         GNCALL SAATSZDA,TYPE=LOAD   LOAD ADR OF ZD TRT TABLE 9913437   00338000
+         AIF   ('&INIT2' EQ '').NTST806                                 00339000
+         &INIT2 &INITB                                                  00340000
+.NTST806 ANOP                                                           00341000
+         AIF   ('&INST2' EQ '').NTST808                                 00342000
+         &INST2 &INSTB                                                  00343000
+.NTST808 ANOP                                                           00344000
+         AIF   ('&INST3' EQ '').NTST810                                 00345000
+         &INST3 &INSTC                                                  00346000
+.NTST810 ANOP                                                           00347000
+         AIF   (NOT &EXECSW).NTST812                                    00348000
+         EX    R2,*+8 .                EXECUTE TRT INSTR                00349000
+         B     *+10 .                  BRANCH TO CC TEST FOR TRT        00350000
+.NTST812 ANOP                                                           00351000
+         TRT   &TRGT,0(R15)            Q. TEST FOR CH                   00352000
+         BNE   *+8 .                   A. NO, NOT NUMERIC               00353000
+         B     *+12 .                  A. YES, NUMERIC                  00354000
+         AGO   .NTST900                                                 00355000
+.NTSTZD  ANOP                                                           00356000
+.*       ***   MACRO=SAANTSTM FORMAT=ZD                                 00357000
+         AIF   ('&INIT1' EQ '').NTST822                                 00358000
+         &INIT1 &INITA                                                  00359000
+.NTST822 ANOP                                                           00360000
+         AIF   ('&INST1' EQ '').NTST824                                 00361000
+         &INST1 &INSTA                                                  00362000
+.NTST824 ANOP                                                           00363000
+         GNCALL SAATSZDA,TYPE=LOAD   LOAD ADR OF ZD TRT TABLE 9913437   00364000
+         AIF   ('&INIT2' EQ '').NTST826                                 00365000
+         &INIT2 &INITB                                                  00366000
+.NTST826 ANOP                                                           00367000
+         AIF   ('&INST2' EQ '').NTST828                                 00368000
+         &INST2 &INSTB                                                  00369000
+.NTST828 ANOP                                                           00370000
+         AIF   ('&INST3' EQ '').NTST830                                 00371000
+         &INST3 &INSTC                                                  00372000
+.NTST830 ANOP                                                           00373000
+         AIF   (NOT &EXECSW).NTST832                                    00374000
+         EX    R2,*+8 .                EXECUTE TRT INSTR                00375000
+         B     *+10 .                  BRANCH TO CC TEST FOR TRT        00376000
+.NTST832 ANOP                                                           00377000
+         TRT   &TRGT,0(R15)            Q. TEST FOR ZD                   00378000
+         BL    *+20 .                  A. NO, NOT NUMERIC               00379000
+         BE    *+24 .                  A. YES, NUMERIC SIGN=F           00380000
+         N     R2,=F'1' .              Q. VALID SIGN                    00381000
+         BNE   *+8 .                   A. NO, INVALID SIGN              00382000
+         B     *+12 .                  A. YES, VALID SIGN               00383000
+         AGO   .NTST900                                                 00384000
+.NTSTPD  ANOP                                                           00385000
+.*       ***   MACRO=SAANTSTM FORMAT=PD                                 00386000
+         AIF   ('&INIT1' EQ '').NTST842                                 00387000
+         &INIT1 &INITA                                                  00388000
+.NTST842 ANOP                                                           00389000
+         AIF   ('&INST1' EQ '').NTST844                                 00390000
+         &INST1 &INSTA                                                  00391000
+.NTST844 ANOP                                                           00392000
+         GNCALL SAATSPDA,TYPE=LOAD   LOAD ADR OF PD TRT TABLE 9913437   00393000
+         AIF   ('&INIT2' EQ '').NTST846                                 00394000
+         &INIT2 &INITB                                                  00395000
+.NTST846 ANOP                                                           00396000
+         AIF   ('&INST2' EQ '').NTST848                                 00397000
+         &INST2 &INSTB                                                  00398000
+.NTST848 ANOP                                                           00399000
+         AIF   ('&INST3' EQ '').NTST850                                 00400000
+         &INST3 &INSTC                                                  00401000
+.NTST850 ANOP                                                           00402000
+         AIF   (NOT &EXECSW).NTST852                                    00403000
+         EX    R2,*+8 .                EXECUTE TRT INSTR                00404000
+         B     *+10 .                  BRANCH TO CC TEST FOR TRT        00405000
+.NTST852 ANOP                                                           00406000
+         TRT   &TRGT,0(R15)            Q. TEST FOR PD                   00407000
+         BC    12,*+12 .               A. NO, NOT NUMERIC               00408000
+         N     R2,=F'1' .              Q. VALID SIGN                    00409000
+         BE    *+12 .                  A. YES, VALID SIGN               00410000
+         AGO   .NTST900                                                 00411000
+.NTST900 ANOP                                                           00412000
+         LA    R15,4 .                 INDICATE NOT NUMERIC             00413000
+         B     *+8 .                   GO SET CONDITION CODE            00414000
+         LA    R15,0 .                 INDICATE NUMERIC                 00415000
+         LTR   R15,R15 .               SET CONDITION CODE               00416000
+         MEXIT                                                          00417000
+.ERR002  ANOP                                                           00418000
+         MNOTE 8,'&MACNME - &FLDPTR IS INVALID AS USED, MACRO EXPANSION+00419000
+                IGNORED'                                                00420000
+         AGO   .NTST999                                                 00421000
+.ERR003  ANOP                                                           00422000
+         MNOTE 8,'&MACNME - &LENGTH IS INVALID AS USED, MACRO EXPANSION+00423000
+                IGNORED'                                                00424000
+         AGO   .NTST999                                                 00425000
+.ERR004  ANOP                                                           00426000
+         MNOTE 8,'&MACNME - BOTH LENGTH PARAMETERS WERE USED, MACRO EXP+00427000
+               ANSION IGNORED'                                          00428000
+         AGO   .NTST999                                                 00429000
+.ERR013  ANOP                                                           00430000
+         MNOTE 8,'&MACNME - &EXLGTH IS INVALID AS USED, MACRO EXPANSION+00431000
+                IGNORED'                                                00432000
+         AGO   .NTST999                                                 00433000
+.NTST999 ANOP                                                           00434000
+         MEND                                                           00435000

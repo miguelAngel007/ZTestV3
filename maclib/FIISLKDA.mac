@@ -1,0 +1,72 @@
+         MACRO                                                          00000100
+         FIISLKDA &DSECT=YES                                            00000200
+         LCLB  &DST                                                     00000300
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00000400
+         AIF   ('&DSECT' EQ 'NO').START                                 00000500
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00000600
+         MEXIT                                                          00000700
+.SETYES  ANOP                                                           00000800
+&DST     SETB  1                                                        00000900
+         AGO   .START                                                   00001000
+.START   ANOP                                                           00001100
+*                                                                       00001200
+*                        SIMS COMMON AREA                               00001300
+*                                                                       00001400
+         AIF   (&DST).D0001                                             00001500
+FIISLKDA DS    0D                                                       00001600
+         AGO   .C0001                                                   00001700
+.D0001   ANOP                                                           00001800
+FIISLKDA DSECT                                                          00001900
+.C0001   ANOP                                                           00002000
+LKBANK   DS    CL2                     BANK NUMBER                      00002100
+LKBRANCH DS    CL3                     BRANCH NUMBER                    00002200
+LKVSWT   DS    CL1                     VALID BRANCH SWITCH              00002300
+LKOPID   DS    CL3                     OPERATOR ID NUMBER               00002400
+LKSTAT   DS    CL1                     STAT WRITE SWITCH Y=TRUE         00002500
+LKGROUP  DS    CL4                     IMF GROUP CODE                   00002600
+         DS    CL7                                                      00002700
+LKSUPER  DS    CL1                     SIMS SUPERVISOR FLAG Y=TRUE      00002800
+LKCMAXRD DS    PL5                     MAXIMUM RECORDS READ PER QUERY   00002900
+LKDELAY  DS    PL2                     NUMBER OF SECONDS TO DELAY       00003000
+LKAXREC  DS    PL4                     AFTER READING X NUMBER OF RECS   00003050
+         DS    CL13                                                     00003100
+LKEIBIND DS    CL1                     EIB INDICATOR                    00003200
+LKEIBTRN DS    CL4                     EIB TRANSACTION                  00003300
+LKORGTRN DS    CL4                     ORIGINAL TRANSACTION             00003400
+LKEIBAID DS    CL1                     EIBAID                           00003500
+         DS    CL2                                                      00003600
+LKFIGRP  DS    CL2                     FIAS GROUP NUMBER                00003700
+         DS    CL9                                                      00003800
+LKMSTRPR DS    XL4                     EXPANSION ROUTINE POINTER        00003900
+         DS    CL2                                                      00004000
+*                                                                       00004100
+*                      PROGRAM DEPENDENT PARAMETERS                     00004200
+*                                                                       00004300
+LKINTERT DS    15CL1                   INTER TASK FLAG                  00004400
+LKAPPLFN DS    0CL120                  APPLICATION FILENAME             00004500
+LKFILE01 DS    15CL8                   ARRAY OF FILENAMES               00004510
+LKIMFFN  DS    CL8                     IMF FILENAME                     00004600
+LKAPPLPH DS    0CL120                  APPLICATION READ ROUTINE         00004700
+LKREAD01 DS    15CL8                   ARRAY OF READ ROUTINES           00004710
+LKREQCOD DS    CL1                     READ REQUEST TYPE K=KEY R=SEQ    00004800
+LKAPPLKY DS    CL64                    APPLICATION KEY                  00004900
+LKAPPLK2 DS    CL64                    APPLICATION KEY FOR MULTI-FILE   00005310
+LKORIGMG DS    CL100                   ORIGINAL HMP MESSAGE             00005400
+LKAPPLKL DS    XL2                     APPLICATION KEY LENGTH           00005500
+LKTSQNME DS    CL8                     TEMPORARY STORAGE QUEUE NAME     00005600
+         DS    CL2                                                      00005700
+LKKEYLST DS    CL1                    BUMP TO NEXT KEY IN KEY LIST FLAG 00005750
+LKRETCOD DS    XL2                     RETURN CODE                      00005800
+LKRECADD DS    15XL4                   ARRAY OF READ RECORD ADDRESSES   00005900
+LKRECLGH DS    15XL2                   ARRAY OF READ RECORD LENGTHS     00006000
+LKCNTMSG DS    PL3                     MESSAGES SENT                    00006100
+LKERRMSG DS    CL80                    ERROR MESSAGE AREA               00006200
+LKEXPRTN DS    0CL120                  APPLICATION EXPANSION ROUTINE    00006300
+LKEXPR01 DS    15CL8                   ARRAY OF EXPANSION ROUTINES      00006400
+LKSACBPT DS    XL4                     SYSTEM ARCH CONTROL BLOCK PTR    00006410
+         DS    CL9                                                      00006500
+LKADDIDX DS    XL2                     ADDRESS INDEX FOR MULTI FILE     00006600
+LKFCTIDX DS    XL2                     FCT INDEX FOR MULTI FILE         00006700
+LKAPPLRB DS    XL4                     APPLICATION RBA                  00006710
+LKEND    EQU   *                                                        00006800
+         MEND                                                           00006900

@@ -1,0 +1,81 @@
+041700***************************************************************** KOIB098
+041700**   KOWSIBTC      COPY PARA DISPLAY DE MAPA KOI1             *** KOIB098
+041700**                 TARJETA DE CREDITO                         *** KOIB098
+041700**                 PROGRAMA   FIKOI101          (INTERBANK)   *** KOIB098
+041700***************************************************************** KOIB098
+041700**     FECHAS PARA EDICION EN PANTALLA                        *** KOIB098
+041700***************************************************************** KOIB098
+041800   02  WS-FECHAS.                                                 KOIB098
+041800       03  WS-AAMMDD.                                             KOIB098
+041800           04  WS-AA       PIC 9(02).                             KOIB098
+041800           04  WS-MM       PIC 9(02).                             KOIB098
+041800           04  WS-DD       PIC 9(02).                             KOIB098
+041800       03  WS-DDMMAA-ED.                                          KOIB098
+041800           04  WS-DD-ED    PIC 9(02).                             KOIB098
+041800           04  FILLER      PIC X(01)     VALUE '/'.               KOIB098
+041800           04  WS-MM-ED    PIC 9(02).                             KOIB098
+041800           04  FILLER      PIC X(01)     VALUE '/'.               KOIB098
+041800           04  WS-AA-ED    PIC 9(02).                             KOIB098
+041700***************************************************************** KOIB098
+041700**     LINEAS DE DISPLAY TARJETA DE CREDITO                   *** KOIB098
+041700***************************************************************** KOIB098
+041800   02  KOI1-TC-LINE1-ES.                                          KOIB098
+041900     03  FILLER            PIC X(08) VALUE  'BIN TAR '.           KOIB098
+042000     03  TC-CO-BIN         PIC X(06) VALUE   SPACES.              KOIB098
+042100     03  FILLER            PIC X(10) VALUE  '  SITUAC ('.         KOIB098
+042200     03  TC-CO-SITU        PIC X(01) VALUE   SPACES.              KOIB098
+042300     03  FILLER            PIC X(11) VALUE  ')  MOTIVO ('.        KOIB098
+042400     03  TC-CO-MOTI        PIC X(01) VALUE   SPACES.              KOIB098
+042500     03  FILLER            PIC X(01) VALUE  ')'.                  KOIB098
+042600   02  KOI1-TC-LINE2-ES.                                          KOIB098
+042700     03  FILLER            PIC X(09) VALUE  'BLOQUEO  '.          KOIB098
+042800     03  TC-FE-BLOQ        PIC X(08) VALUE   SPACES.              KOIB098
+042900     03  FILLER            PIC X(13) VALUE  '   INI.SOB.  '.      KOIB098
+043000     03  TC-FE-SOBR        PIC X(08) VALUE   SPACES.              KOIB098
+043100   02  KOI1-TC-LINE3-ES.                                          KOIB098
+043200     03  FILLER            PIC X(09) VALUE  'INI.MORA '.          KOIB098
+043300     03  TC-FE-INIC-MORA   PIC X(08) VALUE   SPACES.              KOIB098
+043400     03  FILLER            PIC X(17) VALUE  '   DIAS MORA/SOB '.  KOIB098
+043500     03  TC-NU-DIAS-MORA   PIC ZZZ9.                              KOIB098
+043600   02  KOI1-TC-LINE4-ES.                                          KOIB098
+043700     03  FILLER            PIC X(07) VALUE  'LIN.CRE'.            KOIB098
+043800     03  TC-IM-LINE-CRED   PIC ZZZZZ,ZZ9.99.                      KOIB098
+043900     03  FILLER            PIC X(08) VALUE  ' CRE.UTI'.           KOIB098
+044000     03  TC-IM-CRED-UTIL   PIC ZZZZ,ZZ9.99.                       KOIB098
+044100   02  KOI1-TC-LINE5-ES.                                          KOIB098
+044200     03  FILLER            PIC X(14) VALUE  'EXCESO LINEA '.      KOIB098
+044300     03  TC-IM-EXCE-LINE   PIC ZZZZZZ,ZZ9.99.                     KOIB098
+044400     03  FILLER            PIC XX    VALUE   SPACES.              KOIB098
+045500     03  TC-PO-EXCE-LINE   PIC ZZZ9.99.                           KOIB098
+045600     03  FILLER            PIC X(02) VALUE  ' %'.                 KOIB098
+045700   02  KOI1-TC-LINE6-ES.                                          KOIB098
+045800     03  FILLER            PIC X(14) VALUE  'PAGO MINIMO  '.      KOIB098
+045900     03  TC-IM-PAGO-MINI   PIC ZZZZZZ,ZZ9.99.                     KOIB098
+045000     03  FILLER            PIC X(03) VALUE   SPACES.              KOIB098
+045100     03  TC-FE-PAGO-MINI   PIC X(08).                             KOIB098
+045200   02  KOI1-TC-LINE7-ES.                                          KOIB098
+045300     03  FILLER            PIC X(14) VALUE  'SALDO DEU.TOT '.     KOIB098
+045400     03  TC-IM-SLDO-DEUD   PIC ZZZZZZ,ZZ9.99.                     KOIB098
+045500   02  KOI1-TC-LINE8-ES.                                          KOIB098
+045600     03  FILLER            PIC X(14) VALUE  'DEUDA VENCIDA '.     KOIB098
+045700     03  TC-IM-DEUD-VENC   PIC ZZZZZZ,ZZ9.99.                     KOIB098
+045800   02  KOI1-TC-LINE9-ES.                                          KOIB098
+045900     03  FILLER            PIC X(09) VALUE  'ULT.PAG. '.          KOIB098
+046000     03  TC-FE-ULTI-PAGO   PIC X(08) VALUE   SPACES.              KOIB098
+046100     03  FILLER            PIC X(09) VALUE  '   MONTO '.          KOIB098
+046200     03  TC-IM-ULTI-PAGO   PIC ZZZZZ,ZZ9.99.                      KOIB098
+046300   02  KOI1-TC-LINE10-ES.                                         KOIB098
+046400     03  FILLER            PIC X(9)  VALUE  'NOTAS    '.          KOIB098
+046600     03  TC-NU-NOTA1       PIC X(3)  VALUE  '999'.                KOIB098
+046700     03  FILLER            PIC X     VALUE   SPACES.              KOIB098
+046800     03  TC-NU-NOTA2       PIC X(3)  VALUE  '999'.                KOIB098
+046900     03  FILLER            PIC X     VALUE   SPACES.              KOIB098
+047000     03  TC-NU-NOTA3       PIC X(3)  VALUE  '999'.                KOIB098
+047100     03  FILLER            PIC X     VALUE   SPACES.              KOIB098
+047200     03  TC-NU-NOTA4       PIC X(3)  VALUE  '999'.                KOIB098
+047300     03  FILLER            PIC X     VALUE   SPACES.              KOIB098
+047400     03  TC-NU-NOTA5       PIC X(3)  VALUE  '999'.                KOIB098
+047500     03  FILLER            PIC X     VALUE   SPACES.              KOIB098
+047600     03  TC-NU-NOTA6       PIC X(3)  VALUE  '999'.                KOIB098
+047700**************** FIN  TARJETA DE CREDITO   ***********************KOIB098
+047800                                                                  KOIB098

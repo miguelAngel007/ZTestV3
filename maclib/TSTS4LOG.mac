@@ -1,0 +1,2163 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** HISTORY OF REVISIONS **                         * 00002000
+*                                                                     * 00003000
+* DESCRIPTION                                                 CHNGID  * 00004000
+* __________________________________________________________  _______ * 00005000
+*                                                                     * 00006000
+* 06/12/17 ALWAYS ON                                          1727046   00014922
+* 05/23/14 ADD MAT ALERT                                      1516642 * 00014923
+* 01/26/14 SUPPORT ENCRYPTION                                 1436560 * 00014924
+* 01/26/14 MODIFY FOR OPTIONAL DB2                            1436560 * 00014925
+* 10/16/12 ADD EIBDATE TO TSLOG RECORD                        1326275   00014926
+* 08/08/12 ABEND AFTER GN6030 WITH SPACES IN CONTROLS         1316294   00014927
+* 07/27/12 CORRECT XML ISSUES                                 1316257   00014928
+* 06/22/11 SPLIT THE **XMT** ENTRY ACCROSS INTERNAL LOGS      1226081   00014929
+* 02/10/11 EVENT LOG EXIT ADD RUNPGM FILTER                   1226030   00014930
+* 09/21/10 EXPAND MAXIMUM KEY SIZE                            1115989   00014931
+* 03/01/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00014932
+* 10/29/09 MULTIPLE LOG GROUP PROCESSING                      1025861 * 00014933
+* 05/18/06 CORRECT TSLOG BLDAREA UPPER BOUNDARY CALCULATION   0725350   00014934
+* 08/14/06 CHECK FOR SDMSBUFA EQUAL ZERO                      0635521   00014935
+* 09/30/05 ONLINE EVENT MODIFICATIONS                         0615280   00014936
+* 05/18/04 INVOKE THE LOG EVENT EXIT FROM THE APPLICATION     0445028   00014937
+*          CONTROL OPTIONS RECORD ON THE GNCDE FILE           0445028   00014938
+* 01/29/04 INCLUDE LOG STEM IN LOG LENGTH CALCULATION         0444821   00014940
+* 01/15/04 ALLOW A 32K LOG RECORD                             0444407   00014942
+* 09/04/03 INSERT THE EOR CONTROL BLOCK FLAG IN THE LOG       0414797   00014944
+* 08/15/03 ADD LOAD FOR R9 TO ALLOW COMPARE OF AEC APPL       0344842   00014946
+* 05/29/03 MOVE MQ MESSAGE ID TO LOG IF MQ TRANS              0364780   00014948
+* 01/10/03 REMOVE MIRROR LOGGING                              0324534 * 00014949
+* 11/26/02 UPDATE LOG REAL TIME FLAG WITH SVAORRTF            0324631 * 00014951
+* 03/25/02 BYPASS ADJ IF APPL NOT = DAG APPL, USE CORRECT     2024457 * 00014953
+*          KDA LENGTH FOR LOG, USE BASR, BAS                  2024457 * 00014955
+* 04/17/02 CORRECT 'IT' FUNDS VERIFICATION ACCT CHAINING      2024360 * 00014956
+* 01/23/02 NEXT-DAY LOG: SKIP NAJ IF KDA DATA MISSING         2024379 * 00014957
+* 08/16/01 CHANGE DATEFMT USAGE                               2024347 * 00014958
+* 04/17/00 CORRECT 'IT' FUNDS VERIFICATION ACCT CHAINING      2023376 * 00014960
+* 12/03/99 MOVE SOURCE CODE FROM NCA TO LOG                   2021071 * 00014962
+* 01/19/99 MESSAGE TRANSLATION                                9913918 * 00014964
+* 01/11/99 CORRECT DOUBLE BYTE MOVE OF CURRENCY TO LOG        9914011 * 00014966
+* 04/23/98 ADD DATE FORMAT TO TSTS9DA                         9913483 * 00014968
+* 12/16/97 CORRECT USING REGISTER FOR HIGH LEVEL ASSEMBLER    9913401 * 00014970
+* 12/11/97 CORRECTED PROCESSING FOR TS-LOG-TRAN-CENTURY       9913581 * 00014972
+* 08/18/97 SAVE TTR CLASS AND ITR PROCESS TYPE IN LOG         9910846 * 00014974
+* 05/09/97 PASS PCACUST AND PCACURDC TO LOG FOR TSTS72        9913481 * 00014976
+* 05/09/97 TEST FIRST LOG FLAG IN TSCB STEM RATHER THAN       9913481 * 00014978
+*          WORKING STORAGE SWITCH LGSWFETF                    9913481 * 00014980
+* 12/16/96 ADD ADJUSTMENT FILE LOGGING FOR 24X7               9910919 * 00014982
+* 01/04/96 YEAR 2000 MOVE CENTURY TO LOG                      2602675 * 00014984
+* 06/16/95 ENHANCE FOR MULTICURR TRANSACTIONS                 2602390 * 00014986
+* 03/16/95 MOVE IN THE REAL-TIME FLAG FROM THE GCA.           2602019 * 00014988
+* 02/27/95 LOG EXPANDED (RESEQUENCED)                         2600361 * 00014990
+* 02/23/95 ADDED CHECK FOR TSTSLOG1 FOR NON-RDA REVERSAL      2601182 * 00014992
+* 01/13/95 REPLACE FREEMAIN WITH FRESTOR                      2600213 * 00014994
+* 10/04/94 REMOVE HANDLE CONDITIONS/USE NOHANDLE FEATURE      2602291 * 00014996
+*                                                                     * 00014998
+*---------------------------------------------------------------------* 00015000
+         EJECT                                                          00016000
+*********************************************************************** 00017000
+*                                                                     * 00018000
+*                           LOGGING ROUTINES                          * 00019000
+*                                                                     * 00020000
+*********************************************************************** 00021000
+*                                                                     * 00022000
+*        BEFORE LOGGING, THE TOTAL MUST BE EXTRACTED FROM THE PDA     * 00023000
+*        USING THE INFORMATION IN THE TDA OCCURRENCES FOR EACH TOTAL  * 00024000
+*        FOR THIS TDA                                                 * 00025000
+*                                                                     * 00026000
+*        REGISTER USAGE:                                              * 00027000
+*              R1  - PCA OCCURRENCE IN PROCESS                        * 00028000
+*              R6  - TDA OCCURRENCE IN PROCESS                        * 00029000
+*              R7  - ENDING ADDRESS OF TDA                            * 00030000
+*              R8  - PDA IN PROCESS                                   * 00031000
+*              R9  - TOTAL TO BE EXTRACTED FROM PDA                   * 00032000
+*              R10 - TSCB                                             * 00033000
+*              R14 - WORK REGISTER                                    * 00034000
+*              R15 - WORK REGISTER                                    * 00035000
+*                                                                     * 00036000
+*********************************************************************** 00037000
+         SPACE                                                          00038000
+         STM   R14,R12,LGS1REGS      SAVE CALLER'S REGISTERS  9910919   00040000
+         USING *-4,R2,R3,R4                                   0445028   00040010
+         LR    R2,R15                LOAD CSECT ADDRESS       9910919   00040020
+         LA    R3,4095(R2)           SET UP SECOND BASE       9910919   00040030
+         LA    R3,1(R3)                                       9910919   00040040
+         LA    R4,4095(R3)           SET UP THIRD BASE        0445028   00040042
+         LA    R4,1(R4)                                       0445028   00040044
+         USING DFHEISTG,R13,R5                                0445028   00040046
+         LA    R5,4095(R13)          EXTEND ADDR FOR DYN STG  0445028   00040048
+         LA    R5,1(R5)                                       0445028   00040049
+         CLI   LGREQCOD,C'1'         REQUEST FOR SDC?         9910919   00040050
+         BE    LGSDC000              YES - GO TO SDC          9910919   00040060
+         CLI   LGREQCOD,C'2'         REQUEST FOR SDC001?      9910919   00040070
+         BE    LGSDC000              YES - GO TO SDC          9910919   00040080
+         CLI   LGREQCOD,C'3'         REQUEST FOR TOT001?      9910919   00040090
+         BNE   LOGC0010              NO - CONTINUE WITH LOG'N 9910919   00040100
+         BAS   R15,LGTOT001          GO TO TOTALLING          2024457   00040110
+         B     LGREQ999              RETURN TO CALLER         9910919   00040120
+         SPACE 1                                              9910919   00040130
+LOGC0010 EQU   *                                              9910919   00040140
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS ADDRESS        00041000
+         USING PCAOCCUR,R1           ADDRESSABILITY TO PCA IN PROCESS   00042000
+         CLI   STMETPF,C'1'          IS THIS EDIT THEN POST?            00043000
+         BE    LGREQ999              YES, DO NOT LOG, RETN TO TCR LOOP  00044000
+         CLI   STMRF,C'1'            IS THIS A SAME DAY CORRECTION?     00045000
+         BE    LGREQ002              YES - PROCESS CORRECTION 0802653   00046000
+         CLI   STMRF,C'2'            PARTIAL CORRECTION?      0802653   00047000
+         BE    LGREQ002              YES - PROCESS CORRECTION 0802653   00048000
+         B     LGREQ005              SKIP REVERSAL PROCESSING 0802653   00049000
+LGREQ002 EQU   *                                              0802653   00050000
+         CLC   WMSMGPID,=C'TSTSLOG1' IF TSTSLOG1 DON'T LOG    2601182   00051000
+         BE    LGREQ999              DO NOT LOG               2601182   00052000
+         CLI   PCASDCFL,C'1'         HAVE WE GONE TO SDC1 (THIS PCA)?   00053000
+         BE    LGREQ999              YES - DO NOT LOG, RET TO TCR LOOP  00054000
+         BAS   R14,LGSDC000          NO - LINK TO SDC1        2024457   00055000
+         B     LGREQ999              DO NOT LOG, RET TO TCR LOOP        00056000
+LGREQ005 EQU   *                                                        00057000
+         CLI   STMREF,C'0'           IS THIS RE-ENTRY?                  00058000
+         BE    LGREQ010              NO - GO ON                         00059000
+         CLI   STMTSF,C'3'           YES - STOP PROCESSING?             00060000
+         BE    LGREQ999              YES, DO NOT LOG, RETN TO TCR LOOP  00061000
+         B     LGTOT000              NO - CONTINUE LOGGING              00062000
+LGREQ010 EQU   *                                                        00063000
+         CLI   STMTSF,C'0'           HAS ERROR OCCURRED?                00064000
+         BNE   LGREQ999              YES, DO NOT LOG, RETN TO TCR LOOP  00065000
+         EJECT                                                          00066000
+*********************************************************************** 00067000
+*        BEFORE LOGGING WE MUST USE THE INFORMATION IN THE TDA TO     * 00068000
+*        FIND THE TOTALS IN THE PDA.  THESE TOTALS ARE THEN MOVED     * 00069000
+*        TO THE TDA SO THAT THEY CAN BE LOGGED PROPERLY.              * 00070000
+*********************************************************************** 00071000
+LGTOT000 EQU   *                                                        00072000
+         BAS   R15,LGTOT001          GO FORMAT TOTALS AREA    2024457   00073000
+         L     R7,STMSTPIP           LOAD TCR STEP ADDRESS              00074000
+         USING TCRSTP,R7             ADDRESSABILITY TO TCR IN PROCESS   00075000
+         CLC   TCRTYPE,=C'72'        USE TS LOGGING?                    00076000
+         BE    LGRTN000              YES, GO PROCESS TS LOGGING         00077000
+         CLC   TCRTYPE,=C'73'        USER LOGGING?                      00078000
+         BE    LGUSR000              YES, CONTINUE PROCESSING           00079000
+         CLC   WMSMGPID,=C'TSTSLOG1' LOG REQUEST ROUTINE?     TS006.00  00080000
+         BE    LGRTN000              YES, PROCESS TS LOGGING  TS006.00  00081000
+         MVC   WMSMGCOD,=C'0326'     INVALID TCR TYPE                   00082000
+         MVC   WMSMGVA1(L'TCRTYPE),TCRTYPE  MOVE TCR TYPE TO &1         00083000
+         B     LGERR000              GO DO ERROR PROCESSING   9910919   00084000
+         EJECT                                                          00085000
+*********************************************************************** 00086000
+*  USER LOG PHASE MAY BE EITHER ON THE TCR OR THE SER.                * 00087000
+*  REGISTER USAGE IN LOGGING ROUTINES:                                * 00088000
+*                                                                     * 00089000
+*    R1 PCA OCCURRENCE IN PROCESS                                     * 00090000
+*    R6 KDA,TDA,PDA,ALA,RDA,XMT                                       * 00091000
+*    R7 TCR,ITR,SER,EOR,SOURCE LENGTH REGISTER FOR MVCL               * 00092000
+*    R8 LOG IPAREA                                                    * 00093000
+*    R9 DESTINATION LENGTH REGISTER FOR MVCL                          * 00094000
+*    R10 TSCB STEM,COMMON AREA                                        * 00095000
+*    R12 LOG AREA                                                     * 00096000
+*    R14 WORK                                                         * 00097000
+*    R15 BAL/WORK                                                     * 00098000
+*********************************************************************** 00099000
+         SPACE                                                          00100000
+LGUSR000 EQU   *                                                        00101000
+         MVC   WMSLNKPH,TCRPMMOD     TCR USER LOG PHASE TO WORK AREA    00102000
+         CLC   WMSLNKPH,SPACESL      IS USER LOG PHASE IN TCR?0445028   00103000
+         BNE   LGUSR010              YES, GO PROCESS IT                 00104000
+         ICM   R7,15,STMITRA         POINT TO ITR                       00105000
+         USING TSTSITR,R7            ADDRESS ITR                        00106000
+         ICM   R7,15,ITRSERAD        POINT TO SER                       00107000
+         USING TSTSSER,R7            ADDRESS SER                        00108000
+         MVC   WMSLNKPH,SERULOGP     SER USER LOG PHASE TO WORK AREA    00109000
+         CLC   WMSLNKPH,SPACESL      IS USER LOG PHASE IN SER?0445028   00110000
+         BNE   LGUSR010              YES, CONTINUE                      00111000
+         MVC   WMSMGCOD,=C'0331'     NO, USER LOG PHASE MISSING         00112000
+         B     LGERR000              GO DO ERROR PROCESSING   9910919   00113000
+LGUSR010 EQU   *                                                        00114000
+         ICM   R6,15,WMSANCA         RELOAD COMM AREA ADDRESS 9910919   00114010
+         USING TSNCA,R6                                       9910919   00114020
+         MVC   HWORD,NCAFCAL                                  9910919   00114030
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9910919   00114039
+*        EXEC  CICS LINK PROGRAM (WMSLNKPH)                             00114040
+*                        COMMAREA (TSNCA)                               00114050
+*                        LENGTH (HWORD)                                 00114060
+*                        NOHANDLE                                       00114070
+         DFHECALL =X'0E02E0002800000100',(CHA8,WMSLNKPH),(______RF,TSNC*
+               A),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'        NORMAL RESULT ?          9910919   00114080
+         BNE   LGERR010              N - RETURN TO ECICS000   9910919   00114090
+         CLI   STMTSF,C'3'           FATAL STOP?                        00116000
+         BNE   LGUSR020              NO - GO ON                         00117000
+         MVC   WMSLNKPH,WMSOUTPH     YES - MOVE O/A PHASE NAME          00118000
+         B     LGXCT000              GO TRANSFER CONTROL      9910919   00119000
+LGUSR020 EQU   *                                                        00120000
+         LM    R14,R12,LGS1REGS      RESTORE CALLER'S REGISTERS         00121000
+         BR    R14                   RETURN                   9910919   00121010
+         DROP  R6,R7                                          9910919   00126000
+         EJECT                                                          00127000
+*********************************************************************** 00128000
+*                                                                     * 00129000
+*                           BEGIN TS LOGGING                          * 00130000
+*                                                                     * 00131000
+*********************************************************************** 00132000
+         SPACE                                                          00133000
+LGRTN000 EQU   *                                                        00134000
+         ICM   R8,15,STMALDA         POINT TO LOG AREA                  00135000
+         USING TSTSLOG,R8            ADDRESS LOG AREA                   00136000
+         ICM   R1,15,WMSANCA         RELOAD COMM AREA ADDRESS           00137000
+         USING TSNCA,R1              ESTABLISH ADDRESSABILITY           00138000
+         MVI   NCAUPDFL,C'1'         TURN ON UPDATE FLAG (FOR ABD1)     00139000
+         DROP  R1                                                       00140000
+         LA    R9,LGSTMLNG           LOAD LENGTH OF LOG STEM            00141000
+         LA    R7,1                  MOVE FROM FOR A LENGTH OF 1        00142000
+         ICM   R7,8,SPACESL          PAD REST WITH BLANKS     0445028   00143000
+         LA    R6,SPACESL            USE SPACES AS FROM FIELD 0445028   00144000
+         MVCL  R8,R6                 CLEAR LOG STEM AREA                00145000
+         DROP  R8                                                       00146000
+         SPACE 1                                              2600361   00147000
+************************************************************* 2600361   00148000
+* THIS ROUTINE WILL PREDETERMINE THE LENGTH OF THE LOG TO   * 2600361   00149000
+* BE WRITTEN (NOT NECESSARLLY REAL ACCURATE).  IF IT        * 2600361   00150000
+* EXCEEDS 4734 BYTES THEN A DYNAMIC STORAGE AREA OF 32K WILL* 2600361   00151000
+* BE ACQUIRED FROM SASERV.  THE ACCUMULATED LENGTH OF THE   * 2600361   00152000
+* LOG SEGMENTS WILL BE PLACED IN EACH LOG RECORD.  A BIT    * 2600361   00153000
+* FLAG WILL BE SET WITH ALL OF THE SEGMENTS CONTAINED WITHIN* 2600361   00154000
+* THIS LOG SET.                                             * 2600361   00155000
+************************************************************* 2600361   00156000
+LGSUP000 EQU   *             DETERMINE LOG REC LENGTH         2600361   00157000
+         XC    LGSVLGLN,LGSVLGLN  CLEAR OVERALL LOG LENGTH    2600361   00158000
+         MVI   SVSTGFLG,C'0'      SET DYNAMIC LOG AREA OFF    2600361   00159000
+         ICM   R7,15,STMAPIP      GET ADDR OF PCA IN PROCESS  9910919   00160000
+         USING PCAOCCUR,R7        EST ADDR TO PCA OCCUR       9910919   00161000
+LGSUP100 EQU   *             KDA PROCESSING                   2600361   00162000
+         ICM   R6,15,PCASAKDA     Q. ANY KDA                  2600361   00163000
+         BZ    LGSUP199           A. NO, BYPASS               2600361   00164000
+         USING KDAOCCUR,R6        EST ADDR TO KDA OCCUR       2600361   00165000
+         OI    SVCMPFLG,LG$KDA    SET KDA FLAG ON             2600361   00166000
+         ICM   R1,15,PCAEAKDA     GET KDA END ADDR            2600361   00167000
+         ST    R1,LGSVKDAE        SAVE KDA END ADDR           2600361   00168000
+         LA    R1,L'KDAECATC      GET LENGTH OF EYECATCHER    2600361   00169000
+         A     R1,LGSVLGLN        ADD TO LOG LENGTH           2600361   00170000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00171000
+LGSUP110 EQU   *             KDA OCCURANCE LOOP               2600361   00172000
+         CLI   KDARAF,C'1'        Q. REPORTING KEY            2600361   00173000
+         BNE   LGSUP112           A. NO, DON'T NEED BYPASS    2600361   00174000
+         CLC   KDARKL,=H'50'      Q. KEY SIZE > 50            1115989   00174010
+         BH    LGSUP112           A. YES, BYPASS              1115989   00174020
+         LA    R1,LGKDALNG        GET LENGTH OF OCCUR         2600361   00175000
+         A     R1,LGSVLGLN        ADD TO LOG LENGTH           2600361   00176000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00177000
+LGSUP112 EQU   *                                              2600361   00178000
+         ICM   R1,12,KDARKL       PICK UP KEY LENGTH          2600361   00179000
+         SRL   R1,16              ALIGN LENGTH                2600361   00180000
+         LA    R1,KDAOLNG(,R1)    ADD KDA FIXED LENGTH        2024457   00181000
+         AR    R6,R1              SYNC BAR FOR OCCUR          2600361   00182000
+         C     R6,LGSVKDAE        Q. ANY MORE KDA             2600361   00183000
+         BL    LGSUP110           A. YES, GET NEXT OCCUR      2600361   00184000
+LGSUP199 EQU   *                  A. NO, CONTINUE ON          2600361   00185000
+         DROP  R6                                             2600361   00186000
+         SPACE 1                                              2600361   00187000
+LGSUP200 EQU   *             TDA PROCESSING                   2600361   00188000
+         OC    PCASATDA,PCASATDA  Q. ANY TDA                  2600361   00189000
+         BZ    LGSUP299           A. NO, BYPASS               2600361   00190000
+         OI    SVCMPFLG,LG$TDA    SET TDA FLAG ON             2600361   00191000
+         LA    R1,L'TDAECATC      GET LENGTH OF EYECATCHER    2600361   00192000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00193000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00194000
+         ICM   R1,15,PCAEATDA     GET TDA END ADDR            2600361   00195000
+         ICM   R0,15,PCASATDA     GET TDA START LENGTH        2600361   00196000
+         SR    R1,R0              COMPUTE LENGTH OF TDA       2600361   00197000
+         LA    R1,1(,R1)                                      2600361   00198000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00199000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00200000
+LGSUP299 EQU   *                                              2600361   00201000
+         SPACE 1                                              2600361   00202000
+LGSUP300 EQU   *             PDA PROCESSING                   2600361   00203000
+         CLI   SVPRCPDA,C'1'      Q. EAA PDA                  2600361   00204000
+         BE    LGSUP320           A. YES, HANDLE IT           2600361   00205000
+*                                 A. NO, HANDLE NORMAL        2600361   00206000
+         ICM   R6,15,PCASAPDA     Q. ANY PDA                  2600361   00207000
+         BZ    LGSUP399           A. NO, BYPASS               2600361   00208000
+         OI    SVCMPFLG,LG$PDA    SET PDA FLAG ON             2600361   00209000
+         LA    R1,L'PDAECATC      GET LENGTH OF EYECATCHER    2600361   00210000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00211000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00212000
+         ICM   R1,12,PCALPDA      GET LENGTH OF PDA           2600361   00213000
+         SRL   R1,16              ALIGN                       2600361   00214000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00215000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00216000
+         B     LGSUP399           CONTINUE ON                 2600361   00217000
+LGSUP320 EQU   *                                              2600361   00218000
+         ICM   R6,15,SVPDAADR     Q. ANY EAA PDA              2600361   00219000
+         BZ    LGSUP399           A. NO, BYPASS               2600361   00220000
+         OI    SVCMPFLG,LG$PDA    SET PDA FLAG ON             2600361   00221000
+         LA    R1,L'PDAECATC      GET LENGTH OF EYECATCHER    2600361   00222000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00223000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00224000
+         USING DATAREA,R6         EST ADDR TO LDA             2600361   00225000
+LGSUP324 EQU   *                                              2600361   00226000
+         ICM   R1,12,DATLEN       GET LENGTH OF LDA           2600361   00227000
+         SRL   R1,16              ALIGN                       2600361   00228000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00229000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00230000
+         ICM   R6,15,DATCHAIN     Q. NEXT IN CHAIN            2600361   00231000
+         BZ    LGSUP399           A. NO, BYPASS               2600361   00232000
+         C     R6,=F'-1'          Q. END OF CHAIN             2600361   00233000
+         BNE   LGSUP324           A. NO, GO LOOP BACK         2600361   00234000
+*                                 A. YES, FINISHED            2600361   00235000
+         DROP  R6                                             2600361   00236000
+LGSUP399 EQU   *                                              2600361   00237000
+         SPACE 1                                              2600361   00238000
+LGSUP400 EQU   *             XMT PROCESSING                   2600361   00239000
+         ICM   R6,15,SVXMTAD      Q. ANY XMT ADDR             2600361   00240000
+         BZ    LGSUP499           A. NO, BYPASS               2600361   00241000
+         OI    SVCMPFLG,LG$XMT    SET XMT FLAG ON             2600361   00242000
+         LA    R1,L'XMTECATC      GET LENGTH OF EYECATCHER    2600361   00243000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00244000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00245000
+         CLI   SVPCAX,C'X'        Q. ANY XML DATA             1226081   00245010
+         BNE   LGSUP450           Q. ANY XML DATA             1226081   00245020
+         ICM   R1,15,SVXMLLN      Q. ANY XMT DATA             1226081   00245030
+         BZ    LGSUP499           A. NO, BYPASS               1226081   00245040
+         B     LGSUP460           A. NO, BYPASS               1226081   00245050
+LGSUP450 EQU   *             XMT PROCESSING                   1226081   00245060
+         ICM   R1,12,SVXMTLN      Q. ANY XMT DATA             1226081   00246000
+         BZ    LGSUP499           A. NO, BYPASS               2600361   00247000
+         SRL   R1,16              ALIGN                       1226081   00248000
+LGSUP460 EQU   *             XMT PROCESSING                   1226081   00248010
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00249000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00250000
+LGSUP499 EQU   *                                              2600361   00251000
+         SPACE 1                                              2600361   00252000
+LGSUP500 EQU   *             ALA PROCESSING                   2600361   00253000
+         CLI   SVPRCALA,C'1'      Q. EAA ALA                  2600361   00254000
+         BE    LGSUP540           A. YES, HANDLE IT           2600361   00255000
+*                                 A. NO, HANDLE NORMAL        2600361   00256000
+         ICM   R6,15,STMAALA      Q. ANY ALA                  2600361   00257000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00258000
+         USING ALAOCCUR,R6        EST ADDR TO ALA             2600361   00259000
+         OC    ALAEATA,ALAEATA    Q. ANY DATA IN ALA          2600361   00260000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00261000
+         OI    SVCMPFLG,LG$ALA    SET ALA FLAG ON             2600361   00262000
+         LA    R1,L'ALAECATC      GET LENGTH OF EYECATCHER    2600361   00263000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00264000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00265000
+LGSUP510 EQU   *                                              2600361   00266000
+         ICM   R1,12,ALAASU       Q. ANY DATA                 2600361   00267000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00268000
+         SRL   R1,16              ALIGN                       2600361   00269000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00270000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00271000
+         ICM   R6,15,LGSVBANA     Q. ANY MORE ALA IN CHAIN    2600361   00272000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00273000
+         B     LGSUP510           A. YES, GO ADD UP           2600361   00274000
+         DROP  R6                                             2600361   00275000
+LGSUP540 EQU   *                                              2600361   00276000
+         ICM   R6,15,SVALAADR     Q. ANY EAA ALA              2600361   00277000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00278000
+         OI    SVCMPFLG,LG$ALA    SET ALA FLAG ON             2600361   00279000
+         LA    R1,L'ALAECATC      GET LENGTH OF EYECATCHER    2600361   00280000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00281000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00282000
+         USING DATAREA,R6         EST ADDR TO LDA             2600361   00283000
+LGSUP544 EQU   *                                              2600361   00284000
+         ICM   R1,12,DATLEN       GET LENGTH OF LDA           2600361   00285000
+         SRL   R1,16              ALIGN                       2600361   00286000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00287000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00288000
+         ICM   R6,15,DATCHAIN     Q. NEXT IN CHAIN            2600361   00289000
+         BZ    LGSUP599           A. NO, BYPASS               2600361   00290000
+         C     R6,=F'-1'          Q. END OF CHAIN             2600361   00291000
+         BNE   LGSUP544           A. NO, GO LOOP BACK         2600361   00292000
+*                                 A. YES, FINISHED            2600361   00293000
+         DROP  R6                                             2600361   00294000
+LGSUP599 EQU   *                                              2600361   00295000
+         SPACE 1                                              2600361   00296000
+LGSUP600 EQU   *                                              2600361   00297000
+         ICM   R6,15,STMARDA      Q. ANY RDA                  2600361   00298000
+         BZ    LGSUP699           A. NO, BYPASS               2600361   00299000
+         TM    STMARDA,X'80'      Q. IS LENGTH FLAG ON?       0444407   00299450
+         BNZ   LGSUP699           A. Y. LEN PASSED NOT RDA    0444407   00299550
+         USING RDAOCCUR,R6        EST ADDR TO RDA             2600361   00300000
+         OC    RDAEATA,RDAEATA    Q. ANY RDA DATA             2600361   00301000
+         BZ    LGSUP699           A. NO, BYPASS               2600361   00302000
+         OI    SVCMPFLG,LG$RDA    SET RDA FLAG ON             2600361   00303000
+         LA    R1,L'RDAECATC      GET LENGTH OF EYECATCHER    2600361   00304000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00305000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00306000
+LGSUP610 EQU   *                                              2600361   00307000
+         ICM   R1,12,RDAASU       Q. ANY DATA                 2600361   00308000
+         BZ    LGSUP699           A. NO, BYPASS               2600361   00309000
+         SRL   R1,16              ALIGN                       2600361   00310000
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          2600361   00311000
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         2600361   00312000
+         ICM   R6,15,RDABANA      Q. ANY MORE RDA IN CHAIN    2600361   00313000
+         BZ    LGSUP699           A. NO, BYPASS               2600361   00314000
+         B     LGSUP610           A. YES, GO ADD UP           2600361   00315000
+         DROP  R6                                             2600361   00316000
+LGSUP699 EQU   *                                              2600361   00317000
+         SPACE 1                                              2600361   00318000
+LGSUP700 EQU   *                                              2600361   00319000
+         ICM   R1,15,=A(LGSTMLNG) LOAD LOG STEM LENGTH        0444821   00319450
+         A     R1,LGSVLGLN        COMPUTE LOG LENGTH          0444821   00319500
+         ST    R1,LGSVLGLN        SAVE OVERALL LENGTH         0444821   00319550
+         CLC   LGSVLGLN,=A(4734)  Q. EXCEEDE DEFAULT LOG AREA 2600361   00320000
+         BNH   LGSUP750           A. NO, BYPASS               2600361   00321000
+         OC    STMLOGAD,STMLOGAD  STORAGE ALREADY THERE?      1226081   00321010
+         BZ    LGSUP705           A. NO, MUST GET IT          1226081   00321020
+         CLC   STMLOGAD,=CL4' '   STORAGE ALREADY THERE?      1226081   00321030
+         BE    LGSUP705           A. NO, MUST GET IT          1226081   00321040
+         MVC   WKGSTADR,STMLOGAD     SET LOG AREA ADDRESS     1226081   00321050
+         XR    R1,R1                                          1226081   00321060
+         ICM   R14,15,STMLOGAD       STORAGE ADDR             1226081   00321070
+         L     R15,=A(LGRECLNG)      LENGTH                   1226081   00321080
+         MVCL  R14,R0                FILL WITH LOW-VALUE      1226081   00321090
+         B     LGSUP716                                       1226081   00321100
+LGSUP705 EQU   *                                              1226081   00321110
+         XC    WKGSTADR,WKGSTADR     INIT GETSTOR ADDRESS     2600361   00322000
+         MVC   WKGSTRLN,=A(LGRECLNG) INIT GETSTOR LENGTH      2600361   00323000
+         XC    WKGSTALN,WKGSTALN     INIT GETSTOR LENGTH      2600361   00324000
+         ICM   R15,15,WMSANCA        LOAD NCA ADDRESS         2600361   00325000
+         ICM   R15,15,NCASACBA-TSNCA(R15) SACB ADDR FROM NCA  2600361   00326000
+         ST    R15,WKSACBAD          SAVE FOR PARMLIST USE    2600361   00327000
+         ICM   R15,15,SACBGSFS-SACB(R15) GETSTOR BALR ENTRY PT2600361   00328000
+         BZ    LGSUP710              NO EP - CALL SAS0001C    2600361   00329000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,                          X00330000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600361   00331000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600361   00332000
+         BASR  R14,R15               BALR TO GETSTOR ENTRY PT 2024457   00333000
+         B     LGSUP715              CONTINUE                 2600361   00334000
+LGSUP710 EQU   *                                              2600361   00335000
+         MVC   SAS9FUNC,=C'GETSTOR 0062' INIT GETSTOR VERB LIT2600361   00336000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X00337000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600361   00338000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600361   00339000
+         CALL  SAS0001C              DO FRESTOR FOR ALA       2600361   00340000
+LGSUP715 EQU   *                                              2600361   00341000
+         MVC   STMLOGAD,WKGSTADR     SAVE LOG STORAGE ADDR    1226081   00341010
+LGSUP716 EQU   *                                              1226081   00341020
+         MVC   LGSVLOGA,WKGSTADR     SET LOG AREA ADDRESS     2600361   00342000
+         MVC   SVLGDALN,=AL2(LGDATLNG) MAX VARDATARLN=31600   0725350   00342100
+         MVI   SVSTGFLG,C'1'         TURN DYNAMIC LOG AREA ON 2600361   00343000
+         B     LGSUP799                                       2600361   00344000
+LGSUP750 EQU   *                                              2600361   00345000
+         MVC   LGSVLOGA,STMALDA      SET LOG AREA ADDRESS     2600361   00346000
+         MVC   SVLGDALN,=AL2(4095)   SET MAX VAR DATARLN=4095 0725350   00346100
+         DROP  R7                                             9910919   00347000
+LGSUP799 EQU   *                                              2600361   00348000
+         L     R12,LGSVLOGA          POINT TO LOG AREA        2600361   00349000
+         USING TSTSLOG,R12           EST ADDR TO LOG AREA     2600361   00350000
+         ICM   R1,15,STMAPIP      GET ADDR OF PCA IN PROCESS  2600361   00351000
+         USING PCAOCCUR,R1        EST ADDR TO PCA OCCUR       2600361   00352000
+         SPACE 1                                              2600361   00353000
+         MVC   LGECATC,=C'**TSLOG*'  INITIALIZE LOG EYE CATCHER         00354000
+         MVC   LGEIBDAT,EIBDATE      SAVE EIBDATE             1326275   00354100
+         XC    LGCMPNLN,LGCMPNLN     SET LOG COMPONENT LENGTHS TO L-V   00355000
+         MVC   LGRBAMIR,HEXFFSL      SET MIRROR LOG RBA TO H-V0445028   00356000
+         MVI   LGICONFL,C'1'         SET INT TRAN FLAG TO CONTINUE      00357000
+         MVI   LGFETLF,C'0'          PRE-SET 1ST EXT TRANS LOG FLAG OFF 00358000
+         ZAP   LGITLSN,=P'1'         SET INTERNAL LOG SEQ # TO 1        00359000
+         XR    R7,R7                 CLEAR REG FOR INSERT               00360000
+         ICM   R7,3,STMPOIP          INSERT PCA OCCURRENCE NUMBER       00361000
+         CVD   R7,DWRD               CONVERT TO DECIMAL                 00362000
+         UNPK  LGINTXTN,DWRD         UNPACK                             00363000
+         OI    LGINTXTN+L'LGINTXTN-1,X'F0'  FIX SIGN                    00364000
+         MVI   LGBMSNAT,C'0'         SET BMS/NATIVE AS NATIVE  TS006.00 00365000
+         ICM   R7,15,WMSANCA         RELOAD COMM AREA ADDRESS  TS006.00 00366000
+         USING TSNCA,R7              ESTABLISH ADDRESSABILITY  TS006.00 00367000
+         MVC   LGDATCP,NCADTCAP      SET DATA CAPTURE FLAG     TS006.00 00368000
+         MVC   NCALOGA,LGSVLOGA      SAVE LOG AREA ADDR IN NCA0445028   00368100
+         DROP  R7                                                       00369000
+         CLC   STMETC(4),=C'ITFV'    'IT' FUNDS VERIFICATION  2023376   00369010
+         BE    LGRTN005              YES                      2023376   00369020
+         CLC   STMETC(4),=C'ITAM'    'IT' FUNDS VERIFICATION  2024360   00369030
+         BE    LGRTN005              YES                      2024360   00369040
+         CLI   STMFLOG,C'1'          HAS 1ST LOG BEEN WRITTEN 9913481   00370000
+         BE    LGRTN010              YES - CONTINUE                     00371000
+LGRTN005 EQU   *                                              2023376   00371010
+         MVI   STMFLOG,C'1'          NO - SET 1ST LOG WRT FLG 9913481   00372000
+         MVI   LGFETLF,C'1'          SET 1ST EXT TRANS LOG FL ON        00373000
+LGRTN010 EQU   *                                                        00374000
+         MVC   LGPCAOIP,STMPOIP      MOVE PCA OCCUR IN PROCESS TO LOG   00375000
+         MVI   LGTRNPRF,C'1'         PRESET TRAN PROCESSED FLAG TO 1    00376000
+         MVC   LGTOTLGS,ZEROESL      SET TOTAL # OF LOGS      0445028   00377000
+         MVI   LGSTRPFL,C'0'         SET LOG STRIP FLAG                 00378000
+         MVC   LGDELTFL,PCADELGF     MOVE LOG DELETE FLAG FROM PCA      00379000
+         MVC   LGTRNRVS,ZEROESL      SET LOG TRANS RVRSL SEQ #0445028   00380000
+         MVC   LGSHSEQN,PCASHSEQ     SET LOG STOP/HOLD SEQUENCE NUMBER  00381000
+         MVC   LGAPARCH,SVARCHFL     MOVE ARCHITECT FLAG TO LOG (AOR)   00382000
+         MVC   LGCMPFLG,SVCMPFLG     MOVE COMP IN LOG SET     2600361   00382010
+         MVC   LGLOGLEN,LGSVLGLN+2   MOVE EST LOG SET LENGTH  2600361   00382020
+         MVC   LGRBAPAX,STMACRBA     MVE ACCT LST LOG RBA-LOG 1035850   00383000
+         MVC   LGGPNACC,STMACFGN     MOVE ACCOUNT LAST GROUP # TO LOG   00384000
+         MVC   LGNXDACC,STMACNDF     MOVE ACC LAST NEXT DAY FLG TO LOG  00385000
+         L     R7,STMEORA            POINT TO EOR                       00386000
+         USING TSTSEOR,R7            ADDRESS EOR                        00387000
+         MVC   LGRBAPEX,EORLGRBA     MOVE EOR LST LOG RBA-LOG 1035850   00388000
+         MVC   LGGPNEMP,EORLLFG      MOVE EOR GROUP # TO LOG            00390000
+         MVC   LGNXDEMP,EORLNDFG     MOVE EOR NEXT DAY FLG TO LOG       00391000
+         MVC   LGRBAPNX,EORLNRBA     MOVE LAST NEXT DAY RBA   1035850   00391010
+         MVC   LGGPPEN,EORLNFG       MOVE LAST NEXT DAY GRP   9910919   00391020
+         MVC   LGEMPID,STMEID        MOVE STEM EMPLOYEE ID TO LOG       00392000
+         MVC   LGEMPINT,EOREMPIN     MOVE EOR EMPLOYEE INITIALS TO LOG  00393000
+         MVC   LGEMPSHT,EORSHNAM     MOVE EOR EMPLOYEE NAME TO LOG      00394000
+         MVC   LGTRNBRN,STMTPLI      MOVE EMPL'S PHY LOC TO LOG         00395000
+         MVC   LGTRNTRN,SVTRAINF     MOVE TRAINING FLAG TO LOG (EOR)    00396000
+         MVC   LGGLRCL,EORGLRCL      MOVE GENERAL LEDGER CLASS          00398000
+         MVC   LGAPPLID,PCATA        MOVE APPLICATION ID TO LOG         00399000
+         MVC   LGNXCUST,PCACUST      MOVE PCA FMS CUST# TO LOG9913481   00399002
+         MVC   LGNXDEC,PCACURDC      MOVE CURR NUMBER OF DEC  9913481   00399004
+         MVC   LGTRNTCR,STMCURR      MOVE CURRENCY TO LOG     9913481   00399006
+         CLC   PCACURR,SPACESL       IS INT TRAN CURR BLANK?  0445028   00399010
+         BE    LGRTN013              YES - SKIP, KEEP STMCURR 9913481   00399020
+         MVC   LGTRNTCR,PCACURR      MOVE PCA CURR TO LOG     2602390   00399030
+LGRTN013 EQU   *                                              2602390   00399040
+         CLC   SVLGAPPL,SPACESL      APPLID SET FROM SERVO?   0445028   00400000
+         BE    LGRTN015              NO - CONTINUE            2522298   00401000
+         CLC   SVLGAPPL,HEXZEROL     APPLID SET FROM SERVO?   0445028   00401100
+         BE    LGRTN015              NO - CONTINUE            0445028   00401200
+         MVC   LGAPPLID,SVLGAPPL     YES - MOVE IT IN         2522298   00402000
+LGRTN015 EQU   *                                              2522298   00403000
+         MVC   WSMATAAP,LGAPPLID     SAVE APPL ID FOR TSMAT   1516642   00403100
+         MVC   LGTRNCOF,PCASTF       MOVE SYSTEM TRUNCATION FLAG        00404000
+         MVC   LGBTCHTR,PCATBTC      MOVE APPL BATCH TRAN CODE TO LOG   00405000
+         MVC   LGUSERTR,PCAUTC       MOVE APPL USER TRAN CODE TO LOG    00406000
+         MVC   LGAPLITC,PCATITC      MOVE APPL INTERNAL T/C TO LOG      00407000
+         MVC   LGAPLDES,PCARD        MOVE APPL RECORD DESCRIPT TO LOG   00408000
+         MVI   LGAPLIRF,C'0'         INIT APPL INTRNL REV FLAG0802653   00409000
+         MVC   LGAPLDCF,PCADRCR      MOVE APPL DEBIT/CREDIT FL TO LOG   00410000
+         MVC   LGAPLPRC,PCASPC       MOVE APPL PROCESS CODE FL TO LOG   00411000
+         MVC   LGAPLMPF,PCAMPF       MOVE APPL MEMO POST FLAG TO LOG    00412000
+         MVC   LGAPLEXC,PCAREC       MOVE APPL EXCEPTION CODE TO LOG    00413000
+         MVC   LGUSRINF,PCAULA       MOVE USER LOG AREA                 00414000
+         MVC   LGNDEXIT,PCANDEXT     MOVE NEXT DAY EXIT IND   0615280   00414500
+         MVC   LGTRNTDP,STMTDEPT     MOVE TRAN DEPT TO LOG    0722348   00416000
+         MVC   LGTRNTBT,STMBN        MOVE TRAN BATCH TO LOG   0722348   00417000
+         MVC   LGTRNTSB,STMTSUB      MOVE TRAN SUB-BATCH TO LG0722348   00418000
+         MVC   LGTRNRVP,PCAREVP      MOVE REVERSAL PHASE TO LOG         00419000
+         MVC   LGAPLDFC,PCADCTLS     MOVE APPL DEFAULT CONTROLS TO LOG  00420000
+         PACK  DWRD,LGAPLDFC(2)      PACK CNTL1               1516642   00420100
+         OI    DWRD+7,X'0F'          FORCE SIGN               1516642   00420200
+         CVB   R14,DWRD              CONVERT TO BINARY        1516642   00420300
+         STCM  R14,3,WSMATAC1        SAVE CTL1 FOR TSMAT      1516642   00420400
+         MVC   LGAPLFGP,PCAAFGN      MOVE APPL FILE GROUP# TO LOG       00421000
+         MVC   LGCTLGP,PCACTLGP      MOVE APPL CTL GP TO LOG  2501276   00422000
+         MVC   LGALPGP,PCAALPGP      MOVE APPL ALPHA GP TO LOG2501276   00423000
+         ICM   R7,15,WMSANCA         LOAD NCA ADDRESS         2602019   00424000
+         ICM   R7,15,NCASACBA-TSNCA(R7) SACB ADDR FROM NCA    2602019   00425000
+         ICM   R7,15,SACBGCA-SACB(R7) GCA ADDR FROM NCA       2602019   00426000
+         USING SAS9GCAD,R7                                    2602019   00427000
+         MVC   LGAPLRTF,SVAORRTF     MOVE REAL-TIME FLAG      0324631   00428000
+         DROP  R7                                             2602019   00429000
+         MVC   LGREPLVS,STMSRL       MOVE REPORT LEVELS TO LOG          00430000
+         MVC   LGTRNDES,STMTDAR      MOVE TRANS DESCRIPTION TO LOG      00431000
+         MVC   LGTRNCOD,STMETC       MOVE EXTERNAL T/C TO LOG           00432000
+         MVC   LGTRNBAL,STMBALF      MOVE TRANSACTION BALANCE FLAG      00433000
+         MVC   LGTRNPRV,STMPRVF      MOVE PARTIAL REVERSAL FLG0802653   00434000
+         MVC   LGTRNSER,STMSN        MOVE TRANS SERIAL NUMBER TO LOG    00435000
+         MVC   LGTRNDAT,STMTD        MOVE TRANSACTION DATE TO LOG       00436000
+         MVC   LGTRNCEN,=C'19'       MOVE DFLT CENTURY TO LOG 9913581   00436100
+         CLC   STMTDYR,SVAORCEN      STM TRAN YR LT AOR YR?   9913581   00436200
+         BNL   LGTRN016              NO - LEAVE CENTURY 19    9913581   00436300
+         MVC   LGTRNCEN,=C'20'       CHANGE CENTURY TO 20     9913581   00436400
+LGTRN016 EQU   *                                              9913581   00436500
+         MVC   LGTRNTIM,STMTT        MOVE TRAN TIME TO LOG    0802085   00437000
+         MVI   LGTRNUSR,C'0'         SET LOG TRANS USER CODE            00438000
+         MVC   LGTRNBD,STMTBD        MOVE TRANS BUSINESS DATE TO LOG    00439000
+         MVC   LGLKF,STMLKF          MOVE LIST KEY FLAG                 00440000
+         MVC   LGTRNDG,SPACESL       SET LOG TRANS DATA GROUP 0445028   00441000
+         MVC   LGTRNSUB,SPACESL      SET LOG TRANS SUB CODE   0445028   00442000
+         ICM   R7,15,PCAICRA         POINT TO ICR             TS006.00  00443000
+         USING ICRSEG1,R7            ADDRESS ICR              TS006.00  00444000
+         MVC   LGTRNFDG,ICR1FFDG     SET LOG TRANS FIXED DAG  TS006.00  00445000
+         MVC   LGTRNTDG,ICR1TFDG     SET LOG TRANS TRANS TAG  TS006.00  00446000
+         ICM   R7,15,WMSANCA         POINT TO NCA             TS006.00  00447000
+         USING TSNCA,R7              ADDRESS NCA              TS006.00  00448000
+         MVC   LGRSOUR,NCASOUR       MOVE SOURCE CODE         2021071   00448100
+         MVC   LGSAPDF,NCASAPDF      MOVE FIXED DAG LENGTH    TS006.00  00449000
+         MVC   LGSAPDV,NCASAPDV      MOVE TRANS DAG LENGTH    TS006.00  00450000
+         MVC   LGNCASCR,NCASCRN      MOVE SCREEN NO           0803201   00451000
+         MVC   LGNCAFKF,NCAFKFL      MOVE FUNCTION KEY FLAG   0803201   00452000
+         MVC   LGNCAFKD,NCAFKDAT     MOVE FUNCTION KEY DATA   0803201   00453000
+         MVC   LGPRTYP,NCAPRTYP      MOVE PROCESS TYPE        9910846   00453010
+         MVC   LGEORCB,NCAEORCB      MOVE EOR CONTROL BLK FLAG0414797   00453015
+         CLI   NCAQPRFL,X'00'        IS THIS A MQ TRANS?      0364780   00453020
+         BE    LGTRNA16              NO BYPASS MOVE           0364780   00453030
+         ICM   R7,15,NCAQMSGD        POINT TO MESSAGE DESCR   0364780   00453040
+         DROP  R7                                             0364780   00453050
+         USING TSTS2QMD,R7           ADDRESS MESSAGE DESCR    0364780   00453060
+         MVC   LGQMSGID,QMDMSGID     MOVE MESSAGE ID          0364780   00453070
+LGTRNA16 EQU   *                                              0364780   00453080
+         DROP  R7                                             TS006.00  00454000
+         ICM   R7,15,STMSTPIP        POINT TO TCR STEP        TS006.00  00455000
+         USING TCRSTP,R7             ADDRESS TCR STEP         TS006.00  00456000
+         MVC   LGTRNSCR,TCRSCRPT     MOVE SCRIPT NAME TO LOG  TS006.00  00457000
+         MVC   LGTRNPMU,TCRPMUSR     MOVE PROC MOD USER DATA  TS006.00  00458000
+         DROP  R7                                             TS006.00  00459000
+         MVC   LGTRNREV,STMRF        MOVE TRANS REVERSAL FLAG TO LOG    00460000
+         MVC   LGTRNREN,STMREF       MOVE TRANS REENTRY FLAG TO LOG     00461000
+         MVC   LGTRNNDY,STMNDF       MOVE TRANS NEXT DAY FLAG TO LOG    00462000
+         MVC   LGIGNDF,PCAIGNDF      MOVE IGNORE NEXT DAY FLAG TO LOG   00463000
+         ICM   R7,15,STMITRA         POINT TO ITR                       00464000
+         USING TSTSITR,R7            ADDRESS ITR                        00465000
+         MVC   LGEORGP,ITREORGP      MOVE EOR GROUP TO LOG              00466000
+         MVC   LGTTRCL,ITRADCLS      TTR CLASS                9910846   00466010
+         MVC   LGTRMID,ITRTERM       MOVE ITR TERM ID TO LOG  9910846   00466020
+         ICM   R7,15,ITRSERAD        POINT TO SER                       00467000
+         USING TSTSSER,R7            ADDRESS SER                        00468000
+         MVC   LGTPFGP,SERTPFGP      MOVE TPF GROUP                     00469000
+         MVC   LGTPFCL,SERTPFCL      MOVE TPF CLASS                     00470000
+         MVC   LGFDRCL,SERFDRCL      MOVE FDR CLASS                     00471000
+         CLI   SEREIBTD,C'E'         EIBDATE FOR LOG?         9910919   00471010
+         BNE   LGRTN017              NO - LEAVE AS STM DATE   9910919   00471020
+         STM   R6,R9,DATEREGS        STORE REGS FOR MACRO     9910919   00471030
+         MVI   DAFMAT,C'2'           SET FROM FORMAT          9910919   00471040
+         MVI   DAFLNG,X'04'          SET FROM LENGTH          9910919   00471050
+         MVI   DATMAT,C'5'           SET TO FORMAT            9910919   00471060
+         MVI   DATLNG,X'06'          SET TO LENGTH            9910919   00471070
+         MVI   DAFDATA,C'P'          SET FROM DATA TYPE       9910919   00471080
+         MVI   DATDATA,C'N'          SET TO DATA TYPE         9910919   00471090
+         MVI   EDSW,C'0'             SET EDIT SWITCH          9910919   00471100
+         MVC   BASYR,=C'50'          SET BASE YEAR            9910919   00471110
+         DROP  R7                                             9910919   00471120
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9910919   00471129
+*                                    DATE MACRO               9910919   00471130
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024347   00471139
+DA       TSTS9DA FDATE=EIBDATE,FFORMAT=DAFMAT,TDATE=WKDATE,            X00471140
+               TDATA=DATDATA,FDATA=DAFDATA,FLGTH=DAFLNG,TLGTH=DATLNG,  X00471150
+               TFORMAT=DATMAT,WR1=R6,WR2=R7,WR3=R8,WR4=R9,             X00471160
+               DATEFMT=DTEFMT,                                         X00471165
+               CENBASE=BASYR,EDONLY=EDSW,TYPE=MACRO,RETURN=TS9RTN       00471170
+*                                                             9910919   00471180
+         USING TSTSSER,R7            ADDRESS SER              9910919   00471190
+         LM    R6,R9,DATEREGS                                 9910919   00471200
+         MVC   LGTRNDAT,WKDATE       USE EIBDATE IN LOG       9910919   00471210
+LGRTN017 EQU   *                                              9910919   00471220
+         CLC   STMOL,SPACESL         OVERRIDABLE ERR OCCURRED?0445028   00472000
+         BE    LGRTN020              NO, CONTINUE                       00473000
+         CLC   STMNTEOU,HEXZEROL     OVERRIDE MESSAGES AVAIL? 0445028   00474000
+         BE    LGRTN020              NO, CONTINUE                       00475000
+         MVC   LGTRNORL,STMOL        MOVE TRANS OVERRIDE LVL TO LOG     00476000
+         MVC   LGOVREMP,STMOEN       MOVE OVERRIDE EMPLOYEE ID TO LOG   00477000
+         MVC   LGOVRERR,STMTEOC      MOVE ERROR OVERRIDE CODES TO LOG   00478000
+         MVI   LGOVRLEV,C'O'         MOVE OVR LEVEL TO EMPLOYEE         00479000
+         CLC   STMOL,SERSUPV         IS IT A SUPERVISOR OR EMPL OVR?    00480000
+         BL    LGRTN020              EMPLOYEE - GO ON                   00481000
+         MVI   LGOVRLEV,C'S'         MOVE SUPERVISOR OVR LEVEL TO LOG   00482000
+LGRTN020 EQU   *                                                        00483000
+         MVC   LGGLRGP,SERGLRGP      MOVE GENERAL LEDGER FILE GROUP     00484000
+         MVC   LGGLRPLU,SERGLRPL     MOVE GEN LEDGER PHYS LOC USE FLG   00485000
+         MVI   LGTRNPRF,C'1'         PRESET TRAN PROCESSED FLAG TO 1    00486000
+         CLI   STMFPF,C'1'           WAS THIS FORCE POST?               00487000
+         BNE   LGRTN040              NO - LEAVE TRAN PROCESSED FL AT 1  00488000
+         ICM   R14,15,WMSANCA        LOAD ADDRESS OF NCA                00489000
+         USING TSNCA,R14             ESTABLISH ADDRESSABILITY           00490000
+         LA    R14,NCAMDA            LOAD ADDRESS OF MDA STEM           00491000
+         USING MDASTEM,R14           ESTABLISH ADDRESSABILITY           00492000
+         CLI   MDAFPHSL,C'3'         IS HIGH SEVERITY G.T. 3?           00493000
+         BH    LGRTN030              YES - ERROR                        00494000
+         CLI   MDAFPHSL,C'0'         IS HIGH SEVERITY L.T. 0?           00495000
+         BL    LGRTN030              YES - ERROR                        00496000
+         MVC   LGWKHSL,MDAFPHSL      MOVE HIGH SEV LEVEL TO WORK AREA   00497000
+         NI    LGWKHSL,X'0F'         CLEAR ZONES FOR TRANSLATE          00498000
+         TR    LGWKHSL,FPOSTTBL      TRANLATE VALUE                     00499000
+         MVC   LGTRNPRF,LGWKHSL      MOVE VALUE TO TRAN PROCESSED FLAG  00500000
+         B     LGRTN040              GO ON                              00501000
+LGRTN030 EQU   *                                                        00502000
+         MVC   WMSMGCOD,=C'0385'     INVALID FORCE POST FLAG            00503000
+         MVC   WMSMGVA1(1),MDAFPHSL  &1 HAS FORCE POST FLAG VALUE       00504000
+         B     LGERR000              GO TO ERROR ROUTINE      9910919   00505000
+         DROP  R14                                                      00506000
+LGRTN040 EQU   *                                                        00507000
+         MVC   LGTRMTYP,STMTRTY      MOVE TERMINAL TYPE TO LOG          00508000
+*********************************************************************** 00510000
+*  SET UP BEGINNING AND ENDING ADDRESSES OF LOG INPUT AREA.  REGISTER * 00511000
+*  8 WILL BE THE CURRENT POSITION POINTER.                            * 00512000
+*********************************************************************** 00513000
+         LA    R15,LGIPAREA          LOAD LOG IPAREA ADDRESS            00514000
+         ST    R15,LGSVIPAB          SAVE BEGINNING OF LOG IPAREA       00515000
+         XR    R8,R8                 CLEAR R8                 1316257   00515100
+         LH    R8,SVLGDALN           LOAD LENGTH OF LOG IPAREA9713426   00516000
+         AR    R15,R8                ADD LENGTH OF LOG IPAREA 2600361   00517000
+         ST    R15,LGSVIPAE          SAVE END OF LOG IPAREA             00518000
+         L     R8,LGSVIPAB           LOAD LOG IPAREA ADDRESS            00519000
+         EJECT                                                          00520000
+*********************************************************************** 00521000
+*  FORMAT DATA AREA OF LOG RECORD.   THE REPORTING KEYS ARE ALL THATS * 00522000
+*  MOVED TO THE LOG KDA AREA.   ALL OTHER DATA OF THE LOG(S) ARE      * 00523000
+*  SIMPLY DATA PASSED TO THE LOG ROUTINES.                            * 00524000
+*********************************************************************** 00525000
+         SPACE                                                          00526000
+*********************************************************************** 00527000
+*                         FORMAT KEY DATA AREA                        * 00528000
+*********************************************************************** 00529000
+*     R1 PCA OCCURRENCE IN PROCESS                                    * 00530000
+*     R6 BEGINNING ADDR KDA                                           * 00531000
+*     R7 ENDING ADDR KDA                                              * 00532000
+*     R8 LOG INPUT AREA POSITION                                      * 00533000
+*     R9 LENGTH OF KDA RECORD KEY                                     * 00534000
+*     R10 TSCB STEM ADDRESS                                           * 00535000
+*     R12 LOG STEM ADDRESS                                            * 00536000
+*     R15 BAL/WORK                                                    * 00537000
+*********************************************************************** 00538000
+         SPACE                                                          00539000
+LGKDA000 EQU   *                                                        00540000
+         CLC   PCASAKDA,HEXZEROL     IS THERE A KDA?          0445028   00541000
+         BE    LGTDA000              NO, GO PROCESS TDA                 00542000
+         ICM   R6,15,STMAKDA         LOAD ADDR OF KDA                   00543000
+         USING KDASTEM,R6            ESTABLISH ADDRESSABILITY           00544000
+         USING LGKDA,R8              ADDRESS LOG AREA KDA               00545000
+         MVC   LGKECATC,KDAECATC     MOVE EYE CATCHER                   00546000
+         LA    R8,L'KDAECATC(R8)     BUMP PAST EYE CATCHER              00547000
+         USING LGKDASTR,R8           ADDRESS LOG AREA KDA OCCURRENCE    00548000
+         DROP  R6                                                       00549000
+         ICM   R6,15,PCASAKDA        POINT TO KEY DATA AREA             00550000
+         USING KDAOCCUR,R6           ADDRESS KDA                        00551000
+         ICM   R7,15,PCAEAKDA        POINT TO END OF THIS PCA'S KDA     00552000
+LGKDA010 EQU   *                                                        00553000
+         XR    R9,R9                 CLEAR REGISTER                     00554000
+         ICM   R9,3,KDARKL           GET LENGTH OF RECORD KEY           00555000
+         CLI   KDARAF,C'1'           IS THIS A REPORTING KEY?           00556000
+         BNE   LGKDA020              NO, BUMP TO NEXT ENTRY             00557000
+         CLC   KDARKL,=H'50'         KEY SIZE > 50            1115989   00557010
+         BH    LGKDA020              YES, BYPASS              1115989   00557020
+         MVC   LGKDAFN,KDAFN         MOVE FILENAME TO LOG I/P AREA      00558000
+         MVC   LGKDARK,SPACESL       INIT KEY AREA TO SPACES  0445028   00559000
+         BCTR  R9,0                  DECREMENT KEY LEN FOR EX INSTR     00560000
+         EX    R9,LGKDA900           MOVE KEY TO LOG AREA               00561000
+         LA    R9,1(R9)              CORRECT REC KEY LENGTH             00562000
+         LA    R8,LGKDALNG(R8)       ADD LENGTH OF LOG KDA OCCURRENCE   00563000
+LGKDA020 EQU   *                                                        00564000
+         AR    R6,R9                 ADD LENGTH OF RECORD KEY           00565000
+         LA    R6,KDAOLNG(R6)        ADD LENGTH OF KDA FIXED PORTION    00566000
+         CR    R6,R7                 ANY MORE KEYS?                     00567000
+         BL    LGKDA010              YES                                00568000
+         L     R15,LGSVIPAB          GET BEGINNING OF IPAREA            00569000
+         LR    R9,R8                 LOAD POSITION IN LOG AREA TO REG   00570000
+         SR    R9,R15                DETERMINE LENGTH OF KDA IN LOG     00571000
+         LA    R15,L'KDAECATC        LOAD LENGTH OF KDA EYECATCHER      00572000
+         CR    R9,R15                IS THAT ALL THERE IS IN KDA?       00573000
+         BH    LGKDA030              NO - GO ON                         00574000
+         SR    R8,R15                YES - SUBTR LENG OF E.C. FROM POS  00575000
+         XR    R9,R9                 MOVE ZEROES TO LENGTH              00576000
+LGKDA030 EQU   *                                                        00577000
+         STCM  R9,3,LGKDALEN         STORE LEN OF KDA IN LOG STEM       00578000
+         B     LGTDA000              GO PROCESS TDA LOGGING             00579000
+         SPACE                                                          00580000
+LGKDA900 MVC   LGKDARK(0),KDARK      EXECUTED INSTRUCTION TO MOVE VAR   00581000
+*                                    LENG KEY TO FIXED LENG KEY IN LOG  00582000
+         DROP  R6                                                       00583000
+         EJECT                                                          00584000
+*********************************************************************** 00585000
+*                        FORMAT TOTAL DATA AREA                       * 00586000
+*********************************************************************** 00587000
+*     R1 PCA OCCURRENCE IN PROCESS                                    * 00588000
+*     R6 START ADDR TDA                                               * 00589000
+*     R7 WORK (ENDING ADDR TDA, LENGTH OF DEST FIELD IN MVCL)         * 00590000
+*     R8 LOG INPUT AREA POSITION                                      * 00591000
+*     R9 LENGTH OF TDA                                                * 00592000
+*     R10 TSCB STEM ADDRESS                                           * 00593000
+*     R12 LOG STEM ADDRESS                                            * 00594000
+*     R14 WORK                                                        * 00595000
+*     R15 BAL/WORK                                                    * 00596000
+*********************************************************************** 00597000
+         SPACE                                                          00598000
+LGTDA000 EQU   *                                                        00599000
+         CLC   PCASATDA,HEXZEROL     IS THERE A TDA?          0445028   00600000
+         BE    LGPDA000              NO, GO PROCESS PDA                 00601000
+         ICM   R6,15,STMATDA         LOAD ADDR OF TDA                   00602000
+         USING TDASTEM,R6            ESTABLISH ADDRESSABILITY           00603000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED SWITCH   00604000
+         MVI   LG1STWRT,C'0'         TURN OFF FIRST WRITE SWITCH        00605000
+         MVC   LGSVEYEC,TDAECATC     MOVE EYECATCHER TO SAVE AREA       00606000
+         DROP  R6                                                       00607000
+         ICM   R6,15,PCASATDA        POINT TO START ADDR OF TDA         00608000
+         ICM   R9,15,PCAEATDA        POINT TO END ADDR OF TDA           00609000
+         SR    R9,R6                 CALC LENGTH OF TDA                 00610000
+         LA    R9,1(R9)              ADD 1 TO GET CORR LEN    1316257   00611000
+LGTDA010 EQU   *                                                        00612000
+         LA    R14,LGTDA020          PRE-SET RETURN ADDR                00613000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   00613999
+         BAS   R15,LGCLC000          GO CALCULATE AREA AND MOVE DATA    00614000
+         MVC   LGTDALEN,LGSVRCLN     STORE TDA LENGTH IN LOG STEM       00615000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   00615999
+         BAS   R15,LGWRT000          PERFORM WRITE OF LOG RECORD        00616000
+         MVI   LG1STWRT,C'1'         TURN ON FIRST WRITE SWITCH         00617000
+         B     LGTDA010              CONTINUE SPACE CALCULATIONS        00618000
+LGTDA020 EQU   *                                                        00619000
+         MVC   LGTDALEN,LGSVRCLN     STORE TDA LENGTH IN LOG STEM       00620000
+         MVCL  R8,R6                 MOVE TDA TO LOG IPAREA             00621000
+         EJECT                                                          00622000
+*********************************************************************** 00623000
+*                     FORMAT PROCESSING DATA AREA                     * 00624000
+*********************************************************************** 00625000
+*     R1 PCA OCCURRENCE IN PROCESS                                    * 00626000
+*     R6 START ADDR PDA                                               * 00627000
+*     R7 WORK (LENGTH OF DEST FIELD FOR MVCL)                         * 00628000
+*     R8 LOG INPUT AREA POSITION                                      * 00629000
+*     R9 LENGTH OF PDA                                                * 00630000
+*     R10 TSCB STEM ADDRESS                                           * 00631000
+*     R12 LOG STEM ADDRESS                                            * 00632000
+*     R14 WORK/ALTERNATE RETURN ADDRESS                               * 00633000
+*     R15 BAL/WORK                                                    * 00634000
+*********************************************************************** 00635000
+         SPACE                                                          00636000
+LGPDA000 EQU   *                                                        00637000
+         CLI   SVPRCPDA,C'1'         NEED TO PROCESS PDA?     2500631   00638000
+         BE    LGPDA030              YES -                    2500631   00639000
+         CLC   PCASAPDA,HEXZEROL     IS THERE A PDA?          0445028   00640000
+         BE    LGXMT000              NO, GO PROCESS XMT       2600361   00641000
+         ICM   R6,15,STMAPDA         LOAD ADDR OF PDA                   00642000
+         USING PDASTEM,R6            ESTABLISH ADDRESSABILITY           00643000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED SWITCH   00644000
+         MVI   LG1STWRT,C'0'         TURN OFF FIRST WRITE SWITCH        00645000
+         MVC   LGSVEYEC,PDAECATC     MOVE EYECATCHER TO SAVE AREA       00646000
+         DROP  R6                                                       00647000
+         ICM   R6,15,PCASAPDA        GET START ADDR OF PDA              00648000
+         XR    R9,R9                 CLEAR REGISTER                     00649000
+         ICM   R9,3,PCALPDA          GET LENGTH OF PDA                  00650000
+         DROP  R1                                             2600361   00651000
+LGPDA010 EQU   *                                                        00652000
+         LA    R14,LGPDA020          PRE-SET RETURN ADDR                00653000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   00653999
+         BAS   R15,LGCLC000          GO CALCULATE AREA AND MOVE DATA    00654000
+         MVC   LGPDALEN,LGSVRCLN     STORE PDA LENGTH IN LOG STEM       00655000
+         BAS   R15,LGWRT000          GO WRITE LOG RECORD      2024457   00656000
+         MVI   LG1STWRT,C'1'         TURN ON FIRST WRITE SWITCH         00657000
+         B     LGPDA010              CONTINUE SPACE CALCULATIONS        00658000
+LGPDA020 EQU   *                                                        00659000
+         C     R9,=F'0'              ANY MORE DATA TO LOG?              00660000
+         BE    LGXMT000              NO, GO PROCESS TRANSMISSION        00661000
+         MVC   LGPDALEN,LGSVRCLN     STORE PDA LENGTH IN LOG STEM       00662000
+         MVCL  R8,R6                 MOVE PDA TO LOG IPAREA             00663000
+         B     LGXMT000              GO PROCESS XMN           2500631   00664000
+LGPDA030 EQU   *                                              2500631   00665000
+         MVC   SVPTRADR,SVPDAADR     SAVE POINTER ADDRESS     2500631   00666000
+         ICM   R6,15,STMAPDA         LOAD ADDR OF PDA         2500631   00667000
+         USING PDASTEM,R6            ESTABLISH ADDRESSABILITY 2500631   00668000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED2500631   00669000
+         MVI   LG1STWRT,C'0'         TURN OFF 1ST WRITE SWITCH2500631   00670000
+         MVC   LGSVEYEC,PDAECATC     MOVE EYECATCHER TO SAVE  2500631   00671000
+         DROP  R6                                             2500631   00672000
+LGPDA040 EQU   *                                              2500631   00673000
+         ICM   R7,15,SVPTRADR        LOAD POINTER ADDR        2500631   00674000
+         BZ    LGXMT000              EQUAL ZEROS GO PROC XMT  2500631   00675000
+         USING DATAREA,R7            ESTABLISH ADDRESSABILITY 2500631   00676000
+         MVC   SVPTRADR,DATCHAIN     SAVE NEXT POINTER ADDR   2500631   00677000
+         LA    R6,DATEYEC            POINT TO DATA ADDRESS    2601182   00678000
+         XR    R9,R9                 CLEAR REG                2500631   00679000
+         ICM   R9,3,DATLEN           LOAD DATA LEN            2500631   00680000
+         DROP  R7                                             2500631   00681000
+LGPDA050 EQU   *                                              2500631   00682000
+         LA    R14,LGPDA060          PRE-SET RETURN ADDRESS   2500631   00683000
+         BAS   R15,LGCLC000          GO CALCULATE AREA        2024457   00684000
+         XR    R15,R15               CLEAR REG                2500631   00685000
+         ICM   R15,3,LGPDALEN        INSERT PDA LEN SO FAR    2500631   00686000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH           2500631   00687000
+         STCM  R15,3,LGPDALEN        STORE NEW PDA LENGTH     2500631   00688000
+         BAS   R15,LGWRT000          GO WRITE LOG REC         2024457   00689000
+         MVI   LG1STWRT,C'1'         TURN ON 1ST WRITE SWITCH 2500631   00690000
+         B     LGPDA050              CONRINUE SPACE CALC      2500631   00691000
+LGPDA060 EQU   *                                              2500631   00692000
+         XR    R15,R15               CLEAR REG                2500631   00693000
+         ICM   R15,3,LGPDALEN        INSERT PDA LEN SO FAR    2500631   00694000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH           2500631   00695000
+         STCM  R15,3,LGPDALEN        STORE NEW PDA LENGTH     2500631   00696000
+         MVCL  R8,R6                 MOVE PDA TO LOG IPAREA   2500631   00697000
+         CLC   SVPTRADR,=4X'FF'      EQUAL 'FF'?              2500631   00698000
+         BE    LGXMT000              PROCESS XMN              2500631   00699000
+         B     LGPDA040              PROCESS NEXT PDA ADDR    2500631   00700000
+         EJECT                                                2500631   00701000
+*********************************************************************** 00702000
+*                     FORMAT TRANSMITTED DATA AREA                    * 00703000
+*********************************************************************** 00704000
+*     R6 START ADDR XMT                                               * 00705000
+*     R7 SOURCE LENGTH REG                                            * 00706000
+*     R8 LOG INPUT AREA POSITION                                      * 00707000
+*     R9 LENGTH OF XMT                                                * 00708000
+*     R10 TSCB STEM ADDRESS                                           * 00709000
+*     R12 LOG STEM ADDRESS                                            * 00710000
+*     R14 WORK/ALTERNATE RETURN ADDRESS                               * 00711000
+*     R15 BAL/WORK                                                    * 00712000
+*********************************************************************** 00713000
+         SPACE                                                          00714000
+LGXMT000 EQU   *                                                        00715000
+         CLC   SVXMTAD,HEXZEROL      IS XMT MSG AVAILABLE?    0445028   00718000
+         BE    LGALA000              NO - GO LOG ALA                    00719000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED SWITCH   00722000
+         MVI   LG1STWRT,C'0'         TURN OFF FIRST WRITE SWITCH        00723000
+         MVC   LGSVEYEC,XMTECATC     MOVE EYECATCHER TO SAVE AREA       00724000
+         L     R6,SVXMTAD            POINT TO START ADDR OF XMT         00725000
+         CLI   SVPCAX,C'X'        Q. ANY XML DATA             1226081   00725010
+         BNE   LGXMT005           NO USE SMALLER LENGTH       1226081   00725020
+         CLC   SVXMLLN,HEXZEROL      IS ANYTHING IN XMT?      1226081   00725030
+         BE    LGALA000              NO - GO LOG ALA          1226081   00725040
+         L     R9,SVXMLLN            GET LENGTH OF X-MISSION  1226081   00725050
+         B     LGXMT010              CONTINUE                 1226081   00725060
+LGXMT005 EQU   *                                              1226081   00725070
+         CLC   SVXMTLN,HEXZEROL      IS ANYTHING IN XMT?      1226081   00725080
+         BE    LGALA000              NO - GO LOG ALA          1226081   00725090
+         XR    R9,R9                 CLEAR R9                 1226081   00725095
+         ICM   R9,3,SVXMTLN          GET LENGTH OF X-MISSION  1226081   00726000
+LGXMT010 EQU   *                                                        00727000
+         LA    R14,LGXMT020          LOAD RETURN ADDR                   00728000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   00728999
+         BAS   R15,LGCLC000          GO CALCULATE AREA AND MOVE DATA    00729000
+         MVC   LGXMTLEN,LGSVRCLN     STORE LOG XMT LENGTH IN LOG STEM   00730000
+         BAS   R15,LGWRT000          GO WRITE LOG RECORD      2024457   00731000
+         MVI   LG1STWRT,C'1'         TURN ON FIRST WRITE SWITCH         00732000
+         B     LGXMT010              GO WRITE THIS LOG                  00733000
+LGXMT020 EQU   *                                                        00734000
+         C     R9,=F'0'              ANY MORE DATA TO LOG?              00735000
+         BNH   LGALA000              NO, PROCESS TRANSMISSION 1226081   00736000
+         MVC   LGXMTLEN,LGSVRCLN     STORE LOG XMT LENGTH IN LOG STEM   00737000
+         MVCL  R8,R6                 MOVE XMT TO LOG IPAREA             00738000
+         B     LGALA000              GO PROCESS APPLICATION LOG AREA    00739000
+LGXMT900 EQU   *                                                        00740000
+         MVC   WMSMGCOD,=C'0328'     NO, TRANSMISSION ADDR MISSING      00741000
+         B     LGERR000              GO DO ERROR PROCESSING   9910919   00742000
+         EJECT                                                          00743000
+*********************************************************************** 00744000
+*                     FORMAT APPLICATION LOG AREA                     * 00745000
+*********************************************************************** 00746000
+*     R6 START ADDR ALA                                               * 00747000
+*     R7 ADDR NEXT ALA                                                * 00748000
+*     R8 LOG INPUT AREA POSITION                                      * 00749000
+*     R9 LENGTH OF ALA                                                * 00750000
+*     R10 TSCB STEM ADDRESS                                           * 00751000
+*     R12 LOG STEM ADDRESS                                            * 00752000
+*     R14 WORK/ALTERNATE RETURN ADDRESS                               * 00753000
+*     R15 BAL/WORK                                                    * 00754000
+*********************************************************************** 00755000
+         SPACE                                                          00756000
+LGALA000 EQU   *                                                        00757000
+         CLI   SVPRCALA,C'1'         NEED TO PROCESS ALA?     2500631   00758000
+         BE    LGALA060              YES -                    2500631   00759000
+         CLC   STMAALA,HEXZEROL      IS THERE AN ALA?         0445028   00760000
+         BE    LGRDA000              NO - GO PROCESS RDA                00761000
+         ICM   R6,15,STMAALA         POINT TO ALA                       00762000
+         USING ALAOCCUR,R6           ADDRESS ALA                        00763000
+         MVC   LGSVBANA,ALABANA      SAVE ADDR OF NEXT AREA             00764000
+         CLC   ALAEATA,HEXZEROL      IS ALA BEING USED?       0445028   00765000
+         BE    LGRDA000              NO - GO PROCESS RDA                00766000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED SWITCH   00767000
+         MVI   LG1STWRT,C'0'         TURN OFF FIRST WRITE SWITCH        00768000
+         MVC   LGSVEYEC,ALAECATC     MOVE EYECATCHER TO SAVE AREA       00769000
+         XR    R9,R9                 CLEAR REGISTER                     00770000
+         ICM   R9,3,ALAASU           GET AMOUNT OF STORAGE USED         00771000
+         LTR   R9,R9                 ZEROES?                            00772000
+         BZ    LGRDA000              NO - GO PROCESS RDA                00773000
+LGALA010 EQU   *                                                        00774000
+         LA    R14,LGALA030          PRE-SET RETURN ADDRESS             00775000
+         BAS   R15,LGCLC000          GO CALCULATE AREA        2024457   00776000
+         XR    R15,R15               CLEAR R15 FOR INSERT               00777000
+         ICM   R15,3,LGALALEN        INSERT ALA LENGTH SO FAR           00778000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH                     00779000
+         STCM  R15,3,LGALALEN        STORE NEW ALA LENGTH IN LOG STEM   00780000
+LGALA020 EQU   *                                                        00781000
+         BAS   R15,LGWRT000          GO WRITE LOG RECORD      2024457   00782000
+         B     LGALA010              PROCESS NEXT ALA                   00783000
+LGALA030 EQU   *                                                        00784000
+         LA    R6,ALASLNG(R6)        BUMP PAST ALA STEM                 00785000
+         XR    R15,R15               CLEAR R15 FOR INSERT               00786000
+         ICM   R15,3,LGALALEN        INSERT ALA LENGTH SO FAR           00787000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH                     00788000
+         STCM  R15,3,LGALALEN        STORE NEW ALA LENGTH IN LOG STEM   00789000
+         MVCL  R8,R6                 MOVE ALA TO LOG IPAREA   0445028   00790000
+         CLC   LGSVBANA,HEXZEROL     ANY MORE ALA TO LOG?     0445028   00791000
+         BE    LGALA040              NO, GO FREEMAIN ANY EXCESS ALAS    00792000
+         ICM   R6,15,LGSVBANA        GET NEXT ALA TO LOG                00793000
+         MVC   LGSVBANA,ALABANA      SAVE ADDR OF NEXT AREA             00794000
+         CLC   ALAEATA,HEXZEROL      IS THIS ALA BEING USED?  0445028   00795000
+         BE    LGALA040              NO - GO DO FREEMAINS               00796000
+         XR    R9,R9                 CLEAR REGISTER                     00797000
+         ICM   R9,3,ALAASU           GET AMOUNT OF STORAGE USED         00798000
+         LTR   R9,R9                 ZEROES?                            00799000
+         BNZ   LGALA020              NO - GO WRITE PREVIOUS ALA         00800000
+LGALA040 EQU   *                                                        00801000
+         ICM   R6,15,STMAALA         POINT TO APPLICATION LOG AREA      00802000
+         MVC   LGSVBANA,ALABANA      SAVE ADDR OF FIRST AREA            00803000
+         XC    ALAEATA,ALAEATA       SET ALA ENDING ADDR, BEGINNING     00804000
+         XC    ALABANA,ALABANA           ADDR NEXT AREA AND STORAGE     00805000
+         XC    ALAASU,ALAASU             USED TO L-V                    00806000
+         CLC   LGSVBANA,HEXZEROL     ANY FREEMAINS TO DO?     0445028   00807000
+         BE    LGRDA000              NO - GO PROCESS RDA                00808000
+LGALA050 EQU   *                                                        00809000
+         ICM   R6,15,LGSVBANA        POINT TO ALA NEXT AREA BEG ADDR    00810000
+         MVC   LGSVBANA,ALABANA      SAVE ADDR OF NEXT AREA             00811000
+         DROP  R6                                             2600361   00812000
+         SPACE 1                                              2600213   00813000
+         XC    WKGSTADR,WKGSTADR     INIT FRESTOR ADDRESS     2600213   00814000
+         XC    WKGSTRLN,WKGSTRLN     INIT FRESTOR LENGTH      2600213   00815000
+         XC    WKGSTALN,WKGSTALN     INIT FRESTOR LENGTH      2600213   00816000
+         ST    R6,WKGSTADR           SET FRESTOR ADDRESS      2600213   00817000
+         ICM   R15,15,WMSANCA        LOAD NCA ADDRESS         2600213   00818000
+         ICM   R15,15,NCASACBA-TSNCA(R15) SACB ADDR FROM NCA  2600213   00819000
+         ST    R15,WKSACBAD          SAVE FOR PARMLIST USE    2600213   00820000
+         ICM   R15,15,SACBGSFS-SACB(R15) FRESTOR BALR ENTRY PT2600213   00821000
+         BZ    LGALA052              NO EP - CALL SAS0001C    2600213   00822000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,                          X00823000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00824000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00825000
+         BASR  R14,R15               BALR TO FRESTOR ENTRY PT 2024457   00826000
+         B     LGALA053              CONTINUE                 2600213   00827000
+LGALA052 EQU   *                                              2600213   00828000
+         MVC   SAS9FUNC,=C'FRESTOR 0063' INIT FRESTOR VERB LIT2600213   00829000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X00830000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00831000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00832000
+         CALL  SAS0001C              DO FRESTOR FOR ALA       2600213   00833000
+LGALA053 EQU   *                                              2600213   00834000
+         SPACE                                                2600213   00835000
+         CLC   LGSVBANA,HEXZEROL     THAT THE LAST AREA ACQD? 0445028   00836000
+         BNE   LGALA050              NO - CONTINUE WITH FREEMAINS       00837000
+         B     LGRDA000              YES - GO PROCESS RDA               00838000
+LGALA060 EQU   *                                              2500631   00839000
+         MVC   SVPTRADR,SVALAADR     SAVE POINTER ADDRESS     2500631   00840000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED2500631   00841000
+         MVI   LG1STWRT,C'0'         TURN OFF 1ST WRITE SWITCH2500631   00842000
+         MVC   LGSVEYEC,=C'** ALA**' MOVE EYECATCHER TO SAVE  2500631   00843000
+LGALA070 EQU   *                                              2500631   00844000
+         ICM   R7,15,SVPTRADR        LOAD POINTER ADDR        2500631   00845000
+         BZ    LGRDA000              EQUAL ZEROS GO PROC RDA  2500631   00846000
+         USING DATAREA,R7            ESTABLISH ADDRESSABILITY 2500631   00847000
+         MVC   SVPTRADR,DATCHAIN     SAVE NEXT POINTER ADDR   2500631   00848000
+         LA    R6,DATEYEC            POINT TO DATA ADDRESS    2601182   00849000
+         XR    R9,R9                 CLEAR REG                2500631   00850000
+         ICM   R9,3,DATLEN           LOAD DATA LEN            2500631   00851000
+         DROP  R7                                             2500631   00852000
+LGALA080 EQU   *                                              2500631   00853000
+         LA    R14,LGALA090          PRE-SET RETURN ADDRESS   2500631   00854000
+         BAS   R15,LGCLC000          GO CALCULATE AREA        2024457   00855000
+         XR    R15,R15               CLEAR REG                2500631   00856000
+         ICM   R15,3,LGALALEN        INSERT ALA LEN SO FAR    2500631   00857000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH           2500631   00858000
+         STCM  R15,3,LGALALEN        STORE NEW ALA LENGTH     2500631   00859000
+         BAS   R15,LGWRT000          GO WRITE LOG REC         2024457   00860000
+         MVI   LG1STWRT,C'1'         TURN ON 1ST WRITE SWITCH 2500631   00861000
+         B     LGALA080              CONRINUE SPACE CALC      2500631   00862000
+LGALA090 EQU   *                                              2500631   00863000
+         XR    R15,R15               CLEAR REG                2500631   00864000
+         ICM   R15,3,LGALALEN        INSERT ALA LEN SO FAR    2500631   00865000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH           2500631   00866000
+         STCM  R15,3,LGALALEN        STORE NEW ALA LENGTH     2500631   00867000
+         MVCL  R8,R6                 MOVE ALA TO LOG IPAREA   2500631   00868000
+         CLC   SVPTRADR,=4X'FF'      EQUAL 'FF'?              2500631   00869000
+         BE    LGRDA000              PROCESS RDA              2500631   00870000
+         B     LGALA070              PROCESS NEXT ALA ADDR    2500631   00871000
+         EJECT                                                          00872000
+*********************************************************************** 00873000
+*                      FORMAT RECOVERY DATA AREA                      * 00874000
+*********************************************************************** 00875000
+*     R6 START ADDR RDA                                               * 00876000
+*     R7 ADDR NEXT RDA                                                * 00877000
+*     R8 LOG INPUT AREA POSITION                                      * 00878000
+*     R9 LENGTH OF RDA                                                * 00879000
+*     R10 TSCB STEM ADDRESS                                           * 00880000
+*     R12 LOG STEM ADDRESS                                            * 00881000
+*     R14 WORK/ALTERNATE RETURN ADDRESS                               * 00882000
+*     R15 BAL/WORK                                                    * 00883000
+*********************************************************************** 00884000
+         SPACE                                                          00885000
+LGRDA000 EQU   *                                                        00886000
+         CLC   STMARDA,HEXZEROL      IS THERE AN RDA?         0445028   00887000
+         BE    LGREQ900              NO - GO PROCESS EXIT LOG ROUTINE   00888000
+         TM    STMARDA,X'80'         IS LENGTH FLAG ON?       0444407   00888450
+         BNZ   LGREQ900              Y. LEN PASSED NOT RDA    0444407   00888550
+         ICM   R6,15,STMARDA         POINT TO RDA                       00889000
+         USING RDAOCCUR,R6           ADDRESS RDA                        00890000
+         MVC   LGSVBANA,RDABANA      SAVE ADDR OF NEXT AREA             00891000
+         CLC   RDAEATA,HEXZEROL      IS RDA BEING USED?       0445028   00892000
+         BE    LGREQ900              NO, GO PROCESS EXIT LOG ROUTINE    00893000
+         MVI   LGEYECSW,C'0'         TURN OFF EYECATCHER MOVED SWITCH   00894000
+         MVI   LG1STWRT,C'0'         TURN OFF FIRST WRITE SWITCH        00895000
+         MVC   LGSVEYEC,RDAECATC     MOVE EYECATCHER TO SAVE AREA       00896000
+         XR    R9,R9                 CLEAR REGISTER                     00897000
+         ICM   R9,3,RDAASU           GET AMOUNT OF STORAGE USED         00898000
+         LTR   R9,R9                 ZEROES?                            00899000
+         BZ    LGREQ900              NO - GO PROCESS EXIT LOG ROUTINE   00900000
+LGRDA010 EQU   *                                                        00901000
+         LA    R14,LGRDA030          PRE-SET RETURN ADDRESS             00902000
+         BAS   R15,LGCLC000          GO CALCULATE AREA        2024457   00903000
+         XR    R15,R15               CLEAR R15 FOR INSERT               00904000
+         ICM   R15,3,LGRDALEN        INSERT RDA LENGTH SO FAR           00905000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH                     00906000
+         STCM  R15,3,LGRDALEN        STORE NEW RDA LENGTH IN LOG STEM   00907000
+LGRDA020 EQU   *                                                        00908000
+         BAS   R15,LGWRT000          GO WRITE LOG RECORD      2024457   00909000
+         B     LGRDA010              PROCESS NEXT RDA                   00910000
+LGRDA030 EQU   *                                                        00911000
+         LA    R6,RDASLNG(R6)        BUMP PAST RDA STEM                 00912000
+         XR    R15,R15               CLEAR R15 FOR INSERT               00913000
+         ICM   R15,3,LGRDALEN        INSERT RDA LENGTH SO FAR           00914000
+         AH    R15,LGSVRCLN          ADD NEW LENGTH                     00915000
+         STCM  R15,3,LGRDALEN        STORE NEW RDA LENGTH IN LOG STEM   00916000
+         MVCL  R8,R6                 MOVE RDA TO LOG IPAREA             00917000
+         CLC   LGSVBANA,HEXZEROL     ANY MORE RDA TO LOG?     0445028   00918000
+         BE    LGRDA040              NO, GO FREEMAIN ANY EXCESS RDAS    00919000
+         ICM   R6,15,LGSVBANA        GET NEXT RDA TO LOG                00920000
+         MVC   LGSVBANA,RDABANA      SAVE ADDR OF NEXT AREA             00921000
+         CLC   RDAEATA,HEXZEROL      IS THIS RDA BEING USED?  0445028   00922000
+         BE    LGRDA040              NO - GO DO FREEMAINS               00923000
+         XR    R9,R9                 CLEAR REGISTER                     00924000
+         ICM   R9,3,RDAASU           GET AMOUNT OF STORAGE USED         00925000
+         LTR   R9,R9                 ZEROES?                            00926000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   00926999
+         BNZ   LGRDA010              NO - GO WRITE PREVIOUS RDA         00927000
+LGRDA040 EQU   *                                                        00928000
+         ICM   R6,15,STMARDA         POINT TO RECOVERY DATA LOG AREA    00929000
+         MVC   LGSVBANA,RDABANA      SAVE ADDR OF FIRST AREA            00930000
+         XC    RDAEATA,RDAEATA       SET RDA ENDING ADDR, BEGINNING     00931000
+         XC    RDABANA,RDABANA           ADDR NEXT AREA AND STORAGE     00932000
+         XC    RDAASU,RDAASU             USED TO L-V                    00933000
+         CLC   LGSVBANA,HEXZEROL     ANY FREEMAINS TO DO?     0445028   00934000
+         BE    LGREQ900              NO - GO DO LAST WRITE AND RETURN   00935000
+LGRDA050 EQU   *                                                        00936000
+         ICM   R6,15,LGSVBANA        POINT TO RDA NEXT AREA BEG ADDR    00937000
+         MVC   LGSVBANA,RDABANA      SAVE ADDR OF NEXT AREA             00938000
+         SPACE                                                2600213   00939000
+         XC    WKGSTADR,WKGSTADR     INIT FRESTOR ADDRESS     2600213   00940000
+         XC    WKGSTRLN,WKGSTRLN     INIT FRESTOR LENGTH      2600213   00941000
+         XC    WKGSTALN,WKGSTALN     INIT FRESTOR LENGTH      2600213   00942000
+         ST    R6,WKGSTADR           SET FRESTOR ADDRESS      2600213   00943000
+         ICM   R15,15,WMSANCA        LOAD NCA ADDRESS         2600213   00944000
+         ICM   R15,15,NCASACBA-TSNCA(R15) SACB ADDR FROM NCA  2600213   00945000
+         ST    R15,WKSACBAD          SAVE FOR PARMLIST USE    2600213   00946000
+         ICM   R15,15,SACBGSFS-SACB(R15) FRESTOR BALR ENTRY PT2600213   00947000
+         BZ    LGRDA052              NO EP - CALL SAS0001C    2600213   00948000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,                          X00949000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00950000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00951000
+         BASR  R14,R15               BALR TO FRESTOR ENTRY PT 2024457   00952000
+         B     LGRDA053              CONTINUE                 2600213   00953000
+LGRDA052 EQU   *                                              2600213   00954000
+         MVC   SAS9FUNC,=C'FRESTOR 0063' INIT FRESTOR VERB LIT2600213   00955000
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X00956000
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00957000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00958000
+         CALL  SAS0001C              DO FRESTOR FOR RDA       2600213   00959000
+LGRDA053 EQU   *                                              2600213   00960000
+         SPACE                                                2600213   00961000
+         CLC   LGSVBANA,HEXZEROL     THAT THE LAST AREA ACQD? 0445028   00962000
+         BNE   LGRDA050              NO - CONTINUE WITH FREEMAINS       00963000
+         B     LGREQ900              YES - GO DO LAST WRITE AND RETURN  00964000
+         EJECT                                                          00965000
+*********************************************************************** 00966000
+*  THIS ROUTINE IS USED BY THE LOGGING ROUTINES FOR THE TDA, PDA, XMT,* 00967000
+*  ALA, AND RDA. IT CALCULATES LOG AREA REMAINING AND DETERMINES IF   * 00968000
+*  THE DATA TO LOG WILL FIT.  IF YES, IT RETURNS TO THE CALLING       * 00969000
+*  ROUTINE TO WRITE THE LOG.  IF NOT, IT WILL MOVE AS MUCH OF THE     * 00970000
+*  DATA AS WILL FIT IN THE LOG AREA THEN RETURN TO THE CALLER.        * 00971000
+*                                                                     * 00972000
+*  REGISTER USAGE:                                                    * 00973000
+*     R6 ADDRESS OF SOURCE DATA                                       * 00974000
+*     R7 SOURCE LENGTH REG                                            * 00975000
+*     R8 LOG INPUT AREA                                               * 00976000
+*     R9 DESTINATION LENGTH REG                                       * 00977000
+*     R10 TSCB STEM ADDRESS                                           * 00978000
+*     R12 LOG STEM ADDRESS                                            * 00979000
+*     R14 WORK/ALTERNATE RETURN ADDRESS                               * 00980000
+*     R15 WORK/RETURN ADDRESS                                         * 00981000
+*********************************************************************** 00982000
+         SPACE                                                          00983000
+LGCLC000 EQU   *                                                        00984000
+         ST    R15,LGSAVE15          SAVE REGISTER 15 FOR RETURN        00985000
+         XC    LGSVRCLN,LGSVRCLN     CLEAR AREA LENG SAVE AREA TO L/V   00986000
+         LR    R7,R9                 SAVE LENGTH (WITHOUT EYECATCHER)   00987000
+         L     R15,LGSVIPAE          GET LOG IPAREA END ADDR            00988000
+         LA    R15,1(,R15)        BUMP IT UP BY ONE           1316257   00989000
+         SR    R15,R8             COMPUTE AVAIL SPACE         2600361   00990000
+         CLI   LGEYECSW,C'1'      Q. EYE-CATCHER BEEN MOVED   2600361   00991000
+         BE    LGCLC010           A. YES, BYPASS              2600361   00992000
+         A     R9,=A(L'LGSVEYEC)  A. NO, ADD TO LENGTH        2600361   00993000
+LGCLC010 EQU   *                                              2600361   00994000
+         CR    R15,R9             Q. ROOM LEFT FOR DATA       2600361   00995000
+         BL    LGCLC030           A. NO, SETUP FOR RETURN     2600361   00996000
+         CLI   LGEYECSW,C'1'      Q. EYE-CATCHER BEEN MOVED   2600361   00997000
+         BE    LGCLC020           A. YES, BYPASS              2600361   00998000
+         MVC   0(L'LGSVEYEC,R8),LGSVEYEC  MOVE EYE-CATCHER    2600361   00999000
+         A     R8,=A(L'LGSVEYEC)  BUMP UP TARGET ADDR         2600361   01000000
+         MVI   LGEYECSW,C'1'      TURN ON SWITCH              2600361   01001000
+LGCLC020 EQU   *                                              2600361   01002000
+         STH   R9,LGSVRCLN        SAVE DATA LEN FOR WRITE     2600361   01003000
+         LR    R9,R7              RESTORE ORIG LENGTH         2600361   01004000
+         BR    R14                RETURN TO DO MOVE           2600361   01005000
+         SPACE 1                                              2600361   01006000
+LGCLC030 EQU   *             DATA WILL NOT FIT, WRITE THE LOG 2600361   01007000
+         CLI   LG1STWRT,C'1'      Q. PREV AREAS BEEN WRITTEN  2600361   01008000
+         BE    LGCLC040           A. YES, MUST SPLIT DATA     2600361   01009000
+         LR    R9,R7              RESTORE ORIG LENGTH         2600361   01010000
+         B     LGCLC050                                       2600361   01011000
+         SPACE 1                                              2600361   01012000
+LGCLC040 EQU   *             SPLIT THE DATA AREA              2600361   01013000
+         CLI   LGEYECSW,C'1'      Q. EYE-CATCHER BEEN MOVED   2600361   01014000
+         BE    LGCLC045           A. YES, BYPASS              2600361   01015000
+         MVC   0(L'LGSVEYEC,R8),LGSVEYEC  MOVE EYE-CATCHER    2600361   01016000
+         A     R8,=A(L'LGSVEYEC)  BUMP UP TARGET ADDR         2600361   01017000
+         MVI   LGEYECSW,C'1'      TURN ON SWITCH              2600361   01018000
+LGCLC045 EQU   *                                              2600361   01019000
+         L     R15,LGSVIPAE       GET LOG IPAREA END ADDR     2600361   01020000
+         LA    R15,1(,R15)        BUMP IT UP BY ONE           2600361   01021000
+         SR    R15,R8             COMPUTE AVAIL SPACE         2600361   01022000
+         STH   R15,LGSVRCLN       SAVE LENGTH TO WRITE        1316257   01023010
+         LR    R14,R7             SAVE DATA LENGTH FOR LATER  2600361   01024000
+         LR    R7,R15             SET SOURCE LENGTH           2600361   01025000
+         LR    R9,R15             SET TARGET LENGTH           2600361   01026000
+         MVCL  R8,R6              MOVE DATA TO LOG IPAREA     2600361   01027000
+         SR    R14,R15            COMPUTE LENGTH REST OF DATA 2600361   01028000
+         LR    R9,R14             SET LENGTH FOR NEXT TIME IN 2600361   01029000
+LGCLC050 EQU   *                                                        01030000
+         L     R15,LGSAVE15          RESTORE REGISTER 15 FOR RETURN     01031000
+         BR    R15                   RETURN TO CALLER                   01032000
+         EJECT                                                          01033000
+*********************************************************************** 01034000
+*  WRITE LAST LOG RECORD, RESTORE REGISTERS, AND RETURN TO CALLER     * 01035000
+*     R1 PCA OCCURRENCE IN PROCESS                                    * 01036000
+*     R8 LOG INPUT AREA POSITION                                      * 01037000
+*     R10 TSCB STEM ADDRESS                                           * 01038000
+*     R12 LOG STEM ADDRESS                                            * 01039000
+*     R15 BAL/WORK                                                    * 01040000
+*********************************************************************** 01041000
+         SPACE                                                          01042000
+LGREQ900 EQU   *                                                        01043000
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS ADDRESS        01044000
+         USING PCAOCCUR,R1           ADDRESSABILITY TO PCA IN PROCESS   01045000
+         L     R15,LGSVIPAB          LOAD LOG IPAREA BEGINNING ADDR     01046000
+         CR    R15,R8                ANY IPAREA TO LOG?                 01047000
+         BE    LGREQ910              NO, SKIP WRITE                     01048000
+         MVI   LGICONFL,C'0'         YES - CONTIN FLAG IS LAST FOR PCA  01049000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024457   01049999
+         BAS   R15,LGWRT000          GO WRITE LAST LOG RECORD FOR PCA   01050000
+         SPACE                                                          01051000
+LGREQ910 EQU   *                                                        01052000
+         CLI   PCAPLF,C'2'           HAS USER LOGGING OCCURRED?         01053000
+         BE    LGREQ920              YES, SHOW TS & USER LOGS WRITTEN   01054000
+         MVI   PCAPLF,C'1'           INDICATE TO ERROR BACK OUT THAT    01055000
+*                                    STEP WAS LOGGED BY TS ROUTINE      01056000
+         B     LGREQ999                                                 01057000
+         SPACE                                                          01058000
+LGREQ920 EQU   *                                                        01059000
+         MVI   PCAPLF,C'3'           INDICATE TO ERROR BACK OUT THAT    01060000
+*                                    STEP WAS LOGGED BY USER  & TS RTN  01061000
+         DROP  R1                                             2600361   01062000
+         SPACE 1                                              2600361   01063000
+LGREQ999 EQU   *                                                        01087000
+         LM    R14,R12,LGS1REGS      RESTORE REGISTERS                  01088000
+         BR    R14                   RETURN                   9910919   01088010
+         SPACE 1                                              9910919   01092010
+LGERR000 EQU   *                                              9910919   01092020
+         MVI   LGRETCOD,C'1'         SET RETURN TO ERROR000   9910919   01092030
+         B     LGREQ999                                       9910919   01092040
+         SPACE 1                                              9910919   01092050
+LGERR010 EQU   *                                              9910919   01092060
+         MVI   LGRETCOD,C'2'         SET RETURN TO ECICS000   9910919   01092070
+         B     LGREQ999                                       9910919   01092080
+         SPACE 1                                              9910919   01092090
+LGERRDB2 EQU   *                                              1436560   01092092
+         MVI   LGRETCOD,C'D'         SET RETURN TO ECICSDB2   1436560   01092094
+         B     LGREQ999                                       1436560   01092096
+         SPACE 1                                              1436560   01092098
+LGXCT000 EQU   *                                              9910919   01092100
+         MVI   LGRETCOD,C'3'         SET RETURN TO XCTLP000   9910919   01092110
+         B     LGREQ999                                       9910919   01092120
+         EJECT                                                          01093000
+*********************************************************************** 01094000
+*                           WRITE LOG RECORD                          * 01095000
+*********************************************************************** 01096000
+*     R7 ITR, SER, EOR                                                * 01097000
+*     R9 WORK                                                         * 01098000
+*     R10 TSCB STEM ADDRESS                                           * 01099000
+*     R12 LOG ADDRESS                                                 * 01100000
+*     R15 BAL/WORK                                                    * 01101000
+*********************************************************************** 01102000
+         SPACE                                                          01103000
+LGWRT000 EQU   *                                                        01104000
+         STM   R14,R12,LGS2REGS      SAVE REGISTERS                     01105000
+         XR    R15,R15               CLEAR WORK REG                     01106000
+         LA    R9,LGSTMLNG           GET LOG STEM LENGTH                01107000
+         STCM  R9,3,LGSTMLEN         LOAD LOG STEM LENGTH               01108000
+         AR    R15,R9                ADD LOG STEM LENG TO TOTAL LENGTH  01109000
+         ICM   R9,3,LGKDALEN         GET KDA LENGTH                     01110000
+         AR    R15,R9                ADD KDA LENGTH TO TOTAL LENGTH     01111000
+         ICM   R9,3,LGTDALEN         GET TDA LENGTH                     01112000
+         AR    R15,R9                ADD TDA LENGTH TO TOTAL LENGTH     01113000
+         ICM   R9,3,LGPDALEN         GET PDA LENGTH                     01114000
+         AR    R15,R9                ADD PDA LENGTH TO TOTAL LENGTH     01115000
+         ICM   R9,3,LGALALEN         GET ALA LENGTH                     01116000
+         AR    R15,R9                ADD ALA LENGTH TO TOTAL LENGTH     01117000
+         ICM   R9,3,LGRDALEN         GET RDA LENGTH                     01118000
+         AR    R15,R9                ADD RDA LENGTH TO TOTAL LENGTH     01119000
+         ICM   R9,3,LGXMTLEN         GET XMT LENGTH                     01120000
+         AR    R15,R9                ADD XMT LENGTH TO TOTAL LENGTH     01121000
+         STCM  R15,3,LGRECLEN        LOAD ENTIRE LOG RECORD LENGTH      01122000
+         UNPK  LGINTSEQ,LGITLSN      UNPACK INT TRANS LOG SEQ NO.       01123000
+         OI    LGINTSEQ+1,X'F0'      FIX SIGN                           01124000
+         AP    LGITLSN,=P'1'         INCREMENT INTERNAL TRAN LOG SEQ#   01125000
+         SPACE                                                          01126000
+         ICM   R7,15,STMITRA         POINT TO ITR                       01127000
+         USING TSTSITR,R7            ADDRESS ITR                        01128000
+         ICM   R7,15,ITRSERAD        POINT TO SER                       01129000
+         DROP  R7                                                       01130000
+         USING TSTSSER,R7            ADDRESS SER                        01131000
+         MVC   SVFNAME,SPACESL       INIT SYSTEM FILE ID      0445028   01132000
+         MVC   SVFGRP,STMLGRP        MOVE SYSTEM FILE GROUP   1025861   01133000
+         MVC   LGLOGGP,STMLGRP       MOVE SYSTEM FILE GROUP   1025861   01133010
+         CLI   SVGNDB2,C'Y'          USING DB2?               1436560   01133015
+         BNE   LGWRT200              NO, USE VSAM             1436560   01133020
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS      1436560   01133025
+         USING PCAOCCUR,R1           ADDRESS PCA OCCURRENCE   1436560   01133030
+         MVC   WKLGACCT,SPACESL      CLEAR ACCOUNT FIELD      1436560   01133035
+         MVC   WKLGAPP,PCASAM        SAVE LOG APPLICATION     1436560   01133040
+         ICM   R6,15,PCASAKDA        POINT TO KEY AREA        1436560   01133045
+         LTR   R6,R6                                          1436560   01133047
+         BZ    LGWRT120              NO KDA                   1436560   01133048
+         USING KDAOCCUR,R6           ADDRESS OCCURRENCE       1436560   01133050
+         SPACE 1                                              1436560   01133055
+LGWRT010 EQU   *                                              1436560   01133060
+         ST    R6,SVKDAOCR           SAVE ADDR OF KDA IN PROC 1436560   01133065
+         XR    R9,R9                 CLEAR REG                1436560   01133070
+         ICM   R9,3,KDARKL           GET LENGTH OF KEY        1436560   01133075
+         ICM   R8,15,KDAAFDR         LOAD FDR ADDR            1436560   01133080
+         DROP  R8                                             1436560   01133085
+         USING TSTSFDR,R8            ADDRESS FDR              1436560   01133090
+         CLI   FDRRECTY,C'M'         MASTER RECORD?           1436560   01133095
+         BNE   LGWRT050              NO - CHECK NEXT KEY      1436560   01133100
+         CLI   KDARAF,C'1'           REPORTING KEY?           1436560   01133105
+         BNE   LGWRT050              NO - CHECK NEXT KEY      1436560   01133110
+LGWRT030 EQU   *                                              1436560   01133115
+         BCTR  R9,0                  DECREMENT FOR EXECUTE    1436560   01133120
+         EX    R9,LGWRT100           SAVE KEY                 1436560   01133125
+         LA    R9,1(R9)              CORRECT LENGTH           1436560   01133130
+         STH   R9,SVKEYLNG           SAVE KEY LENGTH          1436560   01133135
+         B     LGWRT200              GOT AN ACCOUNT           1436560   01133140
+         SPACE 1                                              1436560   01133160
+LGWRT050 EQU   *                                              1436560   01133165
+         L     R6,SVKDAOCR           RELOAD KDA OCCUR IN PROC 1436560   01133170
+         AR    R6,R9                 ADD LENGTH TO ADDR       1436560   01133175
+         LA    R6,KDAOLNG(R6)        ADD OCCUR FIXED LENGTH   1436560   01133180
+         ICM   R7,15,PCAEAKDA        LOAD END OF KDAS         1436560   01133185
+         CR    R6,R7                 ANY MORE KEYS?           1436560   01133190
+         BL    LGWRT010              YES - PROCESS NEXT       1436560   01133195
+         B     LGWRT120              GO PROCESS SACB          1436560   01133200
+         SPACE 1                                              1436560   01133205
+LGWRT100 MVC   WKLGACCT(0),KDARK     SAVE KDA KEY             1436560   01133210
+         SPACE 1                                              1436560   01133215
+         DROP  R1,R6,R8                                       1436560   01133220
+         SPACE 1                                              1436560   01133225
+LGWRT120 EQU   *                                              1436560   01133230
+         ICM   R1,15,WMSANCA         RELOAD COMM AREA ADDRESS 1436560   01133235
+         USING TSNCA,R1                                       1436560   01133240
+         ICM   R1,15,NCASACBA        LOAD SACB ADDRESS        1436560   01133245
+         BZ    LGWRT200              IF ZERO, NO KEYS         1436560   01133250
+         DROP  R1                                             1436560   01133255
+         USING SAS9SCBA,R1           ADDRESS SACB             1436560   01133260
+         ICM   R6,15,SACBFDDT        LOAD START OF DD TABLE   1436560   01133265
+         BZ    LGWRT200              IF ZERO, NO KEYS         1436560   01133270
+         USING DDTABE,R6             ADDRESS DD TABLE         1436560   01133275
+         SPACE 1                                              1436560   01133280
+LGWRT130 EQU   *                                              1436560   01133285
+         ICM   R7,15,SACBFDDZ        LOAD END OF DD TABLE     1436560   01133290
+         CR    R6,R7                 ANY MORE KEYS?           1436560   01133295
+         BNL   LGWRT200              NO - CONTINUE W/ LOGGING 1436560   01133300
+         CLI   DDTNAME,X'FF'         ANY MORE KEYS?           1436560   01133305
+         BE    LGWRT200              NO - CONTINUE W/ LOGGING 1436560   01133310
+         ICM   R8,15,DDTDSETA        LOAD DSET ADDR           1436560   01133315
+         BZ    LGWRT170              IF ZERO, CHECK NEXT KEY  1436560   01133320
+         USING SDMSDSET,R8           ADDRESS DSET             1436560   01133325
+         CLC   WKLGAPP,SDMSDDN       COMPARE FOR EQ APPL      1436560   01133330
+         BNE   LGWRT170              NO - BYPASS              1436560   01133335
+         CLI   SDMSFLTY,C'M'         MASTER?                  1436560   01133340
+         BE    LGWRT140              YES                      1436560   01133345
+         CLC   SDMSDDN+2(3),=C'ACT'  MASTER RECORD?           1436560   01133350
+         BE    LGWRT140              YES, SAVE KEY            1436560   01133355
+         CLC   SDMSDDN+2(3),=C'MEM'  MEMO RECORD?             1436560   01133360
+         BNE   LGWRT170              NO, GO TO NEXT DST       1436560   01133365
+         SPACE 1                                              1436560   01133370
+LGWRT140 EQU   *                                              1436560   01133375
+         XR    R9,R9                 CLEAR REG                1436560   01133380
+         ICM   R9,3,SDMSKEYL         GET LENGTH OF KEY        1436560   01133385
+         STH   R9,SVKEYLNG           SAVE KEY LENGTH          1436560   01133390
+         BCTR  R9,0                  DECREMENT FOR EXECUTE    1436560   01133395
+         ICM   R7,15,SDMSBUFA        LOAD RECORD BUFFER ADDR  1436560   01133400
+         BZ    LGWRT170              IF ZERO, SKIP            1436560   01133405
+         AH    R7,SDMSKEYP           ADD KEY POSITION         1436560   01133410
+         TM    SDMSTYPE,SDMSNPFX     FLAT FILE?               1436560   01133415
+         BNO   LGWRT150              NO - KEY POS IS DISPLAC  1436560   01133420
+         BCTR  R7,0                  YES - KEY POS IS ACTUAL  1436560   01133425
+         SPACE 1                                              1436560   01133430
+LGWRT150 EQU   *                                              1436560   01133435
+         EX    R9,LGWRT190           MOVE KEY TO SAVE ACCT    1436560   01133440
+         B     LGWRT200              GOT AN ACCOUNT           1436560   01133443
+         SPACE 1                                              1436560   01133445
+LGWRT170 EQU   *                                              1436560   01133450
+         LA    R6,DDTELEN(R6)        ADD LENGTH TO ADDR       1436560   01133460
+         B     LGWRT130              PROCESS NEXT             1436560   01133465
+         SPACE 1                                              1436560   01133470
+LGWRT190 MVC   WKLGACCT(0),0(R7)     SAVE KDA KEY             1436560   01133475
+         SPACE 1                                              1436560   01133480
+LGWRT200 EQU   *                                              1436560   01133485
+         CLI   STMNDF,C'1'           IS THIS TRANSACTION NEXT DAY?      01134000
+         BE    LGWRT310             YES,GO WRITE NEXT DAY LOG 0324534   01135000
+         SPACE                                                          01136000
+*********************************************************************** 01151000
+*  SET-UP TO WRITE LOG FILE                                           * 01152000
+*********************************************************************** 01153000
+LGWRT210 EQU   *                                                        01154000
+         MVC   SVFNAM,=C'TSLOG'      MOVE SYSTEM FILE NAME              01155000
+         BAS   R15,LGWRT500          GO WRITE LOG RECORD      2024457   01156000
+         B     LGWRT400              GO PROCESS EOR                     01157000
+         SPACE                                                          01158000
+*********************************************************************** 01159000
+*  PROCESS NEXT DAY LOG                                               * 01160000
+*********************************************************************** 01161000
+         SPACE                                                          01162000
+*********************************************************************** 01176000
+*  SET-UP TO WRITE NEXT DAY LOG FILE                                  * 01177000
+*********************************************************************** 01178000
+LGWRT310 EQU   *                                                        01179000
+         MVC   SVFNAM,=C'TSLGN'      MOVE SYSTEM FILE NAME              01180000
+         BAS   R15,LGWRT500          GO WRITE LOG RECORD      2024457   01181000
+         CLI   SVGNDB2,C'Y'          DB2 (ALWAYS ON)?         1727046   01181005
+         BE    LGWRT400              YES - SKIP TSNAJ WRITE   1727046   01181007
+         CLI   SVAORRTF,C'Y'         REALTIME APPLICATION?    9910919   01181010
+         BE    LGWRT400              YES - DON'T WRITE NAJ    9910919   01181020
+         MVC   WMSMGCOD,SPACESL      CLEAR ERROR MESSAGE      0445028   01181030
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS      9910919   01181040
+         USING PCAOCCUR,R1           ADDRESS PCA OCCURRENCE   9910919   01181050
+         CLI   PCADRCR,C'3'          INQUIRY?                 9910919   01181060
+         BE    LGWRT400              YES - DON'T WRITE NAJ    9910919   01181070
+         L     R8,SVAECADR           LOAD ADDR OF AEC AREA    9910919   01181080
+         USING TSTSAEC,R8            ADDRESS AEC              9910919   01181090
+         MVC   AECAPPL,PCASAM        SET APPLICATION          9910919   01181100
+         MVC   AECAPGP,PCAAFGN       SET APPLICATION FILE GRP 9910919   01181110
+         CLC   PCASAKDA,HEXZEROL     ANY KDA?                 0445028   01181120
+         BE    LGWRT350              NO - GET KEY FROM SACB   9910919   01181130
+         ICM   R6,15,PCASAKDA        POINT TO KEY AREA        9910919   01181140
+         USING KDAOCCUR,R6           ADDRESS OCCURRENCE       9910919   01181150
+         SPACE 1                                              9910919   01181160
+LGWRT315 EQU   *                                              9910919   01181170
+         ST    R6,SVKDAOCR           SAVE ADDR OF KDA IN PROC 9910919   01181180
+         XR    R9,R9                 CLEAR REG                9910919   01181190
+         ICM   R9,3,KDARKL           GET LENGTH OF KEY        9910919   01181200
+         ICM   R8,15,KDAAFDR         LOAD FDR ADDR            9910919   01181210
+         DROP  R8                                             9910919   01181220
+         USING TSTSFDR,R8            ADDRESS FDR              9910919   01181230
+         CLI   FDRRECTY,C'M'         MASTER RECORD?           9910919   01181240
+         BNE   LGWRT335              NO - CHECK NEXT KEY      9910919   01181250
+         BCTR  R9,0                  DECREMENT FOR EXECUTE    9910919   01181260
+         L     R8,SVAECADR           LOAD ADDR OF AEC AREA    9910919   01181270
+         DROP  R8                                             9910919   01181280
+         USING TSTSAEC,R8            ADDRESS AEC              9910919   01181290
+         MVC   AECACCT,SPACESL       CLEAR ACCOUNT FIELD      0445028   01181300
+         EX    R9,LGWRT340           MOVE KEY TO AECACCT      9910919   01181310
+         LA    R9,1(R9)              CORRECT LENGTH           9910919   01181320
+         STH   R9,SVKEYLNG           SAVE KEY LENGTH          9910919   01181330
+         ICM   R6,15,PCASAKDA        LOAD START OF KDAS       9910919   01181340
+         SPACE 1                                              9910919   01181350
+LGWRT320 EQU   *                                              9910919   01181360
+         C     R6,SVKDAOCR           CURRENT KEY REACHED?     9910919   01181370
+         BNL   LGWRT330              YES - KEY NOT FOUND      9910919   01181380
+         XR    R7,R7                 CLEAR REG                9910919   01181390
+         ICM   R7,3,KDARKL           GET LENGTH OF KEY        9910919   01181400
+         ICM   R8,15,KDAAFDR         LOAD FDR ADDR            9910919   01181410
+         DROP  R8                                             9910919   01181420
+         USING TSTSFDR,R8            ADDRESS FDR              9910919   01181430
+         CLI   FDRRECTY,C'M'         MASTER RECORD?           9910919   01181440
+         BNE   LGWRT325              NO - CHECK NEXT KEY      9910919   01181450
+         CH    R7,SVKEYLNG           SAME KEY LENGTH?         9910919   01181460
+         BNE   LGWRT325              NO - KEY NOT= CHECK NEXT 9910919   01181470
+         BCTR  R7,0                  DECREMENT FOR EXECUTE    9910919   01181480
+         L     R8,SVAECADR           LOAD ADDR OF AEC AREA    9910919   01181490
+         EX    R7,LGWRT345           EQUAL?                   9910919   01181500
+         BE    LGWRT335              YES - DON'T WRITE TO ADJ 9910919   01181510
+         LA    R7,1(R7)              CORRECT LENGTH           9910919   01181520
+         SPACE 1                                              9910919   01181530
+LGWRT325 EQU   *                                              9910919   01181540
+         AR    R6,R7                 ADD LENGTH TO ADDR       9910919   01181550
+         LA    R6,KDAOLNG(R6)        ADD OCCUR FIXED LENGTH   9910919   01181560
+         B     LGWRT320              GO COMPARE THIS ONE      9910919   01181570
+         SPACE 1                                              9910919   01181580
+LGWRT330 EQU   *                                              9910919   01181590
+         BAS   R15,LGADJ000          GO WRITE ADJUSTMENT REC  2024457   01181600
+         CLC   WMSMGCOD,SPACESL      ERROR MSG RETURNED?      0445028   01181610
+         BNE   LGWRT400              YES - DON'T CALL AGAIN   9910919   01181620
+         SPACE 1                                              9910919   01181630
+LGWRT335 EQU   *                                              9910919   01181640
+         L     R6,SVKDAOCR           RELOAD KDA OCCUR IN PROC 9910919   01181650
+         AR    R6,R9                 ADD LENGTH TO ADDR       9910919   01181660
+         LA    R6,KDAOLNG(R6)        ADD OCCUR FIXED LENGTH   9910919   01181670
+         ICM   R7,15,PCAEAKDA        LOAD END OF KDAS         9910919   01181680
+         CR    R6,R7                 ANY MORE KEYS?           9910919   01181690
+         BL    LGWRT315              YES - PROCESS NEXT       9910919   01181700
+         B     LGWRT350              GO PROCESS SACB          9910919   01182000
+         SPACE 1                                              9910919   01182010
+         DROP  R8                                             9910919   01182020
+         USING TSTSAEC,R8                                     9910919   01182030
+LGWRT340 MVC   AECACCT(0),KDARK      MOVE KDA KEY TO AEC      9910919   01182040
+LGWRT345 CLC   AECACCT(0),KDARK      COMPARE CURR KEY TO PAST 9910919   01182050
+         SPACE 1                                              9910919   01182060
+         DROP  R1,R6,R8                                       9910919   01182070
+         SPACE 1                                              9910919   01182080
+LGWRT350 EQU   *                                              9910919   01182090
+         ICM   R1,15,WMSANCA         RELOAD COMM AREA ADDRESS 9910919   01182100
+         USING TSNCA,R1                                       9910919   01182110
+         ICM   R1,15,NCASACBA        LOAD SACB ADDRESS        9910919   01182120
+         BZ    LGWRT400              IF ZERO, NO KEYS         9910919   01182130
+         DROP  R1                                             9910919   01182140
+         USING SAS9SCBA,R1           ADDRESS SACB             9910919   01182150
+         ICM   R6,15,SACBFDDT        LOAD START OF DD TABLE   9910919   01182160
+         BZ    LGWRT400              IF ZERO, NO KEYS         9910919   01182170
+         USING DDTABE,R6             ADDRESS DD TABLE         9910919   01182180
+         SPACE 1                                              9910919   01182190
+LGWRT355 EQU   *                                              9910919   01182200
+         ST    R6,SVKDAOCR           SAVE ADDR OF DD IN PROC  9910919   01182210
+         ICM   R7,15,SACBFDDZ        LOAD END OF KDAS         9910919   01182220
+         CR    R6,R7                 ANY MORE KEYS?           9910919   01182230
+         BNL   LGWRT400              NO - CONTINUE W/ LOGGING 9910919   01182240
+         CLI   DDTNAME,X'FF'         ANY MORE KEYS?           9910919   01182250
+         BE    LGWRT400              NO - CONTINUE W/ LOGGING 9910919   01182260
+         ICM   R8,15,DDTDSETA        LOAD DSET ADDR           9910919   01182270
+         BZ    LGWRT385              IF ZERO, CHECK NEXT KEY  9910919   01182280
+         USING SDMSDSET,R8           ADDRESS DSET             0344842   01182288
+         L     R9,SVAECADR           SET ADDRESS OF AEC       0344842   01182290
+         USING TSTSAEC,R9            ADDRESS AEC              0344842   01182292
+         CLC   AECAPPL,SDMSDDN       COMPARE FOR EQ APPL      2024457   01182294
+         BNE   LGWRT385              NO - BYPASS              2024457   01182296
+         DROP  R9                                             2024457   01182298
+         CLC   SDMSDDN+2(3),=C'ACT'  MASTER RECORD?           9910919   01182300
+         BE    LGWRT357              YES, WRITE NAJ           9910919   01182305
+         CLC   SDMSDDN+2(3),=C'MEM'  MEMO RECORD?             9910919   01182310
+         BNE   LGWRT385              NO, SET UP FOR NEXT DST  9910919   01182315
+LGWRT357 EQU   *                                              9910919   01182317
+         XR    R9,R9                 CLEAR REG                9910919   01182320
+         ICM   R9,3,SDMSKEYL         GET LENGTH OF KEY        9910919   01182330
+         STH   R9,SVKEYLNG           SAVE KEY LENGTH          9910919   01182340
+         BCTR  R9,0                  DECREMENT FOR EXECUTE    9910919   01182350
+         ICM   R7,15,SDMSBUFA        LOAD RECORD BUFFER ADDR  9910919   01182360
+         BZ    LGWRT385              IF ZERO, SKIP            0635521   01182365
+         AH    R7,SDMSKEYP           ADD KEY POSITION         9910919   01182370
+         TM    SDMSTYPE,SDMSNPFX     FLAT FILE?               9910919   01182380
+         BNO   LGWRT360              NO - KEY POS IS DISPLAC  9910919   01182390
+         BCTR  R7,0                  YES - KEY POS IS ACTUAL  9910919   01182400
+         SPACE 1                                              9910919   01182410
+LGWRT360 EQU   *                                              9910919   01182420
+         L     R8,SVAECADR           LOAD ADDR OF AEC AREA    9910919   01182430
+         DROP  R8                                             9910919   01182440
+         USING TSTSAEC,R8            ADDRESS AEC              9910919   01182450
+         MVC   AECACCT,SPACESL       CLEAR ACCOUNT FIELD      0445028   01182460
+         EX    R9,LGWRT390           MOVE KEY TO AECACCT      9910919   01182470
+LGWRT380 EQU   *                                              9910919   01182790
+         BAS   R15,LGADJ000          GO WRITE ADJUSTMENT REC  2024457   01182800
+         B     LGWRT400              EXIT                     9910919   01182820
+         SPACE 1                                              9910919   01182830
+LGWRT385 EQU   *                                              9910919   01182840
+         L     R6,SVKDAOCR           RELOAD KDA OCCUR IN PROC 9910919   01182850
+         LA    R6,DDTELEN(R6)        ADD LENGTH TO ADDR       9910919   01182860
+         B     LGWRT355              PROCESS NEXT             9910919   01182870
+         SPACE 1                                              9910919   01182880
+         DROP  R8                                             9910919   01182890
+         USING TSTSAEC,R8            ADDRESS AEC              9910919   01182900
+LGWRT390 MVC   AECACCT(0),0(R7)      MOVE BUFFER KEY TO AEC   9910919   01182910
+LGWRT395 CLC   AECACCT(0),0(R7)      COMPARE CURR KEY TO PAST 9910919   01182920
+         SPACE 1                                              9910919   01182930
+         DROP  R1,R6,R8                                       9910919   01182940
+         SPACE                                                          01183000
+**********************************************************************  01184000
+*  UPDATE EOR & ACCT WITH NEW RBA, FILE GROUP # AND NEXT DAY FLAG    *  01185000
+**********************************************************************  01186000
+         SPACE                                                          01187000
+LGWRT400 EQU   *                                                        01188000
+         MVI   LGFETLF,C'0'          SET EXT TRAN FLAG TO NO            01189000
+         ICM   R7,15,STMEORA         POINT TO EMPLOYEE OPTIONS REC      01190000
+         USING TSTSEOR,R7            ADDRESS EMPLOYEE OPTIONS REC       01191000
+         CLI   STMNDF,C'1'           NEXT DAY MODE?           9910919   01191010
+         BNE   LGWRT405              NO - SKIP THIS           9910919   01191020
+         MVC   EORLNRBA,LGLGXRBA     SAVE NEXT DAY LOG RBA    1035850   01191030
+         MVC   EORLNFG,SVFGRP        SAVE NEXT DAY LOG GROUP  9910919   01191040
+         SPACE 1                                              9910919   01191050
+LGWRT405 EQU   *                                              9910919   01191060
+         MVC   EORLGRBA,LGLGXRBA     MOVE LOG RBA TO EOR      1035850   01192000
+         MVC   EORLLFG,SVFGRP        MOVE FILE GROUP NUMBER             01193000
+         CLC   STMETC(4),=C'ITFV'    'IT' FUNDS VERIFICATION  2023376   01193010
+         BE    LGWRT46A              YES                      2024360   01193020
+         CLC   STMETC(4),=C'ITAM'    'IT' FUNDS VERIFICATION  2024360   01193022
+         BE    LGWRT46A              YES                      2024360   01193024
+         B     LGWRT406              YES                      2024360   01193026
+LGWRT46A EQU   *                                              2024360   01193028
+         MVC   LGRBAPAX,STMACRBA     MOVE PREVIOUS LOG RBA    1035850   01193030
+LGWRT406 EQU   *                                              2023376   01193040
+         MVC   EORLNDFG,STMNDF       MOVE NEXT DAY FLAG                 01194000
+         MVC   STMACRBA,LGLGXRBA     SAVE LOG RBA FOR DASD    1035850   01195000
+         MVC   STMACFGN,SVFGRP       SAVE GROUP # FOR DASD              01196000
+         MVC   STMACNDF,STMNDF       SAVE NEXT DAY FLAG FOR DASD        01197000
+         MVC   LGRBAPEX,LGLGXRBA     MVE LOG RBA PREV EMPE    1035850   01198000
+         MVC   LGGPNEMP,SVFGRP       MOVE LOG GROUP# PREVIOUS EMPLOYEE  01199000
+         MVC   LGNXDEMP,STMNDF       MOVE NEXT DAY INDIC PREV EMPLOYEE  01200000
+         MVC   LGRBAPNX,EORLNRBA     MOVE LAST NEXT DAY RBA   1035850   01200010
+         MVC   LGGPPEN,EORLNFG       MOVE LAST NEXT DAY GRP   9910919   01200020
+         CLC   STMETC(4),=C'ITFV'    'IT' FUNDS VERIFICATION  2023376   01200030
+         BE    LGWRT407              YES                      2023376   01200040
+         CLC   STMETC(4),=C'ITAM'    'IT' FUNDS VERIFICATION  2024360   01200050
+         BE    LGWRT407              YES                      2024360   01200060
+         MVC   LGRBAPAX,LGLGXRBA     MVE LOG RBA PREV ACCT    1035850   01201000
+LGWRT407 EQU   *                                                        01201010
+         MVC   LGGPNACC,SVFGRP       MOVE LOG GROUP# PREVIOUS ACCOUNT   01202000
+         MVC   LGNXDACC,STMNDF       MOVE NEXT DAY INDIC PREV ACCOUNT   01203000
+         CLI   SVPRCPDA,C'1'         PROCESS PDA? (SA)        2500631   01204000
+         BE    LGWRT410              YES-RTN RBA,GRP#,ND FLAG 2500631   01205000
+         CLI   SVPRCALA,C'1'         PROCESS ALA? (SA)        2500631   01206000
+         BE    LGWRT410              YES-RTN RBA,GRP#,ND FLAG 2500631   01207000
+         B     LGWRT450              YES-RTN RBA,GRP#,ND FLAG 2500631   01208000
+         SPACE 1                                              2500631   01209000
+LGWRT410 EQU   *                                              2500631   01210000
+         ICM   R9,15,SVLCHDR         LOAD ADDR OF LOG HEADER  2500631   01211000
+         MVC   12(8,R9),LGLGXRBA     RETURN LOG RBA TO SVERO  1035850   01212000
+         MVC   20(2,R9),SVFGRP       MOVE FILE GROUP NUMBER   1035850   01213000
+         MVC   22(1,R9),STMNDF       MOVE NEXT DAY FLAG       1035850   01214000
+         MVC   LGTRNFDG,SPACESL      CLEAR LOG TRANS FIXED DAG0445028   01215000
+         MVC   LGTRNTDG,SPACESL      CLEAR LOG TRANS TRANS DAG0445028   01216000
+         SPACE 1                                              2500631   01217000
+LGWRT450 EQU   *                                              2500631   01218000
+         LM    R14,R12,LGS2REGS      RESTORE REGS                       01219000
+         L     R8,LGSVIPAB           RELOAD LOG IPAREA ADDRESS          01220000
+         XC    LGCMPNLN,LGCMPNLN     CLEAR COMPONENT LENGTHS TO ZEROS   01221000
+         BR    R15                    RETURN TO CALLER                  01222000
+         DROP  R7                                                       01223000
+         SPACE                                                          01224000
+**********************************************************************  01225000
+*  WRITE LOG RECORD AND RETURN TO CALLER                             *  01226000
+**********************************************************************  01227000
+         SPACE                                                          01228000
+LGWRT500 EQU   *                                                        01229000
+         STM   R14,R12,LGS3REGS      SAVE REGISTERS                     01230000
+LGWRT505 EQU   *                                              1025861   01230100
+         XC    LGLGXRBA,LGLGXRBA             CLEAR RBA FIELD  1035850   01230200
+         AIF   ('&VSE' EQ '1').NOXRBA1       IS IT VSE        1035850   01230300
+         CLI   SVGNDB2,C'Y'                  USE DB2?         1436560   01230305
+         BNE   LGWRT509                      YES              1436560   01230310
+         DROP  R1                                             1436560   01230311
+*                                                             1436560   01230315
+* TSLOGDBX WRITE/INSERT                                       1436560   01230320
+         MVC   PLOSERPD,DB2SERCD         CURRENT DAY          1436560   01230321
+         CLI   SVFNAME+4,C'N'            TSLGN?               1436560   01230322
+         BNE   LGWRT508                  NO, USE CURRENT      1436560   01230323
+         MVC   PLOSERPD,DB2SERND         NEXT DAY             1436560   01230324
+LGWRT508 EQU   *                                              1436560   01230325
+         MVC   PLOFUNC,=CL2'IN'          INSERT               1436560   01230326
+         MVC   PLOFILGP,SVFGRP                                1436560   01230330
+         MVI   PLOBDFLG,C' '             ALL DATES            1436560   01230335
+         MVC   PLOACTNO,WKLGACCT         PASS ACCOUNT#        1436560   01230340
+         MVC   PLOOPTEA,SVOPTEAD         PASS SASIOPTE ADDR   1436560   01230342
+         LA    R14,PLORTXTE              MESSAGE TEXT         1436560   01230345
+         STCM  R14,15,WMSDB2AD           SAVE FOR ERROR RTN   1436560   01230350
+         MVC   WMSDB2DS,=C'TSLOG'        SAVE FOR ERROR RTN   1727046   01230352
+         LA    R14,LOG                                        1436560   01230355
+         STCM  R14,15,PLORECAD           LOG RECORD ADDRESS   1436560   01230360
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1436560   01230365
+*        EXEC CICS LINK PROGRAM ('TSLOGDBX')                            01230370
+*                     COMMAREA  (PLOLIST)                               01230375
+*                     LENGTH    (PLOCALEN)                              01230380
+*                     NOHANDLE                                          01230385
+         DFHECALL =X'0E02E0002800000100',(CHA8,=CL8'TSLOGDBX'),(______R*
+               F,PLOLIST),(FB_2,PLOCALEN)
+         OC    PLORTCDE,PLORTCDE     Q. NORMAL RESULT         1436560   01230390
+         BNZ   LGERRDB2              A. N- ERROR              1436560   01230395
+         MVC   LGLGXRBA,PLOXRBA      SAVE LOG RBA/TIMESTAMP   1436560   01230400
+         B     LGWRT520              A. N- CONTINUE       .   1436560   01230405
+LGWRT509 EQU   *                                              1436560   01230895
+         AIF   ('&CICSLVL'  LT '65').NOXRBA1 CICS LEVEL       1436560   01230900
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1035850   01230999
+*        EXEC CICS WRITE DATASET(SVFNAME)                               01231000
+*                        LENGTH(LGRECLEN)                               01232000
+*                        FROM(LOG)                                      01233000
+*                        RIDFLD(LGLGXRBA)                               01234000
+*                        XRBA                                           01235000
+*                        NOHANDLE                                       01236000
+         DFHECALL =X'0604F0002828004408',(CHA8,SVFNAME),(______RF,LOG),*
+               (FB_2,LGRECLEN),(______RF,LGLGXRBA)
+         AGO  .RBAGO1                                         1035850   01236050
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1035850   01236099
+.NOXRBA1 ANOP                                                           01236100
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1035850   01236199
+*        EXEC CICS WRITE DATASET(SVFNAME)                               01236200
+*                        LENGTH(LGRECLEN)                               01236300
+*                        FROM(LOG)                                      01236400
+*                        RIDFLD(LGLGRBA)                                01236500
+*                        RBA                                            01236600
+*                        NOHANDLE                                       01236700
+         DFHECALL =X'0604F0002828804400',(CHA8,SVFNAME),(______RF,LOG),*
+               (FB_2,LGRECLEN),(______RF,LGLGRBA)
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1035850   01236799
+.RBAGO1  ANOP                                                           01236800
+         CLI   EIBRCODE,X'83'        Q. LOG FULL?             1035850   01236850
+         BE    LGWRT510              A. N- CONT CHECKING      1035850   01236900
+         CLI   EIBRCODE,X'00'        Q. NORMAL RESULT         2602291   01237000
+         BNE   LGERR010              A. N- ERROR              9910919   01238000
+         B     LGWRT520              A. N- CONTINUE           1025861   01238010
+LGWRT510 EQU   *                                              1025861   01238020
+         CLI   LGRETCOD,C'2'         IS ERROR NONE AVAILABLE  1025861   01238024
+         BE    LGERR010              A. Y- ERROR              1025861   01238028
+         MVI   LGGRPNSW,C'1'           SET SER NEW SWITCH     1025861   01238030
+         ICM   R15,15,=V(LGPSL000)   FIND NEXT GROUP TO USE   1025861   01238040
+         BASR  R14,R15               PERFORM SELECT GRP       1025861   01238050
+         CLI   LGRETCOD,C'2'         SET RETURN TO ECICS000   1025861   01238053
+         BE    LGWRT505              TRY AGAIN TO SET ERROR C 1025861   01238058
+         MVC   SVFGRP,LGGRPSEL        SAVE THE SER LOG GROUP  1025861   01238060
+         MVI   LGGRPNSW,C'0'           SET SER NEW SWITCH OFF 1025861   01238065
+         B     LGWRT505              TRY  AGAIN               1025861   01238070
+LGWRT520 EQU   *                                              1025861   01238080
+         MVI   LGRETCOD,C'0'         SET RETURN TO OK         1035850   01238090
+         BAS   R15,LOGEX000          INVOKE LOG EVENT EXIT    0445028   01238100
+         LM    R14,R12,LGS3REGS      RESTORE REGISTERS                  01239000
+         BR    R15                   RETURN TO CALLER                   01240000
+         SPACE 1                                              9910919   01240010
+************************************************************* 9910919   01240020
+*  CALL TSTSU410 TO WRITE ADJUSTMENT RECORD                 * 9910919   01240030
+************************************************************* 9910919   01240040
+         SPACE 1                                              9910919   01240050
+LGADJ000 EQU   *                                              9910919   01240060
+         STM   R14,R12,LGS3REGS      SAVE REGISTERS           9910919   01240070
+         L     R8,SVAECADR           LOAD ADDR OF AEC AREA    9910919   01240080
+         USING TSTSAEC,R8            ADDRESS AEC              9910919   01240090
+         CLC   AECACCT,SPACESL       WAS AN ACCT# SET?        0445028   01240092
+         BE    LGADJ010              NO - SKIP LINK           2024379   01240094
+         ICM   R14,15,WMSANCA                                 9910919   01240100
+         USING TSNCA,R14                                      9910919   01240110
+         MVC   AECEYEC,=C'** AEC**'  INITIALIZE EYE CATCHER   9910919   01240120
+         MVI   AECREQST,C'L'         SET LOG REQUEST          9910919   01240130
+         MVC   AECNCAAD,WMSANCA      SET NCA ADDRESS          9910919   01240140
+         MVC   AECSACBA,NCASACBA     SET SACB ADDRESS         9910919   01240150
+         MVC   AECLGRBA,LGLGXRBA     SET LOG RBA JUST WRITTEN 1035850   01240160
+         MVC   AECLGGRP,SVFGRP       SET GROUP OF LOG WRITTEN 9910919   01240170
+         LA    R1,AECLNGTH                                    9910919   01240180
+         STH   R1,HWORD                                       9910919   01240190
+         SPACE 1                                              9910919   01240200
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9910919   01240209
+*        EXEC  CICS LINK PROGRAM ('TSTSU410')                           01240210
+*                        COMMAREA (TSAEC)                               01240220
+*                        LENGTH (HWORD)                                 01240230
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'TSTSU410'),(______R*
+               F,TSAEC),(FB_2,HWORD)
+         SPACE 1                                              9910919   01240240
+         CLI   AECRETRN,C'1'         ERROR RETURNED?          9910919   01240250
+         BNE   LGADJ010              NO - RETURN              9910919   01240260
+         MVC   WMSAPPL,AECERRMS      MOVE MSG CODE RETURNED   9910919   01240270
+         MVC   WMSMGCOD,AECERRMS+L'WMSAPPL                    9910919   01240280
+         MVC   WMSMGVA1,AECERRVA     MOVE ERROR RESOURCE      9910919   01240290
+         MVC   WMSMGVA2,SPACESL      CLEAR VARIABLE 2         0445028   01240300
+         MVI   LGRETCOD,C'1'         SET ERROR RETURN CODE    9910919   01240310
+         SPACE 1                                              9910919   01240320
+LGADJ010 EQU   *                                              9910919   01240330
+         LM    R14,R12,LGS3REGS      RESTORE REGISTERS        9910919   01240340
+         BR    R15                   RETURN TO CALLER         9910919   01240350
+         DROP  R8,R14                                         9910919   01240360
+         EJECT                                                          01241000
+*********************************************************************** 01242000
+*        BEFORE LOGGING WE MUST USE THE INFORMATION IN THE TDA TO     * 01243000
+*        FIND THE TOTALS IN THE PDA.  THESE TOTALS ARE THEN MOVED     * 01244000
+*        TO THE TDA SO THAT THEY CAN BE LOGGED PROPERLY.              * 01245000
+*********************************************************************** 01246000
+LGTOT001 EQU   *                                                        01247000
+         STM   R14,R12,LGS4REGS      SAVE REGS                          01248000
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS ADDRESS        01249000
+         USING PCAOCCUR,R1           ADDRESSABILITY TO PCA IN PROCESS   01250000
+         ICM   R6,15,PCASATDA        POINTER TO TDA                     01251000
+         BZ    LGTOT080              IF NO TDA, GET OUT                 01252000
+         USING TDAOCCUR,R6           ESTABLISH ADDRESSABILITY TO OCCUR  01253000
+         CLI   TDAFTF,C'1'           TEST FOR TDA ALREADY FORMATTED     01254000
+         BE    LGTOT080              YES - BYPASS FORMAT OF TDA         01255000
+         CLI   PCAISF,C'1'           IS PCA SKIP FLAG ON?     TS006.00  01256000
+         BE    LGTOT080              YES - BYPASS FORM OF TDA TS006.00  01257000
+         ICM   R7,15,PCAEATDA        ENDING ADDR OF TDA (FOR COMPARE)   01258000
+         SPACE                                                          01259000
+         ICM   R8,15,PCASAPDA        POINTER TO PDA                     01260000
+         USING PDADIF,R8             ESTABLISH ADDRESSABILITY TO OCCUR  01261000
+LGTOT010 EQU   *                                                        01262000
+         CR    R6,R7                 ARE WE AT END OF TDA?              01263000
+         BH    LGTOT080              YES - GET OUT OF ROUTINE           01264000
+         XR    R14,R14               CLEAR WORK REGISTER FOR INSERT     01265000
+         ICM   R14,3,TDATVPOS        INSERT OFFSET OF PDA TOTAL         01266000
+         LR    R9,R8                 POINT TO TOTAL IN PDA  -  PDA ADDR 01267000
+         AR    R9,R14                 +  OFFSET                         01268000
+         LA    R14,5                 SET NUMBER OF TOTAL BUCKETS        01269000
+         ST    R6,LGSAVE06           SAVE TDA ADDRESS                   01270000
+LGTOT012 EQU   *                                                        01271000
+         CLI   TDATT,C'S'            IS THIS A SUM TOTAL?               01272000
+         BE    LGTOT013              YES - GO FORMAT TOTAL              01273000
+         CLI   TDATT,C'B'            IS THIS A SUM AND COUNT TOTAL?     01274000
+         BE    LGTOT013              YES - GO FORMAT TOTAL              01275000
+         LA    R6,TDABLNG(R6)        BUMP TO NEXT TOTAL BUCKET          01276000
+         BCT   R14,LGTOT012          BUMP THRU OCCURENCES               01277000
+         L     R6,LGSAVE06           RESTORE TDA ADDRESS                01278000
+         B     LGTOT070              NO TOTALS TO FORMAT                01279000
+LGTOT013 EQU   *                                                        01280000
+         L     R6,LGSAVE06           RESTORE TDA ADDRESS                01281000
+         CLI   TDATVFM,C' '          HAS THE TDA BEEN SET UP YET?       01282000
+         BE    LGTOT070              NO - GO PROCESS NEXT TDA OCCUR     01283000
+         XR    R14,R14               CLEAR REG FOR LATER INSERTS        01284000
+         IC    R14,TDATVLNG+1        LENGTH OF TOTAL IN PDA             01285000
+         BCTR  R14,0                 SUBTRACT 1 FOR EXECUTE             01286000
+         EX    R14,LGTOT120          IS PDA TOTAL SPACES?               01287000
+         BNE   LGTOT015              NO - GO ON                         01288000
+         ZAP   TDATV,=P'0'           YES - ZAP TDA TOTAL TO ZERO        01289000
+         OI    TDATV+L'TDATV-1,X'0F' FIX SIGN IN TDA          TS006.00  01290000
+         B     LGTOT070              * AND BYPASS CONVERSION            01291000
+         SPACE                                                          01292000
+LGTOT015 EQU   *                                                        01293000
+         LA    R14,1(R14)            RESET LENGTH AND CONTINUE          01294000
+         CLI   TDATVFM,C'N'          IS VALUE NUMERIC?                  01295000
+         BE    LGTOT020              YES - GO DO CONVERSION TO PACKED   01296000
+         CLI   TDATVFM,C'B'          IS VALUE BINARY?                   01297000
+         BE    LGTOT030              YES - GO DO CONVERSION TO BINARY   01298000
+         BCTR  R14,0                 SUBTRACT 1 FOR EXECUTE             01299000
+         EX    R14,LGTOT100          EXECUTE ZAP TO TDA                 01300000
+         B     LGTOT040              GO VALIDATE NUMERICS               01301000
+         SPACE                                                          01302000
+LGTOT020 EQU   *                                                        01303000
+         MVC   LGWTTL17,ZEROESL      ZERO FILL 17-BYTE W/A    0445028   01304000
+         LA    R15,17                MOVE 17 INTO WORK REG              01305000
+         SR    R15,R14               SUBTR LENG FOR DISPL INTO WRK AREA 01306000
+         LA    R15,LGWTTL17(R15)     ADD ADDRESS OF WORK AREA           01307000
+         BCTR  R14,0                 SUBTRACT 1 FOR EXECUTE             01308000
+         EX    R14,LGTOT110          EXECUTE MVC TO WORK AREA FROM PDA  01309000
+         TSTS9PK WRK9=TDATV,WRK17=LGWTTL17  PACK INTO TDA               01310000
+         B     LGTOT040              GO VALIDATE NUMERICS               01311000
+         EJECT                                                          01312000
+LGTOT030 EQU   *                                                        01313000
+*********************************************************************** 01314000
+*          CONVERT FROM BINARY TO PACKED                              * 01315000
+*                                                                     * 01316000
+*        ALL NUMERIC FIELDS ARE 8 BYTES OF BINARY DATA.  THIS         * 01317000
+*        REPRESENTS UP TO 15 DIGITS OF CHARACTER DATA.  SINCE THE     * 01318000
+*        CONVERT TO DECIMAL INSTRUCTION CONVERTS A MAXIMUM OF 4 BYTES * 01319000
+*        BINARY, THE FOLLOWING STEPS MUST BE TAKEN:                   * 01320000
+*                                                                     * 01321000
+*        1. LOAD THE 8 BYTES INTO AN EVEN/ODD REGISTER PAIR           * 01322000
+*        2. SHIFT THE PAIR 1 BIT TO THE LEFT TO SAVE THE HIGH         * 01323000
+*           ORDER BIT OF THE ODD REGISTER IN THE LOW ORDER BIT OF     * 01324000
+*           THE EVEN REGISTER.  THIS IS DONE TO SAVE WHAT WOULD BE    * 01325000
+*           THE SIGN BIT OF THE ODD REGISTER SO THAT IT DOES NOT      * 01326000
+*           BECOME INVOLVED IN THE CONVERSION TO DECIMAL. AN 'SLDL'   * 01327000
+*           INSTRUCTION (SHIFT LEFT DOUBLE LOGICAL) IS USED TO AC-    * 01328000
+*           COMPLISH THIS SHIFT.                                      * 01329000
+*        3. SHIFT THE ODD REGISTER 1 BIT TO THE RIGHT TO PUT THE LOW  * 01330000
+*           ORDER 31 BITS BACK IN PLACE FOR THE CONVERSION TO         * 01331000
+*           DECIMAL.                                                  * 01332000
+*        4. CONVERT THE CONTENTS OF THE ODD REGISTER TO DECIMAL.      * 01333000
+*        5. TEST THE EVEN REGISTER FOR ZEROES. AN 'LTR' INSTRUCTION   * 01334000
+*           (LOAD AND TEST REGISTER) IS USED TO ACCOMPLISH THIS. IF   * 01335000
+*           THE REGISTER CONTAINS ZEROES, SKIP STEPS 6 THROUGH 8.     * 01336000
+*        6. CONVERT THE CONTENTS OF THE EVEN REGISTER TO DECIMAL.     * 01337000
+*        7. MULTIPLY THIS RESULT BY 2**31, WHICH IS 2,147,483,648.    * 01338000
+*        8. ADD THE RESULTS OF STEP 4 TO THE RESULTS OF STEP 7.       * 01339000
+*                     --------------------------------                * 01340000
+*        REGISTER USAGE:                                              * 01341000
+*        R14 = EVEN REGISTER OF EVEN/ODD PAIR                         * 01342000
+*        R15 = ODD REGISTER OF EVEN/ODD PAIR                          * 01343000
+*********************************************************************** 01344000
+         SPACE 1                                                        01345000
+         XC    LGWTTL8,LGWTTL8       CLEAR WORK AREA WITH HEX ZEROES    01346000
+         LA    R15,8                 MOVE 8 INTO WORK REG               01347000
+         SR    R15,R14               SUBTR LENG FOR DISPL INTO WRK AREA 01348000
+         LA    R15,LGWTTL8(R15)      ADD ADDRESS OF WORK AREA           01349000
+         BCTR  R14,0                 SUBTRACT 1 FOR EXECUTE             01350000
+         EX    R14,LGTOT110          EXECUTE MVC TO WORK AREA FROM PDA  01351000
+         MVC   LGBINWK1,LGWTTL8      MOVE HIGH ORDER 4 BYTES TO FWD     01352000
+         L     R14,LGBINWK1          LOAD INTO EVEN REGISTER            01353000
+         MVC   LGBINWK2,LGWTTL8+4    MOVE LOW ORDER 4 BYTES TO FWD      01354000
+         L     R15,LGBINWK2          LOAD INTO ODD REGISTER             01355000
+         SLDL  R14,1                 SHIFT SIGN BIT INTO EVEN REG       01356000
+         SRL   R15,1                 SHIFT THE REMAINING 31 BITS BACK   01357000
+         CVD   R15,DWRD              CONVERT TO DECIMAL INTO DWRD       01358000
+         ZAP   TDATV,DWRD            MOVE AMOUNT TO 9 BYTE AREA         01359000
+         LTR   R14,R14               TEST REG 14 FOR ZEROES             01360000
+         BZ    LGTOT040              ZEROES - BRANCH                    01361000
+         CVD   R14,DWRD              CONVERT TO DECIMAL INTO DWRD       01362000
+         ZAP   LGWTTL9,DWRD          MOVE AMOUNT TO 9 BYTE AREA         01363000
+         MP    LGWTTL9,=P'2147483648'  MULTIPLY BY 2**31                01364000
+         AP    TDATV,LGWTTL9         ADD TO LOW ORDER AMOUNT            01365000
+         EJECT                                                          01366000
+*********************************************************************** 01367000
+*        VERIFY THAT AMOUNT IS NUMERIC                                * 01368000
+*********************************************************************** 01369000
+LGTOT040 EQU   *                                                        01370000
+         OI    TDATV+L'TDATV-1,X'0F'      FIX SIGN IN TDA     TS006.00  01371000
+         ZAP   LGWTTL17+15(2),=P'0'       INSERT PACK ZEROES  TS006.00  01372000
+         MVO   LGWTTL17+15(2),TDATV(1)    HIGH ORDER BYTE     TS006.00  01373000
+         UNPK  LGWTTL17(2),LGWTTL17+15(2) UNPK HIGH ORD BYTES TS006.00  01374000
+         OI    LGWTTL17+1,X'F0'           FIX SIGN BITS       TS006.00  01375000
+         UNPK  LGWTTL17+2(15),TDATV+1(8)  UNPK LOW ORD 8 BYTE TS006.00  01376000
+         LA    R14,LGWTTL17          LOAD ADDR OF WORK AREA IN REG      01377000
+         LA    R15,L'LGWTTL17        MOVE LENGTH OF WORK AREA TO COUNT  01378000
+LGTOT050 EQU   *                                                        01379000
+         CLI   0(R14),C'0'           LOWER THAN 0?                      01380000
+         BL    LGTOT060              YES - ERROR                        01381000
+         CLI   0(R14),C'9'           HIGHER THAN 9?                     01382000
+         BH    LGTOT060              YES - ERROR                        01383000
+         LA    R14,1(R14)            NXT BYTE TO VALIDATE     TS006.00  01384000
+         BCT   R15,LGTOT050          OK - GO DO NEXT BYTE OF WORK AREA  01385000
+         B     LGTOT070              FIELD IS NUMERIC - GO ON           01386000
+LGTOT060 EQU   *                                                        01387000
+         MVC   WMSMGCOD,=C'0978'     AMOUNT FIELD S/B NUMERIC 9913918   01388000
+         MVC   WMSMGVA1(6),=C'AMOUNT'  MOVE LITERALS TO &1 AND &2       01389000
+         MVC   WMSMGVA2(7),=C'NUMERIC'                                  01390000
+         MVI   LGRETCOD,C'1'         SET RETURN TO ERROR000   0445028   01391000
+         B     LGREQ999                                       0445028   01391010
+LGTOT070 EQU   *                                                        01392000
+         MVI   TDAFTF,C'1'           SET ON FORMAT FLAG                 01393000
+         LA    R6,TDAOLNG(R6)        BUMP TO NEXT TDA OCCURRENCE        01394000
+         B     LGTOT010              DO IT AGAIN                        01395000
+         SPACE                                                          01396000
+LGTOT080 EQU   *                                                        01397000
+         LM    R14,R12,LGS4REGS      RESTORE REGS                       01398000
+         BR    R15                   RETURN                             01399000
+         SPACE                                                          01400000
+LGTOT100 ZAP   TDATV,0(0,R9)         EXECUTED INSTRUCTION               01401000
+LGTOT110 MVC   0(0,R15),0(R9)        EXECUTED INSTRUCTION               01402000
+LGTOT120 CLC   0(0,R9),SPACESL       EXECUTED INSTRUCTION     0445028   01403000
+         DROP  R1,R6                                                    01404000
+         EJECT                                                          01405000
+*********************************************************************   01406000
+*              SAME DAY CORRECTION (REVERSAL) PHASE                 *   01407000
+*        (FOR LINK STEPS THIS IS DONE ONLY IF SDC FLAG IS ON IN TCR)*   01408000
+*********************************************************************   01409000
+         SPACE                                                          01410000
+LGSDC000 EQU   *                                              9910919   01411000
+         STM   R14,R12,LGS4REGS      SAVE REGS                          01412000
+         CLI   LGREQCOD,C'2'         REQUEST FOR SDC001?      9910919   01412010
+         BE    LKSDC010              YES - GO TO SDC010       9910919   01412020
+         ICM   R9,15,STMSTPIP        INSERT ADDR OF TCR STEP IN PROCESS 01413000
+         USING TCRSTP,R9             ADDRESSABILITY TO TCR              01414000
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS ADDR 0803201   01415000
+         USING PCAOCCUR,R1           ADDR TO PCA IN PROCESS   0803201   01416000
+         CLI   PCASDCFL,C'1'         GONE TO SDC1 FOR PCA?    0803201   01417000
+         BE    LKSDC020              YES-SKIP LOGGING         0803201   01418000
+         DROP  R1                                             2600361   01419000
+         CLI   TCRSDCF,C'1'          IS S.D.C. FLAG ON IN TCR STEP?     01420000
+         BE    LKSDC010              YES - GO SET UP LINK TO SDC1       01421000
+         CLC   TCRTYPE,=C'31'        IS THIS A LINK STEP? (31 THRU 34)  01422000
+         BL    LKSDC010              L.T. 31, GO TO SDC1 ANYWAY         01423000
+         CLC   TCRTYPE,=C'34'        IS THIS A LINK STEP? (31 THRU 34)  01424000
+         BNH   LKSDC020              YES - BYPASS LINK TO SDC1          01425000
+         DROP  R9                                             9913401   01425500
+         SPACE                                                          01426000
+LKSDC010 EQU   *                                                        01427000
+         MVC   SDCEYEC,=C'** SDC**'  MOVE EYE CATCHER                   01428000
+         MVC   SDCNCADR,WMSANCA      MOVE NCA ADDRESS                   01429000
+         MVC   WMSLNKPH,=C'TSTSSDC1' MOVE CORRECTION PHASE TO WK AREA   01430000
+         MVC   SDCLGRBA,STMACRBA     MOVE RBA                           01431000
+         MVC   SDCLGGRP,STMACFGN     MOVE FILE GROUP NUMBER             01432000
+         MVC   SDCLGNDF,STMACNDF     MOVE NEXT DAY FLAG                 01433000
+         LA    R1,SDCLNG             LOAD COMM AREA LENGTH INTO REG     01434000
+         STH   R1,HWORD              STORE FOR LINK                     01435000
+*        EXEC  CICS LINK PROGRAM (WMSLNKPH)                             01436000
+*                        COMMAREA (TSSDC)                               01437000
+*                        LENGTH (HWORD)                                 01438000
+*                        NOHANDLE                                       01439000
+         DFHECALL =X'0E02E0002800000100',(CHA8,WMSLNKPH),(______RF,TSSD*
+               C),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'        Q. NORMAL RESULT         2602291   01440000
+         BNE   LGERR010              A. N- ERROR              9910919   01441000
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS ADDRESS        01442000
+         USING PCAOCCUR,R1           ADDRESSABILITY TO PCA IN PROCESS   01443000
+         MVI   PCASDCFL,C'1'         TURN ON SDC FLAG                   01444000
+         DROP  R1                                             2600361   01445000
+         MVC   STMACRBA,SDCLGRBA     SAVE RBA                           01446000
+         MVC   STMACFGN,SDCLGGRP     SAVE FILE GROUP NUMBER             01447000
+         MVC   STMACNDF,SDCLGNDF     SAVE NEXT DAY FLAG                 01448000
+         SPACE                                                          01449000
+LKSDC020 EQU   *                                                        01450000
+         LM    R14,R12,LGS4REGS      RESTORE REGS                       01451000
+         BR    R14                   RETURN TO STEP LOOP      9910919   01452000
+         SPACE 3                                                        01453000
+         DROP  R8,R12                                         2600361   01454000
+         SPACE 1                                              9910919   01455000
+**************************************************************0445028   01456000
+*    READ GNCDE FILE TO OBTAIN APPLICATION CONTROL OPTIONS    0445028   01457000
+*    RECORD. INVOKE THE LOG EVENT EXIT IF PRESENT.            0445028   01458000
+**************************************************************0445028   01459000
+         SPACE 1                                              0445028   01460000
+LOGEX000 EQU   *                                              0445028   01461000
+         STM   R14,R12,LGS4REGS                               0445028   01462000
+         ICM   R1,15,STMAPIP         LOAD PCA IN PROCESS      1436560   01462100
+         USING PCAOCCUR,R1                                    1436560   01462110
+         ICM   R9,15,PCAAOPTA        INSERT SASIOPTA ADDR     1436560   01462120
+         BZ    LOGEX900              IF ZERO, BYPASS LINK     1436560   01462130
+         DROP  R1                                             1436560   01462140
+         SPACE 1                                              0445028   01463000
+LOGEX300 EQU   *                                              1516642   01495005
+         SPACE 1                                              1516642   01495010
+         USING SASIOPTA,R9           SET UP ADDRESSABILITY    1516642   01495013
+         CLI   LOGEVTMO,C'Y'         ALERT EVENTS?            1516642   01495015
+         BNE   LOGEX900              NO SKIP EVENT            1516642   01495020
+         CLC   SVMATAC1,WSMATAC1     HAVE I READ FOR THIS CTL 1516642   01495025
+         BNE   LOGEX304              NO,  READ THE RECORD     1516642   01495030
+         CLC   SVMATAAP,WSMATAAP      HAVE I READ FOR THIS AP 1516642   01495035
+         BE    LOGEX400              YES, CHK EXIT NAME       1516642   01495040
+*                                                             1516642   01495045
+LOGEX303 EQU   *                                              1516642   01495050
+         MVC   SVMATAC1,WSMATAC1     SAVE CONTROL 1           1516642   01495055
+LOGEX304 EQU   *                                              1516642   01495060
+         MVC   WSMATAST,=C'TSMAT   ' SET STRUCTURE            1516642   01495065
+         MVC   WSMATASK,SPACESL       MV SPACES TO REST OF KY 1516642   01495070
+         MVC   WSMATALN,MATLEN         SET MAXIMUM LENGTH     1516642   01495075
+         XC    SVMATLEX,SVMATLEX     CLEAR EXIT PROGRAM       1516642   01495080
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1516642   01495085
+*        EXEC CICS READ DATASET  ('GNCDE')                              01495090
+*                       RIDFLD   (WSMATAKY)                             01495095
+*                       SET      (R8)                                   01495100
+*                       LENGTH   (WSMATALN)                             01495105
+*                       NOHANDLE                                        01495110
+         DFHECALL =X'0602F0002801008000',(CHA8,=CL8'GNCDE'),(PTR4__RF,R*
+               8),(FB_2__RF,WSMATALN),(______RF,WSMATAKY)
+         CLI   EIBRCODE,X'00'        RETURN CODE OK?          1516642   01495115
+         BE    LOGEX310              Y, LINK TO PHASE         1516642   01495120
+         CLI   EIBRCODE,X'81'        RECORD NOT FOUND?        1516642   01495125
+         BE    LOGEX305              Y, TRY READ AGAIN        1516642   01495130
+         B     LGERR010              N, RETURN TO ECICS000    1516642   01495135
+LOGEX305 EQU   *                                              1516642   01495140
+         CLC   WSMATAC1,=X'FFFF'     WAS THIS THE LAST TRY?   1516642   01495145
+         BE    LOGEX310              YES, BYPASS LINK         1516642   01495150
+         MVC   WSMATAC1,=X'FFFF'     SET CONTROL 1            1516642   01495155
+         B     LOGEX304              TRY AGAIN                1516642   01495160
+LOGEX310 EQU   *                                              1516642   01496000
+         USING SASIOPTA,R9           SET UP ADDRESSABILITY    0445028   01497000
+         MVC   SVOPALEX,LOGEVENT     SAVE LOG EXIT PROGRAM    0445028   01498000
+         MVC   SVOEVALL,LOGEVALL     LOG EVENT ALL            1226030   01498010
+         MVC   SVOEVDEB,LOGEVDEB     LOG EVENT DEBIT          1226030   01498020
+         MVC   SVOEVCRD,LOGEVCRD     LOG EVENT CREDIT         1226030   01498030
+         MVC   SVOEVINQ,LOGEVINQ     LOG EVENT INQUIRY        1226030   01498040
+         MVC   SVOEVMAN,LOGEVMAN     LOG EVENT MAINTENCE      1226030   01498050
+         MVC   SVOEVOTH,LOGEVOTH     LOG EVENT OTHER          1226030   01498060
+         MVC   SVOEVAPI,LOGEVAPI     LOG EVENT EXIT IS API    1226030   01498070
+         MVC   SVOEVOLN,LOGEVTMO     LOG EVENT EXIT ONLINE    1516642   01498075
+         CLI   EIBRCODE,X'81'        RECORD NOT FOUND?        1516642   01498080
+         BE    LOGEX400              NO TSMAT ENTRY           1516642   01498085
+         MVC   SVMATAAP,WSMATAAP     SAVE APPLICATION         1516642   01499000
+         LA    R7,10                 LOAD R7 COUNT OF TBL     1516642   01499005
+         USING TSTSMAT,R8            SET UP ADDRESSABILITY    1516642   01499010
+         LA    R8,MATOCC             CHECK EVENT DATA         1516642   01499015
+         USING TSMATO,R8              SET UP ADDRESSABILITY   1516642   01499020
+LOGEX315 EQU   *                                              1516642   01499025
+         CLI   MATUSE,C'Y'           USE THIS EVENT           1516642   01499030
+         BNE   LOGEX350              NO CHECK NEXT            1516642   01499035
+         CLI   MATALL,C'Y'           ON ?                     1516642   01499040
+         BNE   LOGEX317              LOG EVENT ALL            1516642   01499045
+         MVC   SVOEVALL,MATALL       LOG EVENT ALL T          1516642   01499050
+LOGEX316 EQU   *                                              1516642   01499055
+         CLI   MATDB,C'Y'           ON ?                      1516642   01499060
+         BNE   LOGEX317              LOG EVENT ALL            1516642   01499065
+         MVC   SVOEVDEB,MATDB        LOG EVENT DEBIT          1516642   01499070
+LOGEX317 EQU   *                                              1516642   01499075
+         CLI   MATCR,C'Y'           ON ?                      1516642   01499080
+         BNE   LOGEX318              LOG EVENT CR             1516642   01499085
+         MVC   SVOEVCRD,MATCR        LOG EVENT CREDIT         1516642   01499090
+LOGEX318 EQU   *                                              1516642   01499095
+         CLI   MATINQ,C'Y'           ON ?                     1516642   01499100
+         BNE   LOGEX319              LOG EVENT INQ            1516642   01499105
+         MVC   SVOEVINQ,MATINQ       LOG EVENT INQUIRY        1516642   01499110
+LOGEX319 EQU   *                                              1516642   01499115
+         CLI   MATMNT,C'Y'           ON ?                     1516642   01499120
+         BNE   LOGEX320              LOG EVENT INQ            1516642   01499125
+         MVC   SVOEVMAN,MATMNT       LOG EVENT MAINTENCE      1516642   01499130
+LOGEX320 EQU   *                                              1516642   01499135
+         CLI   MATOTH,C'Y'           ON ?                     1516642   01499140
+         BNE   LOGEX350              LOG EVENT INQ            1516642   01499145
+         MVC   SVOEVOTH,LOGEVOTH     LOG EVENT OTHER          1516642   01499150
+LOGEX330 EQU   *                                              1516642   01499155
+         CLC   SVOPALEX,SPACESL      VALID EXIT NAME?         1516642   01499160
+         BE    LOGEX332              NO, SKIP PROCESSING      1516642   01499165
+         CLC   SVOPALEX,HEXZEROL     VALID EXIT NAME?         1516642   01499170
+         BE    LOGEX332              NO, SKIP PROCESSING      1516642   01499175
+         B     LOGEX350              NO, SKIP PROCESSING      1516642   01499180
+LOGEX332 EQU   *                                              1516642   01499185
+         CLC   MATEXT,SPACESL        ON ?                     1516642   01499190
+         BE    LOGEX350              LOG EVENT EXIT           1516642   01499195
+         CLC   MATEXT,HEXZEROL       ON ?                     1516642   01499200
+         BNE   LOGEX350              LOG EVENT EXIT           1516642   01499205
+         MVC   SVOPALEX,MATEXT       LOG EVENT EXIT           1516642   01499210
+LOGEX350 EQU   *                                              1516642   01499215
+         LA    R8,MATLEN(R8)                                  1516642   01499220
+         BCT   R7,LOGEX315                                    1516642   01499225
+LOGEX400 EQU   *                                              1226030   01500010
+         CLC   SVOPALEX,SPACESL      VALID EXIT NAME?         1226030   01500020
+         BE    LOGEX900              NO, SKIP PROCESSING      1226030   01500030
+         CLC   SVOPALEX,HEXZEROL     VALID EXIT NAME?         1226030   01500040
+         BE    LOGEX900              NO, SKIP PROCESSING      1226030   01500050
+         CLI   SVOEVALL,C'Y'         RUN ALL?                 1226030   01500060
+         BE    LOGEX460              RUN ALL                  1226030   01500070
+         L     R12,LGSVLOGA          POINT TO LOG AREA        1226030   01500075
+         USING TSTSLOG,R12           EST ADDR TO LOG AREA     1226030   01500080
+         CLI   LGAPLDCF,C'0'         OTHER                    1226030   01500085
+         BE    LOGEX410              CHECK OTHER  FLAG        1226030   01500090
+         CLI   LGAPLDCF,C'1'         CREDIT?                  1226030   01500100
+         BE    LOGEX420              CHECK CREDIT FLAG        1226030   01500110
+         CLI   LGAPLDCF,C'2'         DEBIT?                   1226030   01500120
+         BE    LOGEX430              CHECK DEBIT  FLAG        1226030   01500130
+         CLI   LGAPLDCF,C'3'         INQUIRY                  1226030   01500140
+         BE    LOGEX440              CHECK INQUIRY FLAG       1226030   01500150
+         CLI   LGAPLDCF,C'4'         MAINTANENCE              1226030   01500160
+         BE    LOGEX450              CHECK MAINTANENCE FLAG   1226030   01500170
+         B     LOGEX460              NO, SKIP PROCESSING      1226030   01500180
+         DROP  R12                                            1226030   01500185
+LOGEX410 EQU   *                                              1226030   01500190
+         CLI   SVOEVOTH,C'Y'         OTHER  FLAGGED           1226030   01500200
+         BE    LOGEX460              RUN OTHER                1226030   01500210
+         B     LOGEX900              EXIT                     1226030   01500220
+LOGEX420 EQU   *                                              1226030   01500230
+         CLI   SVOEVCRD,C'Y'         CREDIT FLAGGED           1226030   01500240
+         BE    LOGEX460              RUN CREDIT               1226030   01500250
+         B     LOGEX900              EXIT                     1226030   01500260
+LOGEX430 EQU   *                                              1226030   01500270
+         CLI   SVOEVDEB,C'Y'         DEBIT  FLAGGED           1226030   01500280
+         BE    LOGEX460              RUN DEBIT                1226030   01500290
+         B     LOGEX900              EXIT                     1226030   01500300
+LOGEX440 EQU   *                                              1226030   01500310
+         CLI   SVOEVINQ,C'Y'         INQUIRY FLAGGED          1226030   01500320
+         BE    LOGEX460              RUN INQUIRY              1226030   01500330
+         B     LOGEX900              EXIT                     1226030   01500340
+LOGEX450 EQU   *                                              1226030   01500350
+         CLI   SVOEVMAN,C'Y'         MAINTANENCE FLAGGED      1226030   01500360
+         BE    LOGEX460              RUN MAINTANENCE          1226030   01500370
+         B     LOGEX900              EXIT                     1226030   01500380
+LOGEX460 EQU   *                                              1226030   01500390
+         MVC   WMSLNKPH,SVOPALEX                              0445028   01502120
+         ICM   R6,15,WMSANCA         RELOAD COMM AREA ADDRESS 0445028   01503000
+         USING TSNCA,R6                                       0445028   01504000
+         ICM   R12,15,NCASACBA       LOAD SACB ADDRESS        1226030   01504010
+         ST    R12,WKSACBAD                                   1226030   01504015
+         USING SAS9SCBA,R12                                   1226030   01504020
+         ICM   R8,15,SACBGCA         LOAD ADDR OF GCA         1226030   01504030
+         USING SAS9GCAD,R8                                    1226030   01504110
+         BZ    LOGEX480              NO DO LINK               1226030   01504120
+         CLI   SVOEVAPI,C'Y'         RUNPGM?                  1226030   01504130
+         BE    LOGEX500              RUN PGM                  1226030   01504140
+LOGEX480 EQU   *                                              1226030   01504150
+         MVC   HWORD,NCAFCAL                                  0445028   01505000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0445028   01505999
+*        EXEC  CICS LINK PROGRAM (SVOPALEX)                             01506000
+*                        COMMAREA (TSNCA)                               01507000
+*                        LENGTH (HWORD)                                 01508000
+*                        NOHANDLE                                       01509000
+         DFHECALL =X'0E02E0002800000100',(CHA8,SVOPALEX),(______RF,TSNC*
+               A),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'        NORMAL RESULT ?          0445028   01510080
+         BNE   LGERR010              N - RETURN TO ECICS000   0445028   01511000
+         B     LOGEX900              Y - CONTINUE             1226030   01511010
+LOGEX500 EQU   *                                              1226030   01511020
+         MVC   SAS9FUNC,=C'CRUNPGM 0036'   RUN PROG NOABEND   1226030   01511030
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1226030   01511039
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X01511040
+               SVOPALEX)                                                01511050
+         LA    R1,PARMLIST                                    1226030   01511060
+         CALL  SAS0001C               RUNPGM FOR ALERT EVENT  1226030   01511070
+* CHECK RETURN CODE IN GCA (SAGRETRC)                         1226030   01511080
+         CLC   SAGRETRC,=X'00000000' RETURN CODE FROM GCA     1226030   01511090
+         BNZ   LGERR010              BR IF ERROR              1226030   01511100
+LOGEX900 EQU   *                                              0445028   01512000
+         LM    R14,R12,LGS4REGS      RESTORE REGS             0445028   01513000
+         BR    R15                   RETURN TO STEP LOOP      0445028   01514000
+         SPACE 1                                              0445028   01515000
+         DROP  R6,R8,R9,R12                                   1226030   01516000
+         SPACE 1                                              0445028   01517000
+         LTORG                                                0445028   01518000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

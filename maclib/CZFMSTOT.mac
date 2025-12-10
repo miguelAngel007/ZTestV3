@@ -1,0 +1,504 @@
+         MACRO                                                          00010000
+         CZFMSTOT                                                      X00020000
+               &TYPE=,                                                 X00030000
+               &MODULE=,                                               X00040000
+               &NUMBER=,                                               X00050000
+               &TOTNAME=,                                              X00060000
+               &OPER=,                                                 X00070000
+               &HELP=            HELP FUNCTION                          00080000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00090000
+.*********                   P R O L O G                       ******** 00100000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00110000
+.*                                                                    * 00120000
+.*   MACRO NAME : CZFMSTOT                                            * 00130000
+.*                                                                    * 00140000
+.*   DESCRIPTIVE NAME : SYSTEM TOTALS TABLE CREATION                  * 00150000
+.*                                                                    * 00160000
+.*   STATUS : VERSION 1                                               * 00170000
+.*            RELEASE LEVEL = 1                                       * 00180000
+.*            MODIFICATION LEVEL = 0                                  * 00190000
+.*                                                                    * 00200000
+.*   COPYRIGHT:                                                       * 00210000
+.*                                                                    * 00220000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00230000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00240000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00250000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00260000
+.*                                                                    * 00270000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00280000
+.*                                                                    * 00290000
+.*   FUNCTION:  TO GENERATE THE SYSTEM TOTALS TABLE. IN THE CASE OF   * 00300000
+.*              THE HOST, IT IS PART OF THE CZFHSD SYSTEM DATA MODULE.* 00310000
+.*              IN THE CASE OF THE AP, IT WILL BE TRANSMITTED.        * 00320000
+.*                                                                    * 00330000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:   CASAR   * 00340000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00350000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT CHECKS THE * 00360000
+.*             VALIDITY OF THE PARAMETER NUMBER TO BUILD THE TABLE    * 00370000
+.*             NAME.                                                  * 00380000
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00390000
+.*             OF THE PARAMETER TRANSAC. BASED ON THIS PARAMETER, ONE * 00400000
+.*             ENTRY FOR THE TRANSACTION LIST TABLE IS BUILT.         * 00410000
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00420000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00430000
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00440000
+.*             TABLE.                                                 * 00450000
+.*                                                                    * 00460000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00470000
+.*                                                                    * 00480000
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00490000
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00500000
+.*                                                                    * 00510000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00520000
+.*                                                                    * 00530000
+.*   CHARACTERISTICS :                                                * 00540000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00550000
+.*                                                                    * 00560000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00570000
+.*                                                                    * 00580000
+.*   RESTRICTIONS: NONE                                               * 00590000
+.*                                                                    * 00600000
+.*   PARAMETERS RECEIVED:                                             * 00610000
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00620000
+.*             MODULE=            *USE FOR THIS TABLE                 * 00630000
+.*                                *CZFHSD - TO BE USED BY THE HOST    * 00640000
+.*                                *CZFACT - TO BE USED BY THE AP      * 00650000
+.*                                *STORAGE- TO GENERATE A STORAGE     * 00660000
+.*             NUMBER=            *TOTAL NUMBER (CONSECUTIVE NUMBER)  * 00670000
+.*                                *  - FROM 1 TO 20 FOR THE AP        * 00680000
+.*                                *  - FROM 1 TO 999 FOR THE HOST     * 00690000
+.*                                *  - FROM 1 TO 999 FOR STORAGE      * 00700000
+.*             NAME=              *TOTAL NAME (MAXIMUM 8 CHARACTERS)  * 00710000
+.*             OPER=              *TYPE OF OPERATIONS IN TOTAL        * 00720000
+.*                                *  CREDIT  - CREDIT OPERATIONS      * 00730000
+.*                                *  DEBIT   - DEBIT OPERATIONS       * 00740000
+.*                                *  CASHIN  - CASH RECEIVED          * 00750000
+.*                                *  CASHOUT - CASH ISSUED            * 00760000
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00770000
+.*                                                                    * 00780000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00790000
+.*                                                                    * 00800000
+.*            SYSTEM TOTALS TABLE ELEMENT (HOST)                      * 00810000
+.*                                                                    * 00820000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00830000
+.* DEC  HEX                                                           * 00840000
+.*                                                                    * 00850000
+.*  0    0        2       TOTAL NUMBER (1 TO 999 FOR THE HOST)        * 00860000
+.*  2    2        1       TYPE OF TOTAL                               * 00870000
+.*                           BIT 0 ON   - CREDIT                      * 00880000
+.*                           BIT 1 ON   - DEBIT                       * 00890000
+.*                           BIT 2 ON   - CASH RECEIVED               * 00900000
+.*                           BIT 3 ON   - CASH ISSUED                 * 00910000
+.*                           BIT 4 TO 7 - RESERVED                    * 00920000
+.*                                                                    * 00930000
+.*   GENERATED CODE :                                                 * 00940000
+.*                                                                    * 00950000
+.*NAME     EQU   NUMBER                *TOTAL NAME RELATED TO TOTAL   * 00960000
+.*                                     *NUMBER                        * 00970000
+.*         DC    AL2(TOTAL NUMBER)     *TOTAL NUMBER                  * 00980000
+.*         DC    B'XXXXXXXX'           *APPLICATION CODE              * 00990000
+.*                                     *  BIT 0 ON   - CREDIT         * 01000000
+.*                                     *  BIT 1 ON   - DEBIT          * 01010000
+.*                                     *  BIT 2 ON   - CASH RECEIVED  * 01020000
+.*                                     *  BIT 3 ON   - CASH ISSUED    * 01030000
+.*                                     *  BIT 4 TO 7 - RESERVED       * 01040000
+.*                                                                    * 01050000
+.*            SYSTEM TOTALS TABLE ELEMENT  (AP)                       * 01060000
+.*                                                                    * 01070000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 01080000
+.* DEC  HEX                                                           * 01090000
+.*                                                                    * 01100000
+.*  0    0        1       TOTAL NUMBER (1 TO 20 FOR THE AP)           * 01110000
+.*  1    1        1       TYPE OF TOTAL                               * 01120000
+.*                           BIT 0 ON   - CREDIT                      * 01130000
+.*                           BIT 1 ON   - DEBIT                       * 01140000
+.*                           BIT 2 ON   - CASH RECEIVED               * 01150000
+.*                           BIT 3 ON   - CASH ISSUED                 * 01160000
+.*                           BIT 4 TO 7 - RESERVED                    * 01170000
+.*                                                                    * 01180000
+.*   GENERATED CODE :                                                 * 01190000
+.*                                                                    * 01200000
+.*NAME     EQU   NUMBER                *TOTAL NAME RELATED TO TOTAL   * 01210000
+.*                                     *NUMBER                        * 01220000
+.*         DC    AL1(TOTAL NUMBER)     *TOTAL NUMBER                  * 01230000
+.*         DC    B'XXXXXXXX'           *APPLICATION CODE              * 01240000
+.*                                     *  BIT 0 ON   - CREDIT         * 01250000
+.*                                     *  BIT 1 ON   - DEBIT          * 01260000
+.*                                     *  BIT 2 ON   - CASH RECEIVED  * 01270000
+.*                                     *  BIT 3 ON   - CASH ISSUED    * 01280000
+.*                                     *  BIT 4 TO 7 - RESERVED       * 01290000
+.*                                                                    * 01300000
+.*   NOTES:                                                           * 01310000
+.*                                                                    * 01320000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01330000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01340000
+.*                                                                    * 01350000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 01360000
+.*                                                                    * 01370000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01380000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      01390000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  01400000
+         GBLA  &MSTOT             *MACRO CZFMSTOT INDICATOR             01410000
+         GBLA  &MSTOT1            *TYPE=ENTRY INDICATOR                 01420000
+         GBLA  &PREVNUM           *PREVIOUS TOTAL NUMBER                01430000
+         GBLA  &FIRSNUM           *FIRST NUMBER INDICATOR               01440000
+         GBLA  &TBLUSE            *TABLE USE (CZFHSD,CZFACT OR STORAGE) 01450000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         01460000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01470000
+.*                                                                    * 01480000
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 01490000
+.*                                                                    * 01500000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01510000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 01520000
+         LCLA  &I                 *INDEX WORK FIELD                     01530000
+         LCLB  &ERRIND            *ERROR INDICATOR                      01540000
+         LCLB  &TYP(8)            *TYPE OF TOTAL COUNTER                01550000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    01560000
+         LCLC  &WORKC             *WORK AREA FOR GENERATED CODE         01570000
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     01580000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01590000
+.*                                                                    * 01600000
+.*       INITIALIZE TYPE OF TOTAL COUNTER                             * 01610000
+.*                                                                    * 01620000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01630000
+&I       SETA  1                  *INITIALIZE INDEX                     01640000
+.LOOP8   ANOP                     *LOOP TO INITIALIZE BIT VALUES        01650000
+&TYP(&I) SETB  0                  *TYPE OF TOTAL COUNTER                01660000
+&I       SETA  &I+1               *POINT TO THE NEXT BIT                01670000
+         AIF (&I LE 8).LOOP8      *GO FOR THE NEXT BIT                  01680000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01690000
+.*                                                                    * 01700000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 01710000
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 01720000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 01730000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 01740000
+.*   PERFORMED.                                                       * 01750000
+.*                                                                    * 01760000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01770000
+         CZFMHELP HELP=&HELP                                            01780000
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       01790000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01800000
+.*                                                                    * 01810000
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 01820000
+.*                                                                    * 01830000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01840000
+.P1VAL   ANOP                                                           01850000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01860000
+.*      .* TEST IF A COMPLETE SET OF CZFMSTOT MACROS HAS ALREADY BEEN * 01870000
+.*      .* PROCESSED IN THIS ASSEMBLY.                                * 01880000
+.*      .* IN FACT, MORE THAN ONE SET CAN BE PROCESSED IN THE SAME    * 01890000
+.*      .* ASSEMBLY, AND SO THIS TEST WILL NEVER BE SATISFIED (&MSTOT * 01900000
+.*      .* IS NEVER SET TO 2).                                        * 01910000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01920000
+         AIF   (&MSTOT EQ 2).PCOMP   *PREVIOUS SET COMPLETE             01930000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01940000
+.*      .* DETERMINE THE MACRO TYPE.                                  * 01950000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01960000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01970000
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                01980000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01990000
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 02000000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02010000
+.*                                                                    * 02020000
+.*   VALIDATE PARAMETER MODULE IN MACRO TYPE=INITIAL:                 * 02030000
+.*          - MODULE MUST BE EQUAL TO :                               * 02040000
+.*          - CZFHSD FOR SYSTEM DATA MODULE                           * 02050000
+.*          - CZFACT FOR CONTROLLER TABLES                            * 02060000
+.*          - STORAGE TO GENERATE STORAGE FOR TELLER HOLD AREA DSECT  * 02070000
+.*                                                                    * 02080000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02090000
+.P1V1    ANOP                                                           02100000
+         AIF (&MSTOT NE 0).P1E1   *CHECK FOR FIRST TYPE EQUAL INITIAL   02110000
+&FIRSNUM SETA  0                  *FIRST NUMBER NOT RECEIVED YET        02120000
+&PREVNUM SETA  0                  *INITIALIZE PREVIOUS NUMBER           02130000
+         AIF   ('&MODULE' EQ 'CZFHSD').P1V2                             02140000
+         AIF   ('&MODULE' EQ 'CZFACT').P1V3                             02150000
+         AIF   ('&MODULE' EQ 'STORAGE').P1V4                            02160000
+         AGO   .P1E2              *ERROR, IT IS NOT THE RIGHT VALUE     02170000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02180000
+.*                                                                    * 02190000
+.*   GENERATE THE HEADER FOR THE HOST TABLES   (CZFHSD)               * 02200000
+.*                                                                    * 02210000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02220000
+.P1V2    ANOP                                                           02230000
+         TITLE 'HOST TOTALS TABLE'                                      02240000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02250000
+*                                                                    *  02260000
+*   MACRO NAME : CZFMSTOT                                            *  02270000
+*                                                                    *  02280000
+*   DESCRIPTIVE NAME : HOST TOTALS TABLE CREATION                    *  02290000
+*                                                                    *  02300000
+*   STATUS : VERSION 1                                               *  02310000
+*            RELEASE LEVEL = 0                                       *  02320000
+*            MODIFICATION LEVEL = 0                                  *  02330000
+*                                                                    *  02340000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02350000
+&TBLUSE  SETA  1                  *CZFHSD ASSEMBLY                      02360000
+         DS    0D                                                       02370000
+         DC    CL8'*TABLE= '           *TABLE HEADER                    02380000
+         DC    CL8'CZFMSTOT'           *TABLE NAME                      02390000
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         02400000
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               02410000
+CZFTOTAL DS    0D                 *CZFTOTAL START                       02420000
+         AGO   .TESTFIN                *VALIDATE RECEIPT OF PREV FINAL  02430000
+.P1V3    ANOP                                                           02440000
+         TITLE 'CONTROLLER TOTALS TABLE'                                02450000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02460000
+*                                                                    *  02470000
+*   MACRO NAME : CZFMSTOT                                            *  02480000
+*                                                                    *  02490000
+*   DESCRIPTIVE NAME : CONTROLLER TOTALS TABLE CREATION              *  02500000
+*                                                                    *  02510000
+*   STATUS : VERSION 1                                               *  02520000
+*            RELEASE LEVEL = 0                                       *  02530000
+*            MODIFICATION LEVEL = 0                                  *  02540000
+*                                                                    *  02550000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02560000
+&TBLUSE  SETA  2                  *CZFACT ASSEMBLY                      02570000
+TOTFLD   EQU   *                  *START OF THE CONTROLLER TOTALS TABLE 02580000
+         DC    AL2(&PREVNUM)      *NUMBER OF ENTRIES                    02590000
+         DC    AL2(2)             *LENGTH OF ENTRIES                    02600000
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV FINAL       02610000
+.P1V4    ANOP                                                           02620000
+         SPACE 5                                                        02630000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02640000
+*                                                                    *  02650000
+*   MACRO NAME : CZFMSTOT                                            *  02660000
+*                                                                    *  02670000
+*   DESCRIPTIVE NAME : HOST TOTALS STORAGE DEFINITION                *  02680000
+*                                                                    *  02690000
+*   STATUS : VERSION 1                                               *  02700000
+*            RELEASE LEVEL = 0                                       *  02710000
+*            MODIFICATION LEVEL = 0                                  *  02720000
+*                                                                    *  02730000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02740000
+&TBLUSE  SETA  3                  *STORAGE GENERATION                   02750000
+         SPACE 3                                                        02760000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02770000
+*               DEFINE  TELLER  TOTALS  COUNTERS                     *  02780000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02790000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02800000
+* DEFINE STORAGE FOR TELLER TOTALS. EACH OF THE FOLLOWING CZFMSTOT   *  02810000
+* TYPE=ENTRY MACROS FOLLOWING GENERATES 10 BYTES OF STORAGE CONSIST- *  02820000
+* ING OF TWO COUNTERS AND AN EQUATE STATEMENT, IN THE FORM           *  02830000
+*                                                                    *  02840000
+*   NAME    EQU   TOTAL-NUMBER                                       *  02850000
+*   NAME#   DS    PL2              NUMBER OF OPERATIONS COUNTER      *  02860000
+*   NAME$   DS    PL8              ACCUMULATED AMOUNT                *  02870000
+*                                                                    *  02880000
+* WHERE TOTAL-NUMBER STARTS AT 1 FOR THE FIRST SET OF TOTALS AND IS  *  02890000
+* INCREMENTED BY 1 FOR EACH TOTALS SET, AND NAME IS THE TOTALS NAME  *  02900000
+* CODED ON THE NAME OPERAND IN EACH MACRO.                           *  02910000
+*                                                                    *  02920000
+* THE LENGTH OF THE TOTALS AREA SHOULD BE REFERENCED BY LABEL        *  02930000
+* "CZFTOTLN" WHICH IS GENERATED BY THE MACROS, AND NOT THE LENGTH OF *  02940000
+* "TLHDUTOT'.                                                        *  02950000
+* "CZFTOTLN" IS THE LABEL OF AN EQUATE STATEMENT AND REPRESENTS THE  *  02960000
+* DIFFERENCE BETWEEN THE START AND ENDING ADDRESS OF THE TELLER      *  02970000
+* TOTALS COUNTERS AREA.                                              *  02980000
+*                                                                    *  02990000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  03000000
+         SPACE 3                                                        03010000
+CZFTOTDS EQU   *                  *START OF TELLER TOTALS STORAGE DEFN. 03020000
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV. FINAL      03030000
+.TESTFIN ANOP                     *FINAL RECEIPT VALIDATION             03040000
+&MSTOT   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    03050000
+         AIF (&MFINAL GT 0).NOFINAL                                     03060000
+.SETMAC  ANOP                                                           03070000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            03080000
+&MACREC  SETC  'CZFMSTOT'         *NAME OF CURRENT MACRO                03090000
+         AGO   .END                                                     03100000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03110000
+.*                                                                    * 03120000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 03130000
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 03140000
+.*                                                                    * 03150000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03160000
+.P2V1    ANOP                                                           03170000
+         AIF (&MSTOT NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 03180000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03190000
+.*                                                                    * 03200000
+.*   VALIDATE PARAMETER NUMBER IN MACRO TYPE=ENTRY                    * 03210000
+.*          - NUMBER MUST BE CONSECUTIVE STARTING FROM 1              * 03220000
+.*          - IF CZFACT ASSEMBLY THE VALID RANGE IS FROM 1 TO 20      * 03230000
+.*          - IF CZFHSD ASSEMBLY THE VALID RANGE IS FROM 1 TO 999     * 03240000
+.*                                                                    * 03250000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03260000
+.P2V2    ANOP                                                           03270000
+         AIF   (T'&NUMBER EQ 'O').P2E2 * OMITTED?                       03280000
+         AIF   (T'&NUMBER NE 'N').P2E2 * NUMERIC?                       03290000
+         AIF   (&FIRSNUM EQ 1).P2V3    *FIRST NUMBER ALREADY RECEIVED   03300000
+         AIF   (&NUMBER  NE 1).P2E2    *FIRST NUMBER NOT 1, ERROR       03310000
+&FIRSNUM SETA  1                       *FIRST NUMBER RECEIVED AND OK    03320000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03330000
+.*      .* VALIDATE THE NUMBER SEQUENCE.                              * 03340000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03350000
+.P2V3    ANOP                                                           03360000
+         AIF   (&NUMBER NE &PREVNUM+1).P2E2                             03370000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03380000
+.*      .* VALIDATE THE NUMBER RANGE.                                 * 03390000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03400000
+         AIF   (&TBLUSE EQ 2).P2V4     *CONTROLLER TABLE, SKIP TO GEN.  03410000
+.*                                *TABLE FOR THE HOST AND STORAGE.      03420000
+         AIF   (&NUMBER LT 1 OR &NUMBER GT 999).P2E2                    03430000
+         AGO   .P2V4A             *END OF NUMBER VALIDATION.            03440000
+.P2V4    ANOP                                                           03450000
+         AIF   (&NUMBER LT 1 OR &NUMBER GT 20).P2E2                     03460000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03470000
+.*      .* NUMBER PARAMETER VALIDATION IS COMPLETE.                   * 03480000
+.*      .* SAVE THE NUMBER SPECIFIED FOR COMPARISON WITH THE NEXT.    * 03490000
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03500000
+.P2V4A   ANOP                                                           03510000
+         AIF   (T'&NUMBER NE 'N').P2V4B     * IS NUMBER NUMERIC ?       03520000
+&PREVNUM SETA  &NUMBER            *SAVE NUMBER TO COMPARE WITH THE NEXT 03530000
+         AGO   .P2V5                                                    03540000
+.P2V4B   ANOP                     *NUMBER IS OMITTED OR NON-NUMERIC,..  03550000
+&PREVNUM SETA  -1                 *..SO SET PREVNUM TO -1 TO BREAK SEQ. 03560000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03570000
+.*                                                                    * 03580000
+.*   VALIDATE PARAMETER NAME IN MACRO TYPE=ENTRY                      * 03590000
+.*          - TOTAL NAME MUST BE FROM 1 TO 7 CHARACTERS LONG          * 03600000
+.*                                                                    * 03610000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03620000
+.P2V5    ANOP                                                           03630000
+         AIF   (T'&TOTNAME EQ 'O').P2E3                                 03640000
+         AIF   (T'&TOTNAME EQ 'N').P2E3                                 03650000
+         AIF   (K'&TOTNAME LT 1 OR K'&TOTNAME GT 7).P2E3                03660000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03670000
+.*                                                                    * 03680000
+.*   VALIDATE PARAMETER OPER IN MACRO TYPE=ENTRY                      * 03690000
+.*          - OPER MUST BE EQUAL TO CREDIT, DEBIT, CASHNET,           * 03700000
+.*            CASHIN OR CASHOUT.                                      * 03710000
+.*                                                                    * 03720000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03730000
+.P2V6    ANOP                                                           03740000
+         AIF    (&TBLUSE EQ 3).P2V7     *NOT USED FOR MODULE=STORAGE    03750000
+         AIF    (T'&OPER EQ 'O').P2E4                                   03760000
+         AIF    ('&OPER' EQ 'CREDIT').P2V6A                             03770000
+         AIF    ('&OPER' EQ 'DEBIT').P2V6B                              03780000
+         AIF    ('&OPER' EQ 'CASHIN').P2V6C                             03790000
+         AIF    ('&OPER' EQ 'CASHOUT').P2V6D                            03800000
+         AGO   .P2E4                                                    03810000
+.P2V6A   ANOP                                                           03820000
+&TYP(1)  SETB  1                  *TYPE OF TOTAL COUNTER CREDIT         03830000
+         AGO   .P2V7                                                    03840000
+.P2V6B   ANOP                                                           03850000
+&TYP(2)  SETB  1                  *TYPE OF TOTAL COUNTER DEBIT          03860000
+         AGO   .P2V7                                                    03870000
+.P2V6C   ANOP                                                           03880000
+&TYP(3)  SETB  1                  *TYPE OF TOTAL COUNTER CASH RECEIVED  03890000
+         AGO   .P2V7                                                    03900000
+.P2V6D   ANOP                                                           03910000
+&TYP(4)  SETB  1                  *TYPE OF TOTAL COUNTER CASH ISSUED    03920000
+         AGO   .P2V7                                                    03930000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03940000
+.*                                                                    * 03950000
+.*   IF NOT ERROR FOUND, GENERATE THE SYSTEM TOTALS ELEMENT           * 03960000
+.*                                                                    * 03970000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03980000
+.P2V7    ANOP                                                           03990000
+         AIF   (&ERRIND).END      *IF ERRORS FOUND DO NOT GENERATE      04000000
+&MSTOT1  SETA  1                  *GOOD ENTRY INPUT                     04010000
+&TOTNAME EQU   &NUMBER            *TOTAL NAME                           04020000
+         AIF   (&TBLUSE EQ 2).P2V7CTL *INFORMATION FOR CONTROLLER       04030000
+         AIF   (&TBLUSE EQ 3).P2V7DS  *INFORMATION FOR DUMMY SECTION    04040000
+         DC    AL2(&NUMBER)       *HOST TOTAL NUMBER                    04050000
+         AGO   .P2V7RET                                                 04060000
+.P2V7CTL ANOP                                                           04070000
+         DC    AL1(&NUMBER)       *CONTROLLER TOTAL NUMBER              04080000
+.P2V7RET ANOP                                                           04090000
+&WORKC  SETC '&TYP(1)&TYP(2)&TYP(3)&TYP(4)&TYP(5)&TYP(6)&TYP(7)&TYP(8)' 04100000
+         DC    B'&WORKC'          *TOTAL TYPE                           04110000
+         AGO   .END                                                     04120000
+.P2V7DS  ANOP                                                           04130000
+&WORKC   SETC '&TOTNAME'          *TOTAL NAME                           04140000
+&WORKC.# DS    PL2                *NUMBER OF OPERATIONS                 04150000
+&WORKC.$ DS    PL8                *ACCUMULATED AMOUNT                   04160000
+         AGO   .END                                                     04170000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 04180000
+.*                                                                    * 04190000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 04200000
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 04210000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 04220000
+.*            MACROS TYPE ENTRY                                       * 04230000
+.*        -   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 04240000
+.*            OF THE TABLE IN THE CASE OF THE CZFHSD MODULE           * 04250000
+.*                                                                    * 04260000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 04270000
+.P3V1    ANOP                                                           04280000
+         AIF (&MSTOT NE 1).P3E1   *CHECK IF TYPE=FINAL IS EXPECTED      04290000
+         AIF (&MSTOT1 NE 1).P3E1  *ENTRY CARD PROCESSED?                04300000
+.*                                *ENTRIES FOR A TABLE ARE O.K.         04310000
+         AIF   (&ERRIND).END                                            04320000
+&MSTOT   SETA  0                  *SET IND BACK TO ZERO AFTER ALL       04330000
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              04340000
+         AIF (&TBLUSE EQ 2).P3V1CTL  *CONTROLLER, GENERATE # OF ENTRIES 04350000
+         AIF (&TBLUSE EQ 3).P3V1DS   *STORAGE GENERATE LENGTH EQU       04360000
+         DC    3X'FF'             *END-OF-TABLE INDICATOR FOR HOST      04370000
+         AGO   .END                                                     04380000
+.P3V1CTL ANOP                                                           04390000
+         ORG   TOTFLD                                                   04400000
+         DC    AL2(&PREVNUM)      *NUMBER OF ENTRIES                    04410000
+         ORG   ,                  *END OF THE CONTROLLER TOTALS TABLE   04420000
+         AGO   .END                                                     04430000
+.P3V1DS  ANOP                                                           04440000
+CZFTOTLN EQU   *-CZFTOTDS         *LENGTH OF THE TELLER TOTALS AREA     04450000
+         AGO   .END                                                     04460000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 04470000
+.*                                                                    * 04480000
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 04490000
+.*    MESSAGES REQUIRED.                                              * 04500000
+.*                                                                    * 04510000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 04520000
+.HELP    ANOP                                                           04530000
+         CZFMHIMS MSGNUM=998                                            04540000
+         CZFMHIMS MSGNUM=1                                              04550000
+         CZFMHIMS MSGNUM=117                                            04560000
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                04570000
+         CZFMHIMS MSGNUM=93                                             04580000
+         CZFMHIMS MSGNUM=43                                             04590000
+         CZFMHIMS MSGNUM=44                                             04600000
+         CZFMHIMS MSGNUM=72                                             04610000
+         CZFMHIMS MSGNUM=46                                             04620000
+       AGO   .END                                                       04630000
+.NOFINAL ANOP                                                           04640000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            04650000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   04660000
+.PCOMP   ANOP                                                           04670000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTOT                            04680000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04690000
+         AGO   .END                                                     04700000
+.PUE1    ANOP                                                           04710000
+         CZFMHIMS MSGNUM=1                                              04720000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04730000
+         AGO   .END                                                     04740000
+.P1E1    ANOP                                                           04750000
+         CZFMHIMS MSGNUM=117                                            04760000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04770000
+         AGO   .END                                                     04780000
+.P1E2    ANOP                                                           04790000
+         CZFMHIMS MSGNUM=43                                             04800000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04810000
+         AGO   .END                                                     04820000
+.P2E1    ANOP                                                           04830000
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                04840000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04850000
+         AGO   .END                                                     04860000
+.P2E2    ANOP                                                           04870000
+         CZFMHIMS MSGNUM=44                                             04880000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04890000
+         AGO   .P2V4A                                                   04900000
+.P2E3    ANOP                                                           04910000
+         CZFMHIMS MSGNUM=72                                             04920000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04930000
+         AGO   .P2V6                                                    04940000
+.P2E4    ANOP                                                           04950000
+         CZFMHIMS MSGNUM=46                                             04960000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               04970000
+         AGO   .P2V7                                                    04980000
+.P3E1    ANOP                                                           04990000
+         CZFMHIMS MSGNUM=93                                             05000000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               05010000
+         AGO   .END                                                     05020000
+.END     ANOP                                                           05030000
+         MEND                                                           05040000

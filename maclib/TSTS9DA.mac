@@ -1,0 +1,809 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&L       TSTS9DA &FDATE=,&FFORMAT=,&FLGTH=,&FDATA=,&TDATE=,&TFORMAT=,  X00001100
+               &TLGTH=,&TDATA=,&WR1=,&WR2=,&WR3=,&WR4=,&EDONLY=,       X00001200
+               &CENBASE=,&RETURN=,&TYPE=,&DATEFMT=            9913483   00001300
+.*--------------------------------------------------------------------* 00001310
+.*                 ** HISTORY OF REVISIONS **                         * 00001320
+.*                                                                    * 00001330
+.* DESCRIPTION                                                CHNGID  * 00001340
+.*__________________________________________________________  _______ * 00001350
+.* 11/03/10 INITILIZE ZERO CENTURY FLAG                       1125985   00001385
+.* 02/02/07 PREVENT ABEND ON ZEROS OR NINES IN DATE           0735374   00001386
+.* 02/22/05 SUPPORT CENTURY BASED (01-00) DATES CYYMMDD       0635191   00001387
+.* 08/06/01 CHG DTFMT TO MATCH EOR DATE VIEWING PREF FIELD    2024347 * 00001388
+.* 04/23/01 REENTRANT CHANGES                                 2021627 * 00001390
+.* 04/16/01 EFFECTIVE DATE CORRECTION - GN4325                2024325 * 00001392
+.* 04/22/98 SIOPTNS PARMS ENHANCEMENT - GN3483                9913483 * 00001394
+.* 05/01/97 DBCS ENABLE                                       9913481 * 00001396
+.*--------------------------------------------------------------------* 00001398
+.********************************************************************** 00001400
+.*                       DATE CONVERT MACRO                           * 00001500
+.*                                                                    * 00001600
+.*  FDATE    =  NAME OF FROM DATE                                     * 00001700
+.*  FFORMAT  =  FROM FORMAT            CL1 *THIS FIELD MAY BE CHANGED * 00001800
+.*  FLGTH    =  LENGTH OF FROM DATE    XL1 (MAX LENGTH - 10 BYTES)    * 00001900
+.*  FDATA    =  DATA TYPE OF FROM DATE CL1                            * 00002000
+.*              P - PACKED                                            * 00002100
+.*              B - BINARY                                            * 00002200
+.*              N - NUMERIC                                           * 00002300
+.*  TODATE   =  NAME OF TO DATE                                       * 00002400
+.*  TFORMAT  =  TO FORMAT              CL1                            * 00002500
+.*  TLGTH    =  LENGTH OF TO DATE      XL1 (MAX LENGTH - 10 BYTES)    * 00002600
+.*  TDATA    =  DATA TYPE OF TO DATE   CL1                            * 00002700
+.*              P - PACKED                                            * 00002800
+.*              B - BINARY                                            * 00002900
+.*              N - NUMERIC                                           * 00003000
+.*  WR1-4    =  FOUR WORK REGISTERS                                   * 00003100
+.*              WR3 AND WR4 MUST BE EVEN/ODD PAIR                     * 00003200
+.*  EDONLY   =  0 - CONVERT DATE                                      * 00003300
+.*              1 - EDIT INPUT DATE, DON'T CONVERT                    * 00003400
+.*  CENBASE  =  BASE YEAR FOR DETERMINING CENTURY                     * 00003500
+.*              IF INPUT YR < CENBASE, CENTURY = 20                   * 00003600
+.*              ELSE, CENTURY = 19                                    * 00003700
+.*  RETURN   =  RETURN CODE            CL1                            * 00003800
+.*              0 - VALID RETURN                                      * 00003900
+.*              1 - INVALID FROM LENGTH                               * 00004000
+.*              2 - INVALID TO LENGTH                                 * 00004100
+.*              3 - INVALID FROM DATA TYPE                            * 00004200
+.*              4 - INVALID FROM DATE FORMAT                          * 00004300
+.*              5 - INVALID TO DATE FORMAT                            * 00004400
+.*              6 - INVALID DATE INPUT                                * 00004500
+.*  TYPE     =  'STRG', 'MACRO', OR 'DSECT'                           * 00004600
+.*  DATEFMT  =  'M', 'D', OR 'Y'                              2024347 * 00004610
+.********************************************************************** 00004700
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00004800
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00004900
+         AIF   ('&TYPE' EQ 'DSECT').DSEC                                00005000
+.STRG    ANOP                                                           00005100
+DAINST   DS    3H                                             2021627   00005110
+DAMOVE60 DS    CL2                                            2021627   00005120
+DATFLD   DS    S                                              2021627   00005130
+DAFFLD   DS    S                                              2021627   00005140
+DAMOVE70 DS    XL2                                            2021627   00005150
+DAOPER1  DS    S                                              2021627   00005160
+DAOPER2  DS    S                                              2021627   00005170
+DADWRD1  DS    D                                                        00005200
+DADWRD2  DS    D                                                        00005300
+DAFEBDYS DS    PL2                                                      00005400
+DADAYS   DS    PL2                                                      00005500
+FDAT     DS    CL10                                                     00005600
+TDAT     DS    CL10                                                     00005700
+SVZERNIN DS    CL1                                                      00005800
+SVZERCEN DS    CL1                                            0802993   00005810
+         AIF   ('&TYPE' EQ 'STRG').END                                  00005900
+.DSEC    ANOP                                                           00006000
+TBTAB    DSECT                                                          00006100
+TBENTRY  DS    0CL14                                                    00006200
+TBFRTY   DS    CL1                                                      00006300
+TBJUL    DS    CL1                                                      00006400
+TBFRDD   DS    S                       POSITION DAY                     00006500
+TBFRDL   DS    S                                                        00006600
+TBFRMM   DS    S                       POSITION MONTH                   00006700
+TBFRML   DS    S                                                        00006800
+TBFRYY   DS    S                       POSITION YEAR                    00006900
+TBFRYL   DS    S                                                        00007000
+FBTAB    DSECT                                                          00007100
+FBENTRY  DS    0CL14                                                    00007200
+FBFRTY   DS    CL1                                                      00007300
+FBJUL    DS    CL1                                                      00007400
+FBFRDD   DS    S                       POSITION DAY                     00007500
+FBFRDL   DS    S                                                        00007600
+FBFRMM   DS    S                       POSITION MONTH                   00007700
+FBFRML   DS    S                                                        00007800
+FBFRYY   DS    S                       POSITION YEAR                    00007900
+FBFRYL   DS    S                                                        00008000
+         AIF   ('&TYPE' EQ 'DSECT').END                                 00008100
+.MCRO    ANOP                                                           00008200
+         SPACE                                                          00008300
+&L.STRT00 EQU  *                                              2024347   00008305
+*                                                             2024347   00008310
+* CONVERT USER DATE FORMAT TO TS CODES                        2024347   00008315
+*                                                             2024347   00008320
+         CLI   &DATEFMT,C'M'         USE MMDDYY               2024347   00008325
+         BE    &L.MMDDYY                                      2024347   00008330
+         CLI   &DATEFMT,C' '         IF SPACES, USE MMDDYY    2024347   00008335
+         BE    &L.MMDDYY                                      2024347   00008340
+         CLI   &DATEFMT,X'00'        IF LOW-VAL, USE MMDDYY   2024347   00008345
+         BNE   &L.DDMMYY                                      2024347   00008350
+&L.MMDDYY  EQU   *                                            2024347   00008355
+* CONVERT 'FROM' FORMAT CODE                                  9913483   00008406
+         CLI   &FFORMAT,C'U'         FROM FORMAT = U MMDDYY   9913483   00008407
+         BNE   &L.NL0002                BR NO                 9913483   00008408
+         MVI   &FFORMAT,C'5'         THIS IS TS FORMAT 5      9913483   00008409
+         B     &L.NL0004                                      9913483   00008410
+&L.NL0002   EQU   *                                           9913483   00008411
+         CLI   &FFORMAT,C'V'         FROM FORMAT = V MMDDYYYY 9913483   00008412
+         BNE   &L.NL0004                BR NO                 9913483   00008413
+         MVI   &FFORMAT,C'6'         THIS IS TS FORMAT 6      9913483   00008414
+* NOW CONVERT 'TO' FORMAT CODE                                9913483   00008415
+&L.NL0004   EQU   *                                           9913483   00008416
+         CLI   &TFORMAT,C'U'         TO FORMAT = U MMDDYY     9913483   00008417
+         BNE   &L.NL0006                BR NO                 9913483   00008418
+         MVI   &TFORMAT,C'5'         THIS IS TS FORMAT 5      9913483   00008419
+         B     &L.NL0099                                      9913483   00008420
+&L.NL0006   EQU   *                                           9913483   00008421
+         CLI   &TFORMAT,C'V'         TO FORMAT = V MMDDYYYY   9913483   00008422
+         BNE   &L.NL0099                BR NO                 9913483   00008423
+         MVI   &TFORMAT,C'6'         THIS IS TS FORMAT 6      9913483   00008424
+         B     &L.NL0099                                      9913483   00008425
+*                                                             9913483   00008426
+&L.DDMMYY  EQU   *                                            9913483   00008427
+         CLI   &DATEFMT,C'D'                                  2024347   00008428
+         BNE   &L.YYMMDD                                      9913483   00008429
+* CONVERT 'FROM' FORMAT CODE                                  9913483   00008430
+         CLI   &FFORMAT,C'U'         FROM FORMAT = U DDMMYY   9913483   00008431
+         BNE   &L.NL0012                BR NO                 9913483   00008432
+         MVI   &FFORMAT,C'7'         THIS IS TS FORMAT 7      9913483   00008433
+         B     &L.NL0014                                      9913483   00008434
+&L.NL0012   EQU   *                                           9913483   00008435
+         CLI   &FFORMAT,C'V'         FROM FORMAT = V DDMMYYYY 9913483   00008436
+         BNE   &L.NL0014                BR NO                 9913483   00008437
+         MVI   &FFORMAT,C'8'         THIS IS TS FORMAT 8      9913483   00008438
+* NOW CONVERT 'TO' FORMAT CODE                                9913483   00008439
+&L.NL0014   EQU   *                                           9913483   00008440
+         CLI   &TFORMAT,C'U'         TO FORMAT = U DDMMYY     9913483   00008441
+         BNE   &L.NL0016                BR NO                 9913483   00008442
+         MVI   &TFORMAT,C'7'         THIS IS TS FORMAT 7      9913483   00008443
+         B     &L.NL0099                                      9913483   00008444
+&L.NL0016   EQU   *                                           9913483   00008445
+         CLI   &TFORMAT,C'V'         TO FORMAT = V DDMMYYYY   9913483   00008446
+         BNE   &L.NL0099                BR NO                 9913483   00008447
+         MVI   &TFORMAT,C'8'         THIS IS TS FORMAT 8      9913483   00008448
+         B     &L.NL0099                                      9913483   00008449
+*                                                             9913483   00008450
+&L.YYMMDD  EQU   *                                            9913483   00008451
+         CLI   &DATEFMT,C'Y'                                  2024347   00008452
+         BNE   &L.NLEND                                       9913483   00008453
+* CONVERT 'FROM' FORMAT CODE                                  9913483   00008454
+         CLI   &FFORMAT,C'U'         FROM FORMAT = U YYMMDD   9913483   00008455
+         BNE   &L.NL0022                BR NO                 9913483   00008456
+         MVI   &FFORMAT,C'3'         THIS IS TS FORMAT 3      9913483   00008457
+         B     &L.NL0024                                      9913483   00008458
+&L.NL0022   EQU   *                                           9913483   00008459
+         CLI   &FFORMAT,C'V'         FROM FORMAT = V YYYYMMDD 9913483   00008460
+         BNE   &L.NL0024                BR NO                 9913483   00008461
+         MVI   &FFORMAT,C'4'         THIS IS TS FORMAT 4      9913483   00008462
+* NOW CONVERT 'TO' FORMAT CODE                                9913483   00008463
+&L.NL0024   EQU   *                                           9913483   00008464
+         CLI   &TFORMAT,C'U'         TO FORMAT = U YYMMDD     9913483   00008465
+         BNE   &L.NL0026                BR NO                 9913483   00008466
+         MVI   &TFORMAT,C'3'         THIS IS TS FORMAT 3      9913483   00008467
+         B     &L.NL0099                                      9913483   00008468
+&L.NL0026   EQU   *                                           9913483   00008469
+         CLI   &TFORMAT,C'V'         TO FORMAT = V YYYYMMDD   9913483   00008470
+         BNE   &L.NL0099                BR NO                 9913483   00008471
+         MVI   &TFORMAT,C'4'         THIS IS TS FORMAT 4      9913483   00008472
+         B     &L.NL0099                                      9913483   00008473
+&L.NLEND   EQU   *                                            9913483   00008474
+&L.NL0099   EQU   *                                           9913483   00008475
+         XR    &WR1,&WR1               CLEAR WORK REGISTERS             00008500
+         XR    &WR2,&WR2                                                00008600
+         XR    &WR3,&WR3                                                00008700
+         MVI   &RETURN,C'1'            SET FROM LENGTH ERROR            00008800
+         MVI   SVZERNIN,C'N'           SET NOT ZERO OR NINES            00008900
+         MVI   SVZERCEN,C'N'           SET NOT ZERO CENTURY   1125985   00008910
+         IC    &WR1,&FLGTH             INSERT FROM DATE LENGTH          00009000
+         CH    &WR1,=H'10'             LENGTH GREATER THAN 10?          00009100
+         BH    &L.EXIT00               YES - MACRO CAN'T HANDLE IT      00009200
+         BCTR  &WR1,0                  SUBTRACT 1 BYTE FOR INSTRUCTION  00009300
+         STC   &WR1,&FLGTH               LENGTHS AND RESTORE            00009400
+         CLI   &EDONLY,C'1'            EDIT ONLY?                       00009500
+         BE    &L.DETP00               YES - DON'T EDIT TO-LENGTH       00009600
+         MVI   &RETURN,C'2'            SET TO LENGTH ERROR              00009700
+         IC    &WR1,&TLGTH             INSERT TO DATE LENGTH            00009800
+         CH    &WR1,=H'10'             LENGTH GREATER THAN 10?          00009900
+         BH    &L.EXIT00               YES - MACRO CAN'T HANDLE IT      00010000
+         BCTR  &WR1,0                  SUBTRACT 1 BYTE FOR INSTRUCTION  00010100
+         SLL   &WR1,4                  SHIFT LENGTH LEFT FOR TO LENGTH  00010200
+         STC   &WR1,&TLGTH             OF INSTRUCTION AND RESTORE       00010300
+         SPACE                                                          00010400
+*********************************************************************** 00010500
+*   DETERMINE THE DATA OF FIELD PACKED,NUMERIC,BINARY                 * 00010600
+*********************************************************************** 00010700
+         SPACE                                                          00010800
+&L.DETP00 EQU  *                                                        00010900
+         MVI   &RETURN,C'0'            VALID RETURN                     00011000
+         CLI   &FDATA,C'B'                                              00011100
+         BE    &L.TYPE00                                                00011200
+         CLI   &FDATA,C'C'                                              00011300
+         BE    &L.TYPE20                                                00011400
+         CLI   &FDATA,C'I'             IDEOGRAPHIC DATA?      9913481   00011410
+         BE    &L.TYPE20                                      9913481   00011420
+         CLI   &FDATA,C'P'                                              00011500
+         BE    &L.TYPE10                                                00011600
+         CLI   &FDATA,C'N'                                              00011700
+         BE    &L.TYPE20                                                00011800
+         MVI   &RETURN,C'3'            INVALID DATA TYPE                00011900
+         B     &L.EXIT00                                                00012000
+         SPACE                                                          00012100
+*********************************************************************** 00012200
+*   MAKE A COMMON FORMAT                                              * 00012300
+*********************************************************************** 00012400
+&L.TYPE00 EQU  *                                                        00012500
+         ICM   &WR1,15,&FDATE          INSERT BINARY DATE               00012600
+         CVD   &WR1,DADWRD1            CONVERT TO DECIMAL               00012700
+         UNPK  FDAT,DADWRD1            UNPACK PACKED DATE               00012800
+         OI    DADWRD1+9,X'F0'         FIX ZONE                         00012900
+         B     &L.TYPE70               GO CHECK FOR ZEROES OR NINES     00013000
+         SPACE                                                          00013100
+&L.TYPE10 EQU  *                       MOVE PACKED                      00013200
+         SR    &WR1,&WR1               CLEAR REG FOR INSERT             00013300
+         IC    &WR1,&FLGTH             INSERT FROM LENGTH FOR EXECUTE   00013400
+         EX    &WR1,&L.TYPE30          GO UNPACK THE DATE THEN FIX ZONE 00013500
+         OI    FDAT+9,X'F0'              TO GET 10-BYTE NUMERIC FORMAT  00013600
+         B     &L.TYPE70               GO CHECK FOR ZEROES OR NINES     00013700
+         SPACE                                                          00013800
+&L.TYPE20 EQU  *                       MOVE NUMERIC                     00013900
+         SR    &WR1,&WR1               CLEAR REG FOR INSERT             00014000
+         IC    &WR1,&FLGTH             INSERT FROM LENGTH FOR EXECUTE   00014100
+         EX    &WR1,&L.TYPE40          GO PACK THE DATE                 00014200
+         UNPK  FDAT,DADWRD1            NOW UNPACK AND FIX ZONE          00014300
+         OI    FDAT+9,X'F0'              TO GET 10-BYTE NUMERIC FORMAT  00014400
+         B     &L.TYPE70               GO CHECK FOR ZERO OR NINES       00014500
+         SPACE                                                          00014600
+&L.TYPE30 UNPK FDAT,&FDATE.(0)         UNPACK A PACKED DATE             00014700
+&L.TYPE40 PACK DADWRD1,&FDATE.(0)      PACK A NUMERIC DATE              00014800
+&L.TYPE50 CLC  0(0,&WR1),&L.ZERO       TEST FOR ALL ZEROES              00014900
+&L.TYPE60 CLC  0(0,&WR1),&L.NINE       TEST FOR ALL NINES               00015000
+         SPACE                                                          00015100
+&L.TYPE70 EQU  *                       MOVE NUMERIC                     00015200
+         XR    &WR1,&WR1               CLEAR REG FOR INSERT             00015300
+         XR    &WR2,&WR2               CLEAR REG FOR INSERT             00015400
+         IC    &WR1,&FLGTH             GET LENGTH OF DATE               00015500
+         LA    &WR2,10                 GET MAX LENGTH                   00015600
+         SR    &WR2,&WR1               SUBTRACT DATE LGH FROM MAX       00015700
+         LA    &WR1,FDAT               GET ADDRESS OF FROM DATE         00015800
+         AR    &WR1,&WR2               ADD OFFSET FOR COMPARE           00015900
+         BCTR  &WR1,0                  SUBTRACT ONE FOR POSITIION       00016000
+         IC    &WR2,&FLGTH             INSERT FROM LENGTH FOR EXECUTE   00016100
+         EX    &WR2,&L.TYPE50          GO CHECK FOR ZEROES              00016200
+         BNE   &L.TYPE80               NO - GO CHECK FOR NINES          00016300
+         MVI   SVZERNIN,C'Y'           SET SWITCH FOR ZEROES            00016400
+         B     &L.FORM00               GO PROCESS FORMATS               00016500
+&L.TYPE80 EQU  *                       MOVE NUMERIC                     00016600
+         IC    &WR2,&FLGTH             INSERT FROM LENGTH FOR EXECUTE   00016700
+         EX    &WR2,&L.TYPE60          GO CHECK FOR NINES               00016800
+         BNE   &L.TYPE90               NO - CHECK FOR PERIOD'S X'4B'    00016900
+         MVI   SVZERNIN,C'Y'           SET SWITCH FOR ZEROES            00017000
+         B     &L.FORM00               GO PROCESS FORMATS               00017100
+&L.TYPE90 EQU  *                       MOVE NUMERIC                     00017200
+         IC    &WR2,&FLGTH             INSERT FROM LENGTH FOR EXECUTE   00017300
+         EX    &WR2,&L.TYPE95          GO CHECK FOR PERIOD'S X'4B'      00017400
+         BNE   &L.FORM00               NO - GO PROCESS FORMATS          00017500
+         MVI   &RETURN,C'6'            SET INVALID DATE ERROR           00017600
+         B     &L.EXIT00               GO RETURN                        00017700
+&L.TYPE95 CLC  0(0,&WR1),&L.PERID      TEST FOR ALL PERIODS             00017800
+         SPACE                                                          00017900
+*********************************************************************** 00018000
+*     DETERMINE WHAT FROM FORMAT                                      * 00018100
+*********************************************************************** 00018200
+         USING TBTAB,&WR2                                               00018300
+         USING FBTAB,&WR1                                               00018400
+&L.FORM00 EQU  *                     MODIFY CYYMMDD TO GREG   0635191   00018500
+         CLI   &FFORMAT,C'9'         FROM FORMAT = CYYMMDD?   0635191   00018505
+         BNE   &L.FORM05                BR NO                 0635191   00018510
+         PACK  DADWRD1,FDAT+3(1)     CENTURY                  0635191   00018515
+         AP    DADWRD1,=P'19'        0=20TH CENTURY=1901-2000 0635191   00018520
+         CP    DADWRD1,=P'28'        MAX?                     0635191   00018525
+         BL    &L.FORM03             YES, OK                  0635191   00018530
+         ZAP   DADWRD1,=P'18'        9=19TH CENTURY=1801-1900 0635191   00018535
+&L.FORM03 EQU  *                                              0635191   00018540
+         CLC   FDAT+4(2),=C'00'      00 YEAR?                 0635191   00018545
+         BNE   &L.FORM04                BR NO                 0635191   00018550
+         AP    DADWRD1,=P'1'         00 YEAR > CENTURY VALUE  0635191   00018555
+&L.FORM04 EQU  *                                              0635191   00018560
+         UNPK  FDAT+2(2),DADWRD1                              0635191   00018565
+         OI    FDAT+3,C'0'           FIX SIGN                 0635191   00018570
+&L.FORM05 EQU  *                      COMMON ROUTINE          0635191   00018575
+         LA    &WR2,&L.TTBL00          TO   REG                         00018600
+         LA    &WR1,&L.FTBL00          FROM REG                         00018700
+         CLI   &EDONLY,C'1'            EDIT ONLY?                       00018800
+         BE    &L.FORM20               YES - WE DON'T NEED TO TABLE     00018900
+&L.FORM10 EQU  *                                                        00019000
+         MVI   &RETURN,C'5'            INVALID TO FORMAT ERROR          00019100
+         CLI   TBFRTY,X'FF'            END OF TABLE                     00019200
+         BE    &L.EXIT00               YES CONTINUE                     00019300
+         CLC   TBFRTY,&TFORMAT         FIND TO FORMAT                   00019400
+         BE    &L.FORM20               YES CONTINUE                     00019500
+         LA    &WR2,L'TBENTRY(&WR2)    BUMP ONE ENTRY                   00019600
+         B     &L.FORM10                                                00019700
+&L.FORM20 EQU  *                                                        00019800
+         MVI   &RETURN,C'4'            INVALID FROM FORMAT ERROR        00019900
+         CLI   FBFRTY,X'FF'            END OF TABLE                     00020000
+         BE    &L.EXIT00               YES CONTINUE                     00020100
+         CLC   FBFRTY,&FFORMAT         FIND FROM FORMAT                 00020200
+         BE    &L.LEAP00               YES CONTINUE                     00020300
+         LA    &WR1,L'FBENTRY(&WR1)    BUMP ONE ENTRY                   00020400
+         B     &L.FORM20                                                00020500
+         SPACE                                                          00020600
+************************************************************  2021627   00020605
+* PROTOTYPE STATEMENTS FOR EX COMMANDS                        2021627   00020610
+************************************************************  2021627   00020615
+&L.PACK01 PACK DADWRD1,FDAT(0)         PACK DADWRD1           2021627   00020620
+&L.JLGR70 MVC  TDAT+4(2),FDAT+5        MOVE YEAR              2021627   00020625
+&L.JLGR76 MVC  TDAT+2(4),FDAT+5        MOVE CCYY              2021627   00020630
+&L.PACK02 PACK DADWRD2,FDAT(0)         PACK INTO DADWRD2      2021627   00020635
+&L.GRJL50 UNPK TDAT(3),DADWRD1         UNPACK DAYS            2021627   00020640
+&L.GRJL60 OC   TDAT(1),=C'00'          FIX ZONE               2021627   00020645
+&L.CENTCC CLC  TDAT(2),=C'00'          CENTURY COMPARE?       2021627   00020650
+&L.GRJL70 MVC  TDAT(2),&L.CEN19        DEFAULT TO 19          2021627   00020655
+&L.GRJL80 MVC  TDAT(2),&L.CEN20        CHANGE TO 20           2021627   00020660
+*                                                             2021627   00020665
+*********************************************************************** 00020700
+* CHECK FOR LEAP YEAR AND CHANGE DATE TABLE                           * 00020800
+*********************************************************************** 00020900
+&L.LEAP00 EQU  *                                                        00021000
+         MVI   &RETURN,C'0'            VALID RETURN                     00021100
+         ZAP   DAFEBDYS,=P'28'         SET FEBRUARY DAYS TO 28          00021200
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT             00021300
+         ICM   &WR3,3,FBFRYY           INSERT YEAR                      00021400
+         CLC   FBFRYL,=X'0003'         CENTURY INCLUDED IN YEAR?        00021500
+         BNE   &L.LEAP10               NO  - GO FIX INSTRUCTION         00021600
+         LA    &WR3,2(&WR3)            YES - BUMP PAST CENTURY          00021700
+         SPACE                                                          00021800
+&L.LEAP10 EQU  *                                                        00021900
+         MVC   DAINST(6),&L.PACK01     MOVE INSTRUCTION       2021627   00022000
+         STCM  &WR3,3,DAINST+4         FROM-YEAR SCON TO INST 2021627   00022010
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00022015
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00022020
+         CVB   &WR3,DADWRD1            CONVERT TO DECIMAL               00022200
+         SRDA  &WR3,32                 SHIFT FOR DIVIDE                 00022300
+         D     &WR3,=A(4)              DIVIDE BY FOUR                   00022400
+         LTR   &WR3,&WR3               ANY REMAINDER?                   00022500
+         BNZ   &L.JLDT00               YES - NOT A LEAP YEAR            00022600
+         ZAP   DAFEBDYS,=P'29'         LEAP YEAR - SET FEB DAYS TO 29   00022700
+         SPACE                                                          00022800
+*********************************************************************** 00022900
+*  CHECK FOR JULIAN DATE CONVERTS                                     * 00023000
+*********************************************************************** 00023100
+&L.JLDT00 EQU  *                                                        00023200
+         CLI   FBJUL,C'J'              JULIAN FROM DATE?                00023300
+         BE    &L.JLGR00               YES - CONVERT TO GREG  2602675   00023400
+         SPACE                                                          00023900
+*********************************************************************** 00024000
+*  EDIT DATE                                                          * 00024100
+*********************************************************************** 00024200
+&L.EDIT00 EQU  *                                                        00024300
+         MVC   DAINST(6),&L.PACK01     MOVE INSTRUCTION       2021627   00024310
+         MVC   DAINST+4(2),FBFRMM      MONTH SCON TO INST     2021627   00024400
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00024410
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00024420
+         CP    DADWRD1,=P'1'           CHECK MONTH FOR 1 THRU 12        00024600
+         BL    &L.EDIT90                                                00024700
+         CP    DADWRD1,=P'99'          CHECK MONTH FOR 99               00024800
+         BE    &L.EDIT90               YES - CONTINUE PROCESSING        00024900
+         CP    DADWRD1,=P'12'                                           00025000
+         BH    &L.EDIT90                                                00025100
+&L.EDIT15 EQU  *                                                        00025200
+         ZAP   DADWRD2,DADWRD1         SAVE MONTH                       00025300
+         MP    DADWRD1,=P'4'           MULTIPLY MONTH BY 4              00025400
+         CVB   &WR3,DADWRD1            CONVERT TO DECIMAL               00025500
+         MVC   DAINST(6),&L.PACK01     MOVE INSTRUCTION       2021627   00025700
+         MVC   DAINST+4(2),FBFRDD      MOVE DAY SCON TO INST  2021627   00025710
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00025720
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00025730
+         CP    DADWRD1,=P'1'           DAYS LESS THAN 0?                00025900
+         BL    &L.EDIT90               YES - ERROR                      00026000
+         CP    DADWRD2,=P'2'           IS THIS FEBRUARY?                00026100
+         BNE   &L.EDIT30               NO - GO ON                       00026200
+         CP    DADWRD1,DAFEBDYS        YES - COMPARE DAYS TO FEB DAYS   00026300
+         BH    &L.EDIT90               ERROR IF TOO HIGH                00026400
+         B     &L.TODT00               DATE OKAY                        00026500
+&L.EDIT30 EQU  *                                                        00026600
+         LA    &WR4,&L.TBJL00-4(&WR3)  POINT TO THAT MON'S ENT2024347   00026610
+         CP    DADWRD1,0(2,&WR4)       NOT FEBRUARY - COMPARE TO TABLE  00026700
+         BNH   &L.TODT00               NOT HIGH - DATE OKAY - GO ON     00026800
+&L.EDIT90 EQU  *                                                        00026900
+         CLI   SVZERNIN,C'Y'           TEST FOR ALL ZEROES OR NINES     00027000
+         BNE   &L.EDIT95               NO - GO ON             0802993   00027100
+         MVI   SVZERCEN,C'Y'           SAVE FOR CENTURY CALC  0802993   00027110
+         B     &L.TODT00               GO MOVE DATE           0802993   00027140
+&L.EDIT95 EQU  *                                              0802993   00027150
+         MVI   &RETURN,C'6'            INVALID DATE ERROR               00027200
+         B     &L.EXIT00                                                00027300
+         SPACE                                                          00027400
+*********************************************************************** 00027500
+*  SET UP TO MOVE TO FIELD                                            * 00027600
+*********************************************************************** 00027700
+&L.TODT00 EQU  *                                                        00027800
+         MVI   SVZERNIN,C'N'           SET ZERO OR NINE TEST OFF        00027900
+         CLI   &EDONLY,C'1'            EDIT ONLY?                       00028000
+         BE    &L.EXIT00               YES - EDIT DONE - RETURN         00028100
+         CLI   TBJUL,C'J'              JULIAN TO DATE?        0803016   00028120
+         BE    &L.GRJL00               YES - CONVERT TO JULIAN0803016   00028130
+         MVC   TDAT,FDAT               MOVE FROM DATE TO TO-DATE        00028200
+         CLC   &TFORMAT,&FFORMAT       ARE FORMATS THE SAME?            00028300
+         BE    &L.MOVE00               YES - SKIP CONVERT AND GO MOVE   00028400
+         MVC   TDAT,=10C' '            CLEAR TO DATE WORK FIELD         00028500
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT             00028600
+         ICM   &WR3,3,TBFRDL           INSERT LENGTH FOR DAY AND MONTH  00028700
+         MVC   DAFFLD,FBFRDD           ADDRESS FROM DAY       2021627   00028800
+         MVC   DATFLD,TBFRDD           ADDRESS TO DAY         2021627   00028900
+         MVC   DAMOVE60(2),=X'D200'    INIT MVC               2021627   00028910
+         EX    &WR3,DAMOVE60           FROM-DAY TO TO-DAY     2021627   00029000
+         MVC   DAFFLD,FBFRMM           ADDRESS FROM MONTH     2021627   00029100
+         MVC   DATFLD,TBFRMM           ADDRESS TO MONTH       2021627   00029200
+         EX    &WR3,DAMOVE60           FROM-MONTH TO TO-MONTH 2021627   00029300
+         MVC   DATFLD,TBFRYY           ADDRESS TO-YEAR        2021627   00029400
+         MVC   DAFFLD,FBFRYY           ADDRESS FROM-YEAR      2021627   00029500
+         XR    &WR3,&WR3               CLEAR REG FOR INSERT             00029600
+         ICM   &WR3,3,TBFRYL           INSERT LENGTH OF TO-YEAR         00029700
+         CLC   TBFRYL,=X'0003'         TO-YEAR LENGTH 4?                00029800
+         BNE   &L.TODT20               NO  - GO CHECK FROM YEAR         00029900
+         CLC   FBFRYL,=X'0003'         YES - FROM-YEAR ALSO 4?          00030000
+         BE    &L.TODT30               YES - GO MOVE 4 BYTES            00030100
+         LA    &WR3,1                  LENGTH OF MOVE/COMPARE IS 2      00030200
+         MVC   DAMOVE70,=X'D200'       **** MOVE              2021627   00030300
+         MVC   DAOPER1,TBFRYY          **** TO CENTURY        2021627   00030400
+         CLI   SVZERCEN,C'Y'           ALL ZEROES OR NINES?   0802993   00030410
+         BNE   &L.TODT05               NO - GO ON             0802993   00030420
+         MVC   DAOPER2,&L.SCEN00       **** '00'              2021627   00030430
+         EX    &WR3,DAMOVE70           MOVE '00' TO CENTURY   2021627   00030440
+         B     &L.TODT10               GO ON                  0802993   00030450
+&L.TODT05 EQU  *                                              0802993   00030460
+         MVC   DAOPER2,&L.SCEN19       **** '19'              2021627   00030500
+         EX    &WR3,DAMOVE70           MOVE '19' TO CENTURY   2021627   00030600
+         MVC   DAMOVE70,=X'D500'       **** COMPARE           2021627   00030700
+         MVC   DAOPER1,FBFRYY          **** FROM-YEAR         2021627   00030800
+         MVC   DAOPER2,&L.SBASE        **** TO CENTURY BASE   2021627   00030900
+         EX    &WR3,DAMOVE70           COMPARE                2021627   00031000
+         BNL   &L.TODT10               NOT LOW, LEAVE CC=19   2602675   00031100
+         MVC   DAMOVE70,=X'D200'       **** MOVE              2021627   00031200
+         MVC   DAOPER1,TBFRYY          **** TO CENTURY        2021627   00031300
+         MVC   DAOPER2,&L.SCEN20          **** '20'           2021627   00031400
+         EX    &WR3,DAMOVE70           MOVE '20' TO CENTURY   2021627   00031500
+&L.TODT10 EQU  *                                                        00031600
+         SR    &WR4,&WR4               CLEAR REG FOR INSERT             00031700
+         ICM   &WR4,3,TBFRYY           INSERT TO-YEAR SCON              00031800
+         LA    &WR4,2(&WR4)            ADD 2 (CAN'T DO CENTURY)         00031900
+         STCM  &WR4,3,DATFLD           RESTORE TO-YEAR SCON   2021627   00032000
+         LA    &WR3,1                  SET LENGTH OF MOVE FOR 2         00032100
+         B     &L.TODT30               GO MOVE YEAR                     00032200
+&L.TODT20 EQU  *                                                        00032300
+         CLC   FBFRYL,=X'0003'         FROM-YEAR LENGTH 4?              00032400
+         BNE   &L.TODT30               NO - NO PROBLEM, GO ON           00032500
+         SR    &WR4,&WR4               CLEAR REG FOR INSERT             00032600
+         ICM   &WR4,3,FBFRYY           INSERT FROM-YEAR SCON            00032700
+         LA    &WR4,2(&WR4)            ADD 2 (CAN'T DO CENTURY)         00032800
+         STCM  &WR4,3,DAFFLD           RESTORE FROM-YEAR SCON 2021627   00032900
+&L.TODT30 EQU  *                                                        00033000
+         MVC   DAMOVE60(2),=X'D200'    MOVE                   2021627   00033010
+         EX    &WR3,DAMOVE60           FROM-YEAR TO TO-YEAR   2021627   00033100
+         SPACE                                                          00033200
+*********************************************************************** 00033300
+*  MOVE THE FIELDS                                                    * 00033400
+*      DETERMINE TO DATA                                              * 00033500
+*********************************************************************** 00033600
+&L.MOVE00 EQU  *                                                        00033700
+         CLI   &TFORMAT,C'9'         TO FORMAT CYYMMDD?       0635191   00033705
+         BNE   &L.MOVE09                BR NO                 0635191   00033710
+         PACK  DADWRD1,TDAT+3(1)     CC 2ND POS OF CC         0635191   00033715
+         AP    DADWRD1,=P'1'                                  0635191   00033720
+         CLC   TDAT+4(2),=C'00'      YY 01-00 SAME CENT.      0635191   00033725
+         BNE   &L.MOVE01             01-99 OK.                0635191   00033730
+         SP    DADWRD1,=P'1'         00 IS PREVIOUS VALUE     0635191   00033735
+&L.MOVE01 EQU  *                                              0635191   00033740
+         CP    DADWRD1,=P'9'         1901-1999 IS 20TH        0635191   00033745
+         BNH   &L.MOVE02             NO, CONTINUE             0635191   00033750
+         ZAP   DADWRD1,=P'0'         20TH CENTURY             0635191   00033755
+&L.MOVE02 EQU  *                                              0635191   00033760
+         UNPK  TDAT+2(2),DADWRD1     REPLACE CENTURY          0635191   00033765
+         OI    TDAT+3,C'0'           FIX SIGN                 0635191   00033770
+&L.MOVE09 EQU  *                      COMMON ROUTINE          0635191   00033775
+         CLI   &TDATA,C'B'                                              00033800
+         BE    &L.MOVE10                                                00033900
+         CLI   &TDATA,C'P'                                              00034000
+         BE    &L.MOVE20                                                00034100
+         B     &L.MOVE30               DEFAULT NUMERIC                  00034200
+&L.MOVE10 EQU  *                                                        00034300
+         PACK  DADWRD1,TDAT            PACK NUMERIC DATE                00034400
+         CVB   R3,DADWRD1              CONVERT TO BINARY                00034500
+         STCM  R3,15,&TDATE            STORE IN OUTPUT                  00034600
+         B     &L.EXIT00               FINISHED                         00034700
+&L.MOVE20 EQU  *                                                        00034800
+         PACK  DADWRD1,TDAT            PACK THE DATE                    00034900
+         SR    &WR1,&WR1               CLEAR REGISTER FOR INSERT        00035000
+         IC    &WR1,&TLGTH             INSERT TO LENGTH                 00035100
+         EX    &WR1,&L.MOVE40          GO ZAP INTO TO DATE              00035200
+         B     &L.EXIT00               FINISHED                         00035300
+&L.MOVE30 EQU  *                                                        00035400
+         PACK  DADWRD1,TDAT            PACK THE DATE                    00035500
+         SR    &WR1,&WR1               CLEAR REGISTER FOR INSERT        00035600
+         IC    &WR1,&TLGTH             INSERT TO LENGTH                 00035700
+         EX    &WR1,&L.MOVE50          GO UNPACK INTO TO DATE           00035800
+         LA    &WR2,&TDATE             ADDRESS TO DATE                  00035900
+         SRL   &WR1,4                  SHIFT BACK FOR DISPLACEMENT      00036000
+         AR    &WR2,&WR1               ADD TO LENGTH FOR DISPLACEMENT   00036100
+         OI    0(&WR2),X'F0'             AND FIX ZONE                   00036200
+         B     &L.EXIT00               FINISHED                         00036300
+         SPACE                                                          00036400
+&L.MOVE40 ZAP  &TDATE.(0),DADWRD1                                       00036500
+&L.MOVE50 UNPK &TDATE.(0),DADWRD1                                       00036600
+&L.CEN00    DC    C'00'                                       2024224   00037210
+&L.CEN19    DC    C'19'                                       2024224   00037300
+&L.CEN20    DC    C'20'                                       2024224   00037400
+&L.SCEN00   DC    S(&L.CEN00)                                 2024224   00037410
+&L.SCEN19   DC    S(&L.CEN19)                                 2024224   00037500
+&L.SCEN20   DC    S(&L.CEN20)                                 2024224   00037600
+&L.SBASE    DC    S(&CENBASE)                                 2024224   00037700
+         DS    0H                                                       00037800
+         SPACE                                                          00037900
+*********************************************************************** 00038000
+* CONVERT JULIAN TO GREGORIAN FORMAT 3/4 (YYMMDD/CCYYMMDD)    2602675 * 00038100
+*********************************************************************** 00038200
+&L.JLGR00 EQU  *                                                        00038300
+         MVC   DAINST(6),&L.PACK01     MOVE INSTRUCTION       2021627   00038310
+         MVC   DAINST+4(2),FBFRDD      FROM-DAY SCON TO INST  2021627   00038400
+         LA    &WR4,2                  LENGTH OF 3 FOR EX     2021627   00038410
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00038420
+         LA    &WR3,&L.TBJL00          ADDRESS TABLE                    00038600
+&L.JLGR20 EQU  *                                                        00038700
+         ZAP   DADAYS,0(2,&WR3)        MOVE TABLE DAYS TO WORK FIELD    00038800
+         CLC   2(2,&WR3),=C'02'        IS THIS FEBRUARY?                00038900
+         BNE   &L.JLGR30               NO - GO ON                       00039000
+         ZAP   DADAYS,DAFEBDYS         YES - MOVE FEB DAYS TO WORK      00039100
+&L.JLGR30 EQU  *                                                        00039200
+         SP    DADWRD1,DADAYS          SUBTRACT TABLE DAY FROM JL DAYS  00039300
+&L.JLGR40 EQU  *                                                        00039400
+         BNH   &L.JLGR50               WHEN BELOW ZERO, EXIT LOOP       00039500
+         LA    &WR3,4(&WR3)            GO TO NEXT MONTH                 00039600
+         B     &L.JLGR20               DO IT AGAIN                      00039700
+&L.JLGR50 EQU  *                                                        00039800
+         AP    DADWRD1,DADAYS          ADD LAST MONTH'S DAYS BACK IN    00039900
+         MVC   TDAT,=C'0000000000'     CLEAR FROM DATE                  00040000
+         MVC   TDAT+6(2),2(&WR3)       MOVE MONTH FROM TABLE            00040100
+         UNPK  TDAT+8(2),DADWRD1       UNPACK DAYS                      00040200
+         OI    TDAT+9,X'F0'            FIX ZONE                         00040300
+         CLC   FBFRYL,=X'0003'         CENTURY-YEAR?          2602675   00040310
+         BE    &L.JLGR75               YES, GO MOVE           2602675   00040320
+         MVC   DAINST(6),&L.JLGR70     MOVE INSTRUCTION       2021627   00040330
+         MVC   DAINST+4(2),FBFRYY      MOVE FROM-YR SCON      2021627   00040340
+         LA    &WR4,1                  IMPLIED LEN IS 2 FOR EX2021627   00040350
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00040360
+         MVI   &FFORMAT,C'3'           FROM FORMAT YYMMDD     2602675   00040410
+         B     &L.JLGR80                                      2602675   00040420
+&L.JLGR75 EQU  *                                              2021627   00040422
+         MVC   DAINST(6),&L.JLGR76     MOVE INSTRUCTION       2021627   00040425
+         MVC   DAINST+4(2),FBFRYY      MOVE FROM-YR SCON      2021627   00040430
+         LA    &WR4,3                  IMPLIED LEN IS 4       2021627   00040432
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00040434
+         MVI   &FFORMAT,C'4'           FROM FORMAT CCYYMMDD   2602675   00040450
+&L.JLGR80 EQU  *                                              2602675   00040460
+         MVC   FDAT,TDAT               MOVE NEW DATE TO FORMAT          00040500
+         B     &L.FORM00               GO SEARCH FORMAT                 00040700
+         SPACE                                                          00040800
+*********************************************************************** 00040900
+* CONVERT  GREGORIAN TO JULIAN                                        * 00041000
+*********************************************************************** 00041100
+&L.GRJL00 EQU  *                                                        00041200
+         MVC   DAINST(6),&L.PACK01     MOVE INSTRUCTION       2021627   00041210
+         MVC   DAINST+4(2),FBFRDD      MOVE FROM-DAY TO INST  2021627   00041300
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00041310
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00041320
+         MVC   DAINST(6),&L.PACK02     MOVE INSTRUCTION       2021627   00041430
+         MVC   DAINST+4(2),FBFRMM      FROM-MONTH TO INSTR    2021627   00041500
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00041510
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00041520
+         CVB   &WR3,DADWRD2            CONVERT MONTH TO BINARY          00041700
+         SLL   &WR3,1                  MULTIPLY MONTH BY 2              00041800
+         LA    &WR4,&L.DATB00-2(&WR3)  POINT TO DADATB00 ENTRY          00041900
+         AP    DADWRD1,0(2,&WR4)       ADD DADATB00 DAYS TO RETURN DAYS 00042000
+         CP    DADWRD2,=P'2'           MONTH GREATER THAN 2?            00042100
+         BNH   &L.GRJL40               NO - GO FINISH CONVERT           00042200
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT             00042300
+         ICM   &WR3,3,FBFRYY           INSERT YEAR                      00042400
+         CLC   FBFRYL,=X'0003'         CENTURY INCLUDED IN YEAR?        00042500
+         BNE   &L.GRJL25               NO  - GO FIX INSTRUCTION         00042600
+         LA    &WR3,2(&WR3)            YES - BUMP PAST CENTURY          00042700
+         SPACE                                                          00042800
+&L.GRJL25 EQU  *                                                        00042900
+         MVC   DAINST(6),&L.PACK02     MOVE INSTRUCTION       2021627   00043000
+         STCM  &WR3,3,DAINST+4         FROM-YEAR SCON TO INST 2021627   00043010
+         LA    &WR4,1                  LENGTH OF 2 FOR EX     2021627   00043020
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00043030
+         CVB   &WR3,DADWRD2            CONVERT YEAR TO BINARY           00043200
+         STC   &WR3,DADWRD2            STORE YEAR IN DADWRD2            00043300
+         TM    DADWRD2,X'03'           LEAP YEAR?                       00043400
+         BNZ   &L.GRJL40               NO - GO FINISH CONVERT           00043500
+         AP    DADWRD1,=P'1'           YES - ADD 1 TO RETURN DAYS       00043600
+&L.GRJL40 EQU  *                                                        00043700
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT             00043800
+         ICM   &WR3,3,TBFRYY           INSERT YEAR                      00043900
+         CLC   TBFRYL,=X'0003'         CENTURY INCLUDED IN YEAR?        00044000
+         BNE   &L.GRJL43               NO  - GO FIX INSTRUCTION         00044100
+         CLC   FBFRYL,=X'0003'         CENTURY INCLUDED IN YR?2602675   00044110
+         BE    &L.GRJL43               YES, OK                2602675   00044120
+         LA    &WR3,2(&WR3)            YES - BUMP PAST CENTURY          00044200
+         SPACE                                                          00044300
+&L.GRJL43 EQU  *                                                        00044400
+         STCM  &WR3,3,DATFLD           FROM YEAR SCON TO INST 2021627   00044500
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT             00044600
+         ICM   &WR3,3,FBFRYY           INSERT YEAR                      00044700
+         CLC   FBFRYL,=X'0003'         CENTURY INCLUDED IN YEAR?        00044800
+         BNE   &L.GRJL45               NO  - GO FIX INSTRUCTION         00044900
+         CLC   TBFRYL,=X'0003'         CENTURY INCLUDED IN YR?2602675   00044910
+         BE    &L.GRJL45               YES, OK                2602675   00044920
+         LA    &WR3,2(&WR3)            YES - BUMP PAST CENTURY          00045000
+         SPACE                                                          00045100
+&L.GRJL45 EQU  *                                                        00045200
+         STCM  &WR3,3,DAFFLD           FROM YEAR SCON TO INST 2021627   00045300
+         LA    &WR3,1                  LENGTH 1 FOR YEAR MOVE           00045400
+         CLC   FBFRYL,=X'0003'         CENTURY INCLUDED IN YR?2602675   00045410
+         BNE   &L.GRJL46               NO - FIX INSTRUCTION   2602675   00045420
+         CLC   TBFRYL,=X'0003'         CENTURY INCLUDED IN YR?2602675   00045430
+         BNE   &L.GRJL46               NO - FIX INSTRUCTION   2602675   00045440
+         LA    &WR3,3                  LENGTH 3 FOR CCYY MOVE 2602675   00045450
+&L.GRJL46 EQU  *                                              2602675   00045460
+         MVC   DAMOVE60(2),=X'D200'    INIT MVC               0735374   00045470
+         EX    &WR3,DAMOVE60           FROM-YEAR TO TO-YEAR   2021627   00045500
+         MVC   DAINST(6),&L.GRJL50     MOVE INSTRUCTION       2021627   00045510
+         MVC   DAINST+2(2),TBFRDD      TO-DAY SCON TO INSTR   2021627   00045600
+         LA    &WR4,0                  USE DEFAULT LENGTHS    2021627   00045610
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00045620
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT   2021627   00045800
+         ICM   &WR3,3,TBFRDD           INSERT ADDRESS OF TO-DAYS        00045900
+         LA    &WR3,2(&WR3)            ADD 2 TO POINT TO LAST BYTE      00046000
+         MVC   DAINST(6),&L.GRJL60     MOVE INSTRUCTION       2021627   00046100
+         STCM  &WR3,3,DAINST+2         FROM-YEAR SCON TO INST 2021627   00046110
+         LA    &WR4,0                  IMPLIED LEN IS 1       2021627   00046120
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00046130
+         CLC   TBFRYL,=X'0003'         CENT INCLUDED IN YR?   2021627   00046205
+         BNE   &L.MOVE00               NO, THEN DONE          2602675   00046210
+         MVC   DAINST(6),&L.CENTCC     MOVE INSTRUCTION       2021627   00046212
+         MVC   DAINST+2(2),TBFRYY      TO-YR SCON TO INSTRUCT 2021627   00046214
+         LA    &WR4,1                  LENGTH FOR EX IS 2     2021627   00046216
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00046218
+         BNE   &L.MOVE00               GO MOVE TO OUTPUT      2602675   00046225
+         MVC   DAINST(6),&L.GRJL70     MOVE INSTRUCTION       2021627   00046227
+         MVC   DAINST+2(2),TBFRYY      TO-YR SCON TO INSTRUCT 2021627   00046228
+         LA    &WR4,1                  IMPLIED LEN IS 2       2021627   00046230
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00046232
+         SR    &WR3,&WR3               CLEAR REG FOR INSERT   2602675   00046240
+         ICM   &WR3,3,TBFRYY           INSERT YEAR            2602675   00046245
+         LA    &WR3,2(&WR3)            BUMP PAST CENTURY      2602675   00046250
+         MVC   DAINST(6),&L.CENTCC     MOVE INSTRUCTION       2021627   00046252
+         STCM  &WR3,3,DAINST+2         FIX INSTRUCTION        2021627   00046254
+         MVC   DAINST+4(2),&L.SBASE    BASE YEAR              2021627   00046256
+         LA    &WR4,1                  LENGTH OF COMPARE IS 2 2021627   00046258
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00046260
+         BNL   &L.MOVE00               USE 19                 2602675   00046270
+         MVC   DAINST(6),&L.GRJL80     MOVE INSTRUCTION       2021627   00046272
+         MVC   DAINST+2(2),TBFRYY      TO-YR SCON TO INSTRUCT 2021627   00046274
+         LA    &WR4,1                  IMPLIED LEN IS 2       2021627   00046276
+         EX    &WR4,DAINST             PERFORM INSTRUCTION    2021627   00046278
+         B     &L.MOVE00               GO MOVE TO OUTPUT                00046300
+         SPACE                                                          00046400
+&L.ZERO   DC   10CL1'0'                10 ZEROES                        00046500
+&L.NINE   DC   10CL1'9'                10 NINES                         00046600
+&L.PERID  DC   10XL1'FB'               10 PERIODS (X'4B')               00046700
+*********************************************************************** 00046800
+* THE FOLLOWING TABLES DEFINE THE DIFFERENT FORMATS OF DATE           * 00046900
+* CONVERSION FOR THE 'FROM' DATES AND THE 'TO' DATES. THE FIRST BYTE  * 00047000
+* IS THE FORMAT TYPE AS DEFINED BY THE SDR DATE FORMAT FIELDS FOR     * 00047100
+* SOURCE DATA (FROM DATE) AND FOR SCREEN DATA (TO DATE).  THE SECOND  * 00047200
+* BYTE CONTAINS A BLANK OR A 'J' IF THE FORMAT IS A JULIAN DATE.      * 00047300
+* THERE ARE SIX SCONS THAT RELATE TO DAY, DAY LENGTH, MONTH, MONTH    * 00047400
+* LENGTH, YEAR, AND YEAR LENGTH IN THAT ORDER.  THE ADDRESS THAT IS   * 00047500
+* GENERATED REPRESENTS THE POSITION OF THE DAY, MONTH, AND YEAR IN    * 00047600
+* THE DATE FOR THAT FORMAT.                                           * 00047700
+*********************************************************************** 00047800
+*        FROM DATE TABLE                                              * 00047900
+*********************************************************************** 00048000
+&L.FTBL00 EQU  *                                                        00048100
+         DC    C'1J',S(FDAT+5),S(2),C'    ',S(FDAT+8),S(1)              00048200
+*                                                 JULIAN    - DDDYY     00048300
+         DC    C'2J',S(FDAT+7),S(2),C'    ',S(FDAT+5),S(1)              00048400
+*                                                 JULIAN    - YYDDD     00048500
+         DC    C'3 ',S(FDAT+8),S(1),S(FDAT+6),S(1),S(FDAT+4),S(1)       00048600
+*                                                 GREGORIAN - YYMMDD    00048700
+         DC    C'4 ',S(FDAT+8),S(1),S(FDAT+6),S(1),S(FDAT+2),S(3)       00048800
+*                                                 GREGORIAN - YYYYMMDD  00048900
+         DC    C'5 ',S(FDAT+6),S(1),S(FDAT+4),S(4),S(FDAT+8),S(1)       00049000
+*                                                 GREGORIAN - MMDDYY    00049100
+         DC    C'6 ',S(FDAT+4),S(1),S(FDAT+2),S(1),S(FDAT+6),S(3)       00049200
+*                                                 GREGORIAN - MMDDYYYY  00049300
+         DC    C'7 ',S(FDAT+4),S(1),S(FDAT+6),S(1),S(FDAT+8),S(1)       00049400
+*                                                 GREGORIAN - DDMMYY    00049500
+         DC    C'8 ',S(FDAT+2),S(1),S(FDAT+4),S(1),S(FDAT+6),S(3)       00049600
+*                                                 GREGORIAN - DDMMYYYY  00049700
+         DC    C'9 ',S(FDAT+8),S(1)                           0635191   00049702
+         DC    S(FDAT+6),S(1),S(FDAT+2),S(3)                  0635191   00049703
+*             CENTURY CYYMMDD MIMICS GREGORIAN - YYYYMMDD     0635191   00049704
+         DC    C'JJ',S(FDAT+7),S(2),C'    ',S(FDAT+3),S(3)    2602675   00049710
+*                                        JULIAN    - CCYYDDD  2602675   00049720
+         DC    C'KJ',S(FDAT+3),S(2),C'    ',S(FDAT+6),S(3)    2602675   00049730
+*                                        JULIAN    - DDDCCYY  2602675   00049740
+         DC   X'FF'                                                     00049800
+**********************************************************************  00049900
+*                    TO DATE TABLE                                      00050000
+**********************************************************************  00050100
+&L.TTBL00 DS   0F                                                       00050200
+         DC    C'1J',S(TDAT+5),S(2),C'    ',S(TDAT+8),S(1)              00050300
+*                                                 JULIAN    - DDDYY     00050400
+         DC    C'2J',S(TDAT+7),S(2),C'    ',S(TDAT+5),S(1)              00050500
+*                                                 JULIAN    - YYDDD     00050600
+         DC    C'3 ',S(TDAT+8),S(1),S(TDAT+6),S(1),S(TDAT+4),S(1)       00050700
+*                                                 GREGORIAN - YYMMDD    00050800
+         DC    C'4 ',S(TDAT+8),S(1),S(TDAT+6),S(1),S(TDAT+2),S(3)       00050900
+*                                                 GREGORIAN - YYYYMMDD  00051000
+         DC    C'5 ',S(TDAT+6),S(1),S(TDAT+4),S(4),S(TDAT+8),S(1)       00051100
+*                                                 GREGORIAN - MMDDYY    00051200
+         DC    C'6 ',S(TDAT+4),S(1),S(TDAT+2),S(1),S(TDAT+6),S(3)       00051300
+*                                                 GREGORIAN - MMDDYYYY  00051400
+         DC    C'7 ',S(TDAT+4),S(1),S(TDAT+6),S(1),S(TDAT+8),S(1)       00051500
+*                                                 GREGORIAN - DDMMYY    00051600
+         DC    C'8 ',S(TDAT+2),S(1),S(TDAT+4),S(1),S(TDAT+6),S(3)       00051700
+*                                                 GREGORIAN - DDMMYYYY  00051800
+         DC    C'9 ',S(TDAT+8),S(1)                           0635191   00051810
+         DC    S(TDAT+6),S(1),S(TDAT+2),S(3)                  0635191   00051815
+*             CENTURY CYYMMDD MIMICS GREGORIAN - YYYYMMDD     0635191   00051820
+         DC    C'AJ',S(TDAT+5),S(2),C'    ',S(TDAT+8),S(1)              00051900
+*                                      TIME-ZONED JULIAN    - DDDYY     00052000
+         DC    C'BJ',S(TDAT+7),S(2),C'    ',S(TDAT+5),S(1)              00052100
+*                                      TIME-ZONED JULIAN    - YYDDD     00052200
+         DC    C'C ',S(TDAT+8),S(1),S(TDAT+6),S(1),S(TDAT+4),S(1)       00052300
+*                                      TIME-ZONED GREGORIAN - YYMMDD    00052400
+         DC    C'D ',S(TDAT+8),S(1),S(TDAT+6),S(1),S(TDAT+2),S(3)       00052500
+*                                      TIME-ZONED GREGORIAN - YYYYMMDD  00052600
+         DC    C'E ',S(TDAT+6),S(1),S(TDAT+4),S(4),S(TDAT+8),S(1)       00052700
+*                                      TIME-ZONED GREGORIAN - MMDDYY    00052800
+         DC    C'F ',S(TDAT+4),S(1),S(TDAT+2),S(1),S(TDAT+6),S(3)       00052900
+*                                      TIME-ZONED GREGORIAN - MMDDYYYY  00053000
+         DC    C'G ',S(TDAT+4),S(1),S(TDAT+6),S(1),S(TDAT+8),S(1)       00053100
+*                                      TIME-ZONED GREGORIAN - DDMMYY    00053200
+         DC    C'H ',S(TDAT+2),S(1),S(TDAT+4),S(1),S(TDAT+6),S(3)       00053300
+*                                      TIME-ZONED GREGORIAN - DDMMYYYY  00053400
+         DC    C'JJ',S(TDAT+7),S(2),C'    ',S(TDAT+3),S(3)    2602675   00053410
+*                                        JULIAN    - CCYYDDD  2602675   00053420
+         DC    C'KJ',S(TDAT+3),S(2),C'    ',S(TDAT+6),S(3)    2602675   00053430
+*                                        JULIAN    - DDDCCYYY 2602675   00053440
+         DC    C'MJ',S(TDAT+7),S(2),C'    ',S(TDAT+3),S(3)    2602675   00053450
+*                             TIME-ZONED JULIAN    - CCYYDDD  2602675   00053460
+         DC    C'NJ',S(TDAT+3),S(2),C'    ',S(TDAT+6),S(3)    2602675   00053470
+*                             TIME-ZONED JULIAN    - DDDCCYYY 2602675   00053480
+         DC   X'FF'                                                     00053500
+*********************************************************************** 00053600
+* THIS TABLE TELLS THE PROGRAM HOW MANY DAYS ARE IN EACH MONTH        * 00053700
+*********************************************************************** 00053800
+&L.TBJL00 DC   P'31',C'01'                                              00053900
+&L.TBJL10 DC   P'28',C'02'                                              00054000
+         DC    P'31',C'03'                                              00054100
+         DC    P'30',C'04'                                              00054200
+         DC    P'31',C'05'                                              00054300
+         DC    P'30',C'06'                                              00054400
+         DC    P'31',C'07'                                              00054500
+         DC    P'31',C'08'                                              00054600
+         DC    P'30',C'09'                                              00054700
+         DC    P'31',C'10'                                              00054800
+         DC    P'30',C'11'                                              00054900
+         DC    P'31',C'12'                                              00055000
+         DC    P'999',C'00'         END OF TABLE                        00055100
+         SPACE                                                          00055200
+*********************************************************************** 00055300
+* THIS TABLE REPRESENTS THE BEGINING NUMBER FOR EACH MONTH.           * 00055400
+* SO IF YOU ADD YOUR DAY FIELD TO THE CORRESPONING MONTH ENTRY        * 00055500
+* YOU WILL GET THE JULIAN REPRSENTATION FOR THAT DAY BY MONTH.        * 00055600
+*                                                                     * 00055700
+* EXAMPLE: IF YOUR DATE IS FEB 4TH THE SECOND ENTERY REPRESENTS       * 00055800
+* THE LAST DAY OF JAN. IF YOU ADD 4 TO IT YOU'LL HAVE 35 THAT         * 00055900
+* IS THE JULIAN DAY FOR FEB 4TH.                                      * 00056000
+*********************************************************************** 00056100
+         DC   PL2'000'        THIS ENTRY IS FOR ZEROS         0735374   00056110
+&L.DATB00 DC   PL2'000'                                                 00056200
+         DC    PL2'031'                                                 00056300
+         DC    PL2'059'                                                 00056400
+         DC    PL2'090'                                                 00056500
+         DC    PL2'120'                                                 00056600
+         DC    PL2'151'                                                 00056700
+         DC    PL2'181'                                                 00056800
+         DC    PL2'212'                                                 00056900
+         DC    PL2'243'                                                 00057000
+         DC    PL2'273'                                                 00057100
+         DC    PL2'304'                                                 00057200
+         DC    PL2'334'                                                 00057300
+         DC    87PL2'0'       LAST ENTRY IS FOR NINES         0735374   00057310
+         DS    0H                                                       00057400
+&L.EXIT00 EQU  *                                                        00057500
+.END     ANOP                                                           00057600
+         MEND                                                           00057700

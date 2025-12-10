@@ -1,0 +1,29 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*** BEGINNING OF COPYBOOK SIDSSGNX ***                                  00000100
+***  NEW COPYBOOK FOR FILE SEGMENTATION ***                             00000200
+*** ASSEMBLER EQUIVALENT FOR COBOL COPYBOOK SIWSSGNX ***                00000300
+***  THESE ARE AREAS DEFINED IN THE CALLING APPLICATION PROGRAM         00000400
+*-------------------------------------------------------------0525104-* 00000402
+*                  ** HISTORY OF REVISIONS **                 0525104 * 00000404
+*                                                             0525104 * 00000406
+* DESCRIPTION                                                 0525104 * 00000408
+* __________________________________________________________  0525104 * 00000410
+* 10/12/04 INCREASED SSR SEGMENTS(GNXSTKTB) FROM 25 TO 200.   0525104 * 00000494
+*                                                             0525104 * 00000496
+*-------------------------------------------------------------0525104-* 00000498
+*** LIST OF SEGMENT/GROUP NOS REQUIRED (BUILT BY SISSBLD OR SISSLKP)    00000500
+GNXRESP  DSECT                                                          00000600
+GNXSTKTB DS    201CL2     STACK TABLE ENTRIES                 0525104   00000601
+GNXSTKLN EQU  *-GNXSTKTB LENGTH OF STACK TABLE                          00000800
+         SPACE 3                                                        00000900
+GNXPARMS DSECT                                                          00001000
+GNXKEYPO DS    PL2        RELATIVE KEY POSITION                         00001100
+GNXKEYLN DS    PL2        KEY LENGTH                                    00001200
+GNXFLNO  DS    CL2        SEGMENT/GROUP NO                              00001300
+GNXRETCD DS    CL1        RETURN CODE                                   00001400
+GNXRCNRM EQU   C'0'        NORMAL RETURN                                00001401
+GNXRCEOF EQU   C'1'        END OF FILE                                  00001402
+GNXRCSYN EQU   C'2'        SYNTAX ERROR IN INPUT                        00001403
+GNXRCAEF EQU   C'3'        READ ATTEMPT AFTER END OF FILE               00001404
+GNXRCIOE EQU   C'9'        IO ERROR FROM IORTN                          00001405
+GNXSEGFL DS    CL1         SEGMENT FLAG                       0525104   00001450

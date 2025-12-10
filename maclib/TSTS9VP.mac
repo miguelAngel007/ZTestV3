@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&N       TSTS9VP &TYPE=,&DP=,&EP=,&WR1=,&WR2=                           00000200
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00000300
+&N.PKDW  DS    D                                                        00000400
+&N.WK4   DS    CL4                                                      00000500
+&N.VER   DS    CL11                                                     00000600
+&N.REG1  DS    F                                                        00000700
+&N.REG2  DS    F                                                        00000800
+.MCRO    ANOP                                                           00000900
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00001000
+         ST    &WR1,&N.REG1                                             00001100
+         ST    &WR2,&N.REG2                                             00001200
+         SPACE                                                          00001300
+         MVC   &N.WK4,&EP                                               00001400
+         L     &WR1,&N.WK4                                              00001500
+         CVD   &WR1,&N.PKDW                                             00001600
+         LM    &WR1,&WR2,&N.PKDW                                        00001700
+         SRDL  &WR1,4                                                   00001800
+         ST    &WR2,&N.VER                                              00001900
+         SPACE                                                          00002000
+         MVC   &N.WK4,&EP+4                                             00002100
+         L     &WR1,&N.WK4                                              00002200
+         CVD   &WR1,&N.PKDW                                             00002300
+         LM    &WR1,&WR2,&N.PKDW                                        00002400
+         SRDL  &WR1,4                                                   00002500
+         ST    &WR2,&N.VER+4                                            00002600
+         SPACE                                                          00002700
+         MVI   &N.WK4,X'00'                                             00002800
+         MVC   &N.WK4+1(3),&EP+8                                        00002900
+         L     &WR1,&N.WK4                                              00003000
+         CVD   &WR1,&N.PKDW                                             00003100
+         LM    &WR1,&WR2,&N.PKDW                                        00003200
+         SRDL  &WR1,4                                                   00003300
+         ST    &WR2,&N.WK4                                              00003400
+         MVC   &N.VER+8(3),&N.WK4+1                                     00003500
+         SPACE                                                          00003600
+         LA    &WR1,&N.VER                                              00003700
+         LA    &WR2,11                                                  00003800
+         SPACE                                                          00003900
+VPPWLP00 EQU   *                                                        00004000
+         CLI   0(&WR1),C' '                                             00004100
+         BE    VPPWLP10                                                 00004200
+         OI    0(&WR1),X'C0'                                            00004300
+         SPACE                                                          00004400
+VPPWLP10 EQU   *                                                        00004500
+         LA    &WR1,1(R4)                                               00004600
+         BCT   &WR2,VPPWLP00                                            00004700
+         SPACE                                                          00004800
+         MVC   &DP,&N.VER                                               00004900
+         L     &WR1,&N.REG1                                             00005000
+         L     &WR2,&N.REG2                                             00005100
+         SPACE                                                          00005200
+.STRG    ANOP                                                           00005300
+         MEND                                                           00005400

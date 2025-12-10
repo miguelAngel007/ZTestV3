@@ -1,0 +1,147 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LA      TSTS9EX &WR1=,&WR2=,&WR3=,&TYPE=                               00000200
+.********************************************************************** 00000300
+.*                                                                    * 00000400
+.*       THIS MACRO DOES EXTERNAL TRAN CODE CHECKING.  THE TRAN CODE  * 00000500
+.*       BEING PROCESSED IS EDITED AGAINST THE TAR FOR VALIDITY.      * 00000600
+.*                                                                    * 00000700
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00000800
+.*                                                                    * 00000900
+.*       &LA    - LABEL OF MACRO (ALL LABELS IN MACRO CONTAIN THIS    * 00001000
+.*                AS A PREFIX                                         * 00001100
+.*       &WR1   - ADDRESS OF TAR OCCURRENCE                           * 00001200
+.*       &WR2   - NUMBER OF TAR OCCURRENCES                           * 00001300
+.*       &WR3   - REGISTER CONTAINING ADDRESS OF TAR                  * 00001400
+.*                                                                    * 00001500
+.*       3 WORK FIELDS DEFINED AS FOLLOWS:                            * 00001600
+.*                                                                    * 00001700
+.*       WDWRD   -  DOUBLE WORD USED FOR NUMBER OF TRANSACTION IN TAR * 00001800
+.*       WTRANCD -  8 BYTE EXTERNAL TRAN CODE YOU ARE EDITING         * 00001900
+.*       WTARERFL - 1 BYTE ERROR FLAG, IF ERROR FOUND FLAG=1          * 00002000
+.*                                                                    * 00002100
+.*       3 WORK FIELDS ADDED DEFINED AS FOLLOWS:              0535168   00002110
+.*       INTRAN - DBLE WRD TO MOVE THE TRAN ID ENTERED        0535168   00002120
+.*       OUTRAN - DOUBLE WORD USED TO MOVE THE TAR ID         0535168   00002130
+.*       SAVRGS - 3 FULL WORDS TO SAVE THE WORK REGISTERS     0535168   00002140
+.********************************************************************** 00002200
+.*                 ** HISTORY OF REVISIONS **                         * 00002202
+.*                                                                    * 00002204
+.* DESCRIPTION                                                CHNGID  * 00002206
+.* _________________________________________________________  _______ * 00002208
+.*                                                                    * 00002210
+.* 08/15/16  LOGIC FOR CHECKING EXP TAR MOVED TO TSTS9AD      1717039   00002290
+.* 04/14/14  CHANGE TAR USE TO BINARY, EXPAND TAR SEQ         1436551   00002293
+.********************************************************************** 00002295
+          AIF   ('&TYPE' EQ 'MACRO').MCRO                               00002300
+*********************************************************************** 00002400
+*  STORAGE DEFINITIONS FOR MACRO 'TSTS9EX'                            * 00002500
+*********************************************************************** 00002600
+WDWRD     DS   D                     NUMBER OF TRANS IN TAR             00002700
+WTRANCD   DS   CL8                   EXT TRAN CODE TO BE EDITED         00002800
+WTARERFL  DS   CL1                   ERROR FLAG                         00002900
+INTRAN    DS   D                     WORK AREA FOR TRAN ID    0535168   00002910
+OUTRAN    DS   D                     WORK AREA FOR TAR TRANID 0535168   00002920
+SAVRGS    DS   3F                    3 FW TO SAV REGS         0535168   00002930
+*                                                                       00003000
+*                                                                       00003100
+.MCRO     ANOP                                                          00003200
+          AIF   ('&TYPE' EQ 'STRG').STRG                                00003300
+.********************************************************************** 00003400
+.* GET ADDRESSABILITY TO TAR STEM, TAR OCCURRENCES                    * 00003500
+.********************************************************************** 00003600
+&LA.TAR00 EQU  *                                                        00003700
+         MVI   WTARERFL,C' '         INIT ERROR FLAG                    00003800
+         USING TSTAR,&WR3            TAR BAR                            00003900
+         LTR   &WR3,&WR3             TAR PRESENT ?                      00004000
+         BZ    &LA.TAR50             NO - TRAN OK, GET OUT              00004100
+         LA    &WR1,TARAUTHO         LOAD TAR OCCURRENCE ADDRESS        00004200
+         USING TARAUTHD,&WR1         TAR OCCURRENCE BAR                 00004300
+         XR    &WR2,&WR2             CLEAR REGISTER           1436551   00004400
+         ICM   &WR2,3,TARUSCT        INSERT USED TAR          1436551   00004500
+         BZ    &LA.TAR50             NO - TRAN OK, GET OUT    1436551   00004510
+.********************************************************************** 00004600
+.* EXTERNAL TRAN CODE EDIT                                            * 00004700
+.********************************************************************** 00004800
+&LA.TAR10 EQU  *                                                        00004900
+         CLI   TAROPTFL,C'1'         EXTERNAL TRAN CODE ?               00005000
+         BNE   &LA.TAR20             NO - GO TO BUMP TO NEXT TRAN LOGIC 00005100
+         CLC   TARTRNTC,WTRANCD      TAR TRAN EQUAL PROCESSING TRAN ?   00005200
+         BE    &LA.TAR30             YES - GO TO INCLUDE/EXCLUDE EDIT   00005300
+         MVC   INTRAN(8),WTRANCD     MOVE TRAN ID             0535168   00005310
+         MVC   OUTRAN(8),TARTRNTC    MOVE TAR TRAN ID         0535168   00005320
+         B     &LA.TAR60                                      0535168   00005330
+.********************************************************************** 00005400
+.* BUMP TO NEXT TAR OCCURRENCE                                        * 00005500
+.********************************************************************** 00005600
+&LA.TAR20 EQU  *                                                        00005700
+         LA    &WR1,L'TARENTRY(&WR1) BUMP UP ADDRESS                    00005800
+         BCT   &WR2,&LA.TAR10        END OF TRANS?  NO-GO TO TRAN EDIT  00005900
+         CLI   TARINEX,C'1'          INCLUDE TAR ?                      00006000
+         BE    &LA.TAR40             YES - ERROR SINCE TRAN NOT FOUND   00006100
+         B     &LA.TAR50             NO  - TRAN OK, GET OUT OF ROUTINE  00006200
+.********************************************************************** 00006300
+.* TRAN FOUND IN TAR LOGIC                                            * 00006400
+.********************************************************************** 00006500
+&LA.TAR30 EQU  *                                                        00006600
+         CLI   TARINEX,C'0'          EXCLUDE TAR ?                      00006700
+         BE    &LA.TAR40             YES - ERROR SINCE TRAN FOUND       00006800
+         B     &LA.TAR50             NO - TRAN OK, GET OUT OF ROUTINE   00006900
+.***********************************************************  0535168   00006902
+.*LOGIC TO VALIDATE ADDITIONALLY USING EDIT MASK IF           0535168   00006904
+.* NO EXACT MATCH FOUND IN TAR                                0535168   00006906
+.***********************************************************  0535168   00006908
+&LA.TAR60 EQU  *                                              0535168   00006910
+         STM   &WR1,&WR3,SAVRGS      SAVE REGS                0535168   00006912
+         SR    &WR1,&WR1             INITIALIZE               0535168   00006918
+         SR    &WR2,&WR2             INITIALIZE               0535168   00006920
+         SR    &WR3,&WR3             INITIALIZE               0535168   00006922
+         LA    &WR1,INTRAN           ADDRESS OF TRAN ID       0535168   00006924
+         LA    &WR2,OUTRAN           ADDRESS OF TAR TRAN ID   0535168   00006926
+         LA    &WR3,8                INITILIAZE               0535168   00006928
+&LA.TAR65 EQU   *                                             0535168   00006930
+         CLC   0(1,&WR1),0(&WR2)     SAME CHARACTER           0535168   00006932
+         BE    &LA.TAR70             CHECK NEXT CHARACTER     0535168   00006934
+         CLC   0(1,&WR2),=C'*'       CHARACTER EQUAL *        0535168   00006936
+         BE    &LA.TAR75             CHECK THE LENGTH         0535168   00006938
+         LM    &WR1,&WR3,SAVRGS      RELOAD REGS              0535168   00006940
+         B     &LA.TAR20             BUMP TO NXT TRN LOGIC    0535168   00006942
+&LA.TAR70 EQU   *                                             0535168   00006944
+         LA    &WR1,1(&WR1)          POINT TO NEXT CHAR       0535168   00006946
+         LA    &WR2,1(&WR2)          POINT TO NEXT CHAR       0535168   00006948
+         BCT   &WR3,&LA.TAR65        BUMP TO CHK EQUAL        0535168   00006950
+&LA.TAR75 EQU   *                                             0535168   00006952
+         S     &WR3,=F'1'            DECREMENT THE LENGTH     0535168   00006954
+         LTR   &WR3,&WR3             TEST FOR ZERO            0535168   00006956
+         BZ    &LA.TAR85             YES, GO VERIFY LIMIT     0535168   00006958
+         LA    &WR2,1(&WR2)          POINT TO NXT CH IN TAR   0535168   00006960
+&LA.TAR80 EQU   *                                             0535168   00006962
+         CLC   0(1,&WR2),=C' '       CHECK IF SPACE           0535168   00006964
+         BE    &LA.TAR85             YES, GO VERIFY LIMIT     0535168   00006966
+         LA    &WR1,1(&WR1)          POINT TO NXT TRAN ID CH  0535168   00006968
+         CLC   0(1,&WR1),0(&WR2)     CHK TAR AND TRAN ID CH   0535168   00006970
+         BE    &LA.TAR75             CHK NXT CH IF LGTH NOT 0 0535168   00006972
+         CLC   0(1,&WR2),=C'*'       CHK TAR ID CH EQUAL *    0535168   00006974
+         BE    &LA.TAR75             CHK NXT CH IF LGTH NOT 0 0535168   00006976
+         S     &WR3,=F'1'            DECREMENT THE LENGTH     0535168   00006978
+         LTR   &WR3,&WR3             TEST FOR ZERO            0535168   00006980
+         BZ    &LA.TAR90             CHK NEXT OCCURRENCE      0535168   00006982
+         B     &LA.TAR80             BUMP BACK, CONTINUE      0535168   00006984
+&LA.TAR85 EQU   *                                             0535168   00006986
+         LM     &WR1,&WR3,SAVRGS     RELOAD REGS              0535168   00006988
+         B      &LA.TAR30            GO TO INCL/EXCL EDIT     0535168   00006990
+&LA.TAR90 EQU   *                                             0535168   00006992
+         LM     &WR1,&WR3,SAVRGS     RELOAD REGS              0535168   00006994
+         B      &LA.TAR20            BUMP TO NXT TAR LOGIC    0535168   00006996
+.********************************************************************** 00007000
+.* ERROR LOGIC                                                        * 00007100
+.********************************************************************** 00007200
+&LA.TAR40 EQU  *                                                        00007300
+         MVI   WTARERFL,C'1'         TURN ON ERROR FLAG                 00007400
+.********************************************************************** 00007500
+.* RETURN LOGIC                                                       * 00007600
+.********************************************************************** 00007700
+&LA.TAR50 EQU  *                     EXIT POINT                         00007800
+         DROP  &WR3,&WR1                                                00007900
+.STRG    ANOP                                                           00008000
+         MEND                                                           00008100

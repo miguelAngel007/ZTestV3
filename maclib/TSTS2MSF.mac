@@ -1,0 +1,53 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                   TSTS2MSF  --  MESSAGE FORMAT                      * 00000200
+*********************************************************************** 00000300
+         SPACE                                                          00000400
+MSFORMAT DS    0CL79                 MESSAGE FORMAT                     00000500
+*=*-------------------------*=*                                         00000600
+*=*  INTELLIGENT TERMINALS  *=*                                         00000700
+*=*-------------------------*=*                                         00000800
+MSFIMSGP DS    0CL15                 INTELLIGENT MESSAGE PREFIX         00000900
+MSFIPGM  DS    CL4                       PROGRAM ID                     00001000
+         DS    CL1                       FILLER                         00001100
+MSFIMSGC DS    CL6                       MESSAGE CODE                   00001200
+         DS    CL1                       FILLER                         00001300
+MSFISVCD DS    CL1                       SEVERITY CODE                  00001400
+*                                        VALUES:                        00001500
+*                                    A - IMMEDIATE (HIGHEST) - ABEND    00001600
+*                                    F - FATAL, STOP - STOP PROCESSING  00001700
+*                                    E - FATAL, CONTINUE - EDIT ONLY    00001800
+*                                    S - OVERRIDE, SUPERVISOR           00001900
+*                                    O - OVERRIDE, EMPLOYEE             00002000
+*                                    I - INFORMATIONAL (LOWEST)         00002100
+MSFICOLN DS    CL1                       COLON                          00002200
+         DS    CL1                       FILLER                         00002300
+MSFIMSG  DS    CL45                  INTELLIGENT ERROR MESSAGE          00002400
+         DS    CL19                  FILLER                             00002500
+*=*----------------------------*=*                                      00002600
+*=*  ADMINISTRATIVE TERMINALS  *=*                                      00002700
+*=*----------------------------*=*                                      00002800
+         ORG   MSFIPGM                                                  00002900
+MSFAMSGP DS    0CL19                 ADMINISTRATIVE MESSAGE PREFIX      00003000
+MSFAPGM  DS    CL8                       PROGRAM ID                     00003100
+         DS    CL1                       FILLER                         00003200
+MSFAMSGC DS    CL6                       MESSAGE CODE                   00003300
+         DS    CL1                       FILLER                         00003400
+MSFASVCD DS    CL1                       SEVERITY CODE                  00003500
+*                                        VALUES:                        00003600
+*                                    A - IMMEDIATE (HIGHEST) - ABEND    00003700
+*                                    F - FATAL, STOP - STOP PROCESSING  00003800
+*                                    E - FATAL, CONTINUE - EDIT ONLY    00003900
+*                                    S - OVERRIDE, SUPERVISOR           00004000
+*                                    O - OVERRIDE, EMPLOYEE             00004100
+*                                    I - INFORMATIONAL (LOWEST)         00004200
+MSFACOLN DS    CL1                       COLON                          00004300
+         DS    CL1                       FILLER                         00004400
+MSFAMSG  DS    CL50                  ADMINISTRATIVE ERROR MESSAGE       00004500
+MSFAMSGS DS    0CL10                 ADMINISTRATIVE MSG SUFFIX          00004600
+         DS    CL1                       FILLER                         00004700
+MSFASCRN DS    CL2                       SCREEN NUMBER                  00004800
+         DS    CL1                       FILLER                         00004900
+MSFAMSGD DS    CL4                       DESCR FOR MESSAGE              00005000
+         DS    CL2                       FILLER                         00005100
+         ORG                                                            00005200

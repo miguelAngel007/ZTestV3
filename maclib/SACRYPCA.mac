@@ -1,0 +1,26 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                             SACRYPCA                                * 00000200
+*              ASSEMBLER LAYOUT FOR PARMS SACRYPDF MEMBER             * 00000300
+*---------------------------------------------------------------------* 00000400
+*                    ** HISTORY OF REVISIONS **                       * 00000500
+* DATE     DESCRIPTION                                        CHNGID  * 00000600
+* ________ _________________________________________________  _______ * 00000700
+* 02/10/14 INITIAL RELEASE                                     GN6560 * 00001000
+*********************************************************************** 00001100
+SACRYPCA DSECT                                                          00001200
+SACRYP   DS    0CL138               ENCRYPTION KEY DEFINITION REC       00001300
+SACRLNG  DS    XL2                  RECORD LENGTH                       00001400
+         DS    CL2                                                      00001500
+SACRKEY  DS    0CL60                RECORD KEY                          00001600
+SACRSTRC DS    CL8                    STRUCTURE                         00001700
+SACRCTL1 DS    CL2                    CTL1                              00001800
+SACRSRKY DS    0CL50                  SEARCH KEY                        00001900
+SACRAPPL DS    CL2                      APPLICATION                     00002000
+SACRDAG  DS    CL8                      DAG NAME                        00002100
+SACRELE  DS    CL8                      ELEMENT ID                      00002200
+         DS    CL32                     FILLER                          00002300
+SACRLMDT DS    PL5                  LAST MAINT DATE                     00002400
+SACRLMTM DS    PL5                  LAST MAINT TIME                     00002500
+SACRKEYN DS    CL64                 ENCRYPTION KEY NAME                 00002600
+SACRLEN  EQU   *-SACRYPCA           SYMBOLIC LENGTH                     00002739

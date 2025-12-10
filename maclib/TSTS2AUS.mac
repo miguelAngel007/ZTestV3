@@ -1,0 +1,176 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00001000
+*********************************************************************** 00002000
+*           TSTS2AUS - AUTO-SIGNON COMMUNICATIONS AREA                * 00003000
+*                                                                     * 00004000
+*---------------------------------------------------------------------* 00005000
+*                   HISTORY OF REVISIONS                              * 00006000
+*   DESCRIPTION                                                CHG ID * 00007000
+* ----------------------------------------------------------  --------* 00008000
+* 19/01/10 ADDED ERROR CODE '17'AND '18'                      1025878   00009990
+* 11/27/00 ADDED ERROR CODE '16'                              2024239 * 00009992
+* 11/10/99 ADDED NCA ADDRESS FOR AUSO                         2021071 * 00009994
+* 09/25/98 ADDED ERROR COMMENT FOR LU62 MODEL ITRS            9913936 * 00009996
+* 04/30/98 ADDED NEW FIELDS FOR DYNAMIC EORS                  9913482 * 00009997
+* 12/05/97 NEW COPYBOOK.                                       ~~~0846* 00009999
+*********************************************************************** 00010000
+*                                                                       00011000
+TSTSAUSO DSECT                                                          00012000
+ASCOMMA  DS    0CL98           START OF COMMAREA                        00013000
+ASEYECAT DS    CL8             VALUE '**AUSO**'                         00014000
+ASCALEN  DS    XL2             LENGTH OF COMMAREA VALUE +98             00015000
+ASFCTNFG DS    CL1             FUNCTION FLAG                            00016000
+*                               '1'-SEARCH FOR ITR SYS REC IN CORE      00017000
+*                               '2'-SEARCH FOR MODEL ITR IN CORE/       00018000
+*                                   BUILD DYNAMIC ITR OR ITRCB          00019000
+*                               '3'-AUTO-SIGNON                         00020000
+*                               '4'-FUNCTION 2 THROUGH AUTO-SIGNON      00021000
+*                               '5'-FUNCTION 1 THROUGH AUTO-SIGNON      00022000
+*                               '6'-EOR MODEL SEARCH / BUILD  9913482   00022010
+*                               '7'-FUNCTION 6 PLUS AUTOSIGNON9913482   00022020
+*                               '8'-ITR SYS REC + EOR SRCH/BLD9913482   00022030
+*                               '9'-ITR SRCH/BLD+EOR SRCH/BLD 9913482   00022040
+*                               'A'-FUNCTION 9 PLUS AUTOSIGNON9913482   00022050
+ASPROCTY DS    CL1             ITR PROCESS TYPE/MODE                    00023000
+*                               '0'-ORIGINAL ITR / ORIG EOR   9913482   00024000
+*                               '1'-DYNAMIC ITR / ORIGINAL EOR9913482   00025000
+*                               '2'-ITR CB / ORIGINAL EOR     9913482   00026000
+*                               '3'-DYNAMIC ITR / DYNAMIC EOR 9913482   00026010
+*                               '4'-ITR CB / DYNAMIC EOR      9913482   00026020
+ASFEPFLG DS    CL1             FRONT-END PROCESSING FLAG                00027000
+*                               'A'-ADMIN                               00028000
+*                               'B'-TS/BMS                              00029000
+*                               'F'-FIAS                                00030000
+*                               'N'-NATIVE                              00031000
+*                               'O'-OTHER                               00032000
+ASBLDPHN DS    CL8             ITR BUILD PHASE NAME                     00033000
+ASDITRBD DS    CL1             DYNAMIC ITR REBUILD FLAG                 00034000
+*                               '0'-NO                                  00035000
+*                               '1'-YES, REBUILD DYNAMIC ITR            00036000
+ASMDLUSE DS    CL1             USE MODEL TO BUILD ITR                   00037000
+*                               '0'-NO                                  00038000
+*                               '1'-YES, USE THIS ITR AS MODEL          00039000
+ASAUSOFG DS    CL1             AUTO SIGNON FLAG                         00040000
+*                               '0'-NO, USING TSSO                      00041000
+*                               '1'-YES (REQUIRED FOR ITRCB)            00042000
+ASMINST  DS    CL1             MULTI-INSTITUTION FLAG                   00043000
+*                               '0'-SINGLE INSTALLATION PROCESSING      00044000
+*                               '1'-MULTI-SYSTEM/INSTALLATION           00045000
+ASITRMPT DS    CL4             ITR MODEL POINTER                        00046000
+ASNADTLR DS    CL1             DEVICE/TRANSACTION TYPE                  00047000
+*                               'A'-ADMIN/3270-TYPE TRANS               00048000
+*                               'P'-PC(CLIENT/SERVER TRAN)              00049000
+*                               'T'-TELLER TRANSACTION                  00050000
+*                               'M'-MA TRANSACTION                      00051000
+ASRBLDFG DS    CL1             REBUILD FLAG                             00052000
+*                               '0'-NO                                  00053000
+*                               '1'-YES, REBUILD DYNAMIC ITR            00054000
+*                               '2'-INTERNAL USE ONLY                   00055000
+ASDEORBD DS    CL1             DYNAMIC EOR REBUILD FLAG ON ITR9913482   00055010
+*                               '0'-NO                        9913482   00055011
+*                               '1'-YES, REBUILD DYNAMIC EOR  9913482   00055012
+*                               '2'-LINK FOR SECURITY, NOT RBD9913482   00055013
+*                               '3'-LINK FOR SECURITY & REBLD 9913482   00055014
+ASEORBFG DS    CL1             EOR REBUILD NEEDED FLAG        9913482   00055020
+*                               '0'-NO                        9913482   00055021
+*                               '1'-YES, REBUILD NEEDED       9913482   00055022
+ASEORGRP DS    CL2             EOR GROUP                      9913482   00055030
+ASEORRLV DS    CL5             REPORT LEVELS                  9913482   00055040
+ASEORMPT DS    CL8             EOR MODEL POINTER              9913482   00055050
+ASTSSOTN DS    CL1             SIGNON/TSSO TRANSACTION                  00056000
+*                               '0'-NO                                  00057000
+*                               '1'-YES, THIS IS A TSSO                 00058000
+*                               '2'-INTERVAL SIGNOFF EXCEEDED           00059000
+ASNOITR  DS    CL1             NO PHYSICAL ITR FLAG                     00060000
+*                               '0'-NOT USED                            00061000
+*                               '1'-NO PHYSICAL ITR                     00062000
+ASEMPID  DS    CL8             EMPLOYEE ID                              00063000
+ASSYSADR DS    XL4             ITR SYSTEM RECORD ADDRESS                00064000
+ASQSIADR DS    XL4             QSI ADDRESS                              00065000
+ASITRADR DS    XL4             ITR ADDRESS                              00066000
+ASEORADR DS    XL4             EOR ADDRESS                              00067000
+ASSACBAD DS    XL4             SACB ADDRESS                             00068000
+ASMLTYSN DS    CL1             MULTI SIGNON SUPPORTED                   00069000
+*                               '0'-NO                                  00070000
+*                               '1'-YES, MULTI SIGNONS SUPPORTED        00071000
+ASRETCD  DS    CL2             RETURN CODE                              00072000
+*                              VALUE '00'-GOOD RETURN CODE              00073000
+*                                    '01'-ORIG PROC, ITR DOES NOT EXIST 00074000
+*                                         FATAL ERROR                   00075000
+*                                    '02'-AUTO-SIGNON NOT (OR CANNOT    00076000
+*                                         BE) SUPPORTED, MUST USE TSSO  00077000
+*                                    '03'-EOR NOT FOUND/INVALID USERID  00078000
+*                                         ERROR (NOT SIGNED ON TO ESM)  00079000
+*                                    '04'-MODEL RECORD NOT FOUND, FATAL 00080000
+*                                    '05'-SEARCH/BUILD ROUTINE NOT      00081000
+*                                         FOUND, FATAL PGM ID ERROR     00082000
+*                                    '06'-A FILE-NOT-OPEN CONDITION     00083000
+*                                    '07'-ITR MODEL RECORD NOT TYPE GN  00084000
+*                                    '08'-ITR IS DISABLED               00085000
+*                                    '09'-PROCESSING OUTSIDE SER TIME   00086000
+*                                         LIMITS                        00087000
+*                                    '10'-INVALID TERMINAL (VTR)        00088000
+*                                    '11'-EOR IS NOT IN ACTIVE STATUS   00089000
+*                                    '12'-EOR IS DISABLED               00090000
+*                                    '13'-EOR TYPE NOT OG/DY  9913482   00090010
+*                                    '14'-EOR MODEL TYP NOT GN9913482   00090020
+*                                    '15'-EOR MODEL NOT FOUND 9913482   00090030
+*                                    '16'-EOR MODEL PTR SPACES2024239   00090040
+*                                    '17'-TSEOR FILE CLOSED   1025878   00090050
+*                                    '18'-TSEOR FILE DISABLED 1025878   00090060
+*                              REMAINING CODES ARE INTERNAL ERRORS:     00091000
+*                                    '20'-READ/UPD ITR (REBUILD)        00092000
+*                                    '21'-REWRITE ITR (REBUILD)         00093000
+*                                    '22'-WRITE ITR (BUILD)             00094000
+*                                    '23'-WRITE ITR (NOITR, TSSO)       00095000
+*                                    '24'-READ/UPD ITR (AUTO-SIGNON)    00096000
+*                                    '25'-REWRITE ITR (AUTO-SIGNON)     00097000
+*                                    '26'-RE-READ ITR (AUTO-SIGNON)     00098000
+*                                    '27'-REWRITE ITR (FORCE OFF)       00099000
+*                                    '28'-RE-READ SIGN ITR (FORCE OFF)  00100000
+*                                    '29'-WRITE ITR (AUTO-SIGNON)       00101000
+*                                    '2A'-RE-READ ITR (REBUILD)         00102000
+*                                                                       00103000
+*                                    '30'-ENQ BUSY ON ENQ OF EOR KEY    00104000
+*                                    '31'-CICS ERROR ON ENQ OF EOR KEY  00105000
+*                                    '32'-REWRITE EOR (AUTO-SIGNON)     00106000
+*                                    '33'-REWRITE EOR (FORCE OFF)       00107000
+*                                    '34'-RE-READ SIGN EOR (FORCE OFF)  00108000
+*                                    '35'-RE-READ EOR         9913482   00108010
+*                                    '36'-READ/UPD EOR (REBLD)9913482   00108020
+*                                    '37'-REWRITE EOR (REBLD) 9913482   00108030
+*                                    '38'-WRITE EOR (BUILD)   9913482   00108040
+*                                    '39'-WRITE EOR (SGNON)   9913482   00108050
+*                                                                       00109000
+*                                    '40'-GETMAIN ERROR (BUILD/REBUILD) 00110000
+*                                    '41'-SER NOT FOUND (AUTO-SIGNON)   00111000
+*                                    '42'-VTR NOT FOUND (AUTO-SIGNON)   00112000
+*                                    '43'-ERROR ON READQ TSTSQ001       00113000
+*                                    '44'-INV FUNCTION FLAG             00114000
+*                                    '45'-INVALID PROCESSING TYPE       00115000
+*                                    '46'-INVALID NAT/ADM/TLR FLAG      00116000
+*                                    '47'-NO TTR ADDR OR TTR NOT FND    00117000
+*                                    '48'-NO NUMBER OF OCCURS IN TTR    00118000
+*                                    '49'-CORRECT TTR OCCURS NOT FND    00119000
+*                                    '50'-EOR BLD LOOP-AUTOSGN9913482   00119010
+*                                                                       00120000
+*                                    '70'-MODEL SEARCH/BUILD RTN 01     00121000
+*                                    '71'-MODEL SEARCH/BUILD RTN 02     00122000
+*                                    '72'-MODEL SEARCH/BUILD RTN 03     00123000
+*                                    '73'-MODEL SEARCH/BUILD RTN 04     00124000
+*                                    '74'-MODEL SEARCH/BUILD RTN 05     00125000
+*                                    '75'-MODEL SEARCH/BUILD RTN 06     00126000
+*                                    '76'-MODEL SEARCH/BUILD RTN 07     00127000
+*                                    '77'-MODEL SEARCH RTN 08 9913482   00127010
+*                                    '78'-MODEL SEARCH RTN 10 9913936   00127020
+*                                    '79'-MODEL SEARCH RTN 17 2021071   00127030
+*                                    '80'-MODEL SEARCH RTN 18 2021071   00127040
+*                                    '81'-MODEL SEARCH RTN 20 2021071   00127050
+*                                    '82'-MODEL SEARCH RTN 22 2021071   00127060
+*                                                                       00128000
+*                                    '99'-CICS ERROR                    00129000
+*                                                                       00130000
+ASNCAADR DS    XL4                   NCA ADDRESS              2021071   00130100
+ASLOGPHY DS    CL4                   LOG PHYSICAL LOC         2021071   00130110
+ASLINKSR DS    CL1                   WHO REQUESTED AUSO       2021071   00130120
+         DS    CL8                   FILLER                   2021071   00131000

@@ -1,0 +1,391 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024349   00000199
+&N       TSTS9VC &TYPE=,&WR1=,&WR2=,&WR3=,&WR4=,&CA=,&IA=,&CL=,        X00000200
+               &EIB=YES                                                 00000210
+         GBLC  &OPSYS                                         2024349   00000220
+.********************************************************************** 00000300
+.*                                                                    * 00000400
+.*       THIS MACRO VALIDATES CONTROLS.  IT IS USED IN TSTSISE1, WHICH* 00000500
+.*       VALIDATES CONTROLS ON TRANSACTIONS THAT GO THROUGH TS INPUT  * 00000600
+.*       ANALYSIS,  TSTSVCM1, WHICH VALIDATES CONTROLS AND CHANGES    * 00000700
+.*       CONTROLS IN THE DCR DURING THE 'TSCR' TRANS-         2501474 * 00000800
+.*       ACTION, AND FISECRTY, WHICH VALIDATES CONTROLS FOR THE FIAS  * 00000900
+.*       APPLICATION PROGRAMS.                                        * 00001000
+.*                                                                    * 00001100
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00001200
+.*                                                                    * 00001300
+.*       &TYPE- 'STRG' (FOR STORAGE) OR 'MACRO' (FOR CODE)            * 00001400
+.*       &WR1 - WORK REGISTER                                         * 00001500
+.*       &WR2 - WORK REGISTER                                         * 00001600
+.*       &WR3 - VCR INDEX ADDRESS, VCR RECORD ADDRESS                 * 00001700
+.*       &WR4 - ADDRESS OF QUEUE INDEX ENTRIES (QIRENTS), BAR FOR VCR * 00001800
+.*              OCCURRENCES                                           * 00001900
+.*       &CA  - 'VCM' OR ANY PREFIX TO MAKE THESE FIELDS UNIQUE       * 00002000
+.*       &IA  - 'YES' IF COMING FROM INPUT ANALYSIS, OTHERWISE OMITTED* 00002100
+.*       &CL  - 'YES' CONTROLS LENGTH IS BEING PASSED IN THE FIELD    * 00002103
+.*              'WCTLLEN'.  IF '&CL' IS NOT PRESENT THEN      2024349   00002105
+.*              'WCTLLEN' IS INITIALIZE TO MAX ( X'7FFF' )    2024349   00002106
+.*       &EIB - 'YES' INDICATES THAT EIB ADDRESSABILITY IS    2024349   00002107
+.*              ALREADY AVAILABLE.  IF NOT, SET EIB=NO AND    2024349   00002108
+.*              WE WILL GET IT.                               2024349   00002109
+.*--------------------------------------------------------------------* 00002110
+.*                  ** HISTORY OF REVISIONS **                        * 00002111
+.*                                                                    * 00002112
+.* DESCRIPTION                                                CHNGID  * 00002113
+.* _________________________________________________________  _______ * 00002114
+.*                                                                    * 00002115
+.* 05/20/14  MODIFIED FOR SDT PROCESSING OF SCF FOR VSE       1436647   00002187
+.* 07/02/01  MODIFIED FOR SDT PROCESSING OF SCF               2024349 * 00002188
+.* 03/13/00 ADDED SER CLASS                                   2021255 * 00002190
+.* 09/13/94 ADDED FILE ID AND KEY PROCESSING TO 9VC           2521966 * 00002192
+.* 08/05/94 WVCRETRN EQUAL '4' IF VCR CLASS MATCH NOT FOUND   2602214 * 00002194
+.*                                                                    * 00002196
+.*--------------------------------------------------------------------* 00002198
+.********************************************************************** 00002200
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00002300
+*********************************************************************** 00002400
+*        STORAGE DEFINITIONS FOR MACRO 'TSTS9VC'                      * 00002500
+*********************************************************************** 00002600
+DWRD     DS    D                     DBLWORD WORK AREA                  00002700
+WSVQADR  DS    2F                    SAVE AREA FOR QIFREC, QIFENT       00002800
+WVCRIADR DS    F                     SAVE AREA FOR VCR INDEX ADDRESS    00002900
+WQIEEND  DS    F                     ENDING ADDRESS OF QUEUE NDX RCD    00003000
+WVCREND  DS    F                     ENDING ADDRESS OF VCR RECORD       00003100
+WVCRALAP DS    F                     ADDRESS OF DEEPEST CONTROLS MATCH  00003200
+SVOCCUA  DS    F                     BEG. ADDR OF VCR OCCURREN2521966   00003210
+WSVREG   DS    F                     SAVE REG FOR TSTS4SDV    2024349   00003220
+WSVREG2  DS    F                     SAVE REG FOR TSTS4SDV    2024349   00003230
+WSVR141  DS    4F                    SAVE REG FOR TSTS4SDV    2024349   00003240
+STARTBR  DS    CL1                   SCF STARTBR SWITCH       2024349   00003250
+WSVEIBRC DS    XL1                   SAVE AREA FOR EIBRCODE   2024349   00003260
+WVCRCL   DS    H                     LENGTH OF DEEPEST CONTROLS MATCH   00003300
+HWRD     DS    H                     HALFWORD WORK AREA                 00003400
+WCTLLEN  DS    H                     LENGTH OF CTLS PASSED    2500370   00003410
+WKEYLEN  DS    H                     LENGTH OF KEY  PASSED    2521966   00003420
+WSVRECKY DS    CL30                  SAVE AREA FOR RECORD KEY           00003500
+WFILNAME DS    0CL8                  SAVE AREA FOR FILE NAME            00003600
+WFILNAM  DS    CL5                                                      00003700
+         DS    CL3                                                      00003800
+WFNDVCR  DS    CL1                   VCR RECORD FOUND SWITCH            00003900
+APHIT    DS    CL1                   APPLICATION HIT SWITCH             00004000
+SVTRAINF DS    CL1                   SAVE EOR TRAINING FLAG   2501474   00004010
+SVPROCSW DS    CL1                   PROCESS SWITCH           2521966   00004020
+*                                    2 -  PROC W/FILE ID      2521966   00004030
+*                                    1 -  PROC WO/FILE ID     2521966   00004040
+FILEHIT  DS    CL1                   FILE HIT SWITCH          2521966   00004050
+KEYHIT   DS    CL1                   KEY HIT SWITCH           2521966   00004060
+CTLSHIT  DS    CL1                   CTLS HIT SWITCH          2521966   00004070
+WVCRETRN DS    CL1                   RETURN CODE                        00004100
+*                                    VALUES:  0 - VALID CONTROLS        00004200
+*                                             1 - INVALID CONTROLS      00004300
+*                                             2 - NO HIT ON APPL ID,    00004400
+*                                                 CONTROLS ARE VALID    00004500
+*                                             3 - NEXT PCA              00004600
+*                                             4 - NO VCR CLASS2602214   00004610
+*                                             5 - NO KEY  HIT 2521966   00004620
+*                                                                       00004700
+WVCCOVR  DS    CL1                   USE VCR OVERRIDE CLASSES 2500370   00004710
+*                                    VALUES:  0 - USE         2500370   00004713
+*                                             1 - DO NOT USE  2500370   00004716
+WVCTL    DS    0CL130                SV AR FOR VCR OCCURR     2021255   00004800
+WVCAP    DS    CL2                                                      00004900
+         DS    CL2                                            2501276   00005000
+WVCCTL   DS    CL14                                                     00005100
+WVCAOR   DS    CL10                  SAVE AREA FOR AOR CLASS            00005200
+WVCSOR   DS    CL10                  SAVE AREA FOR SOR CLASS            00005300
+WVCTAR   DS    CL10                  SAVE AREA FOR TAR CLASS            00005400
+WVCFIL   DS    CL3                                            2521966   00005410
+WVCKEY   DS    CL14                                           2521966   00005420
+WVCSER   DS    CL10                  SAVE AREA FOR SER CLASS  2021255   00005430
+         DS    CL55                                           2021255   00005500
+.MCRO    ANOP                                                 2024349   00005510
+         AIF   ('&TYPE' EQ 'STRG').STRG                       2024349   00005520
+         AIF   ('&WR3' EQ 'R14').WR3ERR                       2024349   00005530
+         AIF   ('&WR3' EQ 'R15').WR3ERR                       2024349   00005540
+         AIF   ('&WR3' EQ 'R1').WR3ERR                        2024349   00005550
+         AIF   ('&EIB' EQ 'YES').WROK                         2024349   00005560
+         AIF   ('&WR4' EQ 'R14').WR4ERR                       2024349   00005570
+         AIF   ('&WR4' EQ 'R15').WR4ERR                       2024349   00005580
+         AIF   ('&WR4' EQ 'R1').WR4ERR                        2024349   00005590
+         AGO   .WROK                                          2024349   00005600
+.WR3ERR  ANOP                                                 2024349   00005610
+         MNOTE 16,'WR3 MUST NOT BE R1, R14 OR R15'            2024349   00005620
+         AGO   .WROK                                          2024349   00005630
+.WR4ERR  ANOP                                                 2024349   00005640
+         MNOTE 16,'WR4 MUST NOT BE R1, R14 OR R15'            2024349   00005650
+.WROK    ANOP                                                 2024349   00005660
+         USING QIRREC,&WR3           QUEUE INDEX BAR          2024349   00005670
+         USING QIRENT,&WR4           QUEUE INDX REC ENTRY BAR 2024349   00005680
+         AIF   (T'&CL NE 'O').CTLLEN CTLS LENGTH PASSED       2500370   00005710
+         MVC   WCTLLEN,=X'7FFF'       NO, SET MAX LENGTH      2511813   00005720
+.CTLLEN  ANOP                                                 2500370   00005730
+VCFIND00 EQU   *                                                        00005800
+         MVI   WVCCOVR,C'0'          SET VCR OVERRIDE SWITCH  2500370   00005810
+         MVI   APHIT,C'0'            CLEAR APPLICATION HIT SWITCH       00005900
+         MVI   WFNDVCR,C'0'          CLEAR RECORD FOUND SW    2024349   00005907
+         MVI   FILEHIT,C'0'          CLEAR FILE HIT SWITCH    2521966   00005910
+         MVI   CTLSHIT,C'0'          CLEAR CTLS HIT SWITCH    2521966   00005920
+         MVI   KEYHIT,C'0'           CLEAR KEY HIT SWITCH     2521966   00005930
+         MVI   SVPROCSW,C'2'         SET TO PROC W/FILE ID    2521966   00005940
+         MVI   WVCRETRN,C'0'         CLEAR RETURN CODE                  00006000
+         XC    WVCRALAP,WVCRALAP     CLEAR MATCH ADDR SAVE AR 2024349   00006100
+         XC    WVCRCL,WVCRCL         CLEAR LENGTH SAVE AREA   2024349   00006200
+         XC    WVCTL,WVCTL           CLEAR SAVE VCR AREA      2024349   00006250
+         ICM   &WR3,15,WVCRIADR      LOAD VCR INDEX ADDRESS             00006300
+         BZ    VCREAD05              NO ADDR AVAILABLE-ERROR  2024349   00006315
+         TM    WVCRIADR,X'80'        VCR RECORD OR INDEX?     2024349   00006320
+         BZ    VCFIND10              INDEX - SEARCH CORE      2024349   00006325
+         MVI   STARTBR,C'0'          CLEAR STARTBR  SWITCH    2024349   00006330
+         B     VCREAD30              READ VCR RECORDS         2024349   00006335
+VCREAD05 EQU   *                                              2024349   00006340
+         MVI   WVCRETRN,C'5'         SET RTN CODE NO KEY HIT  2024349   00006345
+         B     VCEXIT00              EXIT FROM ROUTINE        2024349   00006350
+VCREAD30 EQU   *                                              2024349   00006355
+         COPY  TSTS4SDV                                       2024349   00006360
+         B     VCFIND35                                       2024349   00006365
+VCFIND10 EQU   *                                                        00006400
+         LA    &WR4,QIRENTS          LOAD INDEX ENTRIES ADDRESS         00006500
+*                                                                       00006600
+* CALCULATE END OF QUEUE INDEX RECORD                                   00006700
+         SR    &WR1,&WR1             CLEAR &WR1                         00006800
+         ICM   &WR1,3,QIRUSOC        # OF USED OCCURRENCES              00006900
+         STH   &WR1,HWRD             SAVE # IN HWRD                     00007000
+         LA    &WR1,L'QIRENTL        LENGTH OF ONE OCCURRENCE           00007100
+         MH    &WR1,HWRD             MULTIPLY BY #                      00007200
+         AR    &WR1,&WR4             CALCULATE END OF QIE RECORD        00007300
+         ST    &WR1,WQIEEND          SAVE ENDING ADDRESS                00007400
+*                                                                       00007500
+VCFIND20 EQU   *                     SEARCH FOR VCR RECORD              00007600
+         CLC   &CA.VCRCL,QIRRKY      CORRECT VCR CLASS                  00007700
+         BE    VCPROC00              YES - GO PROCESS VCR               00007800
+         BL    VCFIND35              YES - CONTINUE WITH EDITS          00007900
+VCFIND30 EQU   *                                                        00008000
+         LA    &WR4,L'QIRENTL(&WR4)  NEXT QUEUE REC OCCURRENCE          00008100
+         C     &WR4,WQIEEND          END OF OCCURRENCES                 00008200
+         BL    VCFIND20              NO GO COMPARE CLASS                00008300
+         CLC   QIRXNA,=F'0'          NEXT INDEX ADDR PRESENT            00008400
+         BNE   VCFIND40              YES - GO GET THE ADDRESS           00008500
+VCFIND35 EQU   *                                                        00008600
+         CLI   WFNDVCR,C'1'          WAS A VCR RECORD MATCH FOUND       00008700
+         BE    VCFIND45              YES - GO PROCESS IT                00008800
+         MVI   WVCRETRN,C'4'         NO - SET RETURN CODE     2602214   00008900
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00009000
+VCFIND40 EQU   *                                                        00009100
+         ICM   &WR3,15,QIRXNA        POINT TO NEXT INDEX RECORD         00009200
+         B     VCFIND10              GO - PROCESS VCR INDEX REC         00009300
+VCFIND45 EQU   *                                                        00009400
+.********************************************************************** 00009500
+.*       THE CODE THAT FOLLOWS IS NOT FOR VALIDATING CONTROLS FROM    * 00009600
+.*       INPUT ANALYSIS                                               * 00009700
+.********************************************************************** 00009800
+         AIF   (T'&IA NE 'O').INPT                                      00009900
+         CLI   APHIT,C'1'            ANY HITS ON APPL?                  00010000
+         BE    VCFIND50              YES - CHECK FOR MATCH ON CONTROLS  00010100
+         MVI   WVCRETRN,C'2'         NO - SET RETURN CODE               00010200
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00010300
+VCFIND50 EQU   *                                                        00010400
+         CLI   CTLSHIT,C'1'          CTLS HIT?                2521966   00010480
+         BE    VCFIND54              YES -                    2521966   00010490
+         MVI   WVCRETRN,C'1'         NO - SET RETURN CODE               00010700
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00010800
+VCFIND54 EQU   *                                              2521966   00010810
+         CLC   WVCRALAP,=F'0'        MATCH FOUND?             2521966   00010820
+         BNE   VCFIND60              YES -                    2521966   00010830
+         MVI   WVCRETRN,C'5'         SET RETURN CODE          2521966   00010840
+         B     VCEXIT00              EXIT                     2521966   00010850
+VCFIND60 EQU   *                                                        00010900
+         L     &WR4,WVCRALAP         ADDRESS OF MATCH IN &WR4           00011000
+         B     VCEXIT00              GO TO EXIT POINT                   00011100
+         AGO   .TRAN                                          2024349   00011110
+.INPT    ANOP                                                           00011200
+.********************************************************************** 00011300
+.*       THE FOLLOWING CODE IS FOR VALIDATING CONTROLS FROM INPUT     * 00011400
+.*       ANALYSIS ONLY.                                               * 00011500
+.********************************************************************** 00011600
+         CLI   APHIT,C'1'            ANY HITS ON APPLICATION?           00011800
+         BE    VCFIND70              YES - CHECK FOR MATCH ON CONTROLS  00011900
+         MVI   WVCRETRN,C'2'         NO - SET RETURN CODE               00012000
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00012100
+VCFIND70 EQU   *                                                        00012200
+         CLI   CTLSHIT,C'1'          CTLS HIT?                2521966   00012210
+         BE    VCFIND75              YES -                    2521966   00012220
+         MVI   WVCRETRN,C'1'         NO - SET RETURN CODE     2521966   00012230
+         B     VCEXIT00              EXIT                     2521966   00012240
+VCFIND75 EQU   *                                              2521966   00012250
+         CLC   WVCRALAP,=F'0'        MATCH FOUND?                       00012300
+         BNE   VCFIND80              YES - GO LOAD ADDRESS OF MATCH     00012400
+         MVI   WVCRETRN,C'5'         NO - SET RETURN CODE     2521966   00012500
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00012600
+VCFIND80 EQU   *                                                        00012700
+         L     &WR4,WVCRALAP         ADDR OF MATCH IN &WR4              00012800
+         B     VCIANL00              GO COMPARE CNTLS TO DCR  2501474   00012900
+.TRAN    ANOP                                                           00013000
+         EJECT                                                          00013100
+VCPROC00 EQU   *                     VCR RECORD IN CORE       2024349   00013200
+         STM   &WR3,&WR4,WSVQADR     SAVE QUEUE ADDRESSES               00013400
+         ICM   &WR3,15,QIRRECA       POINT TO VCR RECORD                00013500
+         B     VCPROC04              CONTINUE                 2024349   00013510
+VCPROC02 EQU   *                     VCR RECORD READ          2024349   00013520
+         STM   &WR3,&WR4,WSVQADR     SAVE REGISTERS           2024349   00013530
+VCPROC04 EQU   *                     PROCESS VCR RECORD       2024349   00013550
+         MVI   WFNDVCR,C'1'          INDICATE RECORD FOUND    2024349   00013560
+         DROP  &WR3,&WR4                                                00013600
+         USING TSVCR,&WR3            BAR FOR VCR RECORD                 00013700
+         USING VCRVCT,&WR4           BAR FOR VCR OCCURRENCES            00013800
+         LA    &WR4,VCRVCOC          POINT TO VCR OCCURRENCES           00013900
+         ST    &WR4,SVOCCUA          SAVE VCR OCCURRENCE ADDR 2521966   00013910
+VCPROC05 EQU   *                                              2521966   00013920
+         ZAP   DWRD,VCRUSCT          MOVE NUMBER OF OCCURRENCES TO DWRD 00014000
+         CVB   &WR1,DWRD             CONVERT TO BINARY                  00014100
+         STH   &WR1,HWRD             SAVE # IN HWRD                     00014200
+         LA    &WR1,L'VCRVCTL        LENGTH OF ONE OCCURRENCE           00014300
+         MH    &WR1,HWRD             MULTIPLY BY #                      00014400
+         AR    &WR1,&WR4             CALCULATE END OF QIE RECORD        00014500
+         ST    &WR1,WVCREND          SAVE ENDING ADDRESS                00014600
+VCPROC10 EQU   *                     CALCULATE LENGTH OF CONTROLS       00014700
+         CLC   &CA.APPL,VCRVCAP      SAME APPLICATION AS CHG APPL       00014800
+         BNE   VCPROC40              NO - POINT TO NEXT VCR OCCUR       00014900
+         MVI   APHIT,C'1'            YES - INDICATE APPLICATION HIT     00015000
+         CLI   SVPROCSW,C'1'         PROC WO/FILE ID          2521966   00015010
+         BE    VCPROC12              YES - GO CHECK CNTLS     2521966   00015020
+         CLC   &CA.APFIL,VCRVCFIL    FILE ID EQUAL?           2521966   00015030
+         BNE   VCPROC40              NO -                     2521966   00015040
+         MVI   FILEHIT,C'1'                                   2521966   00015050
+         B     VCPROC15                                       2521966   00015060
+VCPROC12 EQU   *                                              2521966   00015070
+         CLI   VCRVCFIL,C' '         VCR FILE ID BLANK?       2521966   00015080
+         BNE   VCPROC40              NO - NEXT                2521966   00015090
+VCPROC15 EQU   *                                              2521966   00015095
+         LA    &WR1,L'VCRVCCTL       LENGTH OF VCR CONTROLS             00015100
+         LA    &WR2,VCRVCCTL+L'VCRVCCTL-1   &WR2 TO END OF VCR CTLS     00015200
+VCPROC20 EQU   *                                                        00015300
+         CLI   0(&WR2),C' '          IS CHARACTER BLANK?                00015400
+         BNE   VCPROC30              NO - GO DO COMPARE                 00015500
+         BCTR  &WR2,0                YES - POINT TO PREV CHAR           00015600
+         BCT   &WR1,VCPROC20         GO DO IT AGAIN                     00015700
+         B     VCPROC40              GO BUMP TO NEXT OCCURRENCE         00015800
+VCPROC30 EQU   *                                                        00015900
+         CLC   WCTLLEN(2),=X'0000'    IS LENGTH ZERO ?        2511813   00015902
+         BH    VCPROC31               NO ...                  2511813   00015904
+         MVC   WCTLLEN,=X'7FFF'       YES,SET MAX LENGTH      2511813   00015906
+VCPROC31 EQU   *                                              2511813   00015908
+         CH    &WR1,WCTLLEN           COMPARE LENGTH OF CTLS  2500370   00015910
+         BNH   VCPROC35              VCR CTL LESS THAN CTLS   2500370   00015920
+         LH    &WR1,WCTLLEN          SET NEW VCR CTL LENGTH   2500370   00015930
+         MVI   WVCCOVR,C'1'          SET VCR CLASS OVR SWITCH 2500370   00015940
+VCPROC35 EQU   *                                              2500370   00015950
+         BCTR  &WR1,0                DECREASE LENGTH FOR COMPARISON     00016000
+         EX    &WR1,VCPROC50         VCR CONTROLS EQUAL CHG CONTROL     00016100
+         BNE   VCPROC40              NO - NEXT VCR OCCURRENCE           00016200
+         MVI   CTLSHIT,C'1'          CTLS HIT                 2521966   00016210
+         CLI   &CA.APFIL,C' '        FILE ID PRESENT?         2521966   00016220
+         BNH   VCPROC37              NO -                     2521966   00016230
+         CLI   SVPROCSW,C'2'         PROC W/FILE ID           2521966   00016240
+         BE    VCPROC3A              YES - GO CHECK KEY       2521966   00016250
+VCPROC37 EQU   *                                              2521966   00016260
+         CH    &WR1,WVCRCL           YES - COMPARE LENGTH W/SAVED LEN   00016300
+         BNH   VCPROC40              NOT HIGH - CONTINUE PROCESSING     00016400
+         STH   &WR1,WVCRCL           HIGH - SAVE VCR CONTROLS LENGTH    00016500
+         ST    &WR4,WVCRALAP         * AND ADDRESS OF VCR OCCURRENCE    00016600
+         B     VCPROC40                                       2521966   00016602
+VCPROC3A EQU   *                                              2521966   00016604
+         LA    &WR1,L'VCRVCKEY       LENGTH OF VCR KEY        2521966   00016606
+         LA    &WR2,VCRVCKEY+L'VCRVCKEY-1  END OF VCR KEY     2521966   00016608
+VCPROC3B EQU   *                                              2521966   00016610
+         CLI   0(&WR2),C' '          IS CHARACTER BLANK?      2521966   00016612
+         BNE   VCPROC3C              NO - GO DO COMPARE       2521966   00016614
+         BCTR  &WR2,0                YES - POINT TO PREV CHAR 2521966   00016616
+         BCT   &WR1,VCPROC3B         GO DO IT AGAIN           2521966   00016618
+         MVI   KEYHIT,C'1'           KEY HIT                  2521966   00016619
+         ST    &WR4,WVCRALAP         ADDRESS VCR OCCURRENCE   2521966   00016620
+         B     VCPROC40                                       2521966   00016621
+VCPROC3C EQU   *                                              2521966   00016622
+         CLC   WKEYLEN(2),=X'0000'    IS LENGTH ZERO ?        2521966   00016624
+         BH    VCPROC3D               NO ...                  2521966   00016626
+         MVC   WKEYLEN,=X'7FFF'       YES,SET MAX LENGTH      2521966   00016628
+VCPROC3D EQU   *                                              2521966   00016630
+         CH    &WR1,WKEYLEN           COMPARE LENGTH OF KEY   2521966   00016632
+         BNH   VCPROC3E              VCR KEY LESS THAN KEY    2521966   00016634
+         LH    &WR1,WKEYLEN          SET NEW VCR KEY LENGTH   2521966   00016636
+VCPROC3E EQU   *                                              2521966   00016638
+         BCTR  &WR1,0                DECREASE LENGTH          2521966   00016640
+         EX    &WR1,VCPROC60         VCR KEY EQUAL PROC KEY   2521966   00016642
+         BNE   VCPROC40              NO - NEXT VCR OCCURRENCE 2521966   00016644
+         MVI   KEYHIT,C'1'                                    2521966   00016646
+         ST    &WR4,WVCRALAP         ADDRESS OF VCR OCCURRENCE2521966   00016648
+VCPROC40 EQU   *                                                        00016700
+         LA    &WR4,L'VCRVCTL(&WR4)  POINT TO NEXT OCCURRENCE           00016800
+         C     &WR4,WVCREND          END OF VCR RECORD                  00016900
+         BL    VCPROC10              NO - CHECK OCCURRENCE              00017000
+         CLI   SVPROCSW,C'1'         PROCESS SWITCH = 1?      2521966   00017010
+         BE    VCPROC45              YES-                     2521966   00017020
+         CLC   WVCRALAP,=F'0'        OCCURRENCE FOUND?        2521966   00017030
+         BNE   VCPROC45              YES -                    2521966   00017040
+         CLI   FILEHIT,C'1'          FILE HIT?                2521966   00017050
+         BE    VCPROC45              YES -                    2521966   00017060
+         MVI   SVPROCSW,C'1'         TRY W/NO FILE ID         2521966   00017070
+         ICM   &WR4,15,SVOCCUA       RESTORE OCCURRENCE ADDR  2521966   00017080
+         B     VCPROC10                                       2521966   00017090
+VCPROC45 EQU   *                                              2521966   00017095
+         LM    &WR3,&WR4,WSVQADR     RESTORE QUEUE INDEX ADDR 2024349   00017100
+         TM    WVCRIADR,X'80'        READ SCF?                2024349   00017130
+         BO    VCREAD30              YES - GO READ NEXT       2024349   00017160
+         B     VCFIND30              SEE IF ANOTHER VCR RECORD          00017200
+VCPROC50 CLC  VCRVCCTL(0),&CA.APACT  VCR CONTROLS TO CHANGE CTLS        00017300
+VCPROC60 CLC  VCRVCKEY(0),&CA.APKEY  VCR KEY TO               2521966   00017310
+.********************************************************************** 00017400
+.*       THE FOLLOWING CODE IS FOR VALIDATING CONTROLS FROM INPUT     * 00017500
+.*       ANALYSIS ONLY.                                               * 00017600
+.********************************************************************** 00017700
+         AIF   (T'&IA EQ 'O').TRAN2                                     00017800
+         EJECT                                                          00017900
+VCIANL00 EQU   *                                                        00018000
+         MVC   WVCTL,VCRVCTL         SAVE VCR OCCURRENCE DATA           00018100
+         CLI   WVCCOVR,C'1'          CHECK VCR CLS OVR SWITCH 2500370   00018110
+         BNE   VCIANL05              DO NOT USE VCR OVR CLS   2500370   00018120
+         MVC   WVCAOR,BLANKS         SET AOR CLASS TO SPACES  2500370   00018130
+         MVC   WVCSOR,BLANKS         SET SOR CLASS TO SPCAES  2500370   00018140
+         MVC   WVCTAR,BLANKS         SET TAR CLASS TO SPACES  2500370   00018150
+VCIANL05 EQU   *                                              2500370   00018160
+         MVC   SVAORCL,WVCAOR        MOVE AOR CLASS FOR ADDRESSING      00018200
+         MVC   SVSORCL,WVCSOR        MOVE SOR CLASS FOR ADDRESSING      00018300
+         MVC   SVTARCL,WVCTAR        MOVE TAR CLASS FOR ADDRESSING      00018400
+         MVI   WVCCOVR,C'0'          RESET VCR CTLS OVR SWITCH2500370   00018420
+         CLI   WEORSGN,C'2'          HAS CHG CTLS TRAN OCCURRED         00018500
+         BE    VCIANL40              YES - JUST RESET SECURITY REC      00018600
+*                                        ADDRESSES                      00018700
+         CLI   WEORSGN,C'3'          CHG CTLS TRAN OCCURRED   2501474   00018710
+         BE    VCIANL40              YES - JUST RESET         2501474   00018720
+*                                    SECURITY ADDRESSES       2501474   00018730
+*                                    NO - CHECK IF TRUE CHG CTLS        00018800
+         DROP  &WR3,&WR4                                                00018900
+         L     &WR3,WDCRCBEG          BEGIN ADDR OF DCR CTLS  2501474   00019000
+VCIANL10 EQU   *                                                        00019100
+         C     &WR3,WDCRCEND         END OF DCR CONTROLS      2501474   00019110
+         BNL   VCIANL40              YES - EXIT               2501474   00019120
+         CLC   PCASAM,0(&WR3)        APPLICATION MATCH                  00019200
+         BE    VCIANL20              YES - SEE IF CHANGED CONTROLS      00019300
+         LA    &WR3,L'DCRACTL1(&WR3) POINT NEXT DCR CTLS ENTRY2501474   00019400
+         B     VCIANL10              LOOP THRU DCR CONTROLS   2501474   00019600
+VCIANL20 EQU   *                                                        00019700
+         LH    &WR1,WVCRCL           LOAD COMPARISON LENGTH             00019800
+         CLI   SVTRAINF,C'1'         TRAINING?                2501474   00019810
+         BNE   VCIANL22              NO, ALREADY AT DEFT CTLS 2501474   00019820
+         LA    &WR3,16(&WR3)         BUMP TO TRAINING CTLS    2501474   00019830
+VCIANL22 EQU   *                                              2501474   00019840
+         EX    &WR1,VCIANL30         DCR CONTROLS EQUAL VCR   2501474   00019900
+         BNE   VCIANL40              NO - CONTROLS WERE CHANGED         00020000
+         MVI   WVCRETRN,C'3'         YES - SET RETURN CODE              00020100
+         B     VCEXIT00              EXIT FROM VALIDATE CONTROLS RTNE   00020200
+*                                                                       00020300
+VCIANL30 CLC   WVCCTL(0),2(&WR3)  COMPARE VCR TO DCR CTLS (EX)2501474   00020400
+*                                                                       00020500
+VCIANL40 EQU   *                                                        00020600
+         MVI   PCACACF,C'1'          SET CHG CTLS FLAG                  00020700
+         ICM   &WR1,15,STMITRA       RESTORE ITR ADDR IN &WR1           00021000
+.TRAN2   ANOP                                                           00021100
+         EJECT                                                          00021200
+VCEXIT00 EQU   *                     COMMON EXIT POINT                  00021300
+.STRG    ANOP                                                           00021400
+         MEND                                                           00021500

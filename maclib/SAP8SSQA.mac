@@ -1,0 +1,30 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000100
+*               CHANGE CONTROL PARMS SEQUENCE TABLE                  *  00000200
+**********************************************************************  00000400
+*                                                                    *  00001600
+*                        F O R M A T :                               *  00001700
+*                                                                    *  00001800
+*       TABLE PREFIX                                                 *  00001900
+*       ************                                                 *  00002000
+*       X(8)  TAB ID            TABLE NAME - CONSTANT 'SAPSSEQ '     *  00002100
+*       S9(8)B TAB LEN          TABLE LENGTH                         *  00002200
+*       S9(4)B ENT LEN          ENTRY LENGTH                         *  00002300
+*       S9(4)B ENT NUM          NUMBER TABLE ENTRIES                 *  00002400
+*                                                                    *  00002500
+*       TABLE ENTRY             MAX ENTRIES/TABLE = 700 (VARIABLE)   *  00002600
+*       ***********                                                  *  00002700
+*       X(8)  SID                 PARMS SID             **KEY**      *  00002800
+*       X(2)  SORT SEQ            SORT SEQUENCE                      *  00002900
+**********************************************************************  00003100
+SAPTTBL  DSECT                                                          00003200
+SAPTNM   DS    CL8                     TABLE NAME                       00003300
+SAPTLEN  DS    XL4                     TABLE LENGTH                     00003400
+SAPTELEN DS    XL2                     TABLE ENTRY LENGTH               00003500
+SAPT#E   DS    XL2                     TABLE NUMBER OF ENTRIES          00003600
+SAPTENTS DS    CL7000                  TABLE ENTRIES                    00003700
+*                                                                       00003800
+SAPTENT  DSECT                         TABLE ENTRY                      00003900
+SAPTENTL DS    0CL10                                                    00004000
+SAPTSID  DS    CL8                         PARMS SID                    00004200
+SAPTSEQ  DS    CL2                         SORT SEQ                     00004400

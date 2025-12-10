@@ -1,0 +1,40 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+* *** COPY BOOK: SAS9VDXD                                               00001000
+* *** VSE USER DUMP EXIT (STXIT) SAVE AREA.  STANDARD DOS LAYOUT        00002000
+* *** PLUS EYE-CATCHER, SACB ADDRESS.                                   00003000
+* ***                                                                   00004000
+SAS9VDXD DSECT                                                          00005000
+*                  (OFFSET)                                             00006000
+VDXFILL0 DS    X       0     RESERVED                                   00007000
+VDXPROT  DS    X       1     PROTECTION KEY AND MASK BITS               00008000
+*                              FROM PSW BYTE 1                          00009000
+VDXIC    DS    XL2     2-3   INTERRUPTION CODE                          00010000
+VDXILCC  DS    X       4     BITS: 0-1 = INSTRUCTION LENGTH CODE        00011000
+*                                  2-3 = CONDITION CODE                 00012000
+*                                  4-7 = PROGRAM MASK                   00013000
+VDXINSTR DS    AL3     5-7   INSTRUCTION ADDRESS                        00014000
+VDXGREGS DS    16AL4   8-71  GENERAL REGISTERS 0 THROUGH 15             00015000
+VDXAPSW  DS    CL8    72-79  ACTUAL PSW AMODE-31              9913437   00015100
+         DS    17D           VSE EXTENDED STXIT SAVE AREA     9913437   00015200
+VDXIBALL DS    CL8   216-223 INITIALIZED AS 'EAASTXIT'.       9913437   00016000
+*                            WILL BE LITERAL 'EAASTXIT' IF SASDAIDB     00017000
+*                             IS CALLED TO DUMP WITHOUT ABEND.          00018000
+*                            WILL BE LITERAL 'EAAPCXIT' DURING          00019000
+*                             OPERATION OF PROG CHECK EXIT LOGIC.       00020000
+*                            WILL BE LITERAL 'EAAPGMCK' WHEN SASDAIDB   00021000
+*                             IS CALLED BECAUSE OF PROGRAM CHECK.       00022000
+VDXISIZE DS    A     224-227 SIZE OF THIS AREA                9913437   00023000
+VDXASACB DS    A     228-231 SACB ADDRESS                     9913437   00024000
+VDXRG1SV DS    A     232-235 ABENDING PROGRAM'S REGISTER 1    9913437   00025000
+*                             FROM USER EXIT SAVE AREA                  00026000
+VDXINSSV DS    CL8   236-243 PSW AT ABEND SAVED HERE          9913437   00027000
+*                             WHILE TERMINATING STXIT PC EXIT CODE.     00028000
+VDXASDWA DS    A     244-247 MVS SDWA ADDRESS                 9913437   00029000
+VDXOPCAN DS    CL80  248-327 TEXT FROM STXIT OC OPER CANCEL   9913437   00030000
+         ORG   VDXOPCAN                                                 00031000
+VDXGSNIN DS    AL4                     INPUT ADDRESS SNAPDUMP           00032000
+VDXGSLEN DS    AL4                     DUMP LENGTH, SNAPDUMP            00033000
+VDXGSLCT DS    AL4                     COUNTER      SNAPDUMP            00034000
+VDXGSLDC DS    CL8                     DESCRIPTION, SNAPDUMP            00035000
+         DS    CL60                                                     00036000
+VDXLEN   EQU   *-VDXFILL0    ..LENGTH OF AREA                           00037000

@@ -1,0 +1,32 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00010000
+*                                                                     * 00020000
+*                      TRANSACTION SYSTEM                             * 00030000
+*                 USER OPTION ONLINE EXPANDED RECORD LAYOUT           * 00040001
+*                                                                     * 00050001
+*********************************************************************** 00060001
+*                       *** HISTORY REVISION ***                      * 00070001
+*  09/03/02   INITIAL RELEASE                                 0324492 * 00080003
+*********************************************************************** 00090001
+*                                                                     * 00100001
+*   THIS COPYBOOK IS THE ASSEMBLER VERSION OF TSWSUBTB.  IT SHOULD BE * 00110001
+*   USED IN PROGRAMS THAT ARE DEVELOPED AFTER THE USER OPTIONS RECORD * 00120001
+*   EXPANSION.  FOR BACKWARD COMPATIBILITY, PRE-EXISTING PROGRAMS     * 00130001
+*   WILL STILL USE TSUO2TB, THE SHORT VERSION.                        * 00140001
+*                                                                     * 00150000
+*********************************************************************** 00160000
+TSUOTBE  DSECT                                                          00170001
+UOTBE    DS    0CL11018                 USER OPTION TABLE               00180001
+UOTEKEY  DS    0CL18                   APPLICATION & CONTROLS KEY       00190001
+UOTEAPPL DS    XL2                       APPLICATION                    00200001
+UOTECTL1 DS    XL4                       CONTROL 1                      00210001
+UOTECTL2 DS    XL4                       CONTROL 2                      00220001
+UOTECTL3 DS    XL4                       CONTROL 3                      00230001
+UOTECTL4 DS    XL4                       CONTROL 4                      00240001
+UOTEFLGS DS   0XL11000                   USER OPTION FLAGS              00250003
+UOTEFLG  DS    CL1                       USER OPTION FLAG               00260003
+UOTEDATA DS    CL10                      EXECUTION DATA                 00270003
+UOTEOCCL EQU   *-UOTEFLG                SYMBOLIC END OF OCCUR           00280003
+UOTEREST DS    CL10989                   REST OCCURRENCES               00290003
+UOTEEND  EQU   *                        SYMBOLIC END OF UO TABLE        00300002
+UOTELEN  EQU   *-UOTBE                  LENGTH OF UO TABLE              00310001

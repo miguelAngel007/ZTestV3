@@ -1,0 +1,480 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAADMAPM &DAG=,&PARM=,                                        +00002000
+               &DSECT=YES,                                             +00003000
+               &EJECT=YES                                               00004000
+         GBLC  &TRCECDE                                                 00005000
+         LCLA  &I                                                       00006000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00007000
+         LCLC  &LTRC#,&LRESA#                                           00008000
+&MACNME  SETC  'SAADMAPM'                                               00009000
+&MACVER  SETC  '0004'                                                   00010000
+&MACREL  SETC  '.000'                                                   00011000
+&MACDATE SETC  '08/07/91'                                               00012000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00013000
+               - &MACDATE'                                              00014000
+&MACNME  SETC  'SAADMAPM'                                               00015000
+&I       SETA  1                                                        00016000
+         AIF   (T'&DAG NE 'O').DMAP002                                  00017000
+         MNOTE 8,'&MACNME - DAG PARAMETER IS MISSING, MACRO EXPANSION I+00018000
+               GNORED'                                                  00019000
+         MEXIT                                                          00020000
+.DMAP002 ANOP                                                           00021000
+         AIF   ('&DSECT' EQ 'YES' OR '&DSECT' EQ 'NO').DMAP004          00022000
+         MNOTE 8,'&MACNME - DSECT PARAMETER MUST BE "YES" OR "NO", MACR+00023000
+               O EXPANSION IGNORED'                                     00024000
+.DMAP004 ANOP                                                           00025000
+         AIF   ('&EJECT' EQ 'YES' OR '&EJECT' EQ 'NO').DMAP006          00026000
+         MNOTE 8,'&MACNME - EJECT PARAMETER MUST BE "YES" OR "NO", MACR+00027000
+               O EXPANSION IGNORED'                                     00028000
+.DMAP006 ANOP                                                           00029000
+.DMAP010 ANOP                                                           00030000
+         AIF   ('&DAG(&I)' NE 'CRSA').DMAP020                           00031000
+         AIF   ('&EJECT' EQ 'YES').DMAP012                              00032000
+         SPACE 2                                                        00033000
+         AGO   .DMAP014                                                 00034000
+.DMAP012 ANOP                                                           00035000
+         EJECT                                                          00036000
+.DMAP014 ANOP                                                           00037000
+*        *---------------------------------------------------*          00038000
+*        * EAA/SA APPLICATION                                *          00039000
+*        * CALLER'S REGISTER SAVE AREA (RSA)                 *          00040000
+*        *---------------------------------------------------*          00041000
+         SPACE 1                                                        00042000
+         AIF   ('&DSECT' EQ 'NO').DMAP018                               00043000
+CRSA     DSECT               CALLER'S REGISTER SAVE AREA                00044000
+.DMAP018 ANOP                                                           00045000
+         DS    F        +000 LENGTH OF STORAGE                          00046000
+CRSABWD  DS    F        +004 BWD RSA ADDRESS (R13) - CALLERS            00047000
+CRSAFWD  DS    F        +008 FWD RSA ADDRESS (R13) - OURS               00048000
+CRSACRE  DS    F        +012 CALLERS REG 14 (CALLERS RETURN ADDRESS)    00049000
+CRSACRF  DS    F        +016 CALLERS REG 15 (OUR CSECT EP ADDR)         00050000
+CRSACR0  DS    F        +020 CALLERS REG  0 (DATA PASSED BY CALLER)     00051000
+CRSACR1  DS    F        +024 CALLERS REG  1 (PARMLIST ADDRESS)          00052000
+CRSACR2  DS    F        +028 CALLERS REG  2                             00053000
+CRSACR3  DS    F        +032 CALLERS REG  3                             00054000
+CRSACR4  DS    F        +036 CALLERS REG  4 (STANDARD MODULE BAR)       00055000
+CRSACR5  DS    F        +040 CALLERS REG  5                             00056000
+CRSACR6  DS    F        +044 CALLERS REG  6                             00057000
+CRSACR7  DS    F        +048 CALLERS REG  7                             00058000
+CRSACR8  DS    F        +052 CALLERS REG  8                             00059000
+CRSACR9  DS    F        +056 CALLERS REG  9                             00060000
+CRSACRA  DS    F        +060 CALLERS REG 10                             00061000
+CRSACRB  DS    F        +064 CALLERS REG 11                             00062000
+CRSACRC  DS    F        +068 CALLERS REG 12                             00063000
+         AGO   .DMAP800                                                 00064000
+.DMAP020 ANOP                                                           00065000
+         AIF   ('&DAG(&I)' NE 'GRSA').DMAP030                           00066000
+         AIF   ('&EJECT' EQ 'YES').DMAP022                              00067000
+         SPACE 2                                                        00068000
+         AGO   .DMAP024                                                 00069000
+.DMAP022 ANOP                                                           00070000
+         EJECT                                                          00071000
+.DMAP024 ANOP                                                           00072000
+*        *---------------------------------------------------*          00073000
+*        * EAA/SA APPLICATION                                *          00074000
+*        * GLOBAL REGISTER SAVE AREA (RSA)                   *          00075000
+*        *---------------------------------------------------*          00076000
+         SPACE 1                                                        00077000
+         AIF   ('&DSECT' EQ 'NO').DMAP028                               00078000
+GRSA     DSECT               GLOBAL REGISTER SAVE AREA                  00079000
+.DMAP028 ANOP                                                           00080000
+GBLLEN   DS    F        +000 LENGTH OF STORAGE                          00081000
+GRSABWD  DS    F        +004 BWD RSA ADDRESS (R13) - CALLERS            00082000
+GRSAFWD  DS    F        +008 FWD RSA ADDRESS (R13) - OURS               00083000
+GRSACRE  DS    F        +012 CALLERS REG 14 (CALLERS RETURN ADDRESS)    00084000
+GRSACRF  DS    F        +016 CALLERS REG 15 (OUR CSECT EP ADDR)         00085000
+GRSACR0  DS    F        +020 CALLERS REG  0 (DATA PASSED BY CALLER)     00086000
+GRSACR1  DS    F        +024 CALLERS REG  1 (PARMLIST ADDRESS)          00087000
+GRSACR2  DS    F        +028 CALLERS REG  2                             00088000
+GRSACR3  DS    F        +032 CALLERS REG  3                             00089000
+GRSACR4  DS    F        +036 CALLERS REG  4 (STANDARD MODULE BAR)       00090000
+GRSACR5  DS    F        +040 CALLERS REG  5                             00091000
+GRSACR6  DS    F        +044 CALLERS REG  6                             00092000
+GRSACR7  DS    F        +048 CALLERS REG  7                             00093000
+GRSACR8  DS    F        +052 CALLERS REG  8                             00094000
+GRSACR9  DS    F        +056 CALLERS REG  9                             00095000
+GRSACRA  DS    F        +060 CALLERS REG 10                             00096000
+GRSACRB  DS    F        +064 CALLERS REG 11                             00097000
+GRSACRC  DS    F        +068 CALLERS REG 12                             00098000
+         AGO   .DMAP800                                                 00099000
+.DMAP030 ANOP                                                           00100000
+         AIF   ('&DAG(&I)' NE 'LRSA').DMAP040                           00101000
+         AIF   ('&EJECT' EQ 'YES').DMAP032                              00102000
+         SPACE 2                                                        00103000
+         AGO   .DMAP034                                                 00104000
+.DMAP032 ANOP                                                           00105000
+         EJECT                                                          00106000
+.DMAP034 ANOP                                                           00107000
+*        *---------------------------------------------------*          00108000
+*        * EAA/SA APPLICATION                                *          00109000
+*        * LOCAL REGISTER SAVE AREA (RSA)                    *          00110000
+*        *---------------------------------------------------*          00111000
+         SPACE 1                                                        00112000
+         AIF   ('&DSECT' EQ 'NO').DMAP038                               00113000
+LRSA     DSECT               LOCAL REGISTER SAVE AREA                   00114000
+.DMAP038 ANOP                                                           00115000
+LCLLEN   DS    F        +000 LENGTH OF STORAGE                          00116000
+LRSABWD  DS    F        +004 BWD RSA ADDRESS (R13) - CALLERS            00117000
+LRSAFWD  DS    F        +008 FWD RSA ADDRESS (R13) - OURS               00118000
+LRSACRE  DS    F        +012 CALLERS REG 14 (CALLERS RETURN ADDRESS)    00119000
+LRSACRF  DS    F        +016 CALLERS REG 15 (OUR CSECT EP ADDR)         00120000
+LRSACR0  DS    F        +020 CALLERS REG  0 (DATA PASSED BY CALLER)     00121000
+LRSACR1  DS    F        +024 CALLERS REG  1 (PARMLIST ADDRESS)          00122000
+LRSACR2  DS    F        +028 CALLERS REG  2                             00123000
+LRSACR3  DS    F        +032 CALLERS REG  3                             00124000
+LRSACR4  DS    F        +036 CALLERS REG  4 (STANDARD MODULE BAR)       00125000
+LRSACR5  DS    F        +040 CALLERS REG  5                             00126000
+LRSACR6  DS    F        +044 CALLERS REG  6                             00127000
+LRSACR7  DS    F        +048 CALLERS REG  7                             00128000
+LRSACR8  DS    F        +052 CALLERS REG  8                             00129000
+LRSACR9  DS    F        +056 CALLERS REG  9                             00130000
+LRSACRA  DS    F        +060 CALLERS REG 10                             00131000
+LRSACRB  DS    F        +064 CALLERS REG 11                             00132000
+LRSACRC  DS    F        +068 CALLERS REG 12                             00133000
+         AGO   .DMAP800                                                 00134000
+.DMAP040 ANOP                                                           00135000
+         AIF   ('&DAG(&I)' NE 'SAA9DMTD').DMAP050                       00136000
+         AIF   ('&EJECT' EQ 'YES').DMAP042                              00137000
+         SPACE 2                                                        00138000
+         AGO   .DMAP044                                                 00139000
+.DMAP042 ANOP                                                           00140000
+         EJECT                                                          00141000
+.DMAP044 ANOP                                                           00142000
+*        *---------------------------------------------------*          00143000
+*        * EAA/SA APPLICATION                                *          00144000
+*        * DATA MOVEMENT TABLE (DMT)                         *          00145000
+*        *---------------------------------------------------*          00146000
+         SPACE 1                                                        00147000
+         AIF   ('&DSECT' EQ 'NO').DMAP048                               00148000
+DMTHDR   DSECT                                                          00149000
+DMTLEN   DS    XL02          RECORD LENGTH                              00150000
+DMTID    DS    CL03          'DMT'                                      00151000
+DMTKEY   DS    CL22          RECORD KEY                                 00152000
+DMTOFF   DS    XL02          OFFSET TO DMT (DATA MOVEMENT TABLE)        00153000
+LUTOFF   DS    XL02          OFFSET TO LUT (LOOK UP TABLE)              00154000
+DGTPTR   EQU   *                                                        00155000
+         SPACE 2                                                        00156000
+DGTMAP   DSECT                                                          00157000
+DGTNTRY# DS    XL02          NBR OF DATA GROUP TABLE ENTRIES            00158000
+         ORG   DGTMAP                                                   00159000
+DGTNTRY  DS    0XL28         DATA GROUP TABLE ENTRY                     00160000
+DGTDGNM  DS    CL08          ..DATA GROUP NAME                          00161000
+DGTDGIND DS    CL01          ..DATA GROUP IND I=INPUT O=OUTPUT T=LU     00162000
+DGTDGPAD DS    XL03          ..DATA GROUP PAD BYTES                     00162010
+DGTDGADR DS    XL04          ..DATA GROUP ADDRESS                       00163000
+DGTDGEND DS    XL04          ..DATA GROUP END ADDRESS                   00164000
+DGTSDTEA DS    XL04          ..DATA GROUP SASERV DAGTAB ENTRY ADDR      00164010
+DGTDGASA DS    XL04          ..DATA GROUP ADDR SAVE AREA                00164020
+DGTNTRYL EQU   *-DGTNTRY                                                00165000
+         SPACE 2                                                        00166000
+DMTMAP   DSECT                                                          00167000
+DMTNTRY# DS    XL02          NBR OF DATA MOVEMENT TABLE ENTRIES         00168000
+         ORG   DMTMAP                                                   00169000
+DMTNTRY  EQU   *             DATA MOVEMENT TABLE ENTRY                  00170000
+DMTCMD   DS    CL02          ..DATA MOVEMENT COMMAND                    00171000
+DMTCVNDX DS    XL01          ..DATA MOVEMENT COMMAND VECTOR INDEX       00171010
+*              0000NNNN      ..COMMAND INDEX                            00171020
+*              ....0001  01  ....MOVE                                   00171030
+*              ....0010  02  ....BUILD SORT KEY                         00171040
+*              ....0011  03  ....EXTRACT SORT KEY                       00171050
+*              ....0100  04  ....MOVE IMMEDIATE                         00171060
+*              ....0101  05  ....END-OF-SET                             00171070
+*              ....0110  06  ....COMPARE                                00171080
+*              ....0111  07  ....COMPARE AND                            00171090
+*              ....1000  08  ....COMPARE IMMEDIATE                      00171100
+*              ....1001  09  ....COMPARE NOT                            00171110
+*              ....1010  10  ....COMPARE OR                             00171120
+*              ....1011  11  ....MOVE ARRAY                             00171130
+*              ....1100  12  ....MOVE TO STANDARD DELIMITED FIELD (SDF) 00171140
+CANTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE-AND COMMAND ENTRY        00172000
+CONTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE-OR COMMAND ENTRY         00173000
+CNNTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE-NOT COMMAND ENTRY        00174000
+RCNTRYL  EQU   *-DMTNTRY     LENGTH OF RETURN-CONDITION COMMAND ENTRY   00175000
+ZXNTRYL  EQU   *-DMTNTRY     LENGTH OF END-OF-SET COMMAND ENTRY         00176000
+DMTTVNDX DS    XL01          ..DATA MOVEMENT TYPE VECTOR INDEX          00176010
+*              NNN00000      ..FORMAT CONVERSION INDEX                  00176020
+*              001.....  32  ....REFORMAT JULIAN DATES                  00176030
+*              010.....  64  ....REFORMAT GREGORIAN DATES               00176040
+*              011.....  96  ....CONVERT JULIAN TO GREGORIAN            00176050
+*              100..... 128  ....CONVERT GREGORIAN TO JULIAN            00176060
+*              101..... 160  ....REFORMAT TIME                          00176070
+*              000NNNNN      ....STORAGE CONVERSION INDEX               00176080
+*              ...00001  01  ......CH TO CH                             00176090
+*              ...00010  02  ......ZD TO ZD                             00176100
+*              ...00011  03  ......PD TO PD                             00176110
+*              ...00100  04  ......BI TO BI                             00176120
+*              ...00101  05  ......ZD TO PD                             00176130
+*              ...00110  06  ......PD TO ZD                             00176140
+*              ...00111  07  ......ZD TO BI                             00176150
+*              ...01000  08  ......PD TO BI                             00176160
+*              ...01001  09  ......BI TO ZD                             00176170
+*              ...01010  10  ......BI TO PD                             00176180
+*              ...01011  11  ......BI TO CH                             00176190
+*              ...01100  12  ......ZD TO CH                             00176200
+*              ...01101  13  ......PD TO CH                             00176210
+*              ...01110  14  ......CH TO BI                             00176220
+*              ...01111  15  ......CH TO ZD                             00176230
+*              ...10000  16  ......CH TO PD                             00176240
+         SPACE 1                                                        00177000
+DMTVFRMT EQU   *             ..BEGIN OF VARIABLE FORMAT                 00178000
+*        * BUILD SORT KEY                                               00179000
+BKORDER  DS    CL01          ....SORT KEY ORDER A/D                     00180000
+BKSRC    DS    0XL09         ....BUILD KEY COMMAND SOURCE FIELD INFO    00181000
+BK1DGOFF DS    XL02          ......DGT OFFSET                           00182000
+BK1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00183000
+BK1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00184000
+BK1FRMT  DS    XL01          ........DATA FORMAT                        00185000
+BK1FOFF  DS    XL02          ......FIELD OFFSET                         00186000
+BK1LGTH  DS    XL02          ......FIELD LENGTH                         00187000
+BK1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00188000
+BKTRGT   DS    0XL09         ....BUILD KEY COMMAND TARGET FIELD INFO    00189000
+BK2DGOFF DS    XL02          ......DGT OFFSET                           00190000
+BK2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00191000
+BK2STYPE DS    CL01          ........STORAGE TYPE 1,2,3                 00192000
+BK2FRMT  DS    XL01          ........DATA FORMAT                        00193000
+BK2FOFF  DS    XL02          ......FIELD OFFSET                         00194000
+BK2LGTH  DS    XL02          ......FIELD LENGTH                         00195000
+BK2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00196000
+BKNTRYL  EQU   *-DMTNTRY     LENGTH OF BUILD KEY COMMAND ENTRY          00197000
+         SPACE 1                                                        00198000
+         ORG   DMTVFRMT                                                 00199000
+*        * COMPARE                                                      00200000
+CXCOND   DS    XL01          ....CONTINUE(TRUE) CONDITION               00201000
+CXPADCHR DS    XL01          ....SHORT FIELD PAD CHARACTER              00202000
+CXSRC    DS    0XL09         ....COMPARE COMMAND SOURCE FIELD INFO      00203000
+CX1DGOFF DS    XL02          ......DGT OFFSET                           00204000
+CX1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00205000
+CX1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00206000
+CX1FRMT  DS    XL01          ........DATA FORMAT                        00207000
+CX1FOFF  DS    XL02          ......FIELD OFFSET                         00208000
+CX1LGTH  DS    XL02          ......FIELD LENGTH                         00209000
+CX1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00210000
+CXTRGT   DS    0XL09         ....COMPARE COMMAND TARGET FIELD INFO      00211000
+CX2DGOFF DS    XL02          ......DGT OFFSET                           00212000
+CX2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00213000
+CX2STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00214000
+CX2FRMT  DS    XL01          ........DATA FORMAT                        00215000
+CX2FOFF  DS    XL02          ......FIELD OFFSET                         00216000
+CX2LGTH  DS    XL02          ......FIELD LENGTH                         00217000
+CX2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00218000
+CXNTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE COMMAND ENTRY            00219000
+         SPACE 1                                                        00220000
+         ORG   DMTVFRMT                                                 00221000
+*        * COMPARE IMMEDIATE                                            00222000
+CICOND   DS    XL01          ....CONTINUE(TRUE) CONDITION               00223000
+CIPADCHR DS    XL01          ....SHORT FIELD PAD CHARACTER              00224000
+CISRC    DS    0XL09         ....COMPARE IMMED COMMAND SOURCE FIELD     00225000
+CI1DGOFF DS    XL02          ......DGT OFFSET                           00226000
+CI1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00227000
+CI1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00228000
+CI1FRMT  DS    XL01          ........DATA FORMAT                        00229000
+CI1FOFF  DS    XL02          ......FIELD OFFSET                         00230000
+CI1LGTH  DS    XL02          ......FIELD LENGTH                         00231000
+CI1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00232000
+CITRGT   DS    0XL22         ....COMPARE IMMED COMMAND TARGET FIELD     00233000
+CI2LGTH  DS    XL02          ......FIELD LENGTH                         00234000
+CI2DATA  DS    CL20          ......IMMEDIATE COMPARE DATA               00235000
+CINTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE COMMAND ENTRY            00236000
+         SPACE 1                                                        00237000
+         ORG   DMTVFRMT                                                 00238000
+*        * MOVE                                                         00239000
+MXSRC    DS    0XL09         ....MOVE COMMAND SOURCE FIELD INFO         00240000
+MX1DGOFF DS    XL02          ......DGT OFFSET                           00241000
+MX1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00242000
+MX1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00243000
+MX1FRMT  DS    XL01          ........DATA FORMAT                        00244000
+MX1FOFF  DS    XL02          ......FIELD OFFSET                         00245000
+MX1LGTH  DS    XL02          ......FIELD LENGTH                         00246000
+MX1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00247000
+MXTRGT   DS    0XL09         ....MOVE COMMAND TARGET FIELD INFO         00248000
+MX2DGOFF DS    XL02          ......DGT OFFSET                           00249000
+MX2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00250000
+MX2STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00251000
+MX2FRMT  DS    XL01          ........DATA FORMAT                        00252000
+MX2FOFF  DS    XL02          ......FIELD OFFSET                         00253000
+MX2LGTH  DS    XL02          ......FIELD LENGTH                         00254000
+MX2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00255000
+MXNTRYL  EQU   *-DMTNTRY     LENGTH OF MOVE COMMAND ENTRY               00256000
+         SPACE 1                                                        00257000
+         ORG   DMTVFRMT                                                 00258000
+*        * MOVE ARRAY                                                   00259000
+MAOCCUR  DS    XL02          ....NBR OF SRC/TRGT TABLE OCCURANCES       00260000
+MASRC    DS    0XL11         ....MOVE ARRAY COMMAND SOURCE FIELD INFO   00261000
+MA1DGOFF DS    XL02          ......DGT OFFSET                           00262000
+MA1GLGTH DS    XL02          ......TABLE ENTRY (GROUP) LENGTH           00263000
+MA1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00264000
+MA1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00265000
+MA1FRMT  DS    XL01          ........DATA FORMAT                        00266000
+MA1FOFF  DS    XL02          ......FIELD OFFSET                         00267000
+MA1LGTH  DS    XL02          ......FIELD LENGTH                         00268000
+MA1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00269000
+MATRGT   DS    0XL11         ....MOVE ARRAY COMMAND TARGET FIELD INFO   00270000
+MA2DGOFF DS    XL02          ......DGT OFFSET                           00271000
+MA2GLGTH DS    XL02          ......TABLE ENTRY (GROUP) LENGTH           00272000
+MA2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00273000
+MA2STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00274000
+MA2FRMT  DS    XL01          ........DATA FORMAT                        00275000
+MA2FOFF  DS    XL02          ......FIELD OFFSET                         00276000
+MA2LGTH  DS    XL02          ......FIELD LENGTH                         00277000
+MA2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00278000
+MANTRYL  EQU   *-DMTNTRY     LENGTH OF MOVE ARRAY COMMAND ENTRY         00279000
+         SPACE 1                                                        00280000
+         ORG   DMTVFRMT                                                 00281000
+*        * MOVE STANDARD DELIMITED FIELD                                00282000
+MDSRC    DS    0XL09         ....MOVE SDF COMMAND SOURCE FIELD INFO     00283000
+MD1DGOFF DS    XL02          ......DGT OFFSET                           00284000
+MD1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00285000
+MD1STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00286000
+MD1FRMT  DS    XL01          ........DATA FORMAT                        00287000
+MD1FOFF  DS    XL02          ......FIELD OFFSET                         00288000
+MD1LGTH  DS    XL02          ......FIELD LENGTH                         00289000
+MD1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00290000
+MDTRGT   DS    0XL02         ....MOVE SDF COMMAND TARGET FIELD INFO     00291000
+MD2DGOFF DS    XL02          ......DGT OFFSET                           00292000
+MDNTRYL  EQU   *-DMTNTRY     LENGTH OF MOVE SDF COMMAND ENTRY           00293000
+         SPACE 1                                                        00294000
+         ORG   DMTVFRMT                                                 00295000
+*        * MOVE IMMEDIATE                                               00296000
+MIPADCHR DS    XL01          ....SHORT FIELD PAD CHARACTER              00297000
+MISRC    DS    0XL22         ....MOVE IMMED COMMAND SOURCE FIELD        00298000
+MI1LGTH  DS    XL02          ......FIELD LENGTH                         00299000
+MI1DATA  DS    CL20          ......IMMEDIATE MOVE DATA                  00300000
+MITRGT   DS    0XL09         ....MOVE IMMED COMMAND TARGET FIELD        00301000
+MI2DGOFF DS    XL02          ......DGT OFFSET                           00302000
+MI2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00303000
+MI2STYPE DS    CL01          ........STORAGE TYPE A,B,C,G,N,P           00304000
+MI2FRMT  DS    XL01          ........DATA FORMAT                        00305000
+MI2FOFF  DS    XL02          ......FIELD OFFSET                         00306000
+MI2LGTH  DS    XL02          ......FIELD LENGTH                         00307000
+MI2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00308000
+MINTRYL  EQU   *-DMTNTRY     LENGTH OF COMPARE COMMAND ENTRY            00309000
+         SPACE 1                                                        00310000
+         ORG   DMTVFRMT                                                 00311000
+*        * EXTRACT SORT KEY                                             00312000
+XKORDER  DS    CL01          ....SORT KEY ORDER A/D                     00313000
+XKSRC    DS    0XL09         ....EXTRACT KEY COMMAND SOURCE FIELD INFO  00314000
+XK1DGOFF DS    XL02          ......DGT OFFSET                           00315000
+XK1ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00316000
+XK1STYPE DS    CL01          ........STORAGE TYPE 1,2,3                 00317000
+XK1FRMT  DS    XL01          ........DATA FORMAT                        00318000
+XK1FOFF  DS    XL02          ......FIELD OFFSET                         00319000
+XK1LGTH  DS    XL02          ......FIELD LENGTH                         00320000
+XK1DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00321000
+XKTRGT   DS    0XL09         ....EXTRACT KEY COMMAND TARGET FIELD INFO  00322000
+XK2DGOFF DS    XL02          ......DGT OFFSET                           00323000
+XK2ATTR  DS    0CL02         ......FIELD ATTRIBUTES                     00324000
+XK2STYPE DS    CL01          ........STORAGE TYPE C                     00325000
+XK2FRMT  DS    XL01          ........DATA FORMAT                        00326000
+XK2FOFF  DS    XL02          ......FIELD OFFSET                         00327000
+XK2LGTH  DS    XL02          ......FIELD LENGTH                         00328000
+XK2DPOS  DS    XL01          ......NBR OF DECIMAL POSITIONS             00329000
+XKNTRYL  EQU   *-DMTNTRY     LENGTH OF EXTRACT KEY COMMAND ENTRY        00330000
+         AGO   .DMAP800                                                 00331000
+.DMAP048 ANOP                                                           00332000
+         MNOTE 4,'&MACNME - DSECT=NO OPTION NOT AVAILABLE, MACRO EXPANS+00333000
+               ION IGNORED'                                             00334000
+         AGO   .DMAP800                                                 00335000
+.DMAP050 ANOP                                                           00336000
+         AIF   ('&DAG(&I)' NE 'SAA9DMRD').DMAP060                       00337000
+         AIF   ('&EJECT' EQ 'YES').DMAP052                              00338000
+         SPACE 2                                                        00339000
+         AGO   .DMAP054                                                 00340000
+.DMAP052 ANOP                                                           00341000
+         EJECT                                                          00342000
+.DMAP054 ANOP                                                           00343000
+*        *---------------------------------------------------*          00344000
+*        * EAA/SA APPLICATION                                *          00345000
+*        * DATA MOVEMENT ROUTINE WORK AREA                   *          00346000
+*        *---------------------------------------------------*          00347000
+         SPACE 1                                                        00348000
+         AIF   ('&DSECT' EQ 'NO').DMAP058                               00349000
+DMRWA    DSECT                                                          00350000
+         AGO   .DMAP059                                                 00351000
+.DMAP058 ANOP                                                           00352000
+         DS    0D                                                       00353000
+DMRWA    EQU   *                                                        00354000
+.DMAP059 ANOP                                                           00355000
+DMRWAREA DS    0XL768                                                   00356000
+         DS    F             ..LENGTH OF STORAGE SUPPLIED               00357000
+         SPACE 1                                                        00358000
+DMRMAXRC DS    F             ..HIGHEST RETURN CODE                      00359000
+DMRMAXEC DS    F             ..ERROR CODE FOR HIGHEST RETURN CODE       00360000
+CMDNBR   DS    H             ..COMMAND COUNTER                          00361000
+DMR#CAUT DS    H             ..NUMBER OF CAUTION MESSAGES               00362000
+DMR#WARN DS    H             ..NUMBER OF WARNING MESSAGES               00363000
+DMR#MSG  DS    H             ..NUMBER OF MESSAGES IN STACK (VECTOR)     00364000
+DMRMSG$  DS    28H           ....MESSAGE STACK (VECTOR) (MSG#/CMD#)     00365000
+         SPACE 1                                                        00366000
+DMRWORK  DS    XL692         ..REST OF WORK AREA                        00367000
+         AGO   .DMAP800                                                 00368000
+.DMAP060 ANOP                                                           00369000
+         AIF   ('&DAG(&I)' NE 'SAATRCED').DMAP070                       00370000
+         AIF   ('&EJECT' EQ 'YES').DMAP062                              00371000
+         SPACE 2                                                        00372000
+         AGO   .DMAP064                                                 00373000
+.DMAP062 ANOP                                                           00374000
+         EJECT                                                          00375000
+.DMAP064 ANOP                                                           00376000
+&LTRC#   SETC  '99'                                                     00377000
+         AIF   (T'&PARM EQ 'O' OR '&PARM' EQ '').DMAP065                00378000
+&LTRC#   SETC  '&PARM'                                                  00379000
+.DMAP065 ANOP                                                           00380000
+         AIF   ('&TRCECDE' NE '').DMAP066                               00381000
+&TRCECDE SETC  'S'                                                      00382000
+.DMAP066 ANOP                                                           00383000
+*        *---------------------------------------------------*          00384000
+*        * MODULE TRACE TABLE                                *          00385000
+*        *---------------------------------------------------*          00386000
+         SPACE 1                                                        00387000
+         AIF   ('&DSECT' EQ 'NO').DMAP068                               00388000
+SAATRCED DSECT                                                          00389000
+         AGO   .DMAP069                                                 00390000
+.DMAP068 ANOP                                                           00391000
+         DS    0D                                                       00392000
+.DMAP069 ANOP                                                           00393000
+TRCEHCR@ DS    F             ADDR OF SIPRINT OR STUMP                   00394000
+TRCEPRMS EQU   *             HARD COPY RTN PARM LIST                    00395000
+TRCEPRM1 DS    F             ....HARD COPY RTN PARM 1 (TEXT, GCA)       00396000
+TRCEPRM2 DS    F             ....HARD COPY RTN PARM 2 (ERROR CMD)       00397000
+TRCEMCMD DS    CL12          EAA ERROR COMMAND 'ERRORGCA0043'           00398000
+TRCEWORK DS    D                                                        00399000
+TRCETBL  DS    04F           TRACE TABLE                                00400000
+*                            ....NBR OF RECORDED TRACES                 00401000
+*                            ....POINTER TO CURRENT ENTRY               00402000
+*                            ....POINTER TO LAST TABLE ENTRY            00403000
+*                            ....FLAG BYTES                             00404000
+TRCENTRY DS    &LTRC#.CL16   ..CSECT(8),LABEL(8)                        00405000
+TRCETBLE EQU   *-TRCENTRY-L'TRCENTRY                                    00406000
+         AGO   .DMAP800                                                 00407000
+.DMAP070 ANOP                                                           00408000
+         AIF   ('&DAG(&I)' NE 'RESA').DMAP080                           00409000
+         AIF   ('&EJECT' EQ 'YES').DMAP072                              00410000
+         SPACE 2                                                        00411000
+         AGO   .DMAP074                                                 00412000
+.DMAP072 ANOP                                                           00413000
+         EJECT                                                          00414000
+.DMAP074 ANOP                                                           00415000
+&LRESA#  SETC  '5'                                                      00416000
+         AIF   (T'&PARM EQ 'O' OR '&PARM' EQ '').DMAP075                00417000
+&LRESA#  SETC  '&PARM'                                                  00418000
+.DMAP075 ANOP                                                           00419000
+*        *---------------------------------------------------*          00420000
+*        * REGISTER 14 STACK AREA (RESA)                     *          00421000
+*        *---------------------------------------------------*          00422000
+         SPACE 1                                                        00423000
+         AIF   ('&DSECT' EQ 'NO').DMAP078                               00424000
+         MNOTE 4,'&MACNME - DSECT=YES OPTION NOT AVAILABLE, MACRO EXPAN+00425000
+               SION IGNORED'                                            00426000
+         AGO   .DMAP800                                                 00427000
+.DMAP078 ANOP                                                           00428000
+RESA     DS    F             R14 STACK AREA                             00429000
+*                            ....NBR OF ACTIVE ENTRIES                  00430000
+         DS    &LRESA#.F                                                00431000
+         AGO   .DMAP800                                                 00432000
+.DMAP080 ANOP                                                           00433000
+.DMAP800 ANOP                                                           00434000
+&I       SETA  &I+1                                                     00435000
+         AIF   (N'&DAG GE &I).DMAP010                                   00436000
+.DMAP900 ANOP                                                           00437000
+         MEND                                                           00438000

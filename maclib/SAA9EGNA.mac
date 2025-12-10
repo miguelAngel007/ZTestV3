@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000000
+*        LAYOUT OF ELEMENT EDIT CRITERIA DAG                         *  00001000
+**********************************************************************  00002000
+SAA9EGND DSECT                         ELEMENT EDIT INFO                00003000
+AEGNLGTH DS    XL2                          LENGTH OF RECORD            00004000
+AEGNDAG  DS    CL8                          DAG ID                      00005000
+AEGNCSEQ DS    PL2                          CURRENT SEQUENCE NUMBER     00006000
+AEGNNXTS DS    PL2                          NEXT SEQUENCE NUMBER        00007000
+AEGN#ENT DS    XL2                          NUMBER OF ELEMENTS          00008000
+AEGNHLGH EQU   *-SAA9EGND              HEADER LENGTH                    00009000
+*                                                                       00010000
+AEGNELET DSECT                         ELEMENT TABLE ENTRY              00011000
+AEGNELE  DS    CL8                     ELEMENT ID                       00012000
+AEGNEDIL DS    XL2                     ELE EDIT INFO LGTH FOR THIS ELE  00013000
+AEGNELGH EQU   *-AEGNELET              ELEMENT TABLE ENTRY LENGTH       00014000
+*                                                                       00015000
+AEGNEDIN DSECT                         ELEMENT EDIT INFO                00016000
+AEGNAPID DS    CL2                     APPLICATION ID FOR MSG           00017000
+AEGNMSG# DS    XL2                     MESSAGE NUMBER                   00018000
+AEGNSVL  DS    XL1                     SEVERITY OVERRIDE                00019000
+AEGNOPDT DS    XL1                     OPTIONAL DATA FLAG               00020000
+AEGNEXIT EQU   B'10000000'             EXIT ROUTINE PRESENT             00021000
+AEGNPARM EQU   B'01000000'             PARMS STRUCTURE ID PRESENT       00022000
+AEGNCRIT EQU   B'00100000'             CRITERIA DATA PRESENT            00023000
+* LAST TWO BITS MAKE UP THE NUMBER OF OCCURS INFO FIELDS (0-3)          00024000
+AEGNLVL1 EQU   B'00000001'             LEVEL 1 OCCUR                    00025000
+AEGNLVL2 EQU   B'00000010'             LEVEL 2 OCCUR                    00026000
+AEGNLVL3 EQU   B'00000011'             LEVEL 3 OCCUR                    00027000
+AEGNILGH EQU   *-AEGNEDIN              TABLE ENTRY INFO LENGTH          00028000
+*                                                                       00029000
+* OPTIONAL FIELDS (BASED ON AEGNOPDT) ARE IN THE FOLLOWING SEQUENCE     00030000
+*                                                                       00031000
+AEGNOC   DSECT                         OCCURS INFORMATION - ONE ENTRY   00032000
+AEGNOC#  DS    XL2                     OCCURRENCE NUMBER - NUMBER OF    00033000
+*                                      ENTRIES IS BASED ON VALUE IN     00034000
+*                                      AEGNOPDT                         00035000
+AEGNEX   DSECT                                                          00036000
+AEGNEXPG DS    CL8                     EXIT PROGRAM NAME                00037000
+*                                                                       00038000
+AEGNSD   DSECT                         PARMS STRUCTURE DEFINITION       00039000
+AEGNSID  DS    CL8                     PARMS SD ID                      00040000
+*                                                                       00041000
+AEGNECTA DSECT                         EDIT CRITERIA AREA               00042000
+AEGNECTT DS    0XL1                    START OF EDIT CRITERIA TABLE     00043000
+*                                                                       00044000

@@ -1,0 +1,36 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+SA30DATA  DSECT             WORK DATA GROUP                             00010000
+**********************************************************************  00020000
+*  SAP9030A:  ASSEMBLER VERSION OF SAP9030E DATA GROUP/COPYBOOK.     *  00030000
+*                                                                    *  00040000
+*  THIS WORK DATA GROUP IS USED TO PASS DATA BETWEEN THE SERVER      *  00050000
+*  AND THE HOST IN A WEB-TO-HOST TRANSACTION.                        *  00060000
+**********************************************************************  00070000
+*                    ** HISTORY OF REVISIONS **                       * 00070100
+* DESCRIPTION                                                 CHNGID  * 00070200
+* ___________________________________________________________ _______ * 00079300
+* 08/25/17 WEB SERVICES PARMS ACCESS - SUPPORT LIST REQUEST   1727263 * 00079900
+************************************************************* 1727263 * 00080000
+SA30INIT  DS    CL1                INITIAL FIELD                        00090000
+* THE VALUE OF THIS FIELD IS SET BY THE SERVER.                         00100000
+*                                 Y - INITIAL (MENU) PROCESSING         00110000
+*                                 N - MAINTENANCE PROCESSING            00120000
+SA30SID   DS    CL8                STRUCTURE ID                         00130000
+SA30FIID  DS    CL4                FIID (CONTROL 1)                     00140000
+SA30ACTN  DS    CL6                ACTION FIELD                         00150000
+SA30RC    DS    CL8                CHANGE ID                            00160000
+SA30NXT   DS    CL8                NEXT FUNCTION TO PROCESS             00170000
+SA30CTL2  DS    CL3                PARMS CTL2                 1727263   00170100
+SA30CTL3  DS    CL3                PARMS CTL3                 1727263   00170200
+SA30CTL4  DS    CL4                PARMS CTL4                 1727263   00170300
+SA30MIND  DS    CL1                MORE INDICATOR FOR LIST    1727263   00170400
+SA30RCRQ  DS    CL4                RECS REQUESTED FOR LIST    1727263   00170500
+SA30RCRT  DS    CL4                RECS RETURNED FOR LIST     1727263   00170600
+SA30KEY1  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00170700
+SA30KEY2  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00170800
+SA30KEY3  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00170900
+SA30KEY4  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00171000
+SA30KEY5  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00171100
+SA30KEY6  DS    CL50               MORE SEARCH KEY FOR LIST   1727263   00171200
+SA30FIL   DS    CL200              FILLER                     1727263   00180000
+SA30LGTH  EQU *-SA30DATA                                      1316257   00190001

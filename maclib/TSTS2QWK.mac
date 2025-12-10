@@ -1,0 +1,16 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                              TSTS2QWK                               * 00000200
+*                         TRANSACTION SYSTEM                          * 00000300
+*               UPDATE NCA QUEUE CONTROL LIST WORK FIELDS             * 00000400
+*---------------------------------------------------------------------* 00000500
+WKQREGS  DS    15F                     CSECT REGISTER SAVE AREA         00000600
+WKQFLAG  DS    CL1                     QUEUE CTL LIST FLAG              00000700
+WKQID    DS    CL2                     QUEUE CTL LIST QUEUE ID          00000800
+WKQAPPL  DS    CL2                     QUEUE CTL LIST APPL ID           00000900
+SVQAPPL  DS    CL2                     SAVE AREA FOR QCTL APPL          00001000
+WKQRETCD DS    CL1                     RETURN CODE                      00001100
+WKQWORK  DS    0CL36                   WORKING AREA FOR QCTL            00001200
+WKQLIST  DS    CL30                    WORKING QUEUE CTL LIST           00001300
+WKQOF    DS    CL6                     WORKING QCTL OVERFLOW AREA       00001400
+WKQSAVE  DS    CL30                    SAVE AREA FOR ORIG QCTL          00001500

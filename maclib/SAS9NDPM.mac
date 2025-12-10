@@ -1,0 +1,36 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAS9NDPM &DSECT=YES                                            00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+*              NEXT-DAY NON-RDA PROCESSING PARMS DAG AREA             * 00005000
+*                                                                     * 00006000
+* DAG NAME: SAS9NDPD                                                  * 00007000
+*********************************************************************** 00008000
+*---------------------------------------------------------------------* 00008001
+*                  ** HISTORY OF REVISIONS **                         * 00008002
+*                                                                     * 00008003
+* DESCRIPTION                                                 CHNGID  * 00008004
+* __________________________________________________________  _______ * 00008005
+* 10/03/95 INITIAL DISTRIBUTION                               2602019 * 00014098
+*---------------------------------------------------------------------* 00014099
+         AIF   ('&DSECT' EQ 'YES').NDPPDS                               00015000
+SAS9NDPD DS    0F                                                       00016000
+         AGO   .NDPPSKP                                                 00017000
+.NDPPDS  ANOP                                                           00018000
+SAS9NDPD DSECT                                                          00019000
+.NDPPSKP ANOP                                                           00020000
+NDPPKEY  DS    0CL2                  KEY TO THE PARMS MEMBER            00021000
+NDPPAPPL DS    CL2                   APPLICATION                        00022000
+*                                                                       00023000
+NDPPPGM  DS    CL8                   PROGRAM TO RUN TO DO NON-RDA NDP   00024000
+         ORG NDPPPGM                 REDEFINE PROGRAM NAME              00025000
+NDPPSCRP DS    CL8                   SCRIPT TO RUN TO DO NON-RDA NDP    00026000
+*                                                                       00027000
+NDPPOPTN DS    CL1                   NON-RDA NDP OPTION FLAG            00028000
+*                 N                     DO NOT POST UNDER NDP           00029000
+*                 O                     EXECUTE THE ORIGINAL TRANS      00030000
+*                 P                     RUN POSTING PROGRAM (ABOVE)     00031000
+*                 S                     RUN POSTING SCRIPT (ABOVE)      00032000
+NDPPMEND EQU *                                                          00033000
+         MEND                                                           00034000

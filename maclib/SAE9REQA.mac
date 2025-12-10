@@ -1,0 +1,74 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+REQACTN  DS    CL6                     REQUEST ACTION                   00001000
+REQFUNC  DS    CL12                    REQUEST FUNCTION                 00002000
+REQRESLT DS    CL2                     RESULT VALUE                     00003000
+REQAPPID DS    CL2                     REQUEST APPLICATION ID           00004000
+REQVRTID DS    CL8                     VALID RELATIONSHIP TABLE NAME    00005000
+REQDGADR DS    CL4                     DAG ADDRESS                      00006000
+REQDAGLN DS    CL4                     DAG LENGTH                       00007000
+REQFLGRP DS    CL2                     FILE GROUP                       00008000
+REQLOGIN DS    C                       OVERRIDE LOG INDICATOR           00009000
+         DS    C                       FILLER                           00010000
+REQPRKEY DS    0CL46                   PARENT KEY                       00011000
+REQEPRT  DS    CL3                     PARENT TYPE                      00012000
+REQPKEY  DS    CL40                    PARENT POINTER KEY               00013000
+REQSPRT  DS    CL3                     PARENT SUB ENTITY TYPE           00014000
+REQEFDTE DS    PL5                     EFFECTIVE DATE                   00015000
+REQRDLIM DS    PL3                     SEARCH READ LIMIT                00016000
+         ORG   REQRDLIM                REDEFINE SEARCH READ LIMIT       00017000
+REQPROSS DS    PL3                     TOTAL RECORDS PROCESSED          00018000
+REQ2NKEY DS    0CL46                   SECOND KEY AREA                  00019000
+REQ2NETP DS    CL3                     SECOND ENTITY TYPE               00020000
+REQ2NSTP DS    CL3                     SECOND SUB ENTITY TYPE           00021000
+REQ2NEKY DS    CL40                    SECOND POINTER KEY               00022000
+REQLMSCE DS    CL8                     REQUEST LAST MAINT. SOURCE       00023000
+REQCDMAX DS    CL2                     RELATION CHILD MAX ENTRIES       00024000
+REQCDNBR DS    CL2                     RELATION CHILD NUMBER OF ENTRIES 00025000
+LENRQLOG EQU   *-REQACTN               NO VARYING REQUEST BLOCK         00026000
+REQENTAB DS    CL12                    RELATION ENTITY TABLE            00027000
+LENENTAB EQU   *-REQENTAB                                               00028000
+         DS    29CL12                  RELATION ENTITY TABLE            00029000
+REQDLEN  EQU   *-REQACTN                                                00030000
+*                                                                       00031000
+WRKPTYP  DS    CL3                     WORK PARENT TYPE                 00032000
+WRKPKEY  DS    CL40                    WORK PARENT POINTER KEY          00033000
+WRKPSTYP DS    CL3                     WORK PARENT SUB TYPE             00034000
+WRKCTYP  DS    CL3                     WORK CHILD TYPE                  00035000
+WRKCSTYP DS    CL3                     WORK CHILD SUB TYPE              00036000
+WRKRELCD DS    CL6                     WORK RELATION CODE               00037000
+WRKEXPDT DS    PL5                     WORK EXPIRATION DATE             00038000
+WRKCKEY  DS    CL40                    WORK CHILD POINTER KEY           00039000
+WRKKEYLN EQU   *-WRKPTYP               WORK DECOMP. FULL KEY LENGTH     00040000
+WRKEFFDT DS    PL5                     WORK EFFECTIVE DATE              00041000
+WRKPRGDT DS    PL5                     PURGE DATE                       00042000
+WRKCREDT DS    PL5                     CREATE DATE                      00043000
+WRKLMDTE DS    PL5                     LAST MAINT. DATE                 00044000
+WRKLMTME DS    PL4                     LAST MAINT. TIME                 00045000
+WRKLMOPR DS    CL8                     LAST MAINT. OPERATER             00046000
+WRKLMSCE DS    CL8                     LAST MAINT. SOURCE               00047000
+AUDITLN  EQU   *-WRKLMDTE              AUDIT AREA LENGTH                00048000
+LENCONST EQU   *-WRKPTYP               NON-USER DATA LENGTH             00049000
+*-------------------RAF REQUEST WORK AREA---------------------------*   00050000
+WRKFUNC  DS    CL2                     SAE0020A FUNCTION CODE           00051000
+WRKITRLN DS    CL2                     USER DAG ITTERATION LENGTH       00052000
+WRKMAXEN DS    CL2                     WORK MAX NO. OF USER DAG ENTRIES 00053000
+LENMAXEN EQU   *-WRKMAXEN              AREA LENGTH                      00054000
+WRKNBREN DS    CL2                     WORK REQST'ED NO OF USER ENTRIES 00055000
+LENNBREN EQU   *-WRKNBREN              AREA LENGTH                      00056000
+WRKSCRPT DS    CL2                     USER-DAG SUB SCRIPT              00057000
+WRKRETCD DS    CL2                     USER-DAG ENTRY SEVERITY CODE     00058000
+WRKERRCD DS    CL2                     USER-DAG ENTRY RETURN CODE       00059000
+WRKCHDSB DS    CL2                     REQUEST AREA CHLD CODE SUB-SCRPT 00060000
+WRKDATE  DS    PL5                     TODAY'S DATE                     00061000
+WRKRCODE DS    CL2                     WORK AREA RETURN CODE            00062000
+WRKECODE DS    CL2                     WORK AREA ERROR CODE             00063000
+WRKOVRDT DS    C                       DATE OVERLAP WARNING FLAG        00064000
+WRKLOEXP DS    C                       EXP. DATE < EFF. DATE   IF = 'Y' 00065000
+WRKENTCT DS    CL4                     MAX ENTRY COUNTER                00066000
+WRKMXECT DS    CL4                     MAX ENTRY COUNT (HOLD AREA)      00067000
+WRKSAVRG DS    CL4                     REGISTER SAVE AREA               00068000
+WRKGEIND DS    C                       GERENIC KEY REQUEST              00069000
+         DS    CL5                     FILLER                           00070000
+WKRARELN EQU   *-WRKPTYP               WORK AREA DSECT LENGTH           00071000
+REQWRKLN EQU   *-REQACTN                                                00072000
+         SPACE                                                          00073000

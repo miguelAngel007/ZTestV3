@@ -1,0 +1,48 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************   00000100
+*                                                                   *   00000200
+*                          TRANSACTION SYSTEM                       *   00000300
+*                         BRANCH INDEX RECORD                       *   00000400
+*                                                                   *   00000500
+*********************************************************************   00000600
+*                                                                       00000700
+TSBIR    DSECT                                                          00000800
+*                      BIR KEY AREA                                     00000900
+BIR      DS    0X                      BRANCH INDEX RECORD              00001000
+BIRKEY   DS    0XL11                   BRANCH INDEX RECORD KEY          00001100
+BIRLVL1  DS    CL2                     BIR LEVEL 1                      00001200
+BIRLVL2  DS    CL3                     BIR LEVEL 2                      00001300
+BIRPBNCH DS    CL4                     BIR PHYSICAL BRANCH ID           00001400
+BIRSEQ   DS    PL2                     RECORD SEQUENCE                  00001500
+*                                                                       00001600
+         DS    CL20                    FILLER                           00001700
+*                      BIR KEY SLOTS                                    00001800
+BIRMSLOT DS    PL2                     BIR MAX KEY SLOTS                00001900
+*                                      VALUE 30                         00002000
+BIRUSLOT DS    PL2                     BIR KEY SLOTS USED               00002100
+BIRETSLT DS    0X                      BIR ETR KEY SLOTS                00002200
+BIRETRKY DS    0CL43                   BIR ETR KEY                      00002300
+BIREORKY DS    0CL21                   BIR EOR KEY                      00002400
+BIREORLV DS    0CL5                    BIR EOR LEVELS                   00002500
+BIREORL1 DS    CL2                     BIR EOR LEVEL 1                  00002600
+BIREORL2 DS    CL3                     BIR EOR LEVEL 2                  00002700
+BIREORID DS    CL8                     BIR EOR EMPLOYEE ID              00002800
+         DS    CL8                     FILLER                           00002900
+BIREORSI DS    0CL22                   BIR EOR SIGNON INFORMATION       00003000
+BIREORPL DS    CL4                     BIR EOR PHYSICAL LOCATION        00003100
+BIREORCU DS    CL3                     BIR EOR CURRENCY       0722348   00003200
+BIREORDP DS    CL3                     BIR EOR DEPARTMENT     0722348   00003250
+BIREORBT DS    CL5                     BIR EOR BATCH          0722348   00003300
+BIREORSB DS    CL5                     BIR EOR SUB-BATCH      0722348   00003350
+BIREORTN DS    CL1                     BIR EOR TRAINING                 00003400
+BIREORND DS    CL1                     BIR EOR NEXT DAY FLAG            00003500
+BIRTOTFG DS    CL1                     BIR TOTALS FLAG                  00003600
+*                                      VALUE - 0 - CURRENT TOTALS       00003700
+*                                                  LOCATED IN ETR       00003800
+*                                              1 - CURRENT TOTALS       00003900
+*                                                  LOCATED IN EOR       00004000
+BIRKY1LN EQU   *-BIRETSLT              BIR ETR 1ST KEY LENGTH           00004100
+         DS    CL1276                  BIR ETR KEYS 2ND TO 30 OCCUR     00004200
+BIREND   EQU   *                                                        00004300
+BIRLEN   EQU   *-BIR                   BIR RECORD LENGTH                00004400
+         EJECT                                                          00004500

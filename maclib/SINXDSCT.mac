@@ -1,0 +1,282 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+***   * FO5238 14/04/11 PROYECTO REBORN                               *
+*---------------------------------------------------------------------* 00010000
+*                  ** HISTORY OF REVISIONS **                         * 00020000
+*                                                                     * 00030000
+* DESCRIPTION                                                 CHNGID  * 00040000
+* __________________________________________________________  _______ * 00050000
+* 11/11/11 ADD IBK QUAL -            05/09/96                 0925836   00059999
+* 02/28/13 CORRECTED DECIMAL FOR CURRENCIES                   1336412   00059996
+* 01/03/13 MODIFIED DECIMAL FOR KRW AND HUF                   1326349   00059998
+* 06/18/09 ADD FDIC                                           0925836   00059999
+* 08/31/06 ADD NEW ROMANIAN CURRECY RON (946)                 0635539   00060000
+* 10/28/05 UPD DEFAULT TO 3 DECIMAL POSITION FOR IQD          0625379   00060001
+* 06/27/05 ADD AND UPDATE CURRENCY CODE                       0545250 * 00060002
+* 12/14/04 ADD TRY, NEW TURKISH LIRA                          0445160   00060004
+* 03/25/04 CORRECT ENTRY FOR CNY/MISC SPELLING CORRECTIONS    0434982 * 00060006
+* 03/17/03 ADD XCD, XPF, MISC SPELLING CORRECTIONS            0334705 * 00060008
+* 06/23/99 ADD NUMERIC CURRENCY VALUE (ISO8583)               2024087 * 00060010
+* 01/11/99 ADD EUROPEAN MONETARY UNIT, MISC CORRECTIONS       9914011 * 00061000
+* 08/08/97 FLOATING POINT/DBCS ENABLE                         9913481 * 00070000
+*---------------------------------------------------------------------* 00080000
+*********************************************************************** 00090000
+*  NXDSQUAL --- VALID QUALIFIERS BY BANK                              * 00100000
+*                                                                     * 00110000
+*    1 - 4    4 DIGIT BANK NUMBER (BLANKS IS DEFAULT)                 * 00120000
+*    5 - 8    QUALIFIER                                               * 00130000
+*   10        MID-RATE OPTION (BLANKS IS DEFAULT)             9913481 * 00140000
+*********************************************************************** 00150000
+NXDSQUAL DS   0F                                                        00160000
+         DC   CL10'    CASH  '                                          00170000
+         DC   CL10'    FDIC  '                                0925836   00175000
+         DC   CL10'    SPOT  '                                          00180000
+         DC   CL10'    TVCK  '                                          00190000
+         DC   CL10'    FMS  M'                                          00200000
+         DC   CL10'    SBS   '        IB-05/09/96                       00200000
+         DC   CL10'    SBS1  '        IB-05/09/96                       00200000
+         DC   CL10'    SBS2  '        IB-05/09/96                       00200000
+         DC   CL10'    SBS3  '        IB-05/09/96                       00200000
+         DC   CL10'    LEGA  '        IB-05/09/96                       00200000
+         DC   CL10'    MORA  '        IB-05/09/96                       00200000
+         DC   CL10'    XFER M'                                          00210000
+         DC   10X'FF'                                         9914011   00220000
+         EJECT                                                          00230000
+*********************************************************************** 00240000
+*  NXDSROPT --- RETURN OPTION BY CONTROL 1                    9913481 * 00250000
+*                                                             9913481 * 00260000
+*    1 - 4    4 DIGIT BANK NUMBER (BLANKS IS DEFAULT)         9913481 * 00270000
+*    6        RETRUN OPTION                                   9913481 * 00280000
+*                0 = ORIGINAL (DEFAULT IF NOT INDICATED       9913481 * 00290000
+*                              IN BANK NUMBER)                9913481 * 00300000
+*                1 = LOCAL                                    9913481 * 00310000
+*********************************************************************** 00320000
+NXDSROPT DS   0F                                              9913481   00330000
+         DC   CL6'     0'                                               00340000
+         DC   CL6'0084 0'                                               00350000
+         DC   CL6'0085 1'                                               00360000
+         DC   6X'FF'                                          9913481   00370000
+         EJECT                                                9913481   00380000
+*********************************************************************** 00390000
+*  SINXDSCT --- VALID INTERNATIONAL CURRENCY TABLE                    * 00400000
+*                                                                     * 00410000
+*    1 - 4    4 DIGIT BANK NUMBER                                     * 00420000
+*    5 - 7    CURRENCY CODE (CHARACTER)                               * 00430000
+*    8 - 10   CURRENCY CODE (NUMERIC)                         2024087 * 00430010
+*   11 - 12   LANGUAGE                                        9913481 * 00440000
+*   13        DECIMAL POSITION (DEFAULT IS 2)                 9913481 * 00450000
+*   14 - 37   CURRENCY DESCRIPTION                            9913481 * 00460000
+*  LOOKUP IS BY BANK AND CURRENCY CODE IF THE BANK NUMBER IS IN       * 00470000
+*    THE TABLE.  IF NOT, CURRENCY CODE IS USED FROM ENTRIES WITH A    * 00480000
+*    BLANK BANK NUMBER.                                               * 00490000
+*********************************************************************** 00500000
+NXDSLENG EQU  37       LENGTH OF EACH TABLE ENTRY             2024087   00510000
+SINXDSCT DS   0F                                                        00520000
+         DC   CL37'             UNSPECIFIED CURRENCY'                   00530000
+         DC   CL37'    ADF      ANDORRAN FRANC'                         00540000
+         DC   CL37'    ADP020   ANDORRAN PESETA'              0545250   00541000
+         DC   CL37'    AED784   UN ARAB EMIRATES DIRHAM'                00550000
+         DC   CL37'    AFA004   AFGHANISTAN AFGHANI'                    00560000
+         DC   CL37'    ALL008   ALBANIAN LEK'                           00570000
+         DC   CL37'    AMD051   ARMENIAN DRAM'                0545250   00571000
+         DC   CL37'    ANG532   NETHERLANDS ANTILLIAN GUILDER'          00580000
+         DC   CL37'    AON024   ANGOLAN NEW KWANZA'                     00591000
+         DC   CL37'    AOR982   ANGOLA KWANZA REAJUSTADO'     0545250   00592000
+         DC   CL37'    ARA      ARA ARGENTINIAN AUSTRAL'                00600000
+         DC   CL37'    ARP      ARGENTINA PESO'                         00610000
+         DC   CL37'    ARS032   ARGENTINA PESO'               0545250   00611000
+         DC   CL37'    ATS040   AUSTRIA SCHILLING'                      00620000
+         DC   CL37'    AUD036   AUSTRALIAN DOLLAR'                      00630000
+         DC   CL37'    AWG533   ARUBAN FLORIN'                          00640000
+         DC   CL37'    AZM031   AZERBAIJANIAN MANAT'          0545250   00641000
+         DC   CL37'    BAM977   BOSNIA CONVERTIBLE MARKS'     0545250   00642000
+         DC   CL37'    BBD052   BARBADOS DOLLAR'                        00650000
+         DC   CL37'    BDT050   BANGLADESHI TAKA'                       00660000
+         DC   CL37'    BEF056   BELGIAN FRANC'                          00670000
+         DC   CL37'    BGL100   BULGARIAN LEV'                          00680000
+         DC   CL37'    BGN975   BULGARIAN LEV'                0545250   00681000
+         DC   CL37'    BHD048  3BAHRAINI DINAR'               1336412   00690000
+         DC   CL37'    BIF108  0BURUNDI FRANC'                1336412   00700000
+         DC   CL37'    BMD060   BERMUDIAN DOLLAR'                       00710000
+         DC   CL37'    BND096   BRUNEI DOLLAR'                          00720000
+         DC   CL37'    BOB068   BOLIVIAN BOLIVIANO'                     00730000
+         DC   CL37'    BRC      BRAZILIAN CRUZEIRO'                     00740000
+         DC   CL37'    BRL986   BRAZILIAN REAL'                         00741000
+         DC   CL37'    BSD044   BAHAMIAN DOLLAR'                        00750000
+         DC   CL37'    BTN064   BHUTAN NGULTRM'               0545250   00760000
+         DC   CL37'    BUK      BURMA KYAT'                             00770000
+         DC   CL37'    BWP072   BOTSWANIAN PULA'                        00780000
+         DC   CL37'    BYR974  0BELARUSSIAN RUBLE'            1336412   00781000
+         DC   CL37'    BZD084   BELIZE DOLLAR'                          00790000
+         DC   CL37'    CAD124   CANADIAN DOLLAR'                        00800000
+         DC   CL37'    CDF180   FRANC CONGLOAIS'              0545250   00801000
+         DC   CL37'    CHF756   SWISS FRANC'                            00810000
+         DC   CL37'    CLP152  0CHILEAN PESO'                 1336412   00830000
+         DC   CL37'    CNY156   CHINA YUAN'                             00840000
+         DC   CL37'    CNY156KO KOREAN CHINA YUAN'            0434982   00850000
+         DC   CL37'    CNY156ZH *$¬Ï;@$õ'                   0434982   00860000
+         DC   CL37'    COP170   COLOMBIA PESO'                          00870000
+         DC   CL37'    CRC188   COSTA RICAN COLON'                      00880000
+         DC   CL37'    CZK203   CZECH KORUNA'                 0545250   00890000
+         DC   CL37'    CUP192   CUBAN PESO'                             00900000
+         DC   CL37'    CVE132   CAPE VERDE ESCUDO'            0434982   00910000
+         DC   CL37'    CYP196   CYPRUS POUND'                           00920000
+         DC   CL37'    DEM280   DEUTSCHE MARK'                          00940000
+         DC   CL37'    DJF262  0DJIBOUTI FRANC'               1336412   00950000
+         DC   CL37'    DKK208   DANISH KRONE'                           00960000
+         DC   CL37'    DOP214   DOMINICAN PESO'                         00970000
+         DC   CL37'    DZD012   ALGERIAN DINAR'               0434982   00980000
+         DC   CL37'    ECS218   ECUADOR SUCRE'                          00990000
+         DC   CL37'    ECV983   UNIDAD DE VALOR'              0545250   00991000
+         DC   CL37'    EEK233   ESTONIAN KROON'                         01000000
+         DC   CL37'    EGP818   EGYPTIAN POUND'                         01010000
+         DC   CL37'    ERN232   ERITREA NAKFA'                0545250   01011000
+         DC   CL37'    ESP724   SPAIN PESETA'                           01020000
+         DC   CL37'    ETB230   ETHIOPIAN BIRR'                         01030000
+         DC   CL37'    EUR978   EUROPEAN MONETARY UNIT'       0545250   01031000
+         DC   CL37'    FIM246   FINNISH MARKKA'                         01040000
+         DC   CL37'    FJD242   FIJI DOLLAR'                            01050000
+         DC   CL37'    FKP238   FALKLAND ISLANDS POUND'                 01060000
+         DC   CL37'    FRF250   FRANCE FRANC'                           01070000
+         DC   CL37'    GBP826   GREAT BRITAIN POUND'                    01080000
+         DC   CL37'    GEL981   GEORGIA LARI'                 0545250   01081000
+         DC   CL37'    GHC288   GHANAIAN CEDI'                          01090000
+         DC   CL37'    GIP292   GIBRALTAR POUND'                        01100000
+         DC   CL37'    GMD270   GAMBIAN DALASI'                         01110000
+         DC   CL37'    GNF324  0GUINEA FRANC'                 1336412   01120000
+         DC   CL37'    GRD300   GREECE DRACHMA'                         01130000
+         DC   CL37'    GTQ320   GUATEMALAM QUETZAL'                     01140000
+         DC   CL37'    GWP624   GUINEA-BISSAU PESO'                     01150000
+         DC   CL37'    GYD328   GUYANA DOLLAR'                          01160000
+         DC   CL37'    HKD344   HONG KONG DOLLAR'                       01170000
+         DC   CL37'    HNL340   HONDURAN LEMPIRA'                       01180000
+         DC   CL37'    HRK191   CROATIAN KUNA'                          01190000
+         DC   CL37'    HTG332   HAITIAN GOURDE'                         01191000
+         DC   CL37'    HUF348  0HUNGARIAN FORINT'             1326349   01200000
+         DC   CL37'    IDR360   INDONESIAN RUPIAH'            0334705   01210000
+         DC   CL37'    IEP372   IRISH PUNT'                             01220000
+         DC   CL37'    ILS376   ISRAEL SHEKEL'                          01230000
+         DC   CL37'    INR356   INDIA RUPEE'                            01240000
+         DC   CL37'    IQD368  3IRAQ DINAR'                   0625379   01250000
+         DC   CL37'    IRR364   IRANIAN RIAL'                           01260000
+         DC   CL37'    ISK352  0ICELAND KRONA'                1336412   01270000
+         DC   CL37'    ITL380   ITALY LIRA'                             01280000
+         DC   CL37'    JMD388   JAMAICAN DOLLAR'              0334705   01290000
+         DC   CL37'    JOD400  3JORDANIAN DOLLAR'             1336412   01300000
+         DC   CL37'    JPY392  0JAPANESE YEN'                           01310000
+         DC   CL37'    KES404   KENYAN SHILLING'              0334705   01320000
+         DC   CL37'    KGS417   KYRGYZSTAN SOM'               0545250   01321000
+         DC   CL37'    KHR116   KAMPUCHEAN (CAMBODIAN) RIEL'  0434982   01330000
+         DC   CL37'    KMF174  0COMOROS FRANC'                1336412   01340000
+         DC   CL37'    KPW408   NORTH KOREA WON'                        01350000
+         DC   CL37'    KRW410  0SOUTH KOREA WON'              1326349   01360000
+         DC   CL37'    KWD414  3KUWAITI DINAR'                1336412   01390000
+         DC   CL37'    KYD136   CAYMAN ISLANDS DOLLAR'                  01400000
+         DC   CL37'    KZT398   KAZAKHSTAN TENGE'                       01401000
+         DC   CL37'    LAK418   LAO KIP'                                01410000
+         DC   CL37'    LBP422   LEBANESE POUND'                         01420000
+         DC   CL37'    LKR144   SRI LANKA RUPEE'                        01430000
+         DC   CL37'    LRD430   LIBERIAN DOLLAR'                        01440000
+         DC   CL37'    LSL426   LESOTHO LOTI'                 0545250   01450000
+         DC   CL37'    LTL440   LITHUANIAN LITAS'                       01460000
+         DC   CL37'    LUF442   LUXEMBOURG FRANC'                       01461000
+         DC   CL37'    LVL428   LATVIAN LATS'                 1336412   01470000
+         DC   CL37'    LYD434  3LIBYAN DINAR'                 1336412   01480000
+         DC   CL37'    MAD504   MOROCCAN DIRHAM'                        01490000
+         DC   CL37'    MDL498   MOLDOVA LEU'                  0545250   01491000
+         DC   CL37'    MGF450   MALAGASY FRANC'               0545250   01500000
+         DC   CL37'    MKD807   MACEDONIA DENAR'              0545250   01501000
+         DC   CL37'    MMK104   MYANMAR KYAT'                           01510000
+         DC   CL37'    MNT496   MONGOLIAN TUGRIK'             0434982   01511000
+         DC   CL37'    MOP446   MACAU PATACA'                           01520000
+         DC   CL37'    MRO478   MAURITANIAN OUGUIYA'                    01530000
+         DC   CL37'    MTL470   MALTESE LIRA'                           01540000
+         DC   CL37'    MUR480   MAURITIUS RUPEE'                        01560000
+         DC   CL37'    MVR462   MALDIVE RUFIYAA'                        01570000
+         DC   CL37'    MWK454   MALAWI KWACHA'                          01580000
+         DC   CL37'    MXN484   MEXICO PESO'                  0334705   01590000
+         DC   CL37'    MYR458   MALAYSIA RINGGIT'                       01600000
+         DC   CL37'    MZM508   MOZAMBIQUE METICAL'                     01610000
+         DC   CL37'    NAD516   NAMIBIAN DOLLAR'                        01620000
+         DC   CL37'    NGN566   NIGERIAN NAIRA'                         01621000
+         DC   CL37'    NIO558   NICARAGUAN CORDOBA'                     01630000
+         DC   CL37'    NLG528   DUTCH GUILDER'                          01640000
+         DC   CL37'    NOK578   NORWEGIAN KRONER'                       01650000
+         DC   CL37'    NPR524   NEPALESE RUPEE'                         01660000
+         DC   CL37'    NZD554   NEW ZEALAND DOLLAR'                     01670000
+         DC   CL37'    OMR512  3OMANI RIAL'                   1336412   01680000
+         DC   CL37'    PAB590   PANAMANIAN BALBOA'                      01690000
+*        DC   CL37'    PEN604   PERUVIAN NEUEVO SOL'          FO5238    01700000
+         DC   CL37'    PES604   PERUVIAN NUEVO SOL'           FO5238    01700000
+         DC   CL37'    PGK598   PAPUA NEW GUINEA KINA'                  01720000
+         DC   CL37'    PHP608   PHILIPPINES PESO'                       01730000
+         DC   CL37'    PKR586   PAKISTAN RUPEE'                         01740000
+         DC   CL37'    PLN985   POLAND ZLOTY'                 0334705   01750000
+         DC   CL37'    PTE620   PORTUGAL ESCUDO'                        01760000
+         DC   CL37'    PYG600  0PARAGUAY GUARANI'             1336412   01770000
+         DC   CL37'    QAR634   QATAR RIYAL'                  0434982   01780000
+         DC   CL37'    ROL642   ROMANIAN OLD LEU'             0635539   01790000
+         DC   CL37'    RON946   ROMANIAN NEW LEU'             0635539   01790002
+         DC   CL37'    RUB643   RUSSIA RUBLE'                 0545250   01800000
+         DC   CL37'    RUR810   RUSSIAN FED RUBLE'            0545250   01801000
+         DC   CL37'    RWF646  0RWANDA FRANC'                 1336412   01810000
+         DC   CL37'    SAR682   SAUDI-ARABIA RIYAL'                     01820000
+         DC   CL37'    SBD090   SOLOMON ISLANDS DOLLAR'                 01830000
+         DC   CL37'    SCR690   SEYCHELLES RUPEE'                       01840000
+         DC   CL37'    SDD      SUDANESE DINAR'                         01850000
+         DC   CL37'    SDP736   SUDANESE POUND'                         01851000
+         DC   CL37'    SEK752   SWEDEN KRONA'                           01860000
+         DC   CL37'    SGD702   SINGAPORE DOLLAR'                       01870000
+         DC   CL37'    SHP654   ST. HELENA PURND'                       01880000
+         DC   CL37'    SIT705   SLOVENIA TOLAR'                         01881000
+         DC   CL37'    SKK703   SLOVAK KORUNA'                          01890000
+         DC   CL37'    SLL694   SIERRA LEONE LEONE'                     01900000
+         DC   CL37'    SOS706   SOMALI SHILLING'                        01910000
+         DC   CL37'    SRD968   SURINAME'                     0545250   01911000
+         DC   CL37'    SRG740   SURINAME GUILDER'                       01920000
+         DC   CL37'    STD678   SAO TOME/PRINCIPE DOBRA'                01930000
+         DC   CL37'    SVC222   EL SALVADOR COLON'            0334705   01951000
+         DC   CL37'    SYP760   SYRIAN POTMD'                           01960000
+         DC   CL37'    SZL748   SWAZILAND LILANGENI'                    01970000
+         DC   CL37'    THB764   THAI BAHT'                              01980000
+         DC   CL37'    TJS972   TAJIKISTAN SOMONI'            0545250   01981000
+         DC   CL37'    TMM795   TURKMENISTAN MANAT'           0545250   01982000
+         DC   CL37'    TND788  3TUNISIAN DINAR'               1336412   01990000
+         DC   CL37'    TOP776   TONGAN PA ANGA'                         02000000
+         DC   CL37'    TPE626   EAST TIMOR ESCUDO'                      02010000
+         DC   CL37'    TRL792   TURKISH LIRA'                 0445160   02020000
+         DC   CL37'    TRY949   NEW TURKISH LIRA'             0445160   02021000
+         DC   CL37'    TTD780   TRINIDAD / TOBAGO DOLLAR'               02030000
+         DC   CL37'    TWD901   TAIWAN DOLLAR'                1336412   02040000
+         DC   CL37'    TZS834   TANZANIAN SHILLING'           0334705   02050000
+         DC   CL37'    UAG      UKRAINE HRYVNIA'                        02060000
+         DC   CL37'    UAH980   UKRAINE HRYVNIA'              0545250   02060010
+         DC   CL37'    UAK810   UKRAINE KARBOVANETS'                    02060100
+         DC   CL37'    UGS800   UGANDA SHILLING'                        02061000
+         DC   CL37'    UGX800   UGANDA SHILLING'              0545250   02062000
+         DC   CL37'    USD840   USA DOLLAR'                             02070000
+         DC   CL37'    USD840KO KOREAN USA DOLLAR'            0434982   02080000
+         DC   CL37'    USD840ZH ëµ$}'                       0434982   02090000
+         DC   CL37'    UYP      URUGUAY PESO'                           02100000
+         DC   CL37'    UYU858   URUGUAYO PESO'                0545250   02101000
+         DC   CL37'    UZS860   UZBEKISTAN SUM'               0545250   02102000
+         DC   CL37'    VEB862   VENEZUALAN BOLIVAR'                     02110000
+         DC   CL37'    VND704   VIETNAMESE DONG'                        02120000
+         DC   CL37'    VUV548  0VANUATU VATU'                 1336412   02130000
+         DC   CL37'    WST882   SAMOAN TALA'                  0434982   02140000
+         DC   CL37'    XAF950  0CFA FRANC BEAC'               1336412   02140005
+         DC   CL37'    XCD951   EAST CARIBBEAN'               0545250   02140010
+         DC   CL37'    XEU954   EUROPEAN CURRENCY UNIT'                 02150000
+         DC   CL37'    XOF952  0CFA FRANC BCEAO'              1336412   02150005
+         DC   CL37'    XPF953  0TAHITI'                       1336412   02150010
+         DC   CL37'    YDD      DEMOCRATIC YEMENI DINAR'                02151000
+         DC   CL37'    YER886   YEMENI RIAL'                  0434982   02160000
+         DC   CL37'    YUM891   YUGOSLAVIA NEW DINAR'         0545250   02161000
+         DC   CL37'    YUN890   NEW YUGOSLAVIA DINAR'                   02170000
+         DC   CL37'    ZAR710   SOUTH AFRICAN RAND'                     02180000
+         DC   CL37'    ZMK894   ZAMBIAN KWACHA'               0334705   02190000
+         DC   CL37'    ZRN180   ZAIRE NEW ZAIRE'                        02200000
+         DC   CL37'    ZWD716   ZIMBABWE DOLLAR'                        02210000
+         DC   CL37'0050GBP826   GREAT BRITAIN POUND'                    02220000
+         DC   CL37'0050USD840   USA DOLLAR'                             02230000
+         DC   37X'FF'                                         9913481   02240000

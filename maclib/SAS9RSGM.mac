@@ -1,0 +1,38 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAS9RSGM &DSECT=NO                                             00002000
+.********************************************************************** 00003000
+.*                                                                    * 00004000
+.* * * * * * * *       S A S 9 R S G M                   * * * * * * ** 00005000
+.*                                                                    * 00006000
+.*              AUTOMATIC RESEGMENTATION CONTROL CARD                 * 00007000
+.*                                                                    * 00008000
+.********************************************************************** 00009000
+.*--------------------------------------------------------------------* 00010000
+.*                  ** HISTORY OF REVISIONS **                        * 00011000
+.*                                                                    * 00012000
+.* DESCRIPTION                                                 CHNGID * 00013000
+.* __________________________________________________________  _______* 00014000
+.* 02/12/13 INITIAL DISTRIBUTION                               GN6371   00015000
+.*--------------------------------------------------------------------* 00016000
+         AIF   ('&DSECT' EQ 'YES').DODSECT                              00017000
+SAS9RSGD DS    0CL80                                                    00018000
+         AGO   .SKIPIT                                                  00019000
+.DODSECT ANOP                                                           00020000
+SAS9RSGD DSECT                                                          00021000
+.SKIPIT  ANOP                                                           00022000
+RSGUEXIT DS    0CL8          USER EXIT NAME                             00023000
+RSGAVCT  DS    PL7           AVERAGE SEGMENT COUNT                      00024000
+RSGRTN   DS    CL1           EXIT RETURN CODE                           00025000
+RSGXLEN  DS    CL2           XLEN FLAG - SPACES OR XL                   00026000
+RSGKEYP  DS    CL1           KEY POSITION                               00027000
+RSGDSN   DS    0CL5          DATASET NAME                               00028000
+RSGAPPL  DS    CL2           APPLICATION                                00029000
+RSGDNM   DS    CL3           FILE                                       00030000
+RSGDEV   DS    CL2           DEVIATION PERCENT                          00031000
+RSGNSEGO DS    CL2           ORIGINAL NUMBER OF SEGMENTS                00032000
+RSGNSEGN DS    CL2           NEW NUMBER OF SEGMENTS                     00033000
+RSGSEGS  DS    29CL2         SEGMENT VALUES                             00034000
+RSGMSG   DS    CL100         EXIT ERROR MESSAGE                         00035000
+RSGSEGCT DS    29PL7         SEGMENT COUNTS                             00036000
+         MEND                                                           00037000

@@ -1,0 +1,167 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+*---------------------------------------------------------------------* 00010000
+*   NXX4KXRC - COPYBOOK WITH CODE FOR BUILDUP OF NXXRC FILE KEY       * 00020000
+*              FOR FINXXRTM (ONLINE) AND NXXRTM (BATCH) PROGRAMS      * 00030000
+*---------------------------------------------------------------------* 00040000
+*                  ** HISTORY OF REVISIONS **                         * 00050000
+* DESCRIPTION                                                 CHNGID  * 00060000
+* __________________________________________________________  _______ * 00070000
+* 08/08/97 FLOATING DECIMAL INITIAL RELEASE                   9910004 * 00080002
+*---------------------------------------------------------------------* 00090000
+*********************************************************************** 00100000
+*                                                                     * 00110000
+*   BUILD EXCHANGE CONTROL FILE KEY                                   * 00120000
+*                                                                     * 00130000
+*********************************************************************** 00140000
+*   BUILD KEY FOR SOURCE                                              * 00150000
+*********************************************************************** 00160000
+XRCSOUR  DS     0H                                                      00170000
+         ST     R7,SVBALLV1            STORE BAL REG                    00180000
+         MVC    HCAPP,XRTSAPP          MOVE SOURCE APPL                 00190000
+         MVC    HCCTX,XRTSCTX          MOVE SOURCE CONTROLS             00200000
+         MVC    HCCTL4,=C'0000'        MOVE ZEROS TO CTL4               00210000
+         MVC    HCCTLC,XRTSOUR         MOVE CURRENCY                    00220000
+XRCSRC2  BAL    R7,READXRC             LINK TO READ XRC                 00230000
+         MVC    XRTSCUS,XRCCUST        MOVE CUST TO CPYBK               00240000
+         MVC    XRTSOUR,XRCCURR        MOVE CURR TO CPYBK               00250000
+         MVC    XRTSDEC,XRCDEC         MOVE DEC  TO CPYBK               00260000
+         CLI    XRCDEC,C'0'            Q. IS DEC LESS THAN 0?           00270000
+         BL     MVSDFLT                BRANCH IF LESS THAN 0            00280000
+         CLI    XRCDEC,C'3'            Q. IS DEC GRTR THAN 3?           00290000
+         BH     MVSDFLT                BRANCH IF GRTR THAN 3            00300000
+         B      STEST                  BRANCH TO STEST                  00310000
+MVSDFLT  MVI    XRTSDEC,C'2'           MOVE 2 TO NMBR DEC               00320000
+STEST    CLI    XRTBOPT,C'S'           DETERMINE BASE OPTION            00330000
+         BNE    XTEST                  BRANCH IF NOT SOURCE             00340000
+         MVC    HCKEY2,XRCKEY          MOVE TO XRC BASE KEY             00350000
+XTEST    CLI    XRTACT,C'X'            IS THIS'X' ACTION                00360000
+         BNE    XRCSRC3                NO, BRANCH TO XRCSRCE2           00370000
+         B      RETURN                 GOTO RETURN                      00380000
+XRCSRC3  EQU    *                                                       00390000
+         L      R7,SVBALLV1            RESTORE BAL REG                  00400000
+         BR     R7                                                      00410000
+*********************************************************************** 00420000
+*   BUILD KEY FOR TARGET                                              * 00430000
+*********************************************************************** 00440000
+XRCTARG  DS     0H                                                      00450000
+         ST     R7,SVBALLV1            STORE BAL REG                    00460000
+         MVC    HCAPP,XRTTAPP          MOVE SOURCE APPL                 00470000
+         MVC    HCCTX,XRTTCTX          MOVE SOURCE CONTROLS             00480000
+         MVC    HCCTL4,=C'0000'        MOVE SPACES TO CTL4              00490000
+         MVC    HCCTLC,XRTTARG         MOVE CURRENCY                    00500000
+         BAL    R7,READXRC             LINK TO READ XRC                 00510000
+         MVC    XRTTCUS,XRCCUST        MOVE CUST TO CPYBK               00520000
+         MVC    XRTTARG,XRCCURR        MOVE CURR TO CPYBK               00530000
+         MVC    XRTTDEC,XRCDEC         MOVE DEC  TO CPYBK               00540000
+         CLI    XRCDEC,C'0'            Q. IS DEC LESS THAN 0?           00550000
+         BL     MVTDFLT                BRANCH IF LESS THAN 0            00560000
+         CLI    XRCDEC,C'3'            Q. IS DEC GRTR THAN 3?           00570000
+         BH     MVTDFLT                BRANCH IF GRTR THAN 3            00580000
+         B      TTEST                  BRANCH TO TTEST                  00590000
+MVTDFLT  MVI    XRTTDEC,C'2'           MOVE 2 TO NMBR DEC               00600000
+TTEST    CLI    XRTBOPT,C'T'           DETERMINE BASE OPTION            00610000
+         BNE    XRCTAR2                BRANCH IF NOT TARGET             00620000
+         MVC    HCKEY2,XRCKEY          MOVE TO XRC BASE KEY             00630000
+XRCTAR2  EQU    *                                                       00640000
+         L      R7,SVBALLV1            RESTORE BAS REG                  00650000
+         BR     R7                                                      00660000
+*********************************************************************** 00670000
+*   BUILD KEY FOR BASE                                                * 00680000
+*********************************************************************** 00690000
+XRCBASE  DS     0H                                                      00700000
+         ST     R7,SVBALLV1            STORE BAL REG                    00710000
+         MVI    HOLDFLAG,C'B'          SET FLAG FOR BASE                00720000
+         MVI    HOLDSWT,C'1'           SET BASE SWITCH FOR 1            00730000
+         MVC    HCKEY,HCKEY2           MOVE TO XRC KEY                  00740000
+         MVC    HCCTLC,XRTBASE         MOVE BASE CURR TO KEY            00750000
+         MVC    HCCTL34,=C'0000000'    MOVE ZEROS TO CTL 3+4            00760000
+         BAL    R7,READXRC             LINK TO READ XRC                 00770000
+         MVC    XRTBCUS,XRCCUST        MOVE CUST TO CPYBK               00780000
+         MVC    XRTBASE,XRCCURR        MOVE CURR TO CPYBK               00790000
+         MVC    XRTBDEC,XRCDEC         MOVE DEC  TO CPYBK               00800000
+         CLI    XRCDEC,C'0'            Q. IS DEC LESS THAN 0?           00810000
+         BL     MVBDFLT                BRANCH IF LESS THAN 0            00820000
+         CLI    XRCDEC,C'3'            Q. IS DEC GRTR THAN 3?           00830000
+         BH     MVBDFLT                BRANCH IF GRTR THAN 3            00840000
+         B      CTEST                  BRANCH TO CTEST                  00850000
+MVBDFLT  MVI    XRTBDEC,C'2'           MOVE 2 TO NMBR DEC               00860000
+CTEST    CLI    XRTACT,C'C'            IS THIS'C' ACTION                00870000
+         BNE    XRCBASE2               NO, BRANCH TO XRCBASE2           00880000
+         B      RETURN                 GOTO RETURN                      00890000
+XRCBASE2 EQU    *                                                       00900000
+         L      R7,SVBALLV1            RESTORE BAL REG                  00910000
+         BR     R7                                                      00920000
+*********************************************************************** 00930000
+*   READ THE EXCHANGE CONTROL FILE RECORD                             * 00940000
+*   THE KEY CURRENCY IS BLANK EXCEPT FOR CL OR NO APPL/CTLS           * 00950000
+*********************************************************************** 00960000
+READXRC  DS     0H                                                      00970000
+         ST     R7,SVBALLV2            STORE BAL REG                    00980000
+         AIF (&CICS).CONT7                                              00990000
+         CLI    OPENSWC,C'Y'           Q. IS XRC FILE OPEN?             01000000
+         BE     READXCNT               A. YES, THEN GO AWAY.            01010000
+         MVI    OPENIDFG,C'C'          IDICATE OPEN XRC FLAG            01020000
+         BAL    R7,OPENFILS            OPEN XRC FILE                    01030000
+READXCNT EQU    *                                                       01040000
+.CONT7   ANOP                                                           01050000
+         CLC    HCAPP,=C'CL'           IS APPL CL?                      01060000
+         BNE    RDXRC2                 NO ,BRANCH TO RDXRC2             01070000
+         B      RDXRC5                 BRANCH TO RDXRC6                 01080000
+RDXRC2   CLC    HCAPP,=C'CS'           IS APPL CS?                      01090000
+         BNE    RDXRC3                 NO ,BRANCH TO RDXRC3             01100000
+         B      RDXRC5                 BRANCH TO RDXRC6                 01110000
+RDXRC3   CLC    HCAPP,=C'  '           IS APPL SPACES?                  01120000
+         BNE    RDXRC4                 NO, BRANCH TO RDXRC4             01130000
+         B      RDXRC5                 BRANCH TO RDXRC6                 01140000
+RDXRC4   CLC    HCAPP,=C'XL'           IS APPL XL?                      01150000
+         BNE    RDXRC6                 NO ,BRANCH TO RDXRC5             01160000
+         B      RDXRC5                 BRANCH TO RDXRC6                 01170000
+RDXRC5   CLC    HCCTLC,=H'000000'      IS CURR LOW VALUES               01180000
+         BNE    RDXRC7                 NO ,BRANCH TO RDXRC5             01190000
+RDXRC6   MVC    HCCTLC,=C'   '         MOVE SPACES TO CURR              01200000
+RDXRC7   MVI    IOOPER,C'T'            START BROWSE (GTE)               01210000
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     01220000
+         BAL    R7,CALLXRCM            CALL I/O ROUTINE                 01230000
+         CLC    IORETCOD,=H'0'         Q. ZERO RETURN CODE?             01240000
+         BNE    RECNFI                 A. NO, GOTO RECNF                01250000
+         MVI    IOOPER,C'R'            READ RECORD                      01260000
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     01270000
+         BAL    R7,CALLXRCM            CALL I/O ROUTINE                 01280000
+         CLC    IORETCOD,=H'0'         Q. ZERO RETURN CODE?             01290000
+         BNE    RECNFH                 A. NO, GOTO RECNF                01300000
+         CLI    HOLDFLAG,C'B'          Q. IS THIS FOR BASE?             01310000
+         BE     BASEKEY1               A. NO, GO TO BASEKEY             01320000
+         CLC    XRCKEY,HCKEY           Q. IS THIS THE REC?              01330000
+         BE     ENDXRC2                A. YES,GOTO ENDBROWSE            01340000
+         CLC    HCCTL34,=C'0000000'    Q. IS CTL3+4 ZEROS?              01350000
+         BE     CTL2ZRO                A. YES,GOTO CTL 2 ZERO           01360000
+         MVC    HCCTL3,=C'000'         MOVE ZEROS TO CTL3               01370000
+         B      ENDXRC1                BRANCH TO ENDBROWSE              01380000
+CTL2ZRO  CLC    HCCTL2,=C'000'         Q. CONTROL 2 = ZEROS?            01390000
+         BE     RECNFG                 A. YES,GO TO RECNF               01400000
+         MVC    HCCTL2,=C'000'         MOVE ZEROS TO CONTROL 2          01410000
+         B      ENDXRC1                GO TO END ENDXRC1                01420000
+BASEKEY1 CLI    HOLDSWT,C'2'           IS THIS IN SECOND BROWSE         01430000
+         BE     BASEKEY2               A. YES,GO TO BASECHECK           01440000
+         CLC    XRCCTA12,HCCTA12       COMPARE APPL/CTLS 1+2            01450000
+         BE     BASECHK                A. YES,GO TO BASECHECK           01460000
+         MVI    HOLDSWT,C'2'           SET BASE SWITCH FOR 2            01470000
+         MVC    HCCTL2,=C'000'         MOVE ZEROS TO CTL 3+4            01480000
+         B      ENDXRC1                BRANCH TO ENDBROWSE              01490000
+BASEKEY2 CLC    XRCCTA1,HCCTA1         COMPARE APPL/CTL 1               01500000
+         BE     BASECHK                A. YES,GO TO BASECHECK           01510000
+         B      RECNFG                 A. YES,GO TO RECNF               01520000
+BASECHK  CLI    XRCBSE,C'Y'            Q. IS THIS BASE REC?             01530000
+         BNE    NEXTXRC                A. NO, GOTO READNEXT             01540000
+         B      ENDXRC2                GO TO END ENDXRC2                01550000
+NEXTXRC  MVI    IOOPER,C'R'            READ NEXT RECORD                 01560000
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     01570000
+         BAL    R7,CALLXRCM            CALL I/O ROUTINE                 01580000
+         CLC    IORETCOD,=H'0'         Q. ZERO RETURN CODE?             01590000
+         BNE    RECNFH                 A. NO, GOTO RECNF                01600000
+         B      BASEKEY1               GO TO END BASEKEY1               01610000
+*                                                                       01620000
+*---------------------------------------------------------------------* 01630000
+*   END OF COPYBOOK NXX4KXRC                                          * 01640000
+*---------------------------------------------------------------------* 01650000
+*                                                                       01660000

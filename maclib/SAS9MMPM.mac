@@ -1,0 +1,22 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000001
+         SAS9MMPM &DSECT=YES,&TYPE=SASMMP                               00001000
+         AIF   ('&DSECT' EQ 'YES').SAS9MCT                              00002000
+&TYPE  DS    0F                                                         00003000
+         AGO   .SAS9MNT                                                 00004000
+.SAS9MCT ANOP                                                           00005000
+&TYPE DSECT                                                             00006000
+.SAS9MNT ANOP                                                           00007000
+&TYPE.KY  DS    0CL2               DAG KEY                              00008000
+&TYPE.AP  DS    CL2                APPLICATION                          00009000
+&TYPE.BS  DS    CL8                TS/BMS REVERSAL SCRIPT     0261182   00010000
+&TYPE.BF  DS    CL1                TS/BMS OPTION FLAG         0261182   00010100
+*                                    S = REV SCRIPT NAME      0251182   00011000
+*                                    O = EXECUTE ORIGINAL TRAN0261182   00012000
+*                                    N = NON-CORRECTABLE      0261182   00013000
+&TYPE.NS  DS    CL8                TS/NATIVE REV SCRIPT/PROG  0261182   00013100
+&TYPE.NF  DS    CL1                TS/NATIVE OPTION FLAG      0261182   00013200
+*                                    P = REV PROGRAM NAME     0261182   00013300
+*                                    S = REV SCRIPT NAME      0261182   00013400
+*                                    N = NON-CORRECTABLE      0261182   00014000
+         MEND                                                           00015000

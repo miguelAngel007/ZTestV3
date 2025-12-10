@@ -1,0 +1,104 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* SADSCOMA - DICTIONARY FACILITY - COMMONLY USED EQUATES              * 00001100
+*                                                                     * 00001200
+*                     HISTORY OF REVISIONS                            * 00002000
+* DESCRIPTION                                                 CHNGID  * 00002100
+* ----------------------------------------------------------  --------* 00002200
+* 11/06/97 REDEFINITION OF ENT SEG LENGTH IN AUDIT SEGMENT    9913569 * 00002996
+* 01/15/95 MOD TO ALLOW FOR 32-BYTE AUDIT SEGMT IN OFFSETS    2602105 * 00002998
+*********************************************************************** 00003000
+         AIF   (&NOREG).REGSKP                                          00004000
+R0       EQU   0                  WORK REGISTER                         00005000
+R1       EQU   1                  PARAMETER POINTER                     00006000
+R2       EQU   2                  INITIAL BASE REGISTER                 00007000
+R3       EQU   3                  DICTIONARY COMMON AREA                00008000
+R4       EQU   4                  COMMAND AREA                          00009000
+R5       EQU   5                  INPUT/OUTPUT BUFFER                   00010000
+R6       EQU   6                  WORK REGISTER                         00011000
+R7       EQU   7                  WORK REGISTER                         00012000
+R8       EQU   8                  WORK REGISTER                         00013000
+R9       EQU   9                  WORK REGISTER                         00014000
+R10      EQU   10                 WORK REGISTER                         00015000
+R11      EQU   11                 WORK REGISTER                         00016000
+R12      EQU   12                 WORK REGISTER                         00017000
+R13      EQU   13                 REGISTER SAVE AREA                    00018000
+R14      EQU   14                 RETURN ADDRESS                        00019000
+R15      EQU   15                 LINKAGE REGISTER                      00020000
+         SPACE 1                                                        00021000
+.REGSKP  ANOP                                                           00022000
+ENDDLM   EQU   C';'               COMMAND DELIMITER                     00023000
+LEPAR    EQU   C'('               SUBTOKEN START                        00024000
+RIPAR    EQU   C')'               SUBTOKEN END                          00025000
+QUOTE    EQU   X'7D'              STRING DELIMITER                      00026000
+COMMA    EQU   C','               SUBTOKEN SEPERATOR                    00027000
+BLANK    EQU   C' '               TOKEN DELIMITER                       00028000
+TRUE     EQU   X'01'              TRUE INDICATOR                        00029000
+FALSE    EQU   X'00'              FALSE INDICATOR                       00030000
+         SPACE 3                                                        00031000
+*********************************************************************** 00032000
+*        DEFINITION ENTRY OFFSETS                                     * 00033000
+*********************************************************************** 00034000
+DICMDAPL EQU   2                  OFFSET TO KEY APPLICATION             00035000
+DICMDFRM EQU   4                  OFFSET TO KEY FORMAT TYPE             00036000
+DICMDENT EQU   7                  OFFSET TO KEY ENTITY NAME             00037000
+DICMDFLD EQU   15                 OFFSET TO KEY FIELD NAME              00038000
+DICMDNDX EQU   23                 OFFSET TO KEY INDEX                   00039000
+DICMDNUM EQU   2+25+32            OFFSET TO NUMBER DFN FLDS   2602105   00040000
+DICMDFIX EQU   2+25+32+2          OFFSET TO VAR PART OF DEF   2602105   00041000
+DICMDFNM EQU   0                  OFFSET TO DEFINITION FIELD NAME       00042000
+DICMDATT EQU   8                  OFFSET TO DEFINITION FIELD ATTR       00043000
+DICMDLEN EQU   10                 OFFSET TO DEFINITION FIELD LENGTH     00044000
+DICMDOCR EQU   12                 OFFSET TO DEFINITION OCCURS FLAG      00045000
+DICMDSUB EQU   13                 OFFSET TO DEFINITION CURRENT INDEX    00046000
+DICMDSET EQU   17                 OFFSET TO DEFINITION PROCESS FLAG     00047000
+DICMDSOF EQU   X'00'              INDICATE DONT PROCESS THIS FIELD      00048000
+DICMDEFL EQU   (DICMDSET+1)-DICMDFNM DEFINITION ENTRY LENGTH            00049000
+         SPACE 1                                                        00050000
+*********************************************************************** 00051000
+*        FIELD TABLE OFFSETS                                          * 00052000
+*********************************************************************** 00053000
+DICMSFLD EQU   0                  SELECT/WHERE INDICATOR                00054000
+DICMFFLG EQU   1                  FIELD LEVEL FLAGS                     00055000
+DICMFXOV EQU   B'10000000'        INDEX OVERFLOW                        00056000
+DICM1TYP EQU   2                  OFFSET TO FIRST OPERAND TYPE          00057000
+DICM1NAM EQU   5                  OFFSET TO FIRST OPERAND NAME          00058000
+DICM1LEN EQU   13                 OFFSET TO FIRST OPERAND LENGTH        00059000
+DICM1ATT EQU   15                 OFFSET TO FIRST OPERAND ATTRIBUTE     00060000
+DICM1IND EQU   17                 OFFSET TO FIRST OPERAND OCC INDICATOR 00061000
+DICM1SUB EQU   18                 OFFSET TO FIRST OPERAND INDEX         00062000
+DICM1FLD EQU   20                 OFFSET TO REQUESTED FIELD             00063000
+DICM1CND EQU   21                 OFFSET TO CONDITION                   00064000
+DICM2TYP EQU   23                 OFFSET TO SECOND OPERAND TYPE         00065000
+DICM2NAM EQU   26                 OFFSET TO SECOND OPERAND NAME         00066000
+DICM2LEN EQU   34                 OFFSET TO SECOND OPERAND LENGTH       00067000
+DICM2ATT EQU   36                 OFFSET TO SECOND OPERAND ATTRIBUTE    00068000
+DICM2IND EQU   38                 OFFSET TO SECOND OPERAND OCC IND.     00069000
+DICM2SUB EQU   39                 OFFSET TO SECOND OPERAND INDEX        00070000
+DICM2FLD EQU   41                 OFFSET TO REQUESTED FIELD             00071000
+DICMCONN EQU   42                 OFFSET TO CONNECTOR                   00072000
+DICMCCOD EQU   43                 OFFSET TO CONDITION CODE              00073000
+DICMFLDL EQU   (DICMCCOD+1)-DICMSFLD TABLE ENTRY LENGTH                 00074000
+         SPACE 1                                                        00075000
+*********************************************************************** 00076000
+*        ENTITY TYPE TABLE OFFSETS                                    * 00077000
+*********************************************************************** 00078000
+DICMEFLG EQU   0                  ENTITY TYPE FLAGS                     00079000
+DICMEHER EQU   B'10000000'        PROCESSING THIS ENTRY                 00080000
+DICMELNE EQU   B'01000000'        LOCATE NEXT ENTITY OF THIS TYPE       00081000
+DICMEIOP EQU   B'00100000'        INDICATES I/O PERFORMED               00082000
+DICMEKAC EQU   B'00010000'        INDICATES KEY INFORMATION ACCESSED    00083000
+DICMEOEN EQU   B'00001000'        INDICATES END OF ENTITY               00084000
+DICMIRTL EQU   B'00000100'        INDICATES INDEXED RECORDS READ        00085000
+DICMEAPL EQU   1                  ENTITY TYPE CODE                      00086000
+DICMETYP EQU   3                  ENTITY APPLICATION CODE               00087000
+DICMENAM EQU   6                  ENTITY NAME                           00088000
+DICMEFLD EQU   14                 ENTITY FIELD NAME                     00089000
+DICMEFNM EQU   21                 ENTITY FIELD NUMBER                   00090000
+DICMENDX EQU   22                 ENTITY FIELD INDEX                    00091000
+DICMEFRL EQU   26                 ENTITY FIELD FILELVL/RECLVL 2602105   00091100
+DICMEALI EQU   28                                             2602105   00092000
+DICMELEN EQU   (DICMEALI+20)-DICMEFLG LENGTH OF TYPE TABLE ENTRY        00093000
+DIAUDSLN EQU   32                 AUDIT DATA SEGMENT LENGTH     0400290 00094000
+DIAUDLEN EQU   25+24              OFFSET TO AUDIT STATED LEN  9913569   00095000
+DIAUDOLN EQU   25+30              OFFSET TO AUDIT STATED LEN  9913569   00096000

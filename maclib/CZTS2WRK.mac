@@ -1,0 +1,87 @@
+**************************** CZTS2WRK ********************************  00000010
+*********************************************************************** 00000020
+* CZTS2WRK: WORK FIELD FOR INTERFAZ SAFEII AND SYSTEMATICS            * 00000030
+*********************************************************************** 00000040
+*********************************************************************** 00000120
+*          WORK FIELDS FOR SAVE AREAS:                                * 00000130
+*          - SAVE AREA FOR THE WORK REGISTERS R6 - R10.               * 00000140
+*          - SAVE AREA FOR A LOOP COUNTER.                            * 00000150
+*          - SAVE AREA FOR A ADDRESS.                                 * 00000160
+*********************************************************************** 00000170
+         DS    0D                 * ALIGN ON DOUBLE-WORD BOUNDARY.    * 00000180
+SPMWORK  DS   2D                  * DOUBLE WORD.                      * 00000190
+WRKRGSAV DS    5F                 * R6 - R10 WORK REGISTER SAVE AREA. * 00000200
+FLWSAV01 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000210
+FLWSAV02 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000220
+FLWSAV03 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000230
+FLWSAV04 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000240
+WRKLOOP1 DS    F                  * LOOP COUNTER SAVE AREA.           * 00000250
+WRKPNTP1 DS    F                  * AREA FOR POINTER.                 * 00000260
+WRKPNTP2 DS    F                  * AREA FOR POINTER.                 * 00000270
+WRKPNTP3 DS    F                  * AREA FOR POINTER.                 * 00000280
+WRKPNTP4 DS    F                  * AREA FOR POINTER.                 * 00000280
+WRKPNTP5 DS    F                  * AREA FOR POINTER.                 * 00000280
+WRKADDR1 DS    F                  * AREA FOR ADDRESS.                 * 00000290
+WRKADDR2 DS    F                  * AREA FOR ADDRESS.                 * 00000300
+WRKADDR3 DS    F                  * AREA FOR ADDRESS.                 * 00000310
+WRKADDR4 DS    F                  * AREA FOR ADDRESS.                 * 00000320
+WRKADGTM DS    F                  * SAVE ADDRESS FOR GET MAIN         * 00000330
+WRKADTWA DS    F                  * SAVE ADDRESS FOR TWA AREA         * 00000330
+WRKADITS DS    F                  * SAVE ADDRESS FOR INTERFASE RM/TS  * 00000330
+WRKADTAB DS    F                  * SAVE ADDRESS FOR TABLE OF DESCRIP.* 00000330
+WRKADDET DS    F                  * SAVE ADDRESS FOR DETALLE          * 00000330
+WRKADVAR DS    F                  * SAVE ADDRESS FOR PDA VARIABLE R   * 00000330
+WKADFLD  DS    F                  * SAVE ADDRESS FOR CAMPO EN ARCHIVO * 00000330
+WKADPDA  DS    F                  * SAVE ADDRESS FOR CAMPO EN PDA     * 00000330
+WRKWSLEN DS    H                  * LONGITUD DE LA PDA                * 00000380
+WKLNGPDA DS    H                  * LONGITUD DE LA PDA                * 00000380
+WKNROFLD DS    H                  * NUMERO DE CAMPOS EN LA PDA        * 00000380
+WRKTPCLI DS    CL1                * INDICATOR TIPO DE CLIENTE         * 00000620
+*********************************************************************** 00000390
+*                WORK FIELDS FOR VARIOUS FIELDS.                      * 00000400
+*********************************************************************** 00000410
+         DS    0D                 * ALIGN ON DOUBLE-WORD BOUNDARY.    * 00000420
+WRKDBLW  DS    D                  * DOUBLE WORD.                      * 00000430
+WRKPL2   DS    PL2                * 2-BYTE PACKED FIELD.              * 00000440
+WRKCNTR  DS    PL2                * 2-BYTE PACKED FIELD.              * 00000440
+WRKNROBT DS    PL2                * WORK FIELD                        * 00000450
+WRKTGLOC DS    PL2                * WORK FIELD                        * 00000460
+WRKTGLEN DS    PL2                * WORK FIELD                        * 00000470
+WRKNRTRL DS    PL3                * WORK FIELD                        * 00000480
+WRKTGLNG DS    PL2                * WORK FIELD                        * 00000490
+WRKLNGDL DS    PL2                * WORK FIELD                        * 00000500
+WRKCODRE DS    PL3                * WORK FIELD                        * 00000570
+WKCICSRE DS    CL4                * NOMBRE DE CICS REMOTO             * 00000580
+WKCICS   DS    CL4                * NOMBRE DE CICS                    * 00000590
+TRANSOK  DS    XL1                * INDICATOR CODE RETURN.            * 00000600
+WRKFOUND DS    XL1                * INDICATOR CODE RETURN.            * 00000610
+WRKDOWHI DS    XL1                * INDICATOR CODE RETURN.            * 00000610
+WRKOCCU  DS    CL2                * NUMERO DE  OCURRENCIA             * 00000620
+*********************************************************************** 00000670
+*              CLAVE PARA LEER EL ARCHIVO DE INTERFASE                * 00000680
+*********************************************************************** 00000690
+WRKKEYIT DS   0CL33
+WRKIDAPL DS    CL2
+WRKCTRL1 DS    CL4
+WRKCTRL2 DS    CL4
+WRKCTRL3 DS    CL4
+WRKCTRL4 DS    CL4
+*
+WRKCUENT DS   0CL14
+WRKACCFL DS    CL4
+WRKACCNB DS    CL10
+*
+WRKTYREC DS    CL1
+*
+WRKTIPDA DS    CL1                      * TIPO DE PDA
+*                                       * 0 - NOMBRE
+*                                       * 1 - DIRECCION
+*********************************************************************** 00000760
+*                   VARIABLES PARA MANEJO DE ERRORES SYSTEMATICS      * 00000770
+*********************************************************************** 00000780
+HWORD    DS    H                        * HALF HORD
+WKERRSW  DS    CL1
+WRKCL25  DS   CL25                      * VARIABLE DE LONGITUD 25 BYTES
+*********************************************************************** 00000760
+*                          END OF IT01XWRK                            * 00000770
+*********************************************************************** 00000780

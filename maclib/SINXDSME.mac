@@ -1,0 +1,18 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*   SINXDSME - MASS EXCHANGE TABLE FOR NXXRTM                         * 00020000
+*---------------------------------------------------------------------* 00030000
+*                  ** HISTORY OF REVISIONS **                         * 00040000
+* DESCRIPTION                                                 CHNGID  * 00050000
+* __________________________________________________________  _______ * 00060000
+* 08/08/97 FLOATING DECIMAL INITIAL RELEASE                   9913481 * 00070000
+*---------------------------------------------------------------------* 00080000
+SIDSMSEX DSECT                                                          00090000
+         DS     0F                                                      00100000
+XMMEXEYE DS     CL12                EYECATCHER '**SINXDSME**'           00110000
+SIDSMSOC DSECT                                                          00120000
+XMSEXOCC EQU    *                                                       00130000
+XMSEXIAM DS     PL9                 INPUT AMOUNT                        00140000
+XMSEXOAM DS     PL9                 OUTPUT AMOUNT                       00150000
+XMSEXOLN EQU    *-XMSEXOCC          LENGTH OF OCCURENCE                 00160000
+         DS     16X'FF'             END OF AREA DELIMITER               00170000

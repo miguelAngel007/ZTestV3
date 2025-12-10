@@ -1,0 +1,51 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TSTS2VTR - VALID TERMINAL RECORD                      * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             VTCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             VTCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             VTRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             VTCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH AND MOVED IT                 2602105 * 00000694
+*                      DS    CL18        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSVTR    DSECT                                                          00000700
+VTR      DS    0C                                                       00000800
+VTRLNG   DS    XL2                     VTR RECORD LENGTH                00000900
+*                                        MAX VALUE +756       2600851   00001000
+         DS    XL2                     FILLER                           00001100
+VTRKEY   DS    0CL23                   VTR KEY                          00001200
+VTRRID   DS    CL3                       RECORD ID VALUE 'VTR'          00001300
+VTRCLASS DS    CL10                      RECORD CLASS                   00001400
+         DS    CL10                      FILLER                         00001500
+VTCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001510
+VTCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001520
+VTRLMNT  DS    0CL28                   LAST MAINTENANCE DATA    2602105 00001600
+VTRLMDT  DS    0CL6                      LAST MAINTENANCE DATE          00001700
+VTRLMDM  DS    CL2                         LAST MAINTENANCE MONTH       00001800
+VTRLMDD  DS    CL2                         LAST MAINT DAY     00702346  00001900
+VTRLMDY  DS    CL2                         LAST MAINT YEAR    00702346  00002000
+VTRLMTI  DS    0CL6                      LAST MAINTENANCE TIME          00002100
+VTRLMTH  DS    CL2                         LAST MAINTENANCE HOUR        00002200
+VTRLMTM  DS    CL2                         LAST MAINTENANCE MINUTE      00002300
+VTRLMTS  DS    CL2                         LAST MAINTENANCE SECOND      00002400
+VTRLMEMP DS    CL8                       LAST MAINTENANCE EMPLOYEE      00002500
+VTCACHID DS    CL8                       CA CHANGE ID           2602105 00002600
+         DS    XL18                    FILLER                   2602105 00002610
+VTRINEX  DS    CL1                     INCLUDE / EXCLUDE FLAG           00002700
+VTRMXCT  DS    PL2                     MAX VALID TERM +169    2600851   00002900
+VTRUSCT  DS    PL2                     USED VALID TERMINALS             00003000
+VTRVTROC DS    CL676                   VALID TERM OCCURRENCES 2600851   00003100

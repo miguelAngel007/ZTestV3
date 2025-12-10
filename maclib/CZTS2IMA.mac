@@ -1,0 +1,449 @@
+**********************************************************************
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+**********************************************************************
+* COPYBOOK : CZTS2IMA - NEW ACCOUNT RECORD LAYOUTS                   *
+**********************************************************************
+IMNPDA   DS   0X                   * NEW ACCOUNT PDA RECORD LAYOUT
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 1    01A   *
+*IMNOFFCD DS    CL3                 * SECTORISTA
+*        *************************************************************
+IMN011B  DS    CL25                * BEGIN
+IMN011   DS   0CL75                * DATA
+IMNREG   DS    CL3
+IMNBRAN  DS    CL5
+IMNFIL1  DS    CL1
+IMNPRDTY DS    CL3                 * PRODUCT TYPE
+IMNSYSTY DS    CL3                 * SYSTEM TYPE
+IMFNDOWN DS    CL2                 * CD-NB-FUNDS-OWNER
+IMNARPT  DS    CL1                 * CD-NEW-ACCT-RPT
+IMNARPCD DS    CL1                 * CD-ARP-CODE
+IMNARPOT DS    CL1                 * CD-ARP-OTHER
+IMNARPGN DS    CL1                 * CD-ARP-GEN
+IMNARPST DS    CL1                 * CD-ARP-STMT
+IMNARPNA DS    CL1                 * CD-ARP-N-A
+IMNARPIS DS    CL1                 * CD-ARP-ISSUE
+IMNLARIT DS    CL1                 * CD-LARGE-ITEMS
+IMNCLSOV DS    CL1                 * CD-CLS-OVRRIDE
+IMNBALCH DS    CL1                 * CD-BAL-CHNG
+IMNLSTPO DS    CL1                 * CD-LIST-POST
+IMNNSFCL DS    CL1                 * CD-NSF-CALC
+IMNCOLCL DS    CL1                 * CD-COLL-CALC
+IMNCCOLC DS    CL1                 * CD-CUST-COLL-CALC
+IMNODWAI DS    CL1                 * CD-OD-WAIVE
+IMNNSFWV DS    CL1                 * CD-NSF-WAIVE
+IMNINTAX DS    CL1                 * CD-INTANG-TAX
+IMNBNKAF DS    CL1                 * CD-BANK-AVAIL-FLAG
+IMNCSTAF DS    CL1                 * CD-CUST-AVAIL-FLAG
+IMNOFEMP DS    CL1                 * CD-OFF-EMP        EMPLOYEE TYPE
+IMNEXDEP DS    CL1                 * CD-EXTRNL-DEP-FLAG
+IMNSPHAN DS    CL1                 * CD-SPECL-HANDL
+IMNACHF  DS    CL1                 * CD-ACH-FLAG
+IMNREOPA DS    CL1                 * CD-REOPENED-ACCT
+IMNMTDAN DS    CL1                 * CD-MTD-ANALYSIS
+IMNCHCRD DS    CL1                 * CD-CHG-CARD-FLG
+IMNBNKAV DS    CL1                 * CD-BANK-AVAIL-EXCP
+IMNGDESC DS    CL2                 * CD-GUAR-DEP-SCHED-DAY
+IMNKITF  DS    CL1                 * CD-KITING-FLAG
+IMNMMDAI DS    CL1                 * CD-MMDA-INDICATOR
+IMNIODAT DS    CL1                 * CD-IOD-ACCRUAL-TYPE
+IMNIODIR DS    CL1                 * CD-IOD-RATE-USE
+IMNNSFOT DS    CL1                 * CD-NSF-OD-TRLR-FLAG
+IMNDAUWV DS    CL1                 * CD-DAU-WAIVE
+IMNNONTX DS    CL1                 * CD-NON-TAXABLE
+IMNCHKTF DS    CL1                 * CD-CHK-TRUNC-FLAG
+IMNCSHAF DS    CL1                 * CD-CASH-AVAIL-FLAG
+IMNLEDG  DS    CL3                 * CD-LEDGER
+IMODCALF DS    CL1                 * CD-OD-CALC-FLAG
+IMDUYEAF DS    CL1                 * CD-DUAL-YEAR-FLAG
+IMPASSAC DS    CL1                 * CD-PASSBOOK-ACCT
+IMMINDBA DS    CL1                 * CD-MIN-BAL-CALC
+IMOLCAL  DS    CL2                 * CD-OL-CALC
+IMOPENME DS    CL1                 * CD-OPENING-METHOD
+IMSTATLO DS    CL1                 * CD-STATE-LOCAL-TX-CD
+IMFIL01A DS    CL9                 *
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 2    01B   *
+*        *************************************************************
+IMN012B  DS    CL25                * BEGIN
+IMN012   DS   0CL75                * DATA
+IMNSHONM DS    CL13                * SHORT NAME
+IMNDATOP DS    CL6
+IMNBIRTH DS    CL8                 * BIRTH DAY
+IMNHOPHO DS    CL14
+IMREDALE DS    CL1
+IMFIL1BA DS    CL7
+IMNBUPHO DS    CL14
+IMFIL1BB DS    CL8
+IMNCLUBT DS    CL2
+IMTISCFL DS    CL1
+IMFIL01B DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 3     01C  *
+*        *************************************************************
+IMN013B  DS    CL25                * BEGIN
+IMN013   DS   0CL75                * DATA
+IMIODCAL DS    CL1                 * DOCUMENT TYPE
+IMIODRAP DS    CL3
+IMIODIN1 DS    CL1
+IMNHIFID DS    CL3
+IMACCPCY DS    CL1
+IMMINAFH DS    CL15
+IMMAXTFH DS    CL3
+IMIODDCD DS    CL1
+IMCHKNAP DS    CL1
+IMIODIDR DS    CL4
+IMIODICR DS    CL4
+IMIODXFP DS    CL1
+IMIODMIR DS    CL9
+IMIODMAR DS    CL9
+IMIODINC DS    CL1
+IMIODMM1 DS    CL2
+IMIODAY1 DS    CL2
+IMIODAY2 DS    CL2
+IMTAXFEP DS    CL3
+IMTAXSTP DS    CL3
+IMTAXLOP DS    CL3
+IMNIODIS DS    CL2
+IMFIL01C DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = D     01D  *
+*        *************************************************************
+IMN01D   DS    CL25                * BEGIN
+IMND01D  DS   0CL75                * DATA
+IMNDCTYP DS    CL1                 * DOCUMENT TYPE
+IMNDCNUM DS    CL11                * DOCUMENT NUMBER
+IMDAYRAC DS    CL1                 CD-DAILY-RATE-CODE      PIC X.
+IMLOANDF DS    CL1                 CD-LOAN-360-DAY-FACTOR  PIC X.
+IMFORCEP DS    CL1                 CD-FORCE-POST           PIC X.
+IMFI01DA DS    CL1                 FILLER-01DA             PIC X(01).
+IMMINBAL DS    CL15                CD-MIN-BAL              PIC X(15).
+IMTRAPRI DS    CL1                 CD-TRANSFER-PRIORITY    PIC X.
+IMBKUPWT DS    CL1                 CD-BKUP-WTHLD           PIC X.
+IMTAXEXE DS    CL1                 CD-TAX-EXEMPT           PIC X.
+IMTINCER DS    CL1                 CD-TIN-CERT             PIC X.
+IMCITCOU DS    CL2                 CD-CITIZEN-COUNTRY      PIC XX.
+IMARCHRE DS    CL3                 CD-ARCH-HIST-RET        PIC 999.
+IMFI01DB DS    CL9                 FILLER-01DB             PIC X(9).
+IMGLCODE DS    CL2                 CD-GL-CODE              PIC XX.
+IMXINLKI DS    CL1                 CD-XINV-LINK-IND        PIC X.
+IMXINPRO DS    CL1                 CD-XINV-PROCESS-IND     PIC X.
+IMBRTOPT DS    CL1                 CD-BRT-TERM-OPT         PIC X.
+IMBRTNUM DS    CL3                 CD-BRT-TERM-LMT         PIC XXX.
+IMNCUSNU DS    CL14                CD-CUSTOMER-NUMBER      PIC X(14).
+IMFIL01D DS    CL4                 FILLER-01D              PIC X(4).
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 4      01E *
+*        *************************************************************
+IMN014B  DS    CL25                * BEGIN
+IMN014   DS   0CL75                * DATA
+IMNSPULL DS    CL1
+IMNSSCOD DS    CL1
+IMNSCYCL DS    CL2
+IMNSFLD2 DS    CL2
+IMNSFLD3 DS    CL2
+IMNSFLD4 DS    CL2
+IMNSFLD5 DS    CL2
+IMNSFLD6 DS    CL2
+IMNSFLD7 DS    CL2
+IMNSFLD8 DS    CL2
+IMNSFLD9 DS    CL2
+IMNSFLDA DS    CL2
+IMNSFLDB DS    CL2
+IMNSFLDC DS    CL2
+IMNSMSG  DS    CL1
+IMNSFUSH DS    CL1
+IMNSFRMT DS    CL1
+IMNSSPEC DS    CL1
+IMNSDUPL DS    CL1
+IMNCMBSO DS    CL1
+IMNSEPCB DS    CL1
+IMNBULKF DS    CL1
+IMNSEMO1 DS    CL1
+IMNSEMO2 DS    CL1
+IMNSEMO3 DS    CL1
+IMNSEMO4 DS    CL1
+IMNSEMO5 DS    CL1
+IMNSEMO6 DS    CL1
+IMNSEMO7 DS    CL1
+IMNSEMO8 DS    CL1
+IMNSEMO9 DS    CL1
+IMNSEMOA DS    CL1
+IMNSEMOB DS    CL1
+IMNSEMOC DS    CL1
+IMNSBMPD DS    CL2
+IMNSEASI DS    CL1
+IMNSTMH2 DS    CL1
+IMDMTCNT DS    CL3
+IMDSPCSM DS    CL1
+IMSTMIMG DS    CL3
+IMSIMDUP DS    CL1
+         DS    CL17
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 5      01F *
+*        *************************************************************
+IMN015B  DS    CL25                * BEGIN
+IMN015   DS   0CL75                * DATA
+IMNSCCHK DS    CL1
+IMNSCCYC DS    CL1
+IMNSCINC DS    CL1
+IMNSCMO1 DS    CL1
+IMNSCDAY DS    CL2
+IMNSCTYP DS    CL3
+IMNSCRPT DS    CL1
+IMNSCCHG DS    CL1
+IMNSCWVR DS    CL2
+IMNSCREL DS    CL1
+IMN15SC  DS   0CL22
+IMNRLCTL DS    CL12
+IMNRLACC DS    CL10
+IMNSAVBL DS    CL1
+IMNNMCTL DS    CL4
+IMNUSRF1 DS    CL5
+IMNUSRF2 DS    CL5
+IMNBLGRD DS    CL3
+IMFOLLWU DS    CL3
+IMAVACOD DS    CL1
+IMAVACHG DS    CL15
+         DS    CL02
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 6      01G *
+*        *************************************************************
+IMN016B  DS    CL25                * BEGIN
+IMN016   DS   0CL75                * DATA
+IMNSIGCA DS    CL1
+IMNLOCNU DS    CL10
+IMNSRCOF DS    CL3
+IMNUSRC1 DS    CL3
+IMNUSRC2 DS    CL3
+IMNUSRC3 DS    CL3
+IMNUSRC4 DS    CL3
+IMNUSRC5 DS    CL3
+IMNUSRC6 DS    CL3
+IMNSFCOD DS    CL1
+IMNSFCHG DS    CL15
+IMNSFMCH DS    CL15
+IMNMINCR DS    CL11
+IMFIL01G DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 7      01H *
+*        *************************************************************
+IMN017B  DS    CL25                * BEGIN
+IMN017   DS   0CL75                * DATA
+IMNNSFCD DS    CL1
+IMNNSFCH DS    CL9                 * ( FRMT : 9(07)V99 )
+IMNNSFMX DS    CL11                * ( FRMT : 9(09)V99 )
+IMNODOVD DS    CL1
+IMNODCHG DS    CL9                 * ( FRMT : 9(07)V99 )
+IMNODCHC DS    CL1
+IMNODMNA DS    CL13                * ( FRMT : 9(11)V99 )
+IMNODMXC DS    CL11                * ( FRMT : 9(09)V99 )
+IMNODLM  DS    CL1
+IMNODLMA DS    CL13                * ( FRMT : 9(13) )
+IMNODFLW DS    CL3                 * ( FRMT : 9(03) )
+IMNSTOPW DS    CL1
+         DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 8      01I *
+*        *************************************************************
+IMN018B  DS    CL25                * BEGIN
+IMN018   DS   0CL75                * DATA
+IMNCUACD DS    CL1
+IMNCUACH DS    CL9                 * ( FRMT : 9(07)V99 )
+IMNCHKLM DS    CL3
+IMNCHKCH DS    CL7                 * ( FRMT : 9(04)V999 )
+IMNPUR   DS    CL1
+IMNPURDY DS    CL3
+IMNDORM  DS    CL1
+IMNDRMDY DS    CL3
+IMNHIDOR DS    CL1
+IMNHIDDY DS    CL3
+IMNINACT DS    CL1
+IMNINADY DS    CL3
+IMNDAUMN DS    CL13                * ( FRMT : 9(11)V99 )
+IMNDAUMX DS    CL11                * ( FRMT : 9(09)V99
+IMNFUND  DS    CL1
+         DS    CL3
+IMNBLHIS DS    CL1
+IMNBLHRT DS    CL3
+IMNNSFSN DS    CL1
+IMNODSUN DS    CL1
+         DS    CL5
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = J          *
+*        *************************************************************
+IMN01J   DS    CL25                * BEGIN
+IMN01JA  DS   0CL75                * DATA
+IMNOFFIC DS    CL5                 * COD SECTORISTA
+IMFI01JA DS    CL1                 *
+IMOFFIC2 DS    CL5                 *
+IMFI01JB DS    CL1                 *
+IMOFFIC3 DS    CL5                 *
+IMNBTFRI DS    CL1                 *
+IMNBMINF DS    CL15                *
+IMNBTHRE DS    CL15                *
+IMNBRELI DS    CL1                 *
+IMNUNLIM DS    CL1                 *
+IMNDEPHL DS    CL1                 *
+IMNBSWPM DS    CL15                *
+IMTRUSCO DS    CL1                 *
+IMODEREG DS    CL1                 *
+IMODERGO DS    CL2                 *
+IMFI01JC DS    CL5                 *
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = 9     01K  *
+*        *************************************************************
+IMN019B  DS    CL25                * BEGIN
+IMN019   DS   0CL75                * DATA
+IMNDCFIL DS    CL1
+IMNLOAN  DS    CL1
+IMNMKT   DS    CL1
+IMNTRAFF DS   0CL2
+IMNTRAN  DS    CL1
+IMNAFFIL DS    CL1
+IMNSAVIN DS    CL1
+IMNCMBST DS    CL2
+IMNTARAM DS    CL1
+IMNLIMIT DS    CL1
+IMNDCDTX DS    CL1
+IMNODACC DS    CL1
+IMNINFTR DS    CL1
+IMNEXTSC DS    CL1
+IMNEFAFL DS    CL1
+         DS    CL60
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 01  AND  CARD-CODE = L      01L *
+*        *************************************************************
+IMN01L   DS    CL25                * BEGIN
+IMN01LB  DS    CL75                * BEGIN
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1 ( OCC 1 )*
+*        *************************************************************
+IMN0211B DS    CL25                * BEGIN
+IMN0211  DS   0CL75                * DATA
+IMNNATY1 DS    CL1                 * TYPE 1 = 1 ( NAME )
+IMNNALN1 DS    CL1
+IMNNANM1 DS    CL40                * CUSTOMER NAME 1
+         DS    CL32
+IMNCUGN1 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1 ( OCC 2 )*
+*        *************************************************************
+IMN0212B DS    CL25                * BEGIN
+IMN0212  DS   0CL75                * DATA
+IMNNATY2 DS    CL1                 * TYPE 2
+IMNNALN2 DS    CL1
+IMNNANM2 DS    CL40                * CUSTOMER NAME 2 / ADDRESS 1
+         DS    CL32
+IMNCUGN2 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1 ( OCC 3 )*
+*        *************************************************************
+IMN0213B DS    CL25                * BEGIN
+IMN0213  DS   0CL75                * DATA
+IMNNATY3 DS    CL1                 * TYPE 3
+IMNNALN3 DS    CL1
+IMNNANM3 DS    CL40                * CUSTOMER NAME 3 / ADDRESS 1-2
+         DS    CL32
+IMNCUGN3 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1 ( OCC 4 )*
+*        *************************************************************
+IMN0214B DS    CL25                * BEGIN
+IMN0214  DS   0CL75                * DATA
+IMNNATY4 DS    CL1                 * TYPE 4
+IMNNALN4 DS    CL1
+IMNNANM4 DS    CL40                * CUSTOMER NAME 4 / ADDRESS 1-2-3
+         DS    CL32
+IMNCUGN4 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1 ( OCC 5 )*
+*        *************************************************************
+IMN0215B DS    CL25                * BEGIN
+IMN0215  DS   0CL75                * DATA
+IMNNATY5 DS    CL1                 * TYPE 5 = 2 ( ADDRESS )
+IMNNALN5 DS    CL1
+IMNNANM5 DS    CL40                * ADDRESS 1-2-3-4
+         DS    CL32
+IMNCUGN5 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1          *
+*        *************************************************************
+IMN0210B DS    CL25                * BEGIN
+IMN0210  DS   0CL75                * DATA
+         DS    CL1                 * C'0' - CONSTANT
+IMNCTYCD DS    CL1
+IMNNZIP  DS    CL10
+         DS    CL20
+IMNUZIP  DS    CL10
+         DS    CL32
+IMNCUGN0 DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1          *
+*        *************************************************************
+IMN021XB DS    CL25                * BEGIN
+IMN021X  DS   0CL75                * DATA
+         DS    CL2                 * C'31' - CONSTANT
+IMNSOCSY DS   0CL41
+IMNCITYY DS    CL30                * DISTRITO (20) & PROVINCIA (10)
+IMNSSZPY DS    CL10                * POST CODE ( ZIP )
+IMNSSFRY DS    CL1
+         DS    CL32                * WRONG INTO COBOL COPYBOOK
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1          *
+*        *************************************************************
+IMN021YB DS    CL25                * BEGIN
+IMN021Y  DS   0CL75                * DATA
+         DS    CL2                 * C'39' - CONSTANT
+IMNSOCSX DS   0CL41
+IMNCITYX DS    CL30                * CITY / STATE ( FOREIGN ADDRESS )
+IMNSSZPX DS    CL10                * ZIP CODE ( FOREIGN ADDRESS )
+IMNSSFRX DS    CL1
+         DS    CL32                * WRONG INTO COBOL COPYBOOK
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 02  AND  CARD-CODE = 1          *
+*        *************************************************************
+IMN021ZB DS    CL25                * BEGIN
+IMN021Z  DS   0CL75                * DATA
+         DS    CL1                 * C'4' - CONSTANT
+IMNSPCCD DS    CL1                 *
+IMNDESCR DS    CL40
+         DS    CL33                * WRONG INTO COBOL COPYBOOK
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = ED  AND  CARD-CODE = 0          *
+*        *************************************************************
+IMNED01B DS    CL25                * BEGIN
+IMNED01  DS   0CL75                * DATA
+         DS    CL1                 * C'1' - CONSTANT
+IMNFRGNA DS    CL1                 * FOREIGN ADDRESS
+IMNSVTRL DS    CL1                 * SAVING TRAILER
+IMNSVCTR DS    CL1                 * FOREIGN CHARGE SERVICE
+IMNTRNSF DS    CL1                 * TRANSFER ADD
+         DS    CL70                * WRONG INTO COBOL COPYBOOK
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 06  AND  CARD-CODE = 1          *
+*        *************************************************************
+IMN061B  DS    CL25                * BEGIN
+IMN061   DS   0CL75                * DATA
+IMNLENTR DS    CL3                 * VALUE C'250'
+IMNDCSTD DS    CL8
+IMNDCDEP DS    CL20                * DEPARTAMENTO
+IMNDCEGR DS    CL4                 * GRUPO ECONOMICO
+IMNDCCII DS    CL4                 * CODIGO CIIU
+IMNDCQUA DS    CL3                 * CALIFICACION
+IMNDCQYR DS    CL4                 * YEAR
+IMNDCQPE DS    CL2                 * PERIODO
+IMNDCQCK DS    CL1                 *
+IMNDCFIN DS    CL25
+         DS    CL1
+*        *************************************************************
+*        *   NEW ACCOUNT : TRAN-NO = 06  AND  CARD-CODE = 2          *
+*        *************************************************************
+IMN062B  DS    CL25                * BEGIN
+IMN062   DS   0CL75                * DATA
+IMNDCTSO DS    CL10                * TIPO DE SOCIEDAD
+IMNDCREF DS    CL1                 * REFRENDO
+IMNDCNCO DS    CL25                * NOMBRE COMERCIAL
+         DS    CL39
+*
+IMNEND   EQU   *-IMNPDA            * NEW ACCOUNT PDA LENGTH RECORD

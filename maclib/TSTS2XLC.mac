@@ -1,0 +1,56 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                                                                     * 00020000
+*                      TRANSACTION SYSTEM                             * 00030000
+*                  CURRENCY TRANSLATE TABLE FOR                       * 00040000
+*                FLOATING DECIMAL CURRENCY FIELDS                     * 00050000
+*                                                                     * 00060000
+*---------------------------------------------------------------------* 00070000
+*                  ** HISTORY OF REVISIONS **                         * 00080000
+*                                                                     * 00090000
+* DESCRIPTION                                                 CHNGID  * 00100000
+* __________________________________________________________  _______ * 00110000
+* 06/17/96 IMPLEMENTED                                        9913481 * 00120000
+*---------------------------------------------------------------------* 00130000
+TSTSXLT  DSECT                  XLT TABLE DSECT                         00140000
+XLTSTART EQU   *                XLT STEM                                00150000
+XLTSDRKY DS    0CL20            SDR KEY                                 00160000
+XLTSDRCL DS    CL10                CLASS                                00170000
+XLTSDRNM DS    CL10                NAME,SCREEN#                         00180000
+XLTBLDID DS    CL1              XLT TABLE BUILD INDICATOR               00181000
+*                               I - BUILT BY IAD1                       00182000
+*                               O - BUILT BY OAD1                       00183000
+XLTSTMLN EQU   *-XLTSTART       LENGTH OF XLT STEM                      00190000
+XLTENTS  DS    0C               ENTRIES, 100 AT 40 BYTES EACH           00200000
+         SPACE                                                          00210000
+XLTENTRY DSECT                  LAYOUT OF ONE ENTRY                     00220000
+XLTENTST EQU   *                4000 BYTES                              00230000
+XLTFLDDT DS    CL1              SDR4B FIELD DATA TYPE                   00240000
+XLTFLDID DS    CL8              SDR4B FIELD ID                          00250000
+XLTFLDLN DS    XL2              SDR4B FIELD LENGTH                      00260000
+XLTFLDDC DS    CL1              SDR4B NUMBER OF DECIMALS                00270000
+XLTCURDC DS    CL1              CURRENCY NUMBER OF DECIMALS             00280000
+XLTFLDP  DS    XL2              @ FIELD POSITION                        00310000
+XLTCTLS  DS    0XL10            ASSOCIATED CTL FIELDS                   00320000
+XLTCTL1P DS    XL2              @ ASSOCIATED CTL1 FIELD POSITION        00330000
+XLTCTL2P DS    XL2              @ ASSOCIATED CTL2 FIELD POSITION        00360000
+XLTCTL3P DS    XL2              @ ASSOCIATED CTL3 FIELD POSITION        00390000
+XLTAPPLP DS    XL2              @ ASSOCIATED APPL FIELD POSITION        00420000
+XLTCURRP DS    XL2              @ ASSOCIATED CURR FIELD POSITION        00450000
+XLTCURR  DS    XL3                ASSOCIATED CURR CODE                  00460000
+XLTCUST  DS    XL4                ASSOCIATED NX FMS CUST NUMBER         00470000
+         DS    XL8              FILLER                                  00480000
+XLTENTLN EQU   *-XLTENTST       LENGTH OF 1 ENTRY                       00490000
+         DS    CL3960           REST OF ENTRIES                         00491000
+XLTGMLEN EQU   *-XLTENTST+XLTSTMLN   MAX LENGTH OF AREA                 00500000
+*                                                                       00500100
+*              IMPORTANT NOTE FOR FIELDS MARKED '@'                     00501000
+*              ------------------------------------                     00502000
+*  THE INDICATED FIELDS ARE USED DIFFERENTLY IN TS/NATIVE THAN          00503000
+*  THEY ARE IN TS/BMS. IN TS/NATIVE; THESE VALUES ARE AN SBA            00504000
+*  USED TO LOCATE THE FIELD IN THE 3270 STREAM. IN TS/BMS: THEY         00505000
+*  ARE THE LENGTH THE FIELD'S VALUE IN SYMBOLIC (COPYBOOK) MAP.         00506000
+*          ------                                                       00507000
+*---------------------------------------------------------------------* 00510000
+*                   END OF DSECT TSTSXLT                              * 00520000
+*---------------------------------------------------------------------* 00530000

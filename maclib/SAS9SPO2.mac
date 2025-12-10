@@ -1,0 +1,79 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00001000
+*                   ** PROGRAM DESCRIPTION **                         * 00001001
+*                                                                     * 00001002
+***         SYSTEMATICS EXTENDED APPLICATION ARCHITECTURE           *** 00001003
+***                                                                 *** 00001004
+***         ONLINE INSTALLATION PROCESSING OPTIONS (PROD. VERSION)  *** 00001005
+*** COPY BOOK: SAS9SPO2                                             *** 00001006
+*** USED IN CONJUNCTION WITH SAS9SPO1                               *** 00001007
+*                                                                     * 00001008
+*---------------------------------------------------------------------* 00001009
+*                  ** HISTORY OF REVISIONS **                         * 00001010
+*                                                                     * 00001011
+* DESCRIPTION                                                 CHNGID  * 00001012
+* __________________________________________________________  _______ * 00001013
+*                                                                     * 00001014
+* 08/11/10 ENTER PROD VALUES TO HANDLE ABEND TRANSACC MENU    GNUP001 * 00008989
+*          RMPCCSM1                                           GNUP001 * 00008990
+* 12/30/15 INCREASE THE VERB DELAY TO MAXIMUM                 1626897 * 00008991
+* 08/13/01 CHANGED DEFAULTS                                   2022522 * 00008993
+* 11/09/97 CHANGED SACCONV FROM 'Y' TO 'M'                    9914030 * 00008994
+* 09/03/96 CHANGED MAXIMUM VERB LIMIT FROM 2000 TO 20,000     9713271 * 00008995
+*          FOR PRODUCTION ENVIRONMENTS (&SACGUV)              9713271 * 00008996
+*                                                                     * 00008997
+*---------------------------------------------------------------------* 00008998
+*********************************************************************** 00008999
+* *** INTERVAL FOR NN-SEC DELAY GROWS FROM 200 VERBS IN INCREMENTS      00009000
+* --- OF 100 (ALL).  ONCE IT REACHES 1000 VERBS, DON'T STRETCH IT OUT   00010000
+* --- ANY MORE (TSD).                                                   00011000
+* -GBLA-            -MEANING--------                                    00012000
+*                         -PROD VALUE-   -TEST VALUE-                   00013000
+&SACDLYF SETA 99999 FIRST DELAY WILL BE AT VERB NUMBER NNN    1626897   00014000
+*                             200            200                        00015000
+&SACDLYI SETA 1     EXEC CICS DELAY NNN SECONDS               2022522   00016000
+*                               2              4                        00017000
+&SACDLYN SETA 4095  NEXT DELAY WILL BE THIS + CURRENT INTVL   2022522   00018000
+*                            4095            100              2022522   00019000
+&SACDLYC SETA 0     CAP # VERBS WHEN STRETCHING DELAY TIMES   2022522   00020000
+*                   (0 = NO CAP CONTINUE TO INCREMENT TIME)   2022522   00021000
+*                               0           1000                        00022000
+* *** (TSD ONLY) ABEND AFTER NNN VERBS.  1000 IS THE DEFAULT.           00023000
+* --- A TEMPSTOR RECORD WITH AN OVERRIDE CAN BE ENTERED VIA             00024000
+* --- SAAB,NNNNNN.  TEMP OVERRIDE CAN BE DROPPED VIA SAAB,DROP.         00025000
+* --- AFFECTS ONLY TERMINAL WHERE OVERRIDE ENTERED.                     00026000
+* -GBLA-            -MEANING--------                                    00027000
+*                         -PROD VALUE-   -TEST VALUE-                   00028000
+&SACGUV  SETA 0     DEFAULT # VERBS BEFORE S924 ABEND         9713271   00029000
+*                   (0 = NO "GOVERNOR")                                 00030000
+*                            0              0                 9713271   00031000
+* *** INTERVAL BETWEEN EXEC CIC SUSPEND(S) IS IN NUMBER OF SA VERBS.    00032000
+* -GBLA-            -MEANING--------                                    00033000
+*                         -PROD VALUE-   -TEST VALUE-                   00034000
+&SACSUSI SETA 4095  # VERBS BETWEEN EXEC CICS SUSPEND(S)      2022522   00035000
+*                            4095           2000              2022522   00036000
+* *** SET SIZE OF WRAP-AROUND EAA VERB TRACE TABLE (SATRACE).           00037000
+* -GBLA-            -MEANING--------                                    00038000
+*                         -PROD VALUE-   -TEST VALUE-                   00039000
+*&SACTRSZ SETA 100   # ROWS IN WRAP-AROUND SATRACE            GNUP001   00040000
+&SACTRSZ SETA 20   # ROWS IN WRAP-AROUND SATRACE              GNUP001   00040001
+*                              20            100                        00041000
+* *** DEFAULT STORAGE TYPE FOR TEMPORARY STORAGE WRITEQ'S     2501124   00041010
+*     M=MAIN, A=AUX, N=NEITHER (LET CICS PICK)                2501124   00041020
+* &SACIWQD, FOR INTERNAL USE ONLY, IS PLUGGED IN THE SACB.    2501124   00041030
+* &SACPWQD, FOR GENERAL USE, IS PLUGGED IN THE GCA.           2501124   00041040
+* -GBLA-            -MEANING--------                          2501124   00041050
+*                         -PROD VALUE-   -TEST VALUE-         2501124   00041060
+&SACIWQD SETC 'M'                                             2501124   00041070
+&SACPWQD SETC 'M'                                             2501124   00041080
+*                             'M' (BOTH)     'M' (BOTH)       2501124   00041090
+* *** OPTION TO CONTROL CONVERSATIONAL READ AFTER FATAL ERROR DISPLAY.  00042000
+* --- IF SET TO 'Y', PAUSE AFTER LINE 24 FATAL MESSAGES WITH A (CON-    00043000
+* --- VERSATIONAL) EXEC CICS RECEIVE.  IF SET TO 'M', SEND LINE 24      00044000
+* --- MESSAGE, AND EXIT.  IF SET TO 'N', DO NEITHER.                    00045000
+* -GBLA-            -MEANING--------                                    00046000
+*                         -PROD VALUE-   -TEST VALUE-                   00047000
+*&SACCONV SETC 'M'   SEND LINE 24 FATAL, EXIT                  9914030  00048000
+&SACCONV SETC 'N'   SEND LINE 24 FATAL, EXIT                  GNUP001   00048001
+*                             'N'            'Y'                        00049000

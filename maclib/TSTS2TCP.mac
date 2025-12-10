@@ -1,0 +1,122 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+******************************************************************      00010000
+*--------------------------------------------------------------*        00020000
+*               ** HISTORY OF REVISIONS **                     *        00030000
+* DATE       DESCRIPTION                                       *        00040000
+* _____________________________________________________________*        00050000
+* 2014-08-12 MODIFIED FOR CICSPLEX                            1616120   00059982
+* 2010-04-05 ADDED NEW FIELDS ENHANCED LISTENER               1115932   00059983
+* 2006-11-03 ADDED NEW FIELDS FOR LUW AND INDICATOR FOR Q MSG 0724911   00059984
+*            AND EIBRTNID AND ITR MODEL                       0724911   00059985
+* 2006-10-30 ADD MESSAGE COMPRESSION                          0715563   00059986
+* 2005-09-12 ADDED FIELDS SERVER, PORT, URL NAMES & RC        0615280   00059988
+* 2004-12-01 ADDED FIELD TO HOLD THE MESSAGE IN THE COMMAREA  0525117   00059990
+* 2004-09-08 ADDED FIELDS FOR USERID AND PSWD IN COMMAREA     0515034   00059992
+* 2004-08-25 ADD FLAG INDICATE PASS CLIENT OR SERVER IP ADDR  0515034   00059994
+* 2004-07-30 ADD FLAG INDICATE EXECUTION OF NATIVE PGM        0515034   00059996
+* 2003-10-03 CHANGED DATA LENGTH TO A FULLWORD + IP ADDR PORT 0424905   00059998
+* 2003-03-01 ORIGINAL RELEASE                           GN4724 *        00060008
+*--------------------------------------------------------------*        00070000
+*                                                                       00080000
+****************************************************************        00090000
+* COMMAREA EXCHANGED BETWEEN CICS TCP/IP CHILD SERVER                   00100000
+* (TSTSTCPS) AND ALL SUBORDINATE INTERFACE LAYER(S) NEEDED TO           00110000
+* LINK TO A TARGET APPLICATION.                                         00120000
+*                                                                       00130000
+****************************************************************        00140000
+TSTSTCP  DSECT                                                          00150000
+TCP      DS    0D                                                       00160000
+TCPEYEC  DS    CL8         EYECATCHER                         0525117   00160500
+TCPDPLTR DS    CL4         DPL TRANCODE                       0525117   00160550
+TCPBUFA  DS    FL4         TCP/IP DATA BUFFER ADDR                      00170000
+TCPBUFL  DS    FL4         TCP/IP DATA LENGTH                 0424905   00180000
+TCPSOKN  DS    HL2         TCP/IP SOCKET TOKEN                          00190000
+TCPIPADR DS    FL4         TCP/IP ADDRESS                     0424905   00190500
+TCPPORT  DS    HL2         TCP/IP PORT                        0424905   00190505
+TCPUSRID DS    CL8         USER ID                            0515034   00190510
+TCPPSWD  DS    CL8         PASSWORD                           0515034   00190515
+TCPRC    DS    FL4         TCP/IP RETURN CODE                 0615280   00190520
+TCPSERVN DS    CL50        SERVER NAME                        0615280   00190530
+TCPPORTN DS    CL50        PORT NAME                          0615280   00190540
+TCPURL   DS    CL50        URL NAME                           0615280   00190550
+TCPCTL1  DS    CL2         CTL1 VALUE - BANK NUMBER           0615280   00190560
+TCPAGLUW DS    CL1         AGGREGATED TRAN LUW FLAG           0724911   00190566
+TCPMQMSG DS    CL1         MESSAGE READ FROM MQ QUEUE         0724911   00190568
+TCPXMHLN DS    CL3         XMN HEADER LENGTH                  0715563   00190570
+TCPEIBTR DS    CL4         EIBTRNID                           0724911   00190572
+TCPITRMD DS    CL4         ITR MODEL                          0724911   00190573
+TCPPROG  DS    CL8         LINK PROGRAM FOR TSTSTCPF          1115932   00192000
+TCPQUEUE DS    0CL16       REQUEST ID FOR TS Q AND DELAY      1616120   00192990
+         DS    CL4         PROGRAM NAME CONSTANT              1616120   00193000
+TCPDELAY DS    0CL8        DELAY ID                           1616120   00193010
+TCPTASKN DS    CL8         TASK NUMBER                        1616120   00193020
+TCPSYSID DS    CL4         SYSID                              1616120   00193030
+TCPAGGR  DS    CL1         Y/N FLAG FOR AGGREGATE MESSAGE     1115932   00194000
+TCPHDRL  EQU   *-TCP       STEM LENGTH                        1115932   00198000
+TCPMSG   DS    CL32000     MESSAGE AREA                       1115932   00199000
+TCPLEN   EQU   *-TCP       LENGTH OF THIS COMMAREA                      00200000
+*                                                                       00210000
+****************************************************************        00220000
+* CICS TCP/IP SOCKET HEADER AS RECEIVED BY THE CHILD SERVER             00230000
+* (TSTSTCPS) FROM THE CICS START COMMAND.                               00240000
+*                                                                       00250000
+****************************************************************        00260000
+TCPPARM   DSECT                                                         00270007
+TCP_PARM      DS 0D                                                     00280000
+GIVE_TAKE_SD  DS FL4                                                    00290000
+LSTN_ASNAME   DS CL8                                                    00300000
+LSTN_SUBTASK  DS CL8                                                    00310000
+CID           DS CL35                                                   00320000
+              ORG CID                                                   00330000
+CID_USER      DS  CL8      TCP/IP USERID FOR SECURITY                   00340000
+CID_PSWD      DS  CL8      TCP/IP PASSWORD                              00350000
+CID_PROC      DS  CL8      TCP/IP GN PROCESS TO EXECUTE                 00360000
+CID_MLEN      DS  CL6      TCP/IP MESSAGE LENGTH TO RECEIVE             00370000
+CID_HAND      DS  C        TCP/IP IS HANDSHAKE REQUIRED?                00380000
+*                                                                       00390000
+CID_HAND_YES    EQU C'Y'                                                00400000
+*                                                                       00410000
+CID_PGM_CALL  DS  C                                           0515034   00410005
+*                                                             0515034   00410010
+CID_PGM_CALL_Y  EQU C'Y'                                      0515034   00410015
+CID_PGM_CALL_N  EQU C'N'                                      0515034   00410020
+CID_AGGR_LUW_INDV EQU C'I'                                    0724911   00410022
+CID_AGGR_LUW_COMB EQU C'C'                                    0724911   00410024
+*                                                             0515034   00410025
+CID_CS_IP_ADDR DS C                                           0515034   00410030
+*                                                             0515034   00410035
+CID_CS_CLIENT  EQU  C'C'                                      0515034   00410040
+CID_CS_SERVER  EQU  C'S'                                      0515034   00410045
+*                                                             0515034   00410050
+CID_XMN_HDR_VERS DS  CL1                                      0715563   00410055
+*                                                             0715563   00410060
+CID_XMN_HDR_VERS_1 EQU  C'1'                                  0715563   00410065
+*                                                             0715563   00410070
+CID_FILLER    DS  CL1                                         0715563   00410075
+*                                                                       00430000
+              ORG                                                       00440000
+              DS C                                                      00450000
+SOCKADDR_IN   DS  0CL16                                                 00460000
+SIN_FAMILY    DS  HL2                                                   00470000
+SIN_PORT      DS  HL2                                                   00480000
+SIN_ADDR      DS  FL4                                                   00490000
+SIN_ZERO      DS  CL8                                                   00500000
+TIM_LENG EQU   *-TCP_PARM                                               00510007
+              ORG SOCKADDR_IN                                 1115932   00520000
+ESOCKET_STRUCT DS  0CL28                                      1115932   00530000
+ESIN_FAMILY    DS  HL2        2=AF/INET, 19=AF/INET6          1115932   00540000
+ESIN_IPV4      DS  0CL26                                      1115932   00550000
+ESIN_IPV4_PORT DS  HL2        PORT NUMBER                     1115932   00560000
+ESIN_IPV4_ADD  DS  FL4        ADDRESS OF HOST                 1115932   00570000
+               DS  CL8        RESERVED                        1115932   00580000
+               DS  CL12       FOR ALIGNMENT WITH IPV6         1115932   00590000
+               ORG ESIN_IPV4                                  1115932   00600000
+ESIN_IPV6      DS  0CL26                                      1115932   00610000
+ESIN_IPV6_PORT DS  HL2        PORT NUMBER                     1115932   00620000
+ESIN_IPV6_FLOW DS  FL4        TRAFFIC CLASS AND FLOW LABEL    1115932   00630000
+ESIN_IPV6_HOST DS  CL16       ADDRESS OF HOST                 1115932   00640000
+ESIN_IPV6_SCID DS  FL4        LINK SCOPE ID                   1115932   00650000
+               DS  17FL4      RESERVED                        1115932   00660000
+ESIN_DATA_LEN  DS  HL2        DATA LENGTH 0 IF PEEKDATA       1115932   00670000
+ETIM_LENG EQU   *-TCP_PARM    LENGTH OF ENHANCED TIM          1115932   00680000
+ESIN_DATA      DS  0C         CLIENT IN DATA IF DATA LEN > 0  1115932   00690000

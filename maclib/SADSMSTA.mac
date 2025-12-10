@@ -1,0 +1,66 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                   ** COPYBOOK DESCRIPTION **                        * 00000200
+*                                                                     * 00000300
+*        MESSAGE TABLE                                                * 00000400
+*                                                                     * 00000500
+*---------------------------------------------------------------------* 00000550
+*                  ** HISTORY OF REVISIONS **                         * 00000600
+*                                                                     * 00000700
+* DESCRIPTION                                                 CHNGID  * 00000800
+* __________________________________________________________  _______ * 00000900
+* 04/29/05 MAKE MESSAGES UNIQUE                               0635249   00002690
+*                                                                     * 00002700
+*---------------------------------------------------------------------* 00002800
+         EJECT                                                0635249   00002980
+DSMSTAB  EQU   *                                                        00003000
+*  EXTERNAL FUNCTION ERRORS (VSAM)                                      00004000
+         DC    H'004',H'004',CL40'SADSEXT  - END OF FILE'               00005000
+DIMSENTL EQU   *-DSMSTAB                                                00006000
+         DC    H'004',H'008',CL40'SADSEXT  - DUPLICATE RECORD'          00007000
+         DC    H'004',H'016',CL40'SADSEXT  - RECORD NOT FOUND'          00008000
+         DC    H'008',H'028',CL40'SADSEXT  - DICTIONARY FULL '          00009000
+* ********************************                                      00010000
+         DC    H'008',H'301',CL40'SADSPARS - PARSING ERROR'             00011000
+         DC    H'008',H'302',CL40'SADSPARS - INVALID COMMAND'           00012000
+         DC    H'008',H'303',CL40'SADSDEFS - DEFINITION TABLE MISSING'  00013000
+         DC    H'008',H'304',CL40'SADSPARS - INVALID ENTITY TYPE'       00014000
+         DC    H'008',H'305',CL40'SADSPARS - INVALID FIELD NAME'        00015000
+         DC    H'008',H'306',CL40'SADSPARS - KEYWORD MISSING'           00016000
+         DC    H'008',H'307',CL40'SADSPARS - TOO MANY ENTITY TYPES'     00017000
+         DC    H'008',H'308',CL40'SADSPARS - "FOR" KEYWORD MISSING'     00018000
+         DC    H'008',H'309',CL40'SADSEXT  - I/O ERROR ON DICTIONARY'   00019000
+         DC    H'008',H'310',CL40'SADSEXT  - INVALID EXTERNAL REQUEST'  00020000
+         DC    H'008',H'311',CL40'SADSEXT  - DICTIONARY UNAVAILABLE'    00021000
+         DC    H'008',H'312',CL40'SADSPARS - APPLICATION CODE MISSING'  00022000
+         DC    H'008',H'313',CL40'SADSPARS - MAX FIELD LENGTH EXCEEDED' 00023000
+         DC    H'012',H'314',CL40'SADSDEFS - SHORT ON RECORD STORAGE'   00024000
+         DC    H'008',H'315',CL40'SADSENT  - INVALID VALUE SPECIFIED'   00025000
+         DC    H'008',H'316',CL40'SADSPARS - INVALID ATTRIBUTE '        00026000
+         DC    H'008',H'317',CL40'SADSPARS - INVALID OCCURS FLAG '      00027000
+         DC    H'008',H'318',CL40'SADSENT  - NO FIELD VALUE PRESENT'    00028000
+         DC    H'008',H'319',CL40'SADSPARS - EXPECTING WHERE CLAUSE'    00029000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0635249   00029999
+         DC    H'012',H'2320',CL40'SADSPARS - TABLE STORAGE EXCEEDED'   00030000
+         DC    H'008',H'321',CL40'SADSPARS - INVALID CONDITION'         00031000
+         DC    H'008',H'322',CL40'SADSPARS - INVALID CONNECTOR'         00032000
+         DC    H'008',H'323',CL40'SADSDEFS - FIELD ATTRIBUTES MISSING'  00033000
+         DC    H'008',H'324',CL40'SADSDEFS - FIELD ALREADY EXISTS'      00034000
+         DC    H'008',H'325',CL40'SADSDEFS - MAX DEFINITION FIELDS'     00035000
+         DC    H'008',H'326',CL40'SADSENT  - UNSUPPORTED COMMAND'       00036000
+         DC    H'008',H'327',CL40'SADSENT  - WHERE CLAUSE IN ERROR'     00037000
+         DC    H'008',H'328',CL40'SADSPARS - KEYWORD "WITH" MISSING'    00038000
+         DC    H'008',H'329',CL40'SADSPARS - AUXIO FUNCTION INVALID'    00039000
+         DC    H'012',H'330',CL40'SADSEXT  - INVALID REQUEST'           00040000
+         DC    H'012',H'331',CL40'SADSEXT  - CANNOT ALLOCATE STORAGE'   00041000
+         DC    H'004',H'332',CL40'SADSEXT  - ENTITY IS LOCKED'          00042000
+         DC   H'008',H'333',CL40'SADSEXT  - NO MORE ENT. MAY BE LOCKED' 00043000
+         DC   H'008',H'334',CL40'SADSEXT  - ERROR WHILE LOCKING ENTITY' 00044000
+         DC    H'008',H'335',CL40'SADSEXT  - INDEX RECORD NOT FOUND'    00045000
+         DC    H'008',H'336',CL40'SADSEXT  - MORE THAN 255 FIELDS'      00046000
+         DC    H'008',H'337',CL40'SADSEXT  - RECORD LARGER THAN 4096'   00047000
+         DC  H'008',H'338',CL40'SADSEXT  - ERROR WHILE DELETING ENTITY' 00048000
+         DC    H'012',H'339',CL40'SADSEXT  - CANNOT FREE STORAGE'       00049000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0635249   00049999
+         DC    H'012',H'2340',CL40'SADAUXIB - HEADER INFO MISSING'      00050000
+         DC    H'008',XL2'FFFF',CL40'SADSMSG  - UNKNOWN ERROR'          00051000

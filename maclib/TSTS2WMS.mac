@@ -1,0 +1,61 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000005
+*                   ** COPYBOOK DESCRIPTION **                        * 00000010
+*                                                                     * 00000015
+*                            TSTS2WMS                                 * 00000100
+*                       TRANSACTION SYSTEM                            * 00000110
+*               STORAGE REQUIRED FOR ERROR PROCESSING ROUTINE         * 00000120
+*---------------------------------------------------------------------* 00000130
+         EJECT                                                1436560   00000140
+*---------------------------------------------------------------------* 00000150
+*                  ** HISTORY OF REVISIONS **                         * 00000160
+*                                                                     * 00000170
+* DESCRIPTION                                                 CHNGID  * 00000180
+* __________________________________________________________  _______ * 00000200
+* 03/16/17 CORRECT DB2 ERROR HANDLING                         1727046   00000487
+* 01/27/14 MODIFY FOR DB2                                     1436560   00000488
+*                                                                     * 00000490
+*---------------------------------------------------------------------* 00000500
+         EJECT                                                1436560   00000600
+WMS      EQU   *                                                        00000700
+*        CICS ERROR PROCESSING WORK AREA                                00000800
+WMSEIBFN DS    CL2                   FUNCTION CODE FROM EIB             00000900
+WMSEIBRC DS    CL6                   RESPONSE CODE FROM EIB             00001000
+*                                                                       00001100
+WMSAPPL  DS    CL2                   APPLICATION ID                     00001200
+*        NON-CICS ERROR PROCESSING WORK AREA                            00001300
+WMSMGWK  EQU   *                                                        00001400
+WMSMGCOD DS    CL4                   MESSAGE CODE                       00001500
+WMSMGSCR DS    CL2                   SCREEN NUMBER                      00001600
+WMSMGFDG DS    CL8                   FIELD DAG NAME                     00001700
+WMSMGFID DS    CL8                   FIELD ID                           00001800
+WMSMGDMS DS    0XL6                  FIELD DIMENSIONS                   00001900
+WMSMGDM1 DS    XL2                     FIELD DIMEN 1                    00002000
+WMSMGDM2 DS    XL2                     FIELD DIMEN 2                    00002100
+WMSMGDM3 DS    XL2                     FIELD DIMEN 3                    00002200
+WMSMGVAS DS    0CL50                 VARIABLE DATA FIELDS               00002300
+WMSMGVA1 DS    CL25                    VARIABLE DATA FIELD 1            00002400
+WMSMGVA2 DS    CL25                    VARIABLE DATA FIELD 2            00002500
+WMSMGWLN EQU   *-WMSMGWK             LENGTH OF NON-CICS WORK AREA       00002600
+         SPACE 2                                                        00002700
+WMSREQCD DS    CL1                   REQUEST CODE FOR ERROR PROCESSING  00002800
+*                  VALUES :  0 - REQUEST TO PUT MESSAGE IN TABLE        00002900
+*                            1 - PUT MESSAGE IN TABLE AND DO LOOKUP     00003000
+*                            2 - REQUEST TO LOOKUP MESSAGE              00003100
+WMSRSLTC DS    CL1                   PARMS RESULT CODE                  00003200
+*                  VALUES :  0 - PARMS RESULT NORMAL, NO MSG REQUIRED   00003300
+*                            1 - PARMS RESULT ABNORMAL, FORMAT MESSAGE  00003400
+WMSABEND DS    CL4                   ABEND CODE                         00003500
+WMSANCA  DS    CL4                   ADDRESS OF NCA                     00003600
+WMSMGPID DS    CL8                   PROGRAM WITH THE ERROR             00003700
+WMSOUTPH DS    CL8                   PROGRAM ID OF OUTPUT ANALYSIS      00003800
+WMSLNKPH DS    CL8                   PROGRAM BEING LINK'D OR XCTL'D TO  00003900
+WMSSCRPT DS    CL8                   API PROCESS MOD OR SCRIPT2500610   00003910
+WMS1REGS DS    15F                   REGISTER SAVE AREA                 00004000
+WMS2REGS DS    15F                   REGISTER SAVE AREA                 00004100
+WMSRETCD DS    CL1                   RETURN CODE FOR BMS APPL PGM       00004200
+WMSRETAD DS    XL4                   RETURN ADDRESS FOR CTL1 -          00004300
+*                                            REENTRY ERRORS             00004400
+WMSDB2AD DS    XL4                   DB2 I/O PARMLIST ADDRESS 1436560   00004410
+WMSDB2DS DS    CL5                   DB2 DATASET              1727046   00004420
+WMSLEN   EQU   *-WMS                 LENGTH OF ERROR PROC AREA          00004500

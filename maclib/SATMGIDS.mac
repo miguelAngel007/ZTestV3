@@ -1,0 +1,30 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* SATMGIDS - DYNAMIC STORAGE REQUIREMENT FOR SATBLMGI                 * 00002000
+*                                                                     * 00003000
+* NOTE: BECAUSE SATBLMGI IS DESIGNED TO BE CLOSELY BOUND WITH ITS     * 00004000
+* CALLING MODULES, SATBLMGI IS LINKEDITED WITH EACH CALLING MODULE.   * 00005000
+* SATBLMGI HAS NO CICS PROLOGUE OR EPILOGUE AND THEREFORE NO WORKING  * 00006000
+* STORAGE PROVIDED AT CICS PROLOGUE TIME.  INSTEAD, SASERVO ACQUIRES  * 00007000
+* THE REQUIRED STORAGE, PROVIDING ITS ADDRESS AND LENGTH IN THE       * 00008000
+* SACB EXTENSION FIELDS, SACBTMWA AND SACBTMWL, RESPECTIVELY.         * 00009000
+* THE STORAGE ACQUIRED SHOULD ACCOMMODATE A MINIMUM OF TWO COPIES OF  * 00010000
+* THIS LAYOUT.                                                        * 00011000
+*                                                                     * 00012000
+*********************************************************************** 00013000
+*                    ** HISTORY OF REVISIONS **                       * 00014000
+* DESCRIPTION                                                 CHNGID  * 00015000
+* ___________________________________________________________ _______ * 00016000
+* 05/11/93 ORIGINAL DISTRIBUTION OF COPYBOOK                  2500747 * 00017000
+*                                                                     * 00018000
+*********************************************************************** 00019000
+SATMGIDS DSECT                                                          00020000
+SATMGIDA DS    F                  L'DYN STG USED/SATBLMGI CALL          00021000
+SATMGDFH DS    (DFHEIUSR-DFHEISTG)C CALLER'S DFHEISTG STEM SAVEAREA     00022000
+SATMGRSA DS    18F                CALLER'S REGISTER SAVEAREA            00023000
+SATMGGCA DS    A                  ADDRESS OF GCA                        00025000
+SATMGRBA DS    A                  TEMP STORAGE FOR RBA FROM STATS       00026000
+         SAT9STAM                 TABLE MANAGER STATS RECORD            00027000
+SATMGIDE DS   0F                  END'SATBLMGI DYN STG AREA (FALIGN)    00028000
+SATMGIDL EQU   *-SATMGIDA         L'DYN STG USED BY SATBLMGI            00029000
+SATMGTBP EQU   256                LENGTH PSEUDO SATB BUILD AREA         00030000

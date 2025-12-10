@@ -1,0 +1,789 @@
+000100******************************************************************IC045
+000200*    THIS COPYBOOK IS USED IN THE FOLLOWING PROGRAMS:            *IC045
+000300*                                                                *IC045
+000400*    DR70      FIICA001  FIICBD01  FIICFP01  FIICIT02  FIICI102  *IC045
+000500*    FIICI402  FIICI602  FIICI702  FIICLOAD  FIICPQ01  FIIC0101  *IC045
+000600*    FIIC1801  FIIC2A01  FIIC2B01  FIIC2B02  FIIC2C01  FIIC2C02  *IC045
+000700*    FIIC2D01  FIIC2F01  FIIC2001  FIIC2002  FIIC2101  FIIC2301  *IC045.01
+000800*    FIIC2701  FIIC2801  FIIC2901  FIIC3001  FIIC3002  FIIC3101  *IC045.01
+000900*    FIIC3102  FIIC3201  FIIC3301  FIIC3601  FIIC4201  FIIC8001  *IC045.01
+001000*    FIIC9401                                                    *IC045.01
+001100*    ICACTM    ICALPHA   ICCALC    ICPURM    IC22      IC22F1    *IC045
+001200*    IC22F6    IC22G1    IC22G2    IC27      IC31      IC31I3    *IC045
+001300*    IC31I3ST  IC31I4    IC31I5    IC31J1    IC31J2    IC31J3    *IC045
+001400*    IC31J4    IC31J5    IC31J7    IC31KE    IC31KF    IC31KG    *IC045
+001500*    IC31KH    IC31KL    IC31KP    IC31KQ    IC31KS    IC31KT    *IC045
+001600*    IC31KU    IC31KW    IC31K0    IC31K4    IC31K5    IC31K6    *IC045
+001700*    IC31K7    IC31K8    IC31K9    IC32      IC32L2    IC32L4    *IC045
+001800*    IC41NB    IC41ND    IC41NE    IC41NF    IC41NG    IC41NH    *IC045
+001900*    IC41NI    IC41NQ    IC41NR    IC41NS    IC41NT    IC41N6    *IC045
+002000*    IC41N7    IC41N8    IC41PA    IC41PB    IC41PC    IC41PD    *IC045
+002100*    IC41PE    IC41PF    IC41PG    IC41PH    IC41PI    IC41PJ    *IC045
+002200*    IC41PK    IC41PL    IC41PM    IC41PN    IC41PP    IC41PQ    *IC045
+002300*    IC41PS    IC41PT    IC41PU    IC41PV    IC41PW    IC41PX    *IC045
+002400*    IC41P1    IC41P2    IC41P2DX  IC41P2MC  IC41P2RM  IC41P3    *IC045
+002500*    IC41P4    IC41P5    IC41P6    IC41P7    IC41P9    IC41QB    *IC045
+002600*    IC41QC    IC41QD    IC41QE    IC41QF    IC41QG    IC41QH    *IC045
+002700*    IC41QI    IC41QJ    IC41QN    IC41QP    IC41QQ    IC41Q1    *IC045
+002800*    IC41Q4    IC41Q5    IC41Q6    IC41Q7    IC41Q8    IC41Q9    *IC045
+002900*    IC41R4    IC41R5    IC41R6    IC46      IC61      IC65      *IC045
+003000*    IC67      IC69TRW   IC80      IC80X1    IC80X2    IC80X6    *IC045
+003100*    IC92                                                        *IC045
+003200******************************************************************IC045
+003300 01  IC-MASTER-RECORD.
+003400   02  IC-LENGTH                         PIC S9999       COMP.
+003500   02  FILLER                            PIC XX.
+003600   02  IC-MASTER-REC.
+003700     03  IC-CONTROL.
+003800         05  IC-BK                       PIC XX.
+003900         05  IC-CTL2                     PIC XXX.
+004000         05  IC-CTL3                     PIC XXX.
+004100         05  IC-LOAN-NO.
+004200             07  IC-CTL4                 PIC XX.
+004300             07  IC-LOAN                 PIC X(8).
+004400             07  IC-LOAN-SUF             PIC XX.
+004500     03  IC-TRAN-CD                      PIC XX.
+004600     03  IC-EDITD-ACCT-NO                PIC X(16).
+004700     03  IC-SHORT-NAME                   PIC X(13).
+004800     03  IC-LOAN-TYPE.
+004900         05  IC-LOAN-TYPEX               PIC 999.
+005000     03  FILLER REDEFINES IC-LOAN-TYPE.
+005100         05  IC-LN-TP1                   PIC X.
+005200         05  IC-LN-TP2                   PIC X.
+005300         05  IC-LN-TP3                   PIC X.
+005400     03  IC-GL-CODE                      PIC 99.
+005500     03  IC-SIMP-INT                     PIC X.
+005600     03  IC-PRIME-RATE-LOAN              PIC S9          COMP-3.
+005700     03  IC-APR                          PIC S9V9(6)     COMP-3.  NL860002
+005800     03  IC-CALL-CODE                    PIC X(4).
+005900     03  IC-PRIMARY-LOAN-OFF             PIC X(5).
+006000     03  IC-SECONDARY-LOAN-OFF           PIC X(5).
+006100     03  IC-COLLECTION-OFF               PIC X(5).
+006200     03  IC-ORIG-BRANCH                  PIC XXX.
+006300     03  IC-FLAGS.
+006400         05  IC-STATUS-CODE              PIC X.
+006500         05  IC-TRNSFR                   PIC X.
+006600         05  IC-REASN-INACT              PIC X.
+006700         05  IC-NEW-TDY                  PIC X.
+006800         05  IC-NEW-THIS-MO              PIC X.
+006900         05  IC-NEW-PERIODIC             PIC X.
+007000         05  IC-PAID-OUT-TDY             PIC X.
+007100         05  IC-PAID-OUT-THIS-MO         PIC X.
+007200         05  IC-PAID-OUT-PERIODIC        PIC X.
+007300         05  IC-OFF-EMP                  PIC X.
+007400         05  IC-SING-BALL                PIC X.
+007500         05  IC-SECURED                  PIC X.
+007600         05  IC-CUM-TRIAL-TDY            PIC X.
+007700         05  IC-TITLE-RECD               PIC X.
+007800         05  IC-TITLE-TICKLER            PIC X.
+007900         05  IC-DE-PROSPECT              PIC X.
+008000         05  IC-NOT-DEF                  PIC X.
+008100         05  IC-SI-DAYS-IN-YR            PIC X.
+008200         05  IC-TIN-CERTFD               PIC X.
+008300         05  IC-PER-COM                  PIC X.
+008400     03  IC-FLAGS-YN.
+008500         05  IC-STOP-ACCRUAL             PIC X.
+008600         05  IC-REPOSESS                 PIC X.
+008700         05  IC-TAKE-NO-PAY              PIC X.
+008800         05  IC-UCCC                     PIC X.
+008900         05  IC-SKIP-PYMT                PIC X.
+009000         05  IC-FHA                      PIC X.
+009100         05  IC-CHRG-OFF                 PIC X.
+009200         05  IC-MANUAL-PYOF              PIC X.
+009300         05  IC-INS-EXP-NTC              PIC X.
+009400         05  IC-RECALC-78                PIC X.
+009500         05  IC-RENEGOTIATE              PIC X.
+009600         05  IC-BANKRUPTCY               PIC X.
+009700         05  IC-PART-PAY-DUE             PIC X.
+009800         05  IC-MTG-PURPOSE              PIC X.                   IC044
+009900         05  IC-TSD-RES02                PIC X.
+010000         05  IC-TSD-RES03                PIC X.
+010100         05  IC-TSD-RES04                PIC X.
+010200         05  IC-TSD-RES05                PIC X.
+010300         05  IC-TSD-RES06                PIC X.
+010400         05  IC-TSD-RES07                PIC X.
+010500         05  IC-TSD-RES08                PIC X.
+010600         05  IC-TSD-RES09                PIC X.
+010700         05  IC-TSD-RES10                PIC X.
+010800         05  IC-TSD-RES11                PIC X.
+010900     03  IC-SUSP-PYOF-REASN              PIC XX.
+011000     03  IC-COUPON-BOOK.
+011100         05  IC-CPN-BK-FORM              PIC X.
+011200         05  IC-CPN-BK-DUE               PIC X.
+011300     03  IC-BALANCES             COMP-3.
+011400         05  IC-ORIG-BAL                 PIC S9(7)V99.
+011500         05  IC-BAL-ADJ                  PIC S9(7)V99.
+011600         05  IC-BAL-COLL                 PIC S9(7)V99.
+011700         05  IC-CUR-BAL                  PIC S9(7)V99.
+011800     03  IC-UNSCHD-COLL                  PIC S9(7)V99    COMP-3.
+011900     03  IC-ORIG-PROCEEDS                PIC S9(7)V99    COMP-3.
+012000     03  IC-CHARGE-OFF-TRAN-AMT          PIC S9(7)V99    COMP-3.
+012100     03  IC-FEES.
+012200         05  IC-FEE-AS                   PIC S9(7)V99    COMP-3.
+012300         05  IC-FEE-COLL                 PIC S9(7)V99    COMP-3.
+012400         05  IC-FEE-DUE                  PIC S9(7)V99    COMP-3.
+012500         05  IC-FEE-EXT-AS               PIC S9(7)V99    COMP-3.
+012600         05  IC-FEE-EXT-COLL             PIC S9(7)V99    COMP-3.
+012700         05  IC-FEE-EXT-DUE              PIC S9(7)V99    COMP-3.
+012800         05  IC-FEE-EXT-OPT              PIC X.
+012900         05  IC-FEE-COLL-MTD             PIC S9(7)V99    COMP-3.
+013000         05  IC-FEE-COLL-QTD             PIC S9(7)V99    COMP-3.
+013100         05  IC-FEE-COLL-YTD             PIC S9(7)V99    COMP-3.
+013200         05  IC-FEE-COLL-YTD-LAST        PIC S9(7)V99    COMP-3.
+013300         05  IC-TSD-FILLER               PIC X.
+013400     03  IC-LATE-CHARGES.
+013500         05  IC-LA-CHG-OPT               PIC X.
+013600         05  IC-LA-CHG-AS                PIC S9(7)V99    COMP-3.
+013700         05  IC-LA-CHG-COLL              PIC S9(7)V99    COMP-3.
+013800         05  IC-LA-CHG-DUE               PIC S9(7)V99    COMP-3.
+013900         05  IC-LA-CHG-COLL-MTD          PIC S9(7)V99    COMP-3.
+014000         05  IC-LA-CHG-COLL-QTD          PIC S9(7)V99    COMP-3.
+014100         05  IC-LA-CHG-COLL-YTD          PIC S9(7)V99    COMP-3.
+014200         05  IC-LA-CHG-COLL-YTD-LAST     PIC S9(7)V99    COMP-3.
+014300         05  IC-PYMT-IN-GRACE            PIC S9(7)V99    COMP-3.
+014400         05  IC-NOTICE-BD.
+014500             07  IC-LA-CHG-BDRYA         PIC X.
+014600             07  IC-LA-CHG-BDRYB         PIC X.
+014700             07  IC-LA-CHG-BDRYC         PIC X.
+014800             07  IC-LA-CHG-BDRYD         PIC X.
+014900             07  IC-LA-CHG-BDRYE         PIC X.
+015000             07  IC-LA-CHG-BDRYF         PIC X.
+015100         05  FILLER REDEFINES IC-NOTICE-BD.
+015200             07  IC-NOT-BD               PIC X   OCCURS 6 TIMES.
+015300         05  IC-LA-CHG-BD.
+015400             07  IC-LA-CHG-BDRYG         PIC X.
+015500             07  IC-LA-CHG-BDRYH         PIC X.
+015600             07  IC-LA-CHG-BDRYI         PIC X.
+015700             07  IC-LA-CHG-BDRYJ         PIC X.
+015800             07  IC-LA-CHG-BDRYK         PIC X.
+015900             07  IC-LA-CHG-BDRYL         PIC X.
+016000         05  FILLER REDEFINES IC-LA-CHG-BD.
+016100             07  IC-LC-BD                PIC X   OCCURS 6 TIMES.
+016200         05  IC-LA-CHG-PART-PAY          PIC X.
+016300         05  IC-LA-CHG-PAY-REV           PIC X.
+016400         05  IC-LA-CHG-ASSESS-DATE.
+016500             07  IC-LC-AS-MO             PIC XX.
+016600             07  IC-LC-AS-DA             PIC XX.
+016700             07  IC-LC-AS-YR             PIC XX.
+016800         05  IC-LA-CHG-ASSESS-AMT        PIC S9(7)V99    COMP-3.
+016900         05  IC-LA-CHG-RATE              PIC SV9(5)      COMP-3.
+017000         05  IC-LA-CHG-AMT               PIC S9(3)V99    COMP-3.
+017100         05  IC-LA-CHG-METHOD            PIC X.
+017200         05  IC-LA-CHG-MIN-AMT           PIC S9(3)V99    COMP-3.
+017300         05  IC-LA-CHG-MAX-AMT           PIC S9(3)V99    COMP-3.
+017400     03  IC-EARNINGS             COMP-3.
+017500         05  IC-EA-ERN-MTD               PIC S9(7)V99.
+017600         05  IC-EA-ERN-QTD               PIC S9(7)V99.
+017700         05  IC-EA-ERN-YTD               PIC S9(7)V99.
+017800         05  IC-EA-COLL-YTD              PIC S9(7)V99.
+017900         05  IC-EA-COLL-YTD-LAST-YR      PIC S9(7)V99.
+018000     03  IC-ECON-ACCR-EARNINGS.
+018100         05  IC-ECON-78-YR               PIC 99.
+018200         05  IC-ECON-78-AMT              PIC S9(7)V99    COMP-3.
+018300         05  IC-ECON-YTD-RPT             PIC S9(7)V99    COMP-3.
+018400         05  IC-ECON-YTD-RPT-LAST-YR     PIC S9(7)V99    COMP-3.
+018500     03  IC-SALES-TAX.
+018600         05  IC-STX-OPT                  PIC X.
+018700         05  IC-STX-COLL-MTD             PIC S9(7)V99    COMP-3.
+018800         05  IC-STX-COLL-QTD             PIC S9(7)V99    COMP-3.
+018900         05  IC-STX-COLL-YTD             PIC S9(7)V99    COMP-3.
+019000         05  IC-STX-COLL-YTD-LAST-YR     PIC S9(7)V99    COMP-3.
+019100     03  IC-SUM-OF-BALANCE       COMP-3.
+019200         05  IC-INIT-ERN-RATE            PIC S9(3)V9(4).
+019300         05  IC-INIT-ADJ                 PIC S9(3)V9(4).
+019400     03  IC-EARNINGS-INFO.
+019500         05  IC-NRD-FC-AMT               PIC S9(3)V99    COMP-3.
+019600         05  IC-NEXT-ACCRUAL-DATE.
+019700             07  IC-NEXT-ACC-MO.
+019800                 09  IC-NEXT-ACC-MO-N    PIC 99.
+019900             07  IC-NEXT-ACC-DA          PIC XX.
+020000             07  IC-NEXT-ACC-YR.
+020100                 09  IC-NEXT-ACC-YR-N    PIC 99.
+020200     03  IC-MTD-AGGREGATES       COMP-3.
+020300         05  IC-AGG-MTD-DAYS             PIC S9(3).
+020400         05  IC-AGG-MTD-UNERN-REB        PIC S9(13)V99.
+020500         05  IC-AGG-MTD-BAL              PIC S9(13)V99.
+020600     03  IC-QTD-AGGREGATES       COMP-3.
+020700         05  IC-AGG-QTD-DAYS             PIC S9(3).
+020800         05  IC-AGG-QTD-UNERN-REB        PIC S9(13)V99.
+020900         05  IC-AGG-QTD-BAL              PIC S9(13)V99.
+021000     03  IC-YTD-AGGREGATES       COMP-3.
+021100         05  IC-AGG-YTD-DAYS             PIC S9(3).
+021200         05  IC-AGG-YTD-UNERN-REB        PIC S9(13)V99.
+021300         05  IC-AGG-YTD-BAL              PIC S9(13)V99.
+021400     03  IC-LTD-AGGREGATES       COMP-3.
+021500         05  IC-AGG-LTD-DAYS             PIC S9(5).
+021600         05  IC-AGG-LTD-UNERN-REB        PIC S9(13)V99.
+021700         05  IC-AGG-LTD-BAL              PIC S9(13)V99.
+021800     03  IC-PREVIOUS-YIELD-REPORTED  COMP-3.
+021900         05  IC-PREV-YLD-MTD             PIC S9V9(6).
+022000         05  IC-PREV-YLD-QTD             PIC S9V9(6).
+022100         05  IC-PREV-YLD-YTD             PIC S9V9(6).
+022200         05  IC-PREV-YLD-LTD             PIC S9V9(6).
+022300     03  IC-MTD-AGGREGATES-DR    COMP-3.
+022400         05  IC-AGG-MTD-DAYS-DR          PIC S9(3).
+022500         05  IC-AGG-MTD-UNERN-REB-DR     PIC S9(13)V99.
+022600         05  IC-AGG-MTD-BAL-DR           PIC S9(13)V99.
+022700     03  IC-YTD-AGGREGATES-DR    COMP-3.
+022800         05  IC-AGG-YTD-DAYS-DR          PIC S9(3).
+022900         05  IC-AGG-YTD-UNERN-REB-DR     PIC S9(13)V99.
+023000         05  IC-AGG-YTD-BAL-DR           PIC S9(13)V99.
+023100     03  IC-LTD-AGGREGATES-DR    COMP-3.
+023200         05  IC-AGG-LTD-DAYS-DR          PIC S9(5).
+023300         05  IC-AGG-LTD-UNERN-REB-DR     PIC S9(13)V99.
+023400         05  IC-AGG-LTD-BAL-DR           PIC S9(13)V99.
+023500     03  IC-PREVIOUS-YIELD-REPORTED-DR COMP-3.
+023600         05  IC-PREV-YLD-MTD-DR          PIC S9V9(6).
+023700         05  IC-PREV-YLD-YTD-DR          PIC S9V9(6).
+023800         05  IC-PREV-YLD-LTD-DR          PIC S9V9(6).
+023900     03  IC-PAYOFFS              COMP-3.
+024000         05  IC-PYOF-CUR                 PIC S9(7)V99.
+024100         05  IC-PYOF-PROJ                PIC S9(7)V99.
+024200         05  IC-PYOF-NEXT                PIC S9(7)V99.
+024300     03  IC-PER-DIEM                     PIC S9(3)V9(4)  COMP-3.
+024400     03  IC-HISTORICAL-DATES.
+024500         05  IC-LOAN-ENTRY-DATE.
+024600             07  IC-ENTRY-MO             PIC XX.
+024700             07  IC-ENTRY-DA             PIC XX.
+024800             07  IC-ENTRY-YR             PIC XX.
+024900         05  IC-LAST-BAL-CHANGE-DATE.
+025000             07  IC-LST-BAL-MO           PIC XX.
+025100             07  IC-LST-BAL-DA           PIC XX.
+025200             07  IC-LST-BAL-YR           PIC XX.
+025300         05  IC-PRE-POST-LST-BAL-DATE.
+025400             07  IC-PPL-BAL-MO           PIC XX.
+025500             07  IC-PPL-BAL-DA           PIC XX.
+025600             07  IC-PPL-BAL-YR           PIC XX.
+025700         05  IC-ADVANCE-DATE.
+025800             07  IC-AD-MO                PIC XX.
+025900             07  IC-AD-DA                PIC XX.
+026000             07  IC-AD-YR                PIC XX.
+026100         05  IC-STOPACC-DATE.
+026200             07  IC-STAC-MO              PIC XX.
+026300             07  IC-STAC-DA              PIC XX.
+026400             07  IC-STAC-YR              PIC XX.
+026500         05  IC-REPO-DATE.
+026600             07  IC-REPO-MO              PIC XX.
+026700             07  IC-REPO-DA              PIC XX.
+026800             07  IC-REPO-YR              PIC XX.
+026900         05  IC-EXTENSION-DATE.
+027000             07  IC-EXT-MO               PIC XX.
+027100             07  IC-EXT-DA               PIC XX.
+027200             07  IC-EXT-YR               PIC XX.
+027300         05  IC-MATURITY-DATE.
+027400             07  IC-MA-MO                PIC XX.
+027500             07  IC-MA-DA                PIC XX.
+027600             07  IC-MA-YR                PIC XX.
+027700         05  IC-ORIG-MATURITY-DATE.
+027800             07  IC-ORIG-MA-MO           PIC XX.
+027900             07  IC-ORIG-MA-DA           PIC XX.
+028000             07  IC-ORIG-MA-YR           PIC XX.
+028100         05  IC-CLOSED-DATE.
+028200             07  IC-CLOSED-MO            PIC XX.
+028300             07  IC-CLOSED-DA            PIC XX.
+028400             07  IC-CLOSED-YR            PIC XX.
+028500         05  IC-REACTIVATED-DATE.
+028600             07  IC-REACTV-MO            PIC XX.
+028700             07  IC-REACTV-DA            PIC XX.
+028800             07  IC-REACTV-YR            PIC XX.
+028900         05  IC-TSD-DATE1.
+029000             07  IC-TSD-MO1              PIC XX.
+029100             07  IC-TSD-DA1              PIC XX.
+029200             07  IC-TSD-YR1              PIC XX.
+029300         05  IC-TSD-DATE2.
+029400             07  IC-TSD-MO2              PIC XX.
+029500             07  IC-TSD-DA2              PIC XX.
+029600             07  IC-TSD-YR2              PIC XX.
+029700         05  IC-TSD-DATE3.
+029800             07  IC-TSD-MO3              PIC XX.
+029900             07  IC-TSD-DA3              PIC XX.
+030000             07  IC-TSD-YR3              PIC XX.
+030100         05  IC-TSD-DATE4.
+030200             07  IC-TSD-MO4              PIC XX.
+030300             07  IC-TSD-DA4              PIC XX.
+030400             07  IC-TSD-YR4              PIC XX.
+030500         05  IC-TSD-DATE5.
+030600             07  IC-TSD-MO5              PIC XX.
+030700             07  IC-TSD-DA5              PIC XX.
+030800             07  IC-TSD-YR5              PIC XX.
+030810         05  IC-LAST-REPRICING-DATE REDEFINES IC-TSD-DATE5         IC099
+030820                                         PIC X(6).                 IC099
+030900         05  IC-TSD-DATE6.
+031000             07  IC-TSD-MO6              PIC XX.
+031100             07  IC-TSD-DA6              PIC XX.
+031200             07  IC-TSD-YR6              PIC XX.
+031210         05  IC-EXCESSIVE-FINAL-PAYMENT  REDEFINES IC-TSD-DATE6    IC099
+031220                                         PIC S9(9)V99 COMP-3.      IC099
+031300     03  IC-PAYMENT-HISTORY      COMP-3.
+031400         05  IC-ORIG-NO-PYMTS            PIC S9(3).
+031500         05  IC-NO-PYMTS-MADE            PIC S9(3).
+031600         05  IC-AMT-CMKR-PAID            PIC S9(7)V99.
+031700     03  IC-FIRST-CONT-DUE-DATE.
+031800         05  IC-1ST-CONT-MO              PIC XX.
+031900         05  IC-1ST-CONT-DA              PIC XX.
+032000         05  IC-1ST-CONT-YR              PIC XX.
+032100     03  IC-NEXT-INSTALLMENT.
+032200         05  IC-NE-DUE-AMT               PIC S9(7)V99    COMP-3.
+032300         05  IC-NE-DUE-DATE.
+032400             07  IC-NE-MO                PIC XX.
+032500             07  IC-NE-DA                PIC XX.
+032600             07  IC-NE-YR                PIC XX.
+032700         05  IC-CLNDR-DUE-DATE.
+032800             07  IC-CLNDR-MO             PIC XX.
+032900             07  IC-CLNDR-DA             PIC XX.
+033000             07  IC-CLNDR-YR             PIC XX.
+033100         05  IC-PAR-PYMT-BAL             PIC S9(7)V99    COMP-3.
+033200     03  IC-LAST-PAYMENT.
+033300         05  IC-LST-PYMT-SYS-CODE        PIC XX.
+033400         05  IC-LST-PYMT-USR-CODE        PIC XXX.
+033500         05  IC-LST-PYMT-AMT             PIC S9(7)V99    COMP-3.
+033600         05  IC-LST-PYMT-DATE.
+033700             07  IC-LST-PYMT-MO          PIC XX.
+033800             07  IC-LST-PYMT-DA          PIC XX.
+033900             07  IC-LST-PYMT-YR          PIC XX.
+034000     03  IC-LAST-TRANSACTION.
+034100         05  IC-LST-TRAN-SYS-CODE        PIC XX.
+034200         05  IC-LST-TRAN-USR-CODE        PIC XXX.
+034300         05  IC-LST-TRAN-AMT             PIC S9(7)V99    COMP-3.
+034400         05  IC-LST-TRAN-DATE.
+034500             07  IC-LST-TRAN-MO          PIC XX.
+034600             07  IC-LST-TRAN-DA          PIC XX.
+034700             07  IC-LST-TRAN-YR          PIC XX.
+034800     03  IC-LAST-MAINT-DATE.
+034900         05  IC-LST-MNT-MO               PIC XX.
+035000         05  IC-LST-MNT-DA               PIC XX.
+035100         05  IC-LST-MNT-YR               PIC XX.
+035200     03  IC-DAYS-PREV-LATE               PIC S9(3)       COMP-3.
+035300     03  IC-DAYS-CUR-LATE                PIC S9(3)       COMP-3.
+035400     03  IC-CREDIT-HISTORY       COMP-3.
+035500         05  IC-CR-HIST-CTRS.
+035600             07  IC-CR-HS-G              PIC S9(3).
+035700             07  IC-CR-HS-H              PIC S9(3).
+035800             07  IC-CR-HS-I              PIC S9(3).
+035900             07  IC-CR-HS-J              PIC S9(3).
+036000             07  IC-CR-HS-K              PIC S9(3).
+036100             07  IC-CR-HS-L              PIC S9(3).
+036200         05  FILLER REDEFINES IC-CR-HIST-CTRS.
+036300             07  IC-CR-HS-CTR            PIC S9(3) OCCURS 6 TIMES.
+036400         05  IC-PAST-DUE-AMT             PIC S9(7)V99.
+036500     03  IC-SI-NOTICE-HISTORY.
+036600         05  IC-SI-NOTCE-STATUS          PIC X.
+036700         05  IC-SI-NOTCE-DLNQ-IND        PIC X.
+036800         05  IC-SI-NOTCE-SENT            PIC X.
+036900     03  IC-BILL-INFO.
+037000         05  IC-BL-OPT                   PIC X.
+037100         05  IC-BL-UNIT                  PIC X.
+037200         05  IC-BL-NO-UNITS              PIC S9(3)       COMP-3.
+037300         05  IC-NEXT-BILL-DATE.
+037400             07  IC-BL-NE-MO             PIC XX.
+037500             07  IC-BL-NE-DA             PIC XX.
+037600             07  IC-BL-NE-YR             PIC XX.
+037700         05  IC-BL-ANNV-DA               PIC XX.
+037800     03  IC-EXTENSIONS-EARNINGS.
+037900         05  IC-EXT-OPT                  PIC X.
+038000         05  IC-EXT-UNERN                PIC S9(7)V99    COMP-3.
+038100         05  IC-EXT-ERN                  PIC S9(7)V99    COMP-3.
+038200         05  IC-EXT-RND                  PIC SV9(7)      COMP-3.
+038300         05  IC-EXT-REBATE OCCURS 3 TIMES.
+038400             07  IC-EXT-ERN-RATE         PIC S9(2)V9(5)  COMP-3.
+038500             07  IC-EXT-ERN-THRU-DATE.
+038600                 09  IC-EXT-ERN-THRU-MO  PIC XX.
+038700                 09  IC-EXT-ERN-THRU-DA  PIC XX.
+038800                 09  IC-EXT-ERN-THRU-YR  PIC XX.
+038900     03  IC-CREDIT-EXTENSIONS    COMP-3.
+039000         05  IC-NO-EXTS                  PIC S9(3).
+039100         05  IC-MO-EXT                   PIC S9(3).
+039200         05  IC-TRAN-MAX-EXT             PIC S9(3).
+039300         05  IC-LOAN-MAX-EXT             PIC S9(3).
+039400     03  IC-CREDIT-INFORMATION.
+039500         05  IC-DOWN-PYMT                PIC X.
+039600         05  IC-DOWN-PYMT-AMT            PIC S9(7)V99    COMP-3.
+039700         05  IC-HOME-OWNER               PIC X.
+039800         05  IC-CR-SCORE                 PIC X(5).
+039900         05  IC-CLASS-CODE               PIC X.
+040000         05  IC-LOAN-CLASSIFICATION      PIC XX.
+040100     03  IC-DEALER.
+040200         05  IC-DE-OPT                   PIC X.
+040300         05  IC-DE-NO                    PIC X(4).
+040400         05  IC-DE-LIAB                  PIC X.
+040500         05  IC-DE-HOLD-AMT              PIC S9(7)V99    COMP-3.
+040600         05  IC-DE-RES-PCT               PIC SV9(5)      COMP-3.
+040700         05  IC-DE-RES-AMT               PIC S9(7)V99    COMP-3.
+040800         05  IC-DE-RES-CODE              PIC X.
+040900         05  IC-DE-MTD-ERN               PIC S9(7)V99    COMP-3.
+041000         05  IC-DE-QTD-ERN               PIC S9(7)V99    COMP-3.
+041100         05  IC-DE-YTD-ERN               PIC S9(7)V99    COMP-3.
+041200         05  IC-DE-YTD-ERN-LAST-YR       PIC S9(7)V99    COMP-3.
+041300     03  IC-CENSUS-TRACT.
+041400         05  IC-CT-SMSA-NO               PIC X(6).
+041500         05  IC-CT-PURCH                 PIC X.
+041600         05  IC-CT-MTG-TYPE              PIC X.
+041700         05  IC-CT-RPT-BY-CT             PIC X.
+041800         05  IC-CT-COUNTRY-CODE          PIC X(6).
+041900         05  IC-CT-STATE                 PIC XX.
+042000         05  IC-CT-COUNTY                PIC XXX.
+042100         05  IC-CT-TRACT-NO              PIC X(8).
+042200     03  IC-TIMES-REWRITE                PIC 99.
+042300     03  IC-COLLATERAL.
+042400         05  IC-COLLAT-CODE              PIC X(3).
+042500         05  IC-COLLAT-REF-NO            PIC X(30).
+042600         05  IC-COLLAT-DESC              PIC X(30).
+042700         05  IC-COLLAT-VALUE             PIC S9(7)V99    COMP-3.
+042800         05  IC-COLLAT-DATE.
+042900             07  IC-COLLAT-MO            PIC XX.
+043000             07  IC-COLLAT-DA            PIC XX.
+043100             07  IC-COLLAT-YR            PIC XX.
+043200         05  IC-COLLAT-NEXT-DATE.
+043300             07  IC-COLLAT-NEXT-MO       PIC XX.
+043400             07  IC-COLLAT-NEXT-DA       PIC XX.
+043500             07  IC-COLLAT-NEXT-YR       PIC XX.
+043600     03  IC-ADDON-ERN-DEL                PIC S9(7)V99    COMP-3.
+043700     03  IC-LAST-PYMT-SPLIT      COMP-3.
+043800         05  IC-LST-PYMT-BAL             PIC S9(7)V99.
+043900         05  IC-LST-PYMT-FEE             PIC S9(7)V99.
+044000         05  IC-LST-PYMT-LA-CHG          PIC S9(7)V99.
+044100     03  IC-PAID-NOT-RPTD                PIC S9(7)V99    COMP-3.
+044200     03  IC-STUDENT-LOAN-INFO.
+044300         05  IC-ST-LN-STATUS             PIC X.                   IC043
+044400         05  IC-ST-LN-USER-STATUS        PIC XX.                  IC043
+044500         05  IC-ST-LN-STAT-EFF-DT.                                IC045.01
+044600             07  IC-ST-LN-STAT-EFF-MO    PIC XX.                  IC045.01
+044700             07  IC-ST-LN-STAT-EFF-DA    PIC XX.                  IC045.01
+044800             07  IC-ST-LN-STAT-EFF-YR    PIC XX.                  IC045.01
+044900         05  IC-ST-LN-DISBURSEMENT-DATA.                          IC045.01
+045000             07  IC-ST-LN-DISB-AMT       PIC S9(7)V99    COMP-3.  IC043
+045100             07  IC-ST-LN-DISB-DATE.                              IC043
+045200                 09  IC-ST-LN-DISB-MO    PIC XX.                  IC043
+045300                 09  IC-ST-LN-DISB-DA    PIC XX.                  IC043
+045400                 09  IC-ST-LN-DISB-YR    PIC XX.                  IC043
+045500             07  IC-ST-LN-DISB-CTR       PIC S9          COMP-3.  IC044
+045600         05  IC-ST-LN-PREV-STATUS        PIC X.                   IC044
+045700         05  IC-ST-LN-NBR-NOTES          PIC S9(3)       COMP-3.  IC043
+045800         05  IC-ST-LN-AVG-Q-BAL          PIC S9(7)V99    COMP-3.  IC043
+045900         05  IC-ST-LN-DEFER-DATA.                                 IC045.01
+046000             07  IC-ST-LN-DEFER-AMOUNT   PIC S9(7)V99    COMP-3.  IC045.01
+046100             07  IC-ST-LN-DEFER-END-DATE.                         IC045.01
+046200                 09  IC-ST-LN-DEFER-END-MO   PIC XX.              IC045.01
+046300                 09  IC-ST-LN-DEFER-END-DA   PIC XX.              IC045.01
+046400                 09  IC-ST-LN-DEFER-END-YR   PIC XX.              IC045.01
+046500             07  IC-ST-LN-DEFER-REASON   PIC XX.                  IC045.01
+046600         05  IC-ST-LN-GUARAN-AGENCY      PIC X(4).                IC043
+046700         05  IC-ST-LN-GRACE-END-DATE.                             IC043
+046800             07  IC-ST-LN-GRACE-END-MO   PIC XX.                  IC043
+046900             07  IC-ST-LN-GRACE-END-DA   PIC XX.                  IC043
+047000             07  IC-ST-LN-GRACE-END-YR   PIC XX.                  IC043
+047100         05  IC-ST-LN-EDUC-INST          PIC XXX.                 IC043
+047200         05  IC-ST-LN-AMOUNTS    COMP-3.                          IC045.01
+047300             07  IC-ST-LN-APPROVAL-AMT       PIC S9(7)V99.        IC045.01
+047400             07  IC-ST-LN-AGGREGATE-QTD-BAL  PIC S9(9)V99.        IC045.01
+047500             07  IC-ST-LN-GOV-INT-DUE        PIC S9(7)V99.        IC045.01
+047600             07  IC-ST-LN-AVG-Q-BAL-LAST     PIC S9(7)V99.        IC045.01
+047700             07  IC-ST-LN-QTD-DISB           PIC S9(7)V99.        IC045.01
+047800             07  IC-ST-LN-QTD-OTH-PRIN       PIC S9(7)V99.        IC045.01
+047900             07  IC-ST-LN-PREV-QTR-END-BAL   PIC S9(7)V99.        IC045.01
+048000             07  IC-ST-LN-PREV-QTR-DISB-ADJ  PIC S9(7)V99.        IC045.01
+048100             07  IC-ST-LN-PRI-QTR-DISB-ADJ   PIC S9(7)V99.        IC045.01
+048200             07  IC-ST-LN-PRI-QTR-INT-ADJ    PIC S9(7)V99.        IC045.01
+048300         05  IC-ST-LN-CODES.                                      IC045.01
+048400             07  IC-ST-LN-799-TYP.                                IC045.01
+048500                 09  IC-ST-LN-799-CL     PIC X.                   IC045.01
+048600                 09  IC-ST-LN-799-PGM    PIC X.                   IC045.01
+048700             07  IC-ST-LN-INT-SBDY       PIC X.                   IC045.01
+048800             07  IC-ST-LN-SPEC-ALLOW     PIC X.                   IC045.01
+048900             07  IC-ST-LN-FUND-SRC       PIC X.                   IC045.01
+049000         05  IC-ST-LN-RATES      COMP-3.                          IC045.01
+049100             07  IC-ST-LN-APPL-RATE      PIC S9V9(6).             030I002
+049200             07  IC-ST-LN-ORIG-FEE-RATE  PIC SV9(5).              IC045.01
+049300             07  IC-ST-LN-GUAR-FEE-RATE  PIC SV9(5).              IC045.01
+049400         05  IC-ST-LN-PURCHASE-DATA.                              IC045.01
+049500             07  IC-ST-LN-PUR-AMT        PIC S9(7)V99    COMP-3.  IC045.01
+049600             07  IC-ST-LN-PUR-DT.                                 IC045.01
+049700                 09  IC-ST-LN-PUR-MO     PIC XX.                  IC045.01
+049800                 09  IC-ST-LN-PUR-DA     PIC XX.                  IC045.01
+049900                 09  IC-ST-LN-PUR-YR     PIC XX.                  IC045.01
+050000             07  IC-ST-LN-PUR-FROM       PIC XXX.                 IC045.01
+050100             07  IC-ST-LN-PUR-FEE-IND    PIC X.                   IC045.01
+050200         05  IC-ST-LN-SOLD-DATA.                                  IC045.01
+050300             07  IC-ST-LN-SLD-AMT        PIC S9(7)V99    COMP-3.  IC045.01
+050400             07  IC-ST-LN-SLD-DT.                                 IC045.01
+050500                 09  IC-ST-LN-SLD-MO     PIC XX.                  IC045.01
+050600                 09  IC-ST-LN-SLD-DA     PIC XX.                  IC045.01
+050700                 09  IC-ST-LN-SLD-YR     PIC XX.                  IC045.01
+050800             07  IC-ST-LN-SLD-TO         PIC XXX.                 IC045.01
+050900             07  IC-ST-LN-SLD-FEE-IND    PIC X.                   IC045.01
+051000         05  IC-ST-LN-CLAIM-DATA.                                 IC045.01
+051100             07  IC-ST-LN-CLAIM-AMT      PIC S9(7)V99    COMP-3.  IC045.01
+051200             07  IC-ST-LN-CLAIM-STAT-DT.                          IC045.01
+051300                 09  IC-ST-LN-CLAIM-STAT-MO  PIC XX.              IC045.01
+051400                 09  IC-ST-LN-CLAIM-STAT-DA  PIC XX.              IC045.01
+051500                 09  IC-ST-LN-CLAIM-STAT-YR  PIC XX.              IC045.01
+051600             07  IC-ST-LN-CLAIM-STAT     PIC X.                   IC045.01
+051700         05  IC-ST-LN-FORBEARANCE-DATA.                           IC045.01
+051800             07  IC-ST-LN-FORB-AMOUNT    PIC S9(7)V99    COMP-3.  IC045.01
+051900             07  IC-ST-LN-FORB-END-DT.                            IC045.01
+052000                 09  IC-ST-LN-FORB-END-MO   PIC XX.               IC045.01
+052100                 09  IC-ST-LN-FORB-END-DA   PIC XX.               IC045.01
+052200                 09  IC-ST-LN-FORB-END-YR   PIC XX.               IC045.01
+052300             07  IC-ST-LN-FORB-REASON    PIC XXX.                 IC045.01
+052400         05  IC-ST-LN-GRAD-DATE.                                  IC045.01
+052500             07  IC-ST-LN-GRAD-MO        PIC XX.                  IC045.01
+052600             07  IC-ST-LN-GRAD-DA        PIC XX.                  IC045.01
+052700             07  IC-ST-LN-GRAD-YR        PIC XX.                  IC045.01
+052800     03  IC-FHLBB-CODE                   PIC X(3).                IC044
+052900     03  IC-AVG-CUR-BAL-LAST             PIC S9(7)V99    COMP-3.  IC044
+053000     03  IC-TSD-AREA.                                             NL002010
+053004         05  FILLER                      PIC X(57).               NL002010
+053008     03  IC-INTERNATIONAL.                                        NL002010
+053012         05  IC-CAP-INT-FLAG             PIC X.                   NL002009
+053016         05  IC-CAP-INT-GRACE-DAYS       PIC S9(3)       COMP-3.  NL002009
+053020         05  IC-CAP-INT-YTD              PIC S9(7)V99    COMP-3.  NL002009
+053024         05  IC-CAP-INT-NTD              PIC S9(7)V99    COMP-3.  NL002009
+053028         05  IC-CAP-INT-TODAY            PIC S9(7)V99    COMP-3.  NL002009
+053032         05  IC-CAP-INT-DATE.                                     NL002009
+053036              07  IC-CAP-INT-MO          PIC XX.                  NL002009
+053040              07  IC-CAP-INT-DA          PIC XX.                  NL002009
+053044              07  IC-CAP-INT-YR          PIC XX.                  NL002009
+053100     03  IC-USER-AREA.
+053200         05  IC-MANAGEMENT-CENTER-CODES.
+053300*            07  IC-MGMT-CNTR-CODE       PIC XXX OCCURS 4 TIMES.  IC5514
+053302             07  IC-MGMT-CNTR-CODE       PIC 999 OCCURS 4 TIMES.  IC5514
+053400         05  IC-MSG-CODE                 PIC XX.
+053500         05  IC-FEE-INIT1                PIC S9(7)V99    COMP-3.
+053600         05  IC-FEE-INIT2                PIC S9(7)V99    COMP-3.
+053700*        05  IC-FEE-INIT3                PIC S9(7)V99    COMP-3.  IC5514
+053702         05  IC-FEE-INIT3                PIC S99V9(7)    COMP-3.  IC5514
+053800         05  IC-USER-FLAGS.
+053900             07  IC-USER-FLAG1           PIC X.
+054000             07  IC-USER-FLAG2           PIC X.
+054100             07  IC-USER-FLAG3           PIC X.
+054200             07  IC-USER-FLAG4           PIC X.
+054300             07  IC-USER-FLAG5           PIC X.
+054350         05  IC-GROUPED-USER-FLAGS.                               IC013
+054400             07  IC-USER-FLAG6           PIC X.
+054500             07  IC-USER-FLAG7           PIC X.
+054600             07  IC-USER-FLAG8           PIC X.
+054610         05  IC-MACRO-PRODUCT-TYPE REDEFINES                      IC013
+054620             IC-GROUPED-USER-FLAGS       PIC 9(3).                IC013
+054700         05  IC-USER-AMOUNTS     COMP-3.
+054800             07  IC-USER-AMT1            PIC S9(7)V99.
+054900             07  IC-USER-AMT2            PIC S9(7)V99.
+055000             07  IC-USER-AMT3            PIC S9(7)V99.
+055100*            07  IC-USER-AMT4            PIC S9(7)V99.            IC5514
+055102             07  IC-USER-AMT4            PIC SV9(9).              IC5514
+055200             07  IC-USER-AMT5            PIC S9(13)V99.
+055300             07  IC-USER-AMT6            PIC S9(13)V99.
+055400             07  IC-USER-AMT7            PIC S9(13)V99.
+055500         05  FILLER                      PIC X(20).
+055600     03  IC-TRAILERS.
+055700         05  IC-TRL-NO-NA-TRLS           PIC S9(3)      COMP-3.
+055800         05  IC-TRL-DA                   PIC X.
+055900         05  IC-TRL-PS                   PIC X.
+056000         05  IC-TRL-AF                   PIC X.
+056100         05  IC-TRL-XF                   PIC X.
+056200         05  IC-TRL-PR                   PIC X.
+056300         05  IC-TRL-FEE                  PIC X.
+056400     03  IC-NAME-AND-ADDRESS-TRAILER   OCCURS 4 TIMES.
+056500       04  IC-NA-TRL-ID                  PIC XX.
+056600       04  IC-NA-TRL-REM.
+056700         05  IC-NA-TRL-TYPE              PIC X.
+056800         05  IC-NA-LIAB                  PIC X.
+056900         05  IC-NA-NOTCE                 PIC X.
+057000         05  IC-NA-CUST-NO               PIC X(10).
+057100         05  IC-NA-OFFICE-PHONE.
+057200             07  IC-NA-OFF-TEL-AREA      PIC XXX.
+057300             07  IC-NA-OFF-TEL-NO.
+057400                 09  IC-NA-OTN-PRE       PIC XXX.
+057500                 09  IC-NA-OTN-NO        PIC X(8).                NL860005
+057600         05  IC-NA-HOME-PHONE.
+057700             07  IC-NA-HOM-TEL-AREA      PIC XXX.
+057800             07  IC-NA-HOM-TEL-NO.
+057900                 09  IC-NA-HTN-PRE       PIC XXX.
+058000                 09  IC-NA-HTN-NO        PIC X(8).                NL860005
+058100         05  IC-NA-SOCIAL-SEC-NO.
+058200             07  IC-NA-SS-PRE            PIC X.
+058300             07  IC-NA-SS-NO             PIC X(9).
+058400             07  IC-NA-SS-SUF            PIC X.
+058500         05  IC-NA-MARITAL-STATUS        PIC X.
+058600         05  IC-NA-SEX                   PIC X.
+058700         05  IC-NA-RACE                  PIC X.
+058800         05  IC-NA-DATE-BIRTH.
+058900             07  IC-NA-DOB-MO            PIC XX.
+059000             07  IC-NA-DOB-DA            PIC XX.
+059100             07  IC-NA-DOB-YR            PIC XX.
+059200         05  IC-NA-FOREIGN               PIC X.                   IC043
+059300         05  FILLER                      PIC X(4).                IC043
+059400         05  IC-NA-NAMES-ADDRESSES.
+059500             07  IC-NA-NO-LINE-SEGS      PIC S9          COMP-3.
+059600             07  IC-NA-LINE-SEGMENT OCCURS 6 TIMES.               NL860004
+059700                 09  IC-NA-LINE-TYPE     PIC X.
+059800                 09  IC-NA-LINE-NO       PIC X.
+059900                 09  IC-NA-LINE.
+060000                     11  IC-NA-ADDR      PIC X(30).
+060100                     11  IC-NA-ZIP       PIC X(10).
+060200     03  IC-DISCOUNT-ACCRUAL-TRAILER.
+060300         05  IC-DA-TRL-ID                PIC XX.
+060400         05  IC-DA-NO-SEGS               PIC S9(3)       COMP-3.
+060500         05  IC-DA-SEGMENT OCCURS 9 TIMES.
+060600             07  IC-DA-TYPE.
+060700                 09  IC-DA-TYP9          PIC 9.
+060800             07  IC-DA-CALC-CODE         PIC X.
+060900             07  IC-DA-TERM      COMP-3.
+061000                 09  IC-DA-TE-ORIG       PIC S9(5).
+061100                 09  IC-DA-TE-REM        PIC S9(5).
+061200             07  IC-DA-ORIG-UNERN        PIC S9(7)V99    COMP-3.
+061300             07  IC-DA-CUR-UNERN         PIC S9(7)V99    COMP-3.
+061400             07  IC-DA-ACC-ERN           PIC S9(7)V99    COMP-3.
+061500             07  IC-DA-ACC-ERN-TODAY     PIC S9(7)V99    COMP-3.
+061600             07  IC-DA-SIMPLE-INTEREST COMP-3.
+061700                 09  IC-DA-SI-RND        PIC SV9(7).
+061800                 09  IC-DA-SI-COLL       PIC S9(7)V99.
+061900                 09  IC-DA-SI-DUE        PIC S9(7)V99.
+062000                 09  IC-DA-SI-ERN-RATE   PIC S9V9(6).             NL860002
+062100                 09  IC-DA-AO-ACTUARIAL-RATE REDEFINES
+062200                     IC-DA-SI-ERN-RATE   PIC S9V9(6).             NL860002
+062300             07  IC-DA-ADD-ON.
+062400                 09  IC-DA-AO-NXT-PYOF-FACT
+062500                                         PIC S9(7)V99    COMP-3.
+062600                 09  IC-DA-AO-EARN-DAILY-FLAG PIC X.
+062700                 09  IC-DA-AO-CYCLE-ORIG-EARN
+062800                                         PIC S9(7)V99    COMP-3.
+062900                 09  IC-DA-AO-CYCLE-CUR-EARN
+063000                                         PIC S9(7)V99    COMP-3.
+063100                 09  IC-DA-AO-CYCLE-DAYS-REM
+063200                                         PIC S9(3)       COMP-3.
+063300                 09  IC-DA-AO-PRJ-PYOF-FACT
+063400                                         PIC S9(7)V99    COMP-3.
+063500                 09  IC-DA-AO-CLNDR-REM-TERM
+063600                                         PIC S9(3)       COMP-3.
+063700             07  IC-DA-INSURANCE.
+063800                 09  IC-DA-INS-POL-FILED PIC X.
+063900                 09  IC-DA-INS-TICKLER   PIC X.
+064000                 09  IC-DA-INS-TYPE      PIC X.
+064100                 09  IC-DA-INS-CMPNY     PIC XXX.
+064200                 09  IC-DA-INS-EXPR-DATE.
+064300                     11  IC-DA-INS-MO    PIC XX.
+064400                     11  IC-DA-INS-DA    PIC XX.
+064500                     11  IC-DA-INS-YR    PIC XX.
+064600             07  IC-DA-PRIOR-ACCRUAL-DATE.
+064700                 09  IC-DA-PRIOR-ACC-MO  PIC XX.
+064800                 09  IC-DA-PRIOR-ACC-DA  PIC XX.
+064900                 09  IC-DA-PRIOR-ACC-YR  PIC XX.
+065000             07  IC-DA-NEXT-ACCRUAL-DATE.
+065100                 09  IC-DA-NEXT-ACC-MO   PIC XX.
+065200                 09  IC-DA-NEXT-ACC-DA   PIC XX.
+065300                 09  IC-DA-NEXT-ACC-YR   PIC XX.
+065400             07  IC-DA-ERN-DA            PIC XX.
+065500             07  IC-DA-ADD-DATE.
+065600                 09  IC-DA-ADD-MO        PIC XX.
+065700                 09  IC-DA-ADD-DA        PIC XX.
+065800                 09  IC-DA-ADD-YR        PIC XX.
+065900             07  FILLER                  PIC X(6).
+066000     03  IC-PAYMENT-SCHEDULE-TRAILER.
+066100       04  IC-PS-TRL-ID                  PIC XX.
+066200       04  IC-PS-TRL-REM.
+066300         05  IC-PS-NO-SCHD-SEGS          PIC S9(3)       COMP-3.
+066400         05  IC-PS-REVIEW-DATE.
+066500             07  IC-PS-REVIEW-MO         PIC XX.
+066600             07  IC-PS-REVIEW-DA         PIC XX.
+066700             07  IC-PS-REVIEW-YR         PIC XX.
+066800         05  IC-PS-PYMT-MET              PIC XX.
+066900         05  IC-PS-PYMT-SCHD-SEGMENT OCCURS 7 TIMES.
+067000             07  IC-PS-SCHD-TYPE         PIC X.
+067100             07  IC-PS-UNIT              PIC X.
+067200             07  IC-PS-NO-UNITS          PIC S9(3)       COMP-3.
+067300             07  IC-PS-NO-PYMTS          PIC S9(3)       COMP-3.
+067400             07  IC-PS-NO-PYMTS-MADE     PIC S9(3)       COMP-3.
+067500             07  IC-PS-START-DATE.
+067600                 09  IC-PS-START-MO      PIC XX.
+067700                 09  IC-PS-START-DA      PIC XX.
+067800                 09  IC-PS-START-YR      PIC XX.
+067900             07  IC-PS-PYMT-AMT          PIC S9(7)V99    COMP-3.
+068000             07  IC-PS-PYMT-DA           PIC XX.
+068100             07  FILLER                  PIC X(6).
+068200     03  IC-AFFILIATE-ACCOUNT-TRAILER.
+068300         05  IC-AF-TRL-ID                PIC XX.
+068400         05  IC-AF-NO-SEGS               PIC S9(3)       COMP-3.
+068500         05  IC-AF-SEGMENT OCCURS 3 TIMES.
+068600             07  IC-AF-SYSTEM            PIC XX.
+068700             07  IC-AF-USAGE             PIC X.
+068800             07  IC-AF-ACCT-NO           PIC X(31).
+068900             07  FILLER                  PIC X(5).
+069000     03  IC-TRANSFER-TRAILER.
+069100         05  IC-XFER-TRL-ID              PIC XX.
+069200         05  IC-XFER-CTL2-NO             PIC XXX.
+069300         05  IC-XFER-CTL3-NO             PIC XXX.
+069400         05  IC-XFER-LOAN-NO.
+069500             07  IC-XFER-CTL4            PIC XX.
+069600             07  IC-XFER-LOAN            PIC X(8).
+069700             07  IC-XFER-LOAN-SUF        PIC XX.
+069800         05  FILLER                      PIC X(5).
+069900     03  IC-PRIME-RATE-TRAILER.
+070000         05  IC-PR-TRL-ID                PIC XX.
+070100       04  IC-PRIME-RATE-INFORMATION.
+070200         05  IC-PR-TYPE-FLAG             PIC X.
+070300         05  IC-PR-ORIG-RATE             PIC S9V9(6)     COMP-3.  NL860002
+070400         05  IC-PR-PRIOR-RATE            PIC S9V9(6)     COMP-3.  NL860002
+070500         05  IC-PR-NOTICE                PIC X.
+070600         05  IC-PR-EFF-DATE-CUR.
+070700             07  IC-PR-CUR-MO            PIC XX.
+070800             07  IC-PR-CUR-DA            PIC XX.
+070900             07  IC-PR-CUR-YR            PIC XX.
+071000         05  IC-PR-NEXT-DATE.
+071100             07  IC-PR-NEXT-MO           PIC XX.
+071200             07  IC-PR-NEXT-DA           PIC XX.
+071300             07  IC-PR-NEXT-YR           PIC XX.
+071400         05  IC-PR-PRIOR-DATE.
+071500             07  IC-PR-PRIOR-MO          PIC XX.
+071600             07  IC-PR-PRIOR-DA          PIC XX.
+071700             07  IC-PR-PRIOR-YR          PIC XX.
+071800         05  IC-PR-TERM                  PIC S9(3)       COMP-3.
+071900         05  IC-PR-TRM-EXP-DT.
+072000             07  IC-PR-TRM-EXP-MO        PIC XX.
+072100             07  IC-PR-TRM-EXP-DA        PIC XX.
+072200             07  IC-PR-TRM-EXP-YR        PIC XX.
+072300         05  IC-PR-TRM-EXP-ANNV-DA       PIC XX.
+072400         05  IC-PR-ADJ-FLAG              PIC X.
+072500         05  IC-PR-ADJ                   PIC S9V9(4)     COMP-3.
+072600         05  IC-PR-MIN-MAX-FLAG          PIC X.
+072700         05  IC-PR-MIN                   PIC S9V9(6)     COMP-3.  NL860002
+072800         05  IC-PR-MAX                   PIC S9V9(6)     COMP-3.  NL860002
+072900         05  IC-PR-INCR                  PIC X.
+073000         05  IC-PR-NO-DAYS               PIC S9(3)       COMP-3.
+073100         05  IC-PR-NEW-PI                PIC S9(7)V99    COMP-3.
+073200         05  IC-PR-NEW-NO-PYMTS          PIC S9(3)       COMP-3.
+073300         05  IC-PR-NEW-RATE              PIC S9V9(6)     COMP-3.  NL860002
+073400         05  IC-PR-HOLD-NEW-PYMTS        PIC S9(3)       COMP-3.
+073500         05  IC-PR-MIN-ADJ               PIC SV9(7)      COMP-3.
+073600         05  IC-PR-MAX-ADJ               PIC SV9(7)      COMP-3.
+073700         05  IC-PR-ACCM-UNUSE-ADJ        PIC X.
+073800         05  IC-PR-UNUSE-INT-ADJ         PIC SV9(7)      COMP-3.
+073900         05  IC-PR-TERM-PCT              PIC S99V999     COMP-3.
+074000         05  IC-PR-TERM-MAX-PYMT-EXT     PIC S9(3)       COMP-3.
+074100         05  IC-PR-TERM-NO-PYMT-EXT      PIC S9(3)       COMP-3.
+074200         05  IC-PR-BILL                  PIC X.
+074300         05  IC-PR-BILL-MAX-PYMTS        PIC S9(3)       COMP-3.
+074400         05  IC-PR-BILL-NO-DAYS          PIC S9(3)       COMP-3.
+074500         05  IC-PR-PYMT-EFF-DATE.                                 IC045
+074600             07  IC-PR-PYMT-EFF-MO       PIC XX.                  IC045
+074700             07  IC-PR-PYMT-EFF-DA       PIC XX.                  IC045
+074800             07  IC-PR-PYMT-EFF-YR       PIC XX.                  IC045
+074900     03  IC-FEE-TRAILER.
+075000         05  IC-FEE-TRL-ID               PIC XX.
+075100         05  IC-FEE-NO-SEGS              PIC S9(3)       COMP-3.
+075200         05  IC-FEE-SEGMENT OCCURS 2 TIMES.
+075300             07  IC-FEE-ORIG             PIC S9(7)V99    COMP-3.
+075400             07  IC-FEE-UNEARN           PIC S9(7)V99    COMP-3.
+075500             07  IC-FEE-CALC-CODE        PIC X.
+075600             07  IC-FEE-RATE             PIC SV9(7)      COMP-3.
+075700             07  IC-FEE-ORIG-TERM        PIC S9(5)       COMP-3.
+075800             07  IC-FEE-REM-TERM         PIC S9(5)       COMP-3.
+075900             07  IC-FEE-PRIOR-EARN-DATE.
+076000                 09  IC-FEE-PRIOR-MO     PIC XX.
+076100                 09  IC-FEE-PRIOR-DA     PIC XX.
+076200                 09  IC-FEE-PRIOR-YR     PIC XX.
+076300             07  IC-FEE-NEXT-EARN-DATE.
+076400                 09  IC-FEE-NEXT-MO      PIC XX.
+076500                 09  IC-FEE-NEXT-DA      PIC XX.
+076600                 09  IC-FEE-NEXT-YR      PIC XX.
+076700             07  IC-FEE-ANNV-DA          PIC XX.
+076800             07  FILLER                  PIC X(10).

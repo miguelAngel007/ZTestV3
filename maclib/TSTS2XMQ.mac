@@ -1,0 +1,33 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*        TSTS2XMQ - THIS HEADER WILL PRECEDE ALL QUEUE MESSAGES       * 00000300
+*                   THAT ARE CREATED BY XES. DATA FROM THIS HEADER    * 00000400
+*                   IS USED BY TSTSTCPM AND MOVED TO THE TSTSTCP      * 00000500
+*                   COMMAREA IN PREPARATION IN LINKING TO THE         * 00000600
+*                   PROCESSOR PROGRAM IDENTIFIED IN THE HEADER        * 00000700
+*                   (TSTSTCPD, TSTSTCPA, OR TSTSTCPL).                * 00000800
+*                                                                     * 00000900
+*********************************************************************** 00001000
+*---------------------------------------------------------------------* 00001100
+*                  ** HISTORY OF REVISIONS **                         * 00001200
+*                                                                     * 00001300
+* DESCRIPTION                                                 CHNGID  * 00001400
+* __________________________________________________________  _______ * 00001500
+*08/09/06 INITIAL RELEASE GN4911                            *           00001600
+*---------------------------------------------------------------------* 00001700
+TSTSXMQ  DSECT                                                          00001800
+XMQ      DS    0CL120                                                   00001901
+XMQEYEC  DS    CL8         EYECATCHER '**XMQ***'                        00002000
+XMQVERSN DS    CL4         VERSION                                      00002100
+XMQPROG  DS    CL8         PROCESSOR NAME                               00002200
+XMQAGLUW DS    CL1         AGGR TRANS LUW FLAG                          00002300
+*                          I - INDIVIDUAL LUWS                          00002501
+*                          C - COMBINED LUW                             00002601
+XMQCOMPR DS    CL1         COMPRESSION FLAG Y/N                         00002701
+XMQUNCMP DS    CL6         UNCOMPRESSED DATA LENGTH                     00002801
+         DS    CL32        FILLER                                       00002901
+XMQEREYE DS    CL8         ERROR EYECATCHER '**ERROR*' IF ERROR PRESENT 00003001
+XMQERRID DS    CL2         ERROR INDICATOR ASSOCIATED WITH TEXT         00003101
+XMQERRTX DS    CL50        ERROR TEXT                                   00003201
+XMQLEN   EQU   *-XMQ       LENGTH OF HEADER                             00004001

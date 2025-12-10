@@ -1,0 +1,614 @@
+         MACRO                                                          00000010
+         CZFMSUSE                                                      X00000020
+               &TYPE=,                                                 X00000030
+               &MODULE=,                                               X00000040
+               &USERNUM=,                                              X00000050
+               &PASSWRD=,                                              X00000060
+               &BRANCH=0000,                                           X00000070
+               &BANK=0000,                                             X00000080
+               &MODE=NORMAL,                                           X00000090
+               &CLASS=1,                                               X00000100
+               &LEVEL=1,                                               X00000110
+               &TRANLST=0001,                                          X00000120
+               &USERINF=,                                              X00000130
+               &HELP=            HELP FUNCTION                          00000140
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000150
+.*********                   P R O L O G                       ******** 00000160
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000170
+.*                                                                    * 00000180
+.*   MACRO NAME : CZFMSUSE                                            * 00000190
+.*                                                                    * 00000200
+.*   DESCRIPTIVE NAME : CREATION OF THE ELEMENTS OF THE SYSTEM USERS  * 00000210
+.*                      TABLE.                                        * 00000220
+.*   STATUS : VERSION 1                                               * 00000230
+.*            RELEASE LEVEL = 1                                       * 00000240
+.*            MODIFICATION LEVEL = 0                                  * 00000250
+.*                                                                    * 00000260
+.*   COPYRIGHT -                                                      * 00000270
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00000280
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00000290
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00000300
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00000310
+.*                                                                    * 00000320
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00000330
+.*                                                                    * 00000340
+.*   FUNCTION:  TO GENERATE THE ENTRIES THAT COMPOSE THE TABLE        * 00000350
+.*              OF SYSTEM USERS THAT IS PART OF THE CZFHSD            * 00000360
+.*              SYSTEM DATA MODULE.                                   * 00000370
+.*                                                                    * 00000380
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00000390
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00000400
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00000410
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00000420
+.*             FOR USERNUM, PASSWRD, BRANCH, BANK, MODE, CLASS,       * 00000430
+.*             LEVEL AND TRANLST. ADDITIONALLY THE PARAMETER USERNUM  * 00000440
+.*             IS VALIDATED TO BE A CONSECUTIVE NUMBER STARTING       * 00000450
+.*             WITH 1.                                                * 00000460
+.*             ON THESE PARAMETERS, A SYSTEM USER BLOCK IS BUILT.     * 00000470
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00000480
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00000490
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00000500
+.*             THE BLOCK.                                             * 00000510
+.*                                                                    * 00000520
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00000530
+.*                                                                    * 00000540
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00000550
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00000560
+.*                                                                    * 00000570
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00000580
+.*                                                                    * 00000590
+.*   CHARACTERISTICS :                                                * 00000600
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00000610
+.*                                                                    * 00000620
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS : NONE                     * 00000630
+.*                                                                    * 00000640
+.*   RESTRICTIONS:  NONE                                              * 00000650
+.*                                                                    * 00000660
+.*   PARAMETERS RECEIVED:                                             * 00000670
+.*             TYPE=              * MACRO TYPE (INITIAL,ENTRY,FINAL)  * 00000680
+.*             MODULE=            * MODULE BEING ASSEMBLED            * 00000690
+.*                                * CZFHSD SYSTEM DATA MODULE         * 00000700
+.*                                * CZFACI CONTROLLER INFORMATION     * 00000710
+.*             USERNUM=           * SYSTEM USER NUMBER (0001 TO 9999) * 00000720
+.*             PASSWRD=           * CONTROLLER PASSWORD (1 TO 4 CHAR) * 00000730
+.*             BRANCH=0000        * BRANCH NUMBER (0000 TO 9999)      * 00000740
+.*             BANK=0000          * BANK NUMBER (0001 TO 9999)        * 00000750
+.*             MODE=NORMAL        * MODE (NORMAL,TRAIN,BTERM)         * 00000760
+.*             CLASS=1            * CLASS AUTHORIZATION (1 TO 8)      * 00000770
+.*             LEVEL=1            * LEVEL AUTHORIZATION (1 TO 8)      * 00000780
+.*             TRANLST=0001       * TRANSAC LIST NUMBER (0001 TO 9999)* 00000790
+.*             USERINF=           * USER DEFINED INFORMATION (8 BYTES)* 00000800
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00000810
+.*                                                                    * 00000820
+.*   CONTROL BLOCK(S) BUILT :                                         * 00000830
+.*                                                                    * 00000840
+.*       SYSTEM USERS INFORMATION ELEMENT AT THE HOST (CZFHSD)        * 00000850
+.*                                                                    * 00000860
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00000870
+.* DEC  HEX                                                           * 00000880
+.*                                                                    * 00000890
+.*  0    0        2       USER NUMBER (0001 TO 9999 SEQUENTIAL)       * 00000900
+.*  2    2        2       BRANCH NUMBER (0001 TO 9999)                * 00000910
+.*  4    4        2       BANK NUMBER (0001 TO 9999)                  * 00000920
+.*  6    6        1       OPERATION MODE INDICATOR                    * 00000930
+.*                           BIT 0 ON - REGULAR OPERATIONS            * 00000940
+.*                           BIT 1 ON - ONLY TRAINING OPERATIONS      * 00000950
+.*                           BIT 2 ON - BATCH TERMINAL FUNCTIONS      * 00000960
+.*                           BITS 3-7 - RESERVED                      * 00000970
+.*  7    7        1       INTERNAL INDICATOR                          * 00000980
+.*                           BIT 0 ON - TOTALS NOT ZERO               * 00000990
+.*                           BIT 1 ON - PENDING DISKETTE REJECTIONS   * 00001000
+.*                           BITS 2-7 - RESERVED                      * 00001010
+.*  8    8        4       ADDRESS OF THE TRANSACTION LIST             * 00001020
+.* 12    C        1       CLASSES AUTHORIZED FOR THE USER (1-8)       * 00001030
+.* 13    D        1       LEVELS AUTHORIZAD FOR THE USER  (1-8)       * 00001040
+.* 14    E        8       USER DEFINED INFORMATION                    * 00001050
+.* 22   16        2       RESERVED (REQUIRED FOR ALIGNMENT)           * 00001060
+.*                                                                    * 00001070
+.*         SYSTEM USERS TABLE PREFIX  AT THE CONTROLLER (CZFACI).     * 00001080
+.*                                                                    * 00001090
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00001100
+.* DEC  HEX                                                           * 00001110
+.*                                                                    * 00001120
+.*  0    0        2       NUMBER OF ENTRIES                           * 00001130
+.*  2    2        2       LENGTH OF ENTRY (12)                        * 00001140
+.*                                                                    * 00001150
+.*                                                                    * 00001160
+.*       SYSTEM USERS INFORMATION ELEMENT AT THE CONTROLLER (CZFACI)  * 00001170
+.*                                                                    * 00001180
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00001190
+.* DEC  HEX                                                           * 00001200
+.*                                                                    * 00001210
+.*  0    0        4       USER NUMBER (0001 TO 9999 SEQUENTIAL)       * 00001220
+.*  4    4        4       PASSWORD                                    * 00001230
+.*  8    8        1       CLASSES AUTHORIZED FOR THE USER (1-8)       * 00001240
+.*  9    9        1       LEVELS AUTHORIZAD FOR THE USER  (1-8)       * 00001250
+.* 10    A        2       FLAGS                                       * 00001260
+.*                                                                    * 00001270
+.*   GENERATED CODE :                                                 * 00001280
+.*                                                                    * 00001290
+.*       SYSTEM USERS INFORMATION ELEMENT AT THE HOST (CZFHSD)        * 00001300
+.*                                                                    * 00001310
+.*       DS    0F                                                     * 00001320
+.*       DC    YL2(USERNUM)       *SYSTEM USER NUMBER                 * 00001330
+.*       DC    AL2(BRANCH)        *ASSOCIATED BRANCH NUMBER   @A000260* 00001340
+.*       DC    AL2(BANK)          *ASSOCIATED BANK NUMBER     @A000260* 00001350
+.*       DC    B'XXX00000'        *OPERATION MODE                     * 00001360
+.*                                  BIT 0 ON - REGULAR OPERATIONS     * 00001370
+.*                                  BIT 1 ON - TRAINING OPERATIONS    * 00001380
+.*                                  BIT 2 ON - BATCH TERMINAL FUNCT.  * 00001390
+.*                                  BITS 3-7 - RESERVED               * 00001400
+.*       DC    XL1'00'            *INTERNAL INDICATOR                 * 00001410
+.*                                  BIT 0 ON - TOTALS NOT ZERO        * 00001420
+.*                                  BIT 1 ON - PENDING DISKETTE REJ.  * 00001430
+.*                                  BITS 2-7 - RESERVED               * 00001440
+.*       DC    A(TRLTXXXX)        *ADDRESS OF THE TRANSACTION LIST    * 00001450
+.*       DC    B'XXXXXXXX'        *CLASS AUTHORIZATION                * 00001460
+.*                                  BITS 0-7 ON = CLASSES 1 TO 8 AUTH.* 00001470
+.*       DC    B'XXXXXXXX'        *LEVEL AUTHORIZATION                * 00001480
+.*                                  BITS 0-7 ON = LEVELS 1 TO 8 AUTH. * 00001490
+.*       DC    CL8'USERINF'       *USER DEFINED INFORMATION           * 00001500
+.*       DC    XL2'0000'          *RESERVED                           * 00001510
+.*                                                                    * 00001520
+.*       SYSTEM USERS INFORMATION ELEMENT AT THE CONTROLLER (CZFACI)  * 00001530
+.*                                                                    * 00001540
+.*       DC    CL4'USERNUM'       *SYSTEM USER NUMBER                 * 00001550
+.*       DC    CL4'PASSWRD'       *PASSWORD                           * 00001560
+.*       DC    B'XXXXXXXX'        *CLASS AUTHORIZATION                * 00001570
+.*                                  BITS 0-7 ON = CLASSES 1 TO 8 AUTH.* 00001580
+.*       DC    B'XXXXXXXX'        *LEVEL AUTHORIZATION                * 00001590
+.*                                  BITS 0-7 ON = LEVELS 1 TO 8 AUTH. * 00001600
+.*       DC    XL2'00'            *FLAGS                              * 00001610
+.*                                                                    * 00001620
+.*   NOTES:                                                           * 00001630
+.*                                                                    * 00001640
+.*                                                                    * 00001650
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001660
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001670
+.*                                                                    * 00001680
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00001690
+.*                                                                    * 00001700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001710
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00001720
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00001730
+         GBLA  &MSUSE             *MACRO CZFMSUSE INDICATOR             00001740
+         GBLA  &MSUSE1            *TYPE=ENTRY INDICATOR                 00001750
+         GBLA  &USERPRM           *USER CONSECUTIVE NUMBER              00001760
+         GBLA  &USEIND            *MODULE ASSEMBLED INDICATOR           00001770
+         GBLA  &USENUM            *NUMBER OF ELEMENTS IN CONTROLLER TBL 00001780
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00001790
+         GBLC  &MODNAME           *MODULE NAME                          00001800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001810
+.*                                                                    * 00001820
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 00001830
+.*                                                                    * 00001840
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001850
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00001860
+         LCLA  &I                 *INDEX WORK FIELD                     00001870
+         LCLA  &WRKAREA           *WORK FIELD                           00001880
+         LCLA  &LENGTH            *USERINP LENGTH                       00001890
+         LCLB  &ERRIND            *ERROR INDICATOR DEFINITION           00001900
+         LCLB  &MD(8)             *OPERATION MODE INDICATOR             00001910
+         LCLB  &CL(8)             *USER CLASSES WORK AREA               00001920
+         LCLB  &LV(8)             *USER LEVELS WORK AREA                00001930
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00001940
+         LCLC  &WORKC             *WORK AREA FOR GENERATED CODE         00001950
+&ERRIND  SETB  0                  *ERROR INDICATOR INITIAL VALUE        00001960
+&I       SETA  1                  *INDEX WORK AREA INITIAL VALUE        00001970
+.LOOP8   ANOP                     *INITIAL VALUE FOR WORK AREAS         00001980
+&CL(&I)  SETB  0                  *CLASS BIT INIT                       00001990
+&MD(&I)  SETB  0                  *MODE BIT INIT                        00002000
+&LV(&I)  SETB  0                  *LEVEL BIT INIT                       00002010
+&I       SETA  &I+1                                                     00002020
+         AIF   (&I LE 8).LOOP8                                          00002030
+&I       SETA  1                  *INDEX WORK AREA                      00002040
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002050
+.*                                                                    * 00002060
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00002070
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00002080
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00002090
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00002100
+.*   PERFORMED.                                                       * 00002110
+.*                                                                    * 00002120
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002130
+         CZFMHELP HELP=&HELP                                            00002140
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       00002150
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002160
+.*                                                                    * 00002170
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00002180
+.*                                                                    * 00002190
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002200
+.P1VAL   ANOP                                                           00002210
+         AIF   (&MSUSE EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00002220
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00002230
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                00002240
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                00002250
+         AGO   .PUE1              * INVALID TYPE MESSAGE                00002260
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002270
+.*                                                                    * 00002280
+.*   PROCESS OF MACRO TYPE=INITIAL.                                   * 00002290
+.*                                                                    * 00002300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002310
+.P1V1    ANOP                                                           00002320
+         AIF (&MSUSE NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00002330
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002340
+.*                                                                    * 00002350
+.*   VALIDATE MACRO TYPE=INITIAL PARAMETER MODULE=                    * 00002360
+.*                                                                    * 00002370
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002380
+         AIF   ('&MODULE' EQ 'CZFHSD').P1V1A   *SYSTEM DATA MODULE      00002390
+         AIF   ('&MODULE' EQ 'CZFACI').P1V1B   *CONTROLLER INFORMATION  00002400
+         AGO   .P1E2                                                    00002410
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002420
+.*                                                                    * 00002430
+.*   PARAMETER MODULE=CZFHSD. GENERATE HEADER FOR HOST                * 00002440
+.*                                                                    * 00002450
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002460
+.P1V1A   ANOP                                                           00002470
+         TITLE 'SYSTEM USERS TABLE'                                     00002480
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00002490
+*                                                                    *  00002500
+*   MACRO NAME : CZFMSUSE                                            *  00002510
+*                                                                    *  00002520
+*   DESCRIPTIVE NAME : SYSTEM USERS TABLE CREATION                   *  00002530
+*                                                                    *  00002540
+*   STATUS : VERSION 1                                               *  00002550
+*            RELEASE LEVEL = 0                                       *  00002560
+*            MODIFICATION LEVEL = 0                                  *  00002570
+*                                                                    *  00002580
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00002590
+&MODNAME SETC  '&MODULE'                                                00002600
+&USEIND  SETA  1                                                        00002610
+         DS    0D                                                       00002620
+         DC    CL8'*TABLE= '           *TABLE HEADER                    00002630
+         DC    CL8'CZFMSUSE'           *TABLE NAME                      00002640
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         00002650
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               00002660
+CZFUSERS DS    0D                 *SYSTEM USERS TABLE                   00002670
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV FINAL       00002680
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002690
+.*                                                                    * 00002700
+.*   PARAMETER MODULE=CZFACI. GENERATE CONTROLLER TABLE PREFIX        * 00002710
+.*                                                                    * 00002720
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002730
+.P1V1B   ANOP                                                           00002740
+         TITLE 'SYSTEM USERS CONTROLLER TABLE'                          00002750
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00002760
+*                                                                    *  00002770
+*   MACRO NAME : CZFMSUSE                                            *  00002780
+*                                                                    *  00002790
+*   DESCRIPTIVE NAME : SYSTEM USERS CONTROLLER TABLE CREATION        *  00002800
+*                                                                    *  00002810
+*   STATUS : VERSION 1                                               *  00002820
+*            RELEASE LEVEL = 0                                       *  00002830
+*            MODIFICATION LEVEL = 0                                  *  00002840
+*                                                                    *  00002850
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00002860
+&USEIND  SETA  2                                                        00002870
+USEFLD   EQU   *                  *SYSTEM USERS TABLE                   00002880
+         DC    AL2(&USENUM)       *NUMBER OF ENTRIES                    00002890
+         DC    AL2(12)            *LENGTH OF ENTRIES                    00002900
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV FINAL       00002910
+.TESTFIN ANOP                     *VALIDATE CLOSURE OF PREV MACRO       00002920
+&MSUSE   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00002930
+         AIF (&MFINAL GT 0).NOFINAL                                     00002940
+.SETMAC  ANOP                                                           00002950
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00002960
+&MACREC  SETC  'CZFMSUSE'         *NAME OF CURRENT MACRO                00002970
+         AGO   .END                                                     00002980
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002990
+.*                                                                    * 00003000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 00003010
+.*        .   MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED.      * 00003020
+.*                                                                    * 00003030
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003040
+.P2V1    ANOP                                                           00003050
+         AIF (&MSUSE NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00003060
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003070
+.*                                                                    * 00003080
+.*   VALIDATE PARAMETER USERNUM IN MACRO TYPE=ENTRY:                  * 00003090
+.*        .   USER NUMBER MUST BE IN THE RANGE 0001-9999              * 00003100
+.*        .   USER NUMBER MUST HAVE 4 DIGITS                          * 00003110
+.*        .   USER NUMBER MUST BE ON CONSECUTIVE ASCENDING ORDER.     * 00003120
+.*                                                                    * 00003130
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003140
+.P2V2    ANOP                                                           00003150
+         AIF   (T'&USERNUM EQ 'O').P2E2         * OMITTED?              00003160
+         AIF   (T'&USERNUM NE 'N').P2E2         * NUMERIC?              00003170
+         AIF   (&USERNUM LT 1 OR &USERNUM GT 9999).P2E2  RANGE ERROR    00003180
+         AIF   (K'&USERNUM NE 4).P2E2    *LENGTH ERROR                  00003190
+.P2V2A   ANOP                                                           00003200
+         AIF   ('&MODNAME' NE 'CZFHSD').P2V2B  *IT IS CONTROLLER        00003210
+&USERPRM SETA  &USERPRM+1         *DEFINE FOLLOWING USER NUMBER         00003220
+         AIF   (&USERNUM NE &USERPRM).P2E2A  *USER NON CONSECUTIVE      00003230
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003240
+.*                                                                    * 00003250
+.*   VALIDATE PARAMETER PASSWRD IN MACRO TYPE=ENTRY:                  * 00003260
+.*        .   IS VALID ONLY IF MODULE=CZFACI                          * 00003270
+.*        .   IT MUST BE FROM 1 TO 4 CHARACTERS                       * 00003280
+.*                                                                    * 00003290
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003300
+.P2V2B   ANOP                                                           00003310
+         AIF   ('&MODNAME' EQ 'CZFHSD').P2V3   *IT IS NOT CONTROLLER    00003320
+         AIF   (T'&PASSWRD EQ 'O').P2E2C                                00003330
+         AIF   (K'&PASSWRD LT 1 OR K'&PASSWRD GT 4).P2E2C *LENGTH ERROR 00003340
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003350
+.*                                                                    * 00003360
+.*   VALIDATE PARAMETER BRANCH  IN MACRO TYPE=ENTRY:                  * 00003370
+.*        .   BRANCH NUMBER MUST BE IN THE RANGE 0001-9999            * 00003380
+.*        .   BRANCH NUMBER MUST HAVE 4 DIGITS                        * 00003390
+.*                                                                    * 00003400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003410
+.P2V3    ANOP                                                           00003420
+         AIF   (T'&BRANCH NE 'N').P2E3                                  00003430
+         AIF   (&BRANCH LT 0 OR &BRANCH GT 9999).P2E3  *RANGE ERROR     00003440
+         AIF   (K'&BRANCH NE 4).P2E3    *LENGTH ERROR                   00003450
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003460
+.*                                                                    * 00003470
+.*   VALIDATE PARAMETER BANK    IN MACRO TYPE=ENTRY:                  * 00003480
+.*        .   BANK   NUMBER MUST BE IN THE RANGE 0001-9999            * 00003490
+.*        .   BANK   NUMBER MUST HAVE 4 DIGITS                        * 00003500
+.*                                                                    * 00003510
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003520
+.P2V4    ANOP                                                           00003530
+         AIF   (T'&BANK NE 'N').P2E4                                    00003540
+         AIF   (&BANK LT 0 OR &BANK GT 9999).P2E4   * RANGE ERROR       00003550
+         AIF   (K'&BANK NE 4).P2E4    *LENGTH ERROR                     00003560
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003570
+.*                                                                    * 00003580
+.*   VALIDATE PARAMETER MODE    IN MACRO TYPE=ENTRY:                  * 00003590
+.*        .   NORMAL USED FOR REGULAR SYSTEM USERS                    * 00003600
+.*        .   TRAIN  USED FOR USER ACCESS ONLY TO TRAINING ACCOUNTS   * 00003610
+.*        .   BTERM  FOR ELEMENT ASIGNED TO BATCH TERMINAL FUNCTION   * 00003620
+.*                                                                    * 00003630
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003640
+.P2V5    ANOP                                                           00003650
+         AIF   ('&MODE' EQ 'NORMAL').P2V5A                              00003660
+         AIF   ('&MODE' EQ 'TRAIN').P2V5B                               00003670
+         AIF   ('&MODE' EQ 'BTERM').P2V5C                               00003680
+         AIF   ('&MODE' EQ 'OTRCNL').P2V5D                              00003660
+         AGO   .P2E5              * INVALID MODE ERROR                  00003690
+.P2V5A   ANOP                                                           00003700
+&MD(1)   SETB  1                  * SET NORMAL MODE                     00003710
+         AGO   .P2V6                                                    00003720
+.P2V5B   ANOP                                                           00003730
+&MD(2)   SETB  1                  * SET TRAINING MODE                   00003740
+         AGO   .P2V6                                                    00003750
+.P2V5C   ANOP                                                           00003760
+&MD(3)   SETB  1                  * SET BATCH TERMINAL MODE             00003770
+         AGO   .P2V6                                                    00003750
+.P2V5D   ANOP                                                           00003760
+&MD(4)   SETB  1                  * SET BANK ELECTRONIC MODE            00003770
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003780
+.*                                                                    * 00003790
+.*   VALIDATE PARAMETER CLASS   IN MACRO TYPE=ENTRY:                  * 00003800
+.*        .   ALL CLASSES AUTHORIZED MUST BE IN THE RANGE 1-8         * 00003810
+.*        .   SAVE ALL AUTHORIZED CLASSES IN &CL WORKAREA             * 00003820
+.*                                                                    * 00003830
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003840
+.P2V6    ANOP                                                           00003850
+&I       SETA   1                 * INITIALIZE INDEX FOR LOOP           00003860
+         AIF   ('&CLASS' EQ '').P2E6         *OMITTED?                  00003870
+         AIF   (T'&CLASS EQ 'O').P2E6        *OMITTED?                  00003880
+.LP2V6   ANOP                                                           00003890
+         AIF   (T'&CLASS(&I) EQ 'O').LP2V6I IF OMITTED IGNORE           00003900
+         AIF   (T'&CLASS(&I) NE 'N').P2E6                  *NO NUMERIC  00003910
+         AIF   (&CLASS(&I) LT 1 OR &CLASS(&I) GT 8).P2E6   *RANGE ERROR 00003920
+&CL(&CLASS(&I)) SETB 1            * SET ON PROPER CLASS BIT             00003930
+.LP2V6I  ANOP                                                           00003940
+&I       SETA   &I+1                                                    00003950
+         AIF    (&I LE N'&CLASS).LP2V6   * GO TO PROCESS OTHER CLASS    00003960
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003970
+.*                                                                    * 00003980
+.*   VALIDATE PARAMETER LEVEL   IN MACRO TYPE=ENTRY:                  * 00003990
+.*        .   ALL LEVELS AUTHORIZED MUST BE IN THE RANGE 1-8          * 00004000
+.*        .   SAVE ALL AUTHORIZED LEVELS IN &LV WORKAREA              * 00004010
+.*                                                                    * 00004020
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004030
+.P2V7    ANOP                                                           00004040
+&I       SETA   1                 * INITALIZE INDEX FOR LOOP            00004050
+         AIF   ('&LEVEL' EQ '').P2E7       *OMITTED INVALID             00004060
+         AIF   (T'&LEVEL EQ 'O').P2E7      *OMITTED?                    00004070
+.LP2V7   ANOP                                                           00004080
+         AIF   (T'&LEVEL(&I) EQ 'O').LP2V7I *IF OMITTED IGNORE          00004090
+         AIF   (T'&LEVEL(&I) NE 'N').P2E7                  *NO NUMERIC  00004100
+         AIF   (&LEVEL(&I) LT 1 OR &LEVEL(&I) GT 8).P2E7   *RANGE ERROR 00004110
+&LV(&LEVEL(&I)) SETB 1            * SET ON PROPER LEVEL BIT             00004120
+.LP2V7I  ANOP                                                           00004130
+&I       SETA   &I+1                                                    00004140
+         AIF    (&I LE N'&LEVEL).LP2V7   * GO TO PROCESS OTHER LEVEL    00004150
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004160
+.*                                                                    * 00004170
+.*   VALIDATE PARAMETER TRANLST IN MACRO TYPE=ENTRY:                  * 00004180
+.*        .   NUMBER MUST BE IN THE RANGE 0001-9999                   * 00004190
+.*        .   NUMBER MUST HAVE 4 DIGITS                               * 00004200
+.*                                                                    * 00004210
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004220
+.P2V8    ANOP                                                           00004230
+         AIF   (T'&TRANLST NE 'N').P2E8  *IF TRANLST IS NOT NUMERIC     00004240
+         AIF   (&TRANLST LT 1 OR &TRANLST GT 9999).P2E8  *RANGE ERROR   00004250
+         AIF   (K'&TRANLST NE 4).P2E8    *LENGTH ERROR                  00004260
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004270
+.*                                                                    * 00004280
+.*   VALIDATE USERINF                                                 * 00004290
+.*       1 TO 8 CHARACTERS                                            * 00004300
+.*                                                                    * 00004310
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004320
+.P2V9    ANOP                                                           00004330
+         AIF   (T'&USERINF EQ 'O').P2V10  *IF USER INFORMATION OMITTED  00004340
+&LENGTH  SETA  K'&USERINF                                               00004350
+         AIF   (&LENGTH LT 3 OR &LENGTH GT 10).P2E9                     00004360
+         AIF   ('&USERINF'(1,1) NE '''').P2E9                           00004370
+         AIF   ('&USERINF'(&LENGTH,1) NE '''').P2E9                     00004380
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004390
+.*                                                                    * 00004400
+.*   AVAILABLE FOR ADDITIONAL PARAMETERS VALIDATION                   * 00004410
+.*   (NOT USED WITH CURRENT VERSION OF THE MACRO).                    * 00004420
+.*                                                                    * 00004430
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004440
+.P2V10   ANOP                                                           00004450
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004460
+.*                                                                    * 00004470
+.*   IF NOT ERROR FOUND, GENERATE THE SYSTEM USER ELEMENT             * 00004480
+.*                                                                    * 00004490
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004500
+         AIF   (&ERRIND).END      *IF ERRORS FOUND DO NOT GENERATE      00004510
+&MSUSE1  SETA  1                  *GOOD ENTRY INPUT                     00004520
+         AIF   (&USEIND EQ 2).P2GEN  *IF CZFACI, SHIP TO GEN.CTLR BLOCK 00004530
+*                                 *CZFHSD MODULE: GENERATE HOST BLOCK   00004540
+         DS    0F                                                       00004550
+         DC    AL2(&USERNUM)      *SYSTEM USER NUMBER                   00004560
+         DC    AL2(&BRANCH)       *ASSOCIATED BRANCH NUMBER   @A000260  00004570
+         DC    AL2(&BANK)         *ASSOCIATED BANK NUMBER     @A000260  00004580
+&WORKC   SETC  '&MD(1)&MD(2)&MD(3)&MD(4)&MD(5)&MD(6)&MD(7)&MD(8)'       00004590
+         DC    B'&WORKC'          *MODE                                 00004600
+         DC    XL1'00'            *INTERNAL INDICATOR                   00004610
+         DC    A(TRLT&TRANLST)    *ADDRESS OF THE TRANSACTION LIST      00004620
+&WORKC   SETC  '&CL(1)&CL(2)&CL(3)&CL(4)&CL(5)&CL(6)&CL(7)&CL(8)'       00004630
+         DC    B'&WORKC'          *AUTHORIZED CLASSES                   00004640
+&WORKC   SETC  '&LV(1)&LV(2)&LV(3)&LV(4)&LV(5)&LV(6)&LV(7)&LV(8)'       00004650
+         DC    B'&WORKC'          *AUTHORIZED LEVELS                    00004660
+         AIF   (T'&USERINF NE 'O').LBL001 *IF USER INFORMATION OMITTED  00004670
+         DC    CL8'        '      *OPEN FOR USER DEFINED INFORMATION    00004680
+         DC    XL2'00'            *RESERVED                             00004690
+         AGO   .END                                                     00004700
+.LBL001  ANOP                     *USER INFORMATION CODED               00004710
+         DC    CL8&USERINF        *USER INFORMATION                     00004720
+         DC    XL2'00'            *RESERVED                             00004730
+         AGO   .END                                                     00004740
+.P2GEN   ANOP                                                           00004750
+&USENUM   SETA &USENUM+1          *ADD 1 TO NUMBER OF ELEMENTS IN TABLE 00004760
+         DC    CL4'&USERNUM'      *SYSTEM USER NUMBER                   00004770
+         DC    CL4'&PASSWRD'      *SYSTEM USER PASSWORD                 00004780
+&WORKC   SETC  '&CL(1)&CL(2)&CL(3)&CL(4)&CL(5)&CL(6)&CL(7)&CL(8)'       00004790
+         DC    B'&WORKC'          *AUTHORIZED CLASSES                   00004800
+&WORKC   SETC  '&LV(1)&LV(2)&LV(3)&LV(4)&LV(5)&LV(6)&LV(7)&LV(8)'       00004810
+         DC    B'&WORKC'          *AUTHORIZED LEVELS                    00004820
+         DC    XL2'00'            *FLAG                                 00004830
+         AGO   .END                                                     00004840
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004850
+.*                                                                    * 00004860
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00004870
+.*        .   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00004880
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 00004890
+.*            MACROS TYPE ENTRY                                       * 00004900
+.*        .   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 00004910
+.*            OF THE TABLE FOR THE MODULE CZFHSD                      * 00004920
+.*        .   GENERATES A CONSTANT WITH THE TOTAL OF GENERATED        * 00004930
+.*            ELEMENTS FOR THE TABLE ON THE MODULE CZFACI             * 00004940
+.*                                                                    * 00004950
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004960
+.P3V1    ANOP                                                           00004970
+         AIF (&MSUSE NE 1).P3E1   *IF MACRO TYPE INITIAL NOT RECEIVED   00004980
+         AIF (&MSUSE1 NE 1).P3E1  *ENTRY CARD PROCESSED?                00004990
+         AIF   (&ERRIND).END      *IF ERRORS FOUND DO NOT GENERATE      00005000
+&MSUSE   SETA  2                  *SET INDICATOR MACRO FINAL RECEIVED   00005010
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00005020
+         AIF   (&USEIND EQ 2).P3GEN   *IF CZFACI,SKIP TO GEN ELEM. #    00005030
+         DS    0F                 *END OF THE SYSTEM USERS TABLE        00005040
+         DC    24X'FF'            *END-OF-TABLE INDICATOR               00005050
+         AGO   .END                                                     00005060
+.P3GEN   ANOP                                                           00005070
+         ORG   USEFLD                                                   00005080
+         DC    AL2(&USENUM)       *NUMBER OF ENTRIES                    00005090
+         ORG   ,                  *END OF THE SYSTEM USERS TABLE        00005100
+         AGO   .END                                                     00005110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005120
+.*                                                                    * 00005130
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00005140
+.*    MESSAGES REQUIRED.                                              * 00005150
+.*                                                                    * 00005160
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005170
+.HELP    ANOP                                                           00005180
+         CZFMHIMS MSGNUM=998                                            00005190
+         CZFMHIMS MSGNUM=1                                              00005200
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSUSE                            00005210
+         CZFMHIMS MSGNUM=2                                              00005220
+         CZFMHIMS MSGNUM=62                                             00005230
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                00005240
+         CZFMHIMS MSGNUM=93                                             00005250
+         CZFMHIMS MSGNUM=4,MSGPARM=USERNUM                              00005260
+         CZFMHIMS MSGNUM=7                                              00005270
+         CZFMHIMS MSGNUM=68                                             00005280
+         CZFMHIMS MSGNUM=81,MSGPARM=BRANCH                              00005290
+         CZFMHIMS MSGNUM=81,MSGPARM=BANK                                00005300
+         CZFMHIMS MSGNUM=5                                              00005310
+         CZFMHIMS MSGNUM=6,MSGPARM=CLASS                                00005320
+         CZFMHIMS MSGNUM=6,MSGPARM=LEVEL                                00005330
+         CZFMHIMS MSGNUM=81,MSGPARM=TRANLST                             00005340
+         CZFMHIMS MSGNUM=67                                             00005350
+       AGO   .END                                                       00005360
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005370
+.*                                                                    * 00005380
+.*    REQUEST TO MACRO CZFMHIMS THE ERROR MESSAGES NEEDED             * 00005390
+.*                                                                    * 00005400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005410
+.NOFINAL ANOP                                                           00005420
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00005430
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00005440
+.PCOMP   ANOP                                                           00005450
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSUSE                            00005460
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005470
+         AGO   .END                                                     00005480
+.PUE1    ANOP                                                           00005490
+         CZFMHIMS MSGNUM=1                                              00005500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005510
+         AGO   .END                                                     00005520
+.P1E1    ANOP                                                           00005530
+         CZFMHIMS MSGNUM=2                                              00005540
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005550
+         AGO   .END                                                     00005560
+.P1E2    ANOP                                                           00005570
+         CZFMHIMS MSGNUM=62                                             00005580
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005590
+         AGO   .END                                                     00005600
+.P2E1    ANOP                                                           00005610
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                00005620
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005630
+         AGO   .END                                                     00005640
+.P2E2    ANOP                                                           00005650
+         CZFMHIMS MSGNUM=4,MSGPARM=USERNUM                              00005660
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005670
+         AGO   .P2V2B                                                   00005680
+.P2E2A   ANOP                                                           00005690
+         CZFMHIMS MSGNUM=7                                              00005700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005710
+         AGO   .P2V2B                                                   00005720
+.P2E2C   ANOP                                                           00005730
+         CZFMHIMS MSGNUM=68                                             00005740
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005750
+         AGO   .P2V3                                                    00005760
+.P2E3    ANOP                                                           00005770
+         CZFMHIMS MSGNUM=81,MSGPARM=BRANCH                              00005780
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005790
+         AGO   .P2V4                                                    00005800
+.P2E4    ANOP                                                           00005810
+         CZFMHIMS MSGNUM=81,MSGPARM=BANK                                00005820
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005830
+         AGO   .P2V5                                                    00005840
+.P2E5    ANOP                                                           00005850
+         CZFMHIMS MSGNUM=5                                              00005860
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005870
+         AGO   .P2V6                                                    00005880
+.P2E6    ANOP                                                           00005890
+         CZFMHIMS MSGNUM=6,MSGPARM=CLASS                                00005900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005910
+         AGO   .P2V7                                                    00005920
+.P2E7    ANOP                                                           00005930
+         CZFMHIMS MSGNUM=6,MSGPARM=LEVEL                                00005940
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005950
+         AGO   .P2V8                                                    00005960
+.P2E8    ANOP                                                           00005970
+         CZFMHIMS MSGNUM=81,MSGPARM=TRANLST                             00005980
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00005990
+         AGO   .P2V9                                                    00006000
+.P2E9    ANOP                                                           00006010
+         CZFMHIMS MSGNUM=67                                             00006020
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00006030
+         AGO   .P2V10                                                   00006040
+.P3E1    ANOP                                                           00006050
+         CZFMHIMS MSGNUM=93                                             00006060
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00006070
+         AGO   .END                                                     00006080
+.END     ANOP                                                           00006090
+         MEND                                                           00006100

@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SIMODE &MODE,&WORKREG=14                                       00002000
+         LCLC  &H,&SIMVER,&SIMMOD,&SIMDTE                               00004000
+         LCLC  &NDX                                                     00005000
+.*--------------------------------------------------------------------* 00005010
+.*                   ** PROGRAM DESCRIPTION **                        * 00005020
+.*                                                                    * 00005030
+.* SIMODE IS A MACRO TO SET THE ADDRESSING MODE                       * 00005040
+.*                                                                    * 00005050
+.*--------------------------------------------------------------------* 00005060
+.*                                                                    * 00005070
+.*--------------------------------------------------------------------* 00005080
+.*                  ** HISTORY OF REVISIONS **                        * 00005090
+.*                                                                    * 00005100
+.* DESCRIPTION                                                 CHNGID * 00005110
+.* _________________________________________________________  _______ * 00005120
+.* 03/23/00 MODIFY FOR 31-BIT                                 2024183 * 00005968
+.* 03/28/97 MODIFY FOR VSE AMODESW MACRO                      9913437 * 00005970
+.*                                                                    * 00005980
+.*--------------------------------------------------------------------* 00005990
+.*       ----------------                                               00006000
+.*       SET ANY DEFAULTS                                               00007000
+.*       ----------------                                               00008000
+&H       SETC  '* SIMODE - '       MACRO NAME FOR MNOTE LINES           00009000
+&SIMVER  SETC  '01.00'             MACRO VERSION NUMBER                 00010000
+&SIMMOD  SETC  '00.00'             MACRO MODIFICATION NUMBER            00011000
+&SIMDTE  SETC  '06/03/93'          MACRO AS OF DATE                     00012000
+&NDX     SETC  '&SYSNDX'                                                00013000
+         MNOTE '&H.VERSION = &SIMVER MOD = &SIMMOD DATE = &SIMDTE'      00014000
+         AIF   ('&MODE' EQ '24').SET24                                  00030000
+         AIF   ('&MODE' EQ '31').SET31                                  00031000
+         MNOTE 8,'SIMODE MODE MUST BE 24 OR 31'                         00032000
+         MEXIT                                                          00033000
+.SET24   ANOP                                                           00034000
+         LA    &WORKREG,BSMX&NDX                                        00035000
+         BSM   0,&WORKREG                                               00036000
+         AGO   .SETEXIT                                                 00037000
+.SET31   ANOP                                                           00038000
+         LA    &WORKREG,BSMX&NDX                                        00039000
+         O     &WORKREG,=X'80000000'                                    00040000
+         BSM   0,&WORKREG                                               00041000
+.SETEXIT ANOP                                                           00042000
+BSMX&NDX DS   0H                                                        00043000
+.NOP0100 ANOP                                                           00044000
+         MEND                                                           00045000

@@ -1,0 +1,69 @@
+         MACRO                                                          00000100
+         ISIMFREC &DSECT=NO,&ALIGN=NO                                   00000200
+         LCLB  &DST,&ALN                                                00000300
+         AIF   ('&ALIGN' EQ 'YES').SETALN                               00000400
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00000500
+         AIF   ('&DSECT' EQ 'NO').START                                 00000600
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00000700
+         MEXIT                                                          00000800
+.SETALN  ANOP                                                           00000900
+&ALN     SETB  1                                                        00001000
+&DST     SETB  0                                                        00001100
+         AGO   .START                                                   00001200
+.SETYES  ANOP                                                           00001300
+&ALN     SETB  0                                                        00001400
+&DST     SETB  1                                                        00001500
+         AGO   .START                                                   00001600
+.START   ANOP                                                           00001700
+*                                                                       00001800
+*                       IMF EXTRACT RECORD                              00001900
+*                                                                       00002000
+         AIF   (&DST).DSECT                                             00002100
+         AIF   (NOT &ALN).EQUAT                                         00002200
+ISIMFREC DS    0D                                                       00002300
+ISPREFIX DC    A(ISDATA-ISIMFREC)      LENGTH OF KEY FIELDS             00002350
+         AGO   .CONTIN                                                  00002400
+.EQUAT   ANOP                                                           00002500
+ISIMFREC EQU   *                                                        00002600
+         AGO   .CONTIN                                                  00002700
+.DSECT   ANOP                                                           00002800
+ISIMFREC DSECT                                                          00002900
+         AGO   .CONTIN                                                  00003000
+.CONTIN  ANOP                                                           00003100
+ISRECLEN DS    CL2                                                      00003200
+         DS    CL2                                                      00003300
+ISKEY    DS    0CL8                                                     00003400
+ISPPATH  DS    CL2                                                      00003500
+ISPKEY   DS    CL2                                                      00003600
+ISPCHAIN DS    CL2                                                      00003700
+ISSEQ    DS    CL2                                                      00003800
+ISDATA   DS    CL6000                                                   00003900
+         ORG   ISDATA                                                   00004000
+ISPATH   DS    CL64                                                     00004100
+ISTYPE   DS    CL1                                                      00004200
+ISCDATE  DS    CL6                                                      00004300
+ISCTIME  DS    CL6                                                      00004400
+ISMDATE  DS    CL6                                                      00004500
+ISMTIME  DS    CL6                                                      00004600
+ISADATE  DS    CL6                                                      00004700
+ISATIME  DS    CL6                                                      00004800
+ISBANK   DS    CL2                                                      00004900
+ISGROUP  DS    CL4                                                      00005000
+ISOPID   DS    CL4                                                      00005100
+ISTERMID DS    CL4                                                      00005200
+ISPATTR  DS    CL2                                                      00005300
+ISBATTR  DS    CL2                                                      00005400
+ISGATTR  DS    CL2                                                      00005500
+ISOATTR  DS    CL2                                                      00005600
+ISTATTR  DS    CL2                                                      00005700
+ISFBYTES DS    PL8                                                      00005800
+ISFRECS  DS    PL8                                                      00005900
+ISLRECL  DS    CL2                                                      00006000
+ISBLKSZ  DS    CL4                                                      00006100
+ISDSORG  DS    CL1                                                      00006200
+ISRECFM  DS    CL3                                                      00006300
+ISDCRCL  DS    CL10                                                     00006310
+         ORG   ISFBYTES                                                 00006400
+ISDDIRE  DS    PL8                                                      00006500
+         ORG                                                            00006600
+         MEND                                                           00006700

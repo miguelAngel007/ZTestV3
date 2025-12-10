@@ -1,0 +1,619 @@
+**********************************************************************  0604945
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+**********************************************************************  0604945
+* COPYBOOK : CZTS2STA - NEW ACCOUNT RECORD LAYOUTS                   *  0604945
+**********************************************************************  0604945
+STNPDA   DS   0X                   * NEW ACCOUNT PDA RECORD LAYOUT      0604945
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 01             *
+*        *************************************************************  0604945
+STN0101B DS    CL27                * BEGIN
+STN0101  DS   0CL73                * DATA
+         DS    CL2                 * FILLER
+STNAPPL  DS    CL1                 * APPLICATION
+STNACCTY DS    CL3                 * ACCOUNT TYPE
+STNSHONM DS    CL13                * SHORT NAME
+STNSSCOD DS    CL1                 * SS CODE
+STNSSNO  DS   0CL11                * SS NUMBER
+STNSSNO5 DS    CL5                 * SS NUMBER OF 5 BYTES
+         DS    CL6                 * FILLER
+STNDTOP  DS    CL6                 * DATE OPEN
+STNANDAY DS    CL2                 * ANNIVERSARY DAY
+STNBIRTH DS    CL8                 * BIRTHDATE ( MMDDSSYY )
+STNSRCE  DS    CL2                 * SOURCE FOUND
+         DS    CL3                 * FILLER
+STNTYOVR DS    CL1                 * TYPE OVERRIDE
+         DS    CL20                * FILLER
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 02             *
+*        *************************************************************  0604945
+STN0102B DS    CL27                * BEGIN
+STN0102  DS   0CL73                * DATA
+         DS    CL2                 * FILLER
+STNREGI  DS    CL3                 * REGION
+STNBRAN  DS    CL3                 * BRANCH
+STNOFFI  DS    CL5                 * OFFICER
+STNCUST  DS    CL12                * CUSTOMER NUMBER
+STNEMPL  DS    CL1                 * EMPLOYEE INDICATOR
+STNPUBOF DS    CL2                 * PUB OFF
+STNNONTX DS    CL1                 * NON TAX INDICATOR
+STNSECDE DS    CL1                 * SEC DEP
+STNDBCRD DS    CL1                 * DEBIT CARD
+STNREQSG DS    CL1                 * REQUIRED SIGNATURE
+STNPEACC DS    CL1                 * PERSONAL ACCOUNT
+STNCAACC DS    CL1                 * AUTORIZATION ACCOUT
+STNAUACC DS    CL1                 * AUDIT ACCOUNT
+STNSHAND DS    CL1                 * SPEC HAND
+STNCOMST DS    CL1                 * COMB STMT
+STNBALSN DS    CL1                 * BALANCE
+STNCYCLE DS    CL2                 * CYCLE
+STNFRM02 DS    CL1                 * FORMAT
+STNMAIL  DS    CL1                 * MAIL
+STNSPECH DS    CL1                 * SPEC HNDL
+STNDUP02 DS    CL1                 * DUP STMT
+         DS    CL29                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 03             *
+*        *************************************************************  0604945
+STN0103B DS    CL27                * BEGIN
+STN0103  DS   0CL73                * DATA
+         DS    CL2                 *
+STNHOMPH DS    CL14                * HOME PHONE
+STNOFFPH DS    CL14                * OFFICE PHONE
+STNSIGFL DS    CL1                 * SIGNATURE FILE
+STNLOCAT DS    CL10                * LOCATOR
+STNFLAG  DS    CL1                 * FLAG
+STNGDDAY DS    CL2                 * GD DAY
+STNGDAMT DS    CL15                * GD AMOUNT
+         DS    CL14
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 04             *
+*        *************************************************************  0604945
+STN0104B DS    CL27                * BEGIN
+STN0104  DS   0CL73                * DATA
+         DS    CL2                 *
+STNMARST DS    CL1                 *
+STNSEX   DS    CL1                 *
+STNRACE  DS    CL1                 *
+         DS    CL4                 *
+STNSMSNO DS    CL6                 *
+STNCNSCD DS    CL1                 *
+STNCNSNO DS    CL10                *
+STNSTATE DS    CL2                 *
+STNCONTY DS    CL3                 *
+STNALICD DS    CL1                 *
+STNCNTRY DS    CL5                 *
+STNTAXCN DS    CL2                 *
+STNIMFUN DS    CL1                 *
+STNUSERD DS   0CL10                *
+STNUSRC4 DS    CL5                 *
+STNUSRC5 DS    CL5                 *
+         DS    CL23                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 05             *
+*        *************************************************************  0604945
+STN0105B DS    CL27                * BEGIN
+STN0105  DS   0CL73                * DATA
+         DS    CL2                 *
+STNACCPH DS    CL1                 *
+STNANRAT DS    CL9                 * ANN RATE ( FRMT : 9V99999999 )
+STNACCRT DS    CL1                 *
+STNYRBAS DS    CL1                 *
+STNMOBAS DS    CL1                 *
+STNPENTY DS    CL1                 *
+STNPNDAY DS    CL3                 *
+STNTTINT DS    CL15                *
+STN1STID DS    CL6                 *
+STNPENPH DS    CL1                 *
+STNPENRE DS    CL1                 *
+STNUSETY DS    CL1                 *
+STNTIERT DS    CL1                 *
+STNRATMI DS    CL1                 *
+STNRATAJ DS    CL9                 * RATE ADJ
+         DS    CL19                * FILLER
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 06             *
+*        *************************************************************  0604945
+STN0106B DS    CL27                * BEGIN
+STN0106  DS   0CL73                * DATA
+         DS    CL2                 *
+STNSYSTY DS    CL3                 *
+STNUSCD1 DS    CL3                 *
+STNUSCD2 DS    CL3                 *
+STNUSCD3 DS    CL3                 *
+STNCLOSE DS    CL1                 *
+STNLGITD DS    CL1                 *
+STNLGITC DS    CL1                 *
+STNBALAM DS    CL1                 *
+STNLGBAL DS    CL1                 *
+STNWAI06 DS    CL1                 *
+STNPURCD DS    CL1                 *
+STNPASTR DS    CL1                 *
+STNPURDY DS    CL2                 *
+STNPURFQ DS    CL2                 *
+STNFLTTR DS    CL1                 *
+STNMIBAL DS    CL1                 *
+STNAVBAL DS    CL1                 *
+STNDCOPT DS    CL1                 *
+STNTYPTR DS    CL1                 *
+STNSTMTR DS    CL1                 *
+STNSCTR  DS    CL1                 *
+STNANACC DS    CL1                 *
+STNTRACC DS    CL1                 *
+STNATATM DS    CL1                 *
+STNPBKAC DS    CL1                 *
+STNSTLTX DS    CL1                 *
+STNTAXRE DS    CL1                 *
+STNBKUWT DS    CL1                 *
+STNTINCE DS    CL1                 *
+STNPDST  DS    CL3                 *
+STNIRATR DS    CL1                 *
+STNNRAC1 DS    CL1                 *
+STNNRAC2 DS    CL1                 *
+         DS    CL5                 *
+STNTEATR DS    CL1                 *
+STNBALHR DS    CL3                 *
+         DS    CL17                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 07             *
+*        *************************************************************  0604945
+STN0107B DS    CL27                * BEGIN
+STN0107  DS   0CL73                * DATA
+         DS    CL2                 *
+STNINTDS DS    CL1                 *
+STNSPHAN DS    CL1                 *
+STNSCH07 DS    CL1                 *
+STNCYCLF DS    CL2                 *
+STNINCRE DS    CL3                 *
+STNDAYOF DS    CL2                 *
+STNCHGCD DS    CL1                 *
+STNACBAL DS    CL1                 *
+STNDAYGR DS    CL1                 *
+STNWD    DS    CL1                 *
+STNPROJN DS    CL1                 *
+STNITWDP DS    CL1                 *
+STNITWDA DS    CL1                 *
+STNITDST DS    CL1                 *
+STNXPAY  DS    CL2                 *
+STNRAITD DS    CL1                 *
+STNCMBCH DS    CL1                 *
+STNCMBCK DS    CL1                 *
+         DS    CL48                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 08             *
+*        *************************************************************  0604945
+STN0108B DS    CL27                * BEGIN
+STN0108  DS   0CL73                * DATA
+         DS    CL2                 *
+STNAUTRE DS    CL1                 *
+STNPRIDI DS    CL1                 *
+STNSPEHA DS    CL1                 *
+STNPRONO DS    CL1                 *
+STNPERIO DS    CL1                 *
+STNINC08 DS    CL3                 *
+STNROLMT DS    CL1                 *
+STNFRQ08 DS    CL1                 *
+STNNGITR DS    CL1                 *
+STNVARTC DS    CL1                 *
+STNPOOCD DS    CL1                 *
+STNMNBLP DS    CL1                 *
+STNMNBLA DS    CL15                *
+STNMXBLP DS    CL1                 *
+STNMXBLA DS    CL15                *
+STNSAFKE DS    CL1                 *
+STNVAPER DS    CL1                 *
+STNVAINC DS    CL3                 *
+STNMNBLR DS    CL1                 *
+STNVADAY DS    CL2                 *
+STNVAFRQ DS    CL2                 *
+STNUNRED DS    CL1                 *
+         DS    CL15                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 09             *
+*        *************************************************************  0604945
+STN0109B DS    CL27                * BEGIN
+STN0109  DS   0CL73                * DATA
+         DS    CL2                 *
+STNCHG1  DS    CL1                 *
+STNLIM1  DS    CL3                 *
+STNCHG2  DS    CL1                 *
+STNLIM2  DS    CL3                 *
+STNCHG3  DS    CL1                 *
+STNLIM3  DS    CL3                 *
+STNCHG4  DS    CL1                 *
+STNLIM4  DS    CL3                 *
+STNCHG5  DS    CL1                 *
+STNLIM5  DS    CL3                 *
+STNLADCH DS    CL3                 *
+STNLADIN DS    CL3                 *
+STNLADMA DS    CL3                 *
+STNLADRE DS    CL3                 *
+STNSVTYP DS    CL1                 *
+         DS    CL38
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 10             *
+*        *************************************************************  0604945
+STN0110B DS    CL27                * BEGIN
+STN0110  DS   0CL73                * DATA
+         DS    CL2                 *
+STNTYP11 DS    CL1                 *
+STNSQCHK DS    CL1                 *
+STNOUTSQ DS    CL1                 *
+STNINAMT DS    CL1                 *
+STNPAYAT DS    CL15                *
+STNNOPY  DS    CL3                 *
+         DS    CL49                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 11             *
+*        *    - START OF SECOND ICR ( ST01 TRANSACTION )             *
+*        *************************************************************  0604945
+STN0111B DS    CL27                * BEGIN
+STN0111  DS   0CL73                * DATA
+         DS    CL2                 *
+STNMATUR DS    CL6                 *
+STNCDROL DS   0CL17                *
+STNCODE  DS    CL1                 *
+STNTYP12 DS    CL3                 *
+STNRATE  DS    CL9                 * RATE ( FRMT : 9V99999999 )
+STNPER   DS    CL1                 *
+STNINC11 DS    CL3                 *
+STNCDGRC DS   0CL12                *
+STNGRATE DS    CL9                 * RATE ( FRMT : 9V99999999 )
+STNGPTR  DS    CL2                 *
+STNGACCR DS    CL1                 *
+         DS    CL36                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 12             *
+*        *************************************************************  0604945
+STN0112B DS    CL27                * BEGIN
+STN0112  DS   0CL73                * DATA
+         DS    CL2                 *
+STNMNRAT DS    CL9                 *
+STNMXRAT DS    CL9                 *
+         DS    CL53                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 13             *
+*        *************************************************************  0604945
+STN0113B DS    CL27                * BEGIN
+STN0113  DS   0CL73                * DATA
+         DS    CL2                 *
+STNBRUST DS    CL1                 *
+STNBRNWR DS    CL1                 *
+STNBRRTC DS    CL1                 *
+STNBRRTE DS    CL9                 * RATE ( FRMT : 9V99999999 )
+STNBRTRM DS    CL1                 *
+STNBRINC DS    CL3                 *
+STNBREXP DS    CL6                 *
+         DS    CL49                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 20             *
+*        *************************************************************  0604945
+STN0120B DS    CL27                * BEGIN
+STN0120  DS   0CL73                * DATA
+         DS    CL2                 *
+STNPULCD DS    CL1                 *
+STNCYCNO DS    CL2                 *
+STNFRM20 DS    CL1                 *
+STNMOSTM DS    CL1                 *
+STNSTMOV DS    CL1                 *
+STNMAFLG DS    CL1                 *
+STNHAND  DS    CL1                 *
+STNDUP20 DS    CL1                 *
+STNPRTOP DS    CL1                 *
+STNSNAPF DS    CL1                 *
+         DS    CL60                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 21             *
+*        *************************************************************  0604945
+STN0121B DS    CL27                * BEGIN
+STN0121  DS   0CL73                * DATA
+         DS    CL2                 *
+STNTYP21 DS    CL1                 *
+STNSCH21 DS    CL1                 *
+STNDAYMO DS    CL2                 *
+STNFRQ21 DS    CL2                 *
+STNWAI21 DS    CL1                 *
+STNREAS  DS    CL2                 *
+         DS    CL62                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 22             *
+*        *************************************************************  0604945
+STN0122B DS    CL27                * BEGIN
+STN0122  DS   0CL73                * DATA
+         DS    CL2                 *
+STNTYP22 DS    CL1                 *
+STNPRIME DS    CL1                 *
+STNDISAB DS    CL1                 *
+         DS    CL1                 *
+STNMXCTR DS    CL1                 *
+STNLIMIT DS    CL5                 *
+STNSSSCD DS    CL1                 *
+STNSSSPR DS    CL1                 *
+STNSSSNO DS    CL9                 *
+STNSSSSX DS    CL1                 *
+STNSBIRT DS    CL6                 *
+STNSINTR DS    CL1                 *
+STNSBTYP DS    CL3                 *
+STNSDFLG DS    CL1                 *
+STNBENFL DS    CL1                 *
+STNADORD DS    CL1                 *
+STNADSEQ DS    CL3                 *
+STNBENPC DS    CL5                 * BEN ( FRMT : 99V999 )
+         DS    CL28
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 23             *
+*        *************************************************************  0604945
+STN0123B DS    CL27                * BEGIN
+STN0123  DS   0CL73                * DATA
+         DS    CL2                 *
+STNPKEY  DS   0CL27                *
+STNPLID  DS    CL12                *
+STNIRSQ  DS    CL3                 *
+STNEPLID DS    CL12                *
+STNEPRID DS    CL12                *
+STNBLLCD DS    CL1                 *
+STNAVER  DS    CL1                 *
+STNDTHEX DS    CL1                 *
+         DS    CL29                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 24             *
+*        *************************************************************  0604945
+STN0124B DS    CL27                * BEGIN
+STN0124  DS   0CL73                * DATA
+         DS    CL2                 *
+STNMNDIS DS    CL15                *
+STNSC24D DS    CL1                 *
+STNPYAMT DS    CL15                *
+STNSC24A DS    CL1                 *
+STNFRQ24 DS    CL1                 *
+STNDAY1  DS    CL2                 *
+STNDAY2  DS    CL2                 *
+STNMOSCH DS    CL2                 *
+STNSTRDT DS    CL6                 *
+STNDISTC DS    CL5                 *
+STNDISTE DS    CL6                 *
+STNEARLY DS    CL1                 *
+         DS    CL14                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 25             *
+*        *************************************************************  0604945
+STN0125B DS    CL27                * BEGIN
+STN0125  DS   0CL73                * DATA
+         DS    CL2                 *
+STNWTHEX DS    CL1                 *
+STNFTXME DS    CL1                 *
+STNFTXRA DS    CL3                 *
+STNFTXAM DS    CL15                *
+STNFTXEX DS    CL3                 *
+STNFTXSG DS    CL1                 *
+         DS    CL6                 *
+STNSTXME DS    CL1                 *
+STNSTXRA DS    CL3                 *
+STNSTXAM DS    CL15                *
+STNSTXEX DS    CL3                 *
+STNSTXSG DS    CL1                 *
+         DS    CL18
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 01  AND  SUB-COD = 99             *
+*        *************************************************************  0604945
+STN0199B DS    CL27                * BEGIN
+STN0199  DS   0CL73                * DATA
+         DS    CL2                 *
+STNTEAYT DS    CL15                *
+STNFOLUP DS    CL1                 * FOLLOW UP INDICATOR
+STNFLUPA DS    CL15                * FOLLOW UP AMOUNT
+STNCERTP DS    CL1                 *
+         DS    CL39                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = 11 (OCC 1)     *
+*        *    - NAME AND ADRRESS                                     *
+*        *************************************************************  0604945
+STN02X1B DS    CL27                * BEGIN
+STN02X1  DS   0CL73                * DATA
+STNNATS1 DS   0CL2                 * TYPE & SEQUENCE
+STNNATY1 DS    CL1                 * - TYPE
+STNNASQ1 DS    CL1                 * - SEQUENCE
+STNNANM1 DS    CL40                * NAME
+STNNASS1 DS    CL1                 * SS
+         DS    CL5                 *
+STNNAPR1 DS    CL1                 *
+         DS    CL24                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = XX (OCC 2)     *
+*        *    - NAME AND ADRRESS                                     *
+*        *************************************************************  0604945
+STN02X2B DS    CL27                * BEGIN
+STN02X2  DS   0CL73                * DATA
+STNNATS2 DS   0CL2                 * TYPE & SEQUENCE
+STNNATY2 DS    CL1                 * - TYPE
+STNNASQ2 DS    CL1                 * - SEQUENCE
+STNNANM2 DS    CL40                * NAME
+STNNASS2 DS    CL1                 * SS
+         DS    CL5                 *
+STNNAPR2 DS    CL1                 *
+         DS    CL24                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = XX (OCC 3)     *
+*        *    - NAME AND ADRRESS                                     *
+*        *************************************************************  0604945
+STN02X3B DS    CL27                * BEGIN
+STN02X3  DS   0CL73                * DATA
+STNNATS3 DS   0CL2                 * TYPE & SEQUENCE
+STNNATY3 DS    CL1                 * - TYPE
+STNNASQ3 DS    CL1                 * - SEQUENCE
+STNNANM3 DS    CL40                * NAME
+STNNASS3 DS    CL1                 * SS
+         DS    CL5                 *
+STNNAPR3 DS    CL1                 *
+         DS    CL24                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = XX (OCC 4)     *
+*        *    - NAME AND ADRRESS                                     *
+*        *************************************************************  0604945
+STN02X4B DS    CL27                * BEGIN
+STN02X4  DS   0CL73                * DATA
+STNNATS4 DS   0CL2                 * TYPE & SEQUENCE
+STNNATY4 DS    CL1                 * - TYPE
+STNNASQ4 DS    CL1                 * - SEQUENCE
+STNNANM4 DS    CL40                * NAME
+STNNASS4 DS    CL1                 * SS
+         DS    CL5                 *
+STNNAPR4 DS    CL1                 *
+         DS    CL24                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = XX (OCC 5)     *
+*        *    - NAME AND ADRRESS                                     *
+*        *************************************************************  0604945
+STN02X5B DS    CL27                * BEGIN
+STN02X5  DS   0CL73                * DATA
+STNNATS5 DS   0CL2                 * TYPE & SEQUENCE
+STNNATY5 DS    CL1                 * - TYPE
+STNNASQ5 DS    CL1                 * - SEQUENCE
+STNNANM5 DS    CL40                * NAME
+STNNASS5 DS    CL1                 * SS
+         DS    CL5                 *
+STNNAPR5 DS    CL1                 *
+         DS    CL24                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = 30             *
+*        *************************************************************  0604945
+STN0230B DS    CL27                * BEGIN
+STN0230  DS   0CL73                * DATA
+         DS    CL2                 *
+STNCITST DS    CL3                 * CIT ST CODE
+         DS    CL68                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = 31             *
+*        *************************************************************  0604945
+STN0231B DS    CL27                * BEGIN
+STN0231  DS   0CL73                * DATA
+         DS    CL2                 *
+STNCTYLN DS    CL30                *
+STNFRGAD DS    CL1                 *
+         DS    CL40
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = 32             *
+*        *************************************************************  0604945
+STN0232B DS    CL27                * BEGIN
+STN0232  DS   0CL73                * DATA
+         DS    CL2                 *
+STNZIPCD DS    CL5                 *
+STNZIPCE DS    CL5                 *
+         DS    CL61                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 1)     *
+*        *************************************************************  0604945
+STN031B1 DS    CL27                * BEGIN
+STN03011 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY1 DS    CL2                 * ACCOUNT TYPE
+STNSYST1 DS    CL2                 * SYSTEM
+STNCTRL1 DS    CL31                * CONTROLS
+STNAMNT1 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 2)     *
+*        *************************************************************  0604945
+STN031B2 DS    CL27                * BEGIN
+STN03012 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY2 DS    CL2                 * ACCOUNT TYPE
+STNSYST2 DS    CL2                 * SYSTEM
+STNCTRL2 DS    CL31                * CONTROLS
+STNAMNT2 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 3)     *
+*        *************************************************************  0604945
+STN031B3 DS    CL27                * BEGIN
+STN03013 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY3 DS    CL2                 * ACCOUNT TYPE
+STNSYST3 DS    CL2                 * SYSTEM
+STNCTRL3 DS    CL31                * CONTROLS
+STNAMNT3 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 4)     *
+*        *************************************************************  0604945
+STN031B4 DS    CL27                * BEGIN
+STN03014 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY4 DS    CL2                 * ACCOUNT TYPE
+STNSYST4 DS    CL2                 * SYSTEM
+STNCTRL4 DS    CL31                * CONTROLS
+STNAMNT4 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 5)     *
+*        *************************************************************  0604945
+STN031B5 DS    CL27                * BEGIN
+STN03015 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY5 DS    CL2                 * ACCOUNT TYPE
+STNSYST5 DS    CL2                 * SYSTEM
+STNCTRL5 DS    CL31                * CONTROLS
+STNAMNT5 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 01 (OCC 6)     *
+*        *************************************************************  0604945
+STN031B6 DS    CL27                * BEGIN
+STN03016 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY6 DS    CL2                 * ACCOUNT TYPE
+STNSYST6 DS    CL2                 * SYSTEM
+STNCTRL6 DS    CL31                * CONTROLS
+STNAMNT6 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 02 (OCC 7)     *
+*        *************************************************************  0604945
+STN032B7 DS    CL27                * BEGIN
+STN03057 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY7 DS    CL2                 * ACCOUNT TYPE
+STNSYST7 DS    CL2                 * SYSTEM
+STNCTRL7 DS    CL31                * CONTROLS
+STNAMNT7 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 03  AND  SUB-COD = 04 (OCC 8)     *
+*        *************************************************************  0604945
+STN034B8 DS    CL27                * BEGIN
+STN03058 DS   0CL73                * DATA
+         DS    CL2                 *
+STNACTY8 DS    CL2                 * ACCOUNT TYPE
+STNSYST8 DS    CL2                 * SYSTEM
+STNCTRL8 DS    CL31                * CONTROLS
+STNAMNT8 DS    CL15                * AMOUNT
+         DS    CL21                *
+*        *************************************************************  0604945
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 02  AND  SUB-COD = 40             *
+*        *************************************************************  0604945
+STN0240B DS    CL27                * BEGIN
+STN0240  DS   0CL73                * DATA
+         DS    CL2                 *
+STNSSNAM DS    CL40                * SS NAME
+         DS    CL31                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 029 AND  SUB-COD = X              *
+*        *************************************************************  0604945
+STN0290B DS    CL27                * BEGIN
+STN0290  DS   0CL73                * DATA
+         DS    CL1                 *
+STNSPLCD DS    CL1                 * SPL TYPE
+STNSPLDS DS    CL40                * SPL DESCRIPTION
+         DS    CL31                *
+*        *************************************************************  0604945
+*        *    NEW ACCOUNT : TRAN = 04  AND  SUB-COD = 01             *
+*        *************************************************************  0604945
+STN0401B DS    CL27                * BEGIN
+STN0401  DS   0CL73                * DATA
+         DS    CL2                 *
+STNIBNAM DS    CL20                * IB NAME
+         DS    CL51                *
+*
+STNEND   EQU   *-STNPDA            * TOTAL LENGTH OF ST01 PDA

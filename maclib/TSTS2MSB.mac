@@ -1,0 +1,83 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00000100
+*********************************************************************** 00000200
+*           TSTS2MSB - GN ITR MODEL SEARCH/BUILD COMMAREA             * 00000300
+*                                                                     * 00000400
+*---------------------------------------------------------------------* 00000500
+*                   HISTORY OF REVISIONS                              * 00000501
+*   DESCRIPTION                                                CHG ID * 00000502
+* ----------------------------------------------------------- ------- * 00000503
+* 11/27/00  ADDED ERROR '23'                                  2024239 * 00000992
+* 11/10/99  ADDED NCA ADDRESS                                 2021071 * 00000994
+* 09/25/98  ADDED ERROR COMMENTS FOR LU62 MODEL ITRS          9913936 * 00000996
+* 04/30/98  ADDED NEW FIELDS FOR DYNAMIC EORS                 9913482 * 00000997
+* 12/05/97 NEW COPYBOOK.                                       ~~~0846* 00000999
+*********************************************************************** 00001000
+*                                                                       00001100
+TSTSMDSB DSECT                                                          00001200
+MDCOMMA  DS    0CL95           START OF COMMAREA                        00001300
+MDEYECAT DS    CL8             VALUE '**MDSB**'                         00001400
+MDCALEN  DS    XL2             LENGTH OF COMMAREA VALUE +125  9913482   00001500
+MDPROCTY DS    CL1             ITR/EOR PROCESS TYPE           9913482   00001600
+*                               '0'-ORIGINAL ITR / ORIG EOR   9913482   00001700
+*                               '1'-DYNAMIC ITR / ORIG EOR    9913482   00001800
+*                               '2'-ITR CB / ORIGINAL EOR     9913482   00001900
+*                               '3'-DYNAMIC ITR / DYNAMIC EOR 9913482   00001901
+*                               '4'-ITR CB / DYNAMIC EOR      9913482   00001902
+MDFEPFLG DS    CL1             FRONT-END PROCESSING FLAG                00002000
+*                               'A'-ADMIN                               00002100
+*                               'B'-TS/BMS                              00002200
+*                               'F'-FIAS                                00002300
+*                               'N'-NATIVE                              00002400
+*                               'O'-OTHER                               00002500
+MDMDUSE  DS    CL1             USE MODEL TO BUILD ITR                   00002600
+*                               '0'-NO                                  00002700
+*                               '1'-YES, USE THIS ITR AS MODEL          00002800
+MDQSIADR DS    XL4             QSI ADDRESS                              00002900
+MDITMADR DS    XL4             ITR MODEL RECORD ADDRESS                 00003000
+MDITRMPT DS    CL4             ITR MODEL POINTER                        00003100
+MDEORMPT DS    CL8             EOR MODEL POINTER              9913482   00003110
+MDEORPTF DS    CL1             EOR MODEL POINTER FLAG         9913482   00003120
+*                               '0'-INITIALIZED               9913482   00003121
+*                               '1'-ITR BUILD ONLY            9913482   00003122
+*                               '2'-EOR BUILD ONLY            9913482   00003123
+MDNADTLR DS    CL1             DEVICE/TRANSACTION TYPE                  00003200
+*                               'A'-ADMIN/3270-TYPE TRAN                00003300
+*                               'P'-PC (CLIENT/SERVER) TRAN             00003400
+*                               'T'-TELLER TRANSACTION                  00003500
+*                               'M'-MA TRANSACTION                      00003600
+MDEMPID  DS    CL8             EMPLOYEE ID                              00003700
+MDRPTLVL DS    CL12            REPORT LEVELS                            00003800
+MDEMPINI DS    CL3             EMPLOYEE INITIALS              9913482   00003810
+MDEMPNAM DS    CL20            EMPLOYEE NAME                  9913482   00003820
+MDTTRCL  DS    CL10            TTR CLASS                                00003900
+MDEORGRP DS    CL2             EOR GROUP                                00004000
+MDPHYLCN DS    CL4             PHYSICAL LOCATION                        00004100
+MDRTNUSD DS    CL1             MODEL ROUTINE USED                       00004200
+*                               '1'-ROUTINE 1                           00004300
+*                               'C'-ROUTINE 1 WITH OVERRIDES            00004400
+*                               '2'-ROUTINE 2                           00004500
+*                               '3'-ROUTINE 3                           00004600
+*                               '4'-ROUTINE 4                           00004700
+*                               '6'-ROUTINE 6                 2024239   00004710
+MDRETCD  DS    CL2             RETURN CODE                              00004800
+*                              VALUE '00'-GOOD RETURN CODE              00004900
+*                                    '01'-FATAL ERROR - USE ITR SYSTEM  00005000
+*                                         REC AS MODEL, BUT MODEL USE   00005100
+*                                         FLAG EQUAL 0                  00005200
+*                                    '02'-MODEL USE FLAG NOT 0 OR 1     00005300
+*                                    '03'-ACEE DOES NOT EXIST           00005400
+*                                    '04'-ERROR ON SSR READNEXT         00005500
+*                                    '05'-ERROR ON SSR ENDBR            00005600
+*                                    '06'-SSR NOT FOUND IN CORE         00005700
+*                                    '07'-NOT TSITR ENTRY ON SSR        00005800
+*                                    '08'-CICS ERROR          9913482   00005810
+*                                    '09'-EMPID=DEFAULT USER  9913482   00005820
+*                                    '10'-LU62 NOT DEFINED    9913936   00005830
+*                                    '17'-NO RPT LVL IN TTR   2021071   00005832
+*                                    '18'-NO MODEL TTR        2021071   00005834
+*                                    '20'-NO MODEL TTR OCCURS 2021071   00005836
+*                                    '22'-NO RPT LVL XMIT MSG 2021071   00005838
+*                                    '23'-EOR MODEL PTR SPACES2024239   00005839
+MDNCAADR DS    XL4             NCA ADDRESS                    2021071   00005840
+         DS    CL24            FILLER                         2021071   00005900

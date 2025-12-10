@@ -1,0 +1,43 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*  TSTS4PEA - THIS COPYBOOK CAN BE USED IN ASSEMBLER PROGRAMS TO      * 00002000
+*             CALL SIPCCDIO TO GET SASIOPTE.                          * 00003000
+*---------------------------------------------------------------------* 00004000
+*                    ** HISTORY OF REVISIONS **                       * 00005000
+*                                                                     * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* __________________________________________________________  _______ * 00008000
+* 12/16/16 INITIAL DISTRIBUTION                                GN7046 * 00009000
+*********************************************************************** 00010000
+         ST    R9,SVREGR9              SAVE R9                          00011000
+         XC    WSGSTADR,WSGSTADR       INIT GETSTOR ACQ ADDR            00012000
+         XC    WSGSTRLN,WSGSTRLN       INIT GETSTOR REQ LENG            00013000
+         XC    WSGSTALN,WSGSTALN       INIT GETSTOR ACQ LENG            00014000
+         MVC   WSGSTRLN+2(2),=H'1024'  SET GETSTOR REQ LENG             00015000
+         MVI   WSGSTRLN,X'00'          SET INITIMG TO LV                00016000
+         MVC   SAS9FUN2,=C'GETSTOR 0062' INIT GETSTOR VERB              00017000
+         SPACE                                                          00018000
+         SIPLIST PARMLIS2,(DFHEIBLK,WSSACBAD,WSRKAREA,SAS9FUN2,        X00019000
+               WSGSTADR,WSGSTRLN,WSGSTALN)                              00020000
+         SPACE                                                          00021000
+         LA    R1,PARMLIS2             LOAD PARMLIST ADDRESS            00022000
+         CALL  SAS0001C                DO GETSTOR                       00023000
+         MVC   SVCBOPEA,WSGSTADR       SAVE GETSTOR ACQ ADDR            00024000
+         ICM   R9,15,SVCBOPEA          GET SASIOPTE REC ADDR            00025000
+         USING SASIOPTE,R9             GET SASIOPTE REC ADDR            00026000
+         MVC   SIOPESN,=CL8'SASIOPTE'  SET FOR READ                     00027000
+         MVC   SIOPEC1,=X'FFFF'        SET CTL1 DFLT                    00028000
+         MVI   SIOPESK,C' '            CLEAR SEARCH KEY                 00029000
+         MVI   SIOPESK,C' '            CLEAR SEARCH KEY                 00030000
+         MVC   SIOPESK+1(L'SIOPESK-1),SIOPESK       ''                  00031000
+         SPACE                                                          00032000
+*        EXEC CICS LINK PROGRAM('SIPCCDIO')                             00033000
+*                       COMMAREA(0(,R9))                                00034000
+*                       LENGTH(=Y(OPTELEN))                             00035000
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'SIPCCDIO'),(______R*
+               F,0(,R9)),(FB_2,=Y(OPTELEN))
+         SPACE                                                          00036000
+         MVC   SVOPEDB2,SIOPEDB2                                        00037000
+         ICM   R9,15,SVREGR9                                            00038000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

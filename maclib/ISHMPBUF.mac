@@ -1,0 +1,17 @@
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*          H M P   B U F F E R   D S E C T                            * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+*                                                                       00000600
+BUFAREA  DSECT                        HMP BUFFER AREA                   00000700
+HMPBUF   DS    0CL8192                                                  00000800
+HMPBHDR  DS    0CL12                  HMP BUFFER HEADER                 00000900
+HMPBMSG  DS    CL4                    HMP BUFFER MESSAGE                00001000
+HMPBFLG  DS    0CL4                   HMP BUFFER FLAGS                  00001100
+HMPBSEQ  DS    CL1                    HMP BUFFER SEQ                    00001200
+HMPBVER  DS    CL1                    HMP BUFFER VERSION                00001300
+HMPAKNK  DS    CL1                    HMP ACK NAK                       00001400
+         DS    CL1                                                      00001500
+HMPBLEN  DS    CL4                    HMP BUFFER LENGTH                 00001600
+         DS    CL8180                                                   00001700

@@ -1,0 +1,27 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+******************************************************************      00000100
+*                                                                *      00000200
+*       TSTS2PIT - PASS INDICATOR VALUE TABLE COPYBOOK           *      00000300
+*                                                                *      00000400
+******************************************************************      00000500
+TSPIT    DSECT                                                          00000600
+PITTBLN  DS    XL4                   TABLE LENGTH                       00000700
+*                                                                       00000800
+PITAPBAS DS    0CL3                  APPLICATION ENTRY - BASE SEGMENT   00000900
+PITDFVAL DS    X                     DEFAULT PASS INDICATOR VALUE       00001000
+PITENLG  DS    XL2                   ENTRY LENGTH                       00001100
+*                                                                       00001200
+PITDEF   DS    CL266                                          0722973   00001300
+         ORG   PITDEF                                                   00001400
+PITDEFS  DS    0CL266                                         0722973   00001500
+PITTRNCD DS    CL8                   TRANSACTION CODE                   00001600
+PITTRN25 DS    CL192                 TRANSACTION CODES 2 - 25           00001700
+PITFLDS  DS    0CL65                 PIT FIELD ENTRIES 1-5    0722973   00001800
+PITFIELD DS    0CL13                   PIT FIELD ENTRY 1      0722973   00001900
+PITFLD   DS    CL8                       PIT FIELD ID         0722973   00002000
+PITFLAG  DS    CL1                       PIT FIELD FLAG       0722973   00002100
+PITLCTL  DS    XL1                       PIT LEN DEF CTL FLD  0722973   00002200
+PITPCTL  DS    XL1                       PIT POS DEF CTL FLD  0722973   00002210
+PITPFCA  DS    XL2                       PIT POS IN FIAS C/A  0722973   00002220
+PITFLD25 DS    CL52                      PIT FLD ENT 2 - 5    0722973   00002230
+PITINVAL DS    CL1                   PASS INDICATOR VALUE               00002300

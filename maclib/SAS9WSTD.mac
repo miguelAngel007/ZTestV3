@@ -1,0 +1,31 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*                                                                     * 00000999
+*********************************************************************** 00001000
+*                                                                     * 00002000
+* * * * * * *           W   S   T   A   B               * * * * * * * * 00003000
+*                                                                     * 00004000
+*      TABLE OF GLOBAL DATA GROUPS FOR THE COBOL CONTROL MODULE       * 00005000
+*                                                                     * 00006000
+*********************************************************************** 00007000
+         SPACE 3                                                        00008000
+WSTAB    DSECT                                                          00009000
+WSTBNAME DS    CL08                DAG NAME                             00010000
+WSTBDSP1 DS    CL01                DAG INCOMING DISPOSITION             00011000
+WSTBNEW  EQU   C'N'                 NEW                       2501124   00011010
+WSTBOLD  EQU   C'O'                 OLD                       2501124   00011020
+WSTBDFER EQU   C'D'                 DEFERRED ALLOCATION       2501124   00011030
+WSTBMOD  EQU   C'M'                 MOD-CREATE IF MISSING     2501124   00011040
+WSTBCOND EQU   C'C'                 CONDITIONAL-SKIP IF MISSIN2501124   00011050
+WSTBDSP2 DS    CL01                DAG OUTGOING DISPOSITION             00012000
+WSTBKEEP EQU   C'K'                 KEEP                      2501124   00013000
+WSTBDLET EQU   C'D'                 DELETE                    2501124   00014000
+WSTBPASS EQU   C'P'                 PASS                      2501124   00015000
+WSTBSAVE EQU   C'S'                 SAVE                      2501124   00016000
+WSTBDGL4 DS    0XL4                FULL SEG LENGTH FIELD      2501124   00017000
+         DS    XL2 *DO NOT DISTURB* SEG LGTH IS 4 BYTES IN COBOL.       00018000
+WSTBDAGL DS    XL02                MAXIMUM SEGMENT LENGTH               00019000
+WSTBALOC DS    C                   SET ON IF DAG ALLOCATED BY SASERV    00020000
+*                                   RATHER THAN 'USING' PARAMETER ADDR  00021000
+WSTBLEN  EQU   *-WSTAB                                                  00022000
+*                                                                     * 00023000
+*********************************************************************** 00024000

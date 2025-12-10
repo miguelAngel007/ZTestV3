@@ -1,0 +1,136 @@
+         MACRO                                                          00010000
+         ECASE &NAME                                                    00020000
+.* -----------------------------------------------------------------    00030000
+.* 5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983                    00040000
+.* 5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983                    00050000
+.* 5798-CLF COPYRIGHT IBM CORP. 1976                                    00060000
+.* LICENSED MATERIAL - PROGRAM PROPERTY OF IBM                          00070000
+.* REFER TO COPYRIGHT INSTRUCTIONS FROM NO. G120-2083                   00080000
+.* -----------------------------------------------------------------    00090000
+.*                                                                      00100000
+ GBLA &$PMAFO      * AND FOLLOWED BY OR COUNTER                         00110000
+ GBLA &$PMCNO      * CASE NUMBER                                        00120000
+ GBLA &$PMINC      * IF NESTING LEVEL COUNT                             00130000
+ GBLA &$PMPNI      * PROC NESTING INDEX                                 00140000
+ GBLA &$PMPNO      * PROC NUMBER WITHIN CASE                            00150000
+ GBLA &$PMPSC      * CONDITION (PREDICATE SET) COUNTER                  00160000
+ GBLA &$PMNDX      * LABEL SEQUENCE COUNTER                   @JBTR     00170000
+.*                                                                      00180000
+ GBLB &$PMCCI      * USER DEFINED CASE INDICATOR                        00190000
+ GBLB &$PMCEM      * CASE ERROR PROC PRESENT INDICATOR                  00200000
+ GBLB &$PMCICS     * CICS OPTION                                        00210000
+ GBLB &$PMCIND     * CASE ACTIVE (WITHIN CASE/ECASE) INDICATOR          00220000
+ GBLB &$PMDCLS     * DCL ACTIVE (WITHIN DCL/EDCL PAIR)                  00230000
+ GBLB &$PMES(20)   * ELSE MACRO PRESENT INDICATOR                       00240000
+ GBLB &$PMOAA      * OR AND AND INDICATOR                               00250000
+ GBLB &$PMOERR     * CASE SEQ ERR INDICATOR                             00260000
+ GBLB &$PMPCI      * PROC CASE INDICATOR                                00270000
+ GBLB &$PMPMS      * PROC MAIN ACTIVE SWITCH                            00280000
+ GBLB &$PMROS      * RENT (REENTRANT) OPTION SW FROM PROC               00290000
+.*                                                                      00300000
+ GBLC &$PMCLBL     * CASE LABEL FOR ECASE                               00310000
+ GBLC &$PMINS(20)  * IF NESTED SYSNDX VALUE                             00320000
+ GBLC &$PMISN(20)  * IF SYMBOLIC NAME                                   00330000
+ GBLC &$PMLKR      * PROC LINK REGISTER (PROC PERFORM EPROC)            00340000
+ GBLC &$PMPCA(255)  * USER DEFINED CASE ARRAY                           00350000
+ GBLC &$PMPMX      * CURRENT SYSNDX VALUE                               00360000
+ GBLC &$PMPNM(20)  * PROC NESTED NAME                                   00370000
+ GBLC &$PMPNS(20)  * PROC NESTING SYMBOL                                00380000
+ GBLC &$PMPTP(20)  * PROC TYPE C=CASE L=CLOSED E=ERROR                  00390000
+ GBLC &$PMWR1      * WORK REGISTER 1 NAME                               00400000
+ GBLC &$PMWR2      * WORK REGISTER 2 NAME                               00410000
+ GBLC &$PMWSN      * WRKAREA SYMBOLIC NAME                              00420000
+.*                                                                      00430000
+.* -----------------------------------------------------------------    00440000
+ LCLA  &PCOUNT                                                          00450000
+ LCLA  &INDEX                                                           00460000
+ LCLA  &MAXIND                                                          00470000
+ LCLA  &LOWVECT                                                         00480000
+ LCLB  &LOWIND                                                          00490000
+ LCLC  &MINVECT                                                         00500000
+ LCLC  &ENTRY                                                           00510000
+ LCLC  &BRTO                                                            00520000
+ LCLC  &CC                                                              00530000
+ LCLC  &MAXVECT                                                         00540000
+  LCLC  &PLBL                                                           00550000
+  LCLC  &EXIT                                                           00560000
+.* ----------------------------------------------------------------     00570000
+.*    --- CHECK FOR ERRORS ---                                          00580000
+         AIF   (&$PMCIND EQ 0).ERROR4   * 604 NO CASE CODED             00590000
+         AIF   (&$PMOERR EQ 1).ERROR5   * 605 ERROR IN SEQ IND          00600000
+         AIF   (&$PMPCI EQ 1).PCERR3    * FORGOT EPROC GEN ONE          00610000
+.PROK    AIF   (&$PMCEM  EQ 0).ERROR6   * 606 NO ERROR PROC ISSUED      00620000
+&$PMCEM  SETB  0              * TURN OFF PROC ERROR SW                  00630000
+.OKA      AIF   ('&NAME' NE '&$PMCLBL').ERROR7 * 607 NAMES DON'T MATCH  00640000
+.OK      ANOP                                                           00650000
+.*    --- GENERATE THE CODE ---                                         00660000
+&$PMCIND SETB  0                            * RESET IN CASE IND         00670000
+&INDEX   SETA  1               * INITALIZE THE COUNTER                  00680000
+         SPACE 1                                                        00690000
+&ENTRY   SETC  '$PMVT&$PMCNO'                                           00700000
+&ENTRY   DS    0H                           * ENTRY TO BRANCH TABLE     00710000
+&CC      SETC  '&$PMCNO'                                                00720000
+         AIF   (&$PMCNO GT 9).GT9                                       00730000
+&CC      SETC  '0'.'&$PMCNO'                                            00740000
+.GT9     ANOP                                                           00750000
+         AIF   (&$PMCCI).UDEF                                           00760000
+.AGAIN   ANOP                                                           00770000
+&PCOUNT  SETA  &PCOUNT+1                    * INITIALIZE COUNTER        00780000
+         AIF   ('&PCOUNT' GT '&$PMPNO').DONE  * ENOUGH GENERATED ?      00790000
+&BRTO    SETC  '$PC'.'&CC'.'&PCOUNT'                                    00800000
+         B     &BRTO                                                    00810000
+         AGO   .AGAIN                                                   00820000
+.UDEF    ANOP  USER DEFINED CODES                                       00830000
+&MAXIND  SETA  255                                                      00840000
+.CHECK   AIF   ('&$PMPCA(&MAXIND)' NE 'E').MAXHIT                       00850000
+&MAXIND  SETA  &MAXIND-1                                                00860000
+         AIF   (&MAXIND EQ 0).NONE                                      00870000
+         AGO   .CHECK                                                   00880000
+.MAXHIT  ANOP                                                           00890000
+         AIF   ('&$PMPCA(&INDEX)' EQ 'E').ERRBR                         00900000
+         AIF   (&LOWIND).LOWSET                                         00910000
+&LOWIND  SETB  1                            TURN ON LOW IND             00920000
+&LOWVECT SETA  &INDEX                       SAVE THE VALUE              00930000
+.LOWSET  ANOP                                                           00940000
+&BRTO    SETC  '$PC'.'&CC'.'&$PMPCA(&INDEX)'                            00950000
+.INSTRCT B     &BRTO                                                    00960000
+.BUMP    ANOP                                                           00970000
+&INDEX   SETA  &INDEX+1                                                 00980000
+         AIF   (&INDEX LE &MAXIND).MAXHIT                               00990000
+.* GENERATE MAXVECT AND EXIT                                            01000000
+&MAXVECT SETC  '$PMVM&$PMCNO'                                           01010000
+&MINVECT SETC  '$PMMV&$PMCNO'                                           01020000
+&LOWVECT SETA  &LOWVECT-1                                               01030000
+&MINVECT DC    F'&LOWVECT'                                              01040000
+&MAXVECT DC    F'&MAXIND'                                               01050000
+         AGO   .EXIT                                                    01060000
+.DONE    ANOP                                                           01070000
+&MAXVECT SETC  '$PMVM&$PMCNO'                                           01080000
+&MAXVECT DC    F'&$PMPNO'                   * MAX PROC CONSTANT         01090000
+.EXIT    ANOP                                                           01100000
+&EXIT    SETC  '$PMCX&$PMCNO'                                           01110000
+&EXIT    DS    0H                           * EXIT POINT                01120000
+         MEXIT                                                          01130000
+.ERRBR   ANOP                                                           01140000
+         AIF   (NOT &LOWIND).BUMP                                       01150000
+&BRTO    SETC  '$CERR'.'&$PMCNO'                                        01160000
+         AGO   .INSTRCT                                                 01170000
+.*    --- ERROR ROUTINES ---                                            01180000
+.ERROR4  MNOTE 12,'SPM0604 - NO CASE MACRO ISSUED FOR THIS ECASE'       01190000
+         MEXIT                                                          01200000
+.ERROR5  MNOTE 12,'SPM0605 - SEQUENCE INDICATOR INVALID IN ABOVE CASE'  01210000
+&$PMCIND SETB  0                            * RESET IN-CASE-IND         01220000
+&$PMOERR SETB  0                            * RESET SEQ-IND-ERR-SW      01230000
+         MEXIT                                                          01240000
+.ERROR6  MNOTE 0,'SPM0606 - PROC ERROR MACRO NOT ISSUED FOR THIS CASE'  01250000
+&PLBL     SETC  '$CERR'.'&$PMCNO'                                       01260000
+&PLBL     DS    0H            *** CASE  ERROR PROC ***                  01270000
+          AGO   .OKA                                                    01280000
+.ERROR7  MNOTE 4,'SPM0607 - ECASE OPERAND SHOULD MATCH CASE LABEL'      01290000
+         AGO   .OK                                                      01300000
+.PCERR3  MNOTE 8,'SPM0110 - NO EPROC ISSUED FOR ABOVE PROC ASSUMED PRESX01310000
+               ENT'                                                     01320000
+         EPROC                                                          01330000
+         AGO   .PROK                                                    01340000
+.NONE    MNOTE 12,'SPM0199 - NO CODES SPECIFIED ON PROC CASES'          01350000
+         MEND                                                           01360000

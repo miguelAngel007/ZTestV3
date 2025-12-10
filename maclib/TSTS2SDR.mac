@@ -1,0 +1,527 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*         TRANSACTION SYSTEM SCREEN DEFINITION RECORD                 * 00000004
+*                                                                     * 00000005
+*     THE MAXIMUM RECORD SIZE IS 28,665 BYTES.  THE SUM OF    9913481 * 00000006
+*   SEGMENTS 2 THRU 5 CANNOT EXCEED 28,481 BYTES.             9913481 * 00000007
+*                                                                     * 00000008
+*---------------------------------------------------------------------* 00000009
+*                  ** HISTORY OF REVISIONS **                         * 00000010
+*                                                                     * 00000011
+* DESCRIPTION                                                 CHNGID  * 00000012
+* __________________________________________________________  _______ * 00000013
+*                                                                     * 00000014
+* 02/26/13 ADD FIELD ATTRIBUTE EOF FILL                       1326414   00000672
+* 03/14/03 ADD SDR DATA TYPE 5 PROCESSING                     0344729 * 00000673
+* 11/28/01 ADD TRIPLE SPACING TO REPEAT FIELD                 2024392 * 00000675
+* 01/13/99 ADD ACTION CODE 'R' (REDENOMINATE) BIT SETTING     9914011 * 00000677
+* 05/07/97 INCREASED SDR RECORD LENGTH                        9913481 * 00000679
+* 10/23/95 ADD EQU VALUE SDR4BUSB FOR SDR4BUSR                2603053 * 00000680
+* 09/08/95 YEAR 2000.                                         2602675 * 00000682
+* 03/95    BITS IN SEGMENTS 1 AND 4B HAVE BEEN DESIGNATED FOR 2601721 * 00000684
+*          MIXED CASE PROCESSING. (INTERNAL USE ONLY)         2601721 * 00000686
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             SDCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             SDCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             SDRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             SDCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          DELETED FILLER AT END OF STEM                      2602105 * 00000694
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+****************************************************************        00000700
+*    SEGMENT 1  -  STEM PORTION OF SDR                         *        00000800
+****************************************************************        00000900
+*                                                                       00001000
+SDRSEG1  DSECT                         SDR SEGMENT 1                    00001100
+SDR1REC  DS    0C                                                       00001200
+SDR1STEM DS    0CL184                  SDR STEM PORTION         2602105 00001300
+SDR1RECL DS    XL2                     PHYSICAL RECORD LENGTH   2602105 00001400
+         DS    CL2                     FILLER - VALUE:  LOW-VALUES      00001500
+SDR1KEY  DS    0CL20                   SDR KEY                          00001600
+SDR1CLAS DS    CL10                      CLASS                          00001700
+SDR1NAME DS    CL8                       SDR NAME                       00001800
+SDR1SEQN DS    CL2                       SEQ NUMBER                     00001900
+SDCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001910
+SDCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001920
+SDR1LMNT DS    0CL28                   LAST MAINTENANCE INFO    2602105 00001930
+SDR1LMDT DS    CL6                     LAST MAINTENANCE DATE MMDDYY     00002000
+SDR1LMTM DS    CL6                     LAST MAINTENANCE TIME HHMMSS     00002100
+SDR1LMEM DS    CL8                     LAST MAINTENANCE EMPLOYEE ID     00002200
+SDCACHID DS    CL8                     CA CHANGE ID             2602105 00002300
+SDR1TRAN DS    0CL20                                                    00002400
+SDR1PVTI DS    CL8                     PREVIOUS PROCESSING TRAN ID      00002500
+SDR1PVNO DS    XL2                     NUMBER OF SDRS USING THIS SDR    00002600
+*                                          FOR PREV PROCESSING          00002700
+SDR1PMTR DS    CL8                     PROMPT SCREEN TRAN-ID            00002800
+SDR1PMNO DS    XL2                     NUMBER OF SDRS USING THIS SDR    00002900
+*                                          FOR PROMPT SCREEN            00003000
+SDR1PROP DS    XL1                     PROCESSING OPTIONS FLAG          00003100
+SDR1DSFK EQU   B'00000001'               DISPLAY FUNCTION KEY           00003200
+SDR1DSPC EQU   B'00000010'               DISPLAY PROCESS COMPLETE MSG   00003300
+SDR1DSRD EQU   B'00000100'               DISP PROC COMP MSG-FLD REDISP  00003400
+SDR1DSIQ EQU   B'00001000'               DISP PROC COMP MSG-FLD INQUIRY 00003500
+SDR1SKRF EQU   B'00010000'               SKIP REFRESH W/ MAINT0712669   00003510
+SDR1DFK2 EQU   B'00100000'               DISP KEYS ON 22 & 23 0802766   00003520
+SDR1NECS EQU   B'01000000'               NO ENTRY CLEAR SCRN  2500961   00003530
+SDR1MXDC EQU   B'10000000'               MIXED CASE SUPPORT   2601721   00003540
+SDR1UPHS DS    0CL40                   USER PROCESS PHASES              00003600
+SDR1UPH1 DS    CL8                       USER PHASE 1                   00003700
+SDR1UPH2 DS    CL8                       USER PHASE 2                   00003800
+SDR1UPH3 DS    CL8                       USER PHASE 3                   00003900
+SDR1UPH4 DS    CL8                       USER PHASE 4                   00004000
+SDR1UPH5 DS    CL8                       USER PHASE 5                   00004100
+SDR1TRCL DS    CL10                    TERMINAL CLASS                   00004200
+SDR1TRTP DS    CL1                     TERMINAL TYPE                    00004300
+SDR1TRAD EQU   C'A'                      ADMIN                          00004400
+SDR1TRTT EQU   C'T'                      TELLER                         00004500
+SDR1TRBM EQU   C'B'                      BMS                            00004600
+SDR1TRFI EQU   C'F'                      FIAS                 9913481   00004610
+SDR1MSTN DS    CL8                     DEFAULT MASTER NAME              00004700
+SDR1SCTY DS    CL1                     TYPE OF SCREEN                   00004800
+SDR1PMSC EQU   C'1'                      PROMPT SCREEN                  00004900
+SDR1PVPR EQU   C'2'                      PREVIOUS PROCESSING SCREEN     00005000
+SDR1MENU EQU   C'3'                      MENU SCREEN                    00005100
+SDR1DSEL EQU   C'4'                      DATA SELECT                    00005200
+SDR1FKLG DS    XL2                     FUNCTION KEY SEGMENT LENGTH      00005300
+SDR1FFLG DS    XL1                     FREE FORMATTED SEGMENT LENGTH    00005400
+SDR1SCLG DS    XL2                     SCREEN SEGMENT LENGTH            00005500
+SDR1TBKY DS    0CL18                   TBR KEY                          00005600
+SDR1TBCL DS    CL10                    TBR CLASS                        00005700
+SDR1TBNM DS    CL8                     TBR NAME                         00005800
+SDR1LSCR DS    XL1                     LAST SCREEN INDICATOR - X'FF'    00005900
+SDR1BMSL DS    XL2                     BMS MAP LENGTH                   00006000
+SDR1TTRR DS    XL1                     TTR ROW                          00006100
+SDR1TTRC DS    XL1                     TTR COLUMN                       00006200
+SDR1PKSK DS    0CL10                   PROGRAM KEY SDR KEY              00006300
+SDR1PKSN DS    CL8                       PROGRAM KEY SDR NAME           00006400
+SDR1PKSS DS    CL2                       PROGRAM KEY SDR SEQUENCE       00006500
+SDR1IMFL DS    CL1                     INQUIRY/MAINTENANCE FLAG         00006600
+SDR1IMOF EQU   C'0'                      NO INQUIRY/MAINTENANCE         00006700
+SDR1IPRO EQU   C'1'                      INQUIRY-PROTECTED              00006800
+SDR1IUNP EQU   C'2'                      INQUIRY-UNPROTECTED            00006900
+SDR1MNTO EQU   C'3'                      MAINTENANCE ONLY               00007000
+SDR1PFAT DS    XL1                       PF KEY LINE ATTRIBUTE0802766   00007050
+SDR1PROT EQU   B'00100000'               PROTECT              0802766   00007055
+SDR1WNDO DS    XL1                     WINDOW PROCESSING      0807210   00007060
+SDR1FRME EQU   B'00000001'             WINDOW FRAMING SDR     0807210   00007070
+SDR1POPU EQU   B'00000010'             POP-UP DEPENDENT SDR   0807210   00007080
+SDR1FRPU EQU   B'00000011'             FRAMER AND POP-UP SDR  0807210   00007085
+SDR1WLNG DS    XL2                     WINDOW SEGMENT 5 LENGTH0807210   00007090
+SDR1OPCT DS    XL1                     SCREEN OPT FIELD COUNT 0807210   00007095
+SDR1OPUS DS    XL1                     SCREEN OPT FIELDS USED 0807210   00007097
+SDR1SPST DS    CL1                     SEPARATE STORAGE FLAG  0803094   00007100
+SDR1SPED DS    CL1                     SKIP PARMS EDITS FLAG  2500210   00007110
+SDR1EMLG DS    XL2                     EDIT MASK SEGMENT LNG  2601063   00007120
+SDR1LGN  EQU   *-SDR1RECL                                               00007200
+*                                                                       00007300
+         TITLE 'TSTS2SDR - SCREEN DESCRIPTION RECORD  SEGMENT 2'        00007400
+SDR2VAR  DS    0C                      BEGINNING OF VARIABLE SEGS 2-5   00007500
+****************************************************************        00007600
+*    SEGMENT 2  -  FUNCTION KEY DEFINITIONS                    *        00007700
+*                  THIS SEGMENT'S MAXIMUM SIZE IS 986 BYTES - 0802766   00007800
+*                  MAY HAVE UP TO 29 OCCURRENCES              0802766   00007900
+****************************************************************        00008000
+*                                                                       00008100
+SDRSEG2  DSECT                         SDR SEGMENT 2                    00008200
+SDR2FKDF DS    0CL34                   FUNCTION KEY DEFINITION          00008300
+SDR2ID   DS    CL1                     SEGMENT 2 IDENTIFIER             00008400
+SDR2FKID DS    XL1                     KEY IDENTIFIER                   00008500
+SDR2FKAF DS    XL1                     ACTION FLAG 1                    00008600
+SDR2FKAU EQU   B'00000001'               USER DATA                      00008700
+SDR2FKAR EQU   B'00000010'               REFRESH TRANSACTION            00008800
+SDR2FKAT EQU   B'00000100'               CHANGE TRANSACTION ID          00008900
+SDR2FKDK EQU   B'00001000'               DISPLAY THIS PF KEY            00009000
+SDR2FKDO EQU   B'00010000'               OVERRIDE KEY                   00009100
+SDR2FKPF EQU   B'00100000'               PAGE FORWARD                   00009200
+SDR2FKPB EQU   B'01000000'               PAGE BACKWARD                  00009300
+SDR2FKA2 DS    XL1                     ACTION FLAG 2                    00009400
+SDR2FKDP EQU   B'00000001'               DISPLAY PREV ERROR             00009500
+SDR2FKDN EQU   B'00000010'               DISPLAY NEXT ERROR             00009600
+SDR2FKRS EQU   B'00000100'               REFRESH SCREEN                 00009700
+SDR2FKPR EQU   B'00001000'               PROCESS                        00009800
+SDR2FKHL EQU   B'00010000'               HELP                  TS006.00 00009900
+SDR2FKCL EQU   B'00100000'               CLOSE CURRENT POP-UP 0802766   00009910
+SDR2FKES EQU   B'01000000'               CLOSE ALL POP UPS    0802766   00009920
+SDR2FKA3 DS    XL1                     POP-UP CONTROL         0802766   00009930
+SDR2FKPU EQU   B'00000001'               ACTIVATE A POP-UP    0802766   00009940
+SDR2FKCS EQU   B'00000010'               CURSOR SENSITIVE     0802766   00009950
+SDR2FKRC EQU   B'00000100'               RETAIN COLOR         0802766   00009960
+SDR2FKTR EQU   B'00001000'               TRANSPARENT POP-UP   0802766   00009970
+SDR2FKRD EQU   B'00010000'               REDENOMINATE         9914011   00009975
+SDR2FKDA DS    CL10                    DATA                             00010100
+SDR2FKDD DS    CL15                    DATA DESCRIPTION                 00010200
+SDR2FKRW DS    XL1                     PFK ROW                0802766   00010210
+SDR2FKCO DS    XL1                     PFK COL                0802766   00010220
+SDR2PPSR DS    XL1                     POP-UP STARTING ROW    0802766   00010230
+         DS    CL1                     FILLER                 0802766   00010300
+SDR2LGN  EQU   *-SDR2FKDF                                               00010400
+*                                                                       00010500
+         TITLE 'TSTS2SDR - SCREEN DESCRIPTION RECORD  SEGMENT 3'        00010600
+****************************************************************        00010700
+*    SEGMENT 3  -  FREE FORMATTED DATA DETAIL                  *        00010800
+*                  THIS SEGMENT'S MAXIMUM SIZE IS 100 BYTES -  *        00010900
+*                  MAY HAVE UP TO 5 OCCURRENCES                *        00011000
+****************************************************************        00011100
+*                                                                       00011200
+SDRSEG3  DSECT                         SDR SEGMENT 3                    00011300
+SDR3FFDD DS    0CL20                   FREE FORMAT DATA DEFINITION      00011400
+SDR3ID   DS    CL1                     SEGMENT 3 IDENTIFIER             00011500
+SDR3FFDI DS    CL1                     DATA  IDENTIFIER                 00011600
+SDR3FFID DS    CL8                     FIELD IDENTIFIER                 00011700
+SDR3FFUR DS    CL8                     USER FIELD                       00011800
+SDR3FFCT DS    XL2                     USE COUNT                        00011900
+SDR3LGN  EQU   *-SDR3FFDD                                               00012000
+*                                                                       00012100
+         TITLE 'TSTS2SDR - SCREEN DESCRIPTION RECORD  SEGMENT 4'        00012200
+****************************************************************        00012300
+*    SEGMENT 4  -  SCREEN DATA                                 *        00012400
+****************************************************************        00012500
+****************************************************************        00012600
+*    SEGMENT 4A - SCREEN OCCURRENCE STEM                       *        00012700
+****************************************************************        00012800
+*                                                                       00012900
+SDRSEG4A DSECT                         SDR SEGMENT 4A                   00013000
+SDR4AOCR DS    0CL12                   SCREEN OCCURRENCE                00013100
+SDR4AID  DS    CL1                     SEGMENT 4A IDENTIFIER            00013200
+SDR4ALEN DS    XL2                     LENGTH OF SCREEN  DETAILS        00013300
+SDR4APHL DS    XL2                     LENGTH OF PHANTOM DETAILS        00013400
+SDR4ADAT DS    XL2                     LENGTH OF SCREEN  DATA           00013500
+SDR4ACUR DS    XL2                     CURSOR POSITION                  00013600
+         DS    CL3                     FILLER                           00013700
+SDR4ALGN EQU   *-SDR4AOCR                                               00013800
+SDR4BVAR DS    0C                      SCREEN VARIABLE DATA             00013900
+*                                                                       00014000
+****************************************************************        00014100
+*    SEGMENT 4B - DETAIL OCCURRENCE STEM                       *        00014200
+****************************************************************        00014300
+*                                                                       00014400
+SDRSEG4B DSECT                         SDR SEGMENT 4B                   00014500
+SDR4BDTA DS    0C                      SCREEN DETAIL                    00014600
+SDR4BSTM DS    0CL60                   DETAIL OCCURRENCE STEM           00014700
+SDR4BID  DS    CL1                     SEGMENT 4B IDENTIFIER            00014800
+SDR4BDLG DS    XL2                     DETAIL OCCURRENCE LENGTH         00014900
+SDR4BPLG DS    XL2                     PREV DETAIL OCCUR LENGTH         00015000
+SDR4BVLG DS    XL2                     VARIABLE LENGTH                  00015100
+SDR4BNTO DS    XL1                     NUMBER OF TOTAL OCCURRENCES      00015200
+*                                                                       00015300
+SDR4BRTE DS    CL1                     RATE                             00015400
+SDR4BRTY EQU   C'1'                      RATE PRESENT                   00015500
+SDR4BRTN EQU   C'0'                      RATE NOT PRESENT               00015600
+SDR4BJUS DS    CL1                     SCREEN FIELD JUSTIFY             00015700
+SDR4BFLL EQU   C'L'                      LEFT JUSTIFY                   00015800
+SDR4BFLR EQU   C'R'                      RIGHT JUSTIFY                  00015900
+SDR4BFIL DS    CL1                     SCREEN FIELD FILL DATA           00016000
+SDR4BFLB EQU   C'B'                      BLANK FILL                     00016100
+SDR4BFLZ EQU   C'Z'                      ZERO FILL                      00016200
+*                                                                       00016300
+SDR4BPFL DS    CL1                     REPEAT FIELDS                    00016400
+SDR4BPFS EQU   C'S'                      SINGLE SPACING                 00016500
+SDR4BPFD EQU   C'D'                      DOUBLE SPACING                 00016600
+SDR4BPFT EQU   C'T'                      TRIPLE SPACING       2024392   00016610
+SDR4BPRD DS    CL1                     READ RECORD                      00016700
+SDR4BPRY EQU   C'1'                      READ RECORD                    00016800
+SDR4BPRN EQU   C'0'                      DO NOT READ                    00016900
+SDR4BPBO DS    CL1                     NEXT OCCURRENCE                  00017000
+SDR4BPBY EQU   C'1'                      GET NEXT OCCURRENCE            00017100
+SDR4BPBN EQU   C'0'                      DO NOT GET NEXT OCCURRENCE     00017200
+*                                                                       00017300
+SDR4BFG1 DS    XL1                     OPTIONS FLAG 1                   00017400
+SDR4BRPF EQU   B'00000001'               REPEAT DATA                    00017500
+SDR4BKDF EQU   B'00000010'               KEY DATA FIELD                 00017600
+SDR4BPSI EQU   B'00000100'               PRIMARY SOURCE INFORMATION     00017700
+SDR4BEQU EQU   B'00001000'               EQUATE DATA EXISTS             00017800
+SDR4BREC EQU   B'00010000'               DATA REQUIRED ON CONDITION     00017900
+SDR4BREQ EQU   B'00100000'               REQUIRED DATA                  00018000
+SDR4BPDD EQU   B'01000000'               PRIMARY SOURCE DATA            00018100
+SDR4BDRX EQU   B'10000000'               DONT RETR DATA FR XMN2511731   00018110
+*                                          DICTIONARY PRESENT           00018200
+SDR4BFG2 DS    XL1                     OPTIONS FLAG 2                   00018300
+SDR4BVDA EQU   B'00000001'               VARIABLE SCREEN DATA PRESENT   00018400
+SDR4BCPO EQU   B'00000010'               POSITION CURSOR                00018500
+SDR4BADD EQU   B'00000100'               ALTERNATE SOURCE DATA          00018600
+*                                          DICTIONARY PRESENT           00018700
+SDR4BASI EQU   B'00001000'               ALTERNATE SOURCE INFORMATION   00018800
+*                                          PRESENT                      00018900
+SDR4BMXD EQU   B'00010000'               MIXED CASE SUPPORT   2601721   00018905
+SDR4BFG3 DS    XL1                     OPTIONS FLAG 3         0807210   00018910
+SDR4BOPF EQU   B'00000001'               OPTIONAL FIELD       0807210   00018920
+SDR4BRGF EQU   B'00000010'               A REDEFINING FIELD   0807210   00018930
+SDR4BRDF EQU   B'00000100'               A REDEFINED FIELD    0807210   00018940
+SDR4BEOF DS    CL1                     EOF FILL Y/N           1326414   00018950
+         DS    CL6                     FILLER                 1326414   00019000
+SDR4BFSI DS    XL1                     FIELD SECURITY LEVEL INQ         00019100
+SDR4BFSE DS    XL1                     FIELD SECURITY LEVEL ENT         00019200
+*                                                                       00019300
+SDR4BDTY DS    CL1                     DATA TYPE                        00019400
+SDR4BDL  EQU   C'L'                      LITERAL                        00019500
+SDR4BDN  EQU   C'N'                      NUMERIC                        00019600
+SDR4BDC  EQU   C'C'                      CHARACTER                      00019700
+SDR4BDDA EQU   C'E'                      EIBDATE MMDDYY FORMAT          00019800
+SDR4BDTM EQU   C'T'                      EIBTIME HHMMSS FORMAT          00019900
+SDR4BDS  EQU   C'S'                      SENSE                          00020000
+SDR4BDX  EQU   C'X'                      TRAN ID                        00020100
+SDR4BDI  EQU   C'I'                      IDEOGRAPHIC DBCS     9913481   00020110
+SDR4BDM  EQU   C'M'                      MONETARY FIELD       9913481   00020115
+SDR4BDV  EQU   C'V'                      VARIABLE CHAR FIELD  9913481   00020120
+SDR4BD1  EQU   C'1'                      CONTROL 1 FIELD      9913481   00020125
+SDR4BD2  EQU   C'2'                      CONTROL 2 FIELD      9913481   00020130
+SDR4BD3  EQU   C'3'                      CONTROL 3 FIELD      9913481   00020135
+SDR4BD4  EQU   C'4'                      CONTROL 4 FIELD      9913481   00020140
+SDR4BD5  EQU   C'5'                      ACCOUNT NUMBER FIELD 0344729   00020143
+SDR4BDA  EQU   C'A'                      APPLICATION ID FIELD 9913481   00020145
+SDR4BDR  EQU   C'R'                      CURRENCY CODE FIELD  9913481   00020150
+SDR4BDFF DS    CL1                     DATE FORMAT FLAG                 00020200
+SDR4BNDS EQU   C' '                      NOT A DATE - SPACES            00020300
+SDR4BJDA EQU   C'1'                      JULIAN    - DDDYY              00020400
+SDR4BJYR EQU   C'2'                      JULIAN    - YYDDD              00020500
+SDR4BGY6 EQU   C'3'                      GREGORIAN - YYMMDD             00020600
+SDR4BGY8 EQU   C'4'                      GREGORIAN - YYYYMMDD           00020700
+SDR4BGM6 EQU   C'5'                      GREGORIAN - MMDDYY             00020800
+SDR4BGM8 EQU   C'6'                      GREGORIAN - MMDDYYYY           00020900
+SDR4BGD6 EQU   C'7'                      GREGORIAN - DDMMYY             00021000
+SDR4BGD8 EQU   C'8'                      GREGORIAN - DDMMYYYY           00021100
+SDR4BTJD EQU   C'A'                      TIME ZONED JULIAN - DDDYY      00021200
+SDR4BTJY EQU   C'B'                      TIME ZONED JULIAN - YYDDD      00021300
+SDR4BTY6 EQU   C'C'                      TIME ZONED GREG - YYMMDD       00021400
+SDR4BTY8 EQU   C'D'                      TIME ZONED GREG - YYYYMMDD     00021500
+SDR4BTM6 EQU   C'E'                      TIME ZONED GREG - MMDDYY       00021600
+SDR4BTM8 EQU   C'F'                      TIME ZONED GREG - MMDDYYYY     00021700
+SDR4BTD6 EQU   C'G'                      TIME ZONED GREG - DDMMYY       00021800
+SDR4BTD8 EQU   C'H'                      TIME ZONED GREG - DDMMYYYY     00021900
+SDR4BJCD EQU   C'J'                JULIAN          - CCYYDDD  2602675   00021910
+SDR4BJDC EQU   C'K'                JULIAN          - DDDCCYY  2602675   00021920
+SDR4BTJC EQU   C'M'                TIME ZONED JUL  - CCYYDDD  2602675   00021930
+SDR4BTJ8 EQU   C'N'                TIME ZONED JUL  - DDDCCYY  2602675   00021940
+SDR4BTME EQU   C'T'                      TIME ZONED EIBTIME - HHMMSS    00022000
+SDR4BTNU EQU   C'U'                    INTERNATIONAL 6 DIGIT  2602675   00022010
+SDR4BTNV EQU   C'V'                    INTERNATIONAL 8 DIGIT  2602675   00022020
+*                                                                       00022100
+SDR4BCFD DS    CL2                     TYPE OF COMPARE FIELD            00022200
+SDR4BCPS EQU   C'  '                     NO COMPARISON                  00022300
+SDR4BCEQ EQU   C'EQ'                     EQUAL                          00022400
+SDR4BCGT EQU   C'GT'                     GREATER THAN                   00022500
+SDR4BCLT EQU   C'LT'                     LESS THAN                      00022600
+SDR4BCNE EQU   C'NE'                     NOT EQUAL                      00022700
+SDR4BCLE EQU   C'LE'                     LESS THAN OR EQUAL             00022800
+SDR4BCGE EQU   C'GE'                     GREATER THAN OR EQUAL          00022900
+*                                                                       00023000
+SDR4BATF DS    XL1                     ATTRIBUTE BYTE FIELD             00023100
+SDR4BATC DS    XL1                     EXTENDED ATTR BYTE-COLOR         00023200
+SDR4BATH DS    XL1                     EXTENDED ATTR BYTE-HIGHLIGHT     00023300
+SDR4BATV DS    XL1                     EXTENDED ATTR BYTE-VALIDATE      00023400
+SDR4BBRW DS    XL1                     SCREEN BEGIN ROW                 00023500
+SDR4BREA DS    XL1                     NUMBER OF TIMES REPEAT           00023600
+SDR4BCOL DS    XL1                     SCREEN COLUMN                    00023700
+SDR4BFID DS    CL8                     FIELD IDENTIFIER                 00023800
+SDR4BFLN DS    XL2                     SCREEN LENGTH OF DATA            00023900
+SDR4BEDT DS    XL1                     EDIT PICTURE POINTER             00024000
+SDR4BEDC DS    CL1                     EDIT PICTURE NBR OF DECIMALS     00024100
+SDR4BUSR DS    CL2                     USER FIELD                       00024200
+SDR4BUSB EQU   C'BR'                     BROWSE               2603053   00024210
+SDR4BUSD EQU   C'DT'                     PLATFORM USE ONLY    2603053   00024220
+         DS    CL1                     FILLER                 2511731   00024300
+SDR4BRDS DS    CL1                     REDISPLAY                        00024400
+         DS    CL7                     FILLER                           00024500
+SDR4BLGN EQU   *-SDR4BDTA                                               00024600
+SDR4BLTR DS    CL1750                DETAIL VARIABLE LITERAL            00024700
+*                                                                       00024800
+****************************************************************        00024900
+*      SEGMENT 4C - PRIMARY SOURCE INFORMATION                 *        00025000
+****************************************************************        00025100
+*                                                                       00025200
+SDRSEG4C DSECT                       SDR SEGMENT 4C                     00025300
+SDR4CPRI DS    0CL40                 PRIMARY SOURCE INFORMATION         00025400
+SDR4CID  DS    CL1                   SEGMENT 4C IDENTIFIER              00025500
+SDR4CNME DS    CL8                   SOURCE NAME                        00025600
+SDR4CPOS DS    XL2                   SOURCE POSITION OF DATA            00025700
+SDR4CDLG DS    XL1                   SOURCE DATA LENGTH                 00025800
+SDR4CDTY DS    CL1                   SOURCE TYPE OF DATA                00025900
+SDR4CTYA EQU   C'A'                    ALPHABETIC                       00026000
+SDR4CTYB EQU   C'B'                    BINARY                           00026100
+SDR4CTYC EQU   C'C'                    ALPHA-NUMERIC                    00026200
+SDR4CTYN EQU   C'N'                    NUMERIC                          00026300
+SDR4CTYP EQU   C'P'                    PACKED                           00026400
+SDR4CTYI EQU   C'I'                    IDEOGRAPHIC DBCS       9913481   00026410
+SDR4CTYM EQU   C'M'                    MONETARY               9913481   00026415
+SDR4CTYV EQU   C'V'                    VARIABLE CHAR          9913481   00026420
+SDR4CTY1 EQU   C'1'                    CONTROL 1              9913481   00026425
+SDR4CTY2 EQU   C'2'                    CONTROL 2              9913481   00026430
+SDR4CTY3 EQU   C'3'                    CONTROL 3              9913481   00026435
+SDR4CTY4 EQU   C'4'                    CONTROL 4              9913481   00026440
+SDR4CTYR EQU   C'R'                    CURRENCY               9913481   00026445
+SDR4CDEC DS    CL1                   SOURCE NUMBER OF DECIMAL           00026500
+SDR4CARY DS    0CL18                 ARRAY DEFINITION  OCCURS 3 TIMES   00026600
+SDR4CENT DS    XL2                     POSITION FIRST ENTRY             00026700
+SDR4CLGH DS    XL2                     ENTRY LENGTH                     00026800
+SDR4COCR DS    XL2                     OCCURRENCE DESIRED               00026900
+         DS    XL12                    REST OF OCCURRENCES              00027000
+SDR4CDFF DS    CL1                   SOURCE DATE FORMAT                 00027100
+SDR4CNDS EQU   C' '                    NOT A DATE - SPACES              00027200
+SDR4CJDA EQU   C'1'                    JULIAN - DDDYY                   00027300
+SDR4CJYR EQU   C'2'                    JULIAN - YYDDD                   00027400
+SDR4CGY6 EQU   C'3'                    GREG - YYMMDD                    00027500
+SDR4CGY8 EQU   C'4'                    GREG - YYYYMMDD                  00027600
+SDR4CGM6 EQU   C'5'                    GREG - MMDDYY                    00027700
+SDR4CGM8 EQU   C'6'                    GREG - MMDDYYYY                  00027800
+SDR4CGD6 EQU   C'7'                    GREG - DDMMYY                    00027900
+SDR4CGD8 EQU   C'8'                    GREG - DDMMYYYY                  00028000
+SDR4CJCD EQU   C'J'                    JULIAN - CCYYDDD       2602675   00028010
+SDR4CJDC EQU   C'K'                    JULIAN - DDDCCYY       2602675   00028020
+         DS    CL7                   FILLER                             00028100
+SDR4CLGN EQU   *-SDR4CPRI                                               00028200
+*                                                                       00028300
+****************************************************************        00028400
+*      SEGMENT 4D - PRIMARY SOURCE DATA DICTIONARY             *        00028500
+****************************************************************        00028600
+*                                                                       00028700
+SDRSEG4D DSECT                       SDR SEGMENT 4D                     00028800
+SDR4DDIC DS    0CL40                 PRIMARY DATA DICTIONARY            00028900
+SDR4DID  DS    CL1                   SEGMENT 4D IDENTIFIER              00029000
+SDR4DAPL DS    CL2                   PRIMARY DICTIONARY APPLICATION ID  00029100
+SDR4DDAG DS    CL8                   PRIMARY DICTIONARY DATA GROUP      00029200
+SDR4DFID DS    CL8                   PRIMARY DICTIONARY DATA FIELD ID   00029300
+SDR4DDM1 DS    XL2                   PRIMARY DICTIONARY DIMENSION 1     00029400
+SDR4DDM2 DS    XL2                   PRIMARY DICTIONARY DIMENSION 2     00029500
+SDR4DDM3 DS    XL2                   PRIMARY DICTIONARY DIMENSION 3     00029600
+SDR4DEQF DS    CL1                   PRIMARY DICTIONARY EQUATE YES/NO   00029700
+SDR4DEQ1 EQU   C'1'                  1/0 EQUAL YES/NO                   00029800
+SDR4DEQ2 EQU   C'2'                  N/F EQUAL YES/NO                   00029900
+SDR4DEQ3 EQU   C'3'                  Y/N EQUAL YES/NO                   00030000
+SDR4DMDL DS    CL8                   PRIMARY DICT MODEL DAG   2501304   00030010
+         DS    CL6                   FILLER                   2501304   00030100
+SDR4DLGN EQU   *-SDR4DDIC                                               00030200
+*                                                                       00030300
+****************************************************************        00030400
+*      SEGMENT 4E - ALTERNATE SOURCE INFORMATION               *        00030500
+****************************************************************        00030600
+*                                                                       00030700
+SDRSEG4E DSECT                       SDR SEGMENT 4E                     00030800
+SDR4EALT DS    0CL40                 ALT SOURCE INFORMATION             00030900
+SDR4EID  DS    CL1                   SEGMENT 4E IDENTIFIER              00031000
+SDR4ENME DS    CL8                   SOURCE NAME                        00031100
+SDR4EPOS DS    XL2                   SOURCE POSITION OF DATA            00031200
+SDR4EDLG DS    XL1                   SOURCE DATA LENGTH                 00031300
+SDR4EDTY DS    CL1                   SOURCE TYPE OF DATA                00031400
+SDR4ETYA EQU   C'A'                    ALPHABETIC                       00031500
+SDR4ETYB EQU   C'B'                    BINARY                           00031600
+SDR4ETYC EQU   C'C'                    ALPHA-NUMERIC                    00031700
+SDR4ETYN EQU   C'N'                    NUMERIC                          00031800
+SDR4ETYP EQU   C'P'                    PACKED                           00031900
+SDR4ETYI EQU   C'I'                    IDEOGRAPHIC DBCS       9913481   00031910
+SDR4ETYM EQU   C'M'                    MONETARY               9913481   00031915
+SDR4ETYV EQU   C'V'                    VARIABLE CHAR          9913481   00031920
+SDR4ETY1 EQU   C'1'                    CONTROL 1              9913481   00031925
+SDR4ETY2 EQU   C'2'                    CONTROL 2              9913481   00031930
+SDR4ETY3 EQU   C'3'                    CONTROL 3              9913481   00031935
+SDR4ETY4 EQU   C'4'                    CONTROL 4              9913481   00031940
+SDR4ETYR EQU   C'R'                    CURRENCY               9913481   00031945
+SDR4EDEC DS    CL1                   SOURCE NUMBER OF DECIMAL           00032000
+SDR4EARY DS    0CL18                 ARRAY DEFINITION  OCCURS 3 TIMES   00032100
+SDR4EENT DS    XL2                     POSITION FIRST ENTRY             00032200
+SDR4ELGH DS    XL2                     ENTRY LENGTH                     00032300
+SDR4EOCR DS    XL2                     OCCURRENCE DESIRED               00032400
+         DS    XL12                    REST OF OCCURRENCES              00032500
+SDR4EDFF DS    CL1                   SOURCE DATE FORMAT                 00032600
+SDR4ENDS EQU   C' '                    NOT A DATE - SPACES              00032700
+SDR4EJDA EQU   C'1'                    JULIAN - DDDYY                   00032800
+SDR4EJYR EQU   C'2'                    JULIAN - YYDDD                   00032900
+SDR4EGY6 EQU   C'3'                    GREG - YYMMDD                    00033000
+SDR4EGY8 EQU   C'4'                    GREG - YYYYMMDD                  00033100
+SDR4EGM6 EQU   C'5'                    GREG - MMDDYY                    00033200
+SDR4EGM8 EQU   C'6'                    GREG - MMDDYYYY                  00033300
+SDR4EGD6 EQU   C'7'                    GREG - DDMMYY                    00033400
+SDR4EGD8 EQU   C'8'                    GREG - DDMMYYYY                  00033500
+SDR4EJCD EQU   C'J'                    JULIAN - CCYYDDD       2602675   00033510
+SDR4EJDC EQU   C'K'                    JULIAN - DDDCCYY       2602675   00033520
+         DS    CL7                   FILLER                             00033600
+SDR4ELGN EQU   *-SDR4EALT                                               00033700
+*                                                                       00033800
+****************************************************************        00033900
+*      SEGMENT 4F - ALTERNATE SOURCE DATA DICTIONARY           *        00034000
+****************************************************************        00034100
+*                                                                       00034200
+SDRSEG4F DSECT                       SDR SEGMENT 4F                     00034300
+SDR4FDIC DS    0CL40                 ALTERNATE DATA DICTIONARY          00034400
+SDR4FID  DS    CL1                   SEGMENT 4F IDENTIFIER              00034500
+SDR4FAPL DS    CL2                   ALT DICTIONARY APPLICATION         00034600
+SDR4FDAG DS    CL8                   ALT DICTIONARY DATA GROUP          00034700
+SDR4FFID DS    CL8                   ALT DICTIONARY FIELD ID            00034800
+SDR4FDM1 DS    XL2                   ALT DICTIONARY DIMENSION 1         00034900
+SDR4FDM2 DS    XL2                   ALT DICTIONARY DIMENSION 2         00035000
+SDR4FDM3 DS    XL2                   ALT DICTIONARY DIMENSION 3         00035100
+SDR4FMDL DS    CL8                   ALT DICT MODEL DAG       2501304   00035110
+         DS    CL7                   FILLER                   2501304   00035200
+SDR4FLGN EQU   *-SDR4FDIC                                               00035300
+*                                                                       00035400
+****************************************************************        00035500
+*      SEGMENT 4G - TOTALLING DATA                             *        00035600
+*                   THIS SEGMENT'S SIZE IS 20 BYTES -          *        00035700
+*                   BUCKETS MAY OCCUR UP TO 5 TIMES            *        00035800
+****************************************************************        00035900
+*                                                                       00036000
+SDRSEG4G DSECT                       SDR SEGMENT 4G                     00036100
+SDR4GTOT DS    0CL25                 TOTALLING INFORMATION              00036200
+SDR4GOCL DS    0CL5                  TOTAL OCCURRENCE LENGTH            00036300
+SDR4GID  DS    CL1                   SEGMENT 4G IDENTIFIER              00036400
+SDR4GBUC DS    XL2                   TOTAL BUCKET NUMBER                00036500
+SDR4GTYP DS    CL1                   TOTAL TYPE                         00036600
+SDR4GTYS EQU   C'S'                    SUM                              00036700
+SDR4GTYC EQU   C'C'                    COUNT                            00036800
+SDR4GTYB EQU   C'B'                    BOTH                             00036900
+SDR4GTPR DS    CL1                   TOTAL PROCESS                      00037000
+SDR4GTPS EQU   C'S'                    SUBTRACT                         00037100
+SDR4GTPA EQU   C'A'                    ADD                              00037200
+SDR4GTPE EQU   C'E'                    ESTABLISH                        00037300
+         DS    XL20                  REST OF OCCURRENCES                00037400
+SDR4GLGN EQU   *-SDR4GTOT                                               00037500
+*                                                                       00037700
+         TITLE 'TSTS2SDR - SCREEN DESCRIPTION RECORD  SEGMENT 5'        00037800
+****************************************************************        00037900
+*    SEGMENT 5  -  WINDOW FRAMER SEGMENT DETAIL                *        00038000
+*                  THIS SEGMENT'S MAXIMUM SIZE IS 450 BYTES -  *        00038100
+*                  MAY HAVE UP TO 15 OCCURRENCES               *        00038200
+****************************************************************        00038300
+*                                                                       00038400
+SDRSEG5  DSECT                         SDR SEGMENT 5                    00038500
+SDR5WND  DS    0CL30                   WINDOW FRAME IDENTIFICATION      00038600
+SDR5ID   DS    CL1                     SEGMENT 5 IDENTIFIER             00038700
+SDR5SDR  DS    CL8                     SDR NAME FOR THE WINDOW          00038900
+SDR5SNBR DS    CL2                     SDR NUMBER                       00039000
+SDR5BRW  DS    XL1                     BEGINNING ROW FOR WINDOW         00039100
+SDR5BCL  DS    XL1                     BEGINNING COLUMN FOR WINDOW      00039200
+SDR5OVR  DS    XL1                     WINDOW OVERRIDE                  00039300
+SDR5STAT DS    XL1                     WINDOW STATUS                    00039400
+SDR5STRW DS    XL1                     1ST ROW FOR SDR TO DISPLAY       00039500
+SDR5OCCR DS    XL1                     TIMES USED IN THE FRAME          00039600
+SDR5UAD  DS    XL1                     USER PROCESSING CONTROL          00039700
+SDR5FLD  DS    CL8                     SELECTION TEST FIELD-ID          00039800
+SDR5COMP DS    CL2                     SELECTION TEST COMPARISON        00039900
+         DS    CL2                     FILLER                           00040000
+SDR5LGN  EQU   *-SDR5WND                                                00040100
+*                                                                       00040200
+         TITLE 'TSTS2SDR - SCREEN DESCRIPTION RECORD  SEGMENT 6'        00040300
+****************************************************************        00040400
+*    SEGMENT 6  -  EDIT MASK SEGMENT                           *        00040500
+*                  THERE IS NO MAX SIZE FOR THIS SEGMENT       *        00040600
+****************************************************************        00040700
+*                                                                       00040800
+SDRSEG6A DSECT                         SDR SEGMENT 6          2601063   00040900
+SDR6ASTM DS    0CL3                    EDIT MASK SEGMENT STEM 2601063   00041000
+SDR6AID  DS    CL1                     SEGMENT 6 IDENTIFIER   2601063   00041100
+SDR6ALGN DS    XL2                     SEGMENT 6 TOTAL LENGTH 2601063   00041200
+SDR6ASLG EQU   *-SDR6ASTM              EDIT MASK STEM LENGTH  2601063   00041300
+SDR6AMSK DS    0CL28                   1ST EDIT MASK OCCURRENC2601063   00041400
+SDR6BEM  DSECT                         EDIT MASK OCCUR DSCET  2601063   00041500
+SDR6BEMO DS    0CL28                   EDIT MASK OCCURRENCE   2601063   00041600
+SDR6BID  DS    CL1                     SEGMENT 6B IDENTIFIER  2601063   00041700
+SDR6BUSE DS    XL1                     (USED IN COMPRESS)     2601063   00041800
+SDR6BMSK DS    0CL26                   EDIT MASK              2601063   00041900
+SDR6BFIL DS    XL1                     FILL CHARACTER         2601063   00042000
+SDR6BPAT DS    XL25                    EDIT PATTERN           2601063   00042100
+SDR6BOLN EQU   *-SDR6BEMO              EDIT MASK OCCUR LENGTH 2601063   00042200
+SDRRECL  EQU   28665                                          9913481   00042300

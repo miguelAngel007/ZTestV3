@@ -1,0 +1,33 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                  ** COPYBOOK DESCRIPTION **                         * 00020000
+*                                                                     * 00030000
+*                 TSTS2QMH - MQ MESSAGE HEADER                        * 00040000
+*                                                                     * 00050000
+*---------------------------------------------------------------------* 00060000
+*                  ** HISTORY OF REVISIONS **                         * 00070000
+*                                                                     * 00080000
+* DESCRIPTION                                                 CHNGID  * 00090000
+* __________________________________________________________  _______ * 00100000
+*                                                                     * 00110000
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00111000
+* 05/14/04 INITIAL DISTRIBUTION                               0515027   00120000
+*                                                                     * 00130000
+*---------------------------------------------------------------------* 00140000
+*                                                                       00150000
+TSTS2QMH DSECT                                                          00160000
+QMH      DS    0C            MESSAGE HEADER                             00170000
+QMHINPA  DS    0C             INPUT AREA                                00180000
+QMHCTL1  DS    CL4             CONTROL 1                                00190000
+QMHSOURC DS    CL8             SOURCE                                   00200000
+QMHSEQ   DS    CL3             SOURCE SEQUENCE                          00210000
+QMHBDATE DS    CL1             BACKDATE FLAG                            00220000
+QMHUSER  DS    CL20            USER AREA                                00230000
+         DS    CL44            FILLER                                   00240000
+QMHOUTA  DS    0C             OUTPUT AREA                               00250000
+QMHLNDF  DS    CL1             LOG NEXT DAY FLAG                        00260000
+QMHLGRBA DS    XL8             LOG RBA                        1035850   00270000
+QMHLFG   DS    CL2             LOG FILE GROUP                           00280000
+QMHREVFL DS    CL1             REVERSAL TRAN FLAG                       00290000
+         DS    CL88            FILLER                         1035850   00300000
+QMHLEN   EQU   *-QMH           LENGTH OF MESSAGE HEADER                 00310000

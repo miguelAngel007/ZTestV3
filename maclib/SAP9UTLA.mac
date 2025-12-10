@@ -1,0 +1,65 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*    PARMS REP/EXP/IMP UTILITY WORK DAG                               * 00000004
+*---------------------------------------------------------------------* 00000005
+*                  ** HISTORY OF REVISIONS **                         * 00000006
+*                                                                     * 00000007
+* DESCRIPTION                                                 CHNGID  * 00000008
+* __________________________________________________________  _______ * 00000009
+*                                                                     * 00000010
+* 11/18/08 ADD CTL1 FIELD FOR 00000000 CTL1 MK SELECTION      0924211 * 00000986
+* 03/07/03 ADD CHG ID FIELDS FOR DIST APP, DIST CTL           0334673 * 00000988
+* 04/23/96 CHANGED MEMBER KEY TO 60 BYTES                     9711582 * 00000990
+* 12/94    CHANGED THE FOLLOWING FIELDS TO 8 BYTES.           2602105 * 00000991
+*     00012000  PUTLRCL  DS CL8   CHANGE ID LOW               2602105 * 00000992
+*     00013000  PUTLRCH  DS CL8   CHANGE ID HIGH              2602105 * 00000993
+*                                                                     * 00000994
+*---------------------------------------------------------------------* 00000998
+*                                                                       00000999
+SAP9UTLD DSECT                                                          00002000
+PUTLCMND DS    CL8                     COMMAND - REPORT/EXPORT/IMPORT   00003000
+PUTLSID  DS    CL8                     STRUCTURE ID                     00004000
+PUTLCTL1 DS    XL2                     CTL1                             00005000
+PUTLOWN  DS    CL3                     OWNER                            00006000
+PUTLRAP  DS    CL2                     REPORT APPLICATION ID            00007000
+PUTLLMDL DS    XL4                     LAST MAINT DATE LOW              00008000
+PUTLLMDH DS    XL4                     LAST MAINT DATE HIGH             00009000
+PUTLEFDL DS    XL4                     EFF DATE LOW                     00010000
+PUTLEFDH DS    XL4                     EFF DATE HIGH                    00011000
+PUTLRCL  DS    CL8                     CHANGE ID LOW            2602105 00012000
+PUTLRCH  DS    CL8                     CHANGE ID HIGH           2602105 00013000
+PUTLDEAC DS    CL1                     DEACT FLAG                       00014000
+PUTLPRGE DS    CL1                     PURGE RECORD                     00015000
+PUTLSEL  DS    CL1                     RECORD SELECTED                  00016000
+PUTLFMKL DS    XL2                     FROM MEMBER KEY LENGTH           00017000
+PUTLFMK  DS    CL60                    FROM MEMBER KEY          2701582 00018000
+PUTLTMKL DS    XL2                     TO MEMBER KEY LENGTH             00019000
+PUTLTMK  DS    CL60                    TO MEMBER KEY            2701582 00020000
+PUTL#SK  DS    XL2                     NUMBER OF SEARCH KEY ENTRIES     00021000
+PUTLSKAR DS    0CL52                   SEARCH KEY INFO AREA (1 ENTRY)   00023000
+PUTLSKNM DS    CL8                     SEARCH KEY NAME                  00024000
+PUTLSKID DS    XL2                     SEARCH KEY ID                    00025000
+PUTLSKLG DS    XL2                     SEARCH KEY LENGTH                00026000
+PUTLSK   DS    CL40                    SEARCH KEY                       00027000
+*                                                                       00028000
+         DS    CL2548                  REMAINING 49 SK ENTRIES          00029000
+*                                                                       00030000
+PUTLUSER DS    CL20                    USER AREA                        00031000
+PUTLRPGM DS    CL8                     API PGM NAME                     00032000
+PUTL#EVT DS    XL2                     NUMBER OF EVENT ENTRIES          00033000
+*                                                                       00034000
+PUTLEVTB DS    0CL60                   SAME FORMAT AS API EVENT TBL     00035000
+PUTLHSDG DS    CL8                     HISTORY DAG - NOT USED           00036000
+PUTLPEVT DS    PL2                     PACKED NUMBER OF EVENTS          00037000
+PUTLEVNT DS    CL5                     EVENT ENTRY                      00038000
+         DS    CL45                    REMAINING 9 EVENTS               00039000
+*                                                                       00040000
+PUTLNOEX DS    CL1                     NO EXIT REQUEST                  00041000
+PUTDAP   DS    CL2                     DIST APPL              0334673   00041010
+PUTDCTL  DS    CL2                     DIST CONTROL           0334673   00041020
+PUTALL   DS    CL1                     ALL REQUEST-VALUE 'Y'  0334673   00041030
+PUTLMKC1 DS    XL2                     00000000 CTL1 MEMBER K 0924211   00041040
+         DS    CL1214                  FILLER - FUTURE USE    0924211   00042000
+PUTLLGTH EQU   *-SAP9UTLD              LENGTH OF SAP9UTLD               00043000

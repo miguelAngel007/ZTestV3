@@ -1,0 +1,132 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                   ** MODULE DESCRIPTION **                          * 00000110
+*                            TSTS4PCI                                 * 00000200
+*                       TRANSACTION SYSTEM                            * 00000300
+*                  REQUEST TO CICS ERROR MSG MODULE                   * 00000400
+*                                                                     * 00000405
+*---------------------------------------------------------------------* 00000410
+*                  ** HISTORY OF REVISIONS **                         * 00000415
+*                                                                     * 00000420
+* DESCRIPTION                                                 CHNGID  * 00000425
+* __________________________________________________________  _______ * 00000430
+* 03/20/17 CORRECT DB2 ERROR HANDLING                         1727046   00000584
+* 01/27/14 MODIFY FOR DB2                                     1436560   00000585
+* 05/14/03 CHANGE COMPARE LENGTH FOR TSTSCEF1 SAVE SPACE      0354532 * 00000586
+* 12/16/97 CORRECT USING REGISTER FOR HIGH LEVEL ASSEMBLER    9913401 * 00000588
+*---------------------------------------------------------------------* 00000590
+         EJECT                                                          00000595
+ECICSDB2 EQU   *                     DB2 ERROR                1436560   00000596
+         STM   R14,R12,WMS1REGS      SAVE REGISTERS           1436560   00000597
+         B     ECICS005              CONTINUE                 1436560   00000598
+ECICS000 EQU   *                                                        00000600
+         STM   R14,R12,WMS1REGS      SAVE REGISTERS                     00000700
+         XC    WMSDB2AD,WMSDB2AD     NOT DB2                  1436560   00000710
+ECICS005 EQU   *                                              1436560   00000720
+         CLC   WMSANCA,=XL4'00'      NCA ADDRESS PRESENT ?              00000800
+         BNE   ECICS010              ...YES, CHECK REQUEST CODE         00000900
+         L     R8,DFHEICAP           LOAD ADDR OF COMM AREA             00001000
+         STCM  R8,15,WMSANCA         SAVE NCA ADDRESS                   00001100
+*                                                                       00001200
+ECICS010 EQU   *                                                        00001300
+         CLI   WMSREQCD,C'0'         WAS REQUEST CODE = 0?              00001400
+         BE    ECICS020              YES - DON'T CHANGE IT              00001500
+         MVI   WMSREQCD,C'1'         NO - INITIALIZE REQUEST CODE TO 1  00001600
+         SPACE                                                          00001700
+ECICS020 EQU   *                                                        00001800
+         OC    WMSDB2AD,WMSDB2AD     IS IT DB2?               1436560   00001810
+         BNE   ECICS055              YES, GO PROCESS IT       1436560   00001820
+         CLI   EIBFN,X'0E'           WAS THIS A PGMIDERR?               00001900
+         BNE   ECICS070              NO - GO ON                         00002000
+         SPACE                                                          00002100
+         CLC   WMSLNKPH,=C'TSTSABD1' WAS IT ON ABD1?                    00002200
+         BNE   ECICS030              NO - GO ON                         00002300
+         MVC   WMSABEND,=C'ABD1'     MOVE 'ABD1' TO ABEND CODE          00002400
+         B     ABEND000              GO ABEND                           00002500
+         SPACE                                                          00002600
+ECICS030 EQU   *                                                        00002700
+         CLC   WMSLNKPH,=C'TSTSNEH1' WAS IT ON NEH1?                    00002800
+         BNE   ECICS040              NO - GO ON                         00002900
+         MVI   WMSREQCD,C'0'         YES - DON'T LET ERR RTN DO LOOKUP  00003000
+         MVC   WMSMGCOD,=C'9707'     SET MSG CODE FOR PGMIDERR          00003100
+         MVC   WMSMGVA1(L'WMSLNKPH),WMSLNKPH   MOVE PGM ID TO VAR 1     00003200
+         B     ECICS080              GO PERFORM ERROR PROCESSING        00003300
+         SPACE                                                          00003400
+ECICS040 EQU   *                                                        00003500
+         CLC   WMSLNKPH,=CL8'TSTSCEF1' WAS IT ON CEF1?        0354532   00003600
+         BNE   ECICS050              NO - GO ON                         00003700
+         MVC   WMSMGCOD,=C'9707'     YES - SET MSG CODE FOR PGMIDERR    00003800
+         MVC   WMSMGVA1(L'WMSLNKPH),WMSLNKPH   MOVE PGM ID TO VAR 1     00003900
+         B     ECICS080              GO PERFORM ERROR PROCESSING        00004000
+         SPACE                                                          00004100
+ECICS050 EQU   *                                                        00004200
+         CLC   WMSLNKPH,WMSOUTPH     IS IT OUTPUT ANALYSIS?             00004300
+         BNE   ECICS060              NO - GO ON                         00004400
+         MVC   WMSMGCOD,=C'9707'     YES - SET MSG CODE FOR PGMIDERR    00004500
+         MVC   WMSMGVA1(L'WMSLNKPH),WMSLNKPH   MOVE PGM ID TO VAR 1     00004600
+         MVC   WMSLNKPH,=C'TSTSABD1' MOVE ABD1 INTO LINK/XCTL PGM ID    00004700
+         B     XCTLP000              BRANCH TO XCTL ROUTINE (IN 4PMS)   00004800
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1436560   00004804
+         SPACE                                                          00004805
+ECICS055 EQU   *                                              1436560   00004810
+         MVI   WMSREQCD,C'1'                                  1436560   00004815
+         MVC   WMSMGCOD,=C'0862'     SET MSG CODE FOR DB2 ERR 1436560   00004820
+         ICM   R1,15,WMSDB2AD        ADDRESS DB2 MSG TEXT     1436560   00004825
+         MVC   WMSMGVA1(8),WMSDB2DS                           1727046   00004830
+         MVC   WMSMGVA1+9(16),0(R1) RETURN CODE TEXT (SQL))   1436560   00004840
+         MVC   WMSMGVA2(12),16(R1)   REST OF RETURN CODE TEXT 1436560   00004843
+         MVC   WMSMGVA2+12(13),=CL13' '                       1436560   00004845
+         B     ECICS080              PERFORM ERROR ROUTINE    1436560   00004850
+         SPACE                                                          00004900
+ECICS060 EQU   *                                                        00005000
+         MVC   WMSMGVA1(L'WMSLNKPH),WMSLNKPH   MOVE PGM ID TO VAR 1     00005100
+         SPACE                                                          00005200
+ECICS070 EQU   *                                                        00005300
+         MVC   WMSEIBFN,EIBFN        MOVE FUNCTION CODE TO PARAM LIST   00005400
+         MVC   WMSEIBRC,EIBRCODE     MOVE RESPONSE CODE TO PARAM LIST   00005500
+         LA    R1,WMSLEN             MOVE LENGTH OF COMMUNICATION AREA  00005600
+         STH   R1,HWORD              TO WORK AREA                       00005700
+         MVC   WMSLNKPH,=CL8'TSTSCEF1' SAVE PGM ID IN WMS     0354532   00005800
+         SPACE                                                          00005900
+*        EXEC  CICS LINK PROGRAM ('TSTSCEF1')                           00006000
+*                        COMMAREA (WMS)                                 00006100
+*                        LENGTH  (HWORD)                                00006200
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'TSTSCEF1'),(______R*
+               F,WMS),(FB_2,HWORD)
+         SPACE                                                          00006300
+         CLC   EIBRCODE,=6X'00'                                         00006400
+         BNE   ECICS000                                                 00006500
+         MVI   WMSREQCD,C'1'         NO - INITIALIZE REQUEST CODE TO 1  00006600
+ECICS080 EQU   *                                                        00006700
+         BAL   R15,ERRTN000          PERFORM ERROR ROUTINE              00006800
+**********************************************************************  00006900
+*        NOTE: CICS ERRORS PROCESSED HERE MUST BE FATAL, SO          *  00007000
+*              IF THE ERROR ROUTINE RETURNS HERE PUT OUT MESSAGE     *  00007100
+*              THAT THE PREVIOUS MESSAGE SHOULD HAVE BEEN FATAL.     *  00007200
+*              IF THE ERROR ROUTINE COMES BACK FROM THAT MESSAGE,    *  00007300
+*              ABEND WITH THE MESSAGE NUMBER IN THE ABEND CODE.      *  00007400
+*        TSTSCTL1 ONLY:                                              *  00007500
+*              IF IN REENTRY MODE AND FORCE POST = Y THEN RETURN     *  00007600
+*              TO STEP LOOP TO FINISH PROCESSING TRAN (LOG & TOTAL). *  00007700
+**********************************************************************  00007800
+         CLC   WMSMGPID,=C'TSTSCTL1'   IS THIS FLOW CONTROL             00007900
+         BNE   ECICS090                NO - GO MAKE FATAL ERROR         00008000
+         ICM   R1,15,WMSANCA           GET ADDRESS OF NCA               00008100
+         USING TSTSNCA,R1              ADDRESS NCA                      00008200
+         ICM   R8,15,NCATSCBA          GET ADDRESS OF TSCB              00008300
+         USING STEM,R8                 ADDRESS TSCB STEM                00008400
+         CLI   STMREF,C'1'             TEST FOR REENTRY                 00008500
+         BNE   ECICS090                NO - GO MAKE FATAL ERROR         00008600
+         CLI   STMFPF,C'1'             TEST FOR FORCE POST              00008700
+         BNE   ECICS090                NO - GO MAKE FATAL ERROR         00008800
+         CLI   STMTSF,C'2'             TEST FOR STOP PROCESSING ERROR   00008900
+         BH    ECICS090                NO - GO MAKE FATAL ERROR         00009000
+         ICM   R15,15,WMSRETAD         GET ADDRESS OF END OF STEP LOOP  00009100
+         BR    R15                     BRANCH TO PROCESS NEXT STEP      00009200
+ECICS090 EQU   *                                                        00009300
+         BAL   R15,FATAL000          PERFORM FATAL MESSAGE ROUTINE      00009400
+         MVC   WMSABEND,WMSMGCOD     MOVE MESSAGE CODE TO ABEND CODE    00009500
+         B     ABEND000                                                 00009600
+         DROP  R1,R8                                          9913401   00009700
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

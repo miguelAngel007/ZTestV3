@@ -1,0 +1,1220 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                   TRANSACTION SYSTEM                                * 00000004
+*                 INPUT CONTROL RECORD (ICR)                          * 00000005
+*                                                                     * 00000006
+*          THE MAXIMUM RECORD SIZE IS 22,521 BYTES.           9913349   00000007
+*                                                                     * 00000008
+*---------------------------------------------------------------------* 00000009
+*                  ** HISTORY OF REVISIONS **                         * 00000010
+*                                                                     * 00000011
+* DESCRIPTION                                                 CHNGID  * 00000012
+* __________________________________________________________  _______ * 00000013
+*                                                                     * 00000014
+* 03/30/11 ADDED NEW SEGMENTS 2E,2F,3F AND 3G                 1226081   00000577
+* 04/01/10 ADDED U & V DESINATION DATE FORMATS                1115914   00000578
+* 06/07/05 GN5191 CHANGE FOR 3E SEGMENT                       0635191   00000579
+* 05/12/05 GN5191 CHANGE FOR 3C AND 3A SEGMENT                0635191   00000580
+* 04/19/05 ADDED SEGMENT 3E                                   0635191   00000581
+* 04/09/04 CHANGED AND ADDED FIELDS FOR BATCH EIC             0514798 * 00000582
+* 09/29/00 ADDED CHANGES FOR ICR AFTER PROCESSING             2024224 * 00000583
+* 06/23/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349   00000585
+* 09/05/95 YEAR 2000 FORMATS J, K, M, AND N.                  2602675 * 00000586
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000588
+*             ICCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000589
+*             ICCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000590
+*             ICRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000591
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000592
+*             ICCACHID DS    CL8         CA CHANGE ID         2602105 * 00000593
+*          CHANGED FILLER LENGTH                              2602105 * 00000594
+*                      DS    CL2         FILLER               2602105 * 00000595
+*                                                             2602105 * 00000596
+*                                                                     * 00000597
+*---------------------------------------------------------------------* 00000598
+*                                                                       00000599
+****************************************************************        00000600
+*                                                              *        00000700
+*              SEGMENT 1  -  STEM PORTION OF ICR               *        00000800
+*        THE ICR CONTROL SEGMENT'S LENGTH IS 150 BYTES         *        00000900
+*                                                              *        00001000
+****************************************************************        00001100
+*                                                                       00001200
+ICRSEG1  DSECT                     ICR SEGMENT 1                        00001300
+ICR1REC  DS    0C                                                       00001400
+ICR1STEM DS    0CL150                                                   00001500
+ICR1LENG DS    XL2                     ICR RECORD LENGTH                00001600
+         DS    CL2                     FILLER                           00001700
+ICR1KEY  DS    0CL18                   ICR KEY                          00001800
+ICR1CLAS DS    CL10                      CLASS                          00001900
+ICR1NAME DS    CL8                       ICR NAME                       00002000
+ICCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00002100
+ICCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00002110
+ICR1LMNT DS    0CL28                   LAST MAINT DATA          2602105 00002120
+ICR1LDAT DS    CL6                       LAST MAINT DATE MMDDYY         00002200
+ICR1LTIM DS    CL6                       LAST MAINT TIME HHMMSS         00002300
+ICR1LEMP DS    CL8                       LAST MAINT EMPLOYEE ID         00002400
+ICCACHID DS    CL8                     CA CHANGE ID             2602105 00002500
+         DS    CL2                     FILLER                   2602105 00002510
+ICR1USCT DS    XL2                     USE COUNT                        00002600
+ICR1TCKY DS    0CL16                   TCR KEY                          00002700
+ICR1TCCL DS    CL10                      CLASS                          00002800
+ICR1TCNM DS    0CL6                      NAME                           00002900
+ICR1TCTR DS    0CL4                        TRAN CODE                    00003000
+ICR1TCAP DS    CL2                           APPLICIATION ID            00003100
+ICR1TCCD DS    CL2                           TRANSACTION CODE           00003200
+ICR1TCSB DS    CL2                         SUB                          00003300
+ICR1USRC DS    CL1                     USER CODE                        00003400
+ICR1TFDG DS    CL8                     TRANSACTION FORMAT DAG NAME      00003600
+ICR1FFDG DS    CL8                     FIXED FORMAT DAG NAME            00003700
+ICR1FL1  DS    XL1                     TRAN CONTROL OPTIONS             00003800
+ICR1DCO  EQU   B'00000001'               OTHER      (PROCESS CODE)      00003900
+ICR1DCD  EQU   B'00000010'               DEBIT      (PROCESS CODE)      00004000
+ICR1DCC  EQU   B'00000100'               CREDIT     (PROCESS CODE)      00004100
+ICR1DCI  EQU   B'00001000'               INQUIRY    (PROCESS CODE)      00004200
+ICR1DCM  EQU   B'00010000'               FILE MAINT (PROCESS CODE)      00004300
+ICR1SKP  EQU   B'00100000'               PCA SKIP FLAG                  00004400
+ICR1FL2  DS    XL1                     TRAN CONTROL OPTIONS             00004500
+ICR1USE  EQU   B'00000001'               EXECUTE USER CODE              00004600
+         DS    CL2                     FILLER                           00004700
+ICR1OCSZ DS    XL2                     OCCURR SIZE OF PDA               00004800
+ICR1PRCD DS    CL1                     PROCESS CODE                     00004900
+ICR1PBPC DS    CL1                     PASSBOOK SUB-PROCESS CODE        00005000
+ICR1OFFL DS    CL1                     CREATE OFFLINE TRANSACTION       00005100
+ICR1MPST DS    CL1                     MEMO POST                        00005200
+ICR1RDES DS    CL10                    REPORT DESCRIPTION               00005300
+ICR1REXC DS    XL1                     REPORT EXCEPTION CODE            00005400
+ICR1SGSZ DS    0CL04                   SEGMENT SIZES                    00005500
+ICR1SGSK DS    XL2                       RECORD KEY SEGMENT SIZE        00005600
+ICR1SGSP DS    XL2                       PARSING SEGMENT SIZE           00005700
+ICR1TYPE DS    CL1                     PLATFORM TYPE          9913349   00005710
+ICR1CV   EQU   C'C'                    C CONVENTIONAL         0514798   00005712
+ICR1PC   EQU   C'P'                    P PC PLATFORM TYPE     0514798   00005714
+ICR1SHR  EQU   C'S'                    S SHARED/SDR           0514798   00005716
+ICR1BTCH EQU   C'B'                    B BATCH                0514798   00005718
+ICR1XML  EQU   C'X'                    X XML                  1226081   00005719
+ICR1AFT  DS    CL1                     ICR BEFORE/AFTER PROCS 2024224   00005720
+ICR1SCUR DS    CL3                     SOURCE CURRENCY CODE   0514798   00005730
+ICR1TCUR DS    CL3                     TARGET CURRENCY CODE   0514798   00005740
+ICR1ISTO DS    CL1                     BATCH INSERT OPTION    0514798   00005750
+ICR1TOT  DS    CL1                     BATCH ICR TOTALING     0514798   00005760
+ICR1EXT  DS    CL4                     EXTERNAL TRANCODE      0514798   00005770
+ICR1SCH  DS    CL8                     MESSAGE SCHEMA         1226081   00005780
+         DS    CL14                    FILLER                 1226081   00005800
+ICR1LGN  EQU   *-ICR1REC               SEGMENT 1 LENGTH                 00005900
+*                                                                       00006000
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 2A'             00006100
+ICR2VAR   EQU   *                       BEGINNING OF VARIABLE SEGS 2-3  00006200
+****************************************************************        00006300
+*                                                              *        00006400
+*            SEGMENT 2A  -  RECORD KEY STEM                    *        00006500
+*          EACH RECORD KEY STEM HAS A LENGTH OF 18 BYTES.      *        00006600
+*     EACH RECORD KEY STEM DESCRIBES PARSE DATA FOR ONE KEY.   *        00006700
+*                                                              *        00006800
+****************************************************************        00006900
+*                                                                       00007000
+ICRSEG2A DSECT                                                          00007100
+ICR2ASTM DS    0CL18                   REC KEY STEM SEG                 00007200
+ICR2AID  DS    CL2                     SEGMENT 2A ID (WILL BE '2A')     00007300
+ICR2ALNG DS    XL2                     REC KEY OCCUR LENGTH - THIS KEY  00007400
+ICR2ATCF DS    CL8                     REC KEY FILE/DAG NAME  0514798   00007500
+ICR2ARPT DS    CL1                     REC KEY REPORT THIS KEY FLAG     00007600
+ICR2ADEF DS    CL1                     REC KEY DEST FLAG      0514798   00007610
+ICR2AKDA EQU   C'0'                    PARSE TO KDA           0514798   00007612
+ICR2ADAG EQU   C'1'                    PARSE TO DAG           0514798   00007614
+ICR2AIDT DS    XL4                     TYPE B RUN TIME ADD    0635191   00007700
+ICR2ALGN EQU   *-ICR2ASTM              SEGMENT 2A LENGTH                00007800
+*                                                                       00007900
+*        TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 2B'             00008000
+****************************************************************        00008100
+*                                                              *        00008200
+*      SEGMENT 2B  -  RECORD KEY PARSE DETAIL INFORMATION      *        00008300
+* EACH RECORD KEY PARSE DETAIL LENGTH WILL VARY FROM A MINIMUM *        00008400
+* OF 33 BYTES TO A MAXIMUM OF 73 BYTES DEPENDING ON THE SOURCE *        00008500
+* OF THE PARSE DATA.                                           *        00008600
+*                                                              *        00008700
+****************************************************************        00008800
+*                                                                       00008900
+ICRSEG2B DSECT                                                          00009000
+ICR2BKPA DS    0C                                                       00009100
+ICR2BID  DS    CL2                     SEGMENT 2B ID (WILL BE '2B')     00009200
+ICR2BDLG DS    XL2                     REC KEY LENG OF THIS PARSE DET   00009300
+ICR2BCNF DS    CL1                     REC KEY CONDITIONAL PARSE FLAG   00009400
+ICR2BCNA EQU   C'0'                            ALWAYS PARSE             00009500
+ICR2BCNC EQU   C'1'                            CONDITIONAL PARSE        00009600
+ICR2BCNU EQU   C'2'                            EXECUTE USER CODE        00009700
+ICR2BDLN DS    XL2                     REC KEY PARSE DEST FIELD LENGTH  00009800
+ICR2BSLN DS    XL2                     REC KEY PARSE SOURCE FIELD LNG   00009900
+ICR2BDPO DS    XL2                     REC KEY DEST POSITION            00010000
+ICR2BDDA DS    CL1                     REC KEY DESTINATN DATE FORMAT    00010100
+ICR2BDDS EQU   C' '                            (NOT DATE)               00010200
+ICR2BDD1 EQU   C'1'                            JULIAN DATE DDDYY        00010300
+ICR2BDD2 EQU   C'2'                            JULIAN DATE YYDDD        00010400
+ICR2BDD3 EQU   C'3'                            GREG YYMMDD              00010500
+ICR2BDD4 EQU   C'4'                            GREG YYYYMMDD            00010600
+ICR2BDD5 EQU   C'5'                            GREG MMDDYY              00010700
+ICR2BDD6 EQU   C'6'                            GREG MMDDYYYY            00010800
+ICR2BDD7 EQU   C'7'                            GREG DDMMYY              00010900
+ICR2BDD8 EQU   C'8'                            GREG DDMMYYYY            00011000
+ICR2BDTA EQU   C'A'                            TIME ZNE JUL DT DDDYY    00011100
+ICR2BDTB EQU   C'B'                            TIME ZNE JUL DT YYDDD    00011200
+IC22BDTC EQU   C'C'                            TIME ZNE GREG YYMMDD     00011300
+ICR2BDTD EQU   C'D'                            TIME ZNE GREG YYYYMMDD   00011400
+ICR2BDTE EQU   C'E'                            TIME ZNE GREG MMDDYY     00011500
+ICR2BDTF EQU   C'F'                            TIME ZNE GREG MMDDYYYY   00011600
+ICR2BDTG EQU   C'G'                            TIME ZNE GREG DDMMYY     00011700
+ICR2BDTH EQU   C'H'                            TIME ZNE GREG DDMMYYYY   00011800
+ICR2BDDJ EQU   C'J'                      JULIAN DATE CCYYDDD  2602675   00011810
+ICR2BDDK EQU   C'K'                      JULIAN DATE DDDCCYY  2602675   00011820
+ICR2BDTM EQU   C'M'                      TIME ZNE JUL CCYYDDD 2602675   00011830
+ICR2BDTN EQU   C'N'                      TIME ZNE JUL DDDCCYY 2602675   00011840
+ICR2BDTT EQU   C'T'                            TIME ZNE EIBTIME HHMMSS  00011900
+ICR2BPOP DS    XL1                     REC KEY PARSE OPTIONS            00012000
+ICR2BLJU EQU   B'00000001'                     LEFT JUSTIFY DATA FLAG   00012100
+ICR2BRJU EQU   B'00000010'                     RIGHT JUSTIFY DATA FLA   00012200
+ICR2BZF  EQU   B'00000100'                     ZERO FILL FLAG           00012300
+ICR2BEXT DS    CL1                     REC KEY USER PARSING EXIT CODE   00012400
+ICR2BDFM DS    XL1                     REC KEY DATA FORMATS             00012500
+ICR2BDBI EQU   B'00000001'                     DESTINATION IS BINARY    00012600
+ICR2BDPK EQU   B'00000010'                     DESTINATION IS PACKED    00012700
+ICR2BDCH EQU   B'00000100'                     DESTINATION IS CHARACTER 00012800
+ICR2BDNU EQU   B'00001000'                     DESTINATION IS NUMERIC   00012900
+ICR2BSBI EQU   B'00010000'                     SOURCE IS BINARY         00013000
+ICR2BSPK EQU   B'00100000'                     SOURCE IS PACKED         00013100
+ICR2BSCH EQU   B'01000000'                     SOURCE IS CHARACTER      00013200
+ICR2BSNU EQU   B'10000000'                     SOURCE IS NUMERIC        00013300
+ICR2BDSS DS    CL1                     REC KEY DATA SOURCE FLAG         00013400
+ICR2BDS0 EQU   C'0'                            DATA IN TRANSMISSION     00013500
+ICR2BDS1 EQU   C'1'                            DATA IS A CONSTANT       00013600
+ICR2BDS2 EQU   C'2'                            DATA IN FILE             00013700
+ICR2BDS4 EQU   C'4'                            DATE                     00013800
+ICR2BDS5 EQU   C'5'                            EIBTIME                  00013900
+ICR2BDS6 EQU   C'6'                            APPLICATION CONTROLS     00014000
+ICR2BDSA EQU   C'A'                    DAG                    0514798   00014010
+ICR2BDSC EQU   C'C'                    EXIT NO PARSING        0514798   00014012
+ICR2BXML EQU   C'X'                    DATA IS IN TAGGED XML  1226081   00014014
+ICR2BSDA DS    CL1                     REC KEY SOURCE DATE FORMAT       00014100
+ICR2BSDS EQU   C' '                            (NOT DATE)               00014200
+ICR2BSD1 EQU   C'1'                            JULIAN DATE DDDYY        00014300
+ICR2BSD2 EQU   C'2'                            JULIAN DATE YYDDD        00014400
+ICR2BSD3 EQU   C'3'                            GREG YYMMDD              00014500
+ICR2BSD4 EQU   C'4'                            GREG YYYYMMDD            00014600
+ICR2BSD5 EQU   C'5'                            GREG MMDDYY              00014700
+ICR2BSD6 EQU   C'6'                            GREG MMDDYYYY            00014800
+ICR2BSD7 EQU   C'7'                            GREG DDMMYY              00014900
+ICR2BSD8 EQU   C'8'                            GREG DDMMYYYY            00015000
+ICR2BSTA EQU   C'A'                            TIME ZNE JUL DT DDDYY    00015100
+ICR2BSTB EQU   C'B'                            TIME ZNE JUL DT YYDDD    00015200
+ICR2BSTC EQU   C'C'                            TIME ZNE GREG YYMMDD     00015300
+ICR2BSTD EQU   C'D'                            TIME ZNE GREG YYYYMMDD   00015400
+ICR2BSTE EQU   C'E'                            TIME ZNE GREG MMDDYY     00015500
+ICR2BSTF EQU   C'F'                            TIME ZNE GREG MMDDYYYY   00015600
+ICR2BSTG EQU   C'G'                            TIME ZNE GREG DDMMYY     00015700
+ICR2BSTH EQU   C'H'                            TIME ZNE GREG DDMMYYYY   00015800
+ICR2BSDJ EQU   C'J'                      JULIAN DATE CCYYDDD  2602675   00015810
+ICR2BSDK EQU   C'K'                      JULIAN DATE DDDCCYY  2602675   00015820
+ICR2BSTM EQU   C'M'                      TIME ZNE JUL CCYYDDD 2602675   00015830
+ICR2BSTN EQU   C'N'                      TIME ZNE JUL DDDCCYY 2602675   00015840
+ICR2BSTT EQU   C'T'                            TIME ZNE EIBTIME HHMMSS  00015900
+ICR2BSDL DS    XL4                    KEY SRC DSM ENTRY LOC   0514798   00015910
+         DS    CL11                    FILLER                 0514798   00016000
+ICR2BSLG DS    XL1                       REC KEY LNG - VAR SOURCE DATA  00016100
+ICR2BFLN EQU   *-ICR2BKPA              SEGMENT 2B FIXED PORTION LENGTH  00016200
+ICR2BSRC DS    CL40                    REC KEY SOURCE DATA              00016300
+         ORG   ICR2BSRC                                                 00016400
+ICR2BS1  DS    0CL10                     SRC TRANSMISSION               00016500
+ICR2BS1F DS    CL8                         FIELD IDENTIFIER             00016600
+ICR2BS1P DS    XL2                         POSITION                     00016700
+ICR2BSDN DS    CL8                         DAG NAME           9913349   00016702
+ICR2BSEL DS    CL8                         ELEMENT ID         9913349   00016704
+ICR2BDM1 DS    XL2                         DIM 1              9913349   00016706
+ICR2BDM2 DS    XL2                         DIM 2              9913349   00016708
+ICR2BDM3 DS    XL2                         DIM 3              9913349   00016710
+         ORG   ICR2BSRC                                                 00016800
+ICR2BS2  DS    0CL40                     SRC CONSTANT                   00016900
+ICR2BS2D DS    CL40                        CONSTANT                     00017000
+         ORG   ICR2BSRC                                                 00017100
+ICR2BS3  DS    0CL10                     SRC FILE                       00017200
+ICR2BS3F DS    CL8                         FILE NAME                    00017300
+ICR2BS3P DS    XL2                         POSITION IN RECORD           00017400
+         ORG   ICR2BSRC                                                 00017500
+ICR2BS4  DS    0CL2                    SRC APPLICATION CTLS   0514798   00017600
+ICR2BS4A DS    CL2                          APPLICATION ID    0514798   00017610
+         ORG   ICR2BSRC                                       0514798   00017620
+ICR2BENM DS    CL8           EXIT NAME IF ICR2BDSS = 'C'      0514798   00017622
+         DS    CL32          REMAINDER OF 40 BYTE SOURCE      0514798   00017623
+         ORG   ICR2BSRC                                       0514798   00017632
+ICR2BSA  DS    0CL24         SRC DAG                          0514798   00017634
+ICR2BSAD DS    CL8             DAG NAME                       0514798   00017636
+ICR2BSAE DS    CL8             ELEMENT ID                     0514798   00017640
+ICR2BSA1 DS    XL2             DIM 1                          0514798   00017650
+ICR2BSA2 DS    XL2             DIM 2                          0514798   00017660
+ICR2BSA3 DS    XL2             DIM 3                          0514798   00017670
+ICR2BSAO DS    XL2             POSITION IN ELEMENT DATA       0514798   00017680
+ICR2BIDT DS    XL4             TYPE B RUN TIME ADD            0635191   00017682
+         DS    CL12            REMAINDER OF 40 BYTE SOURCE    0635191   00017684
+************************************************************* 0514798   00017700
+* THE FOLLOWING AREA WILL ONLY EXIST IF THE 2A DESTINATION  * 0514798   00017702
+* FLAG SPECIFIES PARSING TO A DAG KEY.  IF THIS AREA EXISTS,* 0514798   00017704
+* ITS LENGTH WILL BE INCLUDED IN THE 2B SEGMENT LENGTH FIELD* 0514798   00017706
+************************************************************* 0514798   00017708
+ICR2BDST DS    0CL24                DESTINATION DAG           0514798   00017710
+ICR2BDEL DS    CL8                    ELEMENT ID              0514798   00017720
+ICR2BDE1 DS    XL2                    DIM 1                   0514798   00017730
+ICR2BDE2 DS    XL2                    DIM 2                   0514798   00017740
+ICR2BDE3 DS    XL2                    DIM 3                   0514798   00017750
+ICR2BDEP DS    XL2                    POS IN ELEMENT DATA     0514798   00017760
+ICR2BDDL DS    XL4                    KEY DEST DSM ENTRY LOC  0514798   00017770
+ICR2BDPE DS    XL1                    KEY DEST PARSE ERR      0514798   00017775
+         DS    CL3                    FILLER                  0514798   00017780
+ICR2BLGN EQU   *-ICR2BKPA              SEGMENT 2B LENGTH                00017800
+*                                                                       00017900
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 2C'             00018000
+****************************************************************        00018100
+*                                                              *        00018200
+*  SEGMENT 2C  -  RECORD KEY CONDITIONAL PARSING INFORMATION   *        00018300
+* CONDITIONAL PARSE INFORMATION WILL BE PRESENT IF THE         *        00018400
+* CONDITIONAL PARSE FLAG IN SEGMENT 2B IS A '1'. IF PRESENT,   *        00018500
+* THE INFORMATION WILL BE 216 BYTES LONG.                   * 9913349   00018600
+*                                                              *        00018700
+****************************************************************        00018800
+*                                                                       00018900
+ICRSEG2C DSECT                                                          00019000
+ICR2CCON DS    0CL216                                         9913349   00019100
+ICR2CID  DS    CL2                     SEGMENT 2C ID (WILL BE '2C')     00019200
+ICR2COC1 DS    0CL50                   1ST FIELD COND OCCUR   9913349   00019300
+ICR2CCFI DS    CL8                     REC KEY FIELD IDENTIFIER         00019400
+ICR2CCOF DS    XL2                     REC KEY POSITION IN TRANSMISSION 00019500
+ICR2CCDN DS    CL8                     REC KEY DAG NAME       9913349   00019510
+ICR2CCEL DS    CL8                     REC KEY ELEMENT ID     9913349   00019520
+ICR2CCD1 DS    XL2                     REC KEY DIM 1          9913349   00019530
+ICR2CCD2 DS    XL2                     REC KEY DIM 2          9913349   00019540
+ICR2CCD3 DS    XL2                     REC KEY DIM 3          9913349   00019550
+ICR2CCCO DS    CL2                     REC KEY COMPARE OPTION           00019600
+ICR2CCSP EQU   C'  '                      NO COMPARISON                 00019700
+ICR2CCEQ EQU   C'EQ'                      EQUAL                         00019800
+ICR2CCNE EQU   C'NE'                      NOT EQUAL                     00019900
+ICR2CCGT EQU   C'GT'                      GREATER THAN                  00020000
+ICR2CCLE EQU   C'LE'                      LESS THAN OR EQUAL            00020100
+ICR2CCLT EQU   C'LT'                      LESS THAN                     00020200
+ICR2CCGE EQU   C'GE'                      GREATER THAN OR EQUAL         00020300
+ICR2CCPR EQU   C'PR'                      IF FIELD IS PRESENT           00020400
+ICR2CCNP EQU   C'NP'                      IF FIELD NOT PRESENT          00020500
+ICR2CCTM EQU   C'TM'                      TEST UNDER MASK               00020600
+ICR2CCLG DS    XL1                     REC KEY COMPARISON DATA LENGTH   00020700
+ICR2CCDA DS    CL15                    REC KEY COMPARISON DATA          00020800
+ICR2CCF2 DS    CL150                   2ND-4TH FLD COND OCCUR 9913349   00020900
+ICR2CREL DS    CL12                    RELATIONSHIPS THAT AFFECT COND'L 00021000
+ICR2FILL DS    CL2                     RESERVED FOR FUTURE    9913349   00021010
+*                                        APPL KEY PARSE PROCESSING      00021100
+ICR2CLGN EQU   *-ICR2CCON              SEGMENT 2C LENGTH                00021200
+*                                                             0514798   00021205
+        TITLE 'TSTS2ICR -INPUT CONTROL RECORD SEGMENT 2D'     0514798   00021210
+**************************************************************0514798   00021215
+*                                                             0514798   00021220
+* SEGMENT 2D - RECORD KEY FIELD SELECTION CONDITION           0514798   00021225
+*              INFORMATION FOR BATCH ICRS                     0514798   00021230
+* CONDITIONAL SELECTION INFORMATION WILL BE PRESENT IF THE    0514798   00021235
+* ICR PLATFORM TYPE IS A 'B' AND                              0514798   00021240
+* PROCESS OPTION FLAG IN SEGMENT 2B IS A '1'. IF PRESENT, THE 0514798   00021245
+* INFORMATION WILL BE 600 BYTES LONG.                         0514798   00021250
+**************************************************************0514798   00021255
+*                                                             0514798   00021260
+ICRSEG2D DSECT                                                0514798   00021265
+ICR2DCON DS    0CL600                  CONDITIONAL INFO       0514798   00021270
+ICR2DID  DS    CL2                     SEGMENT 2D ID '2D'     0514798   00021275
+ICR2DVCN DS    XL2                                            0514798   00021280
+ICR2DDCN DS    XL2                                            0514798   00021285
+ICR2DDMA DS    XL4                                            0514798   00021290
+         DS    XL19                                           0514798   00021295
+ICR2DFLD DS    0CL176                  VARIABLES              0514798   00021300
+ICR2DOC1 DS    0CL22                   1ST VAR OCCURRENCE     0514798   00021305
+ICR2DDNM DS    CL8                     DAG NAME               0514798   00021310
+ICR2DELE DS    CL8                     ELEMENT ID             0514798   00021315
+ICR2DDI1 DS    XL2                     DIM 1                  0514798   00021320
+ICR2DDI2 DS    XL2                     DIM 2                  0514798   00021325
+ICR2DDI3 DS    XL2                     DIM 3                  0514798   00021330
+ICR2DOC2 DS    CL154                   2ND-8TH FLD VAR OCCUR  0514798   00021335
+ICR2DEXP DS    0CL395                  VARIABLES              0514798   00021340
+ICR2DEX1 DS    CL79                    1ST VAR OCCURRENCE     0514798   00021345
+ICR2DEX2 DS    CL316                   2ND-5TH FLD VAR OCCUR  0514798   00021350
+ICR2DLGN EQU   *-ICR2DCON                                     0514798   00021355
+*                                                             0514798   00021360
+************************************************************* 1226081   00021362
+*                                                           * 1226081   00021364
+*      SEGMENT 2E  -  RECORD KEY PARSE DETAIL INFORMATION   * 1226081   00021366
+* EACH RECORD KEY PARSE DETAIL LENGTH WILL VARY FROM A MIN  * 1226081   00021368
+* OF 203 BYTES TO A MAXIMUM  BYTES DEPENDING ON THE SOURCE  * 1226081   00021370
+* OF THE PARSE DATA.                                        * 1226081   00021372
+*                                                           * 1226081   00021374
+************************************************************* 1226081   00021376
+*                                                             1226081   00021378
+ICRSEG2E DSECT                SEGMENT 2E DSECT                1226081   00021380
+ICR2EKPA DS    0C                                             1226081   00021390
+ICR2EID  DS    CL2            SEGMENT 2E ID (WILL BE '2E')    1226081   00021400
+ICR2EDLG DS    XL2            REC KEY LENG OF THIS PARSE DET  1226081   00021405
+ICR2ECNF DS    CL1            REC KEY CONDITIONAL PARSE FLAG  1226081   00021410
+ICR2ECNA EQU   C'0'                       ALWAYS PARSE        1226081   00021415
+ICR2ECNC EQU   C'1'                       CONDITIONAL PARSE   1226081   00021420
+ICR2ECNU EQU   C'2'                       EXECUTE USER CODE   1226081   00021425
+ICR2EDLN DS    XL2            REC KEY PARSE DEST FIELD LENGTH 1226081   00021430
+ICR2ESLN DS    XL2            REC KEY PARSE SOURCE FIELD LNG  1226081   00021435
+ICR2EDPO DS    XL2            REC KEY DEST POSITION           1226081   00021440
+ICR2EDDA DS    CL1            REC KEY DESTINATN DATE FORMAT   1226081   00021445
+ICR2EDDS EQU   C' '                      (NOT DATE)           1226081   00021450
+ICR2EDD1 EQU   C'1'                      JULIAN DATE DDDYY    1226081   00021455
+ICR2EDD2 EQU   C'2'                      JULIAN DATE YYDDD    1226081   00021460
+ICR2EDD3 EQU   C'3'                       GREG YYMMDD         1226081   00021465
+ICR2EDD4 EQU   C'4'                            GREG YYYYMMDD  1226081   00021470
+ICR2EDD5 EQU   C'5'                            GREG MMDDYY    1226081   00021475
+ICR2EDD6 EQU   C'6'                            GREG MMDDYYYY  1226081   00021480
+ICR2EDD7 EQU   C'7'                            GREG DDMMYY    1226081   00021485
+ICR2EDD8 EQU   C'8'                            GREG DDMMYYYY  1226081   00021490
+ICR2EDTA EQU   C'A'                     TIME ZNE JUL DT DDDYY 1226081   00021495
+ICR2EDTB EQU   C'B'                     TIME ZNE JUL DT YYDDD 1226081   00021500
+IC22EDTC EQU   C'C'                     TIME ZNE GREG YYMMDD  1226081   00021505
+ICR2EDTD EQU   C'D'                   TIME ZNE GREG YYYYMMDD  1226081   00021510
+ICR2EDTE EQU   C'E'                     TIME ZNE GREG MMDDYY  1226081   00021515
+ICR2EDTF EQU   C'F'                   TIME ZNE GREG MMDDYYYY  1226081   00021520
+ICR2EDTG EQU   C'G'                    TIME ZNE GREG DDMMYY   1226081   00021525
+ICR2EDTH EQU   C'H'                   TIME ZNE GREG DDMMYYYY  1226081   00021530
+ICR2EDDJ EQU   C'J'                      JULIAN DATE CCYYDDD  1226081   00021535
+ICR2EDDK EQU   C'K'                      JULIAN DATE DDDCCYY  1226081   00021540
+ICR2EDTM EQU   C'M'                      TIME ZNE JUL CCYYDDD 1226081   00021545
+ICR2EDTN EQU   C'N'                      TIME ZNE JUL DDDCCYY 1226081   00021550
+ICR2EDTT EQU   C'T'                   TIME ZNE EIBTIME HHMMSS 1226081   00021555
+ICR2EPOP DS    XL1                     REC KEY PARSE OPTIONS  1226081   00021560
+ICR2ELJU EQU   B'00000001'             LEFT JUSTIFY DATA FLAG 1226081   00021565
+ICR2ERJU EQU   B'00000010'             RIGHT JUSTIFY DATA FLA 1226081   00021570
+ICR2EZF  EQU   B'00000100'             ZERO FILL FLAG         1226081   00021575
+ICR2EEXT DS    CL1             REC KEY USER PARSING EXIT CODE 1226081   00021580
+ICR2EDFM DS    XL1                     REC KEY DATA FORMATS   1226081   00021585
+ICR2EDBI EQU   B'00000001'             DESTINATION IS BINARY  1226081   00021590
+ICR2EDPK EQU   B'00000010'             DESTINATION IS PACKED  1226081   00021595
+ICR2EDCH EQU   B'00000100'          DESTINATION IS CHARACTER  1226081   00021600
+ICR2EDNU EQU   B'00001000'           DESTINATION IS NUMERIC   1226081   00021605
+ICR2ESBI EQU   B'00010000'                SOURCE IS BINARY    1226081   00021620
+ICR2ESPK EQU   B'00100000'                SOURCE IS PACKED    1226081   00021625
+ICR2ESCH EQU   B'01000000'                SOURCE IS CHARACTER 1226081   00021630
+ICR2ESNU EQU   B'10000000'                SOURCE IS NUMERIC   1226081   00021635
+ICR2EDSS DS    CL1                  REC KEY DATA SOURCE FLAG  1226081   00021640
+ICR2EDS0 EQU   C'0'                     DATA IN TRANSMISSION  1226081   00021645
+ICR2EDS1 EQU   C'1'                      DATA IS A CONSTANT   1226081   00021650
+ICR2EDS2 EQU   C'2'                      DATA IN FILE         1226081   00021655
+ICR2EDS4 EQU   C'4'                      DATE                 1226081   00021660
+ICR2EDS5 EQU   C'5'                      EIBTIME              1226081   00021665
+ICR2EDS6 EQU   C'6'                      APPLICATION CONTROLS 1226081   00021670
+ICR2EDSA EQU   C'A'                    DAG                    1226081   00021675
+ICR2EDSC EQU   C'C'                    EXIT NO PARSING        1226081   00021680
+ICR2EXML EQU   C'X'                    DATA IS IN TAGGED XML  1226081   00021685
+ICR2ESDA DS    CL1                 REC KEY SOURCE DATE FORMAT 1226081   00021690
+ICR2ESDS EQU   C' '                         (NOT DATE)        1226081   00021695
+ICR2ESD1 EQU   C'1'                         JULIAN DATE DDDYY 1226081   00021700
+ICR2ESD2 EQU   C'2'                         JULIAN DATE YYDDD 1226081   00021705
+ICR2ESD3 EQU   C'3'                         GREG YYMMDD       1226081   00021710
+ICR2ESD4 EQU   C'4'                         GREG YYYYMMDD     1226081   00021715
+ICR2ESD5 EQU   C'5'                         GREG MMDDYY       1226081   00021720
+ICR2ESD6 EQU   C'6'                         GREG MMDDYYYY     1226081   00021725
+ICR2ESD7 EQU   C'7'                         GREG DDMMYY       1226081   00021730
+ICR2ESD8 EQU   C'8'                         GREG DDMMYYYY     1226081   00021735
+ICR2ESTA EQU   C'A'                    TIME ZNE JUL DT DDDYY  1226081   00021740
+ICR2ESTB EQU   C'B'                    TIME ZNE JUL DT YYDDD  1226081   00021745
+ICR2ESTC EQU   C'C'                    TIME ZNE GREG YYMMDD   1226081   00021750
+ICR2ESTD EQU   C'D'                    TIME ZNE GREG YYYYMMDD 1226081   00021755
+ICR2ESTE EQU   C'E'                    TIME ZNE GREG MMDDYY   1226081   00021760
+ICR2ESTF EQU   C'F'                    TIME ZNE GREG MMDDYYYY 1226081   00021765
+ICR2ESTG EQU   C'G'                    TIME ZNE GREG DDMMYY   1226081   00021770
+ICR2ESTH EQU   C'H'                    TIME ZNE GREG DDMMYYYY 1226081   00021775
+ICR2ESDJ EQU   C'J'                    JULIAN DATE CCYYDDD    1226081   00021780
+ICR2ESDK EQU   C'K'                    JULIAN DATE DDDCCYY    1226081   00021785
+ICR2ESTM EQU   C'M'                    TIME ZNE JUL CCYYDDD   1226081   00021790
+ICR2ESTN EQU   C'N'                    TIME ZNE JUL DDDCCYY   1226081   00021795
+ICR2ESTT EQU   C'T'                 TIME ZNE EIBTIME HHMMSS   1226081   00021800
+ICR2ESDL DS    XL4                  KEY SRC DSM ENTRY LOC     1226081   00021805
+         DS    CL11                    FILLER                 1226081   00021810
+ICR2ESLG DS    XL1           REC KEY LNG - VAR SOURCE DATA    1226081   00021815
+ICR2EFLN EQU   *-ICR2EKPA    SEGMENT 2E FIXED PORTION LENGTH  1226081   00021820
+ICR2ESRC DS    CL147         REC KEY SOURCE DATA              1226081   00021825
+         ORG   ICR2ESRC                                       1226081   00021830
+ICR2ES1  DS    0CL147                     SRC TRANSMISSION    1226081   00021835
+ICR2ES1P DS    XL2                         POSITION           1226081   00021840
+ICR2ESP1 DS    CL32                        PARENT NAME        1226081   00021845
+ICR2ESP2 DS    CL32                        PARENT NAME        1226081   00021850
+ICR2ESP3 DS    CL32                        PARENT NAME        1226081   00021855
+ICR2EST1 DS    CL32                        TAG NAME           1226081   00021860
+ICR2ESO1 DS    XL2             DIM 1                          1226081   00021862
+ICR2ESO2 DS    XL2             DIM 2                          1226081   00021863
+ICR2ESO3 DS    XL2             DIM 3                          1226081   00021864
+ICR2ESON DS    XL2             NUMBER TAG                     1226081   00021865
+ICR2EDEC DS    CL1                         DECIMAL            1226081   00021866
+ICR2EEQU DS    CL8                         EQU                1226081   00021867
+         DS    CL7                                            1226081   00021868
+         ORG   ICR2ESRC                                       1226081   00021870
+ICR2ES2  DS    0CL40                     SRC CONSTANT         1226081   00021875
+ICR2ES2D DS    CL40                        CONSTANT           1226081   00021880
+         ORG   ICR2ESRC                                       1226081   00021885
+ICR2ES3  DS    0CL10                     SRC FILE             1226081   00021890
+ICR2ES3F DS    CL8                         FILE NAME          1226081   00021895
+ICR2ES3P DS    XL2                         POSITION IN RECORD 1226081   00021900
+         ORG   ICR2ESRC                                       1226081   00021905
+ICR2ES4  DS    0CL2                    SRC APPLICATION CTLS   1226081   00021910
+ICR2ES4A DS    CL2                          APPLICATION ID    1226081   00021915
+         ORG   ICR2ESRC                                       1226081   00021920
+ICR2EENM DS    CL8           EXIT NAME IF ICR2BDSS = 'C'      1226081   00021925
+         DS    CL72          REMAINDER OF 80 BYTE SOURCE      1226081   00021930
+         ORG   ICR2ESRC                                       1226081   00021935
+ICR2ESA  DS    0CL24         SRC DAG                          1226081   00021940
+ICR2ESAD DS    CL8             DAG NAME                       1226081   00021945
+ICR2ESAE DS    CL8             ELEMENT ID                     1226081   00021950
+ICR2ESA1 DS    XL2             DIM 1                          1226081   00021955
+ICR2ESA2 DS    XL2             DIM 2                          1226081   00021960
+ICR2ESA3 DS    XL2             DIM 3                          1226081   00021965
+ICR2ESAO DS    XL2             POSITION IN ELEMENT DATA       1226081   00021970
+ICR2EIDT DS    XL4             TYPE B RUN TIME ADD            1226081   00021975
+         DS    CL46            REMAINDER OF 80 BYTE SOURCE    1226081   00021980
+* THE FOLLOWING AREA WILL ONLY EXIST IF THE 2A DESTINATION  * 1226081   00021984
+* FLAG SPECIFIES PARSING TO A DAG KEY.  IF THIS AREA EXISTS,* 1226081   00021986
+* ITS LENGTH WILL BE INCLUDED IN THE 2B SEGMENT LENGTH FIELD* 1226081   00021988
+************************************************************* 1226081   00021990
+ICR2EDST DS    0CL24                DESTINATION DAG           1226081   00021995
+ICR2EDDG DS    CL8                    DAG                     1226081   00022000
+ICR2EDEL DS    CL8                    ELEMENT ID              1226081   00022002
+ICR2EDE1 DS    XL2                    DIM 1                   1226081   00022005
+ICR2EDE2 DS    XL2                    DIM 2                   1226081   00022010
+ICR2EDE3 DS    XL2                    DIM 3                   1226081   00022015
+ICR2EDEP DS    XL2                    POS IN ELEMENT DATA     1226081   00022020
+ICR2EDDL DS    XL4                    KEY DEST DSM ENTRY LOC  1226081   00022025
+ICR2EDPE DS    XL1                    KEY DEST PARSE ERR      1226081   00022030
+         DS    CL3                    FILLER                  1226081   00022035
+ICR2ELGN EQU   *-ICR2EKPA              SEGMENT 2E LENGTH      1226081   00022040
+*                                                             1226081   00022045
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 2F'   1226081   00022050
+************************************************************* 1226081   00022052
+*                                                           * 1226081   00022054
+*  SEGMENT 2F  -  RECORD KEY CONDITIONAL PARSING INFORMATION* 1226081   00022056
+* CONDITIONAL PARSE INFORMATION WILL BE PRESENT IF THE      * 1226081   00022058
+* CONDITIONAL PARSE FLAG IN SEGMENT 2E IS A '1'. IF PRESENT,* 1226081   00022060
+* THE INFORMATION WILL BE 636 BYTES LONG.                   * 1226081   00022062
+*                                                           * 1226081   00022064
+************************************************************* 1226081   00022066
+*                                                             1226081   00022068
+ICRSEG2F DSECT                       SEGMENT 2F DSECT         1226081   00022070
+ICR2FCON DS    0CL644         CONDITIONAL RECORD              1226081   00022075
+ICR2FID  DS    CL2            SEGMENT 2F ID (WILL BE '2F')    1226081   00022080
+ICR2FOC1 DS    0CL157         1ST FIELD COND OCCUR            1226081   00022085
+ICR2FCOF DS    XL2            REC KEY POSITION IN TRANSMISSIO 1226081   00022095
+ICR2FCD1 DS    CL32                    REC KEY PARENT NAME    1226081   00022100
+ICR2FCD2 DS    CL32                    REC KEY PARENT NAME    1226081   00022105
+ICR2FCD3 DS    CL32                    REC KEY PARENT NAME    1226081   00022110
+ICR2FCEL DS    CL32                    REC KEY TAG NAME       1226081   00022112
+ICR2FCD4 DS    XL2            REC KEY DIM1                    1226081   00022113
+ICR2FCD5 DS    XL2            REC KEY DIM2                    1226081   00022114
+ICR2FCD6 DS    XL2            REC KEY DIM3                    1226081   00022115
+ICR2FCDN DS    XL2            REC KEY TAG NUMBER              1226081   00022116
+ICR2FCOT DS    CL1            REC KEY DECIMAL                 1226081   00022117
+ICR2FCCO DS    CL2                     REC KEY COMPARE OPTION 1226081   00022120
+ICR2FCSP EQU   C'  '                      NO COMPARISON       1226081   00022125
+ICR2FCEQ EQU   C'EQ'                      EQUAL               1226081   00022130
+ICR2FCNE EQU   C'NE'                      NOT EQUAL           1226081   00022135
+ICR2FCGT EQU   C'GT'                      GREATER THAN        1226081   00022140
+ICR2FCLE EQU   C'LE'                      LESS THAN OR EQUAL  1226081   00022145
+ICR2FCLT EQU   C'LT'                      LESS THAN           1226081   00022150
+ICR2FCGE EQU   C'GE'                    GREATER THAN OR EQUA  1226081   00022155
+ICR2FCPR EQU   C'PR'                      IF FIELD IS PRESENT 1226081   00022160
+ICR2FCNP EQU   C'NP'                     IF FIELD NOT PRESENT 1226081   00022165
+ICR2FCTM EQU   C'TM'                      TEST UNDER MASK     1226081   00022170
+ICR2FCLG DS    XL1                     REC KEY COMP DATALEN   1226081   00022175
+ICR2FCDA DS    CL15                  REC KEY COMPARISON DATA  1226081   00022180
+ICR2FCF2 DS    CL471                   2ND-4TH FLD COND OCCUR 1226081   00022185
+ICR2FREL DS    CL12                   RELATIONSHIPS THAT AFFE 1226081   00022190
+         DS    CL2                     RESERVED FOR FUTURE    1226081   00022195
+*                                   APPL KEY PARSE PROCESSING 1226081   00022200
+ICR2FLGN EQU   *-ICR2FCON              SEGMENT 2F LENGTH      1226081   00022205
+*                                                             1226081   00022210
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 3A'   1226081   00022215
+************************************************************* 1226081   00022220
+*                                                           * 1226081   00022225
+*  SEGMENT 3A  -  INPUT RECORD / PARSE DATA STEM INFORMATION* 1226081   00022230
+* EACH INPUT RECORD/PARSE DATA DETAIL INFORMATION WILL VARY * 1226081   00022235
+* LENGTH FROM A MINIMUM OF 45 BYTES TO A MAXIMUM OF 85 BYTES* 1226081   00022240
+* DEPENDING ON THE SOURCE OF THE PARSE DATA.                * 1226081   00022245
+*                                                           * 1226081   00022250
+************************************************************* 1226081   00022255
+*                                                                       00022300
+ICRSEG3A DSECT                                                          00022400
+ICR3ASTM DS    0C                      THIS PARSE DETAIL STEM           00022500
+ICR3AID  DS    CL2                     SEGMENT 3A ID (WILL BE '3A')     00022600
+ICR3ALEN DS    XL2                     LENGTH OF THIS PARSE DETAIL      00022700
+ICR3ACNF DS    CL1                     CONDITIONAL PARSE FLAG           00022800
+ICR3ACNA EQU   C'0'                      ALWAYS PARSE                   00022900
+ICR3ACNC EQU   C'1'                      CONDITIONAL PARSE              00023000
+ICR3ACNU EQU   C'2'                      EXECUTE USER CODE              00023100
+ICR3A#TO DS    CL1                     NUMBER OF TOTALS       0514798   00023200
+ICR3ADEF DS    CL1                     DATA DESTINATION FLAG            00023300
+ICR3ADE7 EQU   C'7'                      PARSE TO TSCB STEM             00023400
+ICR3ADE8 EQU   C'8'                      PARSE TO TSCB PCA              00023500
+ICR3ADE9 EQU   C'9'                      PARSE TO TSCB PDA              00023600
+ICR3ADE2 EQU   C'2'                      PARSE TO FILE                  00023700
+ICR3ADE5 EQU   C'5'                      PARSE TO DAG         2024224   00023710
+ICR3ADEX EQU   C'X'                      PARSE TAGGED XML     1226081   00023715
+ICR3ADEB EQU   C'B'                      PARSE LIKE ELEMENTS  0514798   00023720
+ICR3ATCF DS    CL1                     USER TRAN CODE FLAG              00023800
+ICR3ADLN DS    XL2                     DESTINATION FIELD LENGTH         00023900
+ICR3ASLN DS    XL2                     SOURCE FIELD LENGTH              00024000
+ICR3ADST DS    CL10                    DESTINATION DATA                 00024100
+         ORG   ICR3ADST                                                 00024200
+ICR3AD1  DS    0CL10                     DATA DESTINATION TSCB STEM     00024300
+ICR3AD1N DS    CL8                       FIELD NAME IN TSCB STEM        00024400
+ICR3AD1P DS    XL2                       POSITION WITHIN FIELD IN STEM  00024500
+         ORG   ICR3ADST                                                 00024600
+ICR3AD2  DS    0CL10                     DATA DESTINATION TSCB PCA      00024700
+ICR3AD2N DS    CL8                       FIELD NAME IN TSCB PCA         00024800
+ICR3AD2P DS    XL2                       POSITION WITHIN FIELD IN PCA   00024900
+         ORG   ICR3ADST                                                 00025000
+ICR3AD3  DS    0CL2                      DATA DESTINATION TSCB PDA      00025100
+ICR3AD3P DS    XL2                       POSITION WITHIN TSCB PDA       00025200
+         DS    CL8                       FILLER                         00025300
+         ORG   ICR3ADST                                                 00025400
+ICR3AD4  DS    0CL10                     DATA DESTINATION FILE          00025500
+ICR3AD4F DS    CL8                       FILE NAME                      00025600
+ICR3AD4P DS    XL2                       POSITION                       00025700
+ICR3ADDT DS    CL1                     DATA DESTINATION DATE FORMAT     00025800
+ICR3ADDN EQU   C' '                      NOT A DATE - SPACES            00025900
+ICR3ADD1 EQU   C'1'                      JULIAN DATE DDDYY              00026000
+ICR3ADD2 EQU   C'2'                      JULIAN DATE YYDDD              00026100
+ICR3ADD3 EQU   C'3'                      GREG YYMMDD                    00026200
+ICR3ADD4 EQU   C'4'                      GREG YYYYMMDD                  00026300
+ICR3ADD5 EQU   C'5'                      GREG MMDDYY                    00026400
+ICR3ADD6 EQU   C'6'                      GREG MMDDYYYY                  00026500
+ICR3ADD7 EQU   C'7'                      GREG DDMMYY                    00026600
+ICR3ADD8 EQU   C'8'                      GREG DDMMYYYY                  00026700
+ICR3ADTA EQU   C'A'                      TIME ZNE JUL DT DDDYY          00026800
+ICR3ADTB EQU   C'B'                      TIME ZNE JUL DT YYDDD          00026900
+ICR3ADTC EQU   C'C'                      TIME ZNE GREG YYMMDD           00027000
+ICR3ADTD EQU   C'D'                      TIME ZNE GREG YYYYMMDD         00027100
+ICR3ADTE EQU   C'E'                      TIME ZNE GREG MMDDYY           00027200
+ICR3ADTF EQU   C'F'                      TIME ZNE GREG MMDDYYYY         00027300
+ICR3ADTG EQU   C'G'                      TIME ZNE GREG DDMMYY           00027400
+ICR3ADTH EQU   C'H'                      TIME ZNE GREG DDMMYYYY         00027500
+ICR3ADDJ EQU   C'J'                      JULIAN DATE CCYYDDD  2602675   00027510
+ICR3ADDK EQU   C'K'                      JULIAN DATE DDDCCYY  2602675   00027520
+ICR3ADTM EQU   C'M'                      TIME ZNE JUL CCYYDDD 2602675   00027530
+ICR3ADTN EQU   C'N'                      TIME ZNE JUL DDDCCYY 2602675   00027540
+ICR3ADTT EQU   C'T'                      TIME ZNE EIBTIME - HHMMSS      00027600
+ICR3ADDU EQU   C'U'                      EOR FORMAT GREG 6    1115914   00027602
+ICR3ADDV EQU   C'V'                      EOR FORMAT GREG 8    1115914   00027604
+ICR3APOP DS    XL1                     PARSE OPTIONS                    00027700
+ICR3ALJU EQU   B'00000001'               LEFT JUSTIFY DATA FLAG         00027800
+ICR3ARJU EQU   B'00000010'               RIGHT JUSTIFY DATA FLAG        00027900
+ICR3AZF  EQU   B'00000100'               ZERO FILL FLAG                 00028000
+ICR3AEXT DS    CL1                     USER PARSING EXIT CODE           00028100
+ICR3ADFM DS    XL1                     DATA FORMATS                     00028200
+ICR3ADBI EQU   B'00000001'               DESTINATION IS BINARY          00028300
+ICR3ADPK EQU   B'00000010'               DESTINATION IS PACKED          00028400
+ICR3ADCH EQU   B'00000100'               DESTINATION IS CHARACTER       00028500
+ICR3ADNU EQU   B'00001000'               DESTINATION IS NUMERIC         00028600
+ICR3ASBI EQU   B'00010000'               SOURCE IS BINARY               00028700
+ICR3ASPK EQU   B'00100000'               SOURCE IS PACKED               00028800
+ICR3ASCH EQU   B'01000000'               SOURCE IS CHARACTER            00028900
+ICR3ASNU EQU   B'10000000'               SOURCE IS NUMERIC              00029000
+ICR3ASRF DS    CL1                     DATA SOURCE FLAG                 00029100
+ICR3ASR0 EQU   C'0'                      DATA IN TRANSMISSION           00029200
+ICR3ASR1 EQU   C'1'                      DATA IS A CONSTANT             00029300
+ICR3ASR2 EQU   C'2'                      DATA IN FILE                   00029400
+ICR3ASR3 EQU   C'3'                      TOTALLING ONLY                 00029500
+ICR3ASR4 EQU   C'4'                      DATE                           00029600
+ICR3ASR5 EQU   C'5'                      EIBTIME                        00029700
+ICR3ASR6 EQU   C'6'                      APPLICATION CONTROLS           00029800
+ICR3ASR7 EQU   C'7'                      PCA                  2024224   00029810
+ICR3ASR8 EQU   C'8'                      PDA                  2024224   00029820
+ICR3ASR9 EQU   C'9'                      STM                  2024224   00029830
+ICR3ASRA EQU   C'A'                      DAG                  2024224   00029840
+ICR3ASRB EQU   C'B'                      PARSE LIKE ELEMENTS  0514798   00029842
+ICR3ASRX EQU   C'C'                      EXIT (NO PARSING)    0514798   00029844
+ICR3ASRD EQU   C'D'                      PARSE FROM INTERNAL  0635191   00029846
+*                                           GNTOT             0635191   00029848
+ICR3ASRE EQU   C'E'                      COMPUTE              0635191   00029850
+ICR3ASRT EQU   C'X'                      TAGGED XML           1226081   00029860
+ICR3ASDA DS    CL1                     DATA SOURCE DATE FORMAT          00029900
+ICR3ASDS EQU   C' '                      NOT A DATE - SPACES            00030000
+ICR3ASD1 EQU   C'1'                      JULIAN DATE DDDYY              00030100
+ICR3ASD2 EQU   C'2'                      JULIAN DATE YYDDD              00030200
+ICR3ASD3 EQU   C'3'                      GREG YYMMDD                    00030300
+ICR3ASD4 EQU   C'4'                      GREG YYYYMMDD                  00030400
+ICR3ASD5 EQU   C'5'                      GREG MMDDYY                    00030500
+ICR3ASD6 EQU   C'6'                      GREG MMDDYYYY                  00030600
+ICR3ASD7 EQU   C'7'                      GREG DDMMYY                    00030700
+ICR3ASD8 EQU   C'8'                      GREG DDMMYYYY                  00030800
+ICR3ASTA EQU   C'A'                      TIME ZNE JUL DT DDDYY          00030900
+ICR3ASTB EQU   C'B'                      TIME ZNE JUL DT YYDDD          00031000
+ICR3ASTC EQU   C'C'                      TIME ZNE GREG YYMMDD           00031100
+ICR3ASTD EQU   C'D'                      TIME ZNE GREG YYYYMMDD         00031200
+ICR3ASTE EQU   C'E'                      TIME ZNE GREG MMDDYY           00031300
+ICR3ASTF EQU   C'F'                      TIME ZNE GREG MMDDYYYY         00031400
+ICR3ASTG EQU   C'G'                      TIME ZNE GREG DDMMYY           00031500
+ICR3ASTH EQU   C'H'                      TIME ZNE GREG DDMMYYYY         00031600
+ICR3ASDJ EQU   C'J'                      JULIAN DATE CCYYDDD  2602675   00031610
+ICR3ASDK EQU   C'K'                      JULIAN DATE DDDCCYY  2602675   00031620
+ICR3ASZM EQU   C'M'                      TIME ZNE JUL CCYYDDD 2602675   00031630
+ICR3ASZN EQU   C'N'                      TIME ZNE JUL DDDCCYY 2602675   00031640
+ICR3ASTT EQU   C'T'                      TIME ZNE EIBTIME - HHMMSS      00031700
+ICR3ASDG DS    CL1                     DAG USED STEM,PCA,PDA  2024224   00031710
+ICR3ASDL DS    XL4                    FLD SRC DSM ENTRY LOC   0514798   00031720
+ICR3ADDL DS    XL4                    FLD DEST DSM ENTRY LOC  0514798   00031730
+ICR3ADPE DS    XL1                    FLD DEST PARSE ERR      0514798   00031740
+         DS    CL6                     FILLER                 0514798   00031800
+ICR3ASLG DS    XL1                     SOURCE DATA VARIABLE LENGTH      00031900
+ICR3AFLN EQU   *-ICR3ASTM              SEGMENT 3A FIXED PORTION LENGTH  00032000
+ICR3ASRC DS    CL64                    SOURCE DATA            2024224   00032100
+         ORG   ICR3ASRC                                       0514798   00032110
+ICR3AENM DS    CL8                     EXIT NAME ICR3ASRF='C' 0514798   00032120
+         DS    CL56                                           0514798   00032130
+         ORG   ICR3ASRC                                                 00032200
+ICR3AS1  DS    0CL32                     DATA SOURCE TRANSM   9913349   00032300
+ICR3AS1F DS    CL8                       FIELD IDENTIFIER               00032400
+ICR3AS1P DS    XL2                       POSITION FROM FLD BEGIN        00032500
+ICR3ASDN DS    CL8                       DAG NAME             9913349   00032510
+ICR3ASEL DS    CL8                       ELEMENT ID           9913349   00032520
+ICR3ADM1 DS    XL2                       DIM 1                9913349   00032530
+ICR3ADM2 DS    XL2                       DIM 2                9913349   00032540
+ICR3ADM3 DS    XL2                       DIM 3                9913349   00032550
+ICR3AD1D DS    0CL24                     DATA DESTINATION DAG 2024224   00032560
+ICR3AD1S DS    XL2                       POSITION FROM FLD BG 2024224   00032562
+ICR3AD1G DS    CL8                       DAG NAME             2024224   00032564
+ICR3AD1E DS    CL8                       ELEMENT ID           2024224   00032566
+ICR3AD11 DS    XL2                       DIM 1                2024224   00032568
+ICR3AD12 DS    XL2                       DIM 2                2024224   00032570
+ICR3AD13 DS    XL2                       DIM 3                2024224   00032572
+         ORG   ICR3ASRC                                                 00032600
+ICR3AS2  DS    0CL40                     DATA SOURCE CONSTANT           00032700
+ICR3AS2D DS    CL40                      DATA                           00032800
+ICR3AD2D DS    0CL24                     DATA DESTINATION DAG 2024224   00032810
+ICR3AD2S DS    XL2                       POSITION FROM FLD BG 2024224   00032820
+ICR3AD2G DS    CL8                       DAG NAME             2024224   00032830
+ICR3AD2E DS    CL8                       ELEMENT ID           2024224   00032840
+ICR3AD21 DS    XL2                       DIM 1                2024224   00032850
+ICR3AD22 DS    XL2                       DIM 2                2024224   00032860
+ICR3AD23 DS    XL2                       DIM 3                2024224   00032870
+         ORG   ICR3ASRC                                                 00032900
+ICR3AS3  DS    0CL10                     DATA SOURCE FILE               00033000
+ICR3AS3F DS    CL8                       FILE NAME                      00033100
+ICR3AS3P DS    XL2                       POSITION IN RECORD             00033200
+ICR3AD3D DS    0CL24                     DATA DESTINATION DAG 2024224   00033210
+ICR3AD3S DS    XL2                       POSITION FROM FLD BG 2024224   00033220
+ICR3AD3G DS    CL8                       DAG NAME             2024224   00033230
+ICR3AD3E DS    CL8                       ELEMENT ID           2024224   00033240
+ICR3AD31 DS    XL2                       DIM 1                2024224   00033250
+ICR3AD32 DS    XL2                       DIM 2                2024224   00033260
+ICR3AD33 DS    XL2                       DIM 3                2024224   00033270
+         ORG   ICR3ASRC                                                 00033300
+ICR3A4   DS    0CL2                      DATA SOURCE APPL CONTROLS      00033400
+ICR3A4I  DS    CL2                       APPLICATION ID                 00033500
+ICR3AD4D DS    0CL24                     DATA DESTINATION DAG 2024224   00033502
+ICR3AD4S DS    XL2                       POSITION FROM FLD BG 2024224   00033504
+ICR3AD4G DS    CL8                       DAG NAME             2024224   00033506
+ICR3AD4E DS    CL8                       ELEMENT ID           2024224   00033508
+ICR3AD41 DS    XL2                       DIM 1                2024224   00033510
+ICR3AD42 DS    XL2                       DIM 2                2024224   00033512
+ICR3AD43 DS    XL2                       DIM 3                2024224   00033514
+         ORG   ICR3ASRC                                       2024224   00033516
+ICR3AS7  DS    0CL40                     DATA SOURCE TSCB PCA 2024224   00033518
+ICR3AS7I DS    CL8                       ICR NAME OF PCA      2024224   00033520
+ICR3AS7N DS    CL8                       FLD NAME IN TSCB PCA 2024224   00033522
+ICR3AS7P DS    XL2                       POSITION WITHIN FLD  2024224   00033524
+ICR3AS7G DS    CL8                       DAG NAME             2024224   00033526
+ICR3AS7E DS    CL8                       ELEMENT ID           2024224   00033528
+ICR3AS71 DS    XL2                       DIM 1                2024224   00033530
+ICR3AS72 DS    XL2                       DIM 2                2024224   00033532
+ICR3AS73 DS    XL2                       DIM 3                2024224   00033534
+ICR3AD7D DS    0CL24                     DATA DESTINATION DAG 2024224   00033536
+ICR3AD7S DS    XL2                       POSITION FROM FLD BG 2024224   00033538
+ICR3AD7G DS    CL8                       DAG NAME             2024224   00033540
+ICR3AD7E DS    CL8                       ELEMENT ID           2024224   00033542
+ICR3AD71 DS    XL2                       DIM 1                2024224   00033544
+ICR3AD72 DS    XL2                       DIM 2                2024224   00033546
+ICR3AD73 DS    XL2                       DIM 3                2024224   00033548
+         ORG   ICR3ASRC                                       2024224   00033550
+ICR3AS8  DS    0CL32                     DATA SOURCE TSCB PDA 2024224   00033552
+ICR3AS8I DS    CL8                       ICRNAME OF PDA       2024224   00033554
+ICR3AS8P DS    XL2                       POSITION  TSCB PDA   2024224   00033556
+ICR3AS8G DS    CL8                       DAG NAME             2024224   00033558
+ICR3AS8E DS    CL8                       ELEMENT ID           2024224   00033560
+ICR3AS81 DS    XL2                       DIM 1                2024224   00033562
+ICR3AS82 DS    XL2                       DIM 2                2024224   00033564
+ICR3AS83 DS    XL2                       DIM 3                2024224   00033566
+ICR3AD8D DS    0CL24                     DATA DESTINATION DAG 2024224   00033568
+ICR3AD8S DS    XL2                       POSITION FROM FLD BG 2024224   00033570
+ICR3AD8G DS    CL8                       DAG NAME             2024224   00033572
+ICR3AD8E DS    CL8                       ELEMENT ID           2024224   00033574
+ICR3AD81 DS    XL2                       DIM 1                2024224   00033576
+ICR3AD82 DS    XL2                       DIM 2                2024224   00033578
+ICR3AD83 DS    XL2                       DIM 3                2024224   00033580
+         ORG   ICR3ASRC                                       2024224   00033600
+ICR3AS9  DS    0CL32                     DATA SOURCE TSCB STM 2024224   00033602
+ICR3AS9N DS    0CL8                      FLD NAME IN TSCB STM 0635191   00033603
+ICR3AS9T DS    CL2                       GNTOT BCKT ALIAS     0635191   00033604
+         DS    CL6                                            0635191   00033605
+ICR3AS9P DS    XL2                       POSITION WITHIN FLD  2024224   00033606
+ICR3AS9G DS    CL8                       DAG NAME             2024224   00033608
+ICR3AS9E DS    CL8                       ELEMENT ID           2024224   00033610
+ICR3AS91 DS    XL2                       DIM 1                2024224   00033612
+ICR3AS92 DS    XL2                       DIM 2                2024224   00033614
+ICR3AS93 DS    XL2                       DIM 3                2024224   00033616
+ICR3AD9D DS    0CL24                     DATA DESTINATION DAG 2024224   00033618
+ICR3AD9S DS    XL2                       POSITION FROM FLD BG 2024224   00033620
+ICR3AD9G DS    CL8                       DAG NAME             2024224   00033622
+ICR3AD9E DS    CL8                       ELEMENT ID           2024224   00033624
+ICR3AD91 DS    XL2                       DIM 1                2024224   00033626
+ICR3AD92 DS    XL2                       DIM 2                2024224   00033628
+ICR3AD93 DS    XL2                       DIM 3                2024224   00033630
+         ORG   ICR3ASRC                                       2024224   00033632
+ICR3ASA  DS    0CL40                     DATA SOURCE DAG/FILE 2024224   00033634
+ICR3ASAN DS    CL8                       FILE  NAME IN DAG/FL 2024224   00033636
+ICR3ASAI DS    CL8                       ICR NAME             0635191   00033637
+         ORG   ICR3ASAI                                       0635191   00033638
+ICR3ASA4 DS    XL4                       TYPE B SOURCE IDT AD 0635191   00033639
+ICR3ASA5 DS    XL4                       TYPE B DEST IDT ADR  0635191   00033640
+ICR3ASAP DS    XL2                       POSITION WITHIN FLG  0635191   00033641
+ICR3ASAG DS    CL8                       DAG NAME             2024224   00033642
+ICR3ASAE DS    CL8                       ELEMENT ID           2024224   00033644
+ICR3ASA1 DS    XL2                       DIM 1                2024224   00033646
+ICR3ASA2 DS    XL2                       DIM 2                2024224   00033648
+ICR3ASA3 DS    XL2                       DIM 3                2024224   00033650
+ICR3ADAD DS    0CL24                     DATA DESTINATION DAG 2024224   00033652
+ICR3ADAS DS    XL2                       POSITION FROM FLD BG 2024224   00033654
+ICR3ADAG DS    CL8                       DAG NAME             2024224   00033656
+ICR3ADAE DS    CL8                       ELEMENT ID           2024224   00033658
+ICR3ADA1 DS    XL2                       DIM 1                2024224   00033660
+ICR3ADA2 DS    XL2                       DIM 2                2024224   00033662
+ICR3ADA3 DS    XL2                       DIM 3                2024224   00033664
+         ORG   ICR3ASRC                                       0635191   00033670
+ICR3ASB  DS    0C                        DATA SOURCE          0635191   00033672
+ICR3ADBD DS    0CL24                     DATA DESTINATION DAG 0635191   00033674
+ICR3ADBS DS    XL2                       POSITION FROM FLD BG 0635191   00033676
+ICR3ADBG DS    CL8                       DAG NAME             0635191   00033678
+ICR3ADBE DS    CL8                       ELEMENT ID           0635191   00033680
+ICR3ADB1 DS    XL2                       DIM 1                0635191   00033682
+ICR3ADB2 DS    XL2                       DIM 2                0635191   00033684
+ICR3ADB3 DS    XL2                       DIM 3                0635191   00033686
+ICR3ALGN EQU   *-ICR3ASTM              SEGMENT 3A LENGTH      2024224   00033698
+*                                                                       00033700
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 3B'             00033800
+****************************************************************        00033900
+*                                                              *        00034000
+*   SEGMENT 3B  -  INPUT RECORD / PARSE DATA CONDITIONAL INFO  *        00034100
+* CONDITIONAL PARSE INFORMATION WILL BE PRESENT IF THE         *        00034200
+* CONDITIONAL PARSE FLAG IN SEGMENT 3A IS A '1'. IF PRESENT,   *        00034300
+* THE INFORMATION WILL BE 216 BYTES LONG.                   * 9913349   00034400
+*                                                              *        00034500
+****************************************************************        00034600
+*                                                                       00034700
+ICRSEG3B DSECT                                                          00034800
+ICR3BCON DS    0CL216                                         9913349   00034900
+ICR3BID  DS    CL2                     SEGMENT 3B ID (WILL BE '3B')     00035000
+ICR3BOC1 DS    0CL50                   1ST FIELD COND OCCUR   9913349   00035100
+ICR3BCFI DS    CL8                     FIELD IDENTIFIER                 00035200
+ICR3BCOF DS    XL2                     POSITION OF DATA IN TRANSMISSION 00035300
+ICR3BCDN DS    CL8                     DAG NAME               9913349   00035310
+ICR3BCEL DS    CL8                     ELEMENT ID             9913349   00035320
+ICR3BCD1 DS    XL2                     DIM 1                  9913349   00035330
+ICR3BCD2 DS    XL2                     DIM 2                  9913349   00035340
+ICR3BCD3 DS    XL2                     DIM 3                  9913349   00035350
+ICR3BCCO DS    CL2                     COMPARE OPTION                   00035400
+ICR3BCPS EQU   C'  '                      NO COMPARISON                 00035500
+ICR3BCEQ EQU   C'EQ'                      EQUAL                         00035600
+ICR3BCNE EQU   C'NE'                      NOT EQUAL                     00035700
+ICR3BCGT EQU   C'GT'                      GREATER THAN                  00035800
+ICR3BCLE EQU   C'LE'                      LESS THAN OR EQUAL            00035900
+ICR3BCLT EQU   C'LT'                      LESS THAN                     00036000
+ICR3BCGE EQU   C'GE'                      GREATER THAN OR EQUAL         00036100
+ICR3BCPR EQU   C'PR'                      IF FIELD IS PRESENT           00036200
+ICR3BCNP EQU   C'NP'                      IF FIELD NOT PRESENT          00036300
+ICR3BCTM EQU   C'TM'                      TEST UNDER MASK               00036400
+ICR3BCLG DS    XL1                     COMPARISON DATA LENGTH           00036500
+ICR3BCDA DS    CL15                    COMPARISON DATA                  00036600
+ICR3BCF2 DS    CL150                   2ND-4TH FLD COND OCCUR 9913349   00036700
+ICR3BREL DS    CL12                    RELATIONSHIPS THAT AFFECT COND'L 00036800
+ICR3BFIL DS    CL2                     RESERVED FOR FUTURE    9913349   00036810
+*                                                  PARSE PROCESSING     00036900
+ICR3BLGN EQU   *-ICR3BCON              SEGMENT 3B LENGTH                00037000
+*                                                                       00037100
+*        TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 3C'             00037200
+****************************************************************        00037300
+*    SEGMENT 3C  -  INPUT RECORD / PARSE DATA TOTALLING INFO   *        00037400
+* TOTALLING INFORMATION WILL BE PRESENT FOR AN INPUT RECORD/   *        00037500
+* PARSE DATA DETAIL IF THE NUMBER OF TOTALS IN SEGMENT 3A IS   *        00037600
+* GREATER THAN ZERO.  IF PRESENT, THE INFORMATION WILL BE 23   *        00037700
+* BYTES LONG.                                                  *        00037800
+****************************************************************        00037900
+*                                                                       00038000
+ICRSEG3C DSECT                                                          00038100
+ICR3CTTL DS    0C                      TOTALLING INFORMATION            00038200
+ICR3CID  DS    CL2                     SEGMENT 3C ID (WILL BE '3C')     00038300
+ICR3COPT DS    CL1                     TOTALS OPTION CODE               00038400
+ICR3CCFA EQU   B'10000000'               CROSSFOOT- ADD OR ESTABLISH    00038500
+ICR3CCFS EQU   B'01000000'               CROSSFOOT- SUBTRACT            00038600
+ICR3CRPT EQU   B'00100000'               REPORT TOTALS                  00038700
+ICR3CDR  EQU   B'00010000'               TOTALS ARE DEBIT               00038800
+ICR3CCR  EQU   B'00001000'               TOTALS ARE CREDIT              00038900
+ICR3COC1 DS    0CL4                    TOTALLING DATA - 1 OCCURENCE     00039000
+ICR3CTOB DS    XL2                       TOTAL BUCKET NUMBER            00039100
+ICR3CTTY DS    CL1                       TOTAL TYPE                     00039200
+ICR3CTTS EQU   C'S'                        SUM                          00039300
+ICR3CTTA EQU   C'C'                        COUNT                        00039400
+ICR3CTTE EQU   C'B'                        BOTH                         00039500
+ICR3CTOP DS    CL1                       TOTAL PROCESS                  00039600
+ICR3CTPS EQU   C'S'                        SUBTRACT                     00039700
+ICR3CTPA EQU   C'A'                        ADD                          00039800
+ICR3CTEE EQU   C'E'                        ESTABLISH                    00039900
+ICR3CTT2 DS    CL16                    2ND-5TH TOTALLING OCCURRENCES    00040000
+         ORG ICR3COPT                                         0514798   00040010
+ICR3CBTF DS    0CL21                   BATCH TOT INFO         0514798   00040020
+ICR3CIIT DS    CL1                     ICR INFO TYPE          0514798   00040030
+ICR3CITA EQU   C'A'                    DEFAULT SETTING        0635191   00040052
+ICR3CITC EQU   C'C'                    CREDIT                 0635191   00040054
+ICR3CITD EQU   C'D'                    DEBIT                  0635191   00040056
+ICR3CITO EQU   C'O'                    COUNT                  0635191   00040058
+         DS    CL20                                           0514798   00040060
+ICR3CLGN EQU   *-ICR3CTTL              SEGMENT 3C LENGTH                00040100
+*                                                             0514798   00040200
+        TITLE 'TSTS2ICR -INPUT CONTROL RECORD SEGMENT 3D'     0514798   00040300
+**************************************************************0514798   00040400
+*                                                             0514798   00040500
+* SEGMENT 3D - FIELD PARSING    SELECTION CONDITION           0514798   00040600
+*              INFORMATION FOR BATCH ICRS                     0514798   00040700
+* CONDITIONAL SELECTION INFORMATION WILL BE PRESENT IF THE    0514798   00040800
+* ICR PLATFORM TYPE IS A 'B' AND                              0514798   00040900
+* PROCESS OPTION FLAG IN SEGMENT 3A IS A '1'. IF PRESENT, THE 0514798   00041000
+* INFORMATION WILL BE 600 BYTES LONG.                         0514798   00041100
+**************************************************************0514798   00041200
+*                                                             0514798   00041300
+ICRSEG3D DSECT                                                0514798   00041400
+ICR3DCON DS    0CL600                  CONDITIONAL INFO       0514798   00041500
+ICR3DID  DS    CL2                     SEGMENT 3D ID '3D'     0514798   00041600
+ICR3DVCN DS    XL2                                            0514798   00041700
+ICR3DDCN DS    XL2                                            0514798   00041800
+ICR3DDMA DS    XL4                                            0514798   00041900
+         DS    XL19                                           0514798   00042000
+ICR3DFLD DS    0CL176                  VARIABLES              0514798   00042100
+ICR3DOC1 DS    0CL22                   1ST VAR OCCURRENCE     0514798   00042200
+ICR3DDNM DS    CL8                     DAG NAME               0514798   00042300
+ICR3DELE DS    CL8                     ELEMENT ID             0514798   00042400
+ICR3DDI1 DS    XL2                     DIM 1                  0514798   00042500
+ICR3DDI2 DS    XL2                     DIM 2                  0514798   00042600
+ICR3DDI3 DS    XL2                     DIM 3                  0514798   00042700
+ICR3DOC2 DS    CL154                   2ND-8TH FLD VAR OCCUR  0514798   00042800
+ICR3DEXP DS    0CL395                  VARIABLES              0514798   00042900
+ICR3DEX1 DS    CL79                    1ST VAR OCCURRENCE     0514798   00043000
+ICR3DEX2 DS    CL316                   2ND-5TH FLD VAR OCCUR  0514798   00043100
+ICR3DLGN EQU   *-ICR3DCON                                     0514798   00043200
+*                                                             0514798   00043300
+        TITLE 'TSTS2ICR -INPUT CONTROL RECORD SEGMENT 3E'     0635191   00043310
+************************************************************* 0635191   00043312
+*                                                             0635191   00043314
+* SEGMENT 3E - BATCH ICR COMPUTE SEGMENT                      0635191   00043316
+* SEGMENT CONTAINS UP TO 8 VARIABLES AND 200 BYTES OF TEXT    0635191   00043318
+* COMPUTE INFORMATION WILL BE PRESENT IF THE ICR PLATFORM     0635191   00043320
+* TYPE IS A 'B' AND THE SOURCE TYPE IS 'E'.                   0635191   00043322
+* IF PRESENT, THE INFORMATION WILL BE A MINIMUM OF 33 BYTES   0635191   00043324
+* AND A MAXIMUM OF 336 BYTES.                                 0635191   00043326
+* IF PRESENT, THE SEGMENT ID WILL BE '3E' FOR BATCH COMPUTE   0635191   00043328
+* PARSE DATA                                                  0635191   00043330
+************************************************************* 0635191   00043332
+*                                                             0635191   00043334
+ICRSEG3E DSECT                         SEGMENT 3E DSECT       0635191   00043336
+ICR3ECON DS    0CL286                  COMPUTE CRITERIA       0635191   00043338
+ICR3EID  DS    CL2                     SEGMENT 3E ID '3E'     0635191   00043340
+ICR3ELEN DS    XL2                     SEGMENT LENGTH         0635191   00043342
+ICR3EVCT DS    XL2                     VARIABLE ENTRY COUNT   0635191   00043344
+ICR3EDMT DS    XL4                     DMT ADDRESS            0635191   00043346
+ICR3EVDT DS    8CL22                   VARIABLE DATA          0635191   00043348
+ICR3EVTM EQU   8                       MAXIMUM ENTRIES        0635191   00043350
+ICR3EMXP DS    CL100                   MATH EXPRESSION        0635191   00043352
+ICR3ELGN EQU   *-ICR3ECON              3E SEGMENT LENGTH      0635191   00043354
+ICR3EVTD DSECT                         3E VARIABLE TAB DSECT  0635191   00043356
+ICR3EVNT DS    0CL22                   VARIABLE TABLE ENTRY   0635191   00043358
+ICR3EVDG DS    CL8                     VARIABLE DAG NAME      0635191   00043360
+ICR3EVEL DS    CL8                     VARIABLE ELEMENT NAME  0635191   00043362
+ICR3EVO1 DS    XL2                     VARIABLE OCCURS 1      0635191   00043364
+ICR3EVO2 DS    XL2                     VARIABLE OCCURS 2      0635191   00043366
+ICR3EVO3 DS    XL2                     VARIABLE OCCURS 3      0635191   00043368
+*                                                             0635191   00043370
+ICRRECL  EQU   30713                                          0514798   00043400
+*                                                             1226081   00043450
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 3F'   1226081   00043455
+************************************************************* 1226081   00043460
+*                                                           * 1226081   00043465
+*  SEGMENT 3F  -  INPUT RECORD / PARSE DATA STEM INFORMATION* 1226081   00043470
+* EACH INPUT RECORD/PARSE DATA DETAIL INFORMATION WILL VARY * 1226081   00043475
+* LENGTH FROM A MINIMUM OF 311 BYTES TO A MAXIMUM OF   BYTES* 1226081   00043480
+* DEPENDING ON THE SOURCE OF THE PARSE DATA.                * 1226081   00043485
+*                                                           * 1226081   00043490
+************************************************************* 1226081   00043500
+*                                                             1226081   00043600
+ICRSEG3F DSECT                              SEGMENT 3F DSECT  1226081   00043700
+ICR3FSTM DS    0C                      THIS PARSE DETAIL STEM 1226081   00043800
+ICR3FID  DS    CL2               SEGMENT 3F ID (WILL BE '3F') 1226081   00043900
+ICR3FLEN DS    XL2               LENGTH OF THIS PARSE DETAIL  1226081   00044000
+ICR3FCNF DS    CL1               CONDITIONAL PARSE FLAG       1226081   00044100
+ICR3FCNA EQU   C'0'                      ALWAYS PARSE         1226081   00044200
+ICR3FCNC EQU   C'1'                      CONDITIONAL PARSE    1226081   00044300
+ICR3FCNU EQU   C'2'                      EXECUTE USER CODE    1226081   00044400
+ICR3F#TO DS    CL1                     NUMBER OF TOTALS       1226081   00044500
+ICR3FDEF DS    CL1                     DATA DESTINATION FLAG  1226081   00044600
+ICR3FDE7 EQU   C'7'                      PARSE TO TSCB STEM   1226081   00044700
+ICR3FDE8 EQU   C'8'                      PARSE TO TSCB PCA    1226081   00044800
+ICR3FDE9 EQU   C'9'                      PARSE TO TSCB PDA    1226081   00044900
+ICR3FDE2 EQU   C'2'                      PARSE TO FILE        1226081   00045000
+ICR3FDE5 EQU   C'5'                      PARSE TO DAG         1226081   00045100
+ICR3FDEB EQU   C'B'                      PARSE LIKE ELEMENTS  1226081   00045200
+ICR3FDEX EQU   C'X'                      PARSE TAGGED XML     1226081   00045300
+ICR3FTCF DS    CL1                     USER TRAN CODE FLAG    1226081   00045400
+ICR3FDLN DS    XL2                 DESTINATION FIELD LENGTH   1226081   00045500
+ICR3FSLN DS    XL2                     SOURCE FIELD LENGTH    1226081   00045600
+ICR3FDST DS    CL147                    DESTINATION DATA      1226081   00045700
+         ORG   ICR3FDST                                       1226081   00045800
+ICR3FD15 DS    0CL56              DESTINATION FIELDS 1 THRU 5 1226081   00045900
+ICR3FD14 DS    0CL32              DESTINATION FIELDS 1 THRU 4 1226081   00046000
+ICR3FD1N DS    CL8                FIELD NAME IN TSCB STEM     1226081   00046100
+ICR3FD1P DS    XL2             POSITION WITHIN FIELD IN STEM  1226081   00046200
+ICR3FD2N DS    CL8                FIELD NAME IN TSCB PCA      1226081   00046300
+ICR3FD2P DS    XL2             POSITION WITHIN FIELD IN PCA   1226081   00046400
+ICR3FD3P DS    XL2             POSITION WITHIN TSCB PDA       1226081   00046500
+ICR3FD4F DS    CL8                     FILE NAME              1226081   00046600
+ICR3FD4P DS    XL2                     POSITION               1226081   00046700
+ICR3FD5D DS    0CL24                   DATA DESTINATION DAG   1226081   00046800
+ICR3FD5S DS    XL2                     POSITION FROM ELE BG   1226081   00046900
+ICR3FD5N DS    CL8                     FIELD NAME             1226081   00047000
+ICR3FD5G DS    CL8                     DAG NAME               1226081   00047100
+ICR3FD5E DS    CL8                     ELEMENT ID             1226081   00047200
+ICR3FD51 DS    XL2                     DIM 1                  1226081   00047300
+ICR3FD52 DS    XL2                     DIM 2                  1226081   00047400
+ICR3FD53 DS    XL2                     DIM 3                  1226081   00047500
+*        DS    CL91               FILLER FOR REORD            1226081   00047600
+         ORG   ICR3FDST                                       1226081   00047700
+ICR3FDX  DS    0CL147         DATA DESTINATION TAGGED XML     1226081   00047800
+ICR3FPX1 DS    CL32                    PARENT NAME            1226081   00047900
+ICR3FPX2 DS    CL32                      PARENT NAME          1226081   00048000
+ICR3FPX3 DS    CL32                      PARENT NAME          1226081   00048100
+ICR3FDXF DS    CL32                      TAG NAME             1226081   00048200
+ICR3FDXP DS    XL2                       POSITION             1226081   00048300
+ICR3FDX1 DS    XL2                       DIM 1                1226081   00048400
+ICR3FDX2 DS    XL2                       DIM 2                1226081   00048500
+ICR3FDX3 DS    XL2                       DIM 3                1226081   00048600
+ICR3FDXN DS    XL2                       NUMBER TAG           1226081   00048700
+ICR3FDEC DS    CL1                       DECIMAL NUMBER       1226081   00048800
+ICR3FEQ2 DS    CL8                       EQU                  1226081   00048900
+ICR3FDDT DS    CL1              DATA DESTINATION DATE FORMAT  1226081   00049700
+ICR3FDDN EQU   C' '                      NOT A DATE - SPACES  1226081   00049800
+ICR3FDD1 EQU   C'1'                      JULIAN DATE DDDYY    1226081   00049900
+ICR3FDD2 EQU   C'2'                      JULIAN DATE YYDDD    1226081   00050000
+ICR3FDD3 EQU   C'3'                      GREG YYMMDD          1226081   00050100
+ICR3FDD4 EQU   C'4'                      GREG YYYYMMDD        1226081   00050200
+ICR3FDD5 EQU   C'5'                      GREG MMDDYY          1226081   00050300
+ICR3FDD6 EQU   C'6'                      GREG MMDDYYYY        1226081   00050400
+ICR3FDD7 EQU   C'7'                      GREG DDMMYY          1226081   00050500
+ICR3FDD8 EQU   C'8'                      GREG DDMMYYYY        1226081   00050600
+ICR3FDTA EQU   C'A'                  TIME ZNE JUL DT DDDYY    1226081   00050700
+ICR3FDTB EQU   C'B'                  TIME ZNE JUL DT YYDDD    1226081   00050800
+ICR3FDTC EQU   C'C'                  TIME ZNE GREG YYMMDD     1226081   00050900
+ICR3FDTD EQU   C'D'                  TIME ZNE GREG YYYYMMDD   1226081   00051000
+ICR3FDTE EQU   C'E'                  TIME ZNE GREG MMDDYY     1226081   00051100
+ICR3FDTF EQU   C'F'                  TIME ZNE GREG MMDDYYYY   1226081   00051200
+ICR3FDTG EQU   C'G'                  TIME ZNE GREG DDMMYY     1226081   00051300
+ICR3FDTH EQU   C'H'                  TIME ZNE GREG DDMMYYYY   1226081   00051400
+ICR3FDDJ EQU   C'J'                  JULIAN DATE CCYYDDD      1226081   00051500
+ICR3FDDK EQU   C'K'                  JULIAN DATE DDDCCYY      1226081   00051600
+ICR3FDTM EQU   C'M'                  TIME ZNE JUL CCYYDDD     1226081   00051700
+ICR3FDTN EQU   C'N'                  TIME ZNE JUL DDDCCYY     1226081   00051800
+ICR3FDTT EQU   C'T'                 TIME ZNE EIBTIME - HHMMSS 1226081   00051900
+ICR3FPOP DS    XL1                   PARSE OPTIONS            1226081   00052000
+ICR3FLJU EQU   B'00000001'           LEFT JUSTIFY DATA FLAG   1226081   00052100
+ICR3FRJU EQU   B'00000010'           RIGHT JUSTIFY DATA FLAG  1226081   00052200
+ICR3FZF  EQU   B'00000100'           ZERO FILL FLAG           1226081   00052300
+ICR3FEXT DS    CL1                   USER PARSING EXIT CODE   1226081   00052400
+ICR3FDFM DS    XL1                   DATA FORMATS             1226081   00052500
+ICR3FDBI EQU   B'00000001'           DESTINATION IS BINARY    1226081   00052600
+ICR3FDPK EQU   B'00000010'           DESTINATION IS PACKED    1226081   00052700
+ICR3FDCH EQU   B'00000100'           DESTINATION IS CHARACTER 1226081   00052800
+ICR3FDNU EQU   B'00001000'           DESTINATION IS NUMERIC   1226081   00052900
+ICR3FSBI EQU   B'00010000'           SOURCE IS BINARY         1226081   00053000
+ICR3FSPK EQU   B'00100000'           SOURCE IS PACKED         1226081   00053100
+ICR3FSCH EQU   B'01000000'               SOURCE IS CHARACTER  1226081   00053200
+ICR3FSNU EQU   B'10000000'               SOURCE IS NUMERIC    1226081   00053300
+ICR3FSRF DS    CL1                     DATA SOURCE FLAG       1226081   00053400
+ICR3FSR0 EQU   C'0'                      DATA IN TRANSMISSION 1226081   00053500
+ICR3FSR1 EQU   C'1'                      DATA IS A CONSTANT   1226081   00053600
+ICR3FSR2 EQU   C'2'                      DATA IN FILE         1226081   00053700
+ICR3FSR3 EQU   C'3'                      TOTALLING ONLY       1226081   00053800
+ICR3FSR4 EQU   C'4'                      DATE                 1226081   00053900
+ICR3FSR5 EQU   C'5'                      EIBTIME              1226081   00054000
+ICR3FSR6 EQU   C'6'                      APPLICATION CONTROLS 1226081   00054100
+ICR3FSR7 EQU   C'7'                      PCA                  1226081   00054200
+ICR3FSR8 EQU   C'8'                      PDA                  1226081   00054300
+ICR3FSR9 EQU   C'9'                      STM                  1226081   00054400
+ICR3FSRA EQU   C'A'                      DAG                  1226081   00054500
+ICR3FSRB EQU   C'B'                      PARSE LIKE ELEMENTS  1226081   00054600
+ICR3FSRX EQU   C'C'                      EXIT (NO PARSING)    1226081   00054700
+ICR3FSRD EQU   C'D'                      PARSE FROM INTERNAL  1226081   00054800
+*                                           GNTOT             1226081   00054900
+ICR3FSRT EQU   C'X'                      TAGGED XML           1226081   00055000
+ICR3FSRE EQU   C'E'                      COMPUTE              1226081   00055100
+ICR3FSDA DS    CL1                     DATA SOURCE DATE FMT   1226081   00055200
+ICR3FSDS EQU   C' '                      NOT A DATE - SPACES  1226081   00055300
+ICR3FSD1 EQU   C'1'                      JULIAN DATE DDDYY    1226081   00055400
+ICR3FSD2 EQU   C'2'                      JULIAN DATE YYDDD    1226081   00055500
+ICR3FSD3 EQU   C'3'                      GREG YYMMDD          1226081   00055600
+ICR3FSD4 EQU   C'4'                      GREG YYYYMMDD        1226081   00055700
+ICR3FSD5 EQU   C'5'                      GREG MMDDYY          1226081   00055800
+ICR3FSD6 EQU   C'6'                      GREG MMDDYYYY        1226081   00055900
+ICR3FSD7 EQU   C'7'                      GREG DDMMYY          1226081   00056000
+ICR3FSD8 EQU   C'8'                      GREG DDMMYYYY        1226081   00056100
+ICR3FSTA EQU   C'A'                    TIME ZNE JUL DT DDDYY  1226081   00056200
+ICR3FSTB EQU   C'B'                    TIME ZNE JUL DT YYDDD  1226081   00056300
+ICR3FSTC EQU   C'C'                    TIME ZNE GREG YYMMDD   1226081   00056400
+ICR3FSTD EQU   C'D'                    TIME ZNE GREG YYYYMMDD 1226081   00056500
+ICR3FSTE EQU   C'E'                    TIME ZNE GREG MMDDYY   1226081   00056600
+ICR3FSTF EQU   C'F'                    TIME ZNE GREG MMDDYYYY 1226081   00056700
+ICR3FSTG EQU   C'G'                    TIME ZNE GREG DDMMYY   1226081   00056800
+ICR3FSTH EQU   C'H'                    TIME ZNE GREG DDMMYYYY 1226081   00056900
+ICR3FSDJ EQU   C'J'                    JULIAN DATE CCYYDDD    1226081   00057000
+ICR3FSDK EQU   C'K'                    JULIAN DATE DDDCCYY    1226081   00057100
+ICR3FSZM EQU   C'M'                    TIME ZNE JUL CCYYDDD   1226081   00057200
+ICR3FSZN EQU   C'N'                     TIME ZNE JUL DDDCCYY  1226081   00057300
+ICR3FSTT EQU   C'T'                 TIME ZNE EIBTIME - HHMMSS 1226081   00057400
+ICR3FSDG DS    CL1                     DAG USED STEM,PCA,PDA  1226081   00057500
+ICR3FSDL DS    XL4                    FLD SRC DSM ENTRY LOC   1226081   00057600
+ICR3FDDL DS    XL4                    FLD DEST DSM ENTRY LOC  1226081   00057700
+ICR3FDPE DS    XL1                    FLD DEST PARSE ERR      1226081   00057800
+         DS    CL6                     FILLER                 1226081   00057900
+ICR3FSLG DS    XL1               SOURCE DATA VARIABLE LENGTH  1226081   00058000
+ICR3FFLN EQU   *-ICR3FSTM        SEGMENT 3F FIXED PORTION LEN 1226081   00058100
+ICR3FSRC DS    CL147                    SOURCE DATA           1226081   00058200
+         ORG   ICR3FSRC                                       1226081   00058300
+ICR3FENM DS    CL8                     EXIT NAME ICR3FSRF='C' 1226081   00058400
+         DS    CL64                                           1226081   00058500
+         ORG   ICR3FSRC                                       1226081   00058600
+ICR3FS1  DS    0CL147                     DATA SOURCE TRANSM  1226081   00058700
+ICR3FS1P DS    XL2                       POS FROM FLD BEGIN   1226081   00058800
+ICR3FS11 DS    CL32                      PARENT NAME          1226081   00058900
+ICR3FS12 DS    CL32                      PARENT NAME          1226081   00059000
+ICR3FS13 DS    CL32                      PARENT NAME          1226081   00059100
+ICR3FS1T DS    CL32                      TAG NAME             1226081   00059200
+ICR3FS14 DS    XL2                       DIM 1                1226081   00059300
+ICR3FS15 DS    XL2                       DIM 2                1226081   00059400
+ICR3FS16 DS    XL2                       DIM 3                1226081   00059500
+ICR3FS1N DS    XL2                       NUMBER TAG           1226081   00059505
+ICR3FS1D DS    CL1                       DECIMAL              1226081   00059510
+ICR3FEQU DS    CL8                       EQU                  1226081   00059520
+         DS    XL1                                            1226081   00059600
+         ORG   ICR3FSRC                                       1226081   00059700
+ICR3FS2  DS    0CL40                     DATA SOURCE CONSTANT 1226081   00059800
+ICR3FS2D DS    CL40                      DATA                 1226081   00059900
+         DS    CL32                                           1226081   00060000
+         ORG   ICR3FSRC                                       1226081   00060100
+ICR3FS3  DS    0CL10                     DATA SOURCE FILE     1226081   00060200
+ICR3FS3F DS    CL8                       FILE NAME            1226081   00060300
+ICR3FS3P DS    XL2                       POSITION IN RECORD   1226081   00060400
+         DS    CL62                                           1226081   00060500
+         ORG   ICR3FSRC                                       1226081   00060600
+ICR3F4   DS    0CL2                 DATA SOURCE APPL CONTROLS 1226081   00060700
+ICR3F4I  DS    CL2                       APPLICATION ID       1226081   00060800
+         DS    CL70                                           1226081   00060900
+         ORG   ICR3FSRC                                       1226081   00061000
+ICR3FS7  DS    0CL40                     DATA SOURCE TSCB PCA 1226081   00061100
+ICR3FS7I DS    CL8                       ICR NAME OF PCA      1226081   00061200
+ICR3FS7N DS    CL8                       FLD NAME IN TSCB PCA 1226081   00061300
+ICR3FS7P DS    XL2                       POSITION WITHIN FLD  1226081   00061400
+ICR3FS7G DS    CL8                       DAG NAME             1226081   00061500
+ICR3FS7E DS    CL8                       ELEMENT ID           1226081   00061600
+ICR3FS71 DS    XL2                       DIM 1                1226081   00061700
+ICR3FS72 DS    XL2                       DIM 2                1226081   00061800
+ICR3FS73 DS    XL2                       DIM 3                1226081   00061900
+         DS    CL32                                           1226081   00062000
+         ORG   ICR3FSRC                                       1226081   00062100
+ICR3FS8  DS    0CL32                     DATA SOURCE TSCB PDA 1226081   00062200
+ICR3FS8I DS    CL8                       ICRNAME OF PDA       1226081   00062300
+ICR3FS8P DS    XL2                       POSITION  TSCB PDA   1226081   00062400
+ICR3FS8G DS    CL8                       DAG NAME             1226081   00062500
+ICR3FS8E DS    CL8                       ELEMENT ID           1226081   00062600
+ICR3FS81 DS    XL2                       DIM 1                1226081   00062700
+ICR3FS82 DS    XL2                       DIM 2                1226081   00062800
+ICR3FS83 DS    XL2                       DIM 3                1226081   00062900
+         DS    CL40                                           1226081   00063000
+         ORG   ICR3FSRC                                       1226081   00063100
+ICR3FS9  DS    0CL32                     DATA SOURCE TSCB STM 1226081   00063200
+ICR3FS9N DS    0CL8                      FLD NAME IN TSCB STM 1226081   00063300
+ICR3FS9T DS    CL2                       GNTOT BCKT ALIAS     1226081   00063400
+         DS    CL6                                            1226081   00063500
+ICR3FS9P DS    XL2                       POSITION WITHIN FLD  1226081   00063600
+ICR3FS9G DS    CL8                       DAG NAME             1226081   00063700
+ICR3FS9E DS    CL8                       ELEMENT ID           1226081   00063800
+ICR3FS91 DS    XL2                       DIM 1                1226081   00063900
+ICR3FS92 DS    XL2                       DIM 2                1226081   00064000
+ICR3FS93 DS    XL2                       DIM 3                1226081   00064100
+         DS    CL40                                           1226081   00064200
+         ORG   ICR3FSRC                                       1226081   00064300
+ICR3FSAN DS    CL8                       FILE  NAME IN DAG/FL 1226081   00064400
+ICR3FSAI DS    CL8                       ICR NAME             1226081   00064500
+         ORG   ICR3FSAI                                       1226081   00064600
+ICR3FSA4 DS    XL4                       TYPE B SOURCE IDT AD 1226081   00064700
+ICR3FSA5 DS    XL4                       TYPE B DEST IDT ADR  1226081   00064800
+ICR3FSAP DS    XL2                       POSITION WITHIN FLG  1226081   00064900
+ICR3FSAG DS    CL8                       DAG NAME             1226081   00065000
+ICR3FSAE DS    CL8                       ELEMENT ID           1226081   00065100
+ICR3FSA1 DS    XL2                       DIM 1                1226081   00065200
+ICR3FSA2 DS    XL2                       DIM 2                1226081   00065300
+ICR3FSA3 DS    XL2                       DIM 3                1226081   00065400
+         DS    CL32                                           1226081   00065500
+         ORG   ICR3FSRC                                       1226081   00065600
+ICR3FSB  DS    0C                        DATA SOURCE COMPUTE  1226081   00065700
+         DS    CL24                      PLACE HOLDER         1226081   00065710
+ICR3FLGN EQU   *-ICR3FSTM              SEGMENT 3F LENGTH      1226081   00065800
+*                                                             1226081   00065900
+         TITLE 'TSTS2ICR - INPUT CONTROL RECORD SEGMENT 3G'   1226081   00066000
+************************************************************* 1226081   00066100
+*                                                           * 1226081   00066200
+*   SEGMENT 3G  - INPUT RECORD / PARSE DATA CONDITIONAL INFO* 1226081   00066300
+* CONDITIONAL PARSE INFORMATION WILL BE PRESENT IF THE      * 1226081   00066400
+* CONDITIONAL PARSE FLAG IN SEGMENT 3F IS A '1'. IF PRESENT,* 1226081   00066500
+* THE INFORMATION WILL BE 736 BYTES LONG.                   * 1226081   00066600
+*                                                           * 1226081   00066700
+************************************************************* 1226081   00066800
+*                                                             1226081   00066900
+ICRSEG3G DSECT                         SEGMENT 3G DSECT       1226081   00067000
+ICR3GCON DS    0CL744            CONDITIONAL RECORD           1226081   00067100
+ICR3GID  DS    CL2              SEGMENT 3G ID (WILL BE '3G')  1226081   00067200
+ICR3GOC1 DS    0CL182               1ST FIELD COND OCCUR      1226081   00067300
+ICR3GCPT DS    CL1                  TYPE OF FIELD F, D, X     1226081   00067400
+ICR3GCOF DS    XL2                  POS OF DATA               1226081   00067500
+ICR3GCFI DS    CL8                  FIELD NAME                1226081   00067510
+ICR3GCP1 DS    CL32                 PARENT IDENTIFIER         1226081   00067600
+ICR3GCP2 DS    CL32                 PARENT IDENTIFIER         1226081   00067700
+ICR3GCP3 DS    CL32                 PARENT IDENTIFIER         1226081   00067800
+ICR3GCTI DS    CL32                 TAG IDENTIFIER            1226081   00067900
+ICR3GCDN DS    CL8                  DAG NAME                  1226081   00068000
+ICR3GCEL DS    CL8                  ELEMENT ID                1226081   00068100
+ICR3GCD1 DS    XL2                  DIM 1                     1226081   00068200
+ICR3GCD2 DS    XL2                  DIM 2                     1226081   00068300
+ICR3GCD3 DS    XL2                  DIM 3                     1226081   00068400
+ICR3GCDO DS    XL2                  NUMBER TAG                1226081   00068405
+ICR3GCDC DS    CL1                  DECIMAL                   1226081   00068410
+ICR3GCCO DS    CL2                  COMPARE OPTION            1226081   00068500
+ICR3GCPS EQU   C'  '                    NO COMPARISON         1226081   00068600
+ICR3GCEQ EQU   C'EQ'                   EQUAL                  1226081   00068700
+ICR3GCNE EQU   C'NE'                   NOT EQUAL              1226081   00068800
+ICR3GCGT EQU   C'GT'                   GREATER THAN           1226081   00068900
+ICR3GCLE EQU   C'LE'                      LESS THAN OR EQUAL  1226081   00069000
+ICR3GCLT EQU   C'LT'                   LESS THAN              1226081   00069100
+ICR3GCGE EQU   C'GE'                   GREATER THAN OR EQUAL  1226081   00069200
+ICR3GCPR EQU   C'PR'                   IF FIELD IS PRESENT    1226081   00069300
+ICR3GCNP EQU   C'NP'                   IF FIELD NOT PRESENT   1226081   00069400
+ICR3GCTM EQU   C'TM'                   TEST UNDER MASK        1226081   00069500
+ICR3GCLG DS    XL1                  COMPARISON DATA LENGTH    1226081   00069600
+ICR3GCDA DS    CL15                 COMPARISON DATA           1226081   00069700
+ICR3GCF2 DS    CL546                2ND-4TH FLD COND OCCUR    1226081   00069800
+ICR3GREL DS    CL12               RELSHIPS THAT AFFECT COND'L 1226081   00069900
+ICR3GFIL DS    CL2                  RESERVED FOR FUTURE       1226081   00070000
+*                                     PARSE PROCESSING        1226081   00070100
+ICR3GLGN EQU   *-ICR3GCON              SEGMENT 3G LENGTH      1226081   00070200

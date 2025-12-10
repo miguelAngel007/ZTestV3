@@ -1,0 +1,49 @@
+*ASM XOPTS(NOEPILOG,SP)                                                 00001000
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00002000
+*                  ** HISTORY OF REVISIONS **                         * 00003000
+*                                                                     * 00004000
+* DESCRIPTION                                                 CHNGID  * 00005000
+* __________________________________________________________  _______ * 00006000
+* 08/01/06 CREATED FOR TSTSTCPM GN4911                                * 00007000
+*---------------------------------------------------------------------* 00008000
+*        EXEC CICS PUT CONTAINER ('AGGR-MESSAGE')                       00009000
+*                      CHANNEL   ('TSTSTCPA-REQUEST')                   00010000
+*                      FROM      (0(R5))                                00011000
+*                      FLENGTH   (TCPBUFL)                              00012000
+         DFHECALL =X'341670000820000002000000000000',,0(R5),(CHA16,=CL1*
+               6'AGGR-MESSAGE'),(FB_4,TCPBUFL),,,,,,,,,,,,,,,,,,,,,,,,,*
+               ,,(CHA16,=CL16'TSTSTCPA-REQUEST')
+*                                                                       00013000
+*        EXEC CICS PUT CONTAINER ('TSTSTCP')                            00014000
+*                      CHANNEL   ('TSTSTCPA-REQUEST')                   00015000
+*                      FROM      (0(R7))                                00016000
+*                      FLENGTH   (=A(TCPHDRL))                          00017003
+         DFHECALL =X'341670000820000002000000000000',,0(R7),(CHA16,=CL1*
+               6'TSTSTCP'),(FB_4,=A(TCPHDRL)),,,,,,,,,,,,,,,,,,,,,,,,,,*
+               ,(CHA16,=CL16'TSTSTCPA-REQUEST')
+*                                                                       00018000
+*        EXEC CICS LINK PROGRAM  (WKPROCNM)                             00019004
+*                       CHANNEL  ('TSTSTCPA-REQUEST')                   00020000
+*                       TRANSID  (WSTRAN)                               00021000
+*                       SYNCONRETURN                                    00022000
+         DFHECALL =X'0E0281400800800100',(CHA8,WKPROCNM),,,,,,,(CHA4,WS*
+               TRAN),,(CHA16,=CL16'TSTSTCPA-REQUEST')
+*                                                                       00023000
+*        EXEC CICS GET CONTAINER ('TSTSTCP')                            00024000
+*                      CHANNEL   ('TSTSTCPA-REQUEST')                   00025000
+*                      SET       (R7)                                   00026000
+*                      FLENGTH   (FWORD)                                00027000
+         DFHECALL =X'341470000821000002000000000000',,(PTR4__RF,R7),(CH*
+               A16,=CL16'TSTSTCP'),(FB_4__RF,FWORD),,,,,,,,,,,,,,,,,,,,*
+               ,,,,,,,(CHA16,=CL16'TSTSTCPA-REQUEST')
+*                                                                       00028000
+*        EXEC CICS GET CONTAINER ('AGGR-MESSAGE')                       00029000
+*                      CHANNEL   ('TSTSTCPA-REQUEST')                   00030000
+*                      SET       (R5)                                   00031000
+*                      FLENGTH   (QCAMSGLN)                             00032000
+         DFHECALL =X'341470000821000002000000000000',,(PTR4__RF,R5),(CH*
+               A16,=CL16'AGGR-MESSAGE'),(FB_4__RF,QCAMSGLN),,,,,,,,,,,,*
+               ,,,,,,,,,,,,,,,(CHA16,=CL16'TSTSTCPA-REQUEST')
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

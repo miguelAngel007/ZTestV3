@@ -1,0 +1,1198 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LABEL   SIPRTDD ,                                                     X00000200
+               &DDNAM=,          DDNAME                                X00000300
+               &DDNAME=,         DDNAME                                X00000400
+               &SYSOU=,          SYSOUT                                X00000500
+               &SYSOUT=,         SYSOUT                                X00000600
+               &RECFM=,          RECORD FORMAT                         X00000700
+               &LRECL=,          LOGICAL RECORD LENGTH                 X00000800
+               &BLKSZ=,          BLOCKSIZE                             X00000900
+               &BLKSIZE=,        BLOCKSIZE                             X00001000
+               &SPGNM=,          SYSOUT PROGRAM NAME                   X00001100
+               &SFMNO=,          SYSOUT FORM NUMBER                    X00001200
+               &OUTLM=,          OUTPUT LIMIT                          X00001300
+               &OUTLIM=,         OUTPUT LIMIT                          X00001400
+               &COPYS=,          SYSOUT COPIES                         X00001500
+               &COPIES=,         SYSOUT COPIES                         X00001600
+               &FCBIM=,          FCB IMAGE-ID                          X00001700
+               &FCB=,            FCB IMAGE-ID                          X00001800
+               &FCBAV=,          FCB FORM ALIGNMENT,IMAGE VERIFY       X00001900
+               &UCS=,            UNIVERSAL CHARACTER SET               X00002000
+               &UFOLD=,          UCS FOLD MODE                         X00002100
+               &FOLD=,           UCS FOLD MODE                         X00002200
+               &UVRFY=,          UCS VERIFY CHARACTER SET              X00002300
+               &VERIFY=,         UCS VERIFY CHARACTER SET              X00002400
+               &PRTSP=,          PRINTER LINE SPACING                  X00002500
+               &SUSER=,          SYSOUT REMOTE USER                    X00002600
+               &SHOLD=,          SYSOUT HOLD QUEUE                     X00002700
+               &USRID=,          SYSOUT USER ID                        X00002800
+               &BURST=,          BURSTER-TRIMMER-STACKER               X00002900
+               &CHARS=,          CHAR ARRANGEMENT TABLE                X00003000
+               &COPYG=,          COPY GROUP VALUES                     X00003100
+               &FFORM=,          FLASH FORMS OVERLAY                   X00003200
+               &FCNT=,           FLASH FORMS OVERLAY COUNT             X00003300
+               &MMOD=,           COPY MODIFICATION MODULE              X00003400
+               &MODIFY=,         COPY MODIFICATION MODULE              X00003500
+               &MTRC=,           TABLE REFERENCE CHARACTER             X00003600
+               &TRC=,            TABLE REFERENCE CHARACTER             X00003700
+               &OUTPT=,          OUTPUT REFERENCE                      X00003800
+               &OUTPUT=,         OUTPUT REFERENCE                      X00003900
+               &DEST=,           SYSOUT REMOTE NODE ID AND USER ID     X00004000
+               &TESTRUN=         TESTRUN SPECIFICATION                  00004100
+.*                                                                      00004200
+.*       MOST OF THE VARIABLE NAMES ABOVE ARE TAKEN FROM THE LIST OF    00004300
+.*       DYNAMIC ALLOCATION KEYS LISTED IN THE IEFZB4D2 MACRO WITH THE  00004400
+.*       "DAL" PREFIX OMITTED FOR COMPATABILITY WITH ASSEMBLER F.       00004500
+.*       HOWEVER, SOME OF THE VARIABLE NAMES HAVE BEEN DUPLICATED SO    00004600
+.*       THAT THE NORMAL DCB/DD VARIABLE NAMES CAN BE USED.  IF BOTH    00004700
+.*       VERSIONS HAPPEN TO BE CODED, THE NAME DERIVED FROM THE         00004800
+.*       IEFZB4D2 MACRO WILL TAKE PRECEDENCE.                           00004900
+.*                                                                      00005000
+.*                                                                      00005100
+         GBLB  &SIFCTB,&SIPRTDD,&DALFLAG                                00005200
+         GBLC  &CSECTNM                                                 00005300
+         LCLA  &DALNO,&CNT,&MAXENT,&X1,&X2                              00005400
+         LCLA  &RECFMA,&WORKA                                           00005500
+         LCLB  &ERR,&FCBSPEC,&UCSSPEC,&OUTSPEC,&DDNM                    00005600
+         LCLC  &DALLBL(50),&DALKEY(50),&DALOCC(50)                      00005700
+         LCLC  &DALLEN(50),&DALDTA(50)                                  00005800
+         LCLC  &H,&HVER,&HMOD,&HDATE                                    00005900
+         LCLC  &WORK,&WORKCH,&WLABEL,&LBL,&SUF                          00006000
+.*                                                                      00006100
+.*       ----------------                                               00006200
+.*       SET ANY DEFAULTS                                               00006300
+.*       ----------------                                               00006400
+&H       SETC  '* SIPRTDD -'       MACRO NAME FOR MNOTE LINES           00006500
+&HVER    SETC  '01'                MACRO VERSION NUMBER                 00006600
+&HMOD    SETC  '01'                MACRO MODIFICATION NUMBER            00006700
+&HDATE   SETC  '12/15/91'          MACRO AS OF DATE                     00006800
+         MNOTE '&H SYSTEMATICS  - VER &HVER MOD &HMOD - &HDATE'         00006900
+&MAXENT  SETA  50                  MAXIMUM ENTRIES IN TABLE             00007000
+&LBL     SETC  'PROD'                                                   00007100
+&SUF     SETC  'P'                                                      00007200
+         AIF   (T'&TESTRUN NE 'O').E010010                              00007300
+         AIF   (NOT &DALFLAG).E010030                                   00007400
+         MNOTE 8,'&H CANNOT SPECIFY TWO DEFAULT SETS OF DD PARAMETERS'  00007500
+         MEXIT                                                          00007600
+.E010010 ANOP                                                           00007700
+         AIF   ('&TESTRUN' EQ 'YES').E010020                            00007800
+         MNOTE '&H TESTRUN MUST BE YES IF SPECIFIED, YES ASSUMED'       00007900
+.E010020 ANOP                                                           00008000
+&LBL     SETC  'TEST'                                                   00008100
+&SUF     SETC  'T'                                                      00008200
+.E010030 ANOP                                                           00008300
+.*                                                                      00008400
+.*       -----------                                                    00008500
+.*       CHECK DDNAM                                                    00008600
+.*       -----------                                                    00008700
+.*                                                                      00008800
+.F010BEG ANOP                                                           00008900
+&WORK    SETC  'SIPRTDD'                                                00009000
+         AIF   (T'&DDNAM EQ 'O').F010010                                00009100
+&WORK    SETC  '&DDNAM'                                                 00009200
+&DDNM    SETB  1                                                        00009300
+         AIF   (K'&DDNAM LE 8).F010020                                  00009400
+         MNOTE 8,'&H DDNAM MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00009500
+&ERR     SETB  (1)                                                      00009600
+         AGO   .F010END                                                 00009700
+.*       ------------                                                   00009800
+.*       CHECK DDNAME                                                   00009900
+.*       ------------                                                   00010000
+.F01010  ANOP                                                           00010100
+         AIF   (T'&DDNAME EQ 'O').F010020                               00010200
+&WORK    SETC  '&DDNAME'                                                00010300
+&DDNM    SETB  1                                                        00010400
+         AIF   (K'&DDNAME LE 8).F010030                                 00010500
+         MNOTE 8,'&H DDNAME MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'      00010600
+&ERR     SETB  (1)                                                      00010700
+         AGO   .F010END                                                 00010800
+.F010020 ANOP                                                           00010900
+         AIF   (&DDNM EQ 1).F010030                                     00011000
+         MNOTE '&H DDNAM/DDNAME OMITTED, SIPRTDD USED AS DEFAULT'       00011100
+.F010030 ANOP                                                           00011200
+&DALNO   SETA  &DALNO+1                                                 00011300
+         AIF   (&DALNO GT &MAXENT).Z010010                              00011400
+&DALLBL(&DALNO) SETC 'DDNAMDA'                                          00011500
+&DALKEY(&DALNO) SETC 'AL2(DALDDNAM)'                                    00011600
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00011700
+&DALLEN(&DALNO) SETC 'AL2(8)'                                           00011800
+&DALDTA(&DALNO) SETC 'CL8''&WORK'''                                     00011900
+.F010END ANOP                                                           00012000
+.*                                                                      00012100
+.*       -----------------                                              00012200
+.*       CHECK SYSOU CLASS                                              00012300
+.*       -----------------                                              00012400
+.*                                                                      00012500
+.F020BEG ANOP                                                           00012600
+         AIF   (T'&SYSOU EQ 'O').F020010                                00012700
+&WORK    SETC  '&SYSOU'                                                 00012800
+         AIF   (K'&SYSOU EQ 1).F020020                                  00012900
+         MNOTE 8,'&H SYSOU MUST BE 1 CHARACTER IN LENGTH'               00013000
+&ERR     SETB  (1)                                                      00013100
+         AGO   .F020END                                                 00013200
+.*       ------------------                                             00013300
+.*       CHECK SYSOUT CLASS                                             00013400
+.*       ------------------                                             00013500
+.F020010 ANOP                                                           00013600
+         AIF   (T'&SYSOUT EQ 'O').F020END                               00013700
+&WORK    SETC  '&SYSOUT'                                                00013800
+         AIF   (K'&SYSOUT EQ 1).F020020                                 00013900
+         MNOTE 8,'&H SYSOUT MUST BE 1 CHARACTER IN LENGTH'              00014000
+&ERR     SETB  (1)                                                      00014100
+         AGO   .F020END                                                 00014200
+.F020020 ANOP                                                           00014300
+&DALNO   SETA  &DALNO+1                                                 00014400
+         AIF   (&DALNO GT &MAXENT).Z010010                              00014500
+&OUTSPEC SETB  1                                                        00014600
+&DALLBL(&DALNO) SETC 'SYSOUDA'                                          00014700
+&DALKEY(&DALNO) SETC 'AL2(DALSYSOU)'                                    00014800
+         AIF   ('&WORK' NE '-').F020100                                 00014900
+.*       A DASH SPECIFIED FOR SYSOUT CLASS MEANS THE DEFAULT CLASS      00015000
+&DALOCC(&DALNO) SETC 'AL2(0)'                                           00015100
+&DALLEN(&DALNO) SETC ''                                                 00015200
+&DALDTA(&DALNO) SETC ''                                                 00015300
+         AGO   .F020END                                                 00015400
+.F020100 ANOP                                                           00015500
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00015600
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00015700
+&DALDTA(&DALNO) SETC 'CL1''&WORK'''                                     00015800
+.F020END ANOP                                                           00015900
+.*                                                                      00016000
+.*       -----------                                                    00016100
+.*       CHECK RECFM                                                    00016200
+.*       -----------                                                    00016300
+.*                                                                      00016400
+.F030BEG ANOP                                                           00016500
+         AIF   (T'&RECFM EQ 'O').F030END                                00016600
+         AIF   ('&RECFM' EQ 'FBM').F030010                              00016700
+         AIF   ('&RECFM' EQ 'FBA').F030010                              00016800
+         MNOTE 8,'&H RECFM MUST BE EITHER FBA OR FBM'                   00016900
+&ERR     SETB  (1)                                                      00017000
+         AGO   .F030END                                                 00017100
+.F030010 ANOP                                                           00017200
+&RECFMA  SETA  146                                                      00017300
+.*       SET DEFAULT RECFM TO FBM (X'92')                               00017400
+         AIF   ('&RECFM'(3,1) EQ 'M').F030020                           00017500
+.*       SET RECFM TO FBA (X'94')                                       00017600
+&RECFMA  SETA  &RECFMA-2                                                00017700
+&RECFMA  SETA  &RECFMA+4                                                00017800
+.F030020 ANOP                                                           00017900
+&DALNO   SETA  &DALNO+1                                                 00018000
+         AIF   (&DALNO GT &MAXENT).Z010010                              00018100
+&DALLBL(&DALNO) SETC 'RECFMDA'                                          00018200
+&DALKEY(&DALNO) SETC 'AL2(DALRECFM)'                                    00018300
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00018400
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00018500
+&DALDTA(&DALNO) SETC 'AL1(&RECFMA)'                                     00018600
+.F030END ANOP                                                           00018700
+.*                                                                      00018800
+.*       -----------                                                    00018900
+.*       CHECK LRECL                                                    00019000
+.*       -----------                                                    00019100
+.*                                                                      00019200
+.F040BEG ANOP                                                           00019300
+         AIF   (T'&LRECL EQ 'O').F040END                                00019400
+         AIF   (K'&LRECL LE 3).F040010                                  00019500
+         MNOTE 8,'&H LRECL MUST BE 1 TO 3 CHARACTER(S) IN LENGTH'       00019600
+&ERR     SETB  (1)                                                      00019700
+         AGO   .F040END                                                 00019800
+.F040010 ANOP                                                           00019900
+&X1      SETA  K'&LRECL                                                 00020000
+&X2      SETA  0                                                        00020100
+.F040020 ANOP                                                           00020200
+&X2      SETA  &X2+1                                                    00020300
+         AIF   (&X2 GT &X1).F040040                                     00020400
+&WORKCH  SETC  '&LRECL'(&X2,1)                                          00020500
+         AIF   ('&WORKCH' LT '0').F040030                               00020600
+         AIF   ('&WORKCH' GT '9').F040030                               00020700
+         AGO   .F040020                                                 00020800
+.F040030 ANOP                                                           00020900
+         MNOTE 8,'&H LRECL PARAMETER NOT NUMERIC'                       00021000
+&ERR     SETB  (1)                                                      00021100
+         AGO   .F040END                                                 00021200
+.F040040 ANOP                                                           00021300
+&DALNO   SETA  &DALNO+1                                                 00021400
+         AIF   (&DALNO GT &MAXENT).Z010010                              00021500
+&DALLBL(&DALNO) SETC 'LRECLDA'                                          00021600
+&DALKEY(&DALNO) SETC 'AL2(DALLRECL)'                                    00021700
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00021800
+&DALLEN(&DALNO) SETC 'AL2(2)'                                           00021900
+&DALDTA(&DALNO) SETC 'AL2(&LRECL)'                                      00022000
+.F040END ANOP                                                           00022100
+.*                                                                      00022200
+.*       -----------                                                    00022300
+.*       CHECK BLKSZ                                                    00022400
+.*       -----------                                                    00022500
+.*                                                                      00022600
+.F050BEG ANOP                                                           00022700
+         AIF   (T'&BLKSZ EQ 'O').F050040                                00022800
+&WORK    SETC  '&BLKSZ'                                                 00022900
+         AIF   (K'&BLKSZ LE 5).F050010                                  00023000
+         MNOTE 8,'&H BLKSZ MUST BE 1 TO 5 CHARACTER(S) IN LENGTH'       00023100
+&ERR     SETB  (1)                                                      00023200
+         AGO   .F050END                                                 00023300
+.F050010 ANOP                                                           00023400
+&X1      SETA  K'&BLKSZ                                                 00023500
+&X2      SETA  0                                                        00023600
+.F050020 ANOP                                                           00023700
+&X2      SETA  &X2+1                                                    00023800
+         AIF   (&X2 GT &X1).F050080                                     00023900
+&WORKCH  SETC  '&BLKSZ'(&X2,1)                                          00024000
+         AIF   ('&WORKCH' LT '0').F050030                               00024100
+         AIF   ('&WORKCH' GT '9').F050030                               00024200
+         AGO   .F050020                                                 00024300
+.F050030 ANOP                                                           00024400
+         MNOTE 8,'&H BLKSZ PARAMETER NOT NUMERIC'                       00024500
+&ERR     SETB  (1)                                                      00024600
+         AGO   .F050END                                                 00024700
+.*       -------------                                                  00024800
+.*       CHECK BLKSIZE                                                  00024900
+.*       -------------                                                  00025000
+.F050040 ANOP                                                           00025100
+         AIF   (T'&BLKSIZE EQ 'O').F050END                              00025200
+&WORK    SETC  '&BLKSIZE'                                               00025300
+         AIF   (K'&BLKSIZE LE 5).F050050                                00025400
+         MNOTE 8,'&H BLKSIZE MUST BE 1 TO 5 CHARACTER(S) IN LENGTH'     00025500
+&ERR     SETB  (1)                                                      00025600
+         AGO   .F050END                                                 00025700
+.F050050 ANOP                                                           00025800
+&X1      SETA  K'&BLKSIZE                                               00025900
+&X2      SETA  0                                                        00026000
+.F050060 ANOP                                                           00026100
+&X2      SETA  &X2+1                                                    00026200
+         AIF   (&X2 GT &X1).F050080                                     00026300
+&WORKCH  SETC  '&BLKSIZE'(&X2,1)                                        00026400
+         AIF   ('&WORKCH' LT '0').F050070                               00026500
+         AIF   ('&WORKCH' GT '9').F050070                               00026600
+         AGO   .F050060                                                 00026700
+.F050070 ANOP                                                           00026800
+         MNOTE 8,'&H BLKSIZE PARAMETER NOT NUMERIC'                     00026900
+&ERR     SETB  (1)                                                      00027000
+         AGO   .F050END                                                 00027100
+.F050080 ANOP                                                           00027200
+&DALNO   SETA  &DALNO+1                                                 00027300
+         AIF   (&DALNO GT &MAXENT).Z010010                              00027400
+&DALLBL(&DALNO) SETC 'BLKSZDA'                                          00027500
+&DALKEY(&DALNO) SETC 'AL2(DALBLKSZ)'                                    00027600
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00027700
+&DALLEN(&DALNO) SETC 'AL2(2)'                                           00027800
+&DALDTA(&DALNO) SETC 'AL2(&WORK)'                                       00027900
+.F050END ANOP                                                           00028000
+.*                                                                      00028100
+.*       ---------------------------------                              00028200
+.*       CHECK SPGNM - SYSOUT PROGRAM NAME                              00028300
+.*       ---------------------------------                              00028400
+.*                                                                      00028500
+.F060BEG ANOP                                                           00028600
+         AIF   (T'&SPGNM EQ 'O').F060END                                00028700
+         AIF   (K'&SPGNM LE 8).F060010                                  00028800
+         MNOTE 8,'&H SPGNM MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00028900
+&ERR     SETB  (1)                                                      00029000
+         AGO   .F060END                                                 00029100
+.F060010 ANOP                                                           00029200
+         AIF   (&OUTSPEC EQ 1).F060020                                  00029300
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH SPGNM'    00029400
+&ERR     SETB  (1)                                                      00029500
+         AGO   .F060END                                                 00029600
+.F060020 ANOP                                                           00029700
+&DALNO   SETA  &DALNO+1                                                 00029800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00029900
+&WORKA   SETA  K'&SPGNM                                                 00030000
+&DALLBL(&DALNO) SETC 'SPGNMDA'                                          00030100
+&DALKEY(&DALNO) SETC 'AL2(DALSPGNM)'                                    00030200
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00030300
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00030400
+&DALDTA(&DALNO) SETC 'C''&SPGNM'''                                      00030500
+.F060END ANOP                                                           00030600
+.*                                                                      00030700
+.*       --------------------------------                               00030800
+.*       CHECK SFMNO - SYSOUT FORM NUMBER                               00030900
+.*       --------------------------------                               00031000
+.*                                                                      00031100
+.F070BEG ANOP                                                           00031200
+         AIF   (T'&SFMNO EQ 'O').F070END                                00031300
+         AIF   (K'&SFMNO LE 8).F070010                                  00031400
+         MNOTE 8,'&H SFMNO MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00031500
+&ERR     SETB  (1)                                                      00031600
+         AGO   .F070END                                                 00031700
+.F070010 ANOP                                                           00031800
+         AIF   (&OUTSPEC EQ 1).F070020                                  00031900
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH SFMNO'    00032000
+&ERR     SETB  (1)                                                      00032100
+         AGO   .F070END                                                 00032200
+.F070020 ANOP                                                           00032300
+&DALNO   SETA  &DALNO+1                                                 00032400
+         AIF   (&DALNO GT &MAXENT).Z010010                              00032500
+&WORKA   SETA  K'&SFMNO                                                 00032600
+&DALLBL(&DALNO) SETC 'SFMNODA'                                          00032700
+&DALKEY(&DALNO) SETC 'AL2(DALSFMNO)'                                    00032800
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00032900
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00033000
+&DALDTA(&DALNO) SETC 'C''&SFMNO'''                                      00033100
+.F070END ANOP                                                           00033200
+.*                                                                      00033300
+.*       ---------------------------------                              00033400
+.*       CHECK OUTLM - SYSOUT OUTPUT LIMIT                              00033500
+.*       ---------------------------------                              00033600
+.*                                                                      00033700
+.F080BEG ANOP                                                           00033800
+         AIF   (T'&OUTLM EQ 'O').F080040                                00033900
+&WORK    SETC  '&OUTLM'                                                 00034000
+         AIF   (K'&OUTLM LE 8).F080010                                  00034100
+         MNOTE 8,'&H OUTLM MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00034200
+&ERR     SETB  (1)                                                      00034300
+         AGO   .F080END                                                 00034400
+.F080010 ANOP                                                           00034500
+&X1      SETA  K'&OUTLM                                                 00034600
+&X2      SETA  0                                                        00034700
+.F080020 ANOP                                                           00034800
+&X2      SETA  &X2+1                                                    00034900
+         AIF   (&X2 GT &X1).F080080                                     00035000
+&WORKCH  SETC  '&OUTLM'(&X2,1)                                          00035100
+         AIF   ('&WORKCH' LT '0').F080030                               00035200
+         AIF   ('&WORKCH' GT '9').F080030                               00035300
+         AGO   .F080020                                                 00035400
+.F080030 ANOP                                                           00035500
+         MNOTE 8,'&H OUTLM PARAMETER NOT NUMERIC'                       00035600
+&ERR     SETB  (1)                                                      00035700
+         AGO   .F080END                                                 00035800
+.*       -------------                                                  00035900
+.*       CHECK OUTLIM                                                   00036000
+.*       -------------                                                  00036100
+.F080040 ANOP                                                           00036200
+         AIF   (T'&OUTLM EQ 'O').F080END                                00036300
+&WORK    SETC  '&OUTLIM'                                                00036400
+         AIF   (K'&OUTLIM LE 8).F080050                                 00036500
+         MNOTE 8,'&H OUTLIM MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'      00036600
+&ERR     SETB  (1)                                                      00036700
+         AGO   .F080END                                                 00036800
+.F080050 ANOP                                                           00036900
+&X1      SETA  K'&OUTLIM                                                00037000
+&X2      SETA  0                                                        00037100
+.F080060 ANOP                                                           00037200
+&X2      SETA  &X2+1                                                    00037300
+         AIF   (&X2 GT &X1).F080080                                     00037400
+&WORKCH  SETC  '&OUTLIM'(&X2,1)                                         00037500
+         AIF   ('&WORKCH' LT '0').F080070                               00037600
+         AIF   ('&WORKCH' GT '9').F080070                               00037700
+         AGO   .F080060                                                 00037800
+.F080070 ANOP                                                           00037900
+         MNOTE 8,'&H OUTLIM PARAMETER NOT NUMERIC'                      00038000
+&ERR     SETB  (1)                                                      00038100
+         AGO   .F080END                                                 00038200
+.F080080 ANOP                                                           00038300
+         AIF   (&OUTSPEC EQ 1).F080090                                  00038400
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH OUTLM'    00038500
+&ERR     SETB  (1)                                                      00038600
+         AGO   .F080END                                                 00038700
+.F080090 ANOP                                                           00038800
+&DALNO   SETA  &DALNO+1                                                 00038900
+         AIF   (&DALNO GT &MAXENT).Z010010                              00039000
+&DALLBL(&DALNO) SETC 'OUTLMDA'                                          00039100
+&DALKEY(&DALNO) SETC 'AL2(DALOUTLM)'                                    00039200
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00039300
+&DALLEN(&DALNO) SETC 'AL2(3)'                                           00039400
+&DALDTA(&DALNO) SETC 'AL3(&WORK)'                                       00039500
+.F080END ANOP                                                           00039600
+.*                                                                      00039700
+.*       ---------------------------                                    00039800
+.*       CHECK COPYS - SYSOUT COPIES                                    00039900
+.*       ---------------------------                                    00040000
+.*                                                                      00040100
+.F090BEG ANOP                                                           00040200
+         AIF   (T'&COPYS EQ 'O').F090040                                00040300
+&WORK    SETC  '&COPYS'                                                 00040400
+         AIF   (K'&COPYS LE 3).F090010                                  00040500
+         MNOTE 8,'&H COPYS MUST BE 1 TO 3 CHARACTER(S) IN LENGTH'       00040600
+&ERR     SETB  (1)                                                      00040700
+         AGO   .F090END                                                 00040800
+.F090010 ANOP                                                           00040900
+&X1      SETA  K'&COPYS                                                 00041000
+&X2      SETA  0                                                        00041100
+.F090020 ANOP                                                           00041200
+&X2      SETA  &X2+1                                                    00041300
+         AIF   (&X2 GT &X1).F090080                                     00041400
+&WORKCH  SETC  '&COPYS'(&X2,1)                                          00041500
+         AIF   ('&WORKCH' LT '0').F090030                               00041600
+         AIF   ('&WORKCH' GT '9').F090030                               00041700
+         AGO   .F090020                                                 00041800
+.F090030 ANOP                                                           00041900
+         MNOTE 8,'&H COPYS PARAMETER NOT NUMERIC'                       00042000
+&ERR     SETB  (1)                                                      00042100
+         AGO   .F090END                                                 00042200
+.*       -------------                                                  00042300
+.*       CHECK COPIES                                                   00042400
+.*       -------------                                                  00042500
+.F090040 ANOP                                                           00042600
+         AIF   (T'&COPIES EQ 'O').F090END                               00042700
+&WORK    SETC  '&COPIES'                                                00042800
+         AIF   (K'&COPIES LE 3).F090050                                 00042900
+         MNOTE 8,'&H COPIES MUST BE 1 TO 3 CHARACTER(S) IN LENGTH'      00043000
+&ERR     SETB  (1)                                                      00043100
+         AGO   .F090END                                                 00043200
+.F090050 ANOP                                                           00043300
+&X1      SETA  K'&COPIES                                                00043400
+&X2      SETA  0                                                        00043500
+.F090060 ANOP                                                           00043600
+&X2      SETA  &X2+1                                                    00043700
+         AIF   (&X2 GT &X1).F090080                                     00043800
+&WORKCH  SETC  '&COPIES'(&X2,1)                                         00043900
+         AIF   ('&WORKCH' LT '0').F090070                               00044000
+         AIF   ('&WORKCH' GT '9').F090070                               00044100
+         AGO   .F090060                                                 00044200
+.F090070 ANOP                                                           00044300
+         MNOTE 8,'&H COPIES PARAMETER NOT NUMERIC'                      00044400
+&ERR     SETB  (1)                                                      00044500
+         AGO   .F090END                                                 00044600
+.F090080 ANOP                                                           00044700
+         AIF   (K'&COPIES NE 3).F090090                                 00044800
+         AIF   ('&WORK' LE '255').F090090                               00044900
+         MNOTE 8,'&H COPIES PARAMETER GREATER THAN 255'                 00045000
+&ERR     SETB  (1)                                                      00045100
+         AGO   .F090END                                                 00045200
+.F090090 ANOP                                                           00045300
+         AIF   (&OUTSPEC EQ 1).F090100                                  00045400
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH COPYS'    00045500
+&ERR     SETB  (1)                                                      00045600
+         AGO   .F090END                                                 00045700
+.F090100 ANOP                                                           00045800
+&DALNO   SETA  &DALNO+1                                                 00045900
+         AIF   (&DALNO GT &MAXENT).Z010010                              00046000
+&DALLBL(&DALNO) SETC 'COPYSDA'                                          00046100
+&DALKEY(&DALNO) SETC 'AL2(DALCOPYS)'                                    00046200
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00046300
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00046400
+&DALDTA(&DALNO) SETC 'AL1(&WORK)'                                       00046500
+.F090END ANOP                                                           00046600
+.*                                                                      00046700
+.*       ---------------------------                                    00046800
+.*       CHECK FCBIM NAME - FCB NAME                                    00046900
+.*       ---------------------------                                    00047000
+.*                                                                      00047100
+.F100BEG ANOP                                                           00047200
+         AIF   (T'&FCBIM EQ 'O').F100010                                00047300
+&WORK    SETC  '&FCBIM'                                                 00047400
+         AIF   (K'&FCBIM LE 4).F100020                                  00047500
+         MNOTE 8,'&H FCBIM MUST BE 1 TO 4 CHARACTERS IN LENGTH'         00047600
+&ERR     SETB  (1)                                                      00047700
+         AGO   .F100END                                                 00047800
+.*       --------------                                                 00047900
+.*       CHECK FCB NAME                                                 00048000
+.*       --------------                                                 00048100
+.F100010 ANOP                                                           00048200
+         AIF   (T'&FCB EQ 'O').F100END                                  00048300
+&WORK    SETC  '&FCB'                                                   00048400
+         AIF   (K'&FCB LE 4).F100020                                    00048500
+         MNOTE 8,'&H FCB MUST BE 1 TO 4 CHARACTERS IN LENGTH'           00048600
+&ERR     SETB  (1)                                                      00048700
+         AGO   .F100END                                                 00048800
+.F100020 ANOP                                                           00048900
+&FCBSPEC SETB  1                                                        00049000
+&WORKA   SETA  K'&WORK                                                  00049100
+&DALNO   SETA  &DALNO+1                                                 00049200
+         AIF   (&DALNO GT &MAXENT).Z010010                              00049300
+&DALLBL(&DALNO) SETC 'FCBIMDA'                                          00049400
+&DALKEY(&DALNO) SETC 'AL2(DALFCBIM)'                                    00049500
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00049600
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00049700
+&DALDTA(&DALNO) SETC 'C''&WORK'''                                       00049800
+.F100END ANOP                                                           00049900
+.*                                                                      00050000
+.*       ------------------------------                                 00050100
+.*       CHECK FCBAV - FCB ALIGN/VERIFY                                 00050200
+.*       ------------------------------                                 00050300
+.*                                                                      00050400
+.F110BEG ANOP                                                           00050500
+         AIF   (T'&FCBAV EQ 'O').F110END                                00050600
+         AIF   (&FCBSPEC EQ 1).F110010                                  00050700
+         MNOTE 8,'&H FCB OR FCBIM MUST ALSO BE SPECIFIED WITH FCBAV'    00050800
+&ERR     SETB  (1)                                                      00050900
+         AGO   .F110END                                                 00051000
+.F110010 ANOP                                                           00051100
+         AIF   ('&FCBAV' EQ 'ALIGN').F110020                            00051200
+         AIF   ('&FCBAV' EQ 'VERIFY').F110030                           00051300
+         MNOTE 8,'&H FCBAV MUST BE ALIGN OR VERIFY'                     00051400
+&ERR     SETB  (1)                                                      00051500
+         AGO   .F110END                                                 00051600
+.F110020 ANOP                                                           00051700
+&WORK    SETC  '8'                                                      00051800
+         AGO   .F110090                                                 00051900
+.F110030 ANOP                                                           00052000
+&WORK    SETC  '4'                                                      00052100
+.F110090 ANOP                                                           00052200
+&DALNO   SETA  &DALNO+1                                                 00052300
+         AIF   (&DALNO GT &MAXENT).Z010010                              00052400
+&DALLBL(&DALNO) SETC 'FCBAVDA'                                          00052500
+&DALKEY(&DALNO) SETC 'AL2(DALFCBAV)'                                    00052600
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00052700
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00052800
+&DALDTA(&DALNO) SETC 'AL1(&WORK)'                                       00052900
+.F110END ANOP                                                           00053000
+.*                                                                      00053100
+.*       --------------                                                 00053200
+.*       CHECK UCS NAME                                                 00053300
+.*       --------------                                                 00053400
+.*                                                                      00053500
+.F120BEG ANOP                                                           00053600
+         AIF   (T'&UCS EQ 'O').F120END                                  00053700
+         AIF   (K'&UCS LE 4).F120010                                    00053800
+         MNOTE 8,'&H UCS MUST BE 1 TO 4 CHARACTERS IN LENGTH'           00053900
+&ERR     SETB  (1)                                                      00054000
+         AGO   .F120END                                                 00054100
+.F120010 ANOP                                                           00054200
+&UCSSPEC SETB  1                                                        00054300
+&WORKA   SETA  K'&UCS                                                   00054400
+&DALNO   SETA  &DALNO+1                                                 00054500
+         AIF   (&DALNO GT &MAXENT).Z010010                              00054600
+&DALLBL(&DALNO) SETC 'UCSDA'                                            00054700
+&DALKEY(&DALNO) SETC 'AL2(DALUCS)'                                      00054800
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00054900
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00055000
+&DALDTA(&DALNO) SETC 'C''&UCS'''                                        00055100
+.F120END ANOP                                                           00055200
+.*                                                                      00055300
+.*       ---------------------------                                    00055400
+.*       CHECK UFOLD - UCS FOLD MODE                                    00055500
+.*       ---------------------------                                    00055600
+.*                                                                      00055700
+.F130BEG ANOP                                                           00055800
+         AIF   (T'&UFOLD EQ 'O').F130010                                00055900
+&WORK    SETC  '&UFOLD'                                                 00056000
+         AIF   (&UCSSPEC EQ 1).F130020                                  00056100
+         MNOTE 8,'&H UCS MUST ALSO BE SPECIFIED WITH UFOLD'             00056200
+&ERR     SETB  (1)                                                      00056300
+         AGO   .F130END                                                 00056400
+.F130010 ANOP                                                           00056500
+         AIF   (T'&FOLD EQ 'O').F130END                                 00056600
+&WORK    SETC  '&FOLD'                                                  00056700
+         AIF   (&UCSSPEC EQ 1).F130020                                  00056800
+         MNOTE 8,'&H UCS MUST ALSO BE SPECIFIED WITH FOLD'              00056900
+&ERR     SETB  (1)                                                      00057000
+         AGO   .F130END                                                 00057100
+.F130020 ANOP                                                           00057200
+         AIF   ('&WORK' EQ 'Y').F130090                                 00057300
+         AIF   ('&WORK' EQ 'YES').F130090                               00057400
+         MNOTE 8,'&H UFOLD/FOLD MUST BE YES IF ENTERED'                 00057500
+&ERR     SETB  (1)                                                      00057600
+         AGO   .F130END                                                 00057700
+.F130090 ANOP                                                           00057800
+&DALNO   SETA  &DALNO+1                                                 00057900
+         AIF   (&DALNO GT &MAXENT).Z010010                              00058000
+&DALLBL(&DALNO) SETC 'UFOLDDA'                                          00058100
+&DALKEY(&DALNO) SETC 'AL2(DALUFOLD)'                                    00058200
+&DALOCC(&DALNO) SETC 'AL2(0)'                                           00058300
+&DALLEN(&DALNO) SETC ''                                                 00058400
+&DALDTA(&DALNO) SETC ''                                                 00058500
+.F130END ANOP                                                           00058600
+.*                                                                      00058700
+.*       --------------------------------------                         00058800
+.*       CHECK UVRFY - UCS VERIFY CHARACTER SET                         00058900
+.*       --------------------------------------                         00059000
+.*                                                                      00059100
+.F140BEG ANOP                                                           00059200
+         AIF   (T'&UVRFY EQ 'O').F140010                                00059300
+&WORK    SETC  '&UVRFY'                                                 00059400
+         AIF   (&UCSSPEC EQ 1).F140020                                  00059500
+         MNOTE 8,'&H UCS MUST ALSO BE SPECIFIED WITH UVRFY'             00059600
+&ERR     SETB  (1)                                                      00059700
+         AGO   .F140END                                                 00059800
+.F140010 ANOP                                                           00059900
+         AIF   (T'&VERIFY EQ 'O').F140END                               00060000
+&WORK    SETC  '&VERIFY'                                                00060100
+         AIF   (&UCSSPEC EQ 1).F140020                                  00060200
+         MNOTE 8,'&H UCS MUST ALSO BE SPECIFIED WITH VERIFY'            00060300
+&ERR     SETB  (1)                                                      00060400
+         AGO   .F140END                                                 00060500
+.F140020 ANOP                                                           00060600
+         AIF   ('&WORK' EQ 'Y').F140090                                 00060700
+         AIF   ('&WORK' EQ 'YES').F140090                               00060800
+         MNOTE 8,'&H UVRFY/VERIFY MUST BE YES IF ENTERED'               00060900
+&ERR     SETB  (1)                                                      00061000
+         AGO   .F140END                                                 00061100
+.F140090 ANOP                                                           00061200
+&DALNO   SETA  &DALNO+1                                                 00061300
+         AIF   (&DALNO GT &MAXENT).Z010010                              00061400
+&DALLBL(&DALNO) SETC 'UVRFYDA'                                          00061500
+&DALKEY(&DALNO) SETC 'AL2(DALUVRFY)'                                    00061600
+&DALOCC(&DALNO) SETC 'AL2(0)'                                           00061700
+&DALLEN(&DALNO) SETC ''                                                 00061800
+&DALDTA(&DALNO) SETC ''                                                 00061900
+.F140END ANOP                                                           00062000
+.*                                                                      00062100
+.*       ----------------------------------                             00062200
+.*       CHECK PRTSP - PRINTER LINE SPACING                             00062300
+.*       ----------------------------------                             00062400
+.*                                                                      00062500
+.F150BEG ANOP                                                           00062600
+         AIF   (T'&PRTSP EQ 'O').F150END                                00062700
+         AIF   ('&PRTSP' EQ '0').F150020                                00062800
+         AIF   ('&PRTSP' EQ '1').F150030                                00062900
+         AIF   ('&PRTSP' EQ '2').F150040                                00063000
+         AIF   ('&PRTSP' EQ '3').F150050                                00063100
+         MNOTE 8,'&H PRTSP MUST BE 0, 1, 2, OR 3'                       00063200
+&ERR     SETB  (1)                                                      00063300
+         AGO   .F150END                                                 00063400
+.F150020 ANOP                                                           00063500
+&WORK    SETC  '01'                                                     00063600
+         AGO   .F150090                                                 00063700
+.F150030 ANOP                                                           00063800
+&WORK    SETC  '09'                                                     00063900
+         AGO   .F150090                                                 00064000
+.F150040 ANOP                                                           00064100
+&WORK    SETC  '11'                                                     00064200
+         AGO   .F150090                                                 00064300
+.F150050 ANOP                                                           00064400
+&WORK    SETC  '19'                                                     00064500
+.F150090 ANOP                                                           00064600
+&DALNO   SETA  &DALNO+1                                                 00064700
+         AIF   (&DALNO GT &MAXENT).Z010010                              00064800
+&DALLBL(&DALNO) SETC 'PRTSPDA'                                          00064900
+&DALKEY(&DALNO) SETC 'AL2(DALPRTSP)'                                    00065000
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00065100
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00065200
+&DALDTA(&DALNO) SETC 'AL1(&WORK)'                                       00065300
+.F150END ANOP                                                           00065400
+.*                                                                      00065500
+.*       ----------------------------                                   00065600
+.*       CHECK USRID - SYSOUT USER ID                                   00065700
+.*       ----------------------------                                   00065800
+.*                                                                      00065900
+.F160BEG ANOP                                                           00066000
+         AIF   (T'&USRID EQ 'O').F160END                                00066100
+         AIF   (K'&USRID LE 8).F160010                                  00066200
+         MNOTE 8,'&H USRID MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00066300
+&ERR     SETB  (1)                                                      00066400
+         AGO   .F160END                                                 00066500
+.F160010 ANOP                                                           00066600
+         AIF   (T'&SUSER NE 'O').F160020                                00066700
+         MNOTE 8,'&H SUSER MUST ALSO BE SPECIFIED WITH USRID'           00066800
+&ERR     SETB  (1)                                                      00066900
+         AGO   .F160END                                                 00067000
+.F160020 ANOP                                                           00067100
+         AIF   (&OUTSPEC EQ 1).F160030                                  00067200
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH USRID'    00067300
+&ERR     SETB  (1)                                                      00067400
+         AGO   .F160END                                                 00067500
+.F160030 ANOP                                                           00067600
+&DALNO   SETA  &DALNO+1                                                 00067700
+         AIF   (&DALNO GT &MAXENT).Z010010                              00067800
+&WORKA   SETA  K'&USRID                                                 00067900
+&DALLBL(&DALNO) SETC 'USRIDDA'                                          00068000
+&DALKEY(&DALNO) SETC 'AL2(DALUSRID)'                                    00068100
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00068200
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00068300
+&DALDTA(&DALNO) SETC 'C''&USRID'''                                      00068400
+.F160END ANOP                                                           00068500
+.*                                                                      00068600
+.*       ------------------------------------------                     00068700
+.*       CHECK SUSER - SYSOUT REMOTE USER (NODE ID)                     00068800
+.*       ------------------------------------------                     00068900
+.*                                                                      00069000
+.F170BEG ANOP                                                           00069100
+         AIF   (T'&SUSER EQ 'O').F170END                                00069200
+         AIF   (K'&SUSER LE 8).F170010                                  00069300
+         MNOTE 8,'&H SUSER MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'       00069400
+&ERR     SETB  (1)                                                      00069500
+         AGO   .F170END                                                 00069600
+.F170010 ANOP                                                           00069700
+         AIF   (T'&USRID NE 'O').F170020                                00069800
+         MNOTE 8,'&H USRID MUST ALSO BE SPECIFIED WITH SUSER'           00069900
+&ERR     SETB  (1)                                                      00070000
+         AGO   .F170END                                                 00070100
+.F170020 ANOP                                                           00070200
+         AIF   (&OUTSPEC EQ 1).F170030                                  00070300
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH SUSER'    00070400
+&ERR     SETB  (1)                                                      00070500
+         AGO   .F170END                                                 00070600
+.F170030 ANOP                                                           00070700
+&DALNO   SETA  &DALNO+1                                                 00070800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00070900
+&WORKA   SETA  K'&SUSER                                                 00071000
+&DALLBL(&DALNO) SETC 'SUSERDA'                                          00071100
+&DALKEY(&DALNO) SETC 'AL2(DALSUSER)'                                    00071200
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00071300
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00071400
+&DALDTA(&DALNO) SETC 'C''&SUSER'''                                      00071500
+.F170END ANOP                                                           00071600
+.*                                                                      00071700
+.*       -------------------------------                                00071800
+.*       CHECK SHOLD - SYSOUT HOLD QUEUE                                00071900
+.*       -------------------------------                                00072000
+.*                                                                      00072100
+.F180BEG ANOP                                                           00072200
+         AIF   (T'&SHOLD EQ 'O').F180END                                00072300
+&WORK    SETC  '&SHOLD'                                                 00072400
+         AIF   (&OUTSPEC EQ 1).F180010                                  00072500
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH SHOLD'    00072600
+&ERR     SETB  (1)                                                      00072700
+         AGO   .F180END                                                 00072800
+.F180010 ANOP                                                           00072900
+         AIF   ('&SHOLD'(1,1) EQ 'Y').F180090                           00073000
+         MNOTE 8,'&H SHOLD MUST BE YES IF ENTERED'                      00073100
+&ERR     SETB  (1)                                                      00073200
+         AGO   .F180END                                                 00073300
+.F180090 ANOP                                                           00073400
+&DALNO   SETA  &DALNO+1                                                 00073500
+         AIF   (&DALNO GT &MAXENT).Z010010                              00073600
+&DALLBL(&DALNO) SETC 'SHOLDDA'                                          00073700
+&DALKEY(&DALNO) SETC 'AL2(DALSHOLD)'                                    00073800
+&DALOCC(&DALNO) SETC 'AL2(0)'                                           00073900
+&DALLEN(&DALNO) SETC ''                                                 00074000
+&DALDTA(&DALNO) SETC ''                                                 00074100
+.F180END ANOP                                                           00074200
+.*                                                                      00074300
+.*       -------------------------------------                          00074400
+.*       CHECK BURST - BURSTER-TRIMMER-STACKER                          00074500
+.*       -------------------------------------                          00074600
+.*                                                                      00074700
+.F190BEG ANOP                                                           00074800
+         AIF   (T'&BURST EQ 'O').F190END                                00074900
+         AIF   ('&BURST'(1,1) EQ 'Y').F190010                           00075000
+         MNOTE 8,'&H BURST MUST BE YES IF ENTERED'                      00075100
+&ERR     SETB  (1)                                                      00075200
+         AGO   .F190END                                                 00075300
+.F190010 ANOP                                                           00075400
+&DALNO   SETA  &DALNO+1                                                 00075500
+         AIF   (&DALNO GT &MAXENT).Z010010                              00075600
+&DALLBL(&DALNO) SETC 'BURSTDA'                                          00075700
+&DALKEY(&DALNO) SETC 'AL2(DALBURST)'                                    00075800
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00075900
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00076000
+&DALDTA(&DALNO) SETC 'AL1(2)'                                           00076100
+.F190END ANOP                                                           00076200
+.*                                                                      00076300
+.*       -----------------------------------------                      00076400
+.*       CHECK CHARS - CHARACTER ARRANGEMENT TABLE                      00076500
+.*       -----------------------------------------                      00076600
+.*                                                                      00076700
+.F200BEG ANOP                                                           00076800
+         AIF   (T'&CHARS EQ 'O').F200END                                00076900
+         AIF   (N'&CHARS LT 1).F200END                                  00077000
+         AIF   (N'&CHARS LE 4).F200010                                  00077100
+         MNOTE 8,'&H CHARS LIMITED TO 4 ENTRIES'                        00077200
+&ERR     SETB  (1)                                                      00077300
+         AGO   .F200END                                                 00077400
+.F200010 ANOP                                                           00077500
+         AIF   ('&CHARS' EQ '*').F200030                                00077600
+&X1      SETA  N'&CHARS                                                 00077700
+&X2      SETA  0                                                        00077800
+.F200020 ANOP                                                           00077900
+&X2      SETA  &X2+1                                                    00078000
+         AIF   (&X2 GT &X1).F200040                                     00078100
+         AIF   ('&CHARS(&X2)' EQ '').F200030                            00078200
+         AIF   ('&CHARS(&X2)' EQ '*').F200030                           00078300
+         AGO   .F200020                                                 00078400
+.F200030 ANOP                                                           00078500
+         MNOTE 8,'&H INVALID CHARS SPECIFICATION'                       00078600
+&ERR     SETB  (1)                                                      00078700
+         AGO   .F200END                                                 00078800
+.F200040 ANOP                                                           00078900
+&DALNO   SETA  &DALNO+1                                                 00079000
+         AIF   (&DALNO GT &MAXENT).Z010010                              00079100
+&CNT     SETA  N'&CHARS                                                 00079200
+&DALLBL(&DALNO) SETC 'CHARSDA'                                          00079300
+&DALKEY(&DALNO) SETC 'AL2(DALCHARS)'                                    00079400
+&DALOCC(&DALNO) SETC 'AL2(&CNT)'                                        00079500
+&X1      SETA  N'&CHARS                                                 00079600
+&X2      SETA  1                                                        00079700
+.F200100 ANOP                                                           00079800
+&CNT     SETA  K'&CHARS(&X2)                                            00079900
+&DALLEN(&DALNO) SETC 'AL2(&CNT)'                                        00080000
+&DALDTA(&DALNO) SETC 'C''&CHARS(&X2)'''                                 00080100
+&X2      SETA  &X2+1                                                    00080200
+         AIF   (&X2 GT &X1).F200END                                     00080300
+&DALNO   SETA  &DALNO+1                                                 00080400
+         AIF   (&DALNO GT &MAXENT).Z010010                              00080500
+&DALLBL(&DALNO) SETC ''                                                 00080600
+&DALKEY(&DALNO) SETC ''                                                 00080700
+&DALOCC(&DALNO) SETC ''                                                 00080800
+         AGO   .F200100                                                 00080900
+.F200END ANOP                                                           00081000
+.*                                                                      00081100
+.*       --------------------------------------                         00081200
+.*       CHECK COPYG - SYSOUT COPY GROUP VALUES                         00081300
+.*       --------------------------------------                         00081400
+.*                                                                      00081500
+.F210BEG ANOP                                                           00081600
+         AIF   (T'&COPYG EQ 'O').F210END                                00081700
+         AIF   (N'&COPYG LT 1).F210END                                  00081800
+&DALNO   SETA  &DALNO+1                                                 00081900
+         AIF   (&DALNO GT &MAXENT).Z010010                              00082000
+&CNT     SETA  N'&COPYG                                                 00082100
+&DALLBL(&DALNO) SETC 'COPYGDA'                                          00082200
+&DALKEY(&DALNO) SETC 'AL2(DALCOPYG)'                                    00082300
+&DALOCC(&DALNO) SETC 'AL2(&CNT)'                                        00082400
+&X1      SETA  N'&COPYG                                                 00082500
+&X2      SETA  1                                                        00082600
+.F210100 ANOP                                                           00082700
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00082800
+&DALDTA(&DALNO) SETC 'AL1(&COPYG(&X2))'                                 00082900
+&X2      SETA  &X2+1                                                    00083000
+         AIF   (&X2 GT &X1).F210END                                     00083100
+&DALNO   SETA  &DALNO+1                                                 00083200
+         AIF   (&DALNO GT &MAXENT).Z010010                              00083300
+&DALLBL(&DALNO) SETC ''                                                 00083400
+&DALKEY(&DALNO) SETC ''                                                 00083500
+&DALOCC(&DALNO) SETC ''                                                 00083600
+         AGO   .F210100                                                 00083700
+.F210END ANOP                                                           00083800
+.*                                                                      00083900
+.*       ---------------------------------                              00084000
+.*       CHECK FFORM - FLASH FORMS OVERLAY                              00084100
+.*       ---------------------------------                              00084200
+.*                                                                      00084300
+.F220BEG ANOP                                                           00084400
+         AIF   (T'&FFORM EQ 'O').F220END                                00084500
+         AIF   (K'&FFORM LE 4).F220010                                  00084600
+         MNOTE 8,'&H FFORM MUST BE 1 TO 4 CHARACTER(S) IN LENGTH'       00084700
+&ERR     SETB  (1)                                                      00084800
+         AGO   .F220END                                                 00084900
+.F220010 ANOP                                                           00085000
+&DALNO   SETA  &DALNO+1                                                 00085100
+         AIF   (&DALNO GT &MAXENT).Z010010                              00085200
+&WORKA   SETA  K'&FFORM                                                 00085300
+&DALLBL(&DALNO) SETC 'FFORMDA'                                          00085400
+&DALKEY(&DALNO) SETC 'AL2(DALFFORM)'                                    00085500
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00085600
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00085700
+&DALDTA(&DALNO) SETC 'C''&FFORM'''                                      00085800
+.F220END ANOP                                                           00085900
+.*                                                                      00086000
+.*       --------------------------------------                         00086100
+.*       CHECK FCNT - FLASH FORMS OVERLAY COUNT                         00086200
+.*       --------------------------------------                         00086300
+.*                                                                      00086400
+.F230BEG ANOP                                                           00086500
+         AIF   (T'&FCNT EQ 'O').F230END                                 00086600
+         AIF   (T'FFORM NE 'O').F230010                                 00086700
+         MNOTE 8,'&H FFORM MUST ALSO BE SPECIFIED WITH FCNT'            00086800
+&ERR     SETB  (1)                                                      00086900
+         AGO   .F230END                                                 00087000
+.F230010 ANOP                                                           00087100
+         AIF   (K'&FCNT LE 3).F230020                                   00087200
+         MNOTE 8,'&H FCNT MUST BE 1 TO 3 CHARACTER(S) IN LENGTH'        00087300
+&ERR     SETB  (1)                                                      00087400
+         AGO   .F230END                                                 00087500
+.F230020 ANOP                                                           00087600
+&X1      SETA  K'&FCNT                                                  00087700
+&X2      SETA  0                                                        00087800
+.F230030 ANOP                                                           00087900
+&X2      SETA  &X2+1                                                    00088000
+         AIF   (&X2 GT &X1).F230050                                     00088100
+&WORKCH  SETC  '&FCNT'(&X2,1)                                           00088200
+         AIF   ('&WORKCH' LT '0').F230040                               00088300
+         AIF   ('&WORKCH' GT '9').F230040                               00088400
+         AGO   .F230030                                                 00088500
+.F230040 ANOP                                                           00088600
+         MNOTE 8,'&H FCNT PARAMETER NOT NUMERIC'                        00088700
+&ERR     SETB  (1)                                                      00088800
+         AGO   .F230END                                                 00088900
+.F230050 ANOP                                                           00089000
+         AIF   (K'&FCNT NE 3).F230090                                   00089100
+         AIF   ('&FCNT' LE '255').F230090                               00089200
+         MNOTE 8,'&H FCNT PARAMETER GREATER THAN 255'                   00089300
+&ERR     SETB  (1)                                                      00089400
+         AGO   .F230END                                                 00089500
+.F230090 ANOP                                                           00089600
+&DALNO   SETA  &DALNO+1                                                 00089700
+         AIF   (&DALNO GT &MAXENT).Z010010                              00089800
+&DALLBL(&DALNO) SETC 'FCNTDA'                                           00089900
+&DALKEY(&DALNO) SETC 'AL2(DALFCNT)'                                     00090000
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00090100
+&DALLEN(&DALNO) SETC 'AL1(1)'                                           00090200
+&DALDTA(&DALNO) SETC 'AL1(&FCNT)'                                       00090300
+.F230END ANOP                                                           00090400
+.*                                                                      00090500
+.*       ------------------------------------------                     00090600
+.*       CHECK MMOD - COPY MODIFICATION MODULE NAME                     00090700
+.*       ------------------------------------------                     00090800
+.*                                                                      00090900
+.F240BEG ANOP                                                           00091000
+         AIF   (T'&MMOD EQ 'O').F240010                                 00091100
+&WORK    SETC  '&MMOD'                                                  00091200
+         AIF   (K'&MMOD LE 8).F240020                                   00091300
+         MNOTE 8,'&H MMOD MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'        00091400
+&ERR     SETB  (1)                                                      00091500
+         AGO   .F240END                                                 00091600
+.*       ------------                                                   00091700
+.*       CHECK MODIFY                                                   00091800
+.*       ------------                                                   00091900
+.F240010 ANOP                                                           00092000
+         AIF   (T'&MODIFY EQ 'O').F240END                               00092100
+&WORK    SETC  '&MODIFY'                                                00092200
+         AIF   (K'&MODIFY LE 8).F240020                                 00092300
+         MNOTE 8,'&H MODIFY MUST BE 1 TO 8 CHARACTER(S) IN LENGTH'      00092400
+&ERR     SETB  (1)                                                      00092500
+         AGO   .F240END                                                 00092600
+.F240020 ANOP                                                           00092700
+&DALNO   SETA  &DALNO+1                                                 00092800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00092900
+&WORKA   SETA  K'&WORK                                                  00093000
+&DALLBL(&DALNO) SETC 'MMODDA'                                           00093100
+&DALKEY(&DALNO) SETC 'AL2(DALMMOD)'                                     00093200
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00093300
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00093400
+&DALDTA(&DALNO) SETC 'C''&WORK'''                                       00093500
+.F240END ANOP                                                           00093600
+.*                                                                      00093700
+.*       --------------------------------------------------             00093800
+.*       CHECK MTRC - COPY MODULE TABLE REFERENCE CHARACTER             00093900
+.*       --------------------------------------------------             00094000
+.*                                                                      00094100
+.F250BEG ANOP                                                           00094200
+         AIF   (T'&MTRC EQ 'O').F250END                                 00094300
+         AIF   ('&MTRC' EQ '0').F250010                                 00094400
+         AIF   ('&MTRC' EQ '1').F250010                                 00094500
+         AIF   ('&MTRC' EQ '2').F250010                                 00094600
+         AIF   ('&MTRC' EQ '3').F250010                                 00094700
+         MNOTE 8,'&H MTRC MUST BE 0, 1, 2, OR 3'                        00094800
+&ERR     SETB  (1)                                                      00094900
+         AGO   .F250END                                                 00095000
+.F250010 ANOP                                                           00095100
+         AIF   (T'&MMOD NE 'O').F250020                                 00095200
+         AIF   (T'&MODIFY NE 'O').F250020                               00095300
+         MNOTE 8,'&H MMOD/MODIFY MUST ALSO BE SPECIFIED WITH MTRC'      00095400
+&ERR     SETB  (1)                                                      00095500
+         AGO   .F250END                                                 00095600
+.F250020 ANOP                                                           00095700
+&DALNO   SETA  &DALNO+1                                                 00095800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00095900
+&DALLBL(&DALNO) SETC 'MTRCDA'                                           00096000
+&DALKEY(&DALNO) SETC 'AL2(DALMTRC)'                                     00096100
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00096200
+&DALLEN(&DALNO) SETC 'AL2(1)'                                           00096300
+&DALDTA(&DALNO) SETC 'AL1(&MTRC)'                                       00096400
+.F250END ANOP                                                           00096500
+.*                                                                      00096600
+.*       ------------------------------                                 00096700
+.*       CHECK OUTPT - OUTPUT REFERENCE                                 00096800
+.*       ------------------------------                                 00096900
+.*                                                                      00097000
+.F260BEG ANOP                                                           00097100
+         AIF   (T'&OUTPT EQ 'O').F260END                                00097200
+         AIF   (N'&OUTPT LT 1).F260END                                  00097300
+         AIF   (N'&OUTPT LE 128).F260030                                00097400
+         MNOTE 8,'&H OUTPT LIMITED TO 128 ENTRIES'                      00097500
+&ERR     SETB  (1)                                                      00097600
+         AGO   .F260END                                                 00097700
+.F260030 ANOP  *                                                        00097800
+         AIF   ('&OUTPT' EQ '*').F260050                                00097900
+&X1      SETA  N'&OUTPT                                                 00098000
+&X2      SETA  0                                                        00098100
+.F260040 ANOP                                                           00098200
+&X2      SETA  &X2+1                                                    00098300
+         AIF   (&X2 GT &X1).F260060                                     00098400
+         AIF   ('&OUTPT(&X2)' EQ '').F260050                            00098500
+         AIF   ('&OUTPT(&X2)' EQ '*').F260050                           00098600
+         AIF   (K'&OUTPT(&X2) GT 26).F260050                            00098700
+         AGO   .F260040                                                 00098800
+.F260050 ANOP                                                           00098900
+         MNOTE 8,'&H INVALID OUTPT SPECIFICATION'                       00099000
+&ERR     SETB  (1)                                                      00099100
+         AGO   .F260END                                                 00099200
+.F260060 ANOP                                                           00099300
+&DALNO   SETA  &DALNO+1                                                 00099400
+         AIF   (&DALNO GT &MAXENT).Z010010                              00099500
+&CNT     SETA  N'&OUTPT                                                 00099600
+&DALLBL(&DALNO) SETC 'OUTPTDA'                                          00099700
+&DALKEY(&DALNO) SETC 'AL2(DALOUTPT)'                                    00099800
+&DALOCC(&DALNO) SETC 'AL2(&CNT)'                                        00099900
+&X1      SETA  N'&OUTPT                                                 00100000
+&X2      SETA  1                                                        00100100
+.F260100 ANOP                                                           00100200
+&CNT     SETA  K'&OUTPT(&X2)                                            00100300
+&DALLEN(&DALNO) SETC 'AL2(&CNT)'                                        00100400
+&DALDTA(&DALNO) SETC 'C''&OUTPT(&X2)'''                                 00100500
+&X2      SETA  &X2+1                                                    00100600
+         AIF   (&X2 GT &X1).F260END                                     00100700
+&DALNO   SETA  &DALNO+1                                                 00100800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00100900
+&DALLBL(&DALNO) SETC ''                                                 00101000
+&DALKEY(&DALNO) SETC ''                                                 00101100
+&DALOCC(&DALNO) SETC ''                                                 00101200
+         AGO   .F260100                                                 00101300
+.F260END ANOP                                                           00101400
+.*                                                                      00101500
+.*       -------------------------------                                00101600
+.*       CHECK OUTPUT - OUTPUT REFERENCE                                00101700
+.*       -------------------------------                                00101800
+.*                                                                      00101900
+.F270BEG ANOP                                                           00102000
+         AIF   (T'&OUTPUT EQ 'O').F270END                               00102100
+         AIF   (T'&OUTPT NE 'O').F270060                                00102200
+         AIF   (N'&OUTPUT LT 1).F270END                                 00102300
+         AIF   (N'&OUTPUT LE 128).F270030                               00102400
+         MNOTE 8,'&H OUTPUT LIMITED TO 128 ENTRIES'                     00102500
+&ERR     SETB  (1)                                                      00102600
+         AGO   .F270END                                                 00102700
+.F270030 ANOP  *                                                        00102800
+         AIF   ('&OUTPUT' EQ '*').F270050                               00102900
+&X1      SETA  N'&OUTPUT                                                00103000
+&X2      SETA  0                                                        00103100
+.F270040 ANOP                                                           00103200
+&X2      SETA  &X2+1                                                    00103300
+         AIF   (&X2 GT &X1).F270070                                     00103400
+         AIF   ('&OUTPUT(&X2)' EQ '').F270050                           00103500
+         AIF   ('&OUTPUT(&X2)' EQ '*').F270050                          00103600
+         AIF   (K'&OUTPUT(&X2) GT 26).F270050                           00103700
+         AGO   .F270040                                                 00103800
+.F270050 ANOP                                                           00103900
+         MNOTE 8,'&H INVALID OUTPUT SPECIFICATION'                      00104000
+&ERR     SETB  (1)                                                      00104100
+         AGO   .F270END                                                 00104200
+.F270060 ANOP                                                           00104300
+         MNOTE 8,'&H OUTPT AND OUTPUT ARE MUTUALLY EXCLUSIVE'           00104400
+&ERR     SETB  (1)                                                      00104500
+         AGO   .F270END                                                 00104600
+.F270070 ANOP                                                           00104700
+&DALNO   SETA  &DALNO+1                                                 00104800
+         AIF   (&DALNO GT &MAXENT).Z010010                              00104900
+&CNT     SETA  N'&OUTPUT                                                00105000
+&DALLBL(&DALNO) SETC 'OUTPTDA'                                          00105100
+&DALKEY(&DALNO) SETC 'AL2(DALOUTPT)'                                    00105200
+&DALOCC(&DALNO) SETC 'AL2(&CNT)'                                        00105300
+&X1      SETA  N'&OUTPUT                                                00105400
+&X2      SETA  1                                                        00105500
+.F270100 ANOP                                                           00105600
+&CNT     SETA  K'&OUTPUT(&X2)                                           00105700
+&DALLEN(&DALNO) SETC 'AL2(&CNT)'                                        00105800
+&DALDTA(&DALNO) SETC 'C''&OUTPUT(&X2)'''                                00105900
+&X2      SETA  &X2+1                                                    00106000
+         AIF   (&X2 GT &X1).F270END                                     00106100
+&DALNO   SETA  &DALNO+1                                                 00106200
+         AIF   (&DALNO GT &MAXENT).Z010010                              00106300
+&DALLBL(&DALNO) SETC ''                                                 00106400
+&DALKEY(&DALNO) SETC ''                                                 00106500
+&DALOCC(&DALNO) SETC ''                                                 00106600
+         AGO   .F270100                                                 00106700
+.F270END ANOP                                                           00106800
+.*                                                                      00106900
+.*       ----------------------------------------------                 00107000
+.*       CHECK DEST - SYSOUT REMOTE NODE ID AND USER ID                 00107100
+.*       ----------------------------------------------                 00107200
+.*                                                                      00107300
+.F280BEG ANOP                                                           00107400
+         AIF   (T'&DEST EQ 'O').F280END                                 00107500
+         AIF   (N'&DEST EQ  2).F280010                                  00107600
+         MNOTE 8,'&H DEST MUST HAVE BOTH NODE ID AND USER ID ENTERED'   00107700
+&ERR     SETB  (1)                                                      00107800
+         AGO   .F280END                                                 00107900
+.F280010 ANOP                                                           00108000
+         AIF   (T'&SUSER NE 'O').F280020                                00108100
+         AIF   (T'&USRID EQ 'O').F280030                                00108200
+.F280020 ANOP                                                           00108300
+         MNOTE 8,'&H SUSER AND/OR USRID MUST NOT BE ENTERED WITH DEST'  00108400
+&ERR     SETB  (1)                                                      00108500
+         AGO   .F280END                                                 00108600
+.F280030 ANOP                                                           00108700
+         AIF   (&OUTSPEC EQ 1).F280040                                  00108800
+         MNOTE 8,'&H SYSOU/SYSOUT MUST ALSO BE SPECIFIED WITH DEST'     00108900
+&ERR     SETB  (1)                                                      00109000
+         AGO   .F280END                                                 00109100
+.F280040 ANOP                                                           00109200
+&DALNO   SETA  &DALNO+1                                                 00109300
+         AIF   (&DALNO GT &MAXENT).Z010010                              00109400
+&WORKA   SETA  K'&DEST(1)                                               00109500
+&WORK    SETC  '&DEST(1)'                                               00109600
+&DALLBL(&DALNO) SETC 'SUSERDA'                                          00109700
+&DALKEY(&DALNO) SETC 'AL2(DALSUSER)'                                    00109800
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00109900
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00110000
+&DALDTA(&DALNO) SETC 'C''&WORK'''                                       00110100
+&DALNO   SETA  &DALNO+1                                                 00110200
+         AIF   (&DALNO GT &MAXENT).Z010010                              00110300
+&WORKA   SETA  K'&DEST(2)                                               00110400
+&WORK    SETC  '&DEST(2)'                                               00110500
+&DALLBL(&DALNO) SETC 'USRIDDA'                                          00110600
+&DALKEY(&DALNO) SETC 'AL2(DALUSRID)'                                    00110700
+&DALOCC(&DALNO) SETC 'AL2(1)'                                           00110800
+&DALLEN(&DALNO) SETC 'AL2(&WORKA)'                                      00110900
+&DALDTA(&DALNO) SETC 'C''&WORK'''                                       00111000
+.F280END ANOP                                                           00111100
+.*                                                                      00111200
+.*       ---------------------------------------                        00111300
+.*       CHECK LABEL - MAKE DEFAULT IF NECESSARY                        00111400
+.*       ---------------------------------------                        00111500
+.*                                                                      00111600
+.F900BEG ANOP                                                           00111700
+         AIF   (T'&LABEL EQ 'O').F900010                                00111800
+&WLABEL  SETC  '&LABEL'                                                 00111900
+         AGO   .F900END                                                 00112000
+.F900010 ANOP                                                           00112100
+&WLABEL  SETC  'SI&LBL.DD'                                              00112200
+.F900END ANOP                                                           00112300
+.*                                                                      00112400
+.*       ------------------------------------------                     00112500
+.*       GENERATE THE DYNAMIC ALLOCATION PARAMETERS                     00112600
+.*       ------------------------------------------                     00112700
+.*                                                                      00112800
+.G010GEN ANOP                                                           00112900
+         AIF   (&ERR EQ 1).Z010END                                      00113000
+         AIF   (&SIFCTB EQ 0).Z010020                                   00113100
+         AIF   (NOT &DALFLAG).G010010                                   00113200
+&CSECTNM CSECT                                                          00113300
+.G010010 ANOP                                                           00113400
+         AIF   ('&LBL' EQ 'TEST').G010020                               00113500
+         ORG   DFLTDD                                                   00113600
+         DC    A(&WLABEL)                                               00113700
+         ORG                                                            00113800
+         AGO   .G010030                                                 00113900
+.G010020 ANOP                                                           00114000
+         ORG   DFLTDD+4                                                 00114100
+         DC    A(&WLABEL)                                               00114200
+         ORG                                                            00114300
+         AGO   .G010030                                                 00114400
+.G010030 ANOP                                                           00114500
+&WLABEL  DS    0D                                                       00114600
+         DC    A(&LBL.TXP)          ADDRESS OF TEXT POINTERS            00114700
+         DC    A(&LBL.TXE)          ADDRESS OF LAST TEXT POINTER        00114800
+*                                                                       00114900
+*        DYNALLOC TEXT POINTERS                                         00115000
+*                                                                       00115100
+&LBL.TXP DS    0F                                                       00115200
+&CNT     SETA  0                                                        00115300
+.G100010 ANOP                                                           00115400
+&CNT     SETA  &CNT+1                                                   00115500
+         AIF   (&CNT GT &DALNO).G100020                                 00115600
+         AIF   (T'&DALLBL(&CNT) EQ 'O').G100010                         00115700
+&WORK    SETC  '&DALLBL(&CNT)&SUF'                                      00115800
+         DC    A(&WORK)                                                 00115900
+         AGO   .G100010                                                 00116000
+.G100020 ANOP                                                           00116100
+&LBL.TXE EQU   *-4                                                      00116200
+*                                                                       00116300
+*        DYNALLOC TEXT AREAS                                            00116400
+*                                                                       00116500
+&CNT     SETA  0                                                        00116600
+.G100030 ANOP                                                           00116700
+&CNT     SETA  &CNT+1                                                   00116800
+         AIF   (&CNT GT &DALNO).G100END                                 00116900
+         AIF   (T'&DALKEY(&CNT) EQ 'O').G100040                         00117000
+&WORK    SETC  '&DALLBL(&CNT)&SUF'                                      00117100
+&WORK    DS   0F                                                        00117200
+         DC    &DALKEY(&CNT)                                            00117300
+         DC    &DALOCC(&CNT)                                            00117400
+.G100040 ANOP                                                           00117500
+         AIF   (T'&DALLEN(&CNT) EQ 'O').G100030                         00117600
+         DC    &DALLEN(&CNT)                                            00117700
+         DC    &DALDTA(&CNT)                                            00117800
+         AGO   .G100030                                                 00117900
+.G100END ANOP                                                           00118000
+         EJECT                                                          00118100
+         AIF   (&DALFLAG).ENDIT                                         00118200
+&DALFLAG SETB  1                                                        00118300
+         IEFZB4D2                                                       00118400
+.ENDIT   ANOP                                                           00118500
+         MEXIT                                                          00118600
+.Z010010 ANOP                                                           00118700
+         MNOTE 8,'&H NUMBER OF MACRO TABLE ENTRIES EXCEEDED'            00118800
+         AGO   .Z010END                                                 00118900
+.Z010020 ANOP                                                           00119000
+         MNOTE 8,'&H SIFCTB MACROS MUST BE GENERATED FIRST'             00119100
+         AGO   .Z010END                                                 00119200
+.Z010END ANOP                                                           00119300
+         MNOTE 16,'&H SEVERE ERRORS MACRO GENERATION TERMINATED'        00119400
+.ENDEDIT ANOP                                                           00119500
+         MEXIT                                                          00119600
+         MEND                                                           00119700

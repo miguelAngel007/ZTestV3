@@ -1,0 +1,362 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAD9AXCA &DSECT=NO,       DSECT = YES(CSECT) OR NO(DSECT)     X00002000
+               &DDNAME=SAAUX,      DDNAME = AUX FILENAME OVERRIDE      X00003000
+               &RECKEY=NONE,       RECKEY = AUX ENTITY KEY REQUESTED   X00004000
+               &KEYLEN=0,          KEYLEN = GENERIC KEY LENGTH (0=FULL)X00005000
+               &RECADDR=0,         RECADDR= ADDRESS FOR DATA RETURNED  X00006000
+               &GETMAIN=NO,        GETMAIN = YES(ALWAYS GET STG) OR NO X00007000
+               &PREFIX=SADPR,      PREFIX = 1-5 CHAR PREFIX FOR NAMES  X00008000
+               &REQ=GET            REQ = REQUEST CODE                   00009000
+*********************************************************************** 00010000
+** SAD9AXCA:  SADAUXIB/C REQUEST COMMUNICATION BLOCK  (COMMAREA)      * 00011000
+**                                                                    * 00012000
+** SUPPORTS PROGRAM COMMUNICATION WITH SADAUXIB/C BEFORE AND AFTER    * 00013000
+** SA 4.0.  SADAUXIB/C WILL CONSIDER THE REQUEST BLOCK TO END WITH    * 00014000
+** SADPND1 AND WILL NOT ACCESS/UDPATE ANY DATA FIELDS BEYOND SADPND1  * 00015000
+** WHEN THE REQUEST CODE, SADPRFNC, IS ALPHABETIC.  WHEN THE FIRST    * 00016000
+** BIT OF SADPRFNC IS ZERO, SADAUXIB/C WILL EXPECT THE SECOND BYTE    * 00017000
+** OF SADPRFNC TO BE THE REQUEST CODE IN HEX AND THE THIRD BYTE TO BE * 00018000
+** THE KEY LENGTH, WHICH IS THE FORMAT FOR SA0004 AND LATER.          * 00019000
+**                                                                    * 00020000
+** NAME IS USED TO CONTROL LABEL GENERATION.  ENTRY OF NAME WILL BE   * 00021000
+** VALID ONLY FOR DSECT=NO (CSECT) APPLICATIONS.  WHEN NAME IS ENTERED* 00022000
+** REQUEST BLOCK WILL BE GENERATED WITHOUT LABELS.  THIS MAY BE DESIR-* 00023000
+** ABLE IF MULTIPLE SAD9AXCA REQUEST BLOCKS ARE GENERATED IN THE SAME * 00024000
+** MODULE.  AN ALTERNATIVE IS TO USE DIFFERENT PREFIXES FOR EACH OF   * 00025000
+** MULTIPLE SAD9AXCA REQUEST BLOCKS.                                  * 00026000
+**                                                                    * 00027000
+**                   *   HISTORY OF REVISIONS  *                      * 00028000
+** DESCRIPTION                                                CHNGID  * 00029000
+** ---------------------------------------------------------  ------- * 00030000
+** 12/30/14 ADD SEVERITY OVERRIDE                             1526495   00030993
+** 08/15/01 REDUCE SADAUXIC LINKS                             2020218 * 00030994
+** 09/30/97 SUPPORT AUX ENTITY SIZES GREATER THAN 64K         9913569 * 00030996
+** 06/28/94 REDEFINE FLAG FIELD AS REQUEST ID                 2600590 * 00030998
+** 04/15/92 ENHANCE SADAUXIB/C FOR AUX-GEN CAPABILITY         0300290 * 00031000
+**                                                                    * 00032000
+*********************************************************************** 00033000
+         LCLC  &PFX,&EYE,&EYEBALL,&RBL,&RBLVL,&RBLVADC        9913569   00033102
+         LCLC  &NM,&PX,&OP,&DDN,&RQC,&KEY,&KLN,&RECA,&GM,&NLA,&NLC,&NLX 00034000
+         LCLC  &FNC,&DD,&KYE,&ADR,&LEN,&ST,&RC,&EC,&FM,&GML,&GCA,&EDD   00035000
+         LCLC  &ERC,&ERD,&DST,&REP,&AUX,&NRE,&NEB,&NHL,&NER,&FEL,&FEA   00036000
+         LCLC  &NRD,&ARD,&SNC,&AXA,&AUD,&LMD,&LMT,&SOU                  00037000
+         LCLC  &OPR,&CID,&FLV,&RLV,&ESL,&SEV                  1526495   00038000
+&NM      SETC  'SAD9AXCA'                                               00039000
+&PX      SETC  '&PREFIX'                                                00040000
+         AIF ('&PREFIX' EQ 'SADPR').FNC                                 00041000
+&NM      SETC  '&PREFIX.AXC'                                            00042000
+.FNC     ANOP                                                           00043000
+&PFX     SETC  'PFX'                                          9913569   00043100
+&EYE     SETC  'EYE'                                          9913569   00043200
+&EYEBALL SETC  '''SAD9AXCD'''                                 9913569   00043300
+&RBL     SETC  'RBL'                                          9913569   00043400
+&RBLVL   SETC  '1'                                            9913569   00043500
+&RBLVADC SETC  '(&RBLVL)'                                     9913569   00043600
+&FNC     SETC  'FNC'                                                    00044000
+&DD      SETC  'DD '                                                    00045000
+&KYE     SETC  'KEY'                                                    00046000
+&ADR     SETC  'ADR'                                                    00047000
+&LEN     SETC  'LEN'                                                    00048000
+&ST      SETC  'ST '                                                    00049000
+&RC      SETC  'RC '                                                    00050000
+&EC      SETC  'EC '                                                    00051000
+&FM      SETC  'FM '                                                    00052000
+&GML     SETC  'GML'                                                    00053000
+&GCA     SETC  'GCA'                                                    00054000
+&EDD     SETC  'EDD'                                                    00055000
+&ERC     SETC  'ERC'                                                    00056000
+&ERD     SETC  'ERD'                                                    00057000
+&DST     SETC  'DST'                                                    00058000
+&REP     SETC  'REP'                                                    00059000
+&AUX     SETC  'AUX'                                                    00060000
+&NRE     SETC  'NRE'                                                    00061000
+&NEB     SETC  'NEB'                                                    00062000
+&NHL     SETC  'NHL'                                                    00063000
+&NER     SETC  'NER'                                                    00064000
+&FEL     SETC  'FEL'                                                    00065000
+&FEA     SETC  'FEA'                                                    00066000
+&NRD     SETC  'NRD'                                                    00067000
+&ARD     SETC  'ARD'                                                    00068000
+&SNC     SETC  'SNC'                                                    00069000
+&AXA     SETC  'AXA'                                                    00070000
+&AUD     SETC  'AUD'                                                    00071000
+&LMD     SETC  'LMD'                                                    00072000
+&LMT     SETC  'LMT'                                                    00073000
+&SOU     SETC  'SOU'                                                    00074000
+&OPR     SETC  'OPR'                                                    00075000
+&CID     SETC  'CID'                                                    00076000
+&FLV     SETC  'FLV'                                                    00077000
+&RLV     SETC  'RLV'                                                    00078000
+&ESL     SETC  'ESL'                                                    00079000
+&SEV     SETC  'SEV'                                          1526495   00079010
+         AIF ('&DSECT' EQ 'NO').CKNAME                                  00080000
+.DSECT   ANOP                                                           00081000
+&NM      DSECT                                                          00082000
+&OP      SETC  'DS'                                                     00083000
+&EYEBALL SETC  ''                                             9913569   00083100
+&RBLVADC SETC  ''                                             9913569   00083200
+&DDN     SETC  ''                                                       00084000
+&RQC     SETC  ''                                                       00085000
+&KEY     SETC  ''                                                       00086000
+&KLN     SETC  ''                                                       00087000
+&RECA    SETC  ''                                                       00088000
+&GM      SETC  ''                                                       00089000
+&NLA     SETC  ''                                                       00090000
+&NLC     SETC  ''                                                       00091000
+&NLX     SETC  ''                                                       00092000
+         AGO   .GENCOD                                                  00093000
+.CKNAME  ANOP                                                           00094000
+         AIF    ('&NAME' EQ '').CSECT                                   00095000
+&NM      SETC  '&NAME'                                                  00096000
+&PX      SETC  ' '                                                      00097000
+&PFX     SETC  ' '                                            9913569   00097100
+&EYE     SETC  ' '                                            9913569   00097200
+&RBL     SETC  ' '                                            9913569   00097300
+&FNC     SETC  ' '                                                      00098000
+&DD      SETC  ' '                                                      00099000
+&KYE     SETC  ' '                                                      00100000
+&ADR     SETC  ' '                                                      00101000
+&LEN     SETC  ' '                                                      00102000
+&ST      SETC  ' '                                                      00103000
+&RC      SETC  ' '                                                      00104000
+&EC      SETC  ' '                                                      00105000
+&FM      SETC  ' '                                                      00106000
+&GML     SETC  ' '                                                      00107000
+&GCA     SETC  ' '                                                      00108000
+&EDD     SETC  ' '                                                      00109000
+&ERC     SETC  ' '                                                      00110000
+&ERD     SETC  ' '                                                      00111000
+&DST     SETC  ' '                                                      00112000
+&REP     SETC  ' '                                                      00113000
+&AUX     SETC  ' '                                                      00114000
+&NRE     SETC  ' '                                                      00115000
+&NEB     SETC  ' '                                                      00116000
+&NHL     SETC  ' '                                                      00117000
+&NER     SETC  ' '                                                      00118000
+&FEL     SETC  ' '                                                      00119000
+&FEA     SETC  ' '                                                      00120000
+&NRD     SETC  ' '                                                      00121000
+&ARD     SETC  ' '                                                      00122000
+&SNC     SETC  ' '                                                      00123000
+&AXA     SETC  ' '                                                      00124000
+&AUD     SETC  ' '                                                      00125000
+&LMD     SETC  ' '                                                      00126000
+&LMT     SETC  ' '                                                      00127000
+&SOU     SETC  ' '                                                      00128000
+&OPR     SETC  ' '                                                      00129000
+&CID     SETC  ' '                                                      00130000
+&FLV     SETC  ' '                                                      00131000
+&RLV     SETC  ' '                                                      00132000
+&ESL     SETC  ' '                                                      00133000
+&SEV     SETC  ' '                                            1526495   00133010
+.CSECT   ANOP                                                           00134000
+         DS   0F                                                        00135000
+&NM      DS   0CL154                                          9913569   00136000
+&OP      SETC  'DC'                                                     00137000
+&NLA     SETC  '('.'0'.')'                                              00138000
+&NLC     SETC  ''''.' '.''''                                            00139000
+&NLX     SETC  ''''.'0'.''''                                            00140000
+&KLN     SETC  ''''.'&KEYLEN'.''''                                      00141000
+&RECA    SETC  '('.'0'.')'                                              00142000
+         AIF   ('&RECADDR' EQ '0').CKGM                                 00143000
+&RECA    SETC  '('.'&RECADDR'.')'                                       00144000
+.CKGM    ANOP                                                           00145000
+         AIF ('&GETMAIN' EQ 'YES').GMYES                                00146000
+&GM      SETC  ''''.'00'.''''                                           00147000
+         AGO   .CKDDN                                                   00148000
+.GMYES   ANOP                                                           00149000
+&GM      SETC  ''''.'02'.''''                                           00150000
+.CKDDN   ANOP                                                           00151000
+&DDN     SETC  ''''.' '.''''                                            00152000
+         AIF   ('&DDNAME' EQ '').CKRQ                                   00153000
+&DDN     SETC  ''''.'&DDNAME'.''''                                      00154000
+.CKRQ    ANOP                                                           00155000
+         AIF  ('&REQ'NE'GET').CKRQ1                                     00156000
+&RQC     SETC '''000400'''                                              00157000
+         AGO  .CKKEY                                                    00158000
+.CKRQ1   ANOP                                                           00159000
+         AIF  ('&REQ'NE'CLO').CKRQ2                                     00160000
+&RQC     SETC '''000100'''                                              00161000
+         AGO  .CKKEY                                                    00162000
+.CKRQ2   ANOP                                                           00163000
+         AIF  ('&REQ'NE'FMN').CKRQ3                                     00164000
+&RQC     SETC '''000200'''                                              00165000
+         AGO  .CKKEY                                                    00166000
+.CKRQ3   ANOP                                                           00167000
+         AIF  ('&REQ'NE'GTL').CKRQ3A                                    00168000
+&RQC     SETC '''000300'''                                              00169000
+         AGO  .CKKEY                                                    00170000
+.CKRQ3A  ANOP                                                           00171000
+         AIF  ('&REQ'NE'GEL').CKRQ4                                     00172000
+&RQC     SETC '''000300'''                                              00173000
+         AGO  .CKKEY                                                    00174000
+.CKRQ4   ANOP                                                           00175000
+         AIF  ('&REQ'NE'GEM').CKRQ4A                                    00176000
+&RQC     SETC '''000400'''                                              00177000
+         AGO  .CKKEY                                                    00178000
+.CKRQ4A  ANOP                                                           00179000
+         AIF  ('&REQ'NE'GHD').CKRQ5                                     00180000
+&RQC     SETC '''000400'''                                              00181000
+         AGO  .CKKEY                                                    00182000
+.CKRQ5   ANOP                                                           00183000
+         AIF  ('&REQ'NE'GSL').CKRQ6                                     00184000
+&RQC     SETC '''000500'''                                              00185000
+         AGO  .CKKEY                                                    00186000
+.CKRQ6   ANOP                                                           00187000
+         AIF  ('&REQ'NE'GTS').CKRQ6A                                    00188000
+&RQC     SETC '''000600'''                                              00189000
+         AGO  .CKKEY                                                    00190000
+.CKRQ6A  ANOP                                                           00191000
+         AIF  ('&REQ'NE'GSM').CKRQ7                                     00192000
+&RQC     SETC '''000600'''                                              00193000
+         AGO  .CKKEY                                                    00194000
+.CKRQ7   ANOP                                                           00195000
+         AIF  ('&REQ'NE'GNL').CKRQ8                                     00196000
+&RQC     SETC '''000700'''                                              00197000
+         AGO  .CKKEY                                                    00198000
+.CKRQ8   ANOP                                                           00199000
+         AIF  ('&REQ'NE'GNM').CKRQ9                                     00200000
+&RQC     SETC '''000800'''                                              00201000
+         AGO  .CKKEY                                                    00202000
+.CKRQ9   ANOP                                                           00203000
+         AIF  ('&REQ'NE'BLD').ERRQC                                     00204000
+&RQC     SETC '''000900'''                                              00205000
+         AGO  .CKKEY                                                    00206000
+.ERRQC   ANOP                                                           00207000
+         MNOTE 8,'INVALID REQUEST CODE'                                 00208000
+.CKKEY   ANOP                                                           00209000
+         AIF ('&RECKEY'(1,1) EQ '''').QUOTE                             00210000
+&KEY     SETC  ''''.'&RECKEY'.''''                                      00211000
+         AGO   .GENCOD                                                  00212000
+.QUOTE   ANOP                                                           00213000
+&KEY     SETC  '&RECKEY'                                                00214000
+         SPACE                                                          00215000
+.GENCOD  ANOP                                                           00216000
+&PX.&PFX DS   0CL16                REQUEST BLOCK PREFIX AREA  9913569   00216100
+&PX.&EYE &OP   CL8&EYEBALL         RB EYEBALL: SAD9AXCD       9913569   00216200
+         AIF   ('&NAME' NE '').LVINIT                         9913569   00216300
+&PX.LVL  EQU   &RBLVL              RB LEVEL                   9913569   00216400
+.LVINIT  ANOP                                                 9913569   00216500
+&PX.&RBL &OP   AL2&RBLVADC         RB LEVEL                   9913569   00216600
+         &OP   XL6&NLX             RESERVED                   9913569   00216700
+&PX.&FNC &OP   XL3&RQC             REQUESTED FUNCTION                   00217000
+         AIF   ('&NAME' NE '').GENC1                                    00218000
+         ORG   &PX.FNC                                                  00219000
+&PX.FLG  DS   0XL1                 REQUEST FLAGS              2600590   00220000
+&PX.RID  DS    XL1                 REQUEST ID  (0 - 127)      2600590   00220100
+&PX.R00  EQU   00                  REQ ID: 00 COMMON USE      2600590   00220200
+&PX.R01  EQU   01                  REQ ID: 01 SADSDEXC DSM    2600590   00220300
+&PX.R02  EQU   02                  REQ ID: 02 SADSDEXC DNM    2600590   00220400
+&PX.R03  EQU   03                  REQ ID: 03 INTERNAL USE    2020218   00220410
+&PX.R04  EQU   04                  REQ ID: 04 INTERNAL USE    2020218   00220420
+&PX.R05  EQU   05                  REQ ID: 05 INTERNAL USE    2020218   00220430
+&PX.R06  EQU   06                  REQ ID: 06 INTERNAL USE    2020218   00220440
+&PX.R07  EQU   07                  REQ ID: 07 INTERNAL USE    2020218   00220450
+&PX.R08  EQU   08                  REQ ID: 08 INTERNAL USE    2020218   00220460
+&PX.R09  EQU   09                  REQ ID: 09 INTERNAL USE    2020218   00220470
+&PX.R10  EQU   10                  REQ ID: 10 INTERNAL USE    2020218   00220480
+&PX.R11  EQU   11                  REQ ID: 11 INTERNAL USE    2020218   00220490
+&PX.R12  EQU   12                  REQ ID: 12 INTERNAL USE    2020218   00220500
+&PX.R13  EQU   13                  REQ ID: 13 INTERNAL USE    2020218   00220510
+&PX.R14  EQU   14                  REQ ID: 14 INTERNAL USE    2020218   00220520
+&PX.RL3  EQU   X'80'               FLAG: REQUEST LVL SA0003 AND BEFORE  00221000
+&PX.FUN  DS    XL1                 REQUEST FUNCTION (SA0004 & AFTER)    00222000
+&PX.CLO  EQU   01                  REQUEST CODE: CLOSE DICTIONARIES     00223000
+&PX.FMN  EQU   02                  REQUEST CODE: FREE ALLOCATED STG     00224000
+&PX.LOC  EQU   01                  REQUEST CODE: LOC MODE (GEL/GSL/GNL) 00225000
+&PX.GEL  EQU   03                  REQUEST CODE: GET ENTITY / LOCATE    00226000
+&PX.GEM  EQU   04                  REQUEST CODE: GET ENTITY / MOVE      00227000
+&PX.GSL  EQU   05                  REQUEST CODE: GET PAGE 1 / LOCATE    00228000
+&PX.GSM  EQU   06                  REQUEST CODE: GET PAGE 1 / MOVE      00229000
+&PX.GNL  EQU   07                  REQUEST CODE: GET NEXT   / LOCATE    00230000
+&PX.GNM  EQU   08                  REQUEST CODE: GET NEXT   / MOVE      00231000
+&PX.BLD  EQU   09                  REQUEST CODE: BUILD AUX ENTITY       00232000
+&PX.WRI  EQU   10                  REQUEST CODE: WRITE AUX ENTITY       00233000
+&PX.DEL  EQU   11                  REQUEST CODE: DELETE AUX ENTITY      00234000
+&PX.RDO  EQU   12                  REQUEST CODE: OPEN FOR READ ONLY     00235000
+&PX.KLN  DS    HL1                 REQUEST GENERIC KEY LENGTH (SA0004)  00236000
+.GENC1    ANOP                                                          00237000
+&PX.&DD  &OP   CL8&DDN             AUX DICTIONARY FCT NAME              00238000
+&PX.&KYE &OP   CL25&KEY            AUX KEY: LOGICAL REQUEST             00239000
+         AIF   ('&NAME' NE '').GENC2                                    00240000
+         ORG   &PX.KEY             AUX KEY: LOGICAL REQUEST             00241000
+&PX.TYP  DS    CL3                 AUX KEY: AUXILIARY ENTITY TYPE       00242000
+&PX.NAM  DS    CL22                AUX KEY: AUXILIARY ENTITY NAME       00243000
+         ORG   &PX.KEY             AUX KEY: PHYSICAL RECORD             00244000
+&PX.KAP  DS    CL2                 AUX KEY: APPLICATION                 00245000
+&PX.KTY  DS    CL3                 AUX KEY: REPOS ENTITY TYPE           00246000
+&PX.KNM  DS    CL8                 AUX KEY: ENTITY NAME                 00247000
+&PX.KST  DS    CL8                 AUX KEY: AUX ENTITY SUB-TYPE         00248000
+&PX.KIN  DS   0XL4                 AUX KEY: INDEX                       00249000
+&PX.KTF  DS    XL1                 AUX KEY: KEY TYPE FLAG               00250000
+&PX.KTL  EQU   X'40'               AUX KEY: KEY TYPE LOGICAL            00251000
+&PX.KSN  DS    HL1                 AUX KEY: ENTITY SEGMENT NUMBER       00252000
+         DS    XL1                 AUX KEY: RESERVED                    00253000
+&PX.KPN  DS    HL1                 AUX KEY: ENTITY SG-PAGE NUMBER       00254000
+.GENC2    ANOP                                                          00255000
+&PX.&ADR &OP   AL4&RECA            A(REC IF I/O, SORT WKAR IF VSE BLD)  00256000
+&PX.&LEN &OP   FL4&NLX             RECORD LENGTH              9913569   00257000
+&PX.&ST  DS   0XL4                 STATUS                               00258000
+&PX.&RC  &OP   XL2&NLX             STATUS: RETURN CODE                  00259000
+&PX.&EC  &OP   XL2&NLX             STATUS: ERROR REASON CODE            00260000
+&PX.&FM  &OP   XL1&GM              OPTION FLAGS                         00261000
+         AIF   ('&NAME' NE '').GENC3                                    00262000
+&PX.PEM  EQU   X'80'               FLAG: PRINT ERROR MESSAGES (SIMESS)  00263000
+&PX.TMG  EQU   X'40'               FLAG: SUPPRESS TABLE MANAGER GET     00264000
+&PX.TMP  EQU   X'20'               FLAG: SUPPRESS TABLE MANAGER PUT     00265000
+&PX.FOR  EQU   X'10'               FLAG: FORCE BUILD AUXILIARY          00266000
+&PX.FMG  EQU   X'02'               FLAG: ALWAYS GET STG / LOCATE MODE   00267000
+&PX.FMF  EQU   X'01'               FLAG: FREE PREVIOUSLY ACQUIRED STG   00268000
+.GENC3    ANOP                                                          00269000
+&PX.&GML &OP   FL4&NLX             GETMAIN (ACQUIRED STG) LEN 9913569   00270000
+&PX.&GCA &OP   AL4&NLA             A(GCA/SACB)-IMPLIES SATBLMGB/C CALL  00271000
+&PX.&EDD DS   0XL5                 EXTENDED DIAGNOSTIC DATA             00272000
+&PX.&ERC &OP   XL1&NLX             EXT DIAG: REPORTING COMPONENT        00273000
+         AIF   ('&NAME' NE '').GENC4                                    00274000
+&PX.AU   EQU   X'01'               RPTG COMPONENT: SADAUXIB/C           00275000
+&PX.CI   EQU   X'02'               RPTG COMPONENT: CICS                 00276000
+&PX.SD   EQU   X'03'               RPTG COMPONENT: SDMS                 00277000
+&PX.DCX  EQU   X'04'               RPTG COMPONENT: SADSMCXB/C           00278000
+.GENC4   ANOP                                                           00279000
+&PX.&ERD &OP   XL4&NLX             EXT DIAG: REPORTING DIAGNOSTIC       00280000
+*                                    01 (SADAUXIX)+0=A(NON-KEY DATA)/RD 00281000
+*                                    02 (CICS)    +0=EIBFN, +1=EIBRCODE 00282000
+*                                    03 (SDMS)    +0 = SDMSRTRN         00283000
+*                                    04 (SADSMCXX)+0 = R15              00284000
+         AIF   ('&NAME' NE '').GENC5                                    00285000
+&PX.ND1  EQU   *                   END OF REQ BLOCK BEFORE SA0004.00    00286000
+&PX.OLN  EQU   (*-&NM)             LEN OF REQ BLOCK BEFORE SA0004.00    00287000
+.GENC5    ANOP                                                          00288000
+&PX.&DST DS   0XL8                 A(DSTS FOR SDMS)                     00289000
+&PX.&REP &OP   AL4&NLA             A(REPOSITORY DST FOR SDMS)           00290000
+&PX.&AUX &OP   AL4&NLA             A(AUXILIARY DST FOR SDMS)            00291000
+&PX.&NER &OP   FL4&NLX             # ERROR MESSAGES+1 /CICS TS Q ITEM#  00292000
+&PX.&NRE &OP   FL4&NLX             # RECORDS PER 1ST AUX ENTITY SET     00293000
+&PX.&NEB &OP   FL4&NLX             # ENTITY SETS BUILT / CALL           00294000
+&PX.&NHL &OP   FL4&NLX             # ENTITY SETS BUILT / HI-LVL REQUEST 00295000
+&PX.&FEL &OP   FL4&NLX             L'BUILD FEEDBACK EXTENSION AREA      00296000
+&PX.&FEA &OP   AL4&NLA             A(BUILD FEEDBACK EXTENSION AREA)     00297000
+&PX.&NRD &OP   FL4&NLX             # REPOSITORY $$ DFN RECORDS PASSED   00298000
+&PX.&ARD &OP   AL4&NLA             A(REPOSITORY $$ DFN RECORDS PASSED)  00299000
+&PX.&SNC DS    CL4                 ONLINE SESSION ID: CURRENT           00300000
+&PX.&AXA DS   0CL32                AUDIT SEGMENT FOR AUX ENTITY         00301000
+&PX.&AUD DS   0CL24                AUX LAST MNTE DATA                   00302000
+&PX.&LMD &OP   PL4&NLX             AUX LAST MNTE DATE                   00303000
+&PX.&LMT &OP   PL4&NLX             AUX LAST MNTE TIME                   00304000
+&PX.&SOU DS   0CL8                 AUX LAST MNTE SOURCE                 00305000
+&PX.&OPR &OP   CL8&NLC             AUX LAST MNTE OPERATOR               00306000
+&PX.&CID &OP   CL8&NLC             ENTITY CONTROL ID                    00307000
+&PX.&ESL &OP   FL4&NLX             AUX ENTITY SEGMENT LENGTH  9913569   00308000
+&PX.&FLV &OP   XL1&NLX             AUX FILE LEVEL                       00309000
+&PX.&RLV &OP   XL1&NLX             AUX ENTITY RECORD LEVEL              00310000
+&PX.&SEV &OP   XL1&NLX             SEVERITY THRESHOLD         1526495   00310010
+         &OP   XL1&NLX             FILLER                     1526495   00311000
+         AIF   ('&NAME' NE '').GENC6                                    00312000
+&PX.END  EQU   *                   END OF REQ BLOCK AS OF SA0004.00     00313000
+&PX.BLN  EQU   (*-&NM)             LEN OF REQ BLOCK AS OF SA0004.00     00314000
+         AIF   ('&PX' EQ '').GENC6                                      00315000
+         AIF   ('&PREFIX' NE 'SADPR').GENC6                             00316000
+SADPEND  EQU   *                   END OF REQ BLOCK (ORIGINAL LABEL)    00317000
+.GENC6   ANOP                                                           00318000
+         MEND                                                           00319000

@@ -1,0 +1,45 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* GNCAFUTB: APPLICATION DATA LEVEL (FORMAT UPGRADE) TABLE LAYOUT      * 00002000
+*                                                                     * 00003000
+* BUILT BY APPLICATIONS AND DISTRIBUTED AS XXLVLTBL, WHERE XX IS THE  * 00004000
+* APPLICATION CODE.  CONTAINS AN ENTRY FOR EACH CONVERSION FOR EACH   * 00005000
+* FILE OR PARMS STRUCTURE.  SEQUENCED BY DATA TYPE, DATA NAME, LEVEL .* 00006000
+* CYCLE, AND INPUT LEVEL.                                             * 00007000
+*                                                                     * 00008000
+*********************************************************************** 00009000
+*                    ** HISTORY OF REVISIONS **                       * 00010000
+* DESCRIPTION                                                 CHNGID  * 00011000
+* ___________________________________________________________ _______ * 00012000
+*                                                                     * 00013000
+* 12/15/96 INITIAL RELEASE                                    9913251 * 00014000
+*********************************************************************** 00015000
+GNAPLTBL DSECT               APPLICATION DATA LEVEL TABLE               00016000
+GNAPLEYE DS   CL8            APPL LEVEL TBL ID: XXLVLTBL (XX=APPL)      00017000
+GNAPLLVL DS   XL1            APPL LEVEL TBL FORMAT LEVEL                00018000
+GNAPLLVV EQU  0              APPL LEVEL TBL FORMAT LEVEL VALUE          00019000
+GNAPLIFB DS   CL8            APPL DATA LEVEL INTERFACE MODULE/BATCH     00020000
+GNAPLIFO DS   CL8            APPL DATA LEVEL INTERFACE MODULE/ONLINE    00021000
+GNAPLIFT DS   CL1            APPL DATA LEVEL INTERFACE MODULE TYPE      00022000
+GNAPLIFA EQU  C'A'           APPL DATA LEVEL INTERFACE MODULE TYPE=API  00023000
+         DS   CL4            RESERVED                                   00024000
+GNAPL#EN DS   HL2            # APPLICATION DATA LEVEL TABLE ENTRIES     00025000
+GNAPLENT EQU  *              APPLICATION DATA LEVEL TABLE ENTRY         00026000
+GNAPLTYP DS   CL1            DATA TYPE                                  00027000
+GNAPLTSD EQU  C'D'           DATA TYPE = SDMS-MANAGED FILE              00028000
+GNAPLTPA EQU  C'P'           DATA TYPE = PARMS-MANAGED DATA             00029000
+GNAPLTSI EQU  C'S'           DATA TYPE = SIIO-MANAGED FILE              00030000
+GNAPLNAM DS   CL8            DATA NAME (FILE/STRUCTURE)                 00031000
+GNAPLVCY DS   HL2            DATA LEVEL CYCLE                           00032000
+GNAPLVLI DS   HL2            DATA LEVEL/INPUT                           00033000
+GNAPLVLO DS   HL2            DATA LEVEL/OUTPUT                          00034000
+GNAPLAPF DS   CL1            FLAG: CONVERSION MODULE IS API (Y/N)       00035000
+GNAPLAPI EQU  C'Y'           FLAG: CONVERSION MODULE IS API (YES)       00036000
+GNAPLSTF DS   CL1            FLAG: STOP AFTER THIS MODULE   (Y/N)       00037000
+GNAPLSTY EQU  C'Y'           FLAG: STOP AFTER THIS MODULE   (YES)       00038007
+GNAPLANM DS   CL8            MODULE NAME/APPLICATION CONVERSION MODULE  00039000
+GNAPLINM DS   CL8            MODULE NAME/INPUT DST OR IO MOD NAME       00040000
+GNAPLONM DS   CL8            MODULE NAME/OUTPUT DST OR IO MOD NAME      00041000
+GNAPLENM DS   CL8            MODULE NAME/EXPAND ROUTINE (TYPE=SIIO)     00042000
+GNAPLCNM DS   CL8            MODULE NAME/COMPRESS ROUTINE (TYPE=SIIO)   00043000
+GNAPLLEN EQU   *-GNAPLENT    L'APPLICATION LEVEL TABLE ENTRY            00044000

@@ -1,0 +1,37 @@
+*********************************************************************** 00001000
+*                                                                     * 00002000
+*          I S C A L C    D S E C T                                   * 00003000
+*                                                                     * 00004000
+*********************************************************************** 00005000
+*                                                                       00006000
+ISDSCALC DSECT                                                          00007000
+         DS    0CL1500                                                  00008000
+DRIVER   DS    F                                                        00009000
+NOCONREF DS    F                                                        00010000
+CHCONREF DS    F                                                        00011000
+NOCONSTK DS    F                                                        00012000
+CHCONSTK DS    F                                                        00013000
+OPERAND1 DS    PL16                                                     00014000
+OPERAND2 DS    PL16                                                     00015000
+DECMAL1  DS    XL2                                                      00016000
+DECMAL2  DS    XL2                                                      00017000
+FIRSTIME DS    X                                                        00018000
+CALCIND  DS    X                                                        00019000
+SELEIND  DS    X                                                        00020000
+WHERES   DS    X                                                        00020050
+*                                                                       00021000
+NUMSTACK DS    PL16                                                     00022000
+NSLENGTH EQU   *-NUMSTACK                                               00023000
+         DS    49PL16                                                   00024000
+NSMAX    EQU   *-NUMSTACK                                               00025000
+*                                                                       00026000
+CHSTACK  DS    CL256                                                    00027000
+CSLENGTH EQU   *-CHSTACK                                                00028000
+         DS    CL256                                                    00029000
+CSMAX    EQU   *-CHSTACK                                                00030000
+*                                                                       00031000
+DCMLSTAK DS    XL2                                                      00032000
+DSLENGTH EQU   *-DCMLSTAK                                               00033000
+         DS    49XL2                                                    00034000
+DSMAX    EQU   *-DCMLSTAK                                               00035000
+UNUSED   DS    CL284                                                    00036000

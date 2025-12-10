@@ -1,0 +1,23 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+********************************************************************    00001000
+*                                                                  *    00001100
+*                TSTS2SDT - SDR DATA DICTIONARY TABLE              *    00001200
+*                                                                  *    00001300
+********************************************************************    00001400
+         SPACE                                                          00001500
+TSTSSDT  DSECT                                                          00001600
+SDTTRAN  DS    CL8                     TRANSACTION ID                   00001700
+SDTSDRKY DS    0CL10                   SDR KEY                0807210   00001710
+SDTSDRID DS    CL8                     1ST SDR ID                       00001800
+SDTSDRNO DS    CL2                     1ST SDR NO             0807210   00001810
+         DS    CL170                   2ND - 18TH SDR ID      0807210   00001900
+SDTFLDNR DS    XL2                     NUMBER OF SDR FIELDS USED        00002000
+SDTSTMLG EQU   *-TSTSSDT               STEM AREA LENGTH       0702179   00002010
+SDTENTRY DS    0CL16                   TABLE ENTRY OF 16 BYTES          00002100
+SDTSDRPT DS    XL1                     SDR ID POINTER         0807210   00002200
+SDTDICNM DS    CL8                     DICTIONARY NAME                  00002300
+SDTSDRFD DS    XL2                     SDR ITEM ADDRESS OFFSET          00002400
+SDTMADD  DS    XL2                     MESSAGE/MAP ADDRESS OFFSET       00002500
+SDTFLDLG DS    XL2                     FIELD LENGTH           0702179   00002600
+SDTPROCD DS    CL1                     TABLE ENTRY PROCESSED            00002700
+SDTENTLG EQU   *-SDTENTRY              ENTRY LENGTH           0702179   00002710

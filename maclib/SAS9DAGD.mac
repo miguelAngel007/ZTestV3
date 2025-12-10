@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'SADAGT DSECT'                                           00001000
+*                                                                     * 00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+* * * * * * *     S  A  D   A   G   T                   * * * * * * * * 00005000
+*                                                                     * 00006000
+*      DATA GROUP TABLE                                               * 00007000
+*                                                                     * 00008000
+*********************************************************************** 00009000
+*                  ** HISTORY OF REVISIONS **                         * 00009045
+*                                                                     * 00009050
+* DESCRIPTION                                                 CHNGID  * 00009055
+* __________________________________________________________  _______ * 00009060
+* 09/03/14 ADD DAG INDEX TABLE                                1526190   00009982
+*                                                                     * 00009985
+*---------------------------------------------------------------------* 00009990
+         SPACE 3                                                        00010000
+SADAGT   DSECT                                                          00011000
+DAGTNAME DS    CL08                DAG NAME                             00012000
+DAGTADDR DS    CL04                DAG BUFFER ADDRESS                   00013000
+DAGTFLAG DS    CL01                COUNT OF CONCURRENT USERS  2501124   00014000
+DAGTDGSZ DS    XL2                 DATA GROUP SIZE                      00015000
+DAGTGMSZ DS    XL2                 SIZE OF STORAGE ACQUIRED FOR THIS    00016000
+DAGTAMOD DS    CL8                 I.D. OF PROG. WHICH ALLOCATED DAG    00017000
+DAGTDEL  DS    CL01                DELETED STATUS FLAG                  00018000
+DAGTPSSV DS    CL01                PASS/SAVE STATUS           2501124   00018100
+*                                  P - PASS                   2501124   00018200
+*                                  S - SAVE                   2501124   00018300
+DAGTTRID DS    CL04                TRAN ID SETTING DISPOSITION2501124   00018400
+DAGTTSKN DS    PL04                TASK NUMBER OF DISPOSITION 2501124   00018500
+DAGTFLG1 DS    X                   FLAG BYTE                  2500610   00018600
+DAGTFVAR EQU   B'10000000'         VARIABLE LENGTH DAG        2500610   00018700
+DAGTF1UA EQU   B'01111111'         UNASSIGNED FLAGS           2500610   00018800
+         DS    3X                  FILLER                     2500610   00018900
+         DS    0F                  PROVIDE ALIGNMENT                    00019000
+DAGTLEN  EQU   *-SADAGT                                                 00020000
+*                                                                     * 00021000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1526190   00021099
+SADNXT   DSECT                                                          00021100
+DNXTNAME DS    CL08                DAG NAME                   1526190   00021200
+DNXTADDR DS    CL04                DAG BUFFER ADDRESS         1526190   00021300
+DNXTLEN  EQU   *-SADNXT                                       1526190   00021400
+*********************************************************************** 00022000

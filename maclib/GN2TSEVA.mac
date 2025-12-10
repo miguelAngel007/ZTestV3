@@ -1,0 +1,41 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'GN2TSEVA - TSEVADB AND GNEVTDB I/O COMMAREA'            00001000
+*********************************************************************** 00002000
+* GN2TSEVA - THIS COPYBOOK DESCRIBES THE COMMUNICATION AREA TO        * 00003000
+*            THE TSEVADB AND GNEVTDB DB2 I/O MODULES.                 * 00004000
+*---------------------------------------------------------------------* 00005000
+*                     ** HISTORY OF REVISIONS **                      * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+*------------------------------------------------------------ ------- * 00008000
+* 10/31/16 INITIAL RELEASE                                     GN7046 * 00010000
+*********************************************************************** 00011000
+PEVLIST  DS    0CL147                DB2 IO PARM LIST                   00012000
+PEVFUNC  DS    CL2                   FUNCTION CODE                      00013000
+*              VALUE 'DD'            DELETE BY DATE                     00014000
+*              VALUE 'DE'            DELETE                             00015000
+*              VALUE 'DG'            DELETE FILE GROUP                  00016000
+*              VALUE 'EQ'            GET EQUAL                          00017000
+*              VALUE 'GE'            GET GREATER THAN OR EQUAL          00018000
+*              VALUE 'GT'            GET GREATER THAN                   00019000
+*              VALUE 'GU'            GET FOR UPDATE                     00020000
+*              VALUE 'IN'            INSERT                             00021000
+*              VALUE 'LT'            GET LESS THAN                      00022000
+*              VALUE 'UP'            UPDATE                             00023000
+PEVCURSR DS    CL1                   CURSOR SET FLAG                    00024000
+*              VALUE Y               CURSOR SET YES                     00025000
+*              VALUE N               CURSOR SET NO (DEFAULT)            00026000
+PEVFILGP DS    CL2                   FILE GROUP                         00027000
+PEVPRCDT DS    CL6                   PROCESSING DATE                    00028000
+PEVIDNTY DS    CL8                   IDENTITY KEY                       00029000
+PEVRECAD DS    XL4                   RECORD ADDRESS                     00030000
+PEVRECLN DS    XL2                   RECORD LENGTH                      00031000
+PEVRTCDE DS    XL2                   RETURN CODE                        00032000
+*              VALUE 0               OK                                 00033000
+*              VALUE 16              BAD REQUEST                        00034000
+*              VALUE 100             NOT FOUND OR END OF FILE           00035000
+*              VALUE -305            NULLS                              00036000
+*              VALUE -803            DUPLICATE RECORD                   00037000
+*              VALUE -911            DEADLOCK WITH ROLLBACK             00038000
+*              VALUE -913            DEADLOCK WITHOUT ROLLBACK          00039000
+PEVRTTXT DS    CL120                 MSG TEXT                           00040000
+PEVLEN   EQU   *-PEVLIST             PARM LIST LENGTH                   00041000

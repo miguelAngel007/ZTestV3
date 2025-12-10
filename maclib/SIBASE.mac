@@ -1,0 +1,291 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+************************************************************* 2024183   00001010
+*               REVISION HISTORY                              2024183   00001012
+* 11/19/99 ADD AMODE/RMODE FOR 31 BIT BATCH PROCESSING        2024183   00001996
+************************************************************* 2024183   00001998
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024183   00001999
+&LABEL   SIBASE &BASEREG=12,&ID=,&TYPE=,&REGEQU=YES,&RWNUM=,&RWSUB=,   X00002000
+               &SETMODE=                                      2024183   00002002
+         GBLB  &GIRWNUM,&GIRWSUB,&SIBASE                                00003000
+         LCLA  &M1,&N1,&NBASE,&NDX,&LRWNUM,&LRWSUB,&LVRWN,&HVRWN        00004000
+         LCLA  &LVRWS,&HVRWS,&WORK                                      00005000
+         LCLB  &MAIN,&ERR                                               00006000
+         LCLC  &A,&B,&C,&D,&E,&F,&G,&H,&I,&J,&K                         00007000
+         LCLC  &L,&M,&N,&O,&P,&Q,&R,&S,&T,&U,&V                         00008000
+         LCLC  &C1(16)                                                  00009000
+         LCLC  &REGBASE(16)                                             00010000
+         LCLC  &LBL,&HRWNUM,&HRWSUB                                     00011000
+         LCLC  &MNM,&MVER,&MMOD,&MDATE                                  00012000
+&MNM     SETC  '* SIBASE -'        MACRO NAME FOR MNOTE LINES           00013000
+&MVER    SETC  '0012'              MACRO R/W LEVEL NUMBER               00014000
+&MMOD    SETC  '.000'              MACRO R/W SUB NUMBER                 00015000
+&MDATE   SETC  '07/01/86'          MACRO AS OF DATE                     00016000
+         AIF   (&SIBASE EQ 1).INIT020                                   00017000
+&SIBASE  SETB  (1)                                                      00018000
+         MNOTE '&MNM SYSTEMATICS  - R/W LEVEL=&MVER&MMOD - &MDATE'      00019000
+.INIT020 ANOP                                                           00020000
+&LRWNUM  SETA  4                                                        00021000
+&LVRWN   SETA  0000                                                     00022000
+&HVRWN   SETA  9999                                                     00023000
+&LRWSUB  SETA  3                                                        00024000
+&LVRWS   SETA  000                                                      00025000
+&HVRWS   SETA  999                                                      00026000
+         AIF   ('&REGEQU' EQ 'ONLY').REGEQU                             00027000
+&NDX     SETA  &SYSNDX                                                  00028000
+.ASNBASE ANOP                                                           00029000
+.********************************************************************** 00030000
+.*    ASSIGN BASEREGS TO LOCAL VARIABLES SO THAT THEY CAN BE MODIFIED   00031000
+.********************************************************************** 00032000
+&N1      SETA  0                                                        00033000
+&NBASE   SETA  N'&BASEREG                                               00034000
+.BASEAS1 ANOP                                                           00035000
+&N1      SETA  &N1+1                                                    00036000
+&REGBASE(&N1) SETC '&BASEREG(&N1)'                                      00037000
+         AIF   (&N1 LT &NBASE).BASEAS1                                  00038000
+.********************************************************************** 00039000
+.*             CHECK FOR CONFLICTING BASE REGISTERS                     00040000
+.********************************************************************** 00041000
+&N1      SETA  0                                                        00042000
+.BASECK1 ANOP                                                           00043000
+&N1      SETA  &N1+1                                                    00044000
+.********************************************************************** 00045000
+.*          CHECK BASEREGS AGAINST 14,15,0,1 AND 12,13 FOR MIXTURES     00046000
+.********************************************************************** 00047000
+         AIF  ('&REGBASE(&N1)' EQ '14').REGERR                          00048000
+         AIF  ('&REGBASE(&N1)' EQ '15').REGERR                          00049000
+         AIF  ('&REGBASE(&N1)' EQ '0').REGERR                           00050000
+         AIF  ('&REGBASE(&N1)' EQ '1').REGERR                           00051000
+         AGO  .BASECK2                                                  00052000
+.REGERR  ANOP                                                           00053000
+         MNOTE 8,'&MNM BASEREG = 14,15,0 OR 1 INVALID, 12 ASSUMED'      00054000
+.BASERR  ANOP                                                           00055000
+&REGBASE(1) SETC '12'                                                   00056000
+&REGBASE(2) SETC ''                                                     00057000
+&REGBASE(3) SETC ''                                                     00058000
+&REGBASE(4) SETC ''                                                     00059000
+&REGBASE(5) SETC ''                                                     00060000
+&REGBASE(6) SETC ''                                                     00061000
+&REGBASE(7) SETC ''                                                     00062000
+&REGBASE(8) SETC ''                                                     00063000
+&REGBASE(9) SETC ''                                                     00064000
+&REGBASE(10) SETC ''                                                    00065000
+&REGBASE(11) SETC ''                                                    00066000
+&NBASE   SETA  1                                                        00067000
+&N1      SETA  1                                                        00068000
+.BASECK2 ANOP                                                           00069000
+.********************************************************************** 00070000
+.*             CHECK BASEREG WITHIN ITSELF                              00071000
+.********************************************************************** 00072000
+         AIF   (&N1 EQ &NBASE).BASECK5                                  00073000
+&M1      SETA  &N1                                                      00074000
+.BASECK3 ANOP                                                           00075000
+&M1      SETA  &M1+1                                                    00076000
+         AIF   ('&REGBASE(&N1)' NE '&REGBASE(&M1)').BASECK4             00077000
+         MNOTE 8,'&MNM MULTIPLE USE OF REGISTER IN BASEREG INVALID.    *00078000
+                                      DEFAULT R12 ASSUMED FOR BASEREG.' 00079000
+         AGO   .BASERR                                                  00080000
+.BASECK4 ANOP                                                           00081000
+         AIF   (&M1 LT &NBASE).BASECK3                                  00082000
+.BASECK5 ANOP                                                           00083000
+         AIF   (&N1 LT &NBASE).BASECK1                                  00084000
+.********************************************************************** 00085000
+.*             CHECK RED AND WHITE NUMBER                               00086000
+.********************************************************************** 00087000
+.CKRWN   ANOP                                                           00088000
+         AIF   (T'&RWNUM EQ 'O').CKRWN40                                00089000
+         AIF   ((&RWNUM GE &LVRWN) AND (&RWNUM LE &HVRWN)).CKRWN20      00090000
+         MNOTE 8,'&MNM RWNUM IS OUT OF RANGE OR NOT NUMERIC'            00091000
+         AGO   .CKRWNER                                                 00092000
+.CKRWN20 ANOP                                                           00093000
+         AIF   (&GIRWNUM NE 1).CKRWN30                                  00094000
+         MNOTE 8,'&MNM RWNUM PREVIOUSLY SPECIFIED'                      00095000
+         AGO   .CKRWNER                                                 00096000
+.CKRWN30 ANOP                                                           00097000
+&GIRWNUM SETB  (1)                                                      00098000
+.CKRWN40 ANOP                                                           00099000
+&WORK    SETA  K'&RWNUM+1                                               00100000
+&HRWNUM  SETC  '00000000'(1,&LRWNUM)                                    00101000
+&HRWNUM  SETC  '&HRWNUM&RWNUM'(&WORK,&LRWNUM)                           00102000
+         AGO   .CKRWNE                                                  00103000
+.CKRWNER ANOP                                                           00104000
+&ERR     SETB  (1)                                                      00105000
+         AGO   .CKRWNE                                                  00106000
+.CKRWNE  ANOP                                                           00107000
+.********************************************************************** 00108000
+.*             CHECK RED AND WHITE SUB NUMBER                           00109000
+.********************************************************************** 00110000
+.CKRWS   ANOP                                                           00111000
+         AIF   (T'&RWSUB EQ 'O').CKRWS40                                00112000
+         AIF   ((&RWSUB GE &LVRWS) AND (&RWSUB LE &HVRWS)).CKRWS20      00113000
+         MNOTE 8,'&MNM RWSUB IS OUT OF RANGE OR NOT NUMERIC'            00114000
+         AGO   .CKRWSER                                                 00115000
+.CKRWS20 ANOP                                                           00116000
+         AIF   (&GIRWSUB NE 1).CKRWS30                                  00117000
+         MNOTE 8,'&MNM RWSUB PREVIOUSLY SPECIFIED'                      00118000
+         AGO   .CKRWSER                                                 00119000
+.CKRWS30 ANOP                                                           00120000
+&GIRWSUB SETB  (1)                                                      00121000
+.CKRWS40 ANOP                                                           00122000
+&WORK    SETA  K'&RWSUB+1                                               00123000
+&HRWSUB  SETC  '00000000'(1,&LRWSUB)                                    00124000
+&HRWSUB  SETC  '&HRWSUB&RWSUB'(&WORK,&LRWSUB)                           00125000
+         AIF   (&GIRWNUM EQ &GIRWSUB).CKRWSE                            00126000
+         MNOTE 8,'&MNM RWNUM AND RWSUB MUST BE BOTH BE SPECIFIED'       00127000
+.CKRWSER ANOP                                                           00128000
+&ERR     SETB  (1)                                                      00129000
+         AGO   .CKRWSE                                                  00130000
+.CKRWSE  ANOP                                                           00131000
+.********************************************************************** 00132000
+.*             CHECK ERROR FLAG                                         00133000
+.********************************************************************** 00134000
+.CKERROR ANOP                                                           00135000
+         AIF   (&ERR NE 1).CKEEND                                       00136000
+         MNOTE 16,'&MNM SEVERE ERRORS MACRO GENERATION TERMINATED'      00137000
+.ENDEDIT ANOP                                                           00138000
+         MEXIT                                                          00139000
+.CKEEND  ANOP                                                           00140000
+         AGO   .GENIT                                                   00141000
+.********************************************************************** 00142000
+.*             BEGIN GENERATION - ALL EDITS ARE DONE                    00143000
+.********************************************************************** 00144000
+.GENIT   ANOP                                                           00145000
+&N1      SETA  0                                                        00146000
+&N1      SETA  &N1+1                                                    00147000
+.********************************************************************** 00148000
+.*             ESTABLISH BASE ADDRESSIBILITY                          * 00149000
+.********************************************************************** 00150000
+&N1      SETA  0                                                        00151000
+.BASER1  ANOP                                                           00152000
+&N1      SETA  &N1+1                                                    00153000
+&C1(&N1) SETC  ','                                                      00154000
+         AIF   (&N1 LT &NBASE).BASER1                                   00155000
+.********************************************************************** 00156000
+.*             ASSIGN BASEREGS AND COMMAS TO SINGLE CHARACTER           00157000
+.*       MACRO VARIABLES SO THAT THE USING ONLY TAKES ONE LINE          00158000
+.*       WITH ITS ASSOCIATED SUPPORT BASE                               00159000
+.********************************************************************** 00160000
+&A       SETC  '&C1(1)'                                                 00161000
+&B       SETC  '&REGBASE(1)'                                            00162000
+&C       SETC  '&C1(2)'                                                 00163000
+&D       SETC  '&REGBASE(2)'                                            00164000
+&E       SETC  '&C1(3)'                                                 00165000
+&F       SETC  '&REGBASE(3)'                                            00166000
+&G       SETC  '&C1(4)'                                                 00167000
+&H       SETC  '&REGBASE(4)'                                            00168000
+&I       SETC  '&C1(5)'                                                 00169000
+&J       SETC  '&REGBASE(5)'                                            00170000
+&K       SETC  '&C1(6)'                                                 00171000
+&L       SETC  '&REGBASE(6)'                                            00172000
+&M       SETC  '&C1(7)'                                                 00173000
+&N       SETC  '&REGBASE(7)'                                            00174000
+&O       SETC  '&C1(8)'                                                 00175000
+&P       SETC  '&REGBASE(8)'                                            00176000
+&Q       SETC  '&C1(9)'                                                 00177000
+&R       SETC  '&REGBASE(9)'                                            00178000
+&S       SETC  '&C1(10)'                                                00179000
+&T       SETC  '&REGBASE(10)'                                           00180000
+&U       SETC  '&C1(11)'                                                00181000
+&V       SETC  '&REGBASE(11)'                                           00182000
+.********************************************************************** 00183000
+.*       SETUP FINISHED, TIME TO GENERATE CODE                        * 00184000
+.********************************************************************** 00185000
+         AIF   ('&SETMODE' EQ '').CHECK1                      2024183   00185020
+         AIF   ('&SETMODE' EQ '3124').CHECK2                  2024183   00185040
+         AIF   ('&SETMODE' EQ '2424').CHECK3                  2024183   00185060
+         AIF   ('&SETMODE' EQ 'NO').IDEND                     2024183   00185080
+.CHECK1  ANOP                                                 2024183   00185100
+         AIF   (T'&ID NE 'O').IDNAME1                         2024183   00185120
+&SYSECT  AMODE 31                                             2024183   00185140
+&SYSECT  RMODE ANY                                            2024183   00185160
+         AGO   .IDEND                                         2024183   00185180
+.IDNAME1 ANOP                                                 2024183   00185200
+&ID      AMODE 31                                             2024183   00185220
+&ID      RMODE ANY                                            2024183   00185240
+         AGO   .IDEND                                         2024183   00185260
+.CHECK2  ANOP                                                 2024183   00185280
+         AIF   (T'&ID NE 'O').IDNAME2                         2024183   00185300
+&SYSECT  AMODE 31                                             2024183   00185320
+&SYSECT  RMODE 24                                             2024183   00185340
+         AGO   .IDEND                                         2024183   00185360
+.IDNAME2 ANOP                                                 2024183   00185380
+&ID      AMODE 31                                             2024183   00185400
+&ID      RMODE 24                                             2024183   00185420
+         AGO   .IDEND                                         2024183   00185440
+.CHECK3  ANOP                                                 2024183   00185460
+         AIF   (T'&ID NE 'O').IDNAME3                         2024183   00185480
+&SYSECT  AMODE 24                                             2024183   00185500
+&SYSECT  RMODE 24                                             2024183   00185520
+         AGO   .IDEND                                         2024183   00185540
+.IDNAME3 ANOP                                                 2024183   00185560
+&ID      AMODE 24                                             2024183   00185580
+&ID      RMODE 24                                             2024183   00185600
+.IDEND   ANOP                                                 2024183   00185620
+         AIF   ('&SETMODE' EQ 'ONLY').EXIT                    2024183   00185640
+.CKLABEL ANOP                                                 2024183   00185660
+         AIF   ('&LABEL' EQ '').NOLAB                                   00186000
+&LABEL   DS    0H                                                       00187000
+.NOLAB   ANOP                                                           00188000
+         AIF   ('&REGBASE(1)' NE '13').NORMBAS                          00189000
+         USING *,15                                                     00190000
+         AGO   .SUBSTM                                                  00191000
+.NORMBAS ANOP                                                           00192000
+         USING *&A&B&C&D&E&F&G&H&I&J&K&L&M&N&O&P&Q&R&S&T&U&V            00193000
+.SUBSTM  ANOP                                                           00194000
+         STM   14,12,12(13)        SAVE CALLER'S REGISTERS              00195000
+         AIF   ('&REGBASE(1)' EQ '13').BASR13                           00196000
+         LR    &REGBASE(1),15                                           00197000
+.BASR13  ANOP                                                           00198000
+         B     @@@1&NDX                                                 00199000
+         AIF   (T'&ID NE 'O').IDSPEC                                    00200000
+         DC    CL10'*&SYSECT.*'                                         00201000
+         AGO   .IDNSPEC                                                 00202000
+.IDSPEC  ANOP                                                           00203000
+         DC    CL10'*&ID.*'                                             00204000
+.IDNSPEC ANOP                                                           00205000
+         AIF   (T'&RWNUM EQ 'O').NORWNUM                                00206000
+         DC    CL04'&HRWNUM'   RED AND WHITE NUMBER                     00207000
+         DC    CL04'.&HRWSUB'  RED AND WHITE SUB                        00208000
+.NORWNUM ANOP                                                           00209000
+         DC    CL14' DATE &SYSDATE'   ASSEMBLY DATE                     00210000
+         DC    CL14' TIME &SYSTIME'   ASSEMBLY TIME                     00211000
+&N1      SETA  1                                                        00212000
+@@@@&NDX DC    18F'0'                                                   00213000
+@@@1&NDX DS    0H                                                       00214000
+         LR    1,13            SAVE SAVE AREA POINTER                   00215000
+         LA    13,@@@@&NDX     GET MY SAVE AREA ADDR                    00216000
+         ST    13,8(0,1)       SET FORWARD CHAIN IN THE CALLERS AREA    00217000
+         ST    1,4(0,13)       SET BACKWARD CHAIN IN NEW AREA           00218000
+         L     1,24(0,1)       REACQUIRE REG 1 AS IT CAME HERE          00219000
+         AIF   ('&REGBASE(1)' NE '13').BASER2                           00220000
+         USING @@@@&NDX&A&B&C&D&E&F&G&H&I&J&K&L&M&N&O&P&Q&R&S&T&U&V     00221000
+         DROP  15                                                       00222000
+.BASER2  ANOP                                                           00223000
+         AIF   (&N1 GE &NBASE).BASER3                                   00224000
+&M1      SETA  &N1                                                      00225000
+&N1      SETA  &N1+1                                                    00226000
+         LA    &REGBASE(&N1),2048(0,&REGBASE(&M1))                      00227000
+         LA    &REGBASE(&N1),2048(0,&REGBASE(&N1))                      00228000
+         AGO   .BASER2                                                  00229000
+.BASER3  ANOP                                                           00230000
+.CHKEQU  ANOP                                                           00231000
+         AIF   ('&REGEQU' EQ 'NO').EXIT                                 00232000
+.REGEQU  ANOP                                                           00233000
+R0       EQU   0                                                        00234000
+R1       EQU   1                                                        00235000
+R2       EQU   2                                                        00236000
+R3       EQU   3                                                        00237000
+R4       EQU   4                                                        00238000
+R5       EQU   5                                                        00239000
+R6       EQU   6                                                        00240000
+R7       EQU   7                                                        00241000
+R8       EQU   8                                                        00242000
+R9       EQU   9                                                        00243000
+R10      EQU   10                                                       00244000
+R11      EQU   11                                                       00245000
+R12      EQU   12                                                       00246000
+R13      EQU   13                                                       00247000
+R14      EQU   14                                                       00248000
+R15      EQU   15                                                       00249000
+.EXIT    ANOP                                                           00250000
+         MEND                                                           00251000

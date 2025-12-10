@@ -1,0 +1,51 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TSTS2VDR - VALID DEPARTMENT RECORD                    * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             VDCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             VDCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             VDRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             VDCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL18        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSVDR    DSECT                                                          00000700
+VDR      DS    0C                                                       00000800
+VDRLNG   DS    XL2                     VDR RECORD LENGTH                00000900
+*                                        MAX VALUE +255                 00001000
+         DS    XL2                     FILLER                           00001100
+VDRKEY   DS    0CL23                   VDR KEY                          00001200
+VDRRID   DS    CL3                       RECORD ID VALUE 'VDR'          00001300
+VDRCLASS DS    CL10                      RECORD CLASS ID                00001400
+         DS    CL10                      FILLER                         00001500
+VDCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001510
+VDCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001520
+VDRLMNT  DS    0CL28                   LAST MAINTENANCE DATA    2602105 00001600
+VDRLMDT  DS    0CL6                      LAST MAINTENANCE DATE          00001700
+VDRLMDM  DS    CL2                         LAST MAINTENANCE MONTH       00001800
+VDRLMDD  DS    CL2                         LAST MAINT DAY               00001900
+VDRLMDY  DS    CL2                         LAST MAINT YEAR              00002000
+VDRLMTI  DS    0CL6                      LAST MAINTENANCE TIME          00002100
+VDRLMTH  DS    CL2                         LAST MAINTENANCE HOUR        00002200
+VDRLMTM  DS    CL2                         LAST MAINTENANCE MINUTE      00002300
+VDRLMTS  DS    CL2                         LAST MAINTENANCE SECOND      00002400
+VDRLMEMP DS    CL8                       LAST MAINTENANCE EMPLOYEE      00002500
+VDCACHID DS    CL8                       CA CHANGE ID           2602105 00002600
+         DS    XL18                    FILLER                   2602105 00002700
+VDRINEX  DS    CL1                     INCLUDE / EXCLUDE FLAG   2602105 00002800
+VDRMXCT  DS    PL2                     MAXIMUM VALID DEPTS +25          00002900
+VDRUSCT  DS    PL2                     USED VALID DEPTSS                00003000
+VDRVDROC DS    CL175                   VALID DEPT OCCURRENCES           00003100

@@ -1,0 +1,61 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&NAME    SITYPE &MSG,&REPLY=0,&ROUTCDE=11,&DESC=7                       00000200
+.*       OS/VS VERSION 2.3                                              00000300
+         LCLA  &LGTHA,&LGTHB                                            00000400
+         LCLB  &B(6)                                                    00000500
+         LCLC  &TEXT                                                    00000600
+&LGTHA   SETA  K'&MSG-2                                                 00000700
+&TEXT    SETC  '&MSG'(2,&LGTHA)                                         00000800
+&B(1)    SETB  (&LGTHA LT 1 OR &LGTHA GT 90)                            00000900
+         AIF   (T'&REPLY NE 'N').SETB2                                  00001000
+&LGTHB   SETA  &REPLY                                                   00001100
+         AIF   (&REPLY LE 90).CKRTE                                     00001200
+.SETB2   ANOP                                                           00001300
+&B(2)    SETB  1                                                        00001400
+.CKRTE   AIF   (T'&ROUTCDE NE 'N').SETB3                                00001500
+         AIF   (&ROUTCDE GE 1 AND &ROUTCDE LE 16).CKDESC                00001600
+.SETB3   ANOP                                                           00001700
+&B(3)    SETB  1                                                        00001800
+.CKDESC  AIF   (T'&DESC NE 'N').SETB4                                   00001900
+         AIF   (&DESC GE 1 AND &DESC LE 16).CKNAME                      00002000
+.SETB4   ANOP                                                           00002100
+&B(4)    SETB  1                                                        00002200
+.CKNAME  ANOP                                                           00002300
+&B(5)    SETB  (K'&NAME GT 7)                                           00002400
+&B(6)    SETB  (T'&NAME EQ 'O' AND &LGTHB NE 0)                         00002500
+.TOT     AIF   (&B(1)+&B(2)+&B(3)+&B(4)+&B(5)+&B(6) NE 0).E01           00002600
+.*                                                                      00002700
+         AIF   (&LGTHB NE 0).WTOR                                       00002800
+&NAME    WTO   '&TEXT',ROUTCDE=(&ROUTCDE),DESC=&DESC                    00002900
+         AIF   (T'&NAME EQ 'O').NONAMEA                                 00003000
+&NAME.A  EQU   &NAME+8                                                  00003100
+.NONAMEA MEXIT                                                          00003200
+.*                                                                      00003300
+.*                                                                      00003400
+.WTOR    ANOP                                                           00003500
+&NAME    WTOR  '&TEXT',&NAME.B,&REPLY,&NAME.E,                         *00003600
+               ROUTCDE=(&ROUTCDE),DESC=&DESC                            00003700
+         WAIT  ECB=&NAME.E                                              00003800
+         XC    &NAME.E,&NAME.E     SET ECB TO ZERO                      00003900
+         B     WTOR&SYSNDX                                              00004000
+&NAME.A  EQU   &NAME+16            LOCATE TO MESSAGE TEXT               00004100
+&NAME.B  DC    CL&LGTHB' '         REPLY AREA                           00004200
+&NAME.E  DC    A(0)                WTOR EVENT CONTROL BLOCK             00004300
+WTOR&SYSNDX DS 0H                                                       00004400
+.*                                                                      00004500
+.*       ERROR MESSAGE SECTION                                          00004600
+.*                                                                      00004700
+.E01     AIF   (NOT &B(1)).E02                                          00004800
+         MNOTE 12,'MESSAGE LENGTH IS LT 1 OR GT 90'                     00004900
+.E02     AIF   (NOT &B(2)).E03                                          00005000
+         MNOTE 12,'REPLY LENGTH,&REPLY,IS INVALID'                      00005100
+.E03     AIF   (NOT &B(3)).E04                                          00005200
+         MNOTE 12,'INVALID ROUTING CODE &ROUTCDE'                       00005300
+.E04     AIF   (NOT &B(4)).E05                                          00005400
+         MNOTE 12,'INVALID DESCRIPTOR CODE &DESC'                       00005500
+.E05     AIF   (NOT &B(5)).E06                                          00005600
+         MNOTE 12,'NAME EXCEEDS SEVEN CHARACTERS'                       00005700
+.E06     AIF   (NOT &B(6)).END                                          00005800
+         MNOTE 12,'NAME IS REQUIRED WHEN REPLY IS REQUESTED'            00005900
+.END     MEND                                                           00006000

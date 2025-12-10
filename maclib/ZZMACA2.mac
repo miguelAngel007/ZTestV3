@@ -1,0 +1,375 @@
+         MACRO                                                          00000100
+&NAME    ZZMACA2                                                       X00000200
+               &TYPE=,                                                 X00000300
+               &RECFORM=,                                              X00000400
+               &INBLK=,                                                X00000500
+               &OUTBLK=,                                               X00000600
+               &OUTBLK8=,                                              X00000700
+               &RECSIZE=,                                              X00000800
+               &TINREW=,                                               X00000900
+               &TOUTREW=,                                              X00001000
+               &TINSYS=,                                               X00001100
+               &TOUTSYS=                                                00001200
+.********************************************************************** 00001300
+.*                                                                    * 00001400
+.*  TYPE     = S (SEQUENTIAL)                                         * 00001500
+.*             V (VSAM)                                               * 00001600
+.*             DSECT (GENERATE DSECT FOR COMMON DRIVER MODULE)        * 00001700
+.*  RECFORM  = FIXBLK                                                 * 00001800
+.*             FIXUNB                                                 * 00001900
+.*             VARUNB                                                 * 00002000
+.*             VARBLK                                                 * 00002100
+.*                                                                    * 00002200
+.*  THE OTHER PARAMETERS ARE FOR VSE SOURCE COMPATABILITY ONLY AND    * 00002300
+.*  ARE NOT USED IN THIS MACRO.                                       * 00002400
+.*                                                                    * 00002500
+.********************************************************************** 00002600
+         LCLA  &LNAME,&WDSKBLK                                          00002700
+         LCLB  &FIRSTSW,&ERR,&DSECT                                     00002800
+         LCLC  &DDNAME,&HRECFM                                          00002900
+         LCLC  &H,&MVER,&MMOD,&MDATE                                    00003000
+         LCLC  &DCDS,&L,&R,&Q,&S                                        00003100
+&S       SETC  ' '                                                      00003200
+.INITBEG ANOP                                                           00003300
+         AIF   (&FIRSTSW EQ 1).INITEND                                  00003400
+&FIRSTSW SETB  (1)                                                      00003500
+.*       ----------------                                               00003600
+.*       SET ANY DEFAULTS                                               00003700
+.*       ----------------                                               00003800
+&H       SETC  '* ZZIOMOD - '      MACRO NAME FOR MNOTE LINES           00003900
+&MVER    SETC  '01.00'             MACRO VERSION NUMBER                 00004000
+&MMOD    SETC  '01.00'             MACRO MODIFICATION NUMBER            00004100
+&MDATE   SETC  '06/08/92'          MACRO AS OF DATE                     00004200
+&DDNAME  SETC  'XXXXXX'                                                 00004300
+&LNAME   SETA  7                   LENGTH OF NAME FIELD                 00004400
+&DCDS    SETC  'DC'                DEFAULT TO DEFINE CONSTANT LITERAL   00004500
+&L       SETC  '('                 LEFT PAREN                           00004600
+&R       SETC  ')'                 RIGHT PAREN                          00004700
+&Q       SETC  ''''                SINGLE QUOTE                         00004800
+.INITEND ANOP                                                           00004900
+.*                                                                      00005000
+.*       ----------------                                               00005100
+.*       CHECK TYPE FIELD                                               00005200
+.*       ----------------                                               00005300
+.*                                                                      00005400
+.F020BEG ANOP                                                           00005500
+         AIF   (T'&TYPE NE 'O').F020020                                 00005600
+         MNOTE 8,'&H ''TYPE='' IS A REQUIRED PARAMETER'                 00005700
+&ERR     SETB (1)                                                       00005800
+         AGO   .F020END                                                 00005900
+.F020020 ANOP                                                           00006000
+         AIF   ('&TYPE' EQ 'S').F020060                                 00006100
+         AIF   ('&TYPE' EQ 'V').F020060                                 00006200
+         AIF   ('&TYPE' EQ 'DSECT').F020040                             00006300
+         MNOTE 8,'&H ONLY VALID ENTRY FOR TYPE IS ''S'' ''V'' OR ''DSECX00006400
+               T'''                                                     00006500
+&ERR     SETB  (1)                                                      00006600
+         AGO   .F020END                                                 00006700
+.F020040 ANOP                                                           00006800
+&DCDS    SETC  'DS'                                                     00006900
+&L       SETC  ' '                 LEFT PAREN                           00007000
+&R       SETC  ' '                 RIGHT PAREN                          00007100
+&Q       SETC  ' '                 SINGLE QUOTE                         00007200
+&DSECT   SETB  1                                                        00007300
+.F020060 ANOP                                                           00007400
+         AGO   .F020END                                                 00007500
+.F020END ANOP                                                           00007600
+.*                                                                      00007700
+.*       ----------------                                               00007800
+.*       CHECK NAME FIELD                                               00007900
+.*       ----------------                                               00008000
+.*                                                                      00008100
+.F040BEG ANOP                                                           00008200
+         AIF   (T'&NAME  NE 'O').F040020                                00008300
+         AIF   (&DSECT).F040END                                         00008400
+         MNOTE 8,'&H NAME IS A REQUIRED FIELD'                          00008500
+&ERR     SETB  (1)                                                      00008600
+         AGO   .F040END                                                 00008700
+.F040020 ANOP                                                           00008800
+         AIF   (K'&NAME EQ &LNAME).F040040                              00008900
+         MNOTE 8,'&H NAME MUST BE &LNAME CHARACTER(S) IN LENGTH'        00009000
+&ERR     SETB  (1)                                                      00009100
+.F040040 ANOP                                                           00009200
+&DDNAME  SETC  '&NAME'(1,6)                                             00009300
+         AGO   .F040END                                                 00009400
+.F040060 ANOP                                                           00009500
+         MNOTE 4,'&H NAME FIELD NOT ALLOWED FOR DSECT GEN - IGNORED'    00009600
+.F040END ANOP                                                           00009700
+.*                                                                      00009800
+.*       -------------------                                            00009900
+.*       CHECK RECFORM FIELD                                            00010000
+.*       -------------------                                            00010100
+.*                                                                      00010200
+.F060BEG ANOP                                                           00010300
+         AIF   (T'&RECFORM NE 'O').F060020                              00010400
+         AIF   (&DSECT).F060END                                         00010500
+         MNOTE 8,'&H ''RECFORM='' IS A REQUIRED PARAMETER'              00010600
+&ERR     SETB (1)                                                       00010700
+         AGO   .F060END                                                 00010800
+.F060020 ANOP                                                           00010900
+         AIF   (&DSECT).F060060                                         00011000
+         AIF   ('&RECFORM' EQ 'FIXBLK').F060040                         00011100
+         AIF   ('&RECFORM' EQ 'FIXUNB').F060040                         00011200
+         AIF   ('&RECFORM' EQ 'VARBLK').F060040                         00011300
+         AIF   ('&RECFORM' EQ 'VARUNB').F060040                         00011400
+         MNOTE 8,'&H ONLY VALID ENTRY(S) FOR RECFORM IS:'               00011500
+         MNOTE '                                   ''FIXBLK'''          00011600
+         MNOTE '                                   ''FIXUNB'''          00011700
+         MNOTE '                                   ''VARBLK'''          00011800
+         MNOTE '                                   ''VARUNB'''          00011900
+&ERR     SETB  (1)                                                      00012000
+         AGO   .F060END                                                 00012100
+.F060040 ANOP                                                           00012200
+&HRECFM  SETC  '&RECFORM'(1,1)                                          00012300
+         AGO   .F060END                                                 00012400
+.F060060 ANOP                                                           00012500
+         MNOTE 4,'&H RECFORM FIELD NOT ALLOWED FOR DSECT GEN - IGNORED' 00012600
+.F060END ANOP                                                           00012700
+.*                                                                      00012800
+.*       -------------------------------                                00012900
+.*       DETERMINE MACRO GENERATION PATH                                00013000
+.*       -------------------------------                                00013100
+.*                                                                      00013200
+.CKERROR ANOP                                                           00013300
+         AIF   (&ERR NE 1).NOERROR                                      00013400
+         MNOTE 12,'&H MACRO GENERATION TERMINATED DUE TO SEVERE ERROR'  00013500
+         MEXIT                                                          00013600
+.NOERROR ANOP                                                           00013700
+.*                                                                      00013800
+.*       -----------------------                                        00013900
+.*       BEGIN MODULE GENERATION                                        00014000
+.*       -----------------------                                        00014100
+.*                                                                      00014200
+.GEN0020 ANOP                                                           00014300
+         MNOTE '&H VERSION = &MVER MOD = &MMOD DATE = &MDATE'           00014400
+         AIF   (&DSECT).GEN0080                                         00014500
+&NAME    START 0                                                        00014600
+         MNOTE 'BEGIN    ZZMACA1 BASEREG=(R12),ID=&NAME'                00014700
+BEGIN    ZZMACA1 BASEREG=(R12),ID=&NAME                                 00014800
+         LA    R15,ORIGPARM             POINT TO ORIGINAL PARMS AREA    00014900
+         LA    R0,PARMLLNG/4            GET NUMBER OF POTENTIAL PARMS   00015000
+MOVEPARM DS    0H                                                       00015100
+         MVC   0(4,R15),0(R1)           MOVE A PARM                     00015200
+         TM    0(R1),X'80'              LAST PARM                       00015300
+         BO    ENDPARMS                 ..YES                           00015400
+         LA    R15,4(0,R15)             BUMP 1 PARM                     00015500
+         LA    R1,4(0,R1)               BUMP 1 PARM                     00015600
+         BCT   R0,MOVEPARM              DO IT UP TO R0 TIMES            00015700
+ENDPARMS DS    0H                                                       00015800
+         TM    SWITCH,FIRST                                             00015900
+         BO    CALLSIIO                                                 00016000
+         MNOTE '         LOAD  EP=SIIORTN'                              00016100
+         LOAD  EP=SIIORTN                                               00016200
+         ST    R0,ASIIORTN                                              00016300
+         OI    SWITCH,FIRST                                             00016400
+CALLSIIO DS    0H                                                       00016500
+         LA    R1,PARMS                                                 00016600
+         L     R15,ASIIORTN                                             00016700
+         MNOTE '         CALL (15)'                                     00016800
+         CALL  (15)                                                     00016900
+         MNOTE '         ZZCPYA2 RC=(15)'                               00017000
+.GEN0060 ANOP                                                           00017100
+         ZZMACA4 RC=(15)                                                00017200
+SWITCH   DC    X'00'                                                    00017300
+FIRST    EQU   X'01'                                                    00017400
+ASIIORTN DC    F'0'                                                     00017500
+         AGO   .GEN0100                                                 00017600
+.GEN0080 ANOP                                                           00017700
+SIDSIO   DSECT                                                          00017800
+.GEN0100 ANOP                                                           00017900
+PARMS    DS    0A                                                       00018000
+WKSTRG   DS    0A                                                       00018100
+AWKSTRG  &DCDS A&L.WKSTRG&R       NEW PARAMETER 1                       00018200
+ORIGPARM EQU   *                                                        00018300
+ORIGP1   &DCDS F&Q.0&Q                ORIGINAL CALL PARAMETER 1         00018400
+ORIGP2   &DCDS F&Q.0&Q                ORIGINAL CALL PARAMETER 2         00018500
+ORIGP3   &DCDS F&Q.0&Q                ORIGINAL CALL PARAMETER 3 (OPT)   00018600
+ORIGP4   &DCDS F&Q.0&Q                ORIGINAL CALL PARAMETER 4 (OPT)   00018700
+*        THE FOLLOWING 10 FULLWORDS ARE FOR ANY FUTURE EXPANSION        00018800
+*        THAT MAY BE NEEDED                                             00018900
+EXTRAP01 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019000
+EXTRAP02 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019100
+EXTRAP03 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019200
+EXTRAP04 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019300
+EXTRAP05 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019400
+EXTRAP06 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019500
+EXTRAP07 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019600
+EXTRAP08 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019700
+EXTRAP09 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019800
+EXTRAP10 &DCDS F&Q.0&Q                EXTRA PARAMETER AREAS             00019900
+PARMLLNG EQU   *-ORIGPARM             PARAMETER LIST LENGTH             00020000
+*                                                                       00020100
+*        THE FOLLOWING FIELDS ARE GROUPED INTO A SPECIFIC ORDER SO THAT 00020200
+*        AN INDEX REGISTER MAY BE USED TO ACCESS THEM.  IT IS IMPORTANT 00020300
+*        THAT THEY BE IN THE FOLLOWING ORDER (INPUT, OUTPUT, UPDATE)    00020400
+*                                                                       00020500
+INDEXI   EQU   0                   POINTER INDEX FOR INPUT              00020600
+INDEXO   EQU   1                   POINTER INDEX FOR OUTPUT             00020700
+INDEXU   EQU   2                   POINTER INDEX FOR UPDATE             00020800
+*                                                                       00020900
+AINPDCB  &DCDS A&L.FILEDCBI&R      INPUT                                00021000
+AOUTDCB  &DCDS A&L.FILEDCBO&R      OUTPUT                               00021100
+AUPDDCB  &DCDS A&L.FILEDCBU&R      UPDATE                               00021200
+*                                                                       00021300
+AINPRPL  &DCDS A&L.INPRPL&R        ADDRESS OF INPUT RPL                 00021400
+AOUTRPL  &DCDS A&L.OUTRPL&R        ADDRESS OF OURPUT RPL                00021500
+AUPDRPL  &DCDS A&L.OUTRPL&R        ADDRESS OF UPDATE RPL                00021600
+*                                                                       00021700
+AINPACB  &DCDS A&L.INPACB&R        ADDRESS OF INPUT ACB                 00021800
+AOUTACB  &DCDS A&L.OUTACB&R        ADDRESS OF INPUT ACB                 00021900
+AUPDACB  &DCDS A&L.OUTACB&R        ADDRESS OF UPDATE ACB                00022000
+*                                                                       00022100
+KEYADDRI &DCDS F&Q.0&Q             SAVE RECORD KEY ADDRESS AREA INPUT   00022200
+KEYADDRO &DCDS F&Q.0&Q             SAVE RECORD KEY ADDRESS AREA OUTPUT  00022300
+KEYADDRU &DCDS F&Q.0&Q             SAVE RECORD KEY ADDRESS AREA UPDATE  00022400
+*                                                                       00022500
+RBAADDRI &DCDS F&Q.0&Q             SAVE CONTROL RBA ADDRESS AREA INPUT  00022600
+RBAADDRO &DCDS F&Q.0&Q             SAVE CONTROL RBA ADDRESS AREA OUTPUT 00022700
+RBAADDRU &DCDS F&Q.0&Q             SAVE CONTROL RBA ADDRESS AREA UPDATE 00022800
+*                                                                       00022900
+SAVERKPI &DCDS F&Q.0&Q             SAVE REL KEY POSITION INPUT          00023000
+SAVERKPO &DCDS F&Q.0&Q             SAVE REL KEY POSITION OUTPUT         00023100
+SAVERKPU &DCDS F&Q.0&Q             SAVE REL KEY POSITION OUTPUT         00023200
+*                                                                       00023300
+SAVKLENI &DCDS F&Q.0&Q             SAVE KEY LENGTH INPUT                00023400
+SAVKLENO &DCDS F&Q.0&Q             SAVE KEY LENGTH OUTPUT               00023500
+SAVKLENU &DCDS F&Q.0&Q             SAVE KEY LENGTH OUTPUT               00023600
+*                                                                       00023700
+RECADDRI &DCDS F&Q.0&Q             RECORD ADDRESS IN BUFFER INPUT       00023800
+RECADDRO &DCDS F&Q.0&Q             RECORD ADDRESS IN BUFFER OUTPUT      00023900
+RECADDRU &DCDS F&Q.0&Q             RECORD ADDRESS IN BUFFER UPDATE      00024000
+*                                                                       00024100
+LASTKEYI &DCDS F&Q.0&Q             ADR OF SAVE AREA FOR LAST KEY INPUT  00024200
+LASTKEYO &DCDS F&Q.0&Q             ADR OF SAVE AREA FOR LAST KEY OUTPUT 00024300
+LASTKEYU &DCDS F&Q.0&Q             ADR OF SAVE AREA FOR LAST KEY UPDATE 00024400
+*                                                                       00024500
+LASTRBAI &DCDS F&Q.0&Q             RBA OF LAST RECORD INPUT             00024600
+LASTRBAO &DCDS F&Q.0&Q             RBA OF LAST RECORD OUTPUT            00024700
+LASTRBAU &DCDS F&Q.0&Q             RBA OF LAST RECORD UPDATE            00024800
+*                                                                       00024900
+AEXITLST &DCDS A&L.EXITLST&R       ADDRESS OF EXIT LIST                 00025000
+RECLRECL &DCDS F&Q.0&Q             RECORD LENGTH FOR FIXED FILES        00025100
+*                                                                       00025200
+OPENSWTI &DCDS C&Q.N&Q             FILE STATUS SWITCH (INPUT)           00025300
+OPENSWTO &DCDS C&Q.N&Q             FILE STATUS SWITCH (OUTPUT)          00025400
+OPENSWTU &DCDS C&Q.N&Q             FILE STATUS SWITCH (UPDAT)           00025500
+*                                                                       00025600
+OPERI    &DCDS C&Q.N&Q             LAST INPUT OPERATION AREA            00025700
+OPERO    &DCDS C&Q.N&Q             LAST OUTPU OPERATION AREA            00025800
+OPERU    &DCDS C&Q.N&Q             LAST UPDAT OPERATION AREA            00025900
+*                                                                       00026000
+*                                                                       00026100
+ACCTYPEI &DCDS CL01&Q.&S.&Q        ACCESS METHOD INPUT                  00026200
+ACCTYPEO &DCDS CL01&Q.&S.&Q        ACCESS METHOD OUTPUT                 00026300
+ACCTYPEU &DCDS CL01&Q.&S.&Q        ACCESS METHOD UPDATE                 00026400
+VSAM     EQU   C'V'                                                     00026500
+SEQ      EQU   C'S'                                                     00026600
+*                                                                       00026700
+         AIF   ('&TYPE' NE 'DSECT').GEN0120                             00026800
+MODTYPE  &DCDS CL01                                                     00026900
+         AGO   .GEN0140                                                 00027000
+.GEN0120 ANOP                                                           00027100
+MODTYPE  &DCDS CL01'&TYPE.'        MODULE TYPE                          00027200
+.GEN0140 ANOP                                                           00027300
+RECFORM  &DCDS C&Q.&HRECFM.&Q      RECORD FORMAT                        00027400
+VARIABLE EQU   C'V'                                                     00027500
+FIXED    EQU   C'F'                                                     00027600
+OPENIA0  &DCDS C&Q.X&Q             FILE OPEN ERROR SWITCH               00027700
+*                                                                       00027800
+IOINTID  &DCDS CL08&Q.&NAME&Q                                           00027900
+FILLER   &DCDS XL100&Q.00&Q                                             00028000
+         SPACE 1                                                        00028100
+         AIF   (&DSECT).GENEND                                          00028200
+         LTORG                                                          00028300
+         AIF   ('&TYPE' EQ 'V').GENVSAM                                 00028400
+         EJECT                                                          00028500
+**************************************************************          00028600
+**************************************************************          00028700
+*                                                            *          00028800
+*        DCBS                                                *          00028900
+*                                                            *          00029000
+**************************************************************          00029100
+**************************************************************          00029200
+         MNOTE 'FILEDCBI DCB'                                           00029300
+         MNOTE '               DSORG=PS'                                00029400
+         MNOTE '               MACRF=(GL)'                              00029500
+         MNOTE '               EODAD=*'                                 00029600
+         MNOTE '               DDNAME=DUMMY'                            00029700
+FILEDCBI DCB   DSORG=PS,MACRF=(GL),EODAD=*,DDNAME=DUMMY                 00029800
+         SPACE 3                                                        00029900
+         MNOTE 'FILEDCBO DCB'                                           00030000
+         MNOTE '               DSORG=PS'                                00030100
+         MNOTE '               MACRF=(PM)'                              00030200
+         MNOTE '               DDNAME=DUMMY'                            00030300
+FILEDCBO DCB   DSORG=PS,MACRF=(PM),DDNAME=DUMMY                         00030400
+         SPACE 3                                                        00030500
+         MNOTE 'FILEDCBU DCB'                                           00030600
+         MNOTE '               DSORG=PS'                                00030700
+         MNOTE '               MACRF=(GL,PL)'                           00030800
+         MNOTE '               DDNAME=DUMMY'                            00030900
+FILEDCBU DCB   DSORG=PS,MACRF=(GL,PL),DDNAME=DUMMY                      00031000
+         EJECT                                                          00031100
+**************************************************************          00031200
+**************************************************************          00031300
+*                                                            *          00031400
+*   INPUT VSAM RPL AND ACB (DUMMY POINTERS FOR TYPE=S)       *          00031500
+*                                                            *          00031600
+**************************************************************          00031700
+**************************************************************          00031800
+INPRPL   EQU   0                                                        00031900
+OUTRPL   EQU   0                                                        00032000
+INPACB   EQU   0                                                        00032100
+OUTACB   EQU   0                                                        00032200
+EXITLST  EQU   0                                                        00032300
+         AGO   .GENEND                                                  00032400
+.GENVSAM ANOP                                                           00032500
+         EJECT                                                          00032600
+**************************************************************          00032700
+**************************************************************          00032800
+*                                                            *          00032900
+*        DCBS (DUMMY POINTERS FOR TYPE=V)                    *          00033000
+*                                                            *          00033100
+**************************************************************          00033200
+**************************************************************          00033300
+FILEDCBI EQU   0                                                        00033400
+FILEDCBO EQU   0                                                        00033500
+FILEDCBU EQU   0                                                        00033600
+         EJECT                                                          00033700
+**************************************************************          00033800
+**************************************************************          00033900
+*                                                            *          00034000
+*   INPUT VSAM RPL AND ACB                                   *          00034100
+*                                                            *          00034200
+**************************************************************          00034300
+**************************************************************          00034400
+         MNOTE 'INPRLP   RPL'                                           00034500
+         MNOTE '               ACB=INPACB'                              00034600
+INPRPL   RPL   ACB=INPACB                                               00034700
+         MNOTE 'EXITLST  EXLST'                                         00034800
+         MNOTE '               AM=VSAM'                                 00034900
+         MNOTE '               EODAD=*'                                 00035000
+EXITLST  EXLST AM=VSAM,EODAD=*                                          00035100
+         MNOTE 'INPACB   ACB'                                           00035200
+         MNOTE '               AM=VSAM'                                 00035300
+         MNOTE '               MACRF=(KEY,ADR,SEQ,DIR)'                 00035400
+         MNOTE '               EXLST=EXITLST'                           00035500
+INPACB   ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST            00035600
+**************************************************************          00035700
+**************************************************************          00035800
+*                                                            *          00035900
+*   OUTPUT VSAM RPL AND ACB                                  *          00036000
+*                                                            *          00036100
+**************************************************************          00036200
+**************************************************************          00036300
+         MNOTE 'OUTRLP   RPL'                                           00036400
+         MNOTE '               ACB=OUTACB'                              00036500
+OUTRPL   RPL   ACB=OUTACB                                               00036600
+         MNOTE 'OUTACB   ACB'                                           00036700
+         MNOTE '               AM=VSAM'                                 00036800
+         MNOTE '               MACRF=(KEY,ADR,SEQ,DIR)'                 00036900
+         MNOTE '               EXLST=EXITLST'                           00037000
+OUTACB   ACB   AM=VSAM,MACRF=(KEY,ADR,SEQ,DIR),EXLST=EXITLST            00037100
+.GENEND  ANOP                                                           00037200
+         MEXIT                                                          00037300
+         MEND                                                           00037400
+         END                                                            00037500

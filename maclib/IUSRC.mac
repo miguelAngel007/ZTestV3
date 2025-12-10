@@ -1,0 +1,73 @@
+         MACRO                                                          00000100
+         IUSRC &PREFIX=SRC,&SEQ=YES                                     00000200
+         LCLC  &PR                                                      00000300
+&PR      SETC  '&PREFIX'                                                00000400
+         AIF   ('&SEQ' EQ 'ONLY').SEQREC                                00000500
+*********************************************************************** 00000600
+*        IU CONTROL RECORD DESCRIPTION                                * 00000700
+*********************************************************************** 00000800
+&PR.CTLR DS    CL80                                                     00000900
+         ORG   &PR.CTLR                                                 00001000
+         DS    CL10                                                     00001100
+&PR.APPL DS    CL2                APPLICATION CODE                      00001200
+&PR.VER  DS    CL4                APPLICATION VERSION NO.               00001300
+&PR.REL  DS    CL3                APPLICATION VERSION NO.               00001400
+&PR.COB2 DS    CL1                APPLICATION COBOL II INDICATOR        00001500
+*                                 '1' INSTALL APPLICATION AS COBOL/VS   00001600
+*                                 '2' INSTALL APPLICATION AS COBOL/II   00001700
+*                                 '3' INSTALL APPLICATION AS MIXED      00001800
+*                                     COBOL - COBOL/VS & COBOL/II       00001900
+         ORG   &PR.CTLR                                                 00002000
+&PR.NAME DS    CL10               SOURCE NAME                           00002100
+&PR.SECT DS    CL3                SECTION ID                            00002200
+&PR.TYPE DS    CL5                LANGUAGE TYPE                         00002300
+&PR.PASS DS    0CL4               LIBRARIAN PASSWORD                    00002400
+&PR.LVL  DS    CL3                PANVALET LEVEL                        00002500
+&PR.LIBR DS    CL1                RESERVED FOR LIBRARIAN                00002600
+&PR.STMT DS    CL5                NO. STATEMENTS                        00002700
+&PR.FINM DS    CL8                FIAS NAME                             00002800
+&PR.INFO DS    0CL12              MODULE LOCAL OPTIONS                  00002900
+&PR.OSRC DS    CL8                ORIGINAL SOURCE PROGRAM NAME          00003000
+&PR.PRT  DS    CL1                ALWAYS PRINT LISTING                  00003100
+&PR.IMOD DS    CL1                VSE INTERFACE MODULE PRESENT          00003200
+&PR.CBLD DS    CL1                COBOL DUAL MODE FLAG                  00003300
+         DS    CL1                                                      00003400
+         DS    CL2                                                      00003500
+&PR.BNME DS    CL8                APA BATCH MODULE NAME                 00003600
+&PR.WORK DS    0CL3               MISC. INTERNAL WORK FLAGS             00003700
+&PR.WK1  DS    CL1                                                      00003800
+&PR.WK2  DS    CL1                                                      00003900
+&PR.WK3  DS    CL1                                                      00004000
+&PR.STAT DS    0CL20              PROCESS STATUS FLAGS AND DPR NO.      00004100
+&PR.ACT  DS    CL1                ACTION CODE                           00004200
+&PR.ERR1 DS    CL1                INSTALL ERROR CODE 1                  00004300
+&PR.ERR2 DS    CL1                INSTALL ERROR CODE 2                  00004400
+         DS    CL1                                                      00004500
+&PR.LCLM DS    CL1                LOCAL MODIFICATION FLAG               00004600
+&PR.LCLP DS    CL1                LOCAL PROGRAM FLAG                    00004700
+&PR.SKIP DS    CL1                SKIP INSTALL FLAG                     00004800
+         DS    CL2                                                      00004900
+&PR.DPR  DS    CL11               DATA PROCESSING REQUEST NUMBER        00005000
+         AIF   ('&SEQ' EQ 'NO').THEEND                                  00005100
+         ORG   &PR.CTLR                                                 00005200
+.SEQREC  ANOP                                                           00005300
+*********************************************************************** 00005400
+*        IU CONTROL SEQUENCE RECORD DESCRIPTION                       * 00005500
+*********************************************************************** 00005600
+&PR.SEQR DS    0CL80                                                    00005700
+&PR.SKEY DS    0CL10                                                    00005800
+&PR.SNAM DS    CL10               JOB NAME                              00005900
+&PR.SSEC DS    CL3                LITERAL 'SEQ'                         00006000
+&PR.SFLG DS    CL1                STATUS INDICATOR                      00006100
+&PR.PRV1 DS    CL8                JOB PREREQ #1                         00006200
+&PR.PRV2 DS    CL8                JOB PREREQ #2                         00006300
+&PR.PRV3 DS    CL8                JOB PREREQ #3                         00006400
+&PR.PRV4 DS    CL8                JOB PREREQ #4                         00006500
+&PR.PRV5 DS    CL8                JOB PREREQ #5                         00006600
+&PR.PRV6 DS    CL8                JOB PREREQ #6                         00006700
+&PR.PRV7 DS    CL8                JOB PREREQ #7                         00006800
+&PR.PRV8 DS    CL8                JOB PREREQ #8                         00006900
+         DS    CL2                                                      00007000
+.THEEND  ANOP                                                           00007100
+         ORG                                                            00007200
+         MEND                                                           00007300

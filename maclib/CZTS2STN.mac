@@ -1,0 +1,18 @@
+**********************************************************************  0604945
+* COPYBOOK : CZTS2STN - NEW ACCOUNT RECORD LAYOUT ( OCCURENCE )      *  0604945
+**********************************************************************  0604945
+STNDSPDA DS   0X                   *                                    0604945
+STNDHEAD DS   0CL27                * HEAD OCCURENCE
+STNDKEY  DS   0CL25                * KEY
+STNDCTLS DS   0CL11                * - CONTROLS
+STNDCTL1 DS   0CL2                 *   . CONTROL 1 : BANK
+STNDDEL  DS    CL1                 *     / DELETE INDICATOR
+         DS    CL1                 *     / FILLER
+STNDCTL2 DS    CL3                 *   . CONTROL 2 : CURRENCY
+STNDCTL3 DS    CL3                 *   . CONTROL 3 : BRACH
+STNDCTL4 DS    CL3                 *   . CONTROL 4 : CATEGORY
+STNDACCT DS    CL14                * - ACCOUNT NUMBER
+STNDTRAN DS    CL2                 * TRANSACTION CODE
+*
+STNDDATA DS   0CL73                * TRANSACTION DATA RECORD            NL860012
+STNDLEN  EQU   *-STNDSPDA          * LENGTH OF PDA OCC ( 100 BYTES )

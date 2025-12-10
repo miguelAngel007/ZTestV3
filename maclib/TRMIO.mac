@@ -1,0 +1,19 @@
+         MACRO                                                          00000100
+ TRMIO &TR=,&BR=,&BANK=0,&TLT=128,&SW=00                                00000200
+ GBLA &TRNO                                                             00000300
+&TRNO    SETA  &TRNO+1                                                  00000400
+         AIF   (&TRNO EQ 0).NOTE                                        00000500
+         AIF   (&TRNO NE &TR).NOTE                                      00000600
+T&TR     DC    H'&TR'             TERMINAL NUMBER                       00000700
+         DC    H'&BR'             BRANCH NUMBER                         00000800
+         DC    FL1'&BANK'         BANK NUMBER                           00000900
+         DC    FL1'&TLT'          TRLT PROGRAM NUMBER                   00001000
+         DC    X'&SW'             TERMINAL SWITCH                       00001100
+         DC    X'00'              TERMINAL STATUS                       00001200
+         SPACE                                                          00001300
+         MEXIT                                                          00001400
+.NOTE    ANOP                                                           00001500
+         MNOTE ,'ERROR DE SECUENCIA EN NUMERO DE TERMINAL. AREA NO GENE*00001600
+               RADA'                                                    00001700
+&TRNO    SETA  0                                                        00001800
+         MEND                                                           00001900

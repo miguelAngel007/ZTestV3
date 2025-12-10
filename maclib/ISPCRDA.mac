@@ -1,0 +1,85 @@
+         MACRO                                                          00001000
+         ISPCRDA &DSECT=YES                                             00002000
+         LCLB  &DST                                                     00003000
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00004000
+         AIF   ('&DSECT' EQ 'NO').START                                 00005000
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00006000
+         MEXIT                                                          00007000
+.SETYES  ANOP                                                           00008000
+&DST     SETB  1                                                        00009000
+         AGO   .START                                                   00010000
+.START   ANOP                                                           00011000
+*                                                                       00012000
+*         SIMS ASSEMBLE COPYBOOK FOR PROCESS CONTROL RECORD             00013000
+*                                                                       00014000
+         AIF   (&DST).D0001                                             00015000
+ISPCRDA  DS    0D                                                       00016000
+         AGO   .C0001                                                   00017000
+.D0001   ANOP                                                           00018000
+ISPCRDA  DSECT                                                          00019000
+.C0001   ANOP                                                           00020000
+PCRREC   DS    0CL1200                                                  00021000
+PCRKEY   DS    0CL14                        RECORD KEY                  00022000
+PCRCTL1  DS    CL2                          CONTROL 1                   00023000
+PCRCTL2  DS    CL3                          CONTROL 2                   00024000
+PCRCTL3  DS    CL3                          CONTROL 3                   00025000
+PCRCTL4  DS    CL4                          CONTROL 4                   00026000
+PCRTYPE  DS    CL2                          RECORD TYPE                 00027000
+PCRKYLEN EQU   *-PCRCTL1                    LENGTH OF KEY               00028000
+PCRDATES DS    0CL90                        HOLIDAYS                    00029000
+PCRHOL1  DS    CL6                          FIRST HOLIDAY               00030000
+PCRHOL2  DS    CL6                          SECOND HOLIDAY              00031000
+PCRHOL3  DS    CL6                          THIRD HOLIDAY               00032000
+PCRHOL4  DS    CL6                          FORTH HOLIDAY               00033000
+PCRHOL5  DS    CL6                          FIFTH HOLIDAY               00034000
+PCRHOL6  DS    CL6                          SIXTH HOLIDAY               00035000
+PCRHOL7  DS    CL6                          SEVENTH HOLIDAY             00036000
+PCRHOL8  DS    CL6                          EIGHT HOLIDAY               00037000
+PCRHOL9  DS    CL6                          NINTH HOLIDAY               00038000
+PCRHOL10 DS    CL6                          TENTH HOLIDAY               00039000
+PCRHOL11 DS    CL6                          ELEVENTH HOLIDAY            00040000
+PCRHOL12 DS    CL6                          TWELFTH HOLIDAY             00041000
+PCRHOL13 DS    CL6                          THIRTEENTH HOLIDAY          00042000
+PCRHOL14 DS    CL6                          FOURTEENTH HOLIDAY          00043000
+PCRHOL15 DS    CL6                          FIFTEENTH HOLIDAY           00044000
+PCRPFLGS DS    0CL7                         PROCESSING FLAGES           00045000
+PCRPFLG1 DS    CL1                          PROCESS FLAG ONE            00046000
+PCRPFLG2 DS    CL1                          PROCESS FLAG TWO            00047000
+PCRPFLG3 DS    CL1                          PROCESS FLAG THREE          00048000
+PCRPFLG4 DS    CL1                          PROCESS FLAG FOUR           00049000
+PCRPFLG5 DS    CL1                          PROCESS FLAG FIVE           00050000
+PCRPFLG6 DS    CL1                          PROCESS FLAG SIX            00051000
+PCRPFLG7 DS    CL1                          PROCESS FLAG SEVEN          00052000
+PCRPDTS  DS    0CL18                        PROCESS DATES               00053000
+PCRPDT1  DS    CL6                          PROCESS DATE ONE            00054000
+PCRPDT2  DS    CL6                          PROCESS DATE TWO            00055000
+PCRPDT3  DS    CL6                          PROCESS DATE THREE          00056000
+PCRB1FIL DS    CL38                         FILLER                      00057000
+PCRAPREQ DS    CL1                          APPLICATION REQUIRED FLAG   00058000
+*                                           VALUE Y                     00059000
+PCRSRTN  DS    CL8                          SECURITY ROUTINE            00060000
+*                                           VALUE FISECURTY             00061000
+PCRLOGFL DS    CL8                          LOG FILE                    00062000
+*                                           VALUE FILOG                 00063000
+PCRSTINC DS    PL2                          STATUS INCREMENT            00064000
+*                                           VALUE 15                    00065000
+PCRMAXRD DS    PL5                          RECORDS READ PER QUERY      00066000
+*                                           VALUE ALL 9'S               00067000
+PCRDELAY DS    PL2                          NUMBER OF SECONDS TO DELAY  00068000
+*                                           VALUE 0                     00069000
+PCRAXREC DS    PL4                          AFTER READING X RECORDS     00070000
+*                                           VALUE 1                     00071000
+PCRAPTBL DS    0CL780                       APPLICATION TABLE OCCURS 60 00072000
+PCRAPPL1 DS    0CL13                        FIRST APPLICATION ENTRY     00073000
+PCRAPNM1 DS    CL8                          FIRST FILE NAME             00074000
+PCRAPBK1 DS    CL4                          FIRST OFFSET TO BANK NO.    00075000
+PCRAPFR1 DS    CL1                          FIRST FREEMAIN FLAG         00076000
+PCRAP260 DS    CL767                        APPL TABLE ENTRIES 2 - 60   00077000
+PCRAPNUM DS    XL2                          NO. OF APPLICATIONS IN PCR  00078000
+PCRB2FIL DS    CL221                        FILLER                      00079000
+PCRLNGTH EQU   *-PCRREC                     PCR LENGTH                  00080000
+PCRAPPL  DSECT                                                          00081000
+PCRFILE  DS    CL8                          APPLICATION FILE NAME       00082000
+PCROFFS  DS    CL4                          OFFSET OF BANK NUMB IN KEY  00083000
+PCREXPN  DS    CL1                          EXPANSION ROUTINE FREEMAIN  00084000
+         MEND                                                           00085000

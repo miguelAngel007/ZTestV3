@@ -1,0 +1,264 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000100
+*        TSTS4PMR - ERROR ROUTINE FOR TS DELIVERY MODULES WHICH DO   *  00000200
+*                   NOT USE THE TSTS2TSC (TS CONTROL BLOCK) COPYBOOK *  00000300
+*                                                                    *  00000400
+*        THIS ROUTINE USES THE REQUEST CODE TO DETERMINE WHAT ACTION *  00000500
+*        TO TAKE:                                                    *  00000600
+*                                                                    *  00000700
+*        0 - REQUEST TO PUT MESSAGE IN TABLE                         *  00000800
+*        1 - PUT MESSAGE IN TABLE AND DO LOOKUP                      *  00000900
+*        2 - REQUEST TO LOOKUP MESSAGES                              *  00001000
+*                                                                    *  00001100
+*        IF REQUEST = 2, LINK TO LOOKUP.                             *  00001200
+*                                                                    *  00001300
+*        ADD ONE TO THE OCCURRENCE NUMBER.                           *  00001400
+*                                                                    *  00001500
+*        COMPARE THE OCCURRENCE NUMBER TO THE MAXIMUM FOR THAT       *  00001600
+*        TERMINAL TYPE (ADMIN OR OTHER).  IF THE OCCURRENCE          *  00001700
+*        NUMBER IS GREATER THAN THE MAXIMUM, THEN MOVE THE MESSAGE   *  00001800
+*        INTO THE STEM OF THE MDA AND LINK TO THE LOOKUP PROGRAM     *  00001900
+*        (TSTSNEH1).                                                 *  00002000
+*                                                                    *  00002100
+*        OTHERWISE PUT THE MESSAGE IN THE NEXT AVAILABLE ADDR IN     *  00002200
+*        THE MDA.                                                    *  00002300
+*                                                                    *  00002400
+*        IF REQUEST = 1, LINK TO LOOKUP, OTHERWISE RESTORE REGS      *  00002500
+*        AND RETURN TO THE CALLING ROUTINE.                          *  00002600
+*                                                                    *  00002700
+*        UPON RETURN FROM LOOKUP, COMPARE THE OCCURRENCE NUMBER      *  00002800
+*        TO THE MAXIMUM FOR THAT TERMINAL TYPE (ADMIN OR OTHER).     *  00002900
+*        IF THE OCCURRENCE NUMBER IS NOT GREATER THAN THE MAXIMUM,   *  00003000
+*        UPDATE THE NEXT AVAILABLE MDA POSITION. (NOTE:  LOOKUP      *  00003100
+*        CHANGES THE OCCURRENCE NUMBER WHEN THERE ARE DUPLICATE      *  00003200
+*        MESSAGES).                                                  *  00003300
+*                                                                    *  00003400
+*        CHECK THE TRAN STATUS FLAG.  IF THERE WAS A FATAL ERROR,    *  00003500
+*        TRANSFER CONTROL TO OUTPUT ANALYSIS.                        *  00003600
+*                                                                    *  00003700
+*        RESTORE REGISTERS AND RETURN TO THE CALLING ROUTINE.        *  00003800
+*                                                                    *  00003900
+*        REGISTER USAGE:                                             *  00004000
+*                                                                    *  00004100
+*              R6  - POINTER TO NCA                                  *  00004200
+*              R8  - POINTER TO MDA                                  *  00004300
+*              R9  - POINTER TO MDA OCCURRENCE                       *  00004400
+*              R14, R15 - WORK REGISTERS                             *  00004500
+*                                                                    *  00004600
+**********************************************************************  00004700
+*              HISTORY OF REVISIONS                           0524877   00004702
+*                                                             0524877   00004704
+* DESCRIPTION                                                 0524877   00004706
+* ___________________________________________________________ 0524877   00004708
+* 11/09/04 UPDATE TO RETURN ERROR WITH THE FIRST ACCESS       0524877   00004794
+*          TO THE UNAUTHORIZED TRANSACTION.                   0524877   00004796
+* 01/25/00 NCA EXPANSION                                      2023782*  00004798
+************************************************************* 2023782*  00004799
+         SPACE                                                          00004800
+ERRTN000 EQU   *                                                        00004900
+         STM   R14,R12,WMS1REGS      SAVE REGISTERS                     00005000
+         CLC   WMSANCA,=XL4'00'      NCA ADDRESS PRESENT ?              00005100
+         BNE   ERRTN010              ...YES, ADDRESS NCA                00005200
+         MVC   WMSANCA,DFHEICAP      LOAD ADDRESS OF NCA                00005300
+         SPACE                                                          00005400
+ERRTN010 EQU   *                                                        00005500
+         XR    R6,R6                 CLEAR REG FOR INSERT               00005600
+         ICM   R6,15,WMSANCA         LOAD ADDRESS OF NCA                00005700
+         USING TSNCA,R6              ESTABLISH ADDRESSABILITY           00005800
+         LA    R8,NCAMDA             LOAD ADDR OF START OF MDA          00005900
+         USING MDASTEM,R8            ESTABLISH ADDRESSABILITY           00006000
+         CLI   WMSREQCD,C'2'         REQUEST FOR LOOKUP ONLY?           00006100
+         BE    ERRTN060              YES - GO LINK                      00006200
+         XR    R14,R14               CLEAR REG FOR INSERT               00006300
+         ICM   R14,3,MDAMOIP         INSERT MSG OCCURRENCE              00006400
+         LA    R14,1(R14)            ADD ONE                            00006500
+         STCM  R14,3,MDAMOIP         STORE NEW OCCURRENCE NUMBER        00006600
+         CLC   MDAMOIP,MDAMAXMG      IS TABLE FULL?                     00006700
+         BH    ERRTN020              YES - GO FILL IN FORCE L.U. AREA   00006800
+         LR    R9,R8                 NO - LOAD ADDR OF MDA              00006900
+         XR    R14,R14               CLEAR REG FOR INSERT               00007000
+         ICM   R14,3,MDANAP          INSERT POSITION FOR NEXT MESSAGE   00007100
+         AR    R9,R14                ADD TO BASE ADDRESS                00007200
+         BCTR  R9,0                  SUBTR 1 FOR ACTUAL DISPLACEMENT    00007300
+         USING MDAOCCUR,R9           ESTABLISH ADDRESSABILITY           00007400
+         B     ERRTN030              GO FILL IN MDA OCCURRENCE          00007500
+ERRTN020 EQU   *                                                        00007600
+         MVI   WMSREQCD,C'2'         FORCE LOOKUP                       00007700
+         LA    R9,MDAFLA             ADDRESS OF FORCE LOOKUP AREA       00007800
+         SPACE                                                          00007900
+ERRTN030 EQU   *                                                        00008000
+         XC    MDAAPAM,MDAAPAM       PRE-SET ADDR OF PCA TO ZEROES      00008100
+         SPACE                                                          00008200
+ERRTN040 EQU   *                                                        00008300
+         CLI   WMSRSLTC,C'1'         ERROR ON PARMS LINK                00008400
+         BNE   ERRTN050              NO - FINISH BUILDING MDA OCCURS    00008500
+         MVI   MDAPRCFL,C'3'         INDICATE PARMS ERROR               00008600
+         SPACE                                                          00008700
+ERRTN050 EQU   *                                                        00008800
+         MVC   MDADAG,WMSMGFDG       MOVE DAG                           00008900
+         MVC   MDAFI,WMSMGFID             FIELD ID                      00009000
+         MVC   MDAFDMS,WMSMGDMS           DIMENSIONS                    00009100
+         MVC   MDAPI,WMSMGPID             PROGRAM ID                    00009200
+         MVC   MDACODE(L'WMSAPPL),WMSAPPL APPLICATION                   00009300
+         MVC   MDACODE+L'WMSAPPL(L'WMSMGCOD),WMSMGCOD     MESSAGE CODE  00009400
+         MVC   MDAVD,WMSMGVAS        VARIABLES                          00009500
+         CLI   WMSREQCD,C'1'         REQUEST FOR LOOKUP?                00009600
+         BL    ERRTN070              NO - GO RETURN TO MAIN LINE        00009700
+         SPACE                                                          00009800
+ERRTN060 EQU   *                                                        00009900
+         MVC   WMSLNKPH,=C'TSTSNEH1' ERROR PROCESSING ROUTINE           00010000
+         BAL   R15,LINKP000          PERFORM LINK TO NEH1               00010100
+*=********************************=*                                    00010200
+*=*   RE-ESTABLISH MDA OCCURS    *=*                                    00010300
+*=*   TSTSNEH1 CAN REMOVE OCCURS *=*                                    00010400
+*=********************************=*                                    00010500
+         LR    R9,R8                 NO - LOAD ADDR OF MDA              00010600
+         XR    R14,R14               CLEAR REG FOR INSERT               00010700
+         ICM   R14,3,MDANAP          INSERT POSITION FOR NEXT MESSAGE   00010800
+         AR    R9,R14                ADD TO BASE ADDRESS                00010900
+         BCTR  R9,0                  SUBTR 1 FOR ACTUAL DISPLACEMENT    00011000
+         SPACE 2                                                        00011100
+ERRTN070 EQU   *                                                        00011200
+         CLC   MDAMOIP,MDAMAXMG      IS TABLE FULL?                     00011300
+         BH    ERRTN080              YES - GO ON                        00011400
+         CLI   WMSREQCD,C'2'         REQUEST FOR LOOKUP ONLY?           00011500
+         BE    ERRTN080              YES - GO ON                        00011600
+         LR    R1,R9                 NO - SAVE ADDR OF THIS OCCURRENCE  00011700
+         LA    R9,MDAOLNG(R9)        BUMP TO NEXT MDA OCCURRENCE        00011800
+         LR    R14,R8                LOAD ADDRESS OF MDA                00011900
+         SR    R9,R14                SUBTRACT FOR DISPLACEMENT          00012000
+         LA    R9,1(R9)              ADD 1 FOR POSITION                 00012100
+         STCM  R9,3,MDANAP           SAVE POSITION                      00012200
+         SPACE                                                          00012300
+ERRTN080 EQU   *                                                        00012400
+         CLI   NCAETSFL,C'3'         SHOULD PROCESSING STOP?            00012500
+         BNE   ERRTN130              NO - GO RTRN TO CALLING ROUTINE    00012600
+         LR    R9,R1                 RESTORE ADDR OF LAST MDA OCCURRNCE 00012700
+*=*********************************=*                                   00012800
+*=*   LOOK AT 1ST MESSAGE IN MDA  *=*                                   00012900
+*=*   OCCURS AS TSTSNEH1 SORTS BY *=*                                   00013000
+*=*   SEVERITY                    *=*                                   00013100
+*=*********************************=*                                   00013200
+         LR    R9,R8                 NO - LOAD ADDR OF MDA              00013300
+         XR    R14,R14               CLEAR REG FOR INSERT               00013400
+         LA    R14,MDASLNG           LOAD LENGTH OF MDA STEM            00013500
+         AR    R9,R14                ADD TO BASE ADDRESS                00013600
+         CLC   MDAPI,=C'TSTSXCT1'    WAS THIS FROM XCT1? (TRANSFER CTL) 00013700
+         BE    ERRTN130              YES - GO RTRN TO CALLING ROUTINE   00013800
+         CLI   NCACASR,C'6'          WAS THIS FROM FIAS? (FISECRTY)     00013900
+         BE    ERRTN130              YES - GO RTRN TO CALLING ROUTINE   00014000
+         SPACE 2                                                        00014100
+         ICM   R15,15,NCATTRA        LOAD ADDRESS OF TTR OCCURRENCE     00014200
+         BZ    ABEND000              NO TTR OCCUR ADDRESS ABEND         00014300
+         USING TTRDESCR,R15          ESTABLISH ADDRESSABILITY           00014400
+         CLC   TTRTRMNC,=C'AD'       TERMINAL TYPE = ADMIN ?            00014500
+         BE    ERRTN100              YES - CHECK PROGRAM                00014600
+         SPACE                                                          00014700
+ERRTN090 EQU   *                                                        00014800
+         CLC   NCATSCBA,=X'00000000' IS THERE A TSCB?                   00014900
+         BE    ERRTN120              NO - XCTL TO O/A                   00015000
+         CLC   MDAPI(4),=C'ISE1'     WAS THIS FROM SECURITY?            00015100
+         BE    ERRTN120              ...YES, XCTL TO O/A                00015200
+         CLC   MDAPI(4),TTRINPPH+4   WAS THIS FROM I/A? (TERM DEP)      00015300
+         BE    ERRTN120              ...YES, XCTL TO O/A                00015400
+         CLC   MDAPI(4),=C'IFL1'     WAS THIS FROM I/A? (FORMAT LKG)    00015500
+         BE    ERRTN120              ...YES, XCTL TO O/A                00015600
+         CLC   MDAPI(4),=C'CTL1'     WAS THIS FROM FLOW CONTROL?        00015700
+         BE    ERRTN120              ...YES, XCTL TO O/A                00015800
+         B     ERRTN110              ...NO, RETURN TO CALLING MODULE    00015900
+         SPACE                                                          00016000
+ERRTN100 EQU   *                                                        00016100
+         CLC   NCATSCBA,=X'00000000' IS THERE A TSCB?                   00016200
+         BE    ERRTN120              NO - XCTL TO O/A                   00016300
+         CLC   MDAPI,=C'TSTSISE1'    WAS THIS FROM SECURITY?            00016400
+         BE    ERRTN120              ...YES, XCTL TO O/A                00016500
+         CLC   MDAPI,TTRINPPH        WAS THIS FROM I/A? (TERM DEP)      00016600
+         BE    ERRTN120              ...YES, XCTL TO O/A                00016700
+         DROP  R15                   DROP REGISTER                      00016800
+         CLC   MDAPI,=C'TSTSIFL1'    WAS THIS FROM I/A? (FORMAT LKG)    00016900
+         BE    ERRTN120              ...YES, XCTL TO O/A                00017000
+         CLC   MDAPI,=C'TSTSCTL1'    WAS THIS FROM FLOW CONTROL?        00017100
+         BE    ERRTN120              ...YES, XCTL TO O/A                00017200
+         CLC   MDAPI,=C'TSTSIRD1'    FROM TRANS ABEND?        0524877   00017202
+         BE    ERRTN120              ...YES, XCTL TO O/A      0524877   00017204
+*                                    NO - RETURN TO CALLING MODULE      00017300
+         SPACE                                                          00017400
+ERRTN110 EQU   *                                                        00017500
+*        EXEC  CICS RETURN                                              00017600
+         DFHECALL =X'0E0800000800001000'
+         SPACE                                                          00017700
+ERRTN120 EQU   *                                                        00017800
+         MVC   WMSLNKPH,WMSOUTPH     MOVE OUTPUT ANALYSIS TO LINK PGMID 00017900
+         B     XCTLP000              GO XCTL TO OUTPUT ANALYSIS         00018000
+         SPACE                                                          00018100
+ERRTN130 EQU   *                                                        00018200
+         MVI   WMSREQCD,C' '         CLEAR REQUEST CODE                 00018300
+         MVI   WMSRSLTC,C'0'         CLEAR PARMS RESULT CODE            00018400
+         MVC   WMSMGFDG,SPACES       CLEAR WORKAREA DAG                 00018500
+         MVC   WMSMGFID,SPACES                      FIELD ID            00018600
+         XC    WMSMGDMS,WMSMGDMS                    DIMENSIONS          00018700
+         MVC   WMSMGVAS,SPACES                      VARIABLES           00018800
+         LM    R14,R12,WMS1REGS      RESTORE REGISTERS                  00018900
+         BR    R15                   CONTINUE PROCESSING                00019000
+         EJECT                                                          00019100
+**********************************************************************  00019200
+*        IF A MESSAGE THAT IS SUPPOSED TO BE FATAL RETURNS TO THE    *  00019300
+*        CALLING ROUTINE, IT DOES A BAL TO FATAL000.  HERE A MESSAGE *  00019400
+*        IS FORMATTED THAT SAYS THAT THE LAST MESSAGE SHOULD HAVE    *  00019500
+*        BEEN FATAL.  THE CODE OF THE OFFENDING MESSAGE IS PUT INTO  *  00019600
+*        WMSGMVA1 AND THE MESSAGE IS PROCESSED AS USUAL.  IF THIS    *  00019700
+*        RETURNS TO THE CALLING ROUTINE, IT WILL GO TO ISSUE AN      *  00019800
+*        ABEND.                                                      *  00019900
+**********************************************************************  00020000
+         SPACE                                                          00020100
+FATAL000 EQU   *                                                        00020200
+         MVI   WMSREQCD,C'1'         REQUEST FOR TABLE + LOOKUP         00020300
+         MVC   WMSMGVA1(L'WMSMGCOD),WMSMGCOD  MSG CODE OF FATAL ERROR   00020400
+         MVC   WMSMGCOD,=C'0275'     MSG CODE                           00020500
+         B     ERRTN000              PROCESS MSG AS USUAL               00020600
+         DROP  R8,R9                                                    00020700
+         SPACE 2                                                        00020800
+LINKP000 EQU   *                                                        00020900
+         STM   R14,R12,WMS2REGS      SAVE REGISTERS                     00021000
+         ICM   R6,15,WMSANCA         RELOAD COMM AREA ADDRESS           00021100
+         MVC   HWORD,NCAFCAL                                            00021200
+*        EXEC  CICS LINK PROGRAM (WMSLNKPH)                             00021300
+*                        COMMAREA (TSNCA)                               00021400
+*                        LENGTH (HWORD)                                 00021500
+*                        NOHANDLE                                       00021501
+         DFHECALL =X'0E02E0002800000100',(CHA8,WMSLNKPH),(______RF,TSNC*
+               A),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'      Q.NORMAL RESULT ?          2602291   00021502
+         BNE   ECIER010            A.N-GO TO ERROR ROUTINE    2602291   00021503
+         LM    R14,R12,WMS2REGS      RESTORE REGS                       00021600
+         BR    R15                                                      00021700
+         SPACE 2                                                        00021800
+XCTLP000 EQU   *                                                        00021900
+         ICM   R6,15,WMSANCA         RELOAD COMM AREA ADDRESS           00022000
+         MVC   HWORD,NCAFCAL                                  2500214   00022005
+         USING TSTSNCA,R6            ADDRESSABILITY           2500214   00022015
+*        EXEC  CICS XCTL PROGRAM (WMSLNKPH)                             00022200
+*                        COMMAREA (TSNCA)                               00022300
+*                        LENGTH (HWORD)                                 00022400
+*                        NOHANDLE                                       00022401
+         DFHECALL =X'0E04E0002800000200',(CHA8,WMSLNKPH),(______RF,TSNC*
+               A),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'      Q.NORMAL RESULT ?          2602291   00022402
+         BNE   ECIER010            A.N-GO TO ERROR ROUTINE    2602291   00022403
+         SPACE 2                                                        00022500
+ABEND000 EQU   *                                                        00022600
+         MVC   WMSLNKPH,=C'TSTSABD1' ABEND HANDLER                      00022700
+         ICM   R6,15,WMSANCA         RELOAD COMM AREA ADDRESS           00022800
+         MVC   HWORD,NCAFCAL                                            00022900
+*        EXEC CICS ABEND                                                00023000
+*        EXEC  CICS XCTL PROGRAM (WMSLNKPH)                             00023100
+*                        COMMAREA (TSNCA)                               00023200
+*                        LENGTH (HWORD)                                 00023300
+*                        NOHANDLE                                       00023301
+         DFHECALL =X'0E04E0002800000200',(CHA8,WMSLNKPH),(______RF,TSNC*
+               A),(FB_2,HWORD)
+         CLI   EIBRCODE,X'00'      Q.NORMAL RESULT ?          2602291   00023302
+         BNE   ECIER010            A.N-GO TO ERROR ROUTINE    2602291   00023303
+         DROP  R6                                                       00023400
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

@@ -1,0 +1,29 @@
+*********************************************************************** 00000100
+***   * FO0628 11/08/03 WCHM PROYECTO MIGRACION TOLDII               **
+***********************************************************************
+***************************  CZTS2OIS  ******************************** 00000800
+*        ISC PINNACLE EXTENDED FORMAT TO THE OUTPUT MESSAGE           * 00000900
+*********************************************************************** 00001000
+OISDSECT DSECT                                                          00000700
+OISCMSG  DS   0CL2048        TELLER OUTPUT MESSAGE                      00001100
+OISDLMHT DS    CL5           OUTPUT DELIMITER                           00001500
+*                            - HOST TO TERMINAL VALUE X'1140401D60'     00001500
+OISCICID DS    CL4           CICS TRANSACTION IDENTIFICACION 'TTOH'     00001400
+OISSTATS DS   0XL2           TRANSACTION STATUS BYTES                   00002000
+OISIND1  DS    XL1           - 1ST STATUS BYTE                          00002000
+OISIND1U EQU   B'11110000'     . UNUSED: ALWAYS B'1111''
+OISTELOV EQU   B'00001000'     . TELLER OVERRIDE
+OISSUPOV EQU   B'00000100'     . SUPERVISOR OVERRIDE
+OISPBKRB EQU   B'00000010'     . PASSBOOK REBID
+OISFATAL EQU   B'00000001'     . FATAL ERROR
+OISIND2  DS    XL1           - SECOND STATUS BYTE                       00002100
+*                              . BITS 8 TO 15 : UNUSED
+OISTELID DS    CL8           TELLER IDENTIFIER                          00001700
+OISSEQNU DS    CL4           TRANSACTION SEQUENCE (SERIAL) NUMBER       00001900
+OISPCUBL DS    CL12          PRIMARY ACCOUNT CURENT BALANCE             00001800
+OISSCUBL DS    CL1           SIGN CURRENT BALANCE                       00001800
+         DS    CL06          FILLER                                     00002300
+OISCHDLN EQU   *-OISCMSG     LENGTH OF OUTPUT HEADER                    00002500
+OISDTARC DS    CL2006        OUTPUT DATA AREA COMMUNICATION             00002600
+OISTTDLN EQU   *-OISCMSG     TOTAL LENGTH OF OUTPUT                     00002500
+*                                                                       00002700

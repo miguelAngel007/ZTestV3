@@ -1,0 +1,35 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                2500295   00000100
+         SAS9ALFM &DAG,&ISTATE,&OSTATE,&DAGLEN                2500295   00000200
+.********************************************************************** 00000202
+.*                    ** HISTORY OF REVISIONS **                      * 00000204
+.* DESCRIPTION                                                CHNGID  * 00000210
+.* ---------------------------------------------------------- --------* 00000220
+.* 03/03/00 31-BIT                                            2024183 * 00000292
+.*                                                                    * 00000296
+.********************************************************************** 00000298
+         GBLB  &VSE                                           2024183   00000300
+         GBLC  &EAAEYE                                        2500295   00000400
+         AIF   ('&EAAEYE' EQ '2ALFA2').NOT1ST                 2500295   00000500
+&EAAEYE  SETC  '2ALFA2'                                       2500295   00000600
+ALFA     CSECT                                                2500295   00000700
+ALFA     AMODE  31                                            2500295   00001100
+ALFA     RMODE  ANY                                           2500295   00001200
+HERE     DC    CL8'**ALFA**'                                  2500295   00001400
+.NOT1ST  ANOP                                                 2500295   00001500
+         AIF   ('&DAG' NE 'FF').NORMROW                       2500295   00001600
+         DC    2X'FF'                  END OF TABLE FLAG      2500295   00001700
+THERE    EQU   *                                              2500295   00001800
+         DS    0D                                             2500295   00001900
+         DC    A(ALFA)                 POINT TO THIS TABLE    2500295   00002000
+         DC    AL4(THERE-HERE)         STATE SIZE OF THIS TABL2500295   00002100
+         DC    CL8'*2ALFA2*'           BACK-END EYEBALL       2500295   00002200
+BACKEND  DS    0D                                             2500295   00002300
+         MEXIT                                                2500295   00002400
+.NORMROW ANOP                                                 2500295   00002500
+         DC    CL8'&DAG'                                      2500295   00002600
+         DC    CL1&ISTATE                                     2500295   00002700
+         DC    CL1&OSTATE                                     2500295   00002800
+         DC    AL4(&DAGLEN)                                   2500295   00002900
+         DC    XL1'00'                                        2500295   00003000
+         MEND                                                 2500295   00003100

@@ -1,0 +1,81 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAD9RDFN &DSECT=NO,       DSECT = YES(DSECT) OR NO(CSECT)     X00002000
+               &PFIXAR=NO,         PREFIX AREA NOT PRESENT             X00003000
+               &PREFIX=SADFN       PREFIX = 1-5 CHAR PREFIX FOR NAMES   00004000
+*---------------------------------------------------------------------* 00005000
+* SAD9RDFN:  REPOSITORY DEFINITION RECORD LAYOUT                      * 00006000
+*********************************************************************** 00006100
+*                      HISTORY OF REVISIONS                           * 00006200
+* DESCRIPTION                                                 CHNGID  * 00006300
+* ----------------------------------------------------------  ------- * 00006400
+* 10/03/02 PROVIDE ELEMENTARY ITEMS FOR CHANGE ID             0324574 * 00006989
+* 05/01/97 DBCS ENABLE                                        9913481 * 00006991
+* 03/21/95 ALLOW THE FOLLOWING PFIXAR VALUES                  2602105 * 00006993
+*          PFIXAR=NO      -START WITH KEY                     2602105 * 00006994
+*          PFIXAR=YES     -PUT 3 BYTES BEFORE KEY             2602105 * 00006995
+*          PFIXAR=LENGTH  -PUT 2 BYTES BEFORE KEY             2602105 * 00006996
+*                                                             2602105 * 00006997
+* 01/05/95 MOD FOR 32-BYTE AUDIT SEGMENT FOLLOWING KEY        2602105 * 00006998
+*---------------------------------------------------------------------* 00007000
+         LCLC  &PF                                                      00008000
+&PF      SETC  '&PREFIX'                                                00009000
+         AIF   ('&DSECT' NE 'YES').CSECT                                00010000
+&PF      DSECT                                                          00011000
+         AGO   .CODE                                                    00012000
+.CSECT   ANOP                                                           00013000
+&PF      EQU   *                                                        00014000
+.CODE    ANOP                                                           00015000
+&PF.BAS  EQU   *                   REP DFN REC START                    00016000
+         AIF   ('&PFIXAR' NE 'YES').LENGTH                      2602105 00017000
+&PF.PFX  DS   0CL3                 REP DFN REC PREFIX                   00018000
+&PF.LEN  DS    HL2                 REP DFN REC LENGTH                   00019000
+&PF.FL1  DS    XL1                 REP DFN REC FLAG                     00020000
+         AGO   .KEY                                             2602105 00020100
+.LENGTH  ANOP                                                   2602105 00021000
+         AIF   ('&PFIXAR' NE 'LENGTH').KEY                      2602105 00021100
+&PF.LEN  DS    HL2                 REP DFN REC LENGTH           2602105 00021200
+.KEY     ANOP                                                   2602105 00021300
+&PF.KEY  DS   0CL25                REP DFN REC KEY                      00022000
+&PF.APP  DS    CL2                 REP DFN REC ID ($$)                  00023000
+&PF.TYP  DS    CL3                 REP DFN REC ENTITY TYPE              00024000
+         DS    CL8                 REP DFN REC NAME (BLANKS)            00025000
+         DS    CL8                 REP DFN REC FLD NAME-FILLER (NULLS)  00026000
+         DS    CL4                 REP DFN REC INDEX - FILLER (NULLS)   00027000
+&PF.AUD  DS   0CL32                REP DFN REC AUDIT SEGMENT  2602105   00027020
+&PF.LMD  DS    PL4                   LAST MNTE DATE - YYMMDD  2602105   00027040
+&PF.LMT  DS    PL4                   LAST MNTE DATE - HHMMSS  2602105   00027060
+&PF.SOU  DS   0CL8                   LAST MNTE SOURCE (BATCH) 2602105   00027080
+&PF.OPR  DS    CL8                   LAST MNTE OPERATOR (CICS)2602105   00027100
+&PF.CID  DS   0CL8                   LAST MNTE CHANGE ID      0324574   00027120
+&PF.APL  DS    CL2                   AUDIT: DISTRIBUTION APPL 0324574   00027125
+&PF.RSC  DS    CL4                   AUDIT: RSEC NUMBER       0324574   00027130
+&PF.DCT  DS    CL2                   AUDIT: DIST CTL ID       0324574   00027135
+         DS    CL4                   FILLER                   2602105   00027140
+&PF.FLV  DS    XL1                   FILE LEVEL               2602105   00027160
+&PF.RLV  DS    XL1                   FILE LEVEL               2602105   00027180
+         DS    CL2                   FILLER                   2602105   00027200
+&PF.#FL  DS    HL2                 REP DFN REC # FLDS DEFINED           00028000
+&PF.LNB  EQU   *-&PF.BAS           REP DFN REC LENGTH: HDR W/ANY PREFIX 00029000
+&PF.LNK  EQU   *-&PF.KEY           REP DFN REC LENGTH: HDR W/OUT PREFIX 00030000
+&PF.FSG  DS   0CL18                REP DFN REC FLD DFN SEGMENT          00031000
+&PF.FNM  DS    CL8                 REP DFN REC FLD NAME                 00032000
+&PF.FAT  DS    CL1,CL1             REP DFN REC FLD ATTRIBUTE            00033000
+&PF.ATA  EQU   C'A'                REP DFN REC FLD ATTR - ALPHABETIC    00034000
+&PF.ATB  EQU   C'B'                REP DFN REC FLD ATTR - BINARY        00035000
+&PF.ATC  EQU   C'C'                REP DFN REC FLD ATTR - CHARACTER     00036000
+&PF.ATN  EQU   C'N'                REP DFN REC FLD ATTR - NUMERIC       00037000
+&PF.ATP  EQU   C'P'                REP DFN REC FLD ATTR - PACKED DEC    00038000
+&PF.ATX  EQU   C'X'                REP DFN REC FLD ATTR - HEXADECIMAL   00039000
+&PF.ATI  EQU   C'I'                REP DFN REC FLD ATTR -IDEO 9913481   00039100
+&PF.FML  DS    HL2                 REP DFN REC FLD LENGTH - MAXIMUM     00040000
+&PF.FOC  DS    CL1                 REP DFN REC FLD OCCURS FLAG          00041000
+&PF.OCN  EQU   C'N'                REP DFN REC FLD OCCURS -NO (ROOT)    00042000
+&PF.OCY  EQU   C'Y'                REP DFN REC FLD OCCURS -YS (CHILD)   00043000
+&PF.FTW  DS   0CL5                 REP DFN REC FLD TEMPWORK-SADSNUC?    00044000
+&PF.FCI  DS    FL4                 REP DFN REC CURRENT INDEX            00045000
+&PF.FPF  DS    HL1                 REP DFN REC PROCESS FLAG             00046000
+         ORG   &PF.FTW             REP DFN REC FLD TEMPWROK-SADSUTIL    00047000
+&PF.FAD  DS    AL4                 REP DFN REC FLD ADDRESS              00048000
+&PF.FLN  DS    HL1                 REP DFN REC FLD LENGTH - ACTUAL      00049000
+         MEND                                                           00050000

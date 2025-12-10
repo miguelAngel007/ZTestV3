@@ -1,0 +1,96 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*--------------------------------------------------------------*        00010000
+* SIDBCSPD ASSEMBLER CODE COPYBOOK FOR DBCS EDIT               *        00020000
+*--------------------------------------------------------------*        00030000
+*--------------------------------------------------------------*        00040000
+*               ** HISTORY OF REVISIONS **                     *        00050000
+* DESCRIPTION                                           CHNGID *        00060000
+* ____________________________________________________  _______*        00070000
+*                                                              *        00080000
+* 12/12/01 DBCS ENABLEMENT INITIAL RELEASE              ~~~4378*        00090000
+*                                                              *        00100000
+*--------------------------------------------------------------*        00110000
+         ST    R6,DBCSADDR              SAVE FIELD ADDRESS              00120000
+         LA    R8,255                   PUT 255 INTO R8                 00130000
+         CR    R8,R7                    IS LENGTH LE 255                00140000
+         BNL   *+8                      YES - SKIP NEXT INSTRUCTION     00150000
+         LA    R7,255                   SET LENGTH TO 255               00160000
+         STH   R7,DBCSLNG               SAVE FIELD LENGTH               00170000
+         LA    R8,0(R7,R6)              CALC LAST BYTE IN FIELD ADDR    00180000
+         MVI   DBCSSBCS,C'0'            SET SBCS FLAG TO NO             00190000
+         MVI   DBCSDBCS,C'0'            SET DBCS FLAG TO NO             00200000
+         SPACE 3                                                        00210000
+DBCS010  EQU   *                                                        00220000
+*                                                                       00230000
+*        FIND A SHIFT-OUT ('SO') BYTE AND IF FOUND, TRY TO FIND A       00240000
+*        MATCHING SHIFT-IN ('SI') BYTE.  LOOP THROUGH THE ENTIRE FIELD  00250000
+*        IF NECESSARY TO FIND ALL SO/SI PAIRS.                          00260000
+*                                                                       00270000
+         EX    R7,DBCSFISO              SEE IF THERE IS A 'SO' CHAR     00280000
+         BZ    DBCS800                    NO - FINISH UP AND EXIT       00290000
+         MVI   DBCSDBCS,C'1'            SET DBCS FLAG ON                00300000
+         CR    R1,R6                    IS 'SO' AT START OF FIELD       00310000
+         BE    DBCS020                    YES NO SBCS PRESENT           00320000
+         MVI   DBCSSBCS,C'1'                  SET SBCS FLAG ON          00330000
+DBCS020  EQU   *                                                        00340000
+         CR    R1,R8                    IS 'SO' AT END OF FIELD         00350000
+         BE    DBCSRC9                    YES - ERROR                   00360000
+DBCS050  EQU   *                                                        00370000
+         ST    R1,DBCSSOAD              SAVE ADDR OF 'SO' CHARACTER     00380000
+         LR    R7,R8                    GET END ADDRESS                 00390000
+         SR    R7,R1                    CALC LENGTH OF SCAN             00400000
+         LR    R6,R1                    SET SCAN START ADDR ('SO')      00410000
+         EX    R7,DBCSFISI              SEE IF THERE IS A 'SI' CHAR     00420000
+         BC    2,DBCS200                'SI' FOUND AND IS LAST CHAR     00430000
+         BZ    DBCSRC9                  'SI' NOT FOUND - ERROR          00440000
+         LR    R7,R8                    GET END ADDRESS                 00450000
+         SR    R7,R1                    CALC LENGTH OF SCAN             00460000
+         LR    R6,R1                    SET SCAN START ADDR ('SI')      00470000
+         B     DBCS010                  LOOP BACK FOR MORE SO/SI        00480000
+         SPACE 3                                                        00490000
+DBCS200  EQU   *                                                        00500000
+*                                                                       00510000
+*        FIND A SHIFT-IN ('SI') BYTE AND IF FOUND, SEE IF A SHIFT-OUT   00520000
+*        ('SO') BYTE IMMEDIATELY FOLLOWS.  IF SO, THIS IS NULL PAIR     00530000
+*                                                                       00540000
+         L     R6,DBCSADDR              GET FIELD ADDRESS               00550000
+         LH    R7,DBCSLNG               GET FIELD LENGTH                00560000
+DBCS210  EQU   *                                                        00570000
+         EX    R7,DBCSFISI              SEE IF THERE IS A 'SI' CHAR     00580000
+         BC    10,DBCS800               'SI' FOUND AND IS LAST CHAR     00590000
+*                                          OR 'SI' WAS NOT FOUND        00600000
+         CLI   1(R1),X'0E'              IS NEXT CHAR A 'SO'             00610000
+         BE    DBCSRC8                    YES - ERROR                   00620000
+         MVI   DBCSSBCS,C'1'              NO INDICATE SBCS DATA         00630000
+DBCS220  EQU   *                                                        00640000
+         LA    R6,1(0,R1)               SET SCAN START ADDR ('SI'+1)    00650000
+         LR    R7,R8                    GET END ADDRESS                 00660000
+         SR    R7,R6                    CALC LENGTH OF SCAN             00670000
+         BNP   DBCS800                  EXIT IF ON LAST BYTE            00680000
+         B     DBCS210                  LOOP BACK FOR ANOTHER 'SI'      00690000
+         SPACE 3                                                        00700000
+DBCSFISO TRT   0(0,R6),SOTABLE                                          00710000
+DBCSFISI TRT   0(0,R6),SITABLE                                          00720000
+         EJECT                                                          00730000
+DBCS800  EQU   *                                                        00740000
+         CLI   DBCSDBCS,C'0'            WAS DBCS DATA FOUND?            00750000
+         BE    DBCSRC1                     NO - PURE SBCS               00760000
+         CLI   DBCSSBCS,C'1'            WAS SBCS DATA FOUND?            00770000
+         BE    DBCSRC2                     YES - MIXED                  00780000
+DBCSRC0  EQU   *                                                        00790000
+         MVI   DBCSRC,C'0'              SET RETURN CODE 0               00800000
+         B     DBCS900                   AND EXIT                       00810000
+DBCSRC1  EQU   *                                                        00820000
+         MVI   DBCSRC,C'1'              SET RETURN CODE 1               00830000
+         B     DBCS900                   AND EXIT                       00840000
+DBCSRC2  EQU   *                                                        00850000
+         MVI   DBCSRC,C'2'              SET RETURN CODE 2               00860000
+         B     DBCS900                   AND EXIT                       00870000
+DBCSRC8  EQU   *                                                        00880000
+         MVI   DBCSRC,C'8'              SET RETURN CODE 8               00890000
+         B     DBCS900                   AND EXIT                       00900000
+DBCSRC9  EQU   *                                                        00910000
+         MVI   DBCSRC,C'9'              SET RETURN CODE 9               00920000
+         B     DBCS900                   AND EXIT                       00930000
+DBCS900  EQU   *                                                        00940000
+         L     R1,DBCSREG1              RESTORE REG 1                   00950000

@@ -1,0 +1,36 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         TSTS2HLE &PREFIX=TSHLE,&DSECT=NO                               00002000
+*********************************************************************** 00003000
+* TSTSD2HLE - TS ELEMENT HELP                                         * 00004000
+*                                                                     * 00005000
+*********************************************************************** 00006000
+*                    ** HISTORY OF REVISIONS **                       * 00007000
+* DESCRIPTION                                                 CHNGID  * 00008000
+* ___________________________________________________________ _______ * 00009000
+* 07/08/96 INITIAL RELEASE OF ASSEMBLER DEFINITION            9713213 * 00010000
+*                                                                     * 00011000
+*********************************************************************** 00012000
+         LCLC  &PFX                                                     00013000
+&PFX     SETC  '&PREFIX'                                                00014000
+         AIF   ('&DSECT' EQ 'YES').DSECT1                               00015000
+&PFX     DS    0D               ** ELEMENT HELP                         00016000
+         AGO   .DATA1                                                   00017000
+.DSECT1  ANOP                                                           00018000
+&PFX     DSECT                  ** ELEMENT HELP                         00019000
+.DATA1   ANOP                                                           00020000
+&PFX.LEN DS    HL2                 DATAGROUP LENGTH                     00021000
+&PFX.KEY DS   0CL10                DATAGROUP KEY                        00022000
+&PFX.EID DS    CL8                 ELEMENT ID                           00023000
+&PFX.PG# DS    CL2                 PAGE NUMBER                          00024000
+         DS    CL2                 RESERVED                             00025000
+&PFX.NPG DS    CL2                 NEXT PAGE NUMBER                     00026000
+&PFX.PHD DS    CL60                PAGE HEADING                         00027000
+&PFX.#LN DS    PL2                 NUMBER TEXT LINES ON PAGE            00028000
+&PFX.TXT DS  18CL74                TEXT LINE                            00029000
+&PFX.MLN EQU   *-&PFX              ELEMENT HELP STRUCTURE MAX LENGTH    00030000
+         ORG   &PFX.TXT                                                 00031000
+&PFX.LN# DS    CL2                 TEXT LINE NUMBER                     00032000
+&PFX.LTX DS    CL72                TEXT LINE TEXT                       00033000
+         ORG                                                            00034000
+         MEND                                                           00035000

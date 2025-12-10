@@ -1,0 +1,21 @@
+*     * FO5238*13/05/11 AUTO PROYECTO REBORN                            00000100
+******************************************************************      00000100
+*DICTIONARY OBJECT RMDAGRMLNNM01                                 *      00000200
+* CODED     08/30/93                                             *      00000300
+* KEY GENR NAME SET INPUT                                        *      00000400
+******************************************************************      00000500
+RMDSNM01 DSECT                         NAMES INPUT COMMUNICATION AREA   00000600
+WK1WRDTB DS    CL2                     WORD-TABLE-REQ-CD                00000700
+WK1NAREQ DS    CL1                     NOT USED                         00000800
+WK1FMTCD DS    CL1                     'X' TO INITIAL KEY TO SPACES     00000900
+WK1NAME  DS    4CL45                   NAME-LINES (ONLY THE 1ST USED    00001000
+WK1NBR   EQU   4                       NUMBER OF NAME LINES             00001100
+         ORG   WK1NAME                                                  00001300
+WK1LNTYP DS    CL1                     NAME LINE TYPE INDICATOR         00001400
+WK1FNBEG DS    CL2                     BEG-FAM-NAME                     00001500
+WK1FNEND DS    CL2                     END-FAM-NAME                     00001600
+WK1NMOFS EQU   *-WK1LNTYP              OFFSET TO NAME DATA              00001700
+WK1NALIN DS    CL40                    NAME-LINE                        00001800
+WK1NLLEN EQU   *-WK1LNTYP              LENTH OF ONE NAME LINE           00001850
+         ORG                                                            00001900
+         EJECT                                                          00002000

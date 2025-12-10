@@ -1,0 +1,53 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LA      TSTS9TM &TYPE=,&WR1=,&WR2=,&KEY=,&REQBK=,&SACB=                00000200
+.********************************************************************** 00000300
+.*                                                                    * 00000400
+.*       THIS MACRO READS THE TABLE MANAGER FOR THE KEY PROVIDED.     * 00000500
+.*       THE TABLE MANAGER REQUEST BLOCK                              * 00000600
+.*       MUST BE DEFINED BY THE SAT9QRBM MACRO.  IF THE GCA ADDRESS IS* 00000700
+.*       NOT PRESENT THE TABLE MANAGER SEARCH WILL BE BYPASSED.       * 00000800
+.*       COPYBOOKS USED:                                              * 00000900
+.*          SAS9SCBA                                                  * 00001000
+.*       ON RETURN CHECK THE SAQRBST FIELD FOR LOWVALUES TO INDICATE  * 00001100
+.*       A GOOD RETURN FROM TABLE MANAGER                             * 00001200
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00001300
+.*                                                                    * 00001400
+.*       &LA    - LABEL OF MACRO (ALL LABELS IN MACRO CONTAIN THIS    * 00001500
+.*                AS A PREFIX                                         * 00001600
+.*       &WR1   - WORK REGISTER                                       * 00001700
+.*       &WR2   - WORK REGISTER                                       * 00001800
+.*       &KEY   - LABEL OF THE KEY                                    * 00001900
+.*       &REQBK - LABEL OF THE TABLE MANAGER REQUEST BLOCK            * 00002000
+.*       &SACB  - FIELD CONTAINING THE SACB ADDRESS                   * 00002100
+.********************************************************************** 00002200
+&LA.TM000 EQU  *                                                        00002300
+         ICM   &WR1,15,&SACB         ADDRESS SACB                       00002400
+         BZ    &LA.TM010             Q. ADDRESS PRESENT - BR NO         00002500
+         USING SAS9SCBA,&WR1         ADDRESS SACB                       00002600
+         ICM   &WR2,15,SACBGCA       ADDRESS GCA                        00002700
+         BZ    &LA.TM010             Q. ADDRESS PRESENT - BR NO         00002800
+         MVC   SADTBLGC,SACBGCA      SET GCA  ADDRESS                   00002900
+         DROP  &WR1                  RELEASE &WR1                       00003000
+         USING SAQRB,&WR1                                               00003100
+         LA    &WR1,&REQBK           ADDRESS OF REQUEST BLOCK           00003200
+         MVC   SAQRBID,=CL8'SA'       QUEUE ID PREFIX                   00003300
+         MVC   SAQRBID+2(3),=C'DSM'   AUX FORMAT TYPE                   00003400
+         MVC   SAQRBKL,=H'24'         FIXED KEY LENGTH                  00003500
+         MVC   SAQRBRQ,=CL4'GET'      GET LOCATE MODE                   00003600
+         MVI   SAQRBMD,C'L'           LOCATE MODE                       00003700
+         LA    &WR2,&KEY              ADDRESS OF KEY                    00003800
+         ST    &WR2,SADTBLKA               - KEY ADDR                   00003900
+         LA    &WR2,&REQBK              ADDR OF TBL MGR REQ BLK         00004000
+         ST    &WR2,SADTBLRA               - STORE                      00004100
+         XC    SADTBLDA,SADTBLDA                                        00004200
+         OI    SADTBLDA,X'80'                                           00004300
+         LA    R1,SADTBLRB            GET PARM ADDR                     00004400
+* CALL TABLE MANAGER TO SEE IF RECORD IS IN THE PERMANENT QUEU          00004500
+         ICM   R15,15,=V(SATBLMGI)    TABLE MGR ADDR                    00004600
+         BALR  R14,15                                                   00004700
+&LA.TM010 EQU  *                                                        00004800
+         DROP  &WR1                  RELEASE &WR1                       00004900
+         USING SAQRB,&WR1                                               00005000
+         LA    &WR1,&REQBK           ADDRESS OF REQUEST BLOCK           00005100
+         MEND                                                           00005200

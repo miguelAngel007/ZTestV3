@@ -1,0 +1,95 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001005
+*                   ** COPYBOOK DESCRIPTION **                        * 00001010
+*                                                                     * 00001020
+* SAS9SXBA IS THE BATCH-ONLY EXTENSION OF SACB.                       * 00002000
+*                                                                     * 00002040
+*---------------------------------------------------------------------* 00002050
+         EJECT                                                9913698   00002060
+*---------------------------------------------------------------------* 00002070
+*                  ** HISTORY OF REVISIONS **                         * 00002080
+*                                                                     * 00002090
+* DESCRIPTION                                                 CHNGID  * 00002100
+* __________________________________________________________  _______ * 00002110
+* 08/13/03 ADD SLRQDDTE TO HOLD A(LAST USED DDTABE ENTRY)     0364243 * 00002958
+* 10/26/98 MODIFY TO ADD LE PARM SAVE AREA                    9913698 * 00002960
+*                                                                     * 00002970
+*---------------------------------------------------------------------* 00002980
+         EJECT                                                9913698   00002990
+SACBANCH DS    0F            SACB ANCHOR TABLE                          00004000
+SACBPGM  DS    0F            ..PROGRAM ANCHOR                           00005000
+SAPGMF@  DS    F             ....FWD POINTER                            00006000
+SAPGMB@  DS    F             ....BWD POINTER                            00007000
+SAPGMSTG DS    F             ....STORAGE USED                           00008000
+SAPGMTS# DS    F             ....NBR OF TABLE SEARCH ATTEMPTS           00009000
+SAPGMES# DS    F             ....NBR OF TABLE ENTRIES SEARCHED          00010000
+SAPGMCNT DS    H             ....NBR OF PGM'S LOADED                    00011000
+SAPGMACT DS    H             ....NBR OF PGM'S HELD OR IN USE            00012000
+SAPGMCMP DS    H             ....NBR OF STORAGE COMPRESSIONS            00013000
+         DS    0F                                                       00014000
+SACBPGML EQU   *-SACBPGM     ..LENGTH OF ENTRY                          00015000
+SACBFCV  DS    3XL(SASSPL0)                                             00016000
+         DS    0F                                                       00017000
+SLRQDSSN DS    CL8                 NAME OF LAST DSET ACCESSED           00018000
+SLRQDSTE DS    0XL8                ...ADDRESS(ES) OF THE ASSOC. DSETS   00019000
+SLRQDSTO DS    XL4                  ONLY OR OUTPUT SIDE OF SEQMASTER    00020000
+SLRQDSTI DS    XL4                  INPUT SIDE IF SEQMASTER             00021000
+SLRQDDTE DS    AL4                  A(LAST USED DDTABE ENTRY) 0364243   00021100
+* ***                                                                   00022000
+SACBSPAD DS    A                   PROGRAM STORAGE POOL ADDRESS         00023000
+SACBPGSZ DS    A                   PROGRAM STORAGE POOL LIMIT           00024000
+SACBEPEN DS    A                   ENTRY POINT OF SASENVB               00025000
+SACBLNEN DS    A                   LENGTH OF SASENVB                    00026000
+SACBGSIW DS    A                   GETSTOR INITIAL ALLOCATION           00027000
+SACBGSSI DS    A                   GETSTOR INCREMENTAL  ' '             00028000
+* ***                                                                   00029000
+SACBLIMT DS    A                   NON-ZERO IF 'LIMIT EXEC NNN' ACTIVE  00030000
+SACBLIMC DS    A                   COUNTER FOR 'LIMIT EXEC NNN'         00031000
+SACBLIMV DS    CL8                 VERB TEXT FOR     ' '                00032000
+SACBLIMD DS    CL16                VARIABLE DATA FOR ' '                00033000
+* ***                                                                   00034000
+SACBFCA1 DS    (SACBFCEE-SACBFCE)C HOLD NON-SASERV FCE ANCHOR           00035000
+SACBFCA2 DS    (SACBFCEE-SACBFCE)C HOLD SASERV FCE ANCHOR               00036000
+* ***                                                                   00037000
+SACBTRAP EQU   *                   INTERNAL TRAP TO CATCH DAMAGED AREAS 00038000
+SACBTRPA DS    AL4                 ADDRESS OF PROTECTED DATA            00039000
+SACBTRPL DS    AL4                 LENGTH OF   ' '   (MAX 256 BYTES)    00040000
+SACBTRPD DS    CL256               PROTECTED DATA.                      00041000
+* ***                                                                   00042000
+         DS    0F      ALIGNMENT                                        00043000
+SACBDAID DS    AL4                 ENTRY POINT TO DUMP AID MOD-SASDAIDB 00044000
+SACBDAIL DS    AL4                 SIZE OF DUMP AID MODULE        ' '   00045000
+SACBDASS DS    AL4                 ADDRESS OF SAVE AREA FOR MOD   ' '   00046000
+SACBDASA DS    AL4                 ADDRESS OF USER SAVE AREA FOR STXIT  00047000
+SACBDAES DS    AL4                 ADDRESS OF SAVE AREA FOR ESTAE       00048000
+SACBSRBO DS    AL4                 OFFSET FROM R13 TO SARB EYECATCHER   00049000
+SACBRSAA DS    AL4                 TOP LEVEL REG SAVE AREA ADDRESS      00050000
+SACBEPEF DS    A             ENTRY POINT OF SAE0010B (ERF)              00051000
+SACBSCEF DS    A             SAE0010B'S CURRENT DYNAMIC (R13) STORAGE   00052000
+* ***                                                                   00053000
+*    BINARY SEARCH WORK AREA                                          * 00054000
+*                                                                       00055000
+BSRHCOMM DS    0F   **** DEFINE FORMAT OF DAG SEARCH TABLE              00056000
+BSRHSIZE DS    A           R4  SIZE OF TABLE IN BYTES                   00057000
+BSRHINIT DS    A           R5      CONSTANT FULLWORD ZERO               00058000
+BSRHFADD DS    A           R6  ADDRESS OF FOUND ENTRY                   00059000
+BSRHOBJ  DS    A           R7  OBJECT OF THE SEARCH                     00060000
+         DS    0D                                                       00061000
+PGRHCOMM DS    0F   **** DEFINE FORMAT OF PROGRAM SEARCH TABLE          00062000
+PGRHSIZE DS    A           R4  SIZE OF TABLE IN BYTES                   00063000
+PGRHINIT DS    A           R5      CONSTANT FULLWORD ZERO               00064000
+PGRHFADD DS    A           R6  ADDRESS OF FOUND ENTRY                   00065000
+PGRHOBJ  DS    A           R7  OBJECT OF THE SEARCH                     00066000
+         DS    0D                                                       00067000
+* ***                                                         2500295   00067010
+*      COBOL BATCH INTERFACE SUPPORT                          2500295   00067020
+SACBCINP DS    CL8           MODULE USED FOR COBOL INIT       2500295   00067040
+* ***                                                         2500295   00067090
+*      BATCH SEGMENTATION SUPPORT                             2511739   00067100
+SACBTSSR DS    F             ADDR OF SAS9TSSR DAG             2511739   00067110
+SACBTSSA DS    F             ADDR OF OWNERS TSSR 1ST ENTRY    2511739   00067120
+SACBSEGI DS    X             SEGMENTATION INDICATOR           2511739   00067130
+SACBFCLC DS    X             FILE COMPARE LENGTH, 5 OR 8 ?    2511739   00067140
+SACBLEPM DS    CL130         LE PARAMETER SAVE AREA           9913698   00067900
+SACBBATL EQU   *-SACBBTCH                                               00068000
+         SPACE 5                                                        00069000

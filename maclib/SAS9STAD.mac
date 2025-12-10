@@ -1,0 +1,78 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* * * * * *              S  A  S  T  A  T  S                * * * * * * 00002000
+*                                                                     * 00003000
+*   SA STATISTICS - COUNTERS FOR VERB, SDMS CALLS, ETC.               * 00004000
+*   CAN BE FOUND IN DAG TABLE AS 'SASTATS'                            * 00005000
+*   SAS9STAD COPYA                                                    * 00006000
+*********************************************************************** 00007000
+         SPACE                                                          00008000
+SASTATS  DS    0X                                                       00009000
+SASTEYE  DS    CL8                 EYE-CATCHER 'SASTATS '               00010000
+         DS    CL8                                                      00011000
+SASTVRBH DS    CL8                 EYE-CATCHER FOR VERB COUNT           00012000
+SASTVRBC DS    XL4                 VERB COUNT                           00013000
+         DS    CL4                                                      00014000
+*                                                                       00015000
+SASTPRGH DS    CL8                 EYE-CATCHER FOR PROGRAM COUNT        00016000
+SASTPRGC DS    XL4                 PROGRAM COUNT                        00017000
+         DS    CL4                                                      00018000
+*                                                                       00019000
+SASTPRMH DS    CL8                 EYE-CATCHER FOR PARMS CALLS COUNT    00020000
+SASTPRMC DS    XL4                 PARMS CALLS COUNT                    00021000
+         DS    CL4                                                      00022000
+*                                                                       00023000
+SASTSDMH DS    CL8                 EYE-CATCHER FOR SDMS CALLS COUNT     00024000
+SASTSDMC DS    XL4                 SDMS CALLS COUNT                     00025000
+         DS    CL4                                                      00026000
+*                                                                       00027000
+SASTCTLH DS    CL8                 EYE-CATCHER FOR MAX CTL LVL DEPTH    00028000
+SASTCTLC DS    XL4                 MAXIMUM CONTROL LEVEL DEPTH          00029000
+         DS    CL4                                                      00030000
+*                                                                       00031000
+SASTSTGH DS    CL8                 EYE-CATCHER FOR USER GETMAIN BYTES   00032000
+SASTSTGC DS    XL4                 SIZE OF SASERV-MANAGED GETMAIN STG   00033000
+         DS    CL4                                                      00034000
+*                                                                       00035000
+SASTERRH DS    CL8                 EYE-CATCHER FOR ERROR VERBS COUNT    00036000
+SASTERRC DS    XL4                 ERROR VERBS COUNT                    00037000
+         DS    CL4                                                      00038000
+*                                                                       00039000
+SASTRERH DS    CL8                 EYE-CATCHER FOR RUN ERROR COUNT      00040000
+SASTRERC DS    XL4                 RUN ERROR COUNT                      00041000
+         DS    CL4                                                      00042000
+*                                                                       00043000
+SASTDTEH DS    CL8                 EYE-CATCHER FOR DATE VERB COUNT      00044000
+SASTDTEC DS    XL4                 DATE VERB COUNT                      00045000
+         DS    CL4                                                      00046000
+*                                                                       00047000
+SASTEDIH DS    CL8                 EYE-CATCHER FOR EDIT VERB COUNT      00048000
+SASTEDIC DS    XL4                 EDIT VERB COUNT                      00049000
+         DS    CL4                                                      00050000
+*                                                                       00051000
+SASTASSH DS    CL8                 EYE-CATCHER FOR ASSIGN VERB COUNT    00052000
+SASTASSC DS    XL4                 ASSIGN VERB COUNT                    00053000
+         DS    CL4                                                      00054000
+*                                                                       00055000
+SASTDBCH DS    CL8                 EYE-CATCHER FOR DBCOPY VERB COUNT    00056000
+SASTDBCC DS    XL4                 DBCOPY VERB COUNT                    00057000
+         DS    CL4                                                      00058000
+*                                                                       00059000
+SASTCMIH DS    CL8                 EYE-CATCHER FOR COMMIT VERB COUNT    00060000
+SASTCMIC DS    XL4                 COMMIT VERB COUNT                    00061000
+         DS    CL4                                                      00062000
+*                                                                       00063000
+SASTROLH DS    CL8                 EYE-CATCHER FOR ROLLBACK VERB COUNT  00064000
+SASTROLC DS    XL4                 COMMIT VERB COUNT                    00065000
+         DS    CL4                                                      00066000
+*                                                                       00067000
+SASTERFH DS    CL8                 EYE-CATCHER FOR ERF VERB COUNT       00068000
+SASTERFC DS    XL4                 ERF VERB COUNT                       00069000
+         DS    CL4                                                      00070000
+*                                                                       00071000
+SASTEND  EQU   *                                                        00072000
+SASTLGTH EQU   SASTEND-SASTATS                                          00073000
+         SPACE                                                          00074000
+* * * * * *              S  A  T  R  A  C  E                * * * * * * 00075000
+*********************************************************************** 00076000
+         SPACE 3                                                        00077000

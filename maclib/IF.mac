@@ -1,0 +1,85 @@
+         MACRO                                                          00010000
+&NAME    IF    &OPS                                                     00020000
+.* -----------------------------------------------------------------    00030000
+.* 5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983                    00040000
+.* 5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983                    00050000
+.* 5798-CLF COPYRIGHT IBM CORP. 1976                                    00060000
+.* LICENSED MATERIAL - PROGRAM PROPERTY OF IBM                          00070000
+.* REFER TO COPYRIGHT INSTRUCTIONS FROM NO. G120-2083                   00080000
+.* -----------------------------------------------------------------    00090000
+.*                                                                      00100000
+ GBLA &$PMAFO      * AND FOLLOWED BY OR COUNTER                         00110000
+ GBLA &$PMCNO      * CASE NUMBER                                        00120000
+ GBLA &$PMINC      * IF NESTING LEVEL COUNT                             00130000
+ GBLA &$PMPNI      * PROC NESTING INDEX                                 00140000
+ GBLA &$PMPNO      * PROC NUMBER WITHIN CASE                            00150000
+ GBLA &$PMPSC      * CONDITION (PREDICATE SET) COUNTER                  00160000
+ GBLA &$PMNDX      * LABEL SEQUENCE COUNTER                   @JBTR     00170000
+.*                                                                      00180000
+ GBLB &$PMCEM      * CASE ERROR PROC PRESENT INDICATOR                  00190000
+ GBLB &$PMCICS     * CICS OPTION                                        00200000
+ GBLB &$PMCIND     * CASE ACTIVE (WITHIN CASE/ECASE) INDICATOR          00210000
+ GBLB &$PMDCLS     * DCL ACTIVE (WITHIN DCL/EDCL PAIR)                  00220000
+ GBLB &$PMES(20)   * ELSE MACRO PRESENT INDICATOR                       00230000
+ GBLB &$PMOAA      * OR AND AND INDICATOR                               00240000
+ GBLB &$PMOERR     * CASE SEQ ERR INDICATOR                             00250000
+ GBLB &$PMPMS      * PROC MAIN ACTIVE SWITCH                            00260000
+ GBLB &$PMROS      * RENT (REENTRANT) OPTION SW FROM PROC               00270000
+.*                                                                      00280000
+ GBLC &$PMCLBL     * CASE LABEL FOR ECASE                               00290000
+ GBLC &$PMINS(20)  * IF NESTED SYSNDX VALUE                             00300000
+ GBLC &$PMISN(20)  * IF SYMBOLIC NAME                                   00310000
+ GBLC &$PMLKR      * PROC LINK REGISTER (PROC PERFORM EPROC)            00320000
+ GBLC &$PMPMX      * CURRENT SYSNDX VALUE                               00330000
+ GBLC &$PMPNM(20)  * PROC NESTED NAME                                   00340000
+ GBLC &$PMPNS(20)  * PROC NESTING SYMBOL                                00350000
+ GBLC &$PMPTP(20)  * PROC TYPE C=CASE L=CLOSED E=ERROR                  00360000
+ GBLC &$PMWR1      * WORK REGISTER 1 NAME                               00370000
+ GBLC &$PMWR2      * WORK REGISTER 2 NAME                               00380000
+ GBLC &$PMWSN      * WRKAREA SYMBOLIC NAME                              00390000
+.*                                                                      00400000
+.* -----------------------------------------------------------------    00410000
+ LCLA &I                                                                00420000
+ LCLB &ANDOR     * AND FOLLOWED BY OR INDICATOR                         00430000
+ LCLC &NULL      * USED TO COMPARE TO EMPTY VAR                         00440000
+ LCLC &C                                                      @JBTR     00450000
+.*                                                                      00460000
+&$PMINC  SETA  &$PMINC+1                                                00470000
+.*                                                            @JBTR     00480000
+&C       SETC  '&$PMNDX'                                      @JBTR     00490000
+&$PMNDX  SETA  &$PMNDX+1                                      @JBTR     00500000
+         AIF   (&$PMNDX GT 9).$GN100                          @JBTR     00510000
+&C       SETC  '0'.'&C'                                       @JBTR     00520000
+.$GN100  AIF   (&$PMNDX GT 99).$GN200                         @JBTR     00530000
+&C       SETC  '0'.'&C'                                       @JBTR     00540000
+.$GN200  AIF   (&$PMNDX GT 999).$GN300                        @JBTR     00550000
+&C       SETC  '0'.'&C'                                       @JBTR     00560000
+.$GN300  ANOP                                                 @JBTR     00570000
+.*                                                            @JBTR     00580000
+&$PMINS(&$PMINC) SETC '&C'                                    @JBTR     00590000
+&$PMISN(&$PMINC) SETC '&NAME'                                           00600000
+         AIF   ('&NAME' EQ '&NULL').NONAME                              00610000
+&NAME    DS    0H                                                       00620000
+.NONAME  ANOP                                                           00630000
+.*             ---- CHECK FOR AND FOLLOWED BY OR ----                   00640000
+&$PMOAA  SETB  0                                                        00650000
+&$PMAFO  SETA  0                                                        00660000
+&ANDOR   SETB 0               INITIALIZE SW                             00670000
+&I       SETA  2              POINT TO SECOND PARAMETER (LOGICAL        00680000
+.IFAO    ANOP  START OF SEARCH LOOP                                     00690000
+         AIF   ('&SYSLIST(&I)' NE 'AND').IFA                            00700000
+&ANDOR   SETB  1              SET WHEN AND IS FOUND                     00710000
+         AGO   .IFB                                                     00720000
+.IFA     AIF   ('&SYSLIST(&I)' NE 'OR' OR NOT &ANDOR).IFB               00730000
+&$PMAFO     SETA  &$PMAFO+1         SET AND FOLOOWED BY OR INDIC        00740000
+&ANDOR   SETB  0              RESET AND SW FOR MORE                     00750000
+.IFB     ANOP                                                           00760000
+&I       SETA  &I+2           POINT TO NEXT CONNECTOR                   00770000
+         AIF   (&I LE N'&SYSLIST).IFAO  LOOP THRU CONNECTORS            00780000
+.*             ----- PREDICATE SET GENRATION -----                      00790000
+&I       SETA  1                                                        00800000
+.IFLOOP  ANOP                                                           00810000
+         $PMMP &SYSLIST(&I),&SYSLIST(&I+1)                              00820000
+&I       SETA  &I+2                                                     00830000
+         AIF   (&I LE N'&SYSLIST).IFLOOP                                00840000
+         MEND                                                           00850000

@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* ***                SUB-OPERAND KEYWORD                          *** * 00002000
+* ***       VALIDATION / DATA MOVEMENT TABLE DSECT                *** * 00003000
+*********************************************************************** 00004000
+         SPACE                                                          00005000
+KWDTAB   DSECT                                                          00006000
+KWDTEYE  DS    CL8                 TABLE EYEBALL                        00007000
+KWDTELEN DS    A                   TABLE ENTRY LENGTH                   00008000
+KWDTEND  DS    A                   TABLE ENDING ADDRESS                 00009000
+KWDTDLEN DS    A                   PARSED DATA AREA LENGTH              00010000
+KWDTHEND EQU   *                   LENGTH OF TABLE HEADER               00011000
+KWDDSCT  DSECT                                                          00012000
+KWDKWD   DS    CL8                 TARGET KEYWORD                       00013000
+KWDCLCLN DS    XL1                 SIGNIFICANT CHARS MINUS ONE FOR CLC  00014000
+KWDVALFG DS    XL1                 VALIDATION INSTRUCTIONS...           00015000
+KWDVVAL  EQU   1                   SHOULD BE VALIDATED FROM A TABLE     00016000
+KWDVNRG  EQU   2                   SHOULD FALL IN A NUMERIC RANGE       00017000
+KWDVANY  EQU   3                   ANY VALUE IS VALID                   00018000
+KWDVNON  EQU   4                   OPERAND HAS NO VALUE ASSOCIATED      00019000
+KWDVBAD  EQU   5                   OPERAND IS INVALID IN THIS CONTEXT   00020000
+KWDVSUB  EQU   6                   THIS KEYWORD HAS SUBOPERANDS         00021000
+KWDMTRGL DS    XL1                 LENGTH OF FIELD IN TARGET AREA       00022000
+KWDMFILL DS    XL1                 FILL CHARACTER FOR FIELD IN TARGET   00023000
+*                                  CAN BE "IMMEDIATE" DATA FOR MVI/OI   00024000
+*                                  FORMATTING OPTION BELOW              00025000
+KWDMFORM DS    XL1                 DATA MOVEMENT FORMATTING OPTION      00026000
+KWDMMVC  EQU   1                   MVC THE DATA ASSOC WITH OPERAND      00027000
+KWDMPACK EQU   2                   PACK THE DATA ASSOC WITH OPERAND     00028000
+KWDMCVB  EQU   3                   CVB THE DATA ASSOC WITH OPERAND      00029000
+KWDMOI   EQU   4                   OR THE FILL BYTE AS IF IMMED DATA    00030000
+KWDMOC   EQU   5                   OR THE DATA ASSOC WITH OPERAND       00031000
+KWDMMVI  EQU   6                   MVI THE FILL BYTE AS IF IMMED DATA   00032000
+KWDMMKY  EQU   7                   MOVE THE KEYWORD TO OUTPUT           00033000
+KWDVMVC  EQU   8                   MVC THE VAR DATA ASSOC WITH OPERAND  00034000
+KWDPWDTH DS    XL1                 WIDTH OF PRINT LINE FIELD            00035000
+KWDPNEXT DS    XL1                 NEXT OFFSET POSITION TO PRINT        00036000
+KWDPROCS DS    XL1                 KEYWORD PROCESSED FLAG               00037000
+KWDPLPOS DS    XL4                 POSITION OF FIELD START ON LINE      00038000
+KWDVALAD DS    0XL4                ADDRESS OF VALIDATION TABLE, OR...   00039000
+KWDVNLOW DS    XL4                 ...LOW LIMIT FOR NUMERIC RANGE       00040000
+KWDVNHI  DS    XL4                 HIGH LIMIT FOR NUMERIC RANGE         00041000
+KWDMOFST DS    XL4                 OFFSET INTO TARGET AREA FOR MOVE     00042000
+KWDSUBKT DS    XL4                 ADDRESS OF SUB KEYWORD TABLE         00043000
+KWDMAXIT DS    XL2                 MAXIMUM NUMBER OF ITERATIONS         00044000
+KWDACTIT DS    XL2                 ACTUAL NUMBER OF ITERATIONS          00045000

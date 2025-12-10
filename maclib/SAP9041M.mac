@@ -1,0 +1,26 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000001
+         SAP9041M &DSECT=YES,&TYPE=P                                    00001000
+         AIF   ('&DSECT' EQ 'YES').M41DSCT                              00002000
+&TYPE.41AREA  DS    0F                                                  00003000
+         AGO   .M41CONT                                                 00004000
+.M41DSCT ANOP                                                           00005000
+&TYPE.41AREA DSECT                                                      00006000
+.M41CONT ANOP                                                           00007000
+&TYPE.41TLGH  DS      XL2                   TOTAL LENGTH OF LOG REC     00008000
+&TYPE.41KDT   DS      PL5                   KEY DATE                    00009000
+&TYPE.41KTM   DS      PL5                   KEY TIME                    00010000
+&TYPE.41DT    DS      PL5                   CONTROL DATE                00011000
+&TYPE.41TM    DS      PL5                   CONTROL TIME                00012000
+&TYPE.41OPER  DS      CL8                   OPERATOR                    00013000
+&TYPE.41SRCE  DS      CL8                   SOURCE                      00014000
+&TYPE.41RELC  DS      CL8                   CHANGE ID           2602105 00015000
+&TYPE.41DAGID DS      CL8                   DAG ID                      00016000
+&TYPE.41ACTN  DS      CL6                   ACTION                      00017000
+&TYPE.41VARLG DS      CL1                   VARIABLE LENGTH FLAG        00018000
+&TYPE.41TYPE  DS      CL1                   RECORD TYPE                 00019000
+&TYPE.41OWN   DS      CL3                   OWNERSHIP                   00020000
+&TYPE.41HIUS  DS      CL1                   HIGH USE INDICATOR          00021000
+&TYPE.41DEACT DS      CL1                   DEACTIVATED INDICATOR       00022000
+&TYPE.41LGTH  EQU   *-&TYPE.41AREA                                      00023000
+         MEND                                                           00024000

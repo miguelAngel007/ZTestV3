@@ -1,0 +1,32 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** HISTORY OF REVISIONS **                         * 00000002
+*                                                                     * 00000003
+* DESCRIPTION                                                 CHNGID  * 00000004
+* __________________________________________________________  _______ * 00000005
+* 08/11/08 ADD TSTSDELQ TO DELETE OLD TEMP STOR QUEUES        0912672   00000084
+* 08/14/02 COMMENT OUT OBSOLETE MODULES                       2024372 * 00000085
+* 05/21/99 TAKE  TSTSLDR1 OUT OF TABLE. NOT RECOMMENDED FOR   9913693 * 00000086
+*          STARTUP                                            9913693 * 00000087
+* 04/25/96 ADDED TSXZCINP FOR DBCS ENABLING-UNCOMMENT TO USE  9913481 * 00000088
+* 01/15/96 ADDED TSTSR41X FOR CICS 4.1                        2602471 * 00000089
+* 12/19/95 COMMENTED SATPQLDC.  NOT RECOMMENDED FOR STARTUP   2602837 * 00000090
+* 03/07/95 ADDED ENTRIES FOR TSTSR31X AND TSTSR32X AND        2602601 * 00000091
+*          COMMENTED TSTSR17X AND TSTSR31X.  IF YOU ARE NOT   2602601 * 00000092
+*          USING CICS 3.2 OR CICS 3.3, COMMENT TSTSR32X AND   2602601 * 00000093
+*          UNCOMMENT THE APPROPRIATE VERSION.                 2602601 * 00000094
+*          TSTSR17X FOR CICS 1.7, CICS 2.1, CICS 2.2          2602601 * 00000095
+*          TSTSR31X FOR CICS 3.1                              2602601 * 00000096
+*          TSTSR32X FOR CICS 3.2, CICS 3.3                    2602601 * 00000097
+*                                                                     * 00000098
+*---------------------------------------------------------------------* 00000099
+**************************************************************0400159** 00001000
+*   TRANSACTION SYSTEM CICS PLTPI ENTRIES                     0400159 * 00002000
+**************************************************************0400159** 00003000
+*        DFHPLT TYPE=ENTRY,PROGRAM=SATPQLDC                   2602837   00004000
+         DFHPLT TYPE=ENTRY,PROGRAM=TSTSDELQ                   0912672   00004500
+*        DFHPLT TYPE=ENTRY,PROGRAM=TSTSR17X                   2602601   00005000
+*        DFHPLT TYPE=ENTRY,PROGRAM=TSTSR31X                   2602601   00005010
+*        DFHPLT TYPE=ENTRY,PROGRAM=TSTSR32X                   2024372   00005020
+         DFHPLT TYPE=ENTRY,PROGRAM=TSTSR41X                   2602471   00005025
+*        DFHPLT TYPE=ENTRY,PROGRAM=TSXZCINP                   9913481   00007000

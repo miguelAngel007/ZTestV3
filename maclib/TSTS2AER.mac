@@ -1,0 +1,66 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*                 TSTS2AER - COPYBOOK FOR TSAER ENROLLMENT RECORD     * 00004000
+*                                                                     * 00005000
+*---------------------------------------------------------------------* 00006000
+*                  ** HISTORY OF REVISIONS **                         * 00007000
+*                                                                     * 00008000
+* DESCRIPTION                                                 CHNGID  * 00009000
+* __________________________________________________________  _______ * 00010000
+*                                                                     * 00011000
+* 08/13/14 GN6704 ENTERPRISE ALERTS OPTIONS ADDED             1526704   00011100
+* 06/13/12 GN6243 INITIAL DISTRIBUTION                        1326243   00012000
+* __________________________________________________________  _______ * 00013000
+AERREC   DSECT                     TSSUB DSECT                          00014000
+AER1REC  DS    0C                                                       00015000
+AER1STEM DS    0CL2415                                                  00016000
+AER1LENG DS    XL2                     SUB RECORD LENGTH                00017000
+         DS    CL2                     FILLER                           00018000
+AER1KEY  DS    0CL50                   SUB KEY                          00019000
+AER1CTLS DS    0CL16                     CONTROLS                       00020000
+AER1CTL1 DS    CL4                       CONTROL 1                      00021000
+AER1CTL2 DS    CL4                       CONTROL 2                      00022000
+AER1CTL3 DS    CL4                       CONTROL 3                      00023000
+AER1CTL4 DS    CL4                       CONTROL 4                      00024000
+AER1ACCT DS    CL32                      ACCOUNT                        00025000
+AERENTRY DS    PL3                      NUMBER OF ENTRIES               00026000
+AERMAINT DS    0CL12                    RECORD MAINT                    00027000
+AERDATE  DS    0CL6                     DATE                            00028000
+AERMO    DS    CL2                      MONTH                           00029000
+AERDA    DS    CL2                      DAY                             00030000
+AERYR    DS    CL2                      YEAR                            00031000
+AERTIME  DS    0CL6                     TIME                            00032000
+AERHR    DS    CL2                      HOUR                            00033000
+AERMN    DS    CL2                      MINUTE                          00034000
+AERSC    DS    CL2                      SECOND                          00035000
+AEREMPL  DS    CL8                      EMPLOYEE                        00036000
+AERCHGID DS    CL8                      CHANGE ID                       00037000
+AERACTCD DS    CL1                      ACTION CODE                     00038000
+AEREPD   DS    CL2                      ENDPOINT DEFAULT      1526704   00038100
+AEREPGT  DS    CL40                     ENDPOINT GROUP TBL    1526704   00038200
+AEREPT   DS    CL675                    ENDPOINT DET TBL      1526704   00038300
+         DS    CL548                    FILLER                1526704   00038400
+AEROPTBL DS    CL13500                  OPTIONS TABLE         1526704   00038500
+         DS    CL430                    FILLER                1526704   00041000
+                                                                        00042000
+AEROPTN  DSECT                                                          00043000
+AEROPTNS DS    0CL45                    OPTIONS               1526704   00044000
+AERTRNCD DS    CL4                      USER TRAN CODE                  00045000
+AERTYPE  DS    CL2                      TRAN TYPE                       00046000
+AERDESC  DS    CL25                     USER TRAN CD DESC               00047000
+AERALERT DS    CL1                      YES OR NO FOR ALERT             00048000
+AERBAL   DS    CL1                      BALANCE ACTION                  00049000
+AERBALAM DS    PL9                      BALANCE AMOUNT                  00050000
+AEREPP   DS    PL1                      ENDPOINT POINTER      1526704   00050100
+         DS    CL1                                            1526704   00051000
+AEREPGS  DSECT                                                1526704   00053000
+AEREPGT  DS    CL2                      ENDPOINT GROUP TYPE   1526704   00054000
+AEREPD   DSECT                                                1526704   00055000
+AEREPDE  DS    0CL75                    ENDPOINT DEF ENTRY    1526704   00056000
+AEREPDT  DS    CL2                      ENDPOINT TYPE         1526704   00057000
+AEREPCT  DS    CL1                      ENDPOINT CALL TIME    1526704   00058000
+AEREPTZ  DS    CL1                      ENDPOINT TIME ZONE    1526704   00059000
+AEREPUI  DS    CL1                      ENDPOINT USA IND      1526704   00060000
+AEREPD   DS    CL75                     ENDPOINT DETAIL       1526704   00070000

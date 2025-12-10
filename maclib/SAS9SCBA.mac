@@ -1,0 +1,257 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'SACB DSECT'                                             00001000
+*                                                                     * 00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+* * * * * * *           S   A   C   B                   * * * * * * * * 00005000
+*                                                                     * 00006000
+*      COLLECTION OF SA TABLE ADDRESSES AND MODULE ENTRY POINTS.      * 00007000
+*                                                                     * 00008000
+*                      HISTORY OF REVISIONS                   2600213 * 00008002
+* DESCRIPTION                                                 2600213 * 00008004
+* ----------------------------------------------------------  2600213 * 00008006
+* 09/29/11 ADDED EVENT BYTE FOR TCP/IP SENDQ PROCESS        * 1226030   00008087
+* 11/27/01 ADD SHARED DATA TABLE PROCESS OPT FOR TSSCF RECS   2024349 * 00008088
+* 07-23-01 ADDED 2 FIELDS FOR SAP3010B ENTRY POINT & DYN STG  2020219 * 00008089
+* 11-10-97 ADDED 2 FIELDS FOR SIOPTNS GLOBALIZATION           9913483 * 00008090
+* 06-23/97 ADDED ENTRY POINT FOR LKUPDAG ROUTINE              9913349 * 00008092
+* 04-21-95 ADDED 3 FIELDS FOR EXPANDED LOG BUFFER AREA        2600361 * 00008093
+* 01-09-95 ADDED PTR TO INDICATE LAST STORAGE ACQUIRED BY     2600213 * 00008094
+*          GETSTOR. ALSO ADDED PTR TO GETSTOR/FRESTOR CSECT   2600213 * 00008096
+*          IN SASERVO.                                        2600213 * 00008098
+*********************************************************************** 00009000
+SACB     DS    0H                                                       00010000
+SACBSACB DS    CL4 'SACB'   LITERAL 'SACB' EYE CATCHER                  00011000
+SACBNUKE DS    A (SASERV)   NUCLEUS POINTER                             00012000
+SACBSARB DS    A (WSSARB)   SARB CHAIN POINTER                          00013000
+         SPACE                                                          00014000
+SACBDAGT DS    A           FIRST BYTE OF DAG TABLE                      00015000
+SACBDAGZ DS    A            LAST BYTE OF DAG TABLE                      00016000
+         SPACE                                                          00017000
+SACBDSET DS    A           FIRST BYTE OF DATA SET TABLE                 00018000
+SACBDSEZ DS    A            LAST BYTE OF DATA SET TABLE                 00019000
+         SPACE                                                          00020000
+SACBAPST DS    A           PTR TO LAST GETSTOR STORAGE        2600213   00021000
+SACBGSFS DS    A           PTR TO GETSTOR/FRESTOR CSECT       2600213   00022000
+         SPACE                                                          00023000
+SACBDSMT DS    A           FIRST BYTE OF DSM TABLE (FOR EDIT)           00024000
+SACBDSMZ DS    A            LAST BYTE OF DSM TABLE (FOR EDIT)           00025000
+         SPACE                                                          00026000
+SACBFDDT DS    A           FIRST BYTE OF DD TABLE                       00027000
+SACBFDDZ DS    A            LAST BYTE OF DD TABLE                       00028000
+         SPACE                                                          00029000
+SACBFOVT DS    A           FIRST BYTE OF DD (FILE) OVERRIDES TABLE      00030000
+SACBFOVZ DS    A            LAST BYTE OF DD (FILE) OVERRIDES TABLE      00031000
+         SPACE                                                          00032000
+SACBTMOT DS    A           FIRST BYTE OF TABLE MANAGER OVERRIDES TABLE  00033000
+SACBTMOZ DS    A            LAST BYTE OF TABLE MANAGER OVERRIDES TABLE  00034000
+         SPACE                                                          00035000
+SACBGFWS DS    A           WS FOR GETSTOR/FRESTOR BALR ROUTINE2600213   00035100
+SACBFIL1 DS    XL52        FILLER                             2600213   00036000
+         SPACE                                                          00037000
+SACBFCE  DS    0H          FREE STORAGE ANCHOR                          00038000
+SACBFCLN DC    XL4'0'       SIZE OF THIS PIECE (0 IN ANCHOR)            00039000
+SACBFCED DC    A(SACBFCLN)  STORAGE FREE CHAIN DOWNWARD POINTER         00040000
+SACBFCEU DC    A(SACBFCLN)  STORAGE FREE CHAIN UPWARD POINTER           00041000
+SACBFCEE EQU   *                                                        00042000
+         SPACE                                                          00043000
+****                                                                    00044000
+* FLAGS AND ONE-BYTE FIELDS                                             00045000
+****                                                                    00046000
+         SPACE                                                          00047000
+SACBMLVL DS    AL1 (&MAXLVL*2) MAXIMUM LEVEL NUMBER                     00048000
+SACBCLVL DS    XL1         CURRENT PROCESS LEVEL                        00049000
+SACBSLVL DS    XL1         CURRENT SCRIPT LEVEL                         00050000
+         SPACE                                                          00051000
+SACBMODE DS    XL1         VER 1.03 OPERATING MODE                      00054000
+SACBCABN EQU   X'80' CICS: COMMAREA HAS NCA OR FIRST 4 BYTES OF         00055000
+*                           COMMAREA IS NCA ADDRESS.  'NCASACBA'        00056000
+*                           IN NCA CONTAINS SACB ADDRESS, OR ZERO       00057000
+*                           IF THIS IS FIRST ENTRY TO SASERVO.  THIS    00058000
+*                           ALSO IMPLIES THAT WE ARE RUNNING AS A TS    00059000
+*                           NATIVE.                                     00060000
+SACBCABS EQU   X'40' CICS: COMMAREA HAS SACB.  FIRST 4 BYTES OF         00061000
+*                           COMMAREA IS SACB ADDRESS, OR ZERO IF        00062000
+*                           FIRST ENTRY.  THIS ALSO IMPLIES WE ARE      00063000
+*                           NOT EXECUTING AS 'TS NATIVE', AND WILL NOT  00064000
+*                           DO THE INITIALIZATION AND WRAP-UP STEPS     00065000
+*                           PERTINENT TO TS INTERFACE PROCESSING.       00066000
+SACBCABT EQU   X'20' CICS: TASK COMMAREA WAS PRESENT AT ENTRY.  (FROM   00067000
+*                           PREVIOUS 'RETURN COMMAREA(XXX)').  THIS     00068000
+*                           WILL BE TRUE ONLY IF SACBSERV BIT IS ON.    00069000
+*                           IF IT DOES NOT CARRY THE '*TSKCOM*' STAMP   00070000
+*                           THE TRANSACTION WILL ABEND WITH ERR968.     00071000
+SACBSERV EQU   X'10' BOTH: IF CICS, SASERVO IS THE PCT ENTRY FOR THE    00072000
+*                           TRANCODE.  THIS IS SET ON IF THE COMMAREA   00073000
+*                           IS NEITHER NEW ARCHITECTURE NOR TS NATIVE,  00074000
+*                           OR IF THERE IS NO COMMAREA.  SASERV WILL    00075000
+*                           EXPECT TO FIND A SCRIPT ON PARMS WITH A     00076000
+*                           NAME EQUAL TO THE CICS TRANCODE.            00077000
+*                          IF BATCH, SASERV IS THE MAIN PROGRAM (JOB    00078000
+*                           STEP.  THIS IS SET ON IF THE R1 PARMLIST    00079000
+*                           IS ONE ITEM.  THERE ARE NO SASERV VERB      00080000
+*                           CALLS WHICH CONSIST OF ONLY ONE PARAMETER.  00081000
+*                           THIS PARAM. IS ASSUMED TO CONTAIN THE       00082000
+*                           INITIAL SCRIPT NAME.                        00083000
+SACBCABB EQU   X'08' CICS: RUNNING IN TS/BMS MODE.  ONLY ONE OF         00084000
+*                           SACBCABN, SACBCABS, OR SACBCABB             00085000
+*                           SHOULD BE ON.                               00086000
+SACBXCT1 EQU   X'04' CICS: TS XCTL COMMAREA PRESENT AT ENTRY.           00087000
+*                           IT WILL BE DAG TSTS1XCT IN THE DAG TABLE.   00088000
+SACBSUB  EQU   X'02'       SASERV RUNNING AS A SUBORDINATE PROCESS -    00089000
+*                           DO NOT CLEAN UP & FLUSH WHEN LEAVING TOP    00090000
+*                           LEVEL.                                      00091000
+SACBACDC EQU   X'01'       IN PROCESS OF SWITCHING MODES...HAVE         00092000
+*                           LEFT TOP LEVEL VIA XCTL AND MAY START OVER  00093000
+*                           AGAIN WHEN WE GET TO TARGET OF XCTL.        00094000
+         SPACE                                                          00095000
+SACBTNAT DS    XL1         TERMINATION CONTROL FLAG                     00096000
+*              X'00'        NEITHER TERMINATING NOR RE-INITIALIZING     00097000
+*                           (NORMAL RUNNING STATUS)                     00098000
+*              X'01'        RE-INITIALIZING, PHASE II (DAGTAB PURGE)    00099000
+*                            OUTSTANDING (CICS)                         00100000
+*              X'02'        RE-INITIALIZING, PHASE I (ALL BUT DAGTAB)   00101000
+*                            OUTSTANDING (CICS)                         00102000
+*              X'10'        PRE-EXECUTION INITIALIZATION IN PROGRESS    00103000
+*                            (BATCH)                                    00104000
+*              X'FC'        QUIESCING...PART 1 IN PROGRESS              00105000
+*              X'FD'        QUIESCING...PART 1 COMPLETE                 00106000
+*              X'FE'        QUIESCING...PART 2 IN PROGRESS              00107000
+*              X'FF'        TERMINATION FINISHED.                       00108000
+         SPACE                                                          00109000
+SACBEF1  DS    XL1         ENVIRONMENT SETUP FLAGS                      00110000
+SACBEF1P EQU   B'10000000'  ACCESS PARMS WITH UPDATE INTENT             00111000
+SACBEF1D EQU   B'01000000'  PARMS EFFECTIVE DATE WAS SUPPLIED           00112000
+SACBEF1R EQU   B'00100000'  ENABLE RECOVERY                             00113000
+SACBEF1L EQU   B'00010000'  LOGGING IS ACTIVE (ONLY VALID IF            00114000
+*                            RECOVERY IS ENABLED).                      00115000
+SACBEF1S EQU   B'00001000'  PERFORM SA STATISTICS PRINT PROGRAMS        00116000
+*                            AT END OF TOP LEVEL SCRIPT.                00117000
+SACBEF1X EQU   B'00000100'  USER PC OR ESTAE EXIT IS ESTABLISHED        00118000
+SACBEF1O EQU   B'00000010'  USER OC EXIT ESTABLISHED FOR VSE            00118010
+SACBEF1A EQU   B'00000001'  OFF IF PUBLIC GETSTOR/FRESTOR ANCHOR IS     00119000
+*                            SWAPPED IN, ON IF SASERV'S ANCHOR IS IN.   00119010
+         SPACE                                                          00120000
+SACBLGMD DS    X           LOG MODE.  SAME AS MODE FROM SACBCAB,        00121000
+*                           UNLESS THEY'VE ISSUED "SALOG" INSTEAD OF    00122000
+*                           "LOG".  IN THAT CASE, WE'LL LOG TO SALOG    00123000
+*                           IRRESPECTIVE OF EXECUTION MODE.             00124000
+         SPACE                                                          00125000
+SACBCATY DS    X           COMMAREA TYPE INDICATOR            2511803   00126000
+*                           (COMMAREA PRESENT AT ENTRY)                 00127000
+SACBCATG EQU   X'80'       PROBABLY GARBAGE, BUT WE'RE GOING  2511803   00128000
+*                           TO RUN WITH IT AS IF WE'RE TOP-   2511803   00128010
+*                           LEVEL PROCESS (TS/BMS) AND HOPE   2511803   00128020
+*                           IT WORKS OUT THAT WAY.  IT WILL   2511803   00128030
+*                           BE PUT IN DAGTAB AS "SAUSER"      2511803   00128040
+SACBCATH EQU   X'40'       SPECIAL ACA ON RETURN FRM TSTSHLP1 2503336   00129000
+SACBCATX EQU   X'20'       "TSTS1XCT" COMMAREA FROM TSTSXCT1 XCTL'ER    00130000
+SACBCATA EQU   X'10'       SA/EAA REQUEST FORMAT COMMAREA               00131000
+SACBEF2  DS    XL1         ENVIRONMENT SETUP FLAGS BYTE 2     2500295   00131010
+SACBEF2A EQU   X'80'        PARM= HAS COBOL2 R-T-O            2500295   00131012
+SACBEF2B EQU   X'40'        SASETUP HAS COBOL2 R-T-O          2500295   00131014
+SACBEF2E EQU   X'08'        SET COBOL2 STAE(ON)               2500295   00131016
+SACBTSQ  DS    XL1         TEMP STORAGE QUEUE FLAG            2503336   00131018
+SACBTSQA EQU   X'80'       TS QUEUE IN AUX STORAGE            2501124   00131020
+SACBTSQM EQU   X'40'       TS QUEUE IN MAIN STORAGE           2501124   00131022
+SACBTSQW EQU   X'20'       WRITE SAVED DAGS TO TS QUEUE       2501124   00131024
+SACBEVQ  DS    XL1         TCP/IP EVENT QUEUE FLAG            1226030   00131026
+SACBEVQW EQU   X'80'       WRITE EVENT MESSAGE TO TS QUEUE    1226030   00131028
+SACBEVQM EQU   X'40'       EVENT MESSAGES IN TS QUEUE         1226030   00131030
+         DS    CL16        FILLER FOR MORE CONTROL FLAGS      2501124   00132000
+         SPACE 3                                                        00133000
+* ***                                                                   00134000
+* MESSAGE CONTROL AREAS ARE AREAS WHERE ERROR MESSAGE REQUESTS ARE      00135000
+* STACKED PENDING DISPOSITION BY THE ERROR PROCESSOR.  AN ERROR         00136000
+* MESSAGE ENTRY IS INSERTED IN THE MCA BY THE API 'ERROR' VERB.         00137000
+*                                                                       00138000
+* THE ERROR PROCESSOR (SAS0ERRX) IS INVOKED BY THE API 'RUNERR' VERB.   00139000
+* AT THAT TIME, ALL QUEUED ENTRIES IN THE MCA(S) ARE PROCESSED, AND     00140000
+* THE MCA(S) ARE AVAILABLE FOR RE-USE.  DURING ONLINE PROCESSING,       00141000
+* MESSAGE TABLE ENTRIES ARE CREATED FROM THE ERROR MESSAGE REQUESTS.    00142000
+* THESE ARE ACCUMULATED FOR THE LIFE OF THE C.I.C.S. TASK.              00143000
+* ***                                                                   00144000
+         DS    0F          (ALIGNMENT)                                  00145000
+SACBMCAC DS    AL4         CURRENT MESSAGE CONTROL AREA                 00146000
+SACBMCAF DS    AL4         FIRST MCA IN CHAIN                           00147000
+SACBMCAL DS    AL4         LAST MCA IN CHAIN                            00148000
+SACBNUME DC    XL2'0'      NUMBER OF ACTIVE ERROR ENTRIES               00149000
+SACBCURE DS    AL4         ADDRESS OF CURRENT ERROR ENTRY               00150000
+SACBMSGC DS    AL4         ADDRESS OF PROCESSED ERROR MESSAGES TABLE    00151000
+SACBMSGF DS    AL4         CICS: LENGTH OF MESSAGE TABLE GETMAIN        00152000
+*                                (IF MSG TABLE IS NOT PART OF ACA)      00153000
+SACBMSGL DS    CL4         --FILLER                                     00154000
+* END OF ERROR MESSAGE TABLE POINTERS                                   00155000
+         SPACE                                                          00156000
+*   MISCELLANOUS ADDRESSES                                              00157000
+         DS    0F          (ALIGNMENT)                                  00158000
+SACBSCTL DS    A           SDMSCNTL CONTROL BLOCK POINTER               00159000
+SACBPCM  DS    A           PARMS PCM CONTROL BLOCK POINTER              00160000
+SACBDCM  DS    A           AUX DICTIONARY COMM AREA POINTER             00161000
+SACBGCA  DS    A           NEW ARCH. GLOBAL COMM AREA POINTER           00162000
+SACBTSCB DS    F           IF TS NATIVE MODE, TSCB (STEM) ADDRESS       00163000
+SACBDDIO DS    A           DICT I/O AREA ADDRESS (BATCH)                00164000
+SACBSCPT DS    A           SCRIPT STORAGE POINTER                       00165000
+SACBTRAC DS    A           WRAPAROUND TRACE TABLE ADDRESS               00166000
+         DS    A           --- FILLER                                   00167000
+         DS    A           --- FILLER                                   00168000
+SACBSATB DS    A           TABLE MANAGER CONTROL BLOCK ADDRESS          00169000
+SACBSTAT DS    A           USAGE COUNTERS DAG ADDRESS                   00170000
+SACBBRQA DS    A           TS/BMS PRIMARY REQUEST/STATUS AREA 2511663   00171000
+SACBNCAA DS    A           TS/NATIVE HIGH-LEVEL COMMAREA SENT TO        00172000
+*                           "PROCESS MODULES" (SASERVO IS A P.M.)       00173000
+SACBFCA  DS    A           NEW FREE CHAIN ANCHOR                        00174000
+SACBDAGK DS    H           NUMBER OF DAGS IN BINARY DAG TABLE           00175000
+SACBDAGA DS    H           NUMBER OF DAGS ALLOWED BEFORE EXPANSION      00175100
+SACBEPSM DS    A           ENTRY POINT FOR SIMESS REPORT PROGRAM        00176000
+SACBEPTM DS    A           ENTRY POINT FOR TABLE MANAGER                00177000
+SACBEPER DS    A           ENTRY POINT FOR SASERTB MAY-DAY ERROR PRINT  00178000
+SACBCQR  DS    A           ANCHOR OF ALLOCATED AREA(S) TABLES           00179000
+SACBDAGO DS    A           OPEN DAG TABLE SLOT FOR NEXT DISP NEW DAG    00180000
+SACBMGIA DS    A           TABLE MGR INTERFACE AREA ADDRESS             00180100
+SACBPGMK DS    H           NUMBER OF PGMS IN BINARY PGM TABLE           00180200
+SACBPGMA DS    H           NUMBER OF PGMS ALLOWED BEFORE EXPANSION      00180300
+SACBLKUP DS    A           ENTRY POINT FOR DAG TABLE LKUP MOD 9913349   00180310
+SACBOPEA DS    A           ADDRESS OF SASIOPTE RECORD         9913483   00180320
+         SPACE 1                                              2020219   00181000
+SACB3EPP DS    A           ENTRY POINT OF SAP3010B (PARMS)    2020219   00181010
+SACB3SCP DS    A           SAP3010B'S CURRENT DYN (R13) STG   2020219   00181020
+         SPACE                                                          00182000
+SACB1BSC DS    AL4         STUMP'S CURRENT DYNAMIC (R13) STORAGE        00183000
+SACBSVSC DS    AL4         SASERV'S CURRENT DYNAMIC (R13) STORAGE       00184000
+         SPACE                                                          00185000
+SACBEPD  DS    A           ENTRY POINT OF SADAUXIB                      00186000
+SACBSCD  DS    A           SADAUXIB'S CURRENT DYNAMIC (R13) STORAGE     00187000
+         SPACE                                                          00188000
+SACBEPI  DS    A           ENTRY POINT OF SASDMSB                       00189000
+SACBSCI  DS    A           SASDMSB'S CURRENT DYNAMIC (R13) STORAGE      00190000
+         SPACE                                                          00191000
+SACBEPP  DS    A           ENTRY POINT OF SAP0010B (PARMS)              00192000
+SACBSCP  DS    A           SAP0010B'S CURRENT DYNAMIC (R13) STORAGE     00193000
+         SPACE                                                          00194000
+SACBEPSE DS    A           ENTRY POINT OF SAS0ERRB (ERROR PROCESSOR)    00195000
+SACBSCSE DS    A           SAS0ERRB'S CURRENT DYNAMIC (R13) STORAGE     00196000
+         SPACE                                                          00197000
+SACBEPAD DS    A           ENTRY POINT OF SAADATEB (DATE SERVICES)      00198000
+SACBSCAD DS    A           SAADATEB'S CURRENT DYNAMIC (R13) STORAGE     00199000
+         SPACE                                                          00200000
+SACBEPAE DS    A           ENTRY POINT OF SAAEDITB                      00201000
+SACBSCAE DS    A           SAAEDITB'S CURRENT DYNAMIC (R13) STORAGE     00202000
+         SPACE                                                          00203000
+SACBEPDB DS    A           ENTRY POINT OF SAIDB2B                       00203100
+SACBSCDB DS    A           SAIDB2B'S CURRENT DYNAMIC (R13) STORAGE      00203200
+         SPACE                                                          00203300
+SACBEPCR DS    A           ENTRY POINT OF SAICOROB                      00203400
+SACBSCCR DS    A           SAICOROB'S CURRENT DYNAMIC (R13) STORAGE     00203500
+         SPACE                                                          00203600
+SACBEPSV DS    A           ENTRY POINT OF SAVCMGR                       00203700
+SACBSCSV DS    A           SAVCMGR'S  CURRENT DYNAMIC (R13) STORAGE     00203800
+         SPACE                                                          00203900
+SACBLXAT DS    A           LOG EXPANSION AREA ADDR            2600361   00203910
+SACBLXAZ DS    A           LOG EXPANSION AREA END ADDR        2600361   00203920
+SACBLXDX DS    A           LOG EXPANSION AREA INDEX           2600361   00203930
+         SPACE 1                                              2600361   00203940
+SACBAORA DS    XL4         AOR ADDRESS                        2024349   00204000
+SACBLEN  EQU   *-SACB      LENGTH OF SACB                               00205000
+*                                                                     * 00206000
+*********************************************************************** 00207000

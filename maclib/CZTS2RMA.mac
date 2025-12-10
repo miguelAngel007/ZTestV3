@@ -1,0 +1,67 @@
+***********************************************************************
+***   * FO0628 24/07/03 OLSA PROYECTO MIGRACION TOLDII               **
+***********************************************************************
+******************************* CZTS2RMA *****************************  00000010
+* SISTEMA   : APERTURA RAPIDA DESDE GINA                             *  00000020
+* COPY BOOK : ARCHIVO DE INTERFASE ENTRE RM & IM/ST                  *  00000020
+*             - SEGMENTO DE AGREGAR CUENTAS EN IM Y ST               *  00000020
+**********************************************************************  00000060
+RMAAREA  DS   0X                   * SEGMENTO DE AGREGAR CUENTAS        00000070
+*                                                                       00000080
+RMACTRL1 DS    CL4                 * CONTROL 1                          00000120
+RMACTRL2 DS    CL4                 * CONTROL 2                          00000120
+RMACTRL3 DS    CL4                 * CONTROL 3                          00000120
+RMACTRL4 DS    CL4                 * CONTROL 4                          00000120
+RMAACCNT DS    CL10                * NUMERO DE CUENTA                   00000120
+*
+RMAPROCD DS    CL3                 * TIPO DE PRODUCTO                   00000120
+RMASPRCD DS    CL3                 * TIPO DE SUB-PRODUCTO               00000120
+RMASYSTY DS    CL3                 * TIPO DE SISTEMA                    00000120
+*
+RMACUNBR DS    CL30                * NUMERO DE CLIENTE                  00000120
+RMASHTNM DS    CL13                * NOMBRE CORTO                       00000120
+RMACUSTY DS    CL1                 * TIPO DE CLIENTE                    00000120
+RMADATE  DS    CL8                 * FECHA NACIMIENTO / CONSTITUCION    00000120
+*                                  *   FORMATO : SSAAMMDD               00000120
+RMADCTY  DS    CL1                 * TIPO DE DOCUMENTO                  00000120
+RMADCNBR DS    CL11                * NUMERO DE DOCUMENTO                00000120
+*
+RMACUNM1 DS    CL40                * NOMBRE DE CLIENTE 1                00000120
+RMACUNM2 DS    CL40                * NOMBRE DE CLIENTE 2                00000120
+RMACUNM3 DS    CL40                * NOMBRE DE CLIENTE 3                00000120
+RMACUNM4 DS    CL40                * NOMBRE DE CLIENTE 4                00000120
+*
+RMAADDR1 DS    CL40                * DIRECCION 1                        00000120
+RMAADDR2 DS    CL40                * DIRECCION 2                        00000120
+RMAADDR3 DS    CL40                * DIRECCION 3                        00000120
+RMAADDR4 DS    CL40                * DIRECCION 4                        00000120
+*
+RMADIST  DS    CL20                * DISTRITO                           00000120
+RMAPROV  DS    CL20                * PROVINCIA                          00000120
+RMADPTO  DS    CL20                * DEPARTAMENTO                       00000120
+RMAPSTCD DS    CL3                 * CODIGO POSTAL                      00000120
+*        CAMPOS PARA CLIENTES POTENCIALES
+RMASEX   DS    CL1                 * SEXO                               00000120
+RMACIVST DS    CL1                 * ESTADO CIVIL                       00000120
+*        CAMPOS PARA CLIENTES ANTIGUOS
+RMAOFFCD DS    CL5                 * CODIGO DE SECTORISTA               00000120
+RMAEOD   DS    CL1                 * INDICADOR DE EOD                   00000120
+RMAENTGR DS    CL4                 * GRUPO ECONOMICO                    00000120
+RMACIIU  DS    CL4                 * CODIGO CIIU                        00000120
+RMACALCD DS    CL3                 * CODIGO DE CALIFICACION             00000120
+RMAYRCAL DS    CL4                 * ANNO DE CALIFICACION               00000120
+RMAPRCAL DS    CL2                 * PERIODO DE CALIFICACION            00000120
+RMAPGCAL DS    CL1                 * CALIFICACION DE PAGO               00000120
+RMASOCTY DS    CL10                * TIPO DE SOCIEDAD                   00000120
+RMAREFR  DS    CL1                 * SOLICITUD DE REFRENDO              00000120
+RMACOMNM DS    CL25                * NOMBRE COMERCIAL                   00000120
+RMACSIGN DS    CL1                 * CANTIDAD DE FIRMAS                 00000120
+*
+RMTIPPER DS    CL1                 * TIPO DE PERIODO                    00000120
+RMNROINC DS    CL3                 * NRO DE INCREMENTO                  00000120
+*
+RMNANRAT DS    CL9                 * TASA ANUAL (FRMT : 9V99999999)     00000120
+*
+         DS    CL09                * FILLER
+*                                                                       00000760
+RMAAREAL EQU   *-RMAAREA           * SEGMENT LENGTH                     00000770

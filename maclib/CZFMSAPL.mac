@@ -1,0 +1,827 @@
+         MACRO                                                          00000100
+         CZFMSAPL                                                      X00000200
+               &TYPE=,                                                 X00000300
+               &MODULE=,                                               X00000400
+               &APPLNAM=,                                              X00000500
+               &APPLPRG=,                                              X00000600
+               &DINTPRG=,                                              X00000700
+               &DBDNAME=,                                              X00000800
+               &BTNUM=,                                                X00000900
+               &HELP=            HELP FUNCTION                          00001000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001100
+.*********                   P R O L O G                       ******** 00001200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001300
+.*                                                                    * 00001400
+.*   MACRO NAME : CZFMSAPL                                            * 00001500
+.*                                                                    * 00001600
+.*   DESCRIPTIVE NAME : APPLICATIONS BLOCK CREATION                   * 00001700
+.*                                                                    * 00001800
+.*   STATUS : VERSION 1                                               * 00001900
+.*            RELEASE LEVEL = 1                                       * 00002000
+.*            MODIFICATION LEVEL = 0                                  * 00002100
+.*                                                                    * 00002200
+.*   COPYRIGHT:                                                       * 00002300
+.*                                                                    * 00002400
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00002500
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00002600
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00002700
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00002800
+.*                                                                    * 00002900
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00003000
+.*                                                                    * 00003100
+.*   FUNCTION:  TO GENERATE THE APPLICATION BLOCKS , THE SYSTEM       * 00003200
+.*              CONTROL BLOCK, THE BATCH TERMINAL BLOCKS,             * 00003300
+.*              FORWARD RECOVERY BLOCK AND THE DISKETTE PROCESSING    * 00003400
+.*              BLOCK AS PART OF THE SYSTEM DATA MODULE.              * 00003500
+.*              TO GENERATE THE APPLICATION BLOCKS THAT ARE PART      * 00003600
+.*              OF THE CZFAACT CONTROLLER TABLES MODULE.              * 00003700
+.*              TO GENERATE THE APPLICATION CODE EQUATES THAT ARE     * 00003800
+.*              USED IN THE CZFH.. APPLICATION MODULES.               * 00003900
+.*              IT ALSO GENERATES THE BATCH TERMINAL BLOCKS AND THE   * 00004000
+.*              FORWARD RECOVERY BLOCK.                               * 00004100
+.*                                                                    * 00004200
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 4 PARTS:           * 00004300
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00004400
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. CHECKS THE    * 00004500
+.*             MODULE BEING ASSEMBLED. IN THE ASSEMBLY OF CZFHSD      * 00004600
+.*             CREATES THE SYSTEM CONTROL BLOCK AND THE BLOCKS USED   * 00004700
+.*             BY THE FORWARD RECOVERY AND THE DISKETTE PROCESSING.   * 00004800
+.*             IN THE ASSEMBLY OF CZFACT CREATES THE TABLE PREFIX.    * 00004900
+.*          2) THE MACRO TYPE=TELLER PROCESS - CHECKS THE VALIDITY    * 00005000
+.*             OF THE PARAMETERS APPLNAME, APPLPRG, DINTPRG AND       * 00005100
+.*             DBDNAME.                                               * 00005200
+.*             FROM THESE PARAMETERS, ONE APPLICATION BLOCK IS BUILT. * 00005300
+.*             A CONSECUTIVE CODE (FROM 01) IS MADE EQUAL TO THE      * 00005400
+.*             APPLICATION NAME.                                      * 00005500
+.*             THIS CODE IS USED TO IDENTIFY THE APPLICATION ON EVERY * 00005600
+.*             CONTROL BLOCK GENERATED.                               * 00005700
+.*          3) THE MACRO TYPE=BTERM  PROCESS - CHECKS THE VALIDITY    * 00005800
+.*             OF THE PARAMETER BTNUM (VALUES FROM 1 TO 9).           * 00005900
+.*             FROM THIS PARAMETER, THE BATCH TERMINAL BLOCKS ARE BUILT 00006000
+.*             WITH THE NAME BTERMNN (WHERE NN IS A CONSECUTIVE NUMBER* 00006100
+.*             STARTING WITH 02).                                     * 00006200
+.*             THIS MACRO IS USED IF MODULE=CZFHSD IS CODED IN THE    * 00006300
+.*             MACRO TYPE=INITIAL.                                    * 00006400
+.*          4) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00006500
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO +UILDS* 00006600
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00006700
+.*             THE BLOCKS.                                            * 00006800
+.*                                                                    * 00006900
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00007000
+.*                                                                    * 00007100
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00007200
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00007300
+.*                                                                    * 00007400
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00007500
+.*                                                                    * 00007600
+.*   CHARACTERISTICS :                                                * 00007700
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00007800
+.*                                                                    * 00007900
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00008000
+.*                                                                    * 00008100
+.*   RESTRICTIONS:  NONE                                              * 00008200
+.*                                                                    * 00008300
+.*   PARAMETERS RECEIVED:                                             * 00008400
+.*             TYPE=              *MACRO TYPE(INITIAL, TELLER, BTERM, * 00008500
+.*                                *   FINAL)                          * 00008600
+.*             MODULE=            *MODULE USING THIS SET OF MACROS    * 00008700
+.*                                *   CZFHSD     - SYSTEM DATA MODULE * 00008800
+.*                                *   CZFACT     - CONTROLLER TABLES  * 00008900
+.*                                *   CZFHAA     - APPLICATION MODULES* 00009000
+.*             APPLNAM=           *APPLICATION NAME (1 TO 8 CHARACTER)* 00009100
+.*             APPLPRG=           *NAME OF THE APPLICATION MODULE     * 00009200
+.*             DINTPRG=           *NAME OF THE DATABASE INTERFACE     * 00009300
+.*                                *   PROGRAM                         * 00009400
+.*             DBDNAME=           *NAME OF THE DBD (DATA BASE         * 00009500
+.*                                *   DEFINITION) USED BY THIS        * 00009600
+.*                                *   APPLICATION                     * 00009700
+.*             BTNUM=             *NUMBER OF BATCH TERMINALS TO BE    * 00009800
+.*                                *   DEFINED (FROM 1 TO 9)           * 00009900
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00010000
+.*                                                                    * 00010100
+.*   CONTROL BLOCK(S) BUILT :                                         * 00010200
+.*                                                                    * 00010300
+.*            APPLICATION BLOCK ELEMENT IN THE HOST (CZFHSD)          * 00010400
+.*                                                                    * 00010500
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00010600
+.* DEC  HEX                                                           * 00010700
+.*                                                                    * 00010800
+.*  0    0        1       INDICATOR FOR APPLICATION STATUS            * 00010900
+.*                           BIT 0 ON - APPLICATION IS ACTIVE         * 00011000
+.*                                    - BATCH TERMINAL IS ACTIVE      * 00011100
+.*                                    - FORWARD RECOVERY IS ACTIVE    * 00011200
+.*                                    - DISKETTE PROCESSING IS ACTIVE * 00011300
+.*                           BIT 1 ON - APPLICATION OPEN FOR TELLER   * 00011400
+.*                                      OPERATIONS                    * 00011500
+.*                           BIT 2 ON - BATCH TERMINAL DEACTIVATION   * 00011600
+.*                                      REQUEST                       * 00011700
+.*                                    - FORWARD RECOVERY DEACTIVATION * 00011800
+.*                                      REQUEST                       * 00011900
+.*                                    - DISKETTE PROCESSING           * 00012000
+.*                                      DEACTIVATION REQUEST          * 00012100
+.*                           BIT 3 TO 7 - RESERVED                    * 00012200
+.*  1    1        1       INDICATOR OF THE APPLICATION PRIMARY USE    * 00012300
+.*                           BIT 0 ON - TELLER                        * 00012400
+.*                           BIT 1 ON - BATCH TERMINAL                * 00012500
+.*                           BIT 2 ON - FORWARD RECOVERY BLOCK        * 00012600
+.*                           BIT 3 ON - DISKETTE PROCESSING BLOCK     * 00012700
+.*                           BIT 4 TO 7 - RESERVED                    * 00012800
+.*  2    2        1       TELLER APPLICATION NUMBER IN BINARY         * 00012900
+.*  3    3        1       RESERVED                                    * 00013000
+.*  4    4        8       APPLICATION NAME OR BATCH TERMINAL NAME     * 00013100
+.* 12    C        8       NAME OF THE APPLICATION MODULE              * 00013200
+.* 20   14        8       NAME OF THE APPLICATION DATABASE INTERFACE  * 00013300
+.*                           PROGRAM                                  * 00013400
+.* 28   1C        8       NAME OF THE DBD USED BY THIS APPLICATION    * 00013500
+.* 36   24        4       ADDRESS OF APPLICATION MODULE               * 00013600
+.* 40   28        4       ADDRESS OF APPLICATION DATABASE INTERFACE   * 00013700
+.*                           PROGRAM                                  * 00013800
+.*                                                                    * 00013900
+.*            SYSTEM CONTROL BLOCK IN THE HOST (CZFHSD).              * 00014000
+.*                                                                    * 00014100
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00014200
+.* DEC  HEX                                                           * 00014300
+.*                                                                    * 00014400
+.*  0    0        1       INDICATOR FOR SYSTEM STATUS                 * 00014500
+.*                           BIT 0 ON - SYSTEM IS ACTIVE              * 00014600
+.*                           BIT 1 TO 7 - RESERVED                    * 00014700
+.*  1    1        3       TODAY'S DATE (DDMMYY)                       * 00014800
+.*  4    4        3       TODAY'S DATE (YYMMDD)                       * 00014900
+.*  7    7        4       TODAY'S DATE PACKED (0DDMMYYS)              * 00015000
+.* 11    B        4       TODAY'S JULIAN DATE (00YYDDDS)              * 00015100
+.* 15    F        8       TODAY'S STANDARD DATE (19YYMMDD) CHARACTERS * 00015200
+.* 23   17        4       TRANSACTION SERIAL NUMBER                   * 00015300
+.* 27   1B        4       RELATIVE RECORD NUMBER FOR NEXT JOURNAL     * 00015400
+.*                        RECORD TO BE USED                           * 00015500
+.* 31   1F        4       RESERVED                                    * 00015600
+.*                                                                    * 00015700
+.*                                                                    * 00015800
+.*     FIELD DESCRIPTOR TABLE PREFIX  AT THE CONTROLLER (CZFACT).     * 00015900
+.*                                                                    * 00016000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00016100
+.* DEC  HEX                                                           * 00016200
+.*                                                                    * 00016300
+.*  0    0        2       NUMBER OF ENTRIES                           * 00016400
+.*  2    2        2       LENGTH OF ENTRY (2)                         * 00016500
+.*                                                                    * 00016600
+.*     FIELD DESCRIPTOR TABLE ELEMENT AT THE CONTROLLER (CZFACT).     * 00016700
+.*                                                                    * 00016800
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00016900
+.* DEC  HEX                                                           * 00017000
+.*                                                                    * 00017100
+.*  0    0        1       APPLICATION NAME WORD NUMBER                * 00017200
+.*                          IT IS CREATED WITH A LETTER W AND THE     * 00017300
+.*                          FIRST 7 CHARACTERS OF THE NAME            * 00017400
+.*  1    1        1       APPLICATION STATUS INDICATOR                * 00017500
+.*                           BIT 0 ON - INACTIVE                      * 00017600
+.*                           BIT 1 TO 7 - RESERVED                    * 00017700
+.*                                                                    * 00017800
+.*   GENERATED CODE :                                                 * 00017900
+.*                                                                    * 00018000
+.*                                                                    * 00018100
+.*    APPLICATION TABLE ELEMENT AT THE HOST (CZFHSD).                 * 00018200
+.*                                                                    * 00018300
+.*                                                                    * 00018400
+.*         DS    0F                    *APPLICATION BLOCK ELEMENT     * 00018500
+.*         DC    XL1'00'               *APPLICATION STATUS INDICATOR  * 00018600
+.*                                     *  BIT 0 ON - APPLIC IS ACTIVE * 00018700
+.*                                     *           - BATCH TERMINAL IS* 00018800
+.*                                     *             ACTIVE           * 00018900
+.*                                     *           - FORWARD RECOVERY * 00019000
+.*                                     *             IS ACTIVE        * 00019100
+.*                                     *           - DKTTE PROCESSING * 00019200
+.*                                     *             IS ACTIVE        * 00019300
+.*                                     *  BIT 1 ON - APPLIC IS ACTIVE * 00019400
+.*                                     *             FOR TELLER OPERAT* 00019500
+.*                                     *  BIT 2 ON - BATCH TERMINAL   * 00019600
+.*                                     *             DEACTIVATION REQ.* 00019700
+.*                                     *           - FORWARD RECOVERY * 00019800
+.*                                     *             DEACTIVATION REQ.* 00019900
+.*                                     *           - DKTTE PROCESSING * 00020000
+.*                                     *             DEACTIVATION REQ.* 00020100
+.*                                     *  BIT 3 TO 7 - RESERVED       * 00020200
+.*         DC    B'XXXXXXXX'           *APPLICATION PRIMARY USE       * 00020300
+.*                                     *  BIT 0 ON - TELLER           * 00020400
+.*                                     *  BIT 1 ON - BATCH TERMINAL   * 00020500
+.*                                     *  BIT 2 ON - FORWARD RECOVERY * 00020600
+.*                                     *  BIT 3 ON - DKTTE PROCESSING * 00020700
+.*                                     *  BIT 4 TO 7 - RESERVED       * 00020800
+.*         DC    YL1(0)                *TELLER APPLICATION NUMBER BIN.* 00020900
+.*         DC    XL1'00'               *RESERVED                      * 00021000
+.*         DC    CL8'APPLIC NAME'      *APPLICATION NAME              * 00021100
+.*         DC    CL8'APPLIC MODULE'    *NAME OF THE APPLICATION MODULE* 00021200
+.*         DC    CL8'DB INTERF MOD'    *NAME OF THE DATABASE INTERFACE* 00021300
+.*                                     *   PROGRAM                    * 00021400
+.*         DC    CL8'DBD NAME'         *NAME OF THE DBD USED BY THIS  * 00021500
+.*                                     *   APPLICATION                * 00021600
+.*         DC    A(0)                  *ADDRESS OF THE APPLICATION    * 00021700
+.*                                     *   MODULE                     * 00021800
+.*         DC    A(0)                  *ADDRESS OF THE DATABASE       * 00021900
+.*                                     *   INTERFACE MODULE           * 00022000
+.*                                                                    * 00022100
+.*                                                                    * 00022200
+.*    SYSTEM CONTROL BLOCK AT THE HOST (CZFHSD).                      * 00022300
+.*                                                                    * 00022400
+.*                                                                    * 00022500
+.*       DS    0F                                                     * 00022600
+.*       DC XL1'00'               *SYSTEM INDICATOR                   * 00022700
+.*       DC XL3'00'               *TODAY'S DAY (DDMMYY)               * 00022800
+.*       DC PL4'0'                *TODAY'S DAY PACKED (0DDMMYYS)      * 00022900
+.*       DC PL4'0'                *TODAY'S JULIAN DATE (00YYDDDS)     * 00023000
+.*       DC CL8' '                *TODAY'S STANDARD DATE (19YYMMDD)   * 00023100
+.*       DC PL4'0'                *NEXT TRANSACTION SERIAL NUMBER     * 00023200
+.*       DC A(0)                  *RELATIVE RECORD NUMBER FOR NEXT    * 00023300
+.*                                  *JOURNAL RECORD TO BE USED        * 00023400
+.*       DC A(0)                  *RESERVED                           * 00023500
+.*                                                                    * 00023600
+.*    FORWARD RECOVERY BLOCK AT THE HOST (CZFHSD).                    * 00023700
+.*                                                                    * 00023800
+.*         DS    0F                    *FWD RECOVERY BLOCK            * 00023900
+.*         DC    XL1'00'               *STATUS INDICATOR              * 00024000
+.*                                     *  BIT 0 ON - FORWARD RECOVERY * 00024100
+.*                                     *             IS ACTIVE        * 00024200
+.*         DC    XL1'20'               *APPLICATION PRIMARY USE       * 00024300
+.*                                     *  BIT 2 ON - FORWARD RECOVERY * 00024400
+.*         DC    YL1(0)                *RESERVED                      * 00024500
+.*         DC    XL1'00'               *RESERVED                      * 00024600
+.*         DC    CL8'FWDRECOV'         *NAME FOR FWD RECOVERY BLOCK   * 00024700
+.*         DC    CL8'             '    *RESERVED                      * 00024800
+.*         DC    CL8'             '    *RESERVED                      * 00024900
+.*         DC    CL8'             '    *RESERVED                      * 00025000
+.*         DC    A(0)                  *RESERVED                      * 00025100
+.*         DC    A(0)                  *RESERVED                      * 00025200
+.*                                                                    * 00025300
+.*                                                                    * 00025400
+.*    DISKETTE PROCESSING BLOCK AT THE HOST (CZFHSD).                 * 00025500
+.*                                                                    * 00025600
+.*         DS    0F                    *DKTTE PROCESSING BLOCK        * 00025700
+.*         DC    XL1'00'               *STATUS INDICATOR              * 00025800
+.*                                     *  BIT 0 ON - DKTTE PROCESSING * 00025900
+.*                                     *             IS ACTIVE        * 00026000
+.*         DC    XL1'10'               *APPLICATION PRIMARY USE       * 00026100
+.*                                     *  BIT 3 ON - DKTTE PROCESSING * 00026200
+.*         DC    YL1(0)                *RESERVED                      * 00026300
+.*         DC    XL1'00'               *RESERVED                      * 00026400
+.*         DC    CL8'DISKETTE'         *NAME FOR DKTE PROCESSING BLOCK* 00026500
+.*         DC    A(0)                  *NEXT DKTE REJ RECORD TO WRITE * 00026600
+.*         DC    A(0)                  *NEXT DKTE INPUT RECORD TO WRITE 00026700
+.*         DC    A(0)                  *NEXT DKTE INPUT RECORD TO READ* 00026800
+.*         DC    CL4'    '             *RESERVED                      * 00026900
+.*         DC    CL8'        '         *RESERVED                      * 00027000
+.*         DC    A(0)                  *RESERVED                      * 00027100
+.*         DC    A(0)                  *RESERVED                      * 00027200
+.*                                                                    * 00027300
+.*    APPLICATION CONTROL TABLE AT THE CONTROLLER (CZFACT).           * 00027400
+.*                                                                    * 00027500
+.*                                                                    * 00027600
+.*                                     *FIELD DESCRIPTOR TABLE PREFIX * 00027700
+.*         DC    AL2(NUM OF ENTRIES)   *NUMBER OF ENTRIES             * 00027800
+.*         DC    AL2(2)                *LENGTH OF ENTRIES             * 00027900
+.*                                     *FIELD DESCRIPTOR ELEMENT      * 00028000
+.*         DC    AL1(WAPPLNAM)         *APPLICATION NAME WORD NUMBER  * 00028100
+.*         DC    XL1'00'               *APPLICATION INDICATOR         * 00028200
+.*                                     *  BIT 0 ON - INACTIVE         * 00028300
+.*                                     *  BIT 1 TO 7 - RESERVED       * 00028400
+.*   NOTES:                                                           * 00028500
+.*      - AMPLIACION DE 16 PUNTEROS ADICIONALES. (14SET92)     @VH/RG * 00028500
+.*                                                                    * 00028600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00028700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00028800
+.*                                                                    * 00028900
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00029000
+.*                                                                    * 00029100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00029200
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00029300
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00029400
+         GBLA  &MSAPL             *MACRO CZFMSAPL INDICATOR             00029500
+         GBLA  &MSAPL1            *TYPE=TELLER IS MANDATORY             00029600
+         GBLA  &MBTER             *MACRO TYPE=BTERM INDICATOR           00029700
+         GBLA  &INDEX             *INDEX TO STORE APPLICATION NAMES     00029800
+         GBLA  &APPLCOD           *APPLICATION CODE WORK AREA           00029900
+         GBLA  &MODIND            *MODULE ASSEMBLED INDICATOR           00030000
+         GBLA  &APLNUM            *APPL.ELEMENTS NUMBER (CONTROLLER)    00030100
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00030200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00030300
+.*                                                                    * 00030400
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00030500
+.*                                                                    * 00030600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00030700
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00030800
+         LCLA  &I                 *INDEX WORK FIELD                     00030900
+         LCLA  &BTSERIE           *BATCH TERMINAL SERIAL NUMBER         00031000
+         LCLA  &MAXNAME           *WORK FIELD MAXIMUM NUMBER OF NAMES   00031100
+         LCLC  &WRKAREA           *WORK FIELD TO CREATE WORD NAME       00031200
+         LCLB  &ERRIND            *ERROR INDICATOR                      00031300
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00031400
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     00031500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00031600
+.*                                                                    * 00031700
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00031800
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00031900
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00032000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00032100
+.*   PERFORMED.                                                       * 00032200
+.*                                                                    * 00032300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00032400
+         CZFMHELP HELP=&HELP                                            00032500
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       00032600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00032700
+.*                                                                    * 00032800
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00032900
+.*                                                                    * 00033000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00033100
+.P1VAL   ANOP                                                           00033200
+         AIF   (&MSAPL EQ 2).PCOMP       *PREVIOUS SET COMPLETED        00033300
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00033400
+         AIF   ('&TYPE' EQ 'TELLER').P2V1                               00033500
+         AIF   ('&TYPE' EQ 'BTERM').P3V1                                00033600
+         AIF   ('&TYPE' EQ 'FINAL').P4V1                                00033700
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 00033800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00033900
+.*                                                                    * 00034000
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 00034100
+.*                                                                    * 00034200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00034300
+.P1V1    ANOP                                                           00034400
+&INDEX   SETA  0                  *INITIAL VALUE FOR APPLICATION INDEX  00034500
+         AIF (&MSAPL NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00034600
+         AIF   (&ERRIND).END      *EXIT FROM THE MACRO                  00034700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00034800
+.*                                                                    * 00034900
+.*   VALIDATE MACRO TYPE=INITIAL PARAMETER MODULE=                    * 00035000
+.*                                                                    * 00035100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00035200
+         AIF   ('&MODULE' EQ 'CZFHSD').P1V1A                            00035300
+         AIF   ('&MODULE' EQ 'CZFACT').P1V1B                            00035400
+         AIF   ('&MODULE' EQ 'CZFHAA').P1V1C                            00035500
+         AGO   .P1E2                                                    00035600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00035700
+.*                                                                    * 00035800
+.*   PARAMETER MODULE=CZFHSD. GENERATE SYSTEM CONTROL BLOCK.          * 00035900
+.*                                                                    * 00036000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00036100
+.P1V1A   ANOP                                                           00036200
+         TITLE 'APPLICATIONS TABLE'                                     00036300
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00036400
+*                                                                    *  00036500
+*   MACRO NAME : CZFMSAPL                                            *  00036600
+*                                                                    *  00036700
+*   DESCRIPTIVE NAME : APPLICATIONS TABLE CREATION                   *  00036800
+*                                                                    *  00036900
+*   STATUS : VERSION 1                                               *  00037000
+*            RELEASE LEVEL = 0                                       *  00037100
+*            MODIFICATION LEVEL = 0                                  *  00037200
+*                                                                    *  00037300
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00037400
+&MODIND  SETA  1                                                        00037500
+         DS    0D                                                       00037600
+         DC    CL8'*TABLE= '           *TABLE HEADER                    00037700
+         DC    CL8'CZFMSAPL'           *TABLE NAME                      00037800
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         00037900
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               00038000
+CZFSYSCB DS    0D                 *SYSTEM CONTROL BLOCK                 00038100
+         DC    XL1'00'            *SYSTEM INDICATOR                     00038200
+         DC    XL3'000000'        *TODAY'S DATE (DDMMYY)                00038800
+         DC    XL3'000000'        *TODAY'S DATE (YYMMDD)                00038900
+         DC    PL4'0'             *TODAY'S DATE PACKED (0DDMMYYS)       00039000
+         DC    PL4'0'             *TODAY'S JULIAN DATE (00YYDDDS)       00039100
+         DC    CL8'        '      *TODAY'S STANDARD DATE (19YYMMDD)     00039200
+         DC    PL4'0'             *NEXT TRANSACTION SERIAL NUMBER       00039300
+         DC    XL1'00'            *AVAILABLE INDICATOR 01      @VH/RG   00038300
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00039400
+*                                 *  JOURNAL         RECORD TO BE USED  00039500
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00039600
+*                                 *  LIQ. CARTERA    RECORD TO BE USED  00039700
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00039800
+*                                 *  COMPRA/VENTA ME RECORD TO BE USED  00039900
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00040000
+*                                 *  SERV. VARIOS    RECORD TO BE USED  00040100
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00040200
+*                                 *  FILE 01         RECORD TO BE USED  00040300
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00040400
+*                                 *  FILE 02         RECORD TO BE USED  00040500
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00040600
+*                                 *  FILE 03         RECORD TO BE USED  00040700
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00040800
+*                                 *  FILE 04         RECORD TO BE USED  00040900
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00041000
+*                                 *  FILE 05         RECORD TO BE USED  00041100
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00041200
+*                                 *  FILE 06         RECORD TO BE USED  00041300
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00041400
+*                                 *  FILE 07         RECORD TO BE USED  00041500
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00041600
+*                                 *  FILE 08         RECORD TO BE USED  00041700
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00041800
+*                                 *  FILE 09         RECORD TO BE USED  00041900
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00042000
+*                                 *  FILE 10         RECORD TO BE USED  00042100
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00042200
+*                                 *  FILE 11         RECORD TO BE USED  00042300
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00042400
+*                                 *  FILE 12         RECORD TO BE USED  00042500
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00042600
+*                                 *  FILE 13         RECORD TO BE USED  00042700
+         DC    A(0)               *RELATIVE RECORD NUMBER FOR NEXT      00042600
+*                                 *  FILE 14         RECORD TO BE USED  00042700
+         DC    A(0)               *RESERVED                             00042800
+*                                 *END OF THE SYSTEM CONTROL BLOCK      00042900
+*                                                                       00043000
+CZFAPPLS DS    0D                 *APPLICATIONS TABLE                   00043100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00043200
+.*                                                                    * 00043300
+.*   GENERATE FORWARD RECOVERY BLOCK AS THE FIRST ENTRY OF THE TABLE. * 00043400
+.*                                                                    * 00043500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00043600
+         DC    XL1'00'            *APPLICATION STATUS INDICATOR         00043700
+         DC    XL1'20'            *APPLICATION USE INDICATOR            00043800
+.*                                     *  BIT 2 ON - FORWARD RECOVERY * 00043900
+         DC    YL1(0)             *TELLER APPLICATION NUMBER IN BINARY  00044000
+         DC    XL1'00'            *RESERVED                             00044100
+         DC    CL8'FWDRECOV'      *FORWARD RECOVERY NAME                00044200
+         DC    CL8'        '      *APPLICATION MODULE NAME              00044300
+         DC    CL8'        '      *DATABASE INTERFACE MODULE NAME       00044400
+         DC    CL8'        '      *DBD NAME                             00044500
+         DC    A(0)               *ADDRESS OF THE APPLICATION MODULE    00044600
+         DC    A(0)               *ADDRESS OF THE DB INTERFACE MODULE   00044700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00044800
+.*                                                                    * 00044900
+.*   GENERATE DISKETTE PROCESSING BLOCK AS SECOND ENTRY OF THE TABLE. * 00045000
+.*                                                                    * 00045100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00045200
+         DS    0F                                                       00045300
+         DC    XL1'00'            *APPLICATION STATUS INDICATOR         00045400
+         DC    XL1'10'            *APPLICATION USE INDICATOR            00045500
+.*                                     *  BIT 3 ON - DKTTE PROCESSING * 00045600
+         DC    YL1(0)             *TELLER APPLICATION NUMBER IN BINARY  00045700
+         DC    XL1'00'            *RESERVED                             00045800
+         DC    CL8'DISKETTE'      *NAME OF DISKETTE PROCESSING BLOCK    00045900
+         DC    A(0)               *NEXT REJECT DISKETTE RECORD TO WRITE 00046000
+         DC    A(0)               *NEXT DKTE INPUT RECORD TO WRITE      00046100
+         DC    A(0)               *NEXT DKTE INPUT RECORD TO READ       00046200
+         DC    CL4'    '          *RESERVED                             00046300
+         DC    CL8'        '      *DBD NAME                             00046400
+         DC    A(0)               *ADDRESS OF THE APPLICATION MODULE    00046500
+         DC    A(0)               *ADDRESS OF THE DB INTERFACE MODULE   00046600
+         AGO   .TESTFIN           *VALIDATE ACCEPTANCE OF LAST FINAL    00046700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00046800
+.*                                                                    * 00046900
+.*   PARAMETER MODULE=CZFACT. GENERATE CONTROLLER TABLE PREFIX        * 00047000
+.*                                                                    * 00047100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00047200
+.P1V1B   ANOP                                                           00047300
+         TITLE 'APPLICATIONS TABLE'                                     00047400
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00047500
+*                                                                    *  00047600
+*   MACRO NAME : CZFMSAPL                                            *  00047700
+*                                                                    *  00047800
+*   DESCRIPTIVE NAME : APPLICATIONS TABLE CREATION                   *  00047900
+*                                                                    *  00048000
+*   STATUS : VERSION 1                                               *  00048100
+*            RELEASE LEVEL = 0                                       *  00048200
+*            MODIFICATION LEVEL = 0                                  *  00048300
+*                                                                    *  00048400
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00048500
+&MODIND  SETA  2                                                        00048600
+APLFLD   EQU   *                  *APPLICATIONS TABLE                   00048700
+         DC    AL2(&APLNUM)       *NUMBER OF ENTRIES                    00048800
+         DC    AL2(2)             *LENGTH OF ENTRIES                    00048900
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV. FINAL      00049000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00049100
+.*                                                                    * 00049200
+.*   PARAMETER MODULE=CZFH..  IT GENERATES ONLY EQUATES               * 00049300
+.*                                                                    * 00049400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00049500
+.P1V1C   ANOP                                                           00049600
+         TITLE 'APPLICATIONS TABLE'                                     00049700
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00049800
+*                                                                    *  00049900
+*   MACRO NAME : CZFMSAPL                                            *  00050000
+*                                                                    *  00050100
+*   DESCRIPTIVE NAME : APPLICATIONS TABLE CREATION                   *  00050200
+*                                                                    *  00050300
+*   STATUS : VERSION 1                                               *  00050400
+*            RELEASE LEVEL = 0                                       *  00050500
+*            MODIFICATION LEVEL = 0                                  *  00050600
+*                                                                    *  00050700
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00050800
+&MODIND  SETA  3                                                        00050900
+         AGO   .TESTFIN           *EXIT FROM THE MACRO                  00051000
+.TESTFIN ANOP                                                           00051100
+&MBTER   SETA  0                  *INITIALIZE INDICATOR FOR TYPE=BTERM  00051200
+&MSAPL   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00051300
+         AIF (&MFINAL GT 0).NOFINAL                                     00051400
+.SETMAC  ANOP                                                           00051500
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00051600
+&MACREC  SETC  'CZFMSAPL'         *NAME OF CURRENT MACRO                00051700
+         AGO   .END                                                     00051800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00051900
+.*                                                                    * 00052000
+.*   VALIDATION OF MACRO TYPE=TELLER                                  * 00052100
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 00052200
+.*                                                                    * 00052300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00052400
+.P2V1    ANOP                                                           00052500
+         AIF (&MSAPL NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00052600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00052700
+.*                                                                    * 00052800
+.*   VALIDATE PARAMETER APPLNAM IN MACRO TYPE=TELLER:                 * 00052900
+.*          - APPLICATION NAME MUST BE FROM 1 TO 8 CHARACTERS LONG    * 00053000
+.*                                                                    * 00053100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00053200
+.P2V2    ANOP                                                           00053300
+.*                                *CHECK IF APPLICATION NAME IN RANGE   00053400
+         AIF    (T'&APPLNAM EQ 'O').P2E2    *MUST BE CODED              00053500
+         AIF    (T'&APPLNAM EQ 'N').P2E2    *MUST BE ALPHA              00053600
+         AIF    (K'&APPLNAM LT 1 OR K'&APPLNAM GT 8).P2E2               00053700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00053800
+.*                                                                    * 00053900
+.*   VALIDATE PARAMETER APPLPRG IN MACRO TYPE=TELLER:                 * 00054000
+.*          - APPLICATION MODULE MUST BE FROM 1 TO 6 CHARACTERS LONG  * 00054100
+.*                                                                    * 00054200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00054300
+.P2V3    ANOP                                                           00054400
+.*                                *CHECK IF APPLIC MODULE IS IN RANGE   00054500
+         AIF    (T'&APPLPRG EQ 'O').P2E3                                00054600
+         AIF    (K'&APPLPRG LT 5 OR K'&APPLPRG GT 6).P2E3               00054700
+         AIF    ('&APPLPRG'(1,4) NE 'CZFH').P2E3                        00054800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00054900
+.*                                                                    * 00055000
+.*   VALIDATE PARAMETER DINTPRG IN MACRO TYPE=TELLER:                 * 00055100
+.*          - DATABASE INTERFACE MODULE NAME                          * 00055200
+.*          - MUST BE FROM 5 TO 6 CHARACTERS LONG                     * 00055300
+.*                                                                    * 00055400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00055500
+.P2V3A   ANOP                                                           00055600
+         AIF    (T'&DINTPRG EQ 'O').P2E3A                               00055700
+.*                                *CHECK IF DB INTER MODULE IN RANGE    00055800
+         AIF    (K'&DINTPRG LT 5 OR K'&DINTPRG GT 6).P2E3A              00055900
+.*                                *CHECK DB INTERFACE  STARTS WITH CZFH 00056000
+         AIF    ('&DINTPRG'(1,4) NE 'CZFH').P2E3A                       00056100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00056200
+.*                                                                    * 00056300
+.*   VALIDATE PARAMETER DBDNAME IN MACRO TYPE=TELLER:                 * 00056400
+.*          - DBD NAME                                                * 00056500
+.*          - MUST BE FROM 1 TO 8 CHARACTERS LONG                     * 00056600
+.*          - IF NOT REQUIRED, MUST BE EQUAL TO "NONAME".             * 00056700
+.*                                                                    * 00056800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00056900
+.P2V3B   ANOP                                                           00057000
+         AIF    (T'&DBDNAME EQ 'O').P2E3B                               00057100
+.*                                *CHECK IF DBD NAME IN RANGE           00057200
+         AIF    (K'&DBDNAME LT 1 OR K'&DBDNAME GT 8).P2E3B              00057300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00057400
+.*                                                                    * 00057500
+.*   IF NOT ERROR FOUND, GENERATE THE BLOCK ELEMENTS                  * 00057600
+.*                                                                    * 00057700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00057800
+.P2V4    ANOP                                                           00057900
+         AIF   (&ERRIND).END                                            00058000
+&MSAPL1  SETA   1                 *TELLER STATEMENT RECEIVED            00058100
+&APPLCOD SETA   &APPLCOD+1        *UPDATE APPLICATION CODE              00058200
+&APPLNAM EQU   &APPLCOD           *EQU FOR APPLICATION CODE             00058300
+         AIF   (&MODIND EQ 2).P2GENAP *GO TO GENERATE AP CONTROL BLOCK  00058400
+         AIF   (&MODIND EQ 3).END     *APPLICATION MODULE SKIP GENERAT. 00058500
+.*                                    *GENERATE HOST APPLICATION C.B.   00058600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00058700
+.*                                                                    * 00058800
+.*   GENERATE THE APPLICATION TABLE ELEMENT FOR MODULE CZFHSD         * 00058900
+.*                                                                    * 00059000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00059100
+         DS    0F                                                       00059200
+         DC    XL1'00'            *APPLICATION STATUS INDICATOR         00059300
+         DC    XL1'80'            *APPLICATION PRIMARY USE INDICATOR    00059400
+.*                                     *  BIT 0 ON - TELLER           * 00059500
+         DC    YL1(&APPLCOD)      *TELLER APPLICATION NUMBER IN BINARY  00059600
+         DC    XL1'00'            *RESERVED                             00059700
+         DC    CL8'&APPLNAM'      *APPLICATION NAME                     00059800
+         DC    CL8'&APPLPRG'      *APPLICATION MODULE NAME              00059900
+         DC    CL8'&DINTPRG'      *DATABASE INTERFACE MODULE NAME       00060000
+.*                                *IF DBDNAME NOT REQUIRED              00060100
+         AIF    ('&DBDNAME' EQ 'NONAME').P2V5                           00060200
+         DC    CL8'&DBDNAME'      *DBD NAME                             00060300
+         AGO   .P2V6                                                    00060400
+.P2V5    ANOP                                                           00060500
+         DC    CL8'        '      *DBD NAME (NOT USED)                  00060600
+.P2V6    ANOP                                                           00060700
+         DC    A(0)               *ADDRESS OF THE APPLICATION MODULE    00060800
+.*                                *APPLICATION PRIMARY USE              00060900
+         DC    A(0)               *ADDRESS OF THE DB INTERFACE MODULE   00061000
+.*                                *   MODULE FOR THIS APPLICATION       00061100
+         AGO   .END                                                     00061200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00061300
+.*                                                                    * 00061400
+.*   GENERATE THE APPLICATION TABLE ELEMENT FOR MODULE CZFACT         * 00061500
+.*                                                                    * 00061600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00061700
+.P2GENAP ANOP                     *FIELD DESCRIPTOR ELEMENT             00061800
+&APLNUM  SETA  &APLNUM+1          *ADD 1 TO APPLICATIONS BLOCKS         00061900
+&WRKAREA SETC  '&APPLNAM'(1,7)    *TAKE FIRST 7 CHARACTERS OF NAME      00062000
+         DC    YL1(W&WRKAREA)     *APPLICATION NAME WORD NUMBER         00062100
+         DC    XL1'00'            *APPLICATION INDICATOR                00062200
+         AGO   .END                                                     00062300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00062400
+.*                                                                    * 00062500
+.*   VALIDATION OF MACRO TYPE=BTERM                                   * 00062600
+.*            IF MODULE IS NOT EQUAL TO CZFHSD, BYPASS THIS MACRO     * 00062700
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 00062800
+.*                                                                    * 00062900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00063000
+.P3V1    ANOP                                                           00063100
+         AIF (&MODIND NE 1).END   *IF NOT CZFHSD BYPASS BLK GENERATION  00063200
+         AIF (&MSAPL NE 1).P3E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00063300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00063400
+.*                                                                    * 00063500
+.*            MACRO TYPE=BTERM MUST BE CODED ONLY ONCE.               * 00063600
+.*                                                                    * 00063700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00063800
+.P3V2    ANOP                                                           00063900
+         AIF (&MBTER NE 0).P3E2   *BTERM TYPE MACRO ALREADY RECEIVED    00064000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00064100
+.*                                                                    * 00064200
+.*   VALIDATE PARAMETER BTNUM IN MACRO TYPE=BTERM:                    * 00064300
+.*          - MUST BE NUMERIC FROM 1 TO 9                             * 00064400
+.*                                                                    * 00064500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00064600
+.P3V3    ANOP                                                           00064700
+         AIF (T'&BTNUM EQ 'O').P3E3   *IF BTNUM CONTAINS NULLS, ERROR   00064800
+         AIF (T'&BTNUM NE 'N').P3E3   *IF BTNUM IS NOT NUMERIC, ERROR   00064900
+         AIF (&BTNUM LT 1 OR &BTNUM GT 9).P3E3   *CHECK RANGE           00065000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00065100
+.*                                                                    * 00065200
+.*   IF NOT ERROR FOUND, GENERATE THE BLOCK ELEMENTS                  * 00065300
+.*                                                                    * 00065400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00065500
+.P3V4    ANOP                                                           00065600
+         AIF   (&ERRIND).END                                            00065700
+.P3V5    ANOP                                                           00065800
+&MBTER   SETA  1                  *SET ON MACRO BTERM RECEIVED IND      00065900
+&I       SETA  1                  *INITIAL VALUE OF INDEX WORK FIELD    00066000
+&BTSERIE SETA  02                 *INITIAL VALUE OF BATCH TERMINAL NUM  00066100
+.BUILDBT ANOP                     *LOOP TO INITIALIZE BITS VALUE        00066200
+         DS    0F                                                       00066300
+         DC    XL1'00'            *APPLICATION STATUS INDICATOR         00066400
+         DC    XL1'40'            *APPLICATION PRIMARY USE INDICATOR    00066500
+.*                                     *  BIT 1 ON - BATCH TERMINAL   * 00066600
+         DC    XL1'00'            *TELLER APPLICATION NUMBER IN BINARY  00066700
+         DC    XL1'00'            *RESERVED                             00066800
+         AIF   (&BTSERIE EQ 02).P3V602                                  00067000
+         AIF   (&BTSERIE EQ 03).P3V603                                  00067000
+         AIF   (&BTSERIE EQ 04).P3V604                                  00067000
+         AIF   (&BTSERIE EQ 05).P3V605                                  00067000
+         AIF   (&BTSERIE EQ 06).P3V606                                  00067000
+         AIF   (&BTSERIE EQ 09).P3V609                                  00067000
+         DC    CL5'BTERM'         *BATCH TERMINAL NAME                  00066900
+         AGO   .P3V699                                                  00067200
+.P3V602  ANOP                                                           00067300
+         DC    CL5'CL-PR'         *BATCH TERMINAL NAME CL & PR          00066900
+         AGO   .P3V699                                                  00067200
+.P3V603  ANOP                                                           00067300
+         DC    CL5'GIRTR'         *BATCH TERMINAL 03                    00066900
+         AGO   .P3V699                                                  00067200
+.P3V604  ANOP                                                           00067300
+         DC    CL5'BTERM'         *BATCH TERMINAL 04                    00066900
+         AGO   .P3V699                                                  00067200
+.P3V605  ANOP                                                           00067300
+         DC    CL5'BTERM'         *BATCH TERMINAL 05                    00066900
+         AGO   .P3V699                                                  00067200
+.P3V606  ANOP                                                           00067300
+         DC    CL5'BTERM'         *BATCH TERMINAL 06                    00066900
+         AGO   .P3V699                                                  00067200
+.P3V609  ANOP                                                           00067300
+         DC    CL5'TRANF'         *BATCH TERMINAL 09                    00066900
+.P3V699  ANOP                                                           00067300
+         AIF   (&BTSERIE LT 10).P3V6                                    00067000
+         DC    CL2'&BTSERIE'      *BATCH TERMINAL SERIAL NUMBER         00067100
+         AGO   .P3V7                                                    00067200
+.P3V6    ANOP                                                           00067300
+         DC    CL1'0'             *BATCH TERMINAL SERIAL NUMBER         00067400
+         DC    CL1'&BTSERIE'      *BATCH TERMINAL SERIAL NUMBER         00067500
+.P3V7    ANOP                                                           00067600
+         DC    CL1' '             *BATCH TERMINAL NAME (FILLER)         00067700
+         DC    CL8'        '      *APPLICATION MODULE NAME              00067800
+         DC    CL8'        '      *DATABASE INTERFACE MODULE NAME       00067900
+         DC    CL8'        '      *DBD NAME                             00068000
+         DC    A(0)               *ADDRESS OF THE APPLICATION MODULE    00068100
+         DC    A(0)               *ADDRESS OF THE DB INTERFACE MODULE   00068200
+&I       SETA  &I+1                                                     00068300
+&BTSERIE SETA  &BTSERIE+1                                               00068400
+         AIF (&I LE &BTNUM).BUILDBT                                     00068500
+         AGO   .END                                                     00068600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00068700
+.*                                                                    * 00068800
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00068900
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00069000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 00069100
+.*            MACROS TYPE ENTRY                                       * 00069200
+.*        -   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 00069300
+.*            OF THE TABLE FOR MODULE CZFHSD                          * 00069400
+.*        -   GENERATES A FIELD WITH THE NUMBER OF ENTRIES FOR        * 00069500
+.*            THE MODULE CZFACT.                                      * 00069600
+.*                                                                    * 00069700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00069800
+.P4V1    ANOP                                                           00069900
+         AIF (&MSAPL NE 1).P4E1                                         00070000
+         AIF (&MSAPL1 NE 1).P4E1                                        00070100
+         AIF   (&ERRIND).END                                            00070200
+&MSAPL   SETA  2                                                        00070300
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00070400
+         AIF   (&MODIND EQ 2).P3GENAP *GO TO GENERATE AP CONTROL BLOCK  00070500
+         AIF   (&MODIND EQ 3).END     *APPLICATION MODULE SKIP GENERAT. 00070600
+.*                                    *GENERATE HOST APPLICATION C.B.   00070700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00070800
+.*                                                                    * 00070900
+.*   GENERATE THE END OF TABLE INDICATOR FOR MODULE CZFHSD            * 00071000
+.*                                                                    * 00071100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00071200
+         DS    0F                 *END OF THE APPLICATIONS TABLE        00071300
+         DC    44X'FF'            *END-OF-TABLE INDICATOR               00071400
+         AGO   .END                                                     00071500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00071600
+.*                                                                    * 00071700
+.*   GENERATE THE END OF TABLE INDICATOR FOR MODULE CZFACT            * 00071800
+.*                                                                    * 00071900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00072000
+.P3GENAP ANOP                                                           00072100
+         ORG   APLFLD                                                   00072200
+         DC    AL2(&APLNUM)       *NUMBER OF ENTRIES                    00072300
+         ORG   ,                  *END OF THE APPLICATIONS TABLE        00072400
+         AGO   .END                                                     00072500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00072600
+.*                                                                    * 00072700
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00072800
+.*    MESSAGES REQUIRED.                                              * 00072900
+.*                                                                    * 00073000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00073100
+.HELP    ANOP                                                           00073200
+         CZFMHIMS MSGNUM=998                                            00073300
+         CZFMHIMS MSGNUM=98                                             00073400
+         CZFMHIMS MSGNUM=2                                              00073500
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSAPL                            00073600
+         CZFMHIMS MSGNUM=61                                             00073700
+         CZFMHIMS MSGNUM=95,MSGPARM=TELLER                              00073800
+         CZFMHIMS MSGNUM=96,MSGPARM=BTERM                               00073900
+         CZFMHIMS MSGNUM=100                                            00074000
+         CZFMHIMS MSGNUM=80                                             00074100
+         CZFMHIMS MSGNUM=13                                             00074200
+         CZFMHIMS MSGNUM=15                                             00074300
+         CZFMHIMS MSGNUM=118                                            00074400
+         CZFMHIMS MSGNUM=14                                             00074500
+       AGO   .END                                                       00074600
+.NOFINAL ANOP                                                           00074700
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00074800
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00074900
+.PCOMP   ANOP                                                           00075000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSAPL                            00075100
+&ERRIND  SETB   1                                                       00075200
+         AGO   .END                                                     00075300
+.PUE1    ANOP                                                           00075400
+         CZFMHIMS MSGNUM=98                                             00075500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00075600
+         AGO   .END                                                     00075700
+.P1E1    ANOP                                                           00075800
+         CZFMHIMS MSGNUM=2                                              00075900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00076000
+         AGO   .END                                                     00076100
+.P1E2    ANOP                                                           00076200
+         CZFMHIMS MSGNUM=61                                             00076300
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00076400
+         AGO   .END                                                     00076500
+.P2E1    ANOP                                                           00076600
+         CZFMHIMS MSGNUM=95,MSGPARM=&TYPE                               00076700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00076800
+         AGO   .END                                                     00076900
+.P2E2    ANOP                                                           00077000
+         CZFMHIMS MSGNUM=80                                             00077100
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00077200
+         AGO   .P2V3                                                    00077300
+.P2E3    ANOP                                                           00077400
+         CZFMHIMS MSGNUM=13                                             00077500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00077600
+         AGO   .P2V3A                                                   00077700
+.P2E3A   ANOP                                                           00077800
+         CZFMHIMS MSGNUM=15                                             00077900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00078000
+         AGO   .P2V3B                                                   00078100
+.P2E3B   ANOP                                                           00078200
+         CZFMHIMS MSGNUM=118                                            00078300
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00078400
+         AGO   .P2V4                                                    00078500
+.P3E1    ANOP                                                           00078600
+         CZFMHIMS MSGNUM=96,MSGPARM=&TYPE                               00078700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00078800
+         AGO   .END                                                     00078900
+.P3E2    ANOP                                                           00079000
+         CZFMHIMS MSGNUM=96,MSGPARM=&TYPE                               00079100
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00079200
+         AGO   .END                                                     00079300
+.P3E3    ANOP                                                           00079400
+         CZFMHIMS MSGNUM=14                                             00079500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00079600
+         AGO   .P3V4                                                    00079700
+.P4E1    ANOP                                                           00079800
+         CZFMHIMS MSGNUM=100                                            00079900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00080000
+         AGO   .END                                                     00080100
+.END     ANOP                                                           00080200
+         MEND                                                           00080300

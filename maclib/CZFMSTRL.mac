@@ -1,0 +1,285 @@
+         MACRO                                                          00010000
+         CZFMSTRL                                                      X00020000
+               &TYPE=,                                                 X00030000
+               &NUMBER=,                                               X00040000
+               &TRANSAC=,                                              X00050000
+               &HELP=            HELP FUNCTION                          00060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00070000
+.*********                   P R O L O G                       ******** 00080000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00090000
+.*                                                                    * 00100000
+.*   MACRO NAME : CZFMSTRL                                            * 00110000
+.*                                                                    * 00120000
+.*   DESCRIPTIVE NAME : TRANSACTION LIST TABLES CREATION              * 00130000
+.*                                                                    * 00140000
+.*   STATUS : VERSION 1                                               * 00150000
+.*            RELEASE LEVEL = 1                                       * 00160000
+.*            MODIFICATION LEVEL = 0                                  * 00170000
+.*                                                                    * 00180000
+.*   COPYRIGHT:                                                       * 00190000
+.*                                                                    * 00200000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00210000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00220000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00230000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00240000
+.*                                                                    * 00250000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00260000
+.*                                                                    * 00270000
+.*   FUNCTION:  TO GENERATE THE TRANSACTION LIST TABLES THAT ARE PART * 00280000
+.*              OF THE CZFHSD SYSTEM DATA MODULE.                     * 00290000
+.*                                                                    * 00300000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00310000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00320000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT CHECKS THE * 00330000
+.*             VALIDITY OF THE PARAMETER NUMBER TO BUILD THE TABLE    * 00340000
+.*             NAME.                                                  * 00350000
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00360000
+.*             OF THE PARAMETER TRANSAC. BASED ON THIS PARAMETER, ONE * 00370000
+.*             ENTRY FOR THE TRANSACTION LIST TABLE IS BUILT.         * 00380000
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00390000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00400000
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00410000
+.*             TABLE.                                                 * 00420000
+.*                                                                    * 00430000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00440000
+.*                                                                    * 00450000
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00460000
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00470000
+.*                                                                    * 00480000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00490000
+.*                                                                    * 00500000
+.*   CHARACTERISTICS :                                                * 00510000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00520000
+.*                                                                    * 00530000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00540000
+.*                                                                    * 00550000
+.*   RESTRICTIONS: NONE                                               * 00560000
+.*                                                                    * 00570000
+.*   PARAMETERS RECEIVED:                                             * 00580000
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00590000
+.*             NUMBER=            *TRANSACTION LIST NUMBER (1 TO 9999)* 00600000
+.*             TRANSAC=           *TRANSACTION CODE (1 TO 9999) AND   * 00610000
+.*                                *APPLICATION NAME (1 TO 8 CHARACTER)* 00620000
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00630000
+.*                                                                    * 00640000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00650000
+.*                                                                    * 00660000
+.*            TRANSACTION LIST TABLE ELEMENT                          * 00670000
+.*                                                                    * 00680000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00690000
+.* DEC  HEX                                                           * 00700000
+.*                                                                    * 00710000
+.*  0    0        2       TRANSACTION CODE (0001 TO 9999)             * 00720000
+.*  2    2        1       APPLICATION CODE (0 TO 255)                 * 00730000
+.*                                                                    * 00740000
+.*   GENERATED CODE :                                                 * 00750000
+.*                                                                    * 00760000
+.*TRLTXXXX DS    0D                    *TRANSACTION LIST TABLE NAME   * 00770000
+.*         DC    XL2'TRANSAC CODE'     *TRANSACTION CODE              * 00780000
+.*         DC    YL1'APPLIC  CODE'     *APPLICATION CODE              * 00790000
+.*                                                                    * 00800000
+.*   NOTES:                                                           * 00810000
+.*                                                                    * 00820000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00830000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00840000
+.*                                                                    * 00850000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00860000
+.*                                                                    * 00870000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00880000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00890000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00900000
+         GBLA  &MSTRL             *MACRO CZFMSTRL INDICATOR             00910000
+         GBLA  &MSTRL1            *TYPE=ENTRY INDICATOR                 00920000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00930000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00940000
+.*                                                                    * 00950000
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 00960000
+.*                                                                    * 00970000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00980000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00990000
+         LCLA  &USERPRM           *USER CONSECUTIVE NUMBER              01000000
+         LCLA  &I                 *INDEX WORK FIELD                     01010000
+         LCLB  &ERRIND            *ERROR INDICATOR                      01020000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    01030000
+         LCLC  &WORKC             *WORK AREA FOR GENERATED CODE         01040000
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     01050000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01060000
+.*                                                                    * 01070000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 01080000
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 01090000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 01100000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 01110000
+.*   PERFORMED.                                                       * 01120000
+.*                                                                    * 01130000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01140000
+         CZFMHELP HELP=&HELP                                            01150000
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       01160000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01170000
+.*                                                                    * 01180000
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 01190000
+.*                                                                    * 01200000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01210000
+.P1VAL   ANOP                                                           01220000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01230000
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                01240000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01250000
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 01260000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01270000
+.*                                                                    * 01280000
+.*   VALIDATE PARAMETER NUMBER IN MACRO TYPE=INITIAL:                 * 01290000
+.*            NUMBER MUST BE IN THE RANGE 0001-9999                   * 01300000
+.*            NUMBER MUST BE 4 CHARACTERS LONG                        * 01310000
+.*                                                                    * 01320000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01330000
+.P1V1    ANOP                                                           01340000
+         AIF (&MSTRL NE 0).P1E1   *CHECK FOR FIRST TYPE EQUAL INITIAL   01350000
+         AIF   (T'&NUMBER EQ 'O').P1E2           * IF NUMBER IS OMITTED 01360000
+         AIF   (T'&NUMBER NE 'N').P1E2           * NUMERIC              01370000
+         AIF   (&NUMBER LT 1 OR &NUMBER GT 9999).P1E2    * CHECK RANGE  01380000
+         AIF   (K'&NUMBER NE 4).P1E2                     * CHECK LENGTH 01390000
+.P1V2    ANOP                                                           01400000
+         AIF   (&ERRIND).END                                            01410000
+&MSTRL   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    01420000
+         AIF (&MFINAL GT 0).NOFINAL                                     01430000
+.SETMAC  ANOP                                                           01440000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            01450000
+&MACREC  SETC  'CZFMSTRL'         *NAME OF CURRENT MACRO                01460000
+         TITLE 'TRANSACTION LIST TABLE'                                 01470000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01480000
+*                                                                    *  01490000
+*   MACRO NAME : CZFMSTRL                                            *  01500000
+*                                                                    *  01510000
+*   DESCRIPTIVE NAME : TRANSACTION LIST TABLE CREATION MACRO         *  01520000
+*                                                                    *  01530000
+*   STATUS : VERSION 1                                               *  01540000
+*            RELEASE LEVEL = 0                                       *  01550000
+*            MODIFICATION LEVEL = 0                                  *  01560000
+*                                                                    *  01570000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01580000
+         DS    0D                                                       01590000
+         DC    CL8'*TABLE= '           *TABLE HEADER                    01600000
+         DC    CL8'CZFMSTRL'           *TABLE NAME                      01610000
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         01620000
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               01630000
+&WORKC   SETC  'TRLT'.'&NUMBER'                                         01640000
+&WORKC   DS    0D                 * TRANSACTION LIST TABLE NAME         01650000
+         AGO   .END               *EXIT FROM THE MACRO                  01660000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01670000
+.*                                                                    * 01680000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 01690000
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 01700000
+.*                                                                    * 01710000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01720000
+.P2V1    ANOP                                                           01730000
+         AIF (&MSTRL NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 01740000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01750000
+.*                                                                    * 01760000
+.*   VALIDATE PARAMETER TRANSAC (TRANSACTION CODE) IN MACRO TYPE=ENTRY: 01770000
+.*          - TRANSACTION CODE MUST BE IN THE RANGE 0001-9999         * 01780000
+.*                                                                    * 01790000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01800000
+.P2V3    ANOP                                                           01810000
+.*                                *CHECK IF TRANSAC CODE IS IN RANGE    01820000
+         AIF   ('&TRANSAC' EQ '').P2E2         * IF TRANSAC IS OMITTED  01830000
+         AIF   (T'&TRANSAC(1) EQ 'O').P2E3     * IF TRANSAC IS OMITTED  01840000
+         AIF   (T'&TRANSAC(1) NE 'N').P2E3     * IF TRANSAC NUMERIC     01850000
+         AIF   (&TRANSAC(1) LT 1 OR &TRANSAC(1) GT 9999).P2E3           01860000
+         AIF   (K'&TRANSAC(1) NE 4).P2E3                                01870000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01880000
+.*                                                                    * 01890000
+.*   VALIDATE PARAMETER TRANSAC (APPLICATION NAME) IN MACRO TYPE=ENTRY: 01900000
+.*          - APPLICATION NAME MUST BE FROM 1 TO 8 CHARACTERS LONG    * 01910000
+.*          - THE FIRST CHARACTER MUST BE ALPHABETIC                  * 01920000
+.*          - APPLICATION NAME MUST HAVE BEEN PREVIOUSLY DEFINED BY   * 01930000
+.*            THE CZFMSAPL MACRO IN ORDER TO OBTAIN THE APPLICATION   * 01940000
+.*            CODE.                                                   * 01950000
+.*                                                                    * 01960000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01970000
+.P2V4    ANOP                                                           01980000
+.*                                *CHECK IF APPLIC NAME IS IN RANGE     01990000
+         AIF   (T'&TRANSAC(2) EQ 'O').P2E4     * IF APPL NAME OMITTED   02000000
+         AIF   (T'&TRANSAC(2) EQ 'N').P2E4     * IF APPL NAME NUMERIC   02010000
+         AIF   (K'&TRANSAC(2) LT 1 OR K'&TRANSAC(2) GT 8).P2E4          02020000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02030000
+.*                                                                    * 02040000
+.*   IF NOT ERROR FOUND, GENERATE THE SYSTEM USER ELEMENT             * 02050000
+.*                                                                    * 02060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02070000
+.P2V7    ANOP                                                           02080000
+         AIF   (&ERRIND).END      *IF ERRORS FOUND DO NOT GENERATE      02090000
+&MSTRL1  SETA  1                  *GOOD ENTRY INPUT                     02100000
+         DC    XL2'&TRANSAC(1)'   * TRANSACTION CODE                    02110000
+         DC    YL1(&TRANSAC(2))   * APPLICATION CODE                    02120000
+         AGO   .END                                                     02130000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02140000
+.*                                                                    * 02150000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 02160000
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 02170000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 02180000
+.*            MACROS TYPE ENTRY                                       * 02190000
+.*        -   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 02200000
+.*            OF THE TABLE                                            * 02210000
+.*                                                                    * 02220000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02230000
+.P3V1    ANOP                                                           02240000
+         AIF (&MSTRL NE 1).P3E1   *CHECK IF TYPE=FINAL IS EXPECTED      02250000
+         AIF (&MSTRL1 NE 1).P3E1  *ENTRY CARD PROCESSED?                02260000
+.*                                *ENTRIES FOR A TABLE ARE O.K.         02270000
+         AIF   (&ERRIND).END                                            02280000
+&MSTRL   SETA  0                  *SET IND BACK TO ZERO AFTER ALL       02290000
+&MSTRL1  SETA  0                  *SET IND BACK TO ZERO AFTER ALL       02300000
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              02310000
+         DC    3X'FF'             * END-OF-TABLE INDICATOR              02320000
+         AGO   .END                                                     02330000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02340000
+.*                                                                    * 02350000
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 02360000
+.*    MESSAGES REQUIRED.                                              * 02370000
+.*                                                                    * 02380000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02390000
+.HELP    ANOP                                                           02400000
+         CZFMHIMS MSGNUM=998                                            02410000
+         CZFMHIMS MSGNUM=1                                              02420000
+         CZFMHIMS MSGNUM=2                                              02430000
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                02440000
+         CZFMHIMS MSGNUM=93                                             02450000
+         CZFMHIMS MSGNUM=4,MSGPARM=NUMBER                               02460000
+         CZFMHIMS MSGNUM=19                                             02470000
+       AGO   .END                                                       02480000
+.NOFINAL ANOP                                                           02490000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            02500000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   02510000
+.PUE1    ANOP                                                           02520000
+         CZFMHIMS MSGNUM=1                                              02530000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02540000
+         AGO   .END                                                     02550000
+.P1E1    ANOP                                                           02560000
+         CZFMHIMS MSGNUM=2                                              02570000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02580000
+         AGO   .END                                                     02590000
+.P1E2    ANOP                                                           02600000
+         CZFMHIMS MSGNUM=4,MSGPARM=NUMBER                               02610000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02620000
+         AGO   .P1V2                                                    02630000
+.P2E1    ANOP                                                           02640000
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                02650000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02660000
+         AGO   .END                                                     02670000
+.P2E2    ANOP                                                           02680000
+         CZFMHIMS MSGNUM=19                                             02690000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02700000
+         AGO   .P2V7                                                    02710000
+.P2E3    ANOP                                                           02720000
+         CZFMHIMS MSGNUM=20                                             02730000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02740000
+         AGO   .P2V4                                                    02750000
+.P2E4    ANOP                                                           02760000
+         CZFMHIMS MSGNUM=11                                             02770000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02780000
+         AGO   .P2V7                                                    02790000
+.P3E1    ANOP                                                           02800000
+         CZFMHIMS MSGNUM=93                                             02810000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02820000
+         AGO   .END                                                     02830000
+.END     ANOP                                                           02840000
+         MEND                                                           02850000

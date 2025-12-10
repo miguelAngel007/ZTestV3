@@ -1,0 +1,174 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+************************************************************* 2023782   00000005
+*                 ** HISTORY OF REVISIONS **                * 2023782   00000010
+*                                                           * 2023782   00000015
+* DESCRIPTION                                               * 2023782   00000020
+* _________________________________________________________ * 2023782   00000025
+*                                                           * 2023782   00000030
+* 08/25/04  ADD FLAG TO INDICATE IMTBL FORMAT-GN5062          0515062   00000087
+* 08/08/00  ADD EQUATE FOR LAST RECORD ENTRY IN AN OCCURS.  * 2023782   00000088
+*                                                           * 2023782   00000089
+************************************************************* 2023782   00000090
+*********************************************************************** 00000100
+*                 TEMP STORAGE QUEUE INDEX ENTRY                      * 00000200
+*********************************************************************** 00000300
+*                                                                       00000400
+* QIE COMMON FIELDS                                                     00000500
+*                                                                       00000600
+QIEREC   DSECT                                                          00000700
+QIENTL   DS    0CL2885                                                  00000800
+QIESTEM  DS    0CL85                                                    00000900
+QIEDATA  DS    0CL40                                                    00001000
+QIETYPE  DS    CL6                   INDEX TYPE                         00001100
+*              'RECIDX'                                                 00001200
+*              'FLEIDX'                                                 00001300
+QIEXCL   DS    0XL10                   CURRENT INDEX LOCATION           00001400
+QIEXCQ   DS    PL2                       INDEX QUEUE NUMBER             00001500
+QIEXCA   DS    XL4                       INDEX STORAGE ADDRESS          00001600
+QIEXCI   DS    XL2                       INDEX QUEUE ITEM               00001700
+QIEXCD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00001800
+*                                                                       00001900
+QIEXPL   DS    0XL10                   PREVIOUS INDEX LOCATION          00002000
+QIEXPQ   DS    PL2                       INDEX QUEUE NUMBER             00002100
+QIEXPA   DS    XL4                       INDEX STORAGE ADDRESS          00002200
+QIEXPI   DS    XL2                       INDEX QUEUE ITEM               00002300
+QIEXPD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00002400
+*                                                                       00002500
+QIEXNL   DS    0XL10                   NEXT INDEX LOCATION              00002600
+QIEXNQ   DS    PL2                       INDEX QUEUE NUMBER             00002700
+QIEXNA   DS    XL4                       INDEX STORAGE ADDRESS          00002800
+QIEXNI   DS    XL2                       INDEX QUEUE ITEM               00002900
+QIEXND   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00003000
+*                                                                       00003100
+QIEMXOC  DS    XL2                     MAXIMUM OCCURRENCES              00003200
+*                                        +40 IS MAX NUMBER              00003300
+QIEUSOC  DS    XL2                     OCCURRENCES USED                 00003400
+         DS    CL45                    FILLER                           00003500
+*                                                                       00003600
+QIENTS   DS    CL2800                  INDEX ENTRIES                    00003700
+QIELEN   EQU   *-QIENTL                SYMBOLIC LENGTH OF QIE           00003800
+*                                                                       00003900
+         EJECT                                                          00004000
+*                                                                       00004100
+* QUEUE INDEX - RECORD                                                  00004200
+*                                                                       00004300
+QIRREC   DSECT                                                          00004400
+QIRNTL   DS    0CL2885                                                  00004500
+QIRSTEM  DS    0CL85                                                    00004600
+QIRDATA  DS    0CL40                                                    00004700
+QIRTYPE  DS    CL6                     INDEX TYPE                       00004800
+*              'RECIDX'                                                 00004900
+QIRXCL   DS    0XL10                   CURRENT INDEX LOCATION           00005000
+QIRXCQ   DS    PL2                       INDEX QUEUE NUMBER             00005100
+QIRXCA   DS    XL4                       INDEX STORAGE ADDRESS          00005200
+QIRXCI   DS    XL2                       INDEX QUEUE ITEM               00005300
+QIRXCD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00005400
+*                                                                       00005500
+QIRXPL   DS    0XL10                   PREVIOUS INDEX LOCATION          00005600
+QIRXPQ   DS    PL2                       INDEX QUEUE NUMBER             00005700
+QIRXPA   DS    XL4                       INDEX STORAGE ADDRESS          00005800
+QIRXPI   DS    XL2                       INDEX QUEUE ITEM               00005900
+QIRXPD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00006000
+*                                                                       00006100
+QIRXNL   DS    0XL10                   NEXT INDEX LOCATION              00006200
+QIRXNQ   DS    PL2                       INDEX QUEUE NUMBER             00006300
+QIRXNA   DS    XL4                       INDEX STORAGE ADDRESS          00006400
+QIRXNI   DS    XL2                       INDEX QUEUE ITEM               00006500
+QIRXND   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00006600
+*                                                                       00006700
+QIRMXOC  DS    XL2                     MAXIMUM OCCURRENCES              00006800
+*                                        +40 IS MAX NUMBER              00006900
+QIRUSOC  DS    XL2                     OCCURRENCES USED                 00007000
+*                                                                       00007100
+QIRIID   DS    0CL16                   INDEX RECORD ID                  00007200
+QIRNME   DS    0CL5                      RECORD NAME                    00007300
+QIRAPPL  DS    CL2                       RECORD APPLICATION             00007400
+QIRRID   DS    CL3                       RECORD IDENTIFIER              00007500
+QIRGRP   DS    CL2                       RECORD GROUP                   00007600
+QIRGT    DS    CL1                       TRAN-GRID TYPE       0515062   00007710
+QIRTRG   DS    CL8                       TRAN GRID NAME                 00007800
+*                                                                       00007900
+         DS    CL17                      FILLER                         00008000
+*                                                                       00008100
+QIRTGL   DS    0XL12                   RECORD LOCATION IF NO OCCURS     00008200
+QIRTGS   DS    XL2                       QUEUE RECORD LENGTH            00008300
+QIRTGQ   DS    XL2                       QUEUE ID NUMBER                00008400
+QIRTGA   DS    XL4                       QUEUE RECORD ADDRESS           00008500
+QIRTGI   DS    XL2                       QUEUE ITEM NUMBER              00008600
+QIRTGD   DS    XL2                       QUEUE DISPLACEMENT             00008700
+*                                                                       00008800
+QIRENTS  DS    CL2800                  RECORD OCCURRENCES               00008900
+QIRLAST  EQU   (L'QIRENTS-L'QIRENTL)   OFFSET LAST RECORD     2023782   00008910
+         SPACE 3                                                        00009000
+QIRENT   DSECT                         RECORD OCCURRENCE                00009100
+QIRENTL  DS    0CL70                   RECORD OCCURRENCE                00009200
+QIRRKY   DS    CL34                      RECORD KEY           2501276   00009300
+*                                                                       00009400
+QIRRECL  DS    0XL12                     RECORD LOCATION                00009500
+QIRRECS  DS    XL2                         RECORD SIZE                  00009600
+QIRRECQ  DS    XL2                         QUEUE ID NUMBER              00009700
+QIRRECA  DS    XL4                         RECORD ADDRESS               00009800
+QIRRECI  DS    XL2                         RECORD ITEM NUMBER           00009900
+QIRRECD  DS    XL2                         RECORD DISPLACEMENT          00010000
+*                                                                       00010100
+QIRATGN  DS    CL8                       ASSOCIATED TRAN GRID           00010300
+*                                                                       00010400
+QIRATGL  DS    0XL12                     ASSOC TRAN GRID LOCATION       00010500
+QIRATGS  DS    XL2                         RECORD SIZE                  00010600
+QIRATGQ  DS    XL2                           ASSOC TG QUEUE NUMBER      00010700
+QIRATGA  DS    XL4                           ASSOC TG ADDRESS           00010800
+QIRATGI  DS    XL2                           ASSOC TG ITEM #            00010900
+QIRATGD  DS    XL2                           ASSOC TG DISPLACEMENT      00011000
+         DS    CL4                       FILLER                         00011100
+         EJECT                                                          00011200
+*                                                                       00011300
+* QUEUE INDEX - FILE                                                    00011400
+*                                                                       00011500
+QIFREC   DSECT                                                          00011600
+QIFNTL   DS    0CL2285                                                  00011700
+QIFSTEM  DS    0CL85                                                    00011800
+QIFDATA  DS    0CL40                                                    00011900
+QIFTYPE  DS    CL6                     INDEX TYPE                       00012000
+*              'FLEIDX'                                                 00012100
+QIFXCL   DS    0XL10                   CURRENT INDEX LOCATION           00012200
+QIFXCQ   DS    PL2                       INDEX QUEUE NUMBER             00012300
+QIFXCA   DS    XL4                       INDEX STORAGE ADDRESS          00012400
+QIFXCI   DS    XL2                       INDEX QUEUE ITEM               00012500
+QIFXCD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00012600
+*                                                                       00012700
+QIFXPL   DS    0XL10                   PREVIOUS INDEX LOCATION          00012800
+QIFXPQ   DS    PL2                       INDEX QUEUE NUMBER             00012900
+QIFXPA   DS    XL4                       INDEX STORAGE ADDRESS          00013000
+QIFXPI   DS    XL2                       INDEX QUEUE ITEM               00013100
+QIFXPD   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00013200
+*                                                                       00013300
+QIFXNL   DS    0XL10                   NEXT INDEX LOCATION              00013400
+QIFXNQ   DS    PL2                       INDEX QUEUE NUMBER             00013500
+QIFXNA   DS    XL4                       INDEX STORAGE ADDRESS          00013600
+QIFXNI   DS    XL2                       INDEX QUEUE ITEM               00013700
+QIFXND   DS    XL2                       INDEX QUEUE ITEM DISPLACEMENT  00013800
+*                                                                       00013900
+QIFMXOC  DS    XL2                     MAXIMUM OCCURRENCES              00014000
+*                                        +40 IS MAX NUMBER              00014100
+QIFUSOC  DS    XL2                     OCCURRENCES USED                 00014200
+*                                                                       00014300
+         DS    CL45                    FILLER                           00014400
+QIFENTS  DS    CL2200                  RECORD OCCURRENCES               00014500
+         SPACE 3                                                        00014600
+QIFENT   DSECT                         ONE FILE OCCURRENCE              00014700
+QIFENTL  DS    0CL55                                                    00014800
+QIFIID   DS    0CL16                     FILE INDEX ID                  00014900
+QIFNM    DS    0CL5                        FILE NAME                    00015000
+QIFAPPL  DS    CL2                         FILE APPLICATION             00015100
+QIFID    DS    CL3                         FILE IDENTIFIER              00015200
+QIFGR    DS    CL2                         FILE GROUP                   00015300
+         DS    CL1                         FILLER                       00015400
+QIFTG    DS    0CL8                        TRAN GRID NAME     0515062   00015505
+QIFTGN   DS    CL6                           IM TRAN GRID     0515062   00015510
+         DS    CL2                           FILLER           0515062   00015520
+QIFRXL   DS    0XL10                     RECORD INDEX LOCATION          00015600
+QIFRXQ   DS    XL2                         RECORD INDEX QUEUE NUMBER    00015700
+QIFRXA   DS    XL4                         RECORD INDEX ADDRESS         00015800
+QIFRXI   DS    XL2                         RECORD INDEX ITEM #          00015900
+QIFRXD   DS    XL2                         RECORD INDEX DISPLACEMENT    00016000
+         DS    CL29                      FILLER                         00016100

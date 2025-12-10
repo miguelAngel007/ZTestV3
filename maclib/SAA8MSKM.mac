@@ -1,0 +1,251 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+          MACRO                                                         00001000
+&P        SAA8MSKM &IO=,&SEC=,&MASK=,&DATA=,&LENGTH=,&DATAEP=,         X00002000
+               &AUTH=,&TYPE=,&OFFSET=,&WR1=,&WR2=,&WR3=,&WR4=           00003000
+.********************************************************************** 00004000
+.*                                                                    * 00005000
+.* SAA8MSKM - THIS MACRO GENERATES BOTH THE DSECT LAYOUT FOR THE      * 00006000
+.*            MASKING RECORD ON GNCDE AND THE CODE TO AUTHORIZE OR    * 00007000
+.*            MASK A FIELD.  THE &TYPE PARAMETER SPECIFIES WHICH      * 00008000
+.*            SECTION WILL BE GENERATED.                              * 00009000
+.*                                                                    * 00010000
+.*            BOTH THE MACRO AND THE DSECT SHOULD BE GENERATED IN ANY * 00011000
+.*            PROGRAM THAT NEEDS TO PERFORM FIELD AUTHORIZATION AND   * 00012000
+.*            MASKING, USING THE SAME PREFIX/LABEL (&P).              * 00013000
+.*                                                                    * 00014000
+.*            &IO     - INPUT/OUTPUT REQUEST ("I" OR "O")             * 00015000
+.*            &SEC    - SECURITY LEVEL (FROM EOR OR "BA" FOR BATCH)   * 00016000
+.*            &MASK   - MASK RECORD ADDRESS                           * 00017000
+.*            &DATA   - ADDRESS OF DATA TO BE MASKED                  * 00018000
+.*            &LENGTH - LENGTH OF DATA                                * 00019000
+.*            &DATAEP - FULL WORD TO SAVE END POINT OF DATA FOR CHECK * 00020000
+.*            &AUTH   - AUTHORIZATION CODE TO BE RETURNED             * 00021000
+.*                      "A" - AUTHORIZED                              * 00022000
+.*                      "U" - UNAUTHORIZED                            * 00023000
+.*                      "I" - NOT ENOUGH INFORMATION                  * 00024000
+.*                      "E" - ERROR                                   * 00025000
+.*                      "N" - MASK ID NOT IN TABLE                    * 00026000
+.*            &TYPE   - "DSECT" OR "MACRO"                            * 00027000
+.*           &OFFSET    OFFSET LENGTH INTO THE DATA TO BE MASKED      * 00028000
+.*           &WR1       WORK REGISTER FOR  MASKING RECORD             * 00029000
+.*           &WR2       WORK REGISTER FOR  MASKING OCCURS             * 00030000
+.*           &WR3       WORK REGISTER FOR  ADDRESS OF DATA            * 00031000
+.*           &WR4       WORK REGISTER FOR  LENGTH OF DATA             * 00032000
+.*--------------------------------------------------------------------* 00033000
+.*                    ** HISTORY OF REVISIONS **                      * 00034000
+.* DATE     DESCRIPTION                                       CHNGID  * 00035000
+.* ________ _________________________________________________ _______ * 00036000
+.*                                                                    * 00037000
+.* 05/02/06 INITIAL DISTRIBUTION                   GN5441             * 00038000
+.********************************************************************** 00039000
+         AIF   ('&TYPE' EQ 'DSECT').DSCT                                00040000
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00041000
+.DSCT    ANOP                                                           00042000
+&P.REC   DSECT                                                          00043000
+         DS    0CL526                                                   00044000
+&P.KEY   DS    0CL60                   RECORD KEY                       00045000
+&P.STRC  DS    CL8                       STRUCTURE                      00046000
+&P.CTL1  DS    CL2                       CTL1                           00047000
+&P.SRKY  DS    0CL50                     SEARCH KEY                     00048000
+&P.APPL  DS    CL2                         APPLICATION                  00049000
+&P.DAG   DS    CL8                         DAG NAME                     00050000
+&P.ELE   DS    CL8                         ELEMENT ID                   00051000
+         DS    CL32                        FILLER                       00052000
+&P.LMDT  DS    PL5                     LAST MAINT DATE                  00053000
+&P.LMTM  DS    PL5                     LAST MAINT TIME                  00054000
+&P.CXIT  DS    CL8                     CICS EXIT                        00055000
+&P.BXIT  DS    CL8                     BATCH EXIT                       00056000
+&P.DESC  DS    CL40                    DESCRIPTION                      00057000
+         DS    CL40                    FILLER                           00058000
+&P.LENS  EQU   *-&P.REC                LENGTH OF STEM                   00059000
+&P.SECE  DS    12CL30                  SECURITY LEVEL ENTRY             00060000
+&P.LEN   EQU   *-&P.REC                LENGTH OF RECORD                 00061000
+&P.SECD  DSECT                         **SECURITY DSECT**               00062000
+&P.LOLV  DS    CL2                       START LEVEL                    00063000
+&P.HILV  DS    CL2                       END LEVEL                      00064000
+&P.CHAR  DS    CL1                       MASK CHARACTER                 00065000
+&P.STPO  DS    XL2                       START POSITION                 00066000
+&P.ENPO  DS    XL2                       END POSITION                   00067000
+         DS    CL21                      FILLER                         00068000
+&P.OCLN  EQU   *-&P.SECD                 LENGTH OF SINGLE OCCURS        00069000
+         AIF   ('&TYPE' EQ 'DSECT').END                                 00070000
+.MCRO    ANOP                                                           00071000
+*   MACRO CODE STARTS HERE                                              00072000
+&P.0000  EQU   *                                                        00073000
+         XR    &WR1,&WR1               CLEAR WORK REG                   00074000
+         XR    &WR2,&WR2               CLEAR WORK REG                   00075000
+         XR    &WR3,&WR3               CLEAR WORK REG                   00076000
+         XR    &WR4,&WR4               CLEAR WORK REG                   00077000
+* EDIT INPUT DATA                                                       00078000
+&P.0100  EQU   *                                                        00079000
+         CLC   &MASK,=C'    '        IS MASK EQUAL SPACE                00080000
+         BE    &P.ERR01              YES RETURN ERROR                   00081000
+         CLC   &SEC,=C'  '           IS SECURITY LEVEL SP               00082000
+         BE    &P.ERR01              YES RETURN ERROR                   00083000
+         CLC   &DATA,=C'    '        IS DATA ADDR SPACES                00084000
+         BE    &P.ERR01              YES RETURN ERROR                   00085000
+         CLC   &LENGTH,=C'  '        IS DATA LENGTH SPACES              00086000
+         BE    &P.ERR01              YES RETURN ERROR                   00087000
+         CLC   &OFFSET,=C'  '        IS DATA OFFSET SPACES              00088000
+         BE    &P.ERR01              YES RETURN ERROR                   00089000
+         CLI   &IO,C'I'              IS IO VALID                        00090000
+         BE    &P.0110               OK CONTINUE                        00091000
+         CLI   &IO,C'O'              IS IO VALID                        00092000
+         BE    &P.0110               OK CONTINUE                        00093000
+         B     &P.ERR01              INVALID RETURN ERROR               00094000
+&P.0110  EQU   *                                                        00095000
+* LOAD ADDRESS OF MASKING RECORD                                        00096000
+         ICM   &WR1,15,&MASK         LOAD ADDRESS                       00097000
+         BZ    &P.ERR01              IS IT ZEROS?                       00098000
+         LA    &WR2,12               SET OCCURS TO 12                   00099000
+         LA    &WR1,&P.LENS(&WR1)    SET PAST STEM                      00100000
+* SEARCH MASKING RECORD FOR SECURITY LEVEL SENT                         00101000
+         USING &P.SECD,&WR1                                             00102000
+&P.0150  EQU   *                                                        00103000
+         CLC   &P.LOLV,=C'  '        IS BEGIN LVL SPACES                00104000
+         BE    &P.0170               YES NEXT OCCURS                    00105000
+         CLC   &SEC,=C'BA'           IS SEC LVL BA                      00106000
+         BE    &P.0160               YES CHECK FOR BATCH SEC            00107000
+         CLC   &P.HILV,=C'  '        IS END   LVL SPACES                00108000
+         BE    &P.0170               YES NEXT OCCURS                    00109000
+         CLC   &SEC,&P.LOLV          COMPARE BEG LVL TO SEC             00110000
+         BL    &P.0170               LOW GET NEXT OCCURS                00111000
+         CLC   &SEC,&P.HILV          COMPARE END LVL TO SEC             00112000
+         BH    &P.0170               HIGH GET NEXT OCCURS               00113000
+         B     &P.U100               GOT RANGE - MASK                   00114000
+&P.0160  EQU   *                                                        00115000
+         CLC   &SEC,&P.LOLV          IS BEGIN LVL EQUAL SEC             00116000
+         BNE   &P.0170               NO GET NEXT OCCURS                 00117000
+         B     &P.U100               GOT CORRECT MASK                   00118000
+&P.0170  EQU   *                                                        00119000
+         LA    &WR1,30(&WR1)         GO TO NEXT OCCURS - 30BY           00120000
+         BCT   &WR2,&P.0150          LOOP THROUGH 12 OCCURS             00121000
+         MVI   &AUTH,C'A'            NOT FOUND - AUTHORIZED             00122000
+         B     &P.EXIT               RETURN                             00123000
+&P.U100  EQU   *                                                        00124000
+* ENTRY FOUND  UNAUTHORIZED                                             00125000
+* R3 EQUALS DATA ADDRESS, R4 EQUALS LENGTH, R2 WORK                     00126000
+         MVI   &AUTH,C'U'            ENTRY FOUND UNAUTH                 00127000
+         ICM   &WR3,15,&DATA         LOAD ADDRESS OF DATA               00128000
+         BZ    &P.EXIT               NO DATA ADDRESS                    00129000
+         XR    &WR2,&WR2             CLEAR WORK REGIST 2                00130000
+         ICM   &WR2,3,&LENGTH        LOAD LENGTH OF DATA                00131000
+         BZ    &P.EXIT               NO DATA LENGTH                     00132000
+         BCTR  &WR2,0                SUBTRACT 1 FOR COMPARE             00133000
+&P.U101  EQU   *                                                        00134000
+         EX    &WR2,&P.CLSP          IS IT SPACES                       00135000
+         BE    &P.U102               AREA     SPACES                    00136000
+         B     &P.U104               CHECK FOR LOWVALUES                00137000
+&P.U102  EQU   *                                                        00138000
+         CH    &WR2,=H'256'          GREATER THAN 256?                  00139000
+         BH    &P.U103               YES                                00140000
+         B     &P.EXIT               AREA NOT TO BE MASKED              00141000
+&P.U103  EQU   *                                                        00142000
+         SH    &WR2,=H'256'           SUBTRACT 256                      00143000
+         B     &P.U101               YES                                00144000
+&P.U104  EQU   *                                                        00145000
+         EX    &WR2,&P.CLZE          IS IT LOW VALUES                   00146000
+         BE    &P.U105               AREA LOWVALUES                     00147000
+         B     &P.U108               AREA NOT LOWVALUES                 00148000
+&P.U105  EQU   *                                                        00149000
+         CH    &WR2,=H'256'          GREATER THAN 256?                  00150000
+         BH    &P.U106               YES                                00151000
+         B     &P.EXIT               AREA NOT TO BE MASKED              00152000
+&P.U106  EQU   *                                                        00153000
+         SH    &WR2,=H'256'           SUBTRACT 256                      00154000
+         B     &P.U104               TRY AGAIN                          00155000
+&P.U108  EQU   *                                                        00156000
+         XR    &WR4,&WR4             CLEAR WORK REGIST 4                00157000
+         ICM   &WR4,3,&LENGTH        LOAD LENGTH OF DATA                00158000
+         XR    &WR2,&WR2             CLEAR WORK REGIST 2                00159000
+         ICM   &WR2,3,&OFFSET        LOAD OFFSET OF DATA                00160000
+         AR    &WR3,&WR2             ADD OFFSET TO DATA                 00161000
+         LR    &WR2,&WR3             LOAD DATA+OFFSET                   00162000
+         AR    &WR2,&WR4             ADD LENGTH                         00163000
+         STCM  &WR2,15,&DATAEP       SAVE END ADDRESS ENDP              00164000
+         CLI   &IO,C'I'              COMPARE IO - I                     00165000
+         BNE   &P.U120               NO CHECK IO - O                    00166000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00167000
+         CH    &WR4,=H'256'          GREATER THAN 256?                  00168000
+         BH    &P.U112               YES                                00169000
+         MVI   0(&WR3),C' '          MOVE SPACE TO FIRST                00170000
+         CH    &WR4,=H'0'            DONE IF LENGTH = 1                 00171000
+         BE    &P.EXIT               RETURN                             00172000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00173000
+         EX    &WR4,&P.MVSP          MOVE TO REST OF AREA               00174000
+         B     &P.EXIT               RETURN                             00175000
+&P.U112  EQU   *                                                        00176000
+         MVI  0(&WR3),C' '                                              00177000
+         MVC  1(255,&WR3),0(&WR3)                                       00178000
+         SH    &WR4,=H'256'           SUBTRACT 256                      00179000
+         AH    &WR3,=H'256'          ADD TO AREA ADDR                   00180000
+         CH    &WR4,=H'256'          GREATER THAN 256?                  00181000
+         BH    &P.U112               YES                                00182000
+         MVI   0(&WR3),C' '          MOVE SPACE TO FIRST                00183000
+         CH    &WR4,=H'0'            DONE IF LENGTH = 1                 00184000
+         BE    &P.EXIT               RETURN                             00185000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00186000
+         EX    &WR4,&P.MVSP          MOVE TO REST OF AREA               00187000
+         B     &P.EXIT               RETURN                             00188000
+&P.MVSP  MVC   1(0,&WR3),0(&WR3)                                        00189000
+&P.CLSP  CLC   0(0,&WR3),&P.SPACE                                       00190000
+&P.CLZE  CLC   0(0,&WR3),&P.ZERO                                        00191000
+&P.U120  EQU   *                                                        00192000
+         CLI   &IO,C'O'             COMPARE IO FOR O                    00193000
+         BNE   &P.ERR01             NO GO TO ERROR                      00194000
+         XR    &WR2,&WR2             CLEAR WORK REGIST 2                00195000
+         ICM   &WR2,3,&P.ENPO        LOAD END VALUE                     00196000
+         BZ    &P.U121               DONT CHANGE LENGTH                 00197000
+         CR    &WR4,&WR2             IS CALC LGN GT STPO                00198000
+         BNH   &P.ERR02              NO - ERROR                         00199000
+         SR    &WR4,&WR2             SUBTRACT FROM LENGTH               00200000
+&P.U121  EQU   *                                                        00201000
+         ICM   &WR2,3,&P.STPO        LOAD START VALUE                   00202000
+         BZ    &P.U125               DONT CHANGE START POS              00203000
+         BCTR  &WR2,0                SUBTRACT 1 FOR POSIT               00204000
+         CR    &WR4,&WR2             IS CALC LGN GT STPO                00205000
+         BNH   &P.ERR02              NO - ERROR                         00206000
+         AR    &WR3,&WR2             ADD TO START                       00207000
+         SR    &WR4,&WR2             SUBTRACT FROM LENGTH               00208000
+&P.U125  EQU   *                                                        00209000
+         LR    &WR2,&WR3             LOAD BEG+STARTPOSIT                00210000
+         AR    &WR2,&WR4             ADD LENGTH-END-START               00211000
+         C     &WR2,&DATAEP          GREATER END OF DATA                00212000
+         BH    &P.ERR02              TOO LONG                           00213000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00214000
+&P.U150  EQU   *                                                        00215000
+         CH    &WR4,=H'256'          GREATER THAN 256?                  00216000
+         BH    &P.U152               YES                                00217000
+         MVC   0(1,&WR3),&P.CHAR     MOVE MASK CHAR TO FST              00218000
+         CH    &WR4,=H'0'            DONE IF LENGTH = 0                 00219000
+         BE    &P.EXIT               RETURN                             00220000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00221000
+         EX    &WR4,&P.MVMK          MOVE TO REST OF AREA               00222000
+         B     &P.EXIT               RETURN                             00223000
+&P.U152  EQU   *                                                        00224000
+         MVC  0(1,&WR3),&P.CHAR                                         00225000
+         MVC  1(255,&WR3),0(&WR3)                                       00226000
+         SH    &WR4,=H'256'           SUBTRACT 256                      00227000
+         AH    &WR3,=H'256'          ADD TO AREA ADDR                   00228000
+         CH    &WR4,=H'256'          GREATER THAN 256?                  00229000
+         BH    &P.U152               YES                                00230000
+         MVC   0(1,&WR3),&P.CHAR     MOVE SPACE TO FIRST                00231000
+         CH    &WR4,=H'0'            DONE IF LENGTH = 1                 00232000
+         BE    &P.EXIT               RETURN                             00233000
+         BCTR  &WR4,0                SUBTRACT 1 FOR INSTR               00234000
+         EX    &WR4,&P.MVMK          MOVE TO REST OF AREA               00235000
+         B     &P.EXIT               RETURN                             00236000
+&P.MVMK  MVC   1(0,&WR3),0(&WR3)                                        00237000
+&P.ERR01 EQU   *                                                        00238000
+* ERRORS WITH PROCESSING DATA                                           00239000
+         MVI   &AUTH,C'I'           INCORRECT INPUT                     00240000
+         B     &P.EXIT                                                  00241000
+&P.ERR02 EQU   *                                                        00242000
+* ERRORS WITH PROCESSING DATA                                           00243000
+         MVI   &AUTH,C'E'           LENGTH ERRORS                       00244000
+         B     &P.EXIT                                                  00245000
+&P.SPACE DC    256C' '                                                  00246000
+&P.ZERO  DC    256X'00'                                                 00247000
+&P.EXIT  EQU   *                                                        00248000
+.END     ANOP                                                           00249000
+         MEND                                                           00250000

@@ -1,0 +1,125 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAD9DAGA &PREFIX=SADDG,&DSECT=NO,&MAXSZ=65504                  00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+*  SAD9DAGA: AUXILIARY DICTIONARY DATAGROUP MAP  (DAG)                * 00005000
+*                                                                     * 00006000
+*                                                                     * 00007000
+* MODULES WHICH USE DICTIONARY INTERFACE MODULES TO READ/WRITE        * 00008000
+* AUXILIARY ENTITIES MAY USE THE AUXILIARY LOGICAL KEY.  THIS IS      * 00009000
+* THE KEY STRUCTURE USED FOR AUXILIARY ENTITIES PRIOR TO SA0004       * 00010000
+* AND HAS THE STRUCTURE WITHIN THE KEY AREA:                          * 00011000
+*                                                                     * 00012000
+*   +0(03) AUXILIARY ENTITY TYPE (LITERAL 'DAG')                      * 00013000
+*   +3(08) AUXILIARY ENTITY NAME                                      * 00014000
+*  +11(14) SLACK BYTES (BLANKS)                                       * 00015000
+*                                                                     * 00016000
+* MODULES WHICH READ/WRITE AUXILIARY ENTITIES DIRECTLY FROM THE       * 00017000
+* AUXILIARY DICTIONARY MUST USE THE AUXILIARY PHYSICAL KEY.  MODULES  * 00018000
+* CALLING THE DICTIONARY INTERFACE MODULES TO ACCESS THE AUXILIARY    * 00019000
+* AS OF SA0004 OR LATER MAY USE THE AUXILIARY PHYSICAL KEY, WHICH     * 00020000
+* KEY HAS THE STRUCTURE WITHIN THE KEY AREA:                          * 00021000
+*                                                                     * 00022000
+*   +0(02) APPLICATION CODE                                           * 00023000
+*   +2(03) REPOSITORY ENTITY TYPE                                     * 00024000
+*   +5(08) ENTITY NAME                                                * 00025000
+*  +13(03) AUXILIARY ENTITY TYPE                                      * 00026000
+*  +16(05) SLACK BYTES (BLANKS)                                       * 00027000
+*  +21(01) SLACK BYTES (NULL OR LOW-VALUES)                           * 00028000
+*  +22(01) AUXILIARY SEGMENT NUMBER                                   * 00029000
+*  +23(01) SLACK BYTES (NULL OR LOW-VALUES)                           * 00030000
+*  +24(01) AUXILIARY SEGMENT PAGE NUMBER                              * 00031000
+*                                                                     * 00032000
+*********************************************************************** 00033000
+*        HISTORY OF REVISIONS                                         * 00034000
+*                                                                     * 00035000
+* RELEASE# RSEC#  DESCRIPTION OF MODIFICATION                         * 00036000
+* -------- ------ ----------------------------------------------------* 00037000
+* 05/05/06 GN5441 ADDED SENSITIVE DATA FLAG                   0715441   00037992
+* 02/28/04 SUPPORT XML BINARY DATA                            0434950   00037994
+* 09/25/97 GN3569 INCR ENTITY SEG LENGTH FROM HWORD TO FWORD  9913569 * 00037996
+* 05/01/97 GN3481 DBCS ENABLE                                 9913481 * 00037998
+* SA000400 SA0290 REDESIGN DAG STRUCTURE                              * 00038000
+*                                                                     * 00039000
+*                                                                     * 00040000
+*********************************************************************** 00041000
+         LCLC  &PFX                                                     00042000
+&PFX     SETC  '&PREFIX'                                                00043000
+         AIF   ('&DSECT' EQ 'YES').DSECT1                               00044000
+&PFX     DS    0D                                                       00045000
+         AGO   .DATA1                                                   00046000
+.DSECT1  ANOP                                                           00047000
+&PFX     DSECT                                                          00048000
+.DATA1   ANOP                                                           00049000
+&PFX.PKY DS   0CL25                AUX PHYS KEY                         00050000
+&PFX.PAP DS    CL2                 AUX PHYS KEY - APPL                  00051000
+&PFX.PRE DS    CL3                 AUX PHYS KEY - REP ENTITY TYPE       00052000
+&PFX.PNM DS    CL8                 AUX PHYS KEY - ENTITY NAME           00053000
+&PFX.PAE DS    CL3,CL5             AUX PHYS KEY - AUX ENTITY TYPE       00054000
+&PFX.PIN DS   0XL4                 AUX PHYS KEY - INDEX                 00055000
+         DS    XL1                   NOT USED (NULL VALUE)              00056000
+&PFX.PSN DS    HL1                   PHYSICAL SEGMENT NUMBER            00057000
+         DS    XL1                   NOT USED (NULL VALUE)              00058000
+&PFX.PPN DS    HL1                   PHYSICAL PAGE NUMBER               00059000
+         ORG   &PFX.PKY                                                 00060000
+&PFX.KEY DS   0CL25                AUX LOGICAL KEY (REQUEST FORMAT)     00061000
+&PFX.LET DS    CL3                 AUXILIARY ENTITY TYPE: LITERAL 'DAG' 00062000
+&PFX.NAM DS    CL8,CL14            DAG NAME                             00063000
+&PFX.AUD DS   0CL32                AUDIT SEGMENT                        00064000
+&PFX.LMD DS    PL4                 AUDIT: LAST MNTE DATE - YYMMDD       00065000
+&PFX.LMT DS    PL4                 AUDIT: LAST MNTE TIME - HHMMSS       00066000
+&PFX.SOU DS   0CL8                 AUDIT: LAST MNTE SOURCE              00067000
+&PFX.OPR DS    CL8                 AUDIT: LAST MNTE OPERATOR            00068000
+&PFX.CID DS    CL8                 AUDIT: LAST MNTE CONTROL ID          00069000
+&PFX.ESL DS    FL4                 AUDIT: ENTITY SEGMENT LNGTH9913569   00070000
+&PFX.FLV DS    XL1                 AUDIT: FILE FORMAT LEVEL             00071000
+&PFX.RLV DS    XL1                 AUDIT: RECORD FORMAT LEVEL           00072000
+&PFX.RSV DS    CL2                 RESERVED                   9913569   00073000
+&PFX.TYP DS    CL1                 DAG TYPE                             00074000
+&PFX.NFL DS    HL2                 DAG NUMBER OF FIELDS (ITEMS)         00075000
+&PFX.DGL DS    HL2                 DATA GROUP (DAG STORAGE) LENGTH      00076000
+&PFX.DNN DS    HL1                 DNM LAST SEGMENT ID                  00077000
+&PFX.DNL DS    FL4                 DNM TOTAL ENTITY LENGTH              00078000
+&PFX.DSL DS    FL4                 DSM TOTAL ENTITY LENGTH    9913569   00078100
+         DS    CL13                RESERVED                   9913569   00079000
+&PFX.SLN   EQU   *-&PFX            LNTH OF DAG KEY + AUDIT + ROOT       00080000
+&PFX.DLN   EQU   (&MAXSZ-&PFX.SLN) LNTH OF DAG ITEM DATA                00081000
+         AIF   ('&DSECT' EQ 'YES').DSECT2                               00082000
+&PFX.ENT DS   0CL(&PFX.DLN)                                             00083000
+         AGO   .SEG                                                     00084000
+.DSECT2  ANOP                                                           00085000
+&PFX.ENT DSECT                                                          00086000
+.SEG     ANOP                                                           00087000
+&PFX.ITM DS   0CL16                DAG ITEM DATA                        00088000
+&PFX.EID DS   CL8                  DAG ITEM ELEMENT ID                  00089000
+&PFX.ELV DS   HL1                  DAG ITEM COBOL LEVEL NUMBER          00090000
+&PFX.EOC DS   HL2                  DAG ITEM OCCURS VALUE                00091000
+&PFX.EIC DS   HL1                  DAG ITEM NUMBER INDEXES              00092000
+&PFX.EAT DS   CL1                  DAG ITEM ATTRIBUTE                   00093000
+&PFX.ALF   EQU  C'A'                 ATTR: ALPHABETIC                   00094000
+&PFX.BIN   EQU  C'B'                 ATTR: BINARY                       00095000
+&PFX.CHR   EQU  C'C'                 ATTR: ALPHANUMERIC (CHARACTER)     00096000
+&PFX.NUM   EQU  C'N'                 ATTR: DISPLAY NUMERIC              00097000
+&PFX.PAK   EQU  C'P'                 ATTR: PACKED DECIMAL               00098000
+&PFX.IDE   EQU  C'I'                 ATTR: IDEOGRAPHIC (DBCS) 9913481   00098100
+&PFX.EDT DS   BL1                  DAG ITEM EDIT FLAGS                  00099000
+&PFX.ELF   EQU  X'E0'                EDIT & LOG FLAGS                   00100000
+&PFX.EDA   EQU  X'80'                ITEM S/B EDITED BY EDIT ALWAYS     00101000
+&PFX.LGM   EQU  X'40'                ITEM S/B LOGGED BY PARMS IF MNTE   00102000
+&PFX.LGA   EQU  X'20'                ITEM S/B LOGGED BY PARMS ALWAYS    00103000
+&PFX.SEN   EQU  X'10'                SENSITIVE DATA           0715441   00103010
+&PFX.XML   EQU  X'08'                XML DATA IS BINARY       0434950   00103100
+&PFX.GRP   EQU  X'04'                ITEM IS GROUP ITEM                 00104000
+&PFX.FLR   EQU  X'02'                ITEM IS FILLER                     00105000
+&PFX.DKY   EQU  X'01'                ITEM IS DATA KEY                   00106000
+&PFX.DNP DS   XL2                  DAG ITEM DNM POINTER                 00107000
+*                                    FORMAT: OOOS                       00108000
+*                                            ---|.... DNM SEGMENT NO    00109000
+*                                             |...... DNM ITEM ADDR/SEG 00110000
+*                                                     (DBL DWD ALIGNED) 00111000
+&PFX.ELN   EQU  *-&PFX.ENT         L'DAG ITEM OCCURRENCE                00112000
+         AIF   ('&DSECT' EQ 'YES').END                                  00113000
+         DS    CL(&PFX.DLN-&PFX.ELN)                                    00114000
+.END     ANOP                                                           00115000
+         MEND                                                           00116000

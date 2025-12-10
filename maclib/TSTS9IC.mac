@@ -1,0 +1,571 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00000190
+&LA      TSTS9IC &TBR=,&WRG=,&TT=,&SVFI=,&SVFO=,&SVAD=,&SVLG=,&FD=,    X00000200
+               &USRSL=,&SVICAD=,&SDR=,&TYPE=,&SVDAG=,&SVELE=,          X00000300
+               &SVD1=,&SVD2=,&SVD3=                                     00000310
+.********************************************************************** 00000400
+.*                      ICR SELECTION MACRO                           * 00000500
+.*                                                                    * 00000600
+.*  THIS MACRO DOES ICR SELECTION FOR INPUT ANALYSIS.  SELECTION IS   * 00000700
+.*  BASED ON TBR INFORMATION FOR EACH ICR (ALWAYS SELECTED, USER      * 00000800
+.*  SELECTED, CONDITIONALLY SELECTED, SELECTED IF DATA PRESENT2501040 * 00000900
+.*  IN TRANSMISSION, OR SELECTED IF DATA NOT PRESENT IN TRANS-2501040 * 00000910
+.*  MISSION).                                                 2501040 * 00000920
+.* 01/23/07 SEND MSG IF MORE THAN 20 ICRS CAN BE SELECTED     0733753   00000922
+.* 12/26/01 MODIFY ICR SELECTION CRITERIA                     2024392 * 00000923
+.* 01/24/02 CHANGE TO POINT TO 2A SEG INSTEAD OF 2B           2022379   00000924
+.* 03/18/98 MISC CORRECTIONS FOR ICR PARSING BY DAG/ELE ID    9913349   00000925
+.* 08/02/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID       9913349   00000930
+.********************************************************************** 00001000
+.*  TBR    (REG )  =  ADDRESS OF TBR SEGMENT 1                        * 00001100
+.*  WRG    (REGS)  =  3 WORK REGISTERS                                * 00001200
+.*  TT             =  AD OR TL OR PC                          9913349 * 00001300
+.*  SVFI           =  NAME OF SAVE-FIELD-ID USED BY PROGRAM           * 00001400
+.*  SVFO           =  NAME OF SAVE-FIELD-OFFSET USED BY PROGRAM       * 00001500
+.*  SVAD           =  NAME OF SAVE-FIELD-ADDRESS USED BY PROGRAM      * 00001600
+.*  SVLG           =  LENGTH OF DATA IN TRANSMISSION                  * 00001700
+.*  SVDAG          =  NAME OF SAVE-DAG-NAME USED BY PROGRAM   9913349 * 00001710
+.*  SVELE          =  NAME OF SAVE-ELE-ID   USED BY PROGRAM   9913349 * 00001720
+.*  SVD1           =  NAME OF SAVE-DIM1     USED BY PROGRAM   9913349 * 00001730
+.*  SVD2           =  NAME OF SAVE-DIM2     USED BY PROGRAM   9913349 * 00001740
+.*  SVD3           =  NAME OF SAVE-DIM3     USED BY PROGRAM   9913349 * 00001750
+.*  FD             =  NAME OF BAL ROUTINE TO FIND DATA IN MESSAGE     * 00001800
+.*  USERSL         =  NAME OF SELECTION FLAG SET BY USER CODE         * 00001900
+.*  SVICAD         =  ADDRESS OF NEXT ICR TABLE ENTRY                 * 00002000
+.*  TYPE           =  STRG OR MACRO                                   * 00002100
+.********************************************************************** 00002200
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00002300
+&LA.SVADDR DS  F                                                        00002400
+&LA.SVTBR  DS  F                                                        00002500
+&LA.SVREG  DS  F                                                        00002600
+&LA.NOICRS DS  XL2                                                      00002700
+&LA.TRCT   DS  XL1                                                      00002800
+&LA.COMB   DS  XL1                                                      00002900
+&LA.ANDCMB DS  XL1                                                      00003000
+&LA.DATAIN DS  CL17                                                     00003100
+&LA.DATACP DS  CL17                                                     00003200
+&LA.DATAWK DS  CL17                                           0802526   00003210
+&LA.DATALG DS  XL1                                                      00003300
+&LA.CVDATA DS  8CL6                                                     00003400
+&LA.HEXWK  DS  0XL2                                                     00003500
+&LA.HEXWK1 DS  XL1                                                      00003600
+&LA.HEXWK2 DS  XL1                                                      00003700
+&LA.SVOPT  DS  XL1                                            2501040   00003710
+&LA.SV20F  DS  CL1                                            0733753   00003720
+.MCRO    ANOP                                                           00003800
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00003900
+************************************************************* 2501040   00004000
+* OPTIONS - ALWAYS, USER, CONDITIONAL, PRESENT, NOT PRESENT * 2501040   00004100
+************************************************************* 2501040   00004200
+         SPACE                                                          00004300
+         USING TBRSEG1,&TBR            ADDRESS TBR                      00004400
+         ST    &TBR,&LA.SVTBR          SAVE TBR ADDRESS                 00004500
+         XC    &LA.CVDATA,&LA.CVDATA   CLEAR COMPARE VARIABLE DATA      00004600
+         MVI   &LA.SV20F,C'N'          SET 20 FLAG 'OFF'      0733753   00004610
+         SR    &WRG(1),&WRG(1)         CLEAR REG FOR INSERT             00004700
+         ICM   &WRG(1),3,TBR1#ICR      INSERT NUMBER OF ICRS            00004800
+         LTR   &WRG(1),&WRG(1)         ANY ICRS?                        00004900
+         BZ    &LA.EXIT00              NO - GET OUT                     00005000
+         LA    &TBR,TBR2VAR            LOAD BEGINNING OF 2A SEGMENTS    00005100
+         DROP  &TBR                                                     00005200
+         USING TBRSEG2A,&TBR           ADDRESS ICR SELECTION INFO       00005300
+         SPACE                                                          00005400
+&LA.OPTS00 EQU *                                                        00005500
+         STCM  &WRG(1),3,&LA.NOICRS    STORE REMAINING NUMBER OF ICRS   00005600
+         ST    &TBR,&LA.SVADDR         SAVE ADDRESS OF 2A SEG FOR TBL   00005700
+         MVI   &LA.COMB,X'00'          CLEAR BITS FOR TRUE SELECTIONS   00005800
+         CLI   TBR2AOPT,TBR2APAL       ALWAYS SELECT?                   00005900
+         BNE   &LA.OPTS10              NO - CHECK FOR USER CONDITIONAL  00006000
+         LA    &TBR,TBR2ALGN(&TBR)     BUMP PAST 2A TO NEXT 2A          00006100
+         B     &LA.SLCT40              GO SELECT ICR                    00006200
+         SPACE                                                          00006300
+&LA.OPTS10 EQU *                                                        00006400
+         CLI   TBR2AOPT,TBR2APUR       USER CODE?                       00006500
+         BNE   &LA.OPTS30              NO - CHECK FOR C-P-N   2501040   00006600
+         LA    &TBR,TBR2ALGN(&TBR)     BUMP PAST 2A TO NEXT 2A          00006700
+         MVI   &USRSL,C' '             INIT USER SELECT FLAG            00006800
+         BAL   R15,USRSL000            GO TO USER CODE FOR SELECTION    00006900
+         CLI   &USRSL,C' '             USER SELECT ICR                  00007000
+         BNE   &LA.SLCT40              YES - GO SELECT ICR              00007100
+         SPACE                                                          00007200
+&LA.OPTS20 EQU *                                                        00007300
+         SR    &WRG(1),&WRG(1)         CLEAR REG FOR INSERT             00007400
+         ICM   &WRG(1),3,&LA.NOICRS    INSERT NUMBER OF ICRS REMAINING  00007500
+         BCT   &WRG(1),&LA.OPTS00      CHECK NEXT 2A SEGMENT            00007600
+         B     &LA.EXIT00              FINISHED                         00007700
+         SPACE                                                2501040   00007800
+&LA.OPTS30 EQU *                                              2501040   00007805
+         CLI   TBR2AOPT,TBR2APPR       DATA PRESENT?          2501040   00007810
+         BE    &LA.OPTS40              YES - PROCESS          2501040   00007815
+         CLI   TBR2AOPT,TBR2APNP       DATA NOT PRESENT       2501040   00007820
+         BE    &LA.OPTS40              YES - PROCESS          2501040   00007825
+         B     &LA.FLDS00              NO - GO TO CONDITIONAL 2501040   00007830
+&LA.OPTS40 EQU *                                              2501040   00007835
+         MVC   &LA.SVOPT,TBR2AOPT      SAVE OFF ICR OPTION    2501040   00007837
+         LA    &TBR,TBR2ALGN(&TBR)     BUMP PAST 2A TO NEXT 2A2501040   00007838
+         BAL   R15,&FD                 FIND DATA IN MESSAGE   2501040   00007840
+         L     &WRG(3),&SVAD           LOAD ADDR OF DATA MSG  2501040   00007845
+         LTR   &WRG(3),&WRG(3)         DATA FOUND?            2501040   00007850
+         BNZ   &LA.OPTS50              YES                    2501040   00007855
+         CLI   &LA.SVOPT,TBR2APNP      SELECT = NO DATA PRSNT?2501040   00007860
+         BE    &LA.SLCT40              YES WILL PRCS THIS ICR 2501040   00007865
+         B     &LA.OPTS20              NO - WILL SKIP THIS ICR2501040   00007870
+&LA.OPTS50 EQU *                                              2501040   00007875
+         CLI   &LA.SVOPT,TBR2APPR      SELECT = DATA PRESENT? 2501040   00007880
+         BE    &LA.SLCT40              YES WILL PRCS THIS ICR 2501040   00007885
+         B     &LA.OPTS20              NO - WILL SKIP THIS ICR2501040   00007890
+         EJECT                                                2501040   00007895
+***************************************                                 00007900
+* CONDITIONAL FIELD SELECTION         *                                 00008000
+***************************************                                 00008100
+         SPACE                                                          00008200
+&LA.FLDS00 EQU *                                                        00008300
+         LA    &TBR,TBR2ALGN(&TBR)     POINT TO CONDITIONAL INFO        00008400
+         DROP  &TBR                                                     00008500
+         USING TBRSEG2B,&TBR           ADDRESS CONDITIONAL INFO SEG     00008600
+         LA    &WRG(2),TBR2BOC1        POINT TO 1ST CONDITION           00008700
+         USING TBR2BOC1,&WRG(2)        ADDRESS CONDITION                00008800
+         LA    &WRG(1),8               8 POSSIBLE FIELD CONDITIONS      00008900
+         SPACE                                                          00009000
+&LA.FLDS10 EQU *                                                        00009100
+         STC   &WRG(1),&LA.TRCT        STORE COUNTER                    00009200
+         CLC   TBR2BFDI,&LA.LOWVAL     IS THERE A FIELD ID?             00009300
+         BNE   &LA.FLDS20              YES - GO SEARCH FOR FIELD        00009400
+         CLC   TBR2BDNM,&LA.LOWVAL     IS THERE A DAG NAME?   9913349   00009410
+         BE    &LA.FLDS15              NO - CHECK POSITION    9913349   00009420
+         CLC   TBR2BDNM,&LA.SPACES     IS THERE A DAG NAME?   9913349   00009430
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00009439
+         BNE   &LA.FLDS20              YES - GO SEARCH FOR FIELD        00009440
+&LA.FLDS15 EQU *                                              9913349   00009450
+         CLC   TBR2BPOS,&LA.LOWVAL     IS THERE A POSITION?             00009500
+         BE    &LA.SLCT10              NO  - CHECK NEXT FIELD COND      00009600
+         SPACE                                                          00009700
+&LA.FLDS20 EQU *                                                        00009800
+         MVC   &SVFI,TBR2BFDI          MOVE FIELD ID TO WORK AREA       00009900
+         MVC   &SVFO,TBR2BPOS          MOVE FIELD OFFSET TO WORK AREA   00010000
+         AIF   ('&TT' NE 'PC').PC1                            9913349   00010005
+         MVC   &SVDAG,TBR2BDNM         MOVE DAG NAME TO WKAREA9913349   00010010
+         MVC   &SVELE,TBR2BELE         MOVE ELE ID   TO WKAREA9913349   00010020
+         MVC   &SVD1,TBR2BDI1          MOVE DIM1     TO WKAREA9913349   00010030
+         MVC   &SVD2,TBR2BDI2          MOVE DIM2     TO WKAREA9913349   00010040
+         MVC   &SVD3,TBR2BDI3          MOVE DIM3     TO WKAREA9913349   00010050
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00010055
+.PC1     ANOP                                                           00010060
+         CLC   TBR2BFDI,=C'########'   COMPARE TO EXTERNAL TRANCODE?    00010100
+         BNE   &LA.FLDS30              NO - GO SEARCH FOR FIELD         00010200
+         L     R15,DFHEICAP            LOAD COMMAREA ADDRESS            00010300
+         USING TSTSNCA,R15             ADDRESS NCA                      00010400
+         LA    &WRG(3),NCAEXTC         LOAD ADDRESS OF EXTERNAL TRAN    00010500
+         AH    &WRG(3),&SVFO           ADD FIELD POSITION               00010600
+         BCTR  &WRG(3),0               SUBTRACT 1 FOR DISPLACEMENT      00010700
+         ST    &WRG(3),&SVAD           SAVE AS ADDRESS OF DATA          00010800
+         LA    &WRG(3),L'NCAEXTC       LOAD LENGTH OF TRANCODE          00010900
+         STH   &WRG(3),&SVLG           SAVE AS LENGTH OF DATA           00011000
+         B     &LA.CDPR00              GO TO DATA PRESENT ROUTINE       00011100
+         DROP  R15                                                      00011200
+         SPACE                                                          00011300
+&LA.FLDS30 EQU *                                                        00011400
+         BAL   R15,&FD                 FIND DATA IN MESSAGE             00011500
+         L     &WRG(3),&SVAD           LOAD ADDR OF DATA IN MESSAGE     00011600
+         LTR   &WRG(3),&WRG(3)         DATA FOUND?                      00011700
+         BNZ   &LA.CDPR00              YES - GO CHECK PRESENT CONDITION 00011800
+         AIF   ('&TT' EQ 'TL').TELLER1                                  00011900
+         AIF   ('&TT' NE 'PC').PC2                            9913349   00011950
+         LA    &TBR,TBR2BLGN(&TBR) BUMP PAST 2B TO NEXT 2A    2022379   00011955
+         B     &LA.OPTS20              NO ADDRESS - SKIP ICR  9913349   00011960
+         AGO   .TELLER1                                       9913349   00011970
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00011975
+.PC2     ANOP                                                           00011980
+         BAL   R15,GETTD000            SEARCH TRANSFER DATA FOR FIELD   00012000
+         CLI   WKTRDFND,C'1'           FOUND?                           00012100
+         BE    &LA.CDPR00              YES - GO CHECK FOUND CONDITIONS  00012200
+.TELLER1 ANOP                                                           00012300
+         SPACE                                                          00012400
+***************************************                                 00012500
+* FIELD NOT PRESENT IN TRANSMISSION   *                                 00012600
+***************************************                                 00012700
+         SPACE                                                          00012800
+&LA.CDNP00 EQU *                                                        00012900
+         CLC   TBR2BCOM,=C'NP'         DATA NOT PRESENT CONDITION?      00013000
+         BE    &LA.SLCT00              YES - SET TRUE CONDITION         00013100
+         B     &LA.SLCT10              NO  - CHECK NEXT FLD (NOT TRUE)  00013200
+         EJECT                                                          00013300
+***************************************                                 00013400
+* FIELD PRESENT IN TRANSMISSION       *                                 00013500
+***************************************                                 00013600
+         SPACE                                                          00013700
+&LA.CDPR00 EQU *                                                        00013800
+         CLC   TBR2BCOM,=C'NP'         DATA NOT PRESENT CONDITION?      00013900
+         BE    &LA.SLCT10              YES - CHECK NEXT FLD (NOT TRUE)  00014000
+         CLC   TBR2BCOM,=C'PR'         DATA PRESENT CONDITION?          00014100
+         BE    &LA.SLCT00              YES - SET TRUE CONDITION         00014200
+         CLC   TBR2BCOM,=C'CV'         COMPARE VARIABLE?                00014300
+         BNE   &LA.CDTM00              NO  - GO CHECK TM                00014400
+         LA    &WRG(3),&LA.CVDATA      ADDRESS CV DATA ADDR/LENGTH TBL  00014500
+         SR    &WRG(1),&WRG(1)         CLEAR REG FOR INSERT             00014600
+         IC    &WRG(1),&LA.TRCT        INSERT CONDITION OCCURRENCE      00014700
+         BCTR  &WRG(1),0               SUBTRACT 1 FOR DISPLACEMENT      00014800
+         MH    &WRG(1),=H'6'           MULTIPLY BY ADDR/LEN OCCURRENCE  00014900
+         AR    &WRG(3),&WRG(1)         ADD TO CV TABLE ADDRESS          00015000
+         MVC   0(4,&WRG(3)),&SVAD      MOVE ADDRESS OF DATA TO TABLE    00015100
+         MVC   4(2,&WRG(3)),&SVLG      MOVE DATA LENGTH                 00015200
+         B     &LA.SLCT10              GO TO NEXT FIELD                 00015300
+         SPACE                                                          00015400
+***************************************                                 00015500
+* TEST UNDER MASK COMPARISON          *                                 00015600
+***************************************                                 00015700
+         SPACE                                                          00015800
+&LA.CDTM00 EQU *                                                        00015900
+         CLC   TBR2BCOM,=C'TM'         TEST UNDER MASK?                 00016000
+         BNE   &LA.COMP00              NO - GO CHECK COMPARE VARIABLE   00016100
+         MVI   &LA.DATACP,X'00'        INITIALIZE COMPARE TM BYTE       00016200
+         LA    R15,TBR2BCDA            ADDRESS TBR COMPARE FIELD        00016300
+         LA    &WRG(3),8               SET UP LOOP - 8 BYTES TO TRNSLT  00016400
+         SPACE                                                          00016500
+&LA.CDTM10 EQU *                                                        00016600
+         CLI   0(R15),C'1'             TEST THIS BIT?                   00016700
+         BNE   &LA.CDTM20              NO - GO TO NEXT BYTE IN TBR      00016800
+         STC   &WRG(3),&LA.HEXWK1      SAVE CURRENT LOOP COUNTER        00016900
+         TR    &LA.HEXWK1,&LA.TRCTTB   TRANSLATE TO BIT SETTING         00017000
+         OC    &LA.DATACP,&LA.HEXWK1   TURN BIT ON IN COMPARE DATA      00017100
+         SPACE                                                          00017200
+&LA.CDTM20 EQU *                                                        00017300
+         LA    R15,1(R15)              LOOK AT NEXT BYTE IN TBR         00017400
+         BCT   &WRG(3),&LA.CDTM10      CONTINUE LOOP                    00017500
+         SR    R15,R15                 CLEAR REG FOR INSERT             00017600
+         IC    R15,&LA.DATACP          INSERT TM BYTE                   00017700
+         L     &WRG(3),&SVAD           LOAD ADDR OF DATA IN MESSAGE     00017800
+         EX    R15,&LA.COND10          EXECUTE TEST UNDER MASK          00017900
+         BO    &LA.SLCT00              ONES - SET TRUE CONDITION        00018000
+         B     &LA.SLCT10              NO   - CHECK NEXT FIELD COND     00018100
+         EJECT                                                          00018200
+***************************************                                 00018300
+* COMPARE THE DATA                    *                                 00018400
+***************************************                                 00018500
+         SPACE                                                          00018600
+&LA.COMP00 EQU *                                                        00018700
+         CLI   TBR2BCDA,X'50'          COMPARING TO A CV FIELD?         00018800
+         BE    &LA.COMP10              YES 0 SKIP THE DATA FIX          00018900
+         BAL   R15,&LA.DFIX00          GO FIX DATA FOR COMPARING        00019000
+         SR    R15,R15                 CLEAR WORK REGISTER              00019100
+         IC    R15,&LA.DATALG          LOAD COMPARE DATA LENGTH         00019200
+         LTR   R15,R15                 ANY DATA LENGTH?                 00019300
+         BZ    &LA.SLCT10              NO - CHECK NEXT FLD CONDITION    00019400
+         BCTR  R15,0                   SUBTRACT 1 FOR EX                00019500
+         AIF   ('&TT' NE 'PC').PC4                            9913349   00019510
+         EX    R15,&LA.COND40          COMPARE TO LOW-VALUES  9913349   00019520
+         BNE   &LA.COMP10              NO - CONTINUE          9913349   00019530
+         CLC   TBR2BCOM,=C'NP'         DATA NOT PRESENT COND? 9913349   00019540
+         BE    &LA.SLCT10              YES - CHK NXT FLD (NT) 9913349   00019550
+         CLC   TBR2BCOM,=C'PR'         DATA PRESENT CONDITION?9913349   00019560
+         BE    &LA.SLCT00              YES - SET TRUE COND    9913349   00019570
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00019575
+.PC4     ANOP                                                           00019580
+&LA.COMP10 EQU *                                                        00019600
+         LA    &WRG(3),&LA.BCTBL       LOAD ADDR OF BC TABLE            00019700
+         SPACE                                                          00019800
+&LA.COMP20 EQU *                                                        00019900
+         CLC   0(2,&WRG(3)),=C'**'     END OF TABLE?                    00020000
+         BE    &LA.SLCT10              YES - CHECK NEXT FIELD COND      00020100
+         CLC   TBR2BCOM,0(&WRG(3))     MATCH ON OPERATOR?               00020200
+         BE    &LA.COMP30              YES - GO PROCESS                 00020300
+         LA    &WRG(3),3(&WRG(3))      NO  - BUMP POINTER               00020400
+         B     &LA.COMP20              TRY AGAIN                        00020500
+         SPACE                                                          00020600
+&LA.COMP30 EQU *                                                        00020700
+         SR    &WRG(1),&WRG(1)         CLEAR WORK REG FOR INSERT        00020800
+         IC    &WRG(1),2(&WRG(3))      INSERT COND CODE FOR BC INSTRUCT 00020900
+         CLI   TBR2BCDA,X'50'          COMPARING TO A CV FIELD?         00021000
+         BE    &LA.CDCV00              YES - SKIP THE NORMAL COMPARE    00021100
+         EX    R15,&LA.COND00          EXECUTE THE COMPARE              00021200
+         EX    &WRG(1),&LA.COND20      EXECUTE BRANCH USING CONDITION   00021300
+         B     &LA.SLCT10              CHECK NEXT FIELD CONDITION       00021400
+         EJECT                                                          00021500
+***************************************                                 00021600
+* COMPARE VARIABLE - COMPARE 2 FIELDS *                                 00021700
+***************************************                                 00021800
+         SPACE                                                          00021900
+&LA.CDCV00 EQU *                                                        00022000
+         ST    &WRG(2),&LA.SVREG       SAVE REGISTER SO WE CAN USE IT   00022100
+         MVC   &LA.DATACP(1),TBR2BCDA+1 MOVE LETTER TO COMPARE (S-Z)    00022200
+         MVZ   &LA.DATACP(1),=X'00'    CHANGE ZONE TO 0                 00022300
+         TR    &LA.DATACP(1),&LA.CVTBLE TRANSLATE TO AN OCCUR DISPLCMNT 00022400
+         CLI   &LA.DATACP,X'FF'        IS THE OCCURRENCE INVALID?       00022500
+         BE    &LA.SLCT10              YES - GO TO NEXT FIELD           00022600
+         SR    &WRG(3),&WRG(3)         CLEAR REG FOR INSERT             00022700
+         IC    &WRG(3),&LA.DATACP      INSERT THE OCCURRENCE            00022800
+         MH    &WRG(3),=H'6'           MULTIPLY BY LENGTH OF OCCUR      00022900
+         LA    &WRG(2),&LA.CVDATA      ADDRESS CV DATA ADDR/LEN TABLE   00023000
+         AR    &WRG(2),&WRG(3)         BUMP TO OCCURRENCE               00023100
+         ICM   &WRG(3),15,0(&WRG(2))   LOAD CV DATA ADDRESS             00023200
+         LTR   &WRG(3),&WRG(3)         IS THERE AN ADDRESS TO DATA?     00023300
+         BZ    &LA.CDCV10              NO  0 CAN'T COMPARE              00023400
+         CLC   4(2,&WRG(2)),=H'0'      IS THERE A CV DATA LENGTH?       00023500
+         BNE   &LA.CDCV30              YES - GO USE IT                  00023600
+         CLC   &SVLG,=H'0'             IS THERE A LENGTH ON COND DATA?  00023700
+         BNE   &LA.CDCV20              YES - USE CONDTNL DATA LENGTH    00023800
+         SPACE                                                          00023900
+&LA.CDCV10 EQU *                                                        00024000
+         L     &WRG(2),&LA.SVREG       RELOAD REG BEFORE BRANCHING      00024100
+         B     &LA.SLCT10              SKIP COMPARE, COND NOT TRUE      00024200
+         SPACE                                                          00024300
+&LA.CDCV20 EQU *                                                        00024400
+         LH    R15,&SVLG               USE COND DATA LENGTH             00024500
+         B     &LA.CDCV40              GO TO COMPARE                    00024600
+         SPACE                                                          00024700
+&LA.CDCV30 EQU *                                                        00024800
+         SR    R15,R15                 CLEAR REG FOR INSERT             00024900
+         ICM   R15,3,4(&WRG(2))        INSERT CV DATA LENGTH            00025000
+         CLC   &SVLG,=H'0'             IS THERE A LENGTH ON COND DATA?  00025100
+         BE    &LA.CDCV40              NO  - USE CV DATA LENGTH         00025200
+         CH    R15,&SVLG               IS CV LENGTH GR COND LENGTH?     00025300
+         BNH   &LA.CDCV40              NO  - USE CV LENGTH              00025400
+         LH    R15,&SVLG               YES - USE COND LENGTH            00025500
+         SPACE                                                          00025600
+&LA.CDCV40 EQU *                                                        00025700
+         L     &WRG(2),&SVAD           LOAD COND DATA ADDRESS           00025800
+         BCTR  R15,0                   SUBTRACT 1 FOR INSTRUCTION       00025900
+         EX    R15,&LA.COND30          EXECUTE COMPARE                  00026000
+         L     &WRG(2),&LA.SVREG       RELOAD REG BEFORE BRANCHING      00026100
+         EX    &WRG(1),&LA.COND20      EXECUTE BRANCH USING CONDITION   00026200
+         B     &LA.SLCT10              CHECK NEXT FIELD CONDITION       00026300
+         SPACE                                                          00026400
+&LA.COND00 CLC &LA.DATAIN(0),&LA.DATACP COMPARE DATA ENTERED/TBR DATA   00026500
+&LA.COND10 TM  0(&WRG(3)),X'00'        TEST UNDER MASK                  00026600
+&LA.COND20 BC  0,&LA.SLCT00            BRANCH W/MODIFIED COND CD        00026700
+&LA.COND30 CLC 0(0,&WRG(2)),0(&WRG(3)) COMPARE DATA ENTERED TO CV DATA  00026800
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00026825
+&LA.COND40 CLC &LA.DATAIN(0),&LA.LOWVAL COMPARE DATA ENTERED/LOW VALUE  00026850
+         EJECT                                                          00026900
+***************************************                                 00027000
+* SELECTION BY REQUESTED RELATIONS    *                                 00027100
+***************************************                                 00027200
+         SPACE                                                          00027300
+&LA.SLCT00 EQU *                                                        00027400
+         MVC   &LA.ANDCMB,&LA.TRCT     MOVE IN COPY OF COND COUNTER     00027500
+         TR    &LA.ANDCMB,&LA.TRCTTB   TRANSLATE TO BIT SETTINGS        00027600
+         OC    &LA.COMB,&LA.ANDCMB     SET BIT ON FOR CONDITION         00027700
+         SPACE                                                          00027800
+&LA.SLCT10 EQU *                                                        00027900
+         LA    &WRG(2),L'TBR2BOC1(&WRG(2)) BUMP TO NEXT FIELD COND      00028000
+         SR    &WRG(1),&WRG(1)         CLEAR WORK REG FOR INSERT        00028100
+         IC    &WRG(1),&LA.TRCT        RESTORE COUNTER                  00028200
+         BCT   &WRG(1),&LA.FLDS10      GO THRU PROCESS AGAIN            00028300
+         SPACE                                                          00028400
+         DROP  &WRG(2)                                                  00028500
+         LA    &WRG(1),TBR2BREL        POINT TO BEGINNING OF FIELD COMB 00028600
+         LA    &WRG(3),L'TBR2BREL      LOAD TOTAL # OF FIELD COMB       00028700
+         LA    &TBR,TBR2BLGN(&TBR)     BUMP PAST 2B SEG TO NEXT 2A      00028800
+         CLI   &LA.COMB,X'00'          BIT SETTING LOW VALUES           00028900
+         BE    &LA.OPTS20              YES - PROCESS NEXT ICR           00029000
+         SPACE                                                          00029100
+&LA.SLCT20 EQU *                                                        00029200
+         MVC   &LA.ANDCMB,&LA.COMB     MOVE IN FRESH COPY OF BITS       00029300
+         CLI   0(&WRG(1)),X'00'        NULL COMBINATION?                00029400
+         BE    &LA.SLCT30              YES - NEXT COMBINATION           00029500
+         NC    &LA.ANDCMB,0(&WRG(1))   TURN OFF EXTRANEOUS BITS         00029600
+         CLC   &LA.ANDCMB,0(&WRG(1))   MATCH ON CALC'D BIT SETTIN       00029700
+         BE    &LA.SLCT40              YES - WILL PROCESS THIS ICR      00029800
+         SPACE                                                          00029900
+&LA.SLCT30 EQU *                                                        00030000
+         LA    &WRG(1),1(&WRG(1))      NO  - BUMP TO NEXT BIT SETTING   00030100
+         BCT   &WRG(3),&LA.SLCT20      GO THRU PROCESS AGAIN            00030200
+         B     &LA.OPTS20              PROCESS NEXT ICR                 00030300
+         SPACE                                                          00030400
+&LA.SLCT40 EQU *                                                        00030500
+         CLI   &LA.SV20F,C'Y'          20 FLAG YES?           0733753   00030510
+         BE    &LA.SLCT60              YES, IT IS             0733753   00030520
+         L     &WRG(3),&SVICAD         LOAD ICR OCCURRENCE              00030600
+         USING ICTDSECT,&WRG(3)        ADDRESS OCCURRENCE               00030700
+         MVC   ICTADDR,&LA.SVADDR      MOVE ICR INFO ADDRESS            00030800
+         MVC   ICTTBRAD,&LA.SVTBR      MOVE TBR ADDRESS                 00030900
+         AIF   ('&TT' EQ 'TL').TELLER2                                  00031000
+         AIF   ('&TT' EQ 'PC').TELLER2                        9913349   00031050
+         MVC   ICTSDRAD,&SDR           MOVE SDR ADDRESS                 00031100
+.TELLER2 ANOP                                                           00031200
+         LA    &WRG(3),ICTENLGN(&WRG(3)) BUMP TO NEXT ENTRY             00031300
+         ST    &WRG(3),&SVICAD         STORE NEXT OCCURRENCE ADDRESS    00031400
+         LH    &WRG(3),ICRSLCTD        LOAD ICRS SELECTED COUNTER       00031500
+         LA    &WRG(3),1(&WRG(3))      INCREMENT                        00031600
+         STH   &WRG(3),ICRSLCTD        STORE                            00031700
+         CH    &WRG(3),=H'20'          20 ICRS SELECTED?                00031800
+         BNL   &LA.SLCT50              YES, ANYMORE POSSIBLE? 0733753   00031910
+         B     &LA.OPTS20              GO TO CONTINUE 2A LOOP           00032000
+&LA.SLCT50 EQU *                                              0733753   00032010
+         MVI   &LA.SV20F,C'Y'          SET 20 FLAG 'ON'       0733753   00032020
+         B     &LA.OPTS20              CHECK FOR OTHER POSSBLE0733753   00032030
+&LA.SLCT60 EQU *                                              0733753   00032040
+         XR    &WRG(3),&WRG(3)         CLEAR REG              0733753   00032050
+         LA    &WRG(3),9               SET REG TO 9 FOR ERROR 0733753   00032060
+         B     &LA.EXIT0A              GET OUT!               0733753   00032070
+         EJECT                                                          00032100
+***************************************                                 00032200
+* FIX DATA FOR NUMERIC/CHAR COMPARES  *                                 00032300
+***************************************                                 00032400
+         SPACE                                                          00032500
+&LA.DFIX00 EQU  *                                                       00032600
+         USING TBR2BOC1,&WRG(2)        ADDRESS CONDITION                00032700
+         ST    R15,&LA.SVREG           SAVE REGISTER FOR USE            00032800
+         LA    &WRG(1),TBR2BCDA        ADDRESS COMPARE DATA             00032900
+         CLC   TBR2BCDA(6),=C'SPACES'  COMPARE TO SPACES?     2024392   00032905
+         BNE   &LA.DFIX02              NO                     2024392   00032910
+         MVI   TBR2BCDA,C' '           MOVE IN SPACES         2024392   00032915
+         B     &LA.DFIX06                                     2024392   00032925
+&LA.DFIX02 EQU *                                              2024392   00032930
+         CLC   TBR2BCDA(5),=C'NULLS'   COMPARE TO LOW-VALUES? 2024392   00032935
+         BNE   &LA.DFIX04              NO                     2024392   00032940
+         MVI   TBR2BCDA,X'00'          MOVE IN LOW-VALUES     2024392   00032945
+         B     &LA.DFIX06                                     2024392   00032955
+&LA.DFIX04 EQU *                                              2024392   00032960
+         CLC   TBR2BCDA(6),=C'ZEROES'  COMPARE TO ZEROES?     2024392   00032965
+         BNE   &LA.DFIX08              NO                     2024392   00032970
+         MVI   TBR2BCDA,C'0'           MOVE IN ZEROES         2024392   00032975
+&LA.DFIX06 EQU *                                              2024392   00032980
+         MVC   TBR2BCDA+1(L'TBR2BCDA-1),TBR2BCDA              2024392   00032985
+         XR    R14,R14                 CLEAR REGISTER         2024392   00032990
+         CLC   &SVLG,=H'15'            TST FLD LNG TO CMPR LN 2024392   00032995
+         BNL   &LA.DFIX07              BR IF FIELD GR/EQ COMP 2024392   00033000
+         IC    R14,&SVLG+1             INSERT FIELD LENGTH    2024392   00033005
+         STC   R14,TBR2BCLG            STORE IN TBR LENGTH    2024392   00033015
+         B     &LA.DFIX20              GO CHECK FOR NUMERIC   2024392   00033020
+&LA.DFIX07 EQU *                                              2024392   00033025
+         LA    R14,15                  USE MAX OF 15 FOR LEN  2024392   00033030
+         STC   R14,TBR2BCLG            STORE IN TBR LENGTH    2024392   00033040
+         B     &LA.DFIX20              GO CHECK FOR NUMERIC   2024392   00033045
+&LA.DFIX08 EQU *                                              2024392   00033050
+         CLC   0(2,&WRG(1)),=X'E77D'   IS THERE X' IN DATA?   2024392   00033080
+         BNE   &LA.DFIX20              NO - GO CHECK FOR NUMERIC        00033100
+         SR    R14,R14                 CLEAR REGISTER                   00033200
+         SR    R15,R15                 CLEAR REGISTER                   00033300
+         IC    R15,TBR2BCLG            GET LENGTH OF COMPARE DATA       00033400
+         D     R14,=F'2'               CONVERT TO DECIMAL               00033500
+         BCTR  R15,0                   SUBTRACT 1 FOR (X')              00033600
+         LA    &WRG(1),2(&WRG(1))      BUMP PAST X'                     00033700
+         STC   R15,&LA.DATALG          STORE IN COMPARE LENGTH          00033800
+         LA    &WRG(3),&LA.DATACP      LOAD DATA COMPARE AREA           00033900
+         SPACE                                                          00034000
+&LA.DFIX10 EQU *                       *** COMPARE DATA BINARY ***      00034100
+         MVC   &LA.HEXWK(2),0(&WRG(1)) MOVE TWO BYTES FOR TRANSLATE     00034200
+         TR    &LA.HEXWK,&LA.BINTB     TRANSLATE TO HEX                 00034300
+         CLI   &LA.HEXWK1,X'FF'        TEST FOR INVALID HEX DIGIT       00034400
+         BE    &LA.DFIX80              YES - RETURN WITH ERROR          00034500
+         CLI   &LA.HEXWK2,X'FF'        TEST FOR INVALID HEX DIGIT       00034600
+         BE    &LA.DFIX80              YES - RETURN WITH ERROR          00034700
+         MVO   &LA.HEXWK2,&LA.HEXWK1   COMBINE NIBBLES                  00034800
+         MVC   0(1,&WRG(3)),&LA.HEXWK2 MOVE 1 HEX BYTE TO COMPARE AREA  00034900
+         LA    &WRG(1),2(&WRG(1))      BUMP TO NEXT TWO BYTES           00035000
+         LA    &WRG(3),1(&WRG(3))      BUMP TO NEXT COMPARE BYTE        00035100
+         BCT   R15,&LA.DFIX10          BUMP THRU ALL BYTES              00035200
+         B     &LA.DFIX30              GO CHECK DATA ENTERED FOR NUMER  00035300
+         SPACE                                                          00035400
+&LA.DFIX20 EQU *                       *** COMPARE DATA NUMERIC? ***    00035500
+         MVC   &LA.DATALG,TBR2BCLG     SAVE COMPARE DATA LENGTH         00035600
+         MVC   &LA.DATACP,&LA.SPACES   CLEAR COMPARE DATA               00035700
+         SR    &WRG(3),&WRG(3)         CLEAR REG FOR INSERT             00035800
+         IC    &WRG(3),TBR2BCLG        INSERT COMPARE DATA LENGTH       00035900
+         BCTR  &WRG(3),0               SUBTRACT 1 FOR EX                00036000
+         EX    &WRG(3),&LA.DFEX40      MOVE COMPARE DATA TO WORK FLD    00036100
+         EX    &WRG(3),&LA.DFEX00      MAKE DATA NUMERIC                00036200
+         EX    &WRG(3),&LA.DFEX10      COMPARE TO SEE IF DATA WAS NUM   00036300
+         BE    &LA.DFIX30              YES - IT WAS, GO SET SWITCH      00036400
+         EX    &WRG(3),&LA.DFEX40      RESTORE DATA IN SAVE FIELD       00036500
+         B     &LA.DFIX70              GO PROCESS CHARACTER COMPARE     00036600
+         SPACE                                                          00036700
+&LA.DFIX30 EQU *                       *** DATA ENTERED NUMERIC? ***    00036800
+         L     &WRG(1),&SVAD           LOAD ADDRESS OF DATA ENTERED     00036900
+         CLC   &SVFO,=H'1'             FIELD POSITION PROVIDED?         00037000
+         BNH   &LA.DFIX40              NO  - GO CHECK DATA FOR NUMERIC  00037100
+         B     &LA.DFIX70              GO DO NON-NUMERIC COMPARE        00037500
+         SPACE                                                          00037600
+&LA.DFIX40 EQU *                       *** DATA ENTERED NUMERIC? ***    00037700
+         LH    &WRG(3),&SVLG           LOAD LENGTH OF DATA ENTERED      00037800
+         CH    &WRG(3),=H'17'          LENGTH GREATER THAN 17?          00037900
+         BH    &LA.DFIX70              YES - DON'T PACK                 00038000
+         AR    &WRG(3),&WRG(1)         BUMP TO END OF FIELD             00038100
+         BCTR  &WRG(3),0               POINT TO LAST BYTE               00038200
+         MVC   &LA.DATAWK,&LA.ZEROS    FILL WK FLD WITH ZEROS 0802526   00038300
+         LA    &WRG(1),&LA.DATAWK+L'&LA.DATAWK-1 POINT TO LAST0802526   00038400
+         SPACE                                                          00038500
+&LA.DFIX50 EQU *                                                        00038600
+         C     &WRG(3),&SVAD           BEGINNING REACHED?               00038700
+         BL    &LA.DFIX60              YES - FIELD NUMERIC              00038800
+         CLI   0(&WRG(3)),X'F0'        LESS THAN 0?                     00038900
+         BL    &LA.DFIX70              YES - NOT NUMERIC                00039000
+         CLI   0(&WRG(3)),X'F9'        GREATER THAN 9?                  00039100
+         BH    &LA.DFIX70              YES - NOT NUMERIC                00039200
+         MVC   0(1,&WRG(1)),0(&WRG(3)) MOVE TO WORK FIELD               00039300
+         BCTR  &WRG(3),0               GO TO PREVIOUS BYTE OF DATA      00039400
+         BCTR  &WRG(1),0               GO TO PREVIOUS BYTE OF WORK FLD  00039500
+         B     &LA.DFIX50              GO CHECK NEXT BYTE               00039600
+         SPACE                                                          00039700
+&LA.DFIX60 EQU *                                                        00039800
+         PACK  &LA.DATAIN+7(2),&LA.DATAWK(2) PACK HIGH ORDER  0802526   00039900
+         MVO   &LA.DATAIN(2),&LA.DATAIN+7(2) MOVE HIGH ORDER  0802526   00040000
+         PACK  &LA.DATAIN+1(8),&LA.DATAWK+2(15) PACK LOW ORDER0802526   00040100
+         SR    &WRG(3),&WRG(3)         CLEAR REG FOR INSERT             00040200
+         IC    &WRG(3),TBR2BCLG        INSERT DATA COMPARE LENGTH       00040300
+         BCTR  &WRG(3),0               SUBTRACT 1 FOR EX                00040400
+         LA    &WRG(3),128(&WRG(3))    PUT 8 (X 16) IN REG FOR 'TO' LEN 00040500
+         EX    &WRG(3),&LA.DFEX30      PACK COMPARE DATA                00040600
+         MVI   &LA.DATALG,X'09'        LENGTH OF COMPARE IS 9           00040700
+         B     &LA.DFIX90              GO TO RETURN                     00040800
+         SPACE                                                          00040900
+&LA.DFIX70 EQU *                                                        00041000
+         L     &WRG(1),&SVAD           LOAD ADDRESS OF DATA ENTERED     00041100
+         SR    &WRG(3),&WRG(3)         CLEAR REG FOR INSERT   0802882   00041200
+         IC    &WRG(3),&LA.DATALG      INSERT COMPAR DATA LEN 0802882   00041210
+         STH   &WRG(3),&SVLG           USE COMPARE DATA LEN   0802882   00041220
+         BCTR  &WRG(3),0               SUBTRACT 1 FOR INSTRUCTION       00041300
+         MVC   &LA.DATAIN,&LA.SPACES   CLEAR DATA IN                    00041400
+         EX    &WRG(3),&LA.DFEX20      MOVE DATA TO INPUT AREA          00041500
+         B     &LA.DFIX90              GO TO RETURN                     00041600
+         SPACE                                                          00041700
+&LA.DFIX80 EQU *                                                        00041800
+         MVI   &LA.DATALG,X'00'        SET LENGTH TO 0 FOR ERROR        00041900
+         SPACE                                                          00042000
+&LA.DFIX90 EQU *                                                        00042100
+         L     R15,&LA.SVREG           RELOAD BAL REG                   00042200
+         BR    R15                     RETURN                           00042300
+         SPACE                                                          00042400
+&LA.DFEX00 MVZ &LA.DATACP(0),&LA.ZEROS                                  00042500
+&LA.DFEX10 CLC &LA.DATACP(0),TBR2BCDA                                   00042600
+&LA.DFEX20 MVC &LA.DATAIN(0),0(&WRG(1))                                 00042700
+&LA.DFEX30 PACK &LA.DATACP(0),TBR2BCDA(0)                               00042800
+&LA.DFEX40 MVC  &LA.DATACP(0),TBR2BCDA                                  00042900
+         SPACE                                                          00043000
+         DROP  &TBR,&WRG(2),&WRG(3)                                     00043100
+         SPACE 2                                                        00043200
+&LA.TRCTTB DC  X'000102040810204080'                                    00043300
+&LA.CVTBLE DC  X'FFFF0706050403020100FFFFFFFFFFFF'                      00043400
+&LA.ZEROS  DC  17C'0'                                                   00043500
+&LA.SPACES DC  17C' '                                                   00043600
+&LA.LOWVAL DC  8X'00'                                                   00043700
+&LA.BCTBL EQU  *                                                        00043800
+         DC    C'EQ'                   EQUAL                            00043900
+         DC    X'80'                                                    00044000
+         DC    C'NE'                   NOT EQUAL                        00044100
+         DC    X'70'                                                    00044200
+         DC    C'GT'                   GREATER THAN                     00044300
+         DC    X'20'                                                    00044400
+         DC    C'LE'                   NOT GREATER THAN                 00044500
+         DC    X'D0'                                                    00044600
+         DC    C'LT'                   LESS THAN                        00044700
+         DC    X'40'                                                    00044800
+         DC    C'GE'                   NOT LESS THAN                    00044900
+         DC    X'B0'                                                    00045000
+         DC    C'**'                                                    00045100
+         DS    0H                                                       00045200
+         SPACE                                                          00045300
+&LA.BINTB DC   192XL1'FF'                                               00045400
+         DC    X'FF0A0B0C0D0E0FFFFFFFFFFFFFFFFFFF'                      00045500
+         DC    32XL1'FF'                                                00045600
+         DC    X'00010203040506070809FFFFFFFFFFFF'                      00045700
+         SPACE                                                          00045800
+&LA.EXIT0A EQU *                                              0733753   00045810
+         B     &LA.EXIT0B                                     0733753   00045820
+&LA.EXIT00 EQU *                                                        00045900
+         XR    &WRG(3),&WRG(3)         CLEAR REG              0733753   00045910
+&LA.EXIT0B EQU *                                              0733753   00045920
+.STRG    ANOP                                                           00046000
+         MEND                                                           00046100

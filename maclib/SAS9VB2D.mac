@@ -1,0 +1,21 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*                                                                     * 00000000
+*********************************************************************** 00001000
+*                                                                     * 00002000
+* * * * * * *           V   E   R   B   T               * * * * * * * * 00003000
+*                                                                     * 00004000
+*      VERB TABLE DSECT                                               * 00005000
+*                                                                     * 00006000
+*********************************************************************** 00007000
+         SPACE 3                                                        00008000
+VERBT     DSECT                                                         00009000
+VERBTNME DS    CL08                VERB NAME                            00010000
+VERBTADR DS    AL04                REQUEST DRIVER ENTRY POINT           00011000
+VERBTADV DS    AL04                ROUTINE ADDR IF OTHER THAN FIRST     00012000
+*                                   CSECT                               00013000
+VERBTNUM DS    XL01                SDMS REQUEST NUMBER                  00014000
+VERBTUPD DS    XL01                SDMS UPDATE FLAG                     00015000
+         DS    0F                  PROVIDE ALIGNMENT                    00016000
+VERBTLEN  EQU   *-VERBT                                                 00017000
+*                                                                     * 00018000
+*********************************************************************** 00019000

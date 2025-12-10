@@ -1,0 +1,51 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*  01/30/92, 02:00:00                                         0803209 * 00001100
+*                            TSTS2BMS                         0803209 * 00001200
+*                       TRANSACTION SYSTEM                            * 00001300
+*                     BMS COMMUNICATION AREA                          * 00001400
+*                                                             2600213 * 00001402
+*                      HISTORY OF REVISIONS                   2600213 * 00001404
+* DESCRIPTION                                                 2600213 * 00001406
+* ----------------------------------------------------------  2600213 * 00001408
+* 01-24-14 ADDED THE ADDRESS OF THE SASIOPTA RECORD           1436560 * 00001495
+* 11-10-97 ADDED THE ADDRESS OF THE SASIOPTE RECORD           9913483 * 00001496
+* 11-04-94 ADD SACB ADDRESS, BMSSACBA                         2600213 * 00001498
+*---------------------------------------------------------------------* 00001500
+         SPACE 2                                                        00001600
+TSBMS    DSECT                                                          00001700
+BMS      DS    0X                                                       00001800
+BMSID    DS    CL8                   TS/BMS C.A. IDENTIFIER             00001900
+*                                 VALUE: TSBMSCA OR TSBMSCA1  0803088   00002000
+BMSAPLAD DS    CL4                   ADDR OF APPLICATION'S COMM AREA    00002100
+BMSBRQAD DS    CL4                   ADDR OF TS/BMS REQUEST BLOCK       00002200
+BMSAPPL  DS    CL2                   APPLICATION                        00002300
+BMSLKFLG DS    CL1                   PROCESS FLAG FOR LINKED REQUESTS   00002400
+*                                                                       00002500
+BMSSKGTD DS    CL1                   SKIP GET TRANSFER DATA ROUTINE     00002600
+*                                    VALUE: 1-YES, SKIP ROUTINE         00002700
+BMSSKREQ DS    CL1                   SKIP REQUIRED DATA ROUTINE         00002800
+*                                    VALUE: 1-YES, SKIP ROUTINE         00002900
+BMSSKSDR DS    CL1                   SKIP SDR PROCESSING                00003000
+*                                    VALUE: 1-YES, SKIP SDR PROCESSING  00003100
+BMSCIFSW DS    CL1                   APPLICATION PROCESSED UNDER CIF    00003200
+*                                    VALUE: 1-YES                       00003300
+BMSAPGNO DS    CL2                   APPL FILE GROUP NUMBER   TS006.00  00003400
+*                                                             TS006.00  00003500
+BMSSVEOR DS    CL1                   SAVE EOR TRANSFER DATA   00701933  00003510
+*                                    VALUE: 1-YES, SAVE EOR   00701933  00003520
+BMSPRAPL DS    CL2                   OVERRIDE PROCESSING APL  00701933  00003530
+*                                                             00701933  00003540
+BMS1STIM DS    CL1                   ACA INITIALIZE FLAG      0803088   00003550
+*                                    VALUE: 0 - NO 1 - YES    0803088   00003560
+BMSMSTGN DS    CL2                   APPL MASTER FILE GROUP   2501276   00003570
+*                                                             2501276   00003580
+BMSALPGN DS    CL2                   APPL ALPHA FILE GROUP    2501276   00003590
+*                                                             2501276   00003595
+         DS    CL3                   FILLER                   2600213   00003600
+BMSSACBA DS    CL4                   SACB ADDRESS             2600213   00003610
+BMSOPTEA DS    XL4                   SASIOPTE ADDRESS         9913483   00003620
+BMSOPTAA DS    XL4                   SASIOPTA ADDRESS         1436560   00003630
+         DS    CL16                  FILLER                   1436560   00003640
+BMSEND   EQU   *                     SYMBOLIC END COMM AREA   00701933  00003700
+BMSLEN   EQU   *-BMS                 SYMBOLIC LGTH COMM AREA  00701933  00003800

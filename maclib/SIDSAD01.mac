@@ -1,0 +1,66 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+******************************************************************      00000100
+*DICTIONARY OBJECT SIDAGSIWKAD01                                 *      00000200
+* GENERATED 04/07/93  16.02.17                                   *      00000300
+*STANDARD ADDRESS INPUT                                          *      00000400
+* ***CONTAINS MODIFICATIONS FOR INTERBANK GAP RM003           RMIB003   00000410
+******************************************************************      00000500
+SIDSAD01 DSECT                         STD-ADDR-INPUT.                  00000600
+WK1WRDTB DS    CL2                     WORD-TABLE-REQ-CD                00000700
+WK1REQCD DS    0CL2                    REQUEST-CODES.                   00000800
+WK1ADREQ DS    CL1                     STD-STRT-ADDR-IND                00000900
+WK1CSFMT DS    CL1                     CITY-ST-ZIP-INPUT-FMT            00001000
+*                                      CITY-ST-ZIP-FREE     VALUE '1'.  00001100
+*                                      CITY-ST-ZIP-PARSED   VALUE '2'.  00001200
+WK1FMTCD DS    CL1                     REQ-FMT-CD                       00001300
+*                                      REQ-FMT-FREE         VALUE '1'.  00001400
+*                                      REQ-FMT-PARSED       VALUE '2'.  00001500
+*                                      REQ-FMT-BOTH         VALUE '3'.  00001600
+WK1ADDR  DS    4CL45                   ADDR-LINES      OCCURS 0004.     00001700
+WK1NBR   EQU   4                       NUMBER OF ADDR LINES             00001800
+         ORG   WK1ADDR                                                  00002100
+WK1ADTYP DS    CL1                     1ST ADDR-TYPE-IND                00002200
+WK1STBEG DS    CL2                     1ST BEG-STRT-NAME                00002300
+WK1STEND DS    CL2                     1ST END-STRT-NAME                00002400
+WK1ADOFS EQU   *-WK1ADDR               OFFSET TO ADDRESS DATA           00002450
+WK1ADLIN DS    CL40                    1ST ADDR-LINE                    00002500
+WK1ALLEN EQU   *-WK1ADDR               LENGTH OF ONE ADDR LINE          00002550
+*                                                                       00002600
+WK1ADTY2 DS    CL1                     2ND ADDR-TYPE-IND                00002700
+WK1STBE2 DS    CL2                     2ND BEG-STRT-NAME                00002800
+WK1STEN2 DS    CL2                     2ND END-STRT-NAME                00002900
+WK1ADLI2 DS    CL40                    2ND ADDR-LINE                    00003000
+WK1ADTY3 DS    CL1                     3RD ADDR-TYPE-IND                00003100
+WK1STBE3 DS    CL2                     3RD BEG-STRT-NAME                00003200
+WK1STEN3 DS    CL2                     3RD END-STRT-NAME                00003300
+WK1ADLI3 DS    CL40                    3RD ADDR-LINE                    00003400
+WK1ADTY4 DS    CL1                     4TH ADDR-TYPE-IND                00003500
+WK1STBE4 DS    CL2                     4TH BEG-STRT-NAME                00003600
+WK1STEN4 DS    CL2                     4TH END-STRT-NAME                00003700
+WK1ADLI4 DS    CL40                    4TH ADDR-LINE                    00003800
+         ORG                                                            00003900
+*WK1CSZ   DS    0CL52                   CITY-ST-ZIP.          RMIB003   00004000
+*WK1CITY  DS    CL20                    CITY                  RMIB003   00004100
+*WK1ST    DS    CL20                    ST                    RMIB003   00004200
+WK1CSZ   DS    0CL72                   CITY-ST-ZIP.           RMIB003   00004202
+WK1CITY  DS    CL20                    DISTRICT               RMIB003   00004204
+WK1ST    DS    CL20                    PROVINCE               RMIB003   00004206
+         ORG   WK1ST                   ST-INFO  REDEFINES ST.           00004300
+WK1STCD  DS    CL2                     ST-CD                            00004400
+         DS    CL18                    ST-INFO-FILLER                   00004500
+WK1DEPT  DS    CL20                    DEPARTMENT             RMIB003   00004600
+*WK1ZIPCD DS    CL10                    ZIP-CD                RMIB003   00004700
+WK1ZIPCD DS    CL10                    POSTAL CODE            RMIB003   00004701
+WK1WALK  DS    CL2                     WALK-SEQ-CD                      00004800
+         ORG   WK1CSZ                  CITY-ST-ZIP-2 REDEF CITY-ST-ZIP  00004900
+*WK1CSZLI DS    CL40                    CITY-ST-ZIP-LINE      RMIB003   00005000
+WK1CSZLI DS    CL60                    CITY-ST-ZIP-L          RMIB003   00005001
+         DS    CL12                    CITY-ST-ZIP-FILLER               00005100
+         ORG                                                            00005200
+WK1CTRY  DS    CL20                    CTRY                             00005300
+WK1MAIL  DS    CL1                     MAIL-CD                          00005400
+WK1SPICD DS    CL1                     PRT-SPEC-INSTR-CD                00005410
+WK1PCIND DS    CL1                     PRT-CTRY-IND                     00005420
+WK1USPFL DS    CL1                     US-POSTAL-REQ-IND                00005430
+         EJECT                                                          00005500

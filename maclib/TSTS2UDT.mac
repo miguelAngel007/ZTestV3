@@ -1,0 +1,64 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                       TSTS2UDT - UPDATE TABLE                       * 00000200
+*********************************************************************** 00000300
+* THIS TABLE CONTAINS INFORMATION PASSED TO THE RECOVERY DATA BUILD   * 00000400
+* PROGRAM BY THE CALLING MODULE. AN ENTRY IS REQUIRED FOR EACH FIELD  * 00000500
+* OF EACH RECORD THAT IS AFFECTED. THE RDB1 MODULE CAN BE CALLED ANY  * 00000600
+* NUMBER OF TIMES SO THIS AREA IS REUSABLE. IT WILL BE INITIALIZED TO * 00000700
+* LOW-VALUES BY THE CALLING MODULE BEFORE USING IT & AFTER EACH CALL. * 00000800
+*                                                                     * 00000900
+* THE NUMBER OF OCCURRENCES IN THIS TABLE WILL VARY ACCORDING TO      * 00001000
+* THE NEEDS OF THE CALLING MODULE.                                    * 00001100
+*                                                                     * 00001200
+* THE RECOVERY DATA BUILD PROGRAM WILL MOVE SPACES TO THE FILE NAME   * 00001300
+* WHEN THE ENTRY HAS BEEN PROCESSED                                   * 00001400
+*********************************************************************** 00001500
+         SPACE                                                          00001600
+UPDATTBL DSECT                                                          00001700
+UTMAXOCC DS    XL2                   MAXIMUM NUMBER OF OCCURRENCES      00001800
+UTOCCUSD DS    XL2                   NUMBER OF OCCURRENCES USED         00001900
+UTMORDAT DS    CL1                   MORE DATA TO COME                  00002000
+*                                 Y - MORE DATA FOLLOWS-DO NOT COMPLETE 00002100
+UTSTMLNG EQU   *-UPDATTBL            LENGTH OF FIXED AREA               00002200
+         SPACE                                                          00002300
+UTOCCURS DSECT                                                          00002400
+UTFILEID DS    0CL8                  FILE ID                            00002500
+UTFILNAM DS    CL5                     FILE NAME                        00002600
+         DS    CL3                     FILLER                           00002700
+UTFLDID  DS    0XL8                  FIELD ID                           00002800
+UTDSTPOS DS    XL2                   DESTINATION POSITION               00002900
+UTDSTLNG DS    XL2                   DESTINATION LENGTH                 00003000
+         DS    XL4                   FILLER                             00003100
+UTDSTFMT DS    CL1                   DESTINATION FORMAT                 00003200
+*                                      B - BINARY                       00003300
+*                                      C - CHARACTER                    00003400
+*                                      N - NUMERIC                      00003500
+*                                      P - PACKED                       00003600
+UTDIM    DS    0CL6                  DIMENSIONS                         00003700
+UTDIM1   DS    XL2                   DIMENSION 1                        00003800
+UTDIM2   DS    XL2                   DIMENSION 2                        00003900
+UTDIM3   DS    XL2                   DIMENSION 3                        00004000
+UTDATACT DS    CL1                   DATA ACTION                        00004100
+*                                      A - ADD                          00004200
+*                                      S - SUBTRACT                     00004300
+*                                      M - MOVE                         00004400
+*                                      T - TRAILER ADD                  00004500
+*                                      D - DELETE TRAILER               00004600
+UTSRCFMT DS    CL1                   SOURCE FORMAT                      00004700
+*                                      B - BINARY                       00004800
+*                                      C - CHARACTER                    00004900
+*                                      N - NUMERIC                      00005000
+*                                      P - PACKED                       00005100
+*                                      W - GET ADDRESS FROM THE FIRST   00005200
+*                                          FOUR BYTES OF WORK AREA      00005300
+*                                          (DATA ACTION MUST BE MOVE)   00005400
+UTSRCPOS DS    XL2                   SOURCE POSITION                    00005500
+UTSRCLNG DS    XL2                   SOURCE LENGTH                      00005600
+UTSRCDEC DS    XL1                   SOURCE NUMBER OF DECIMAL POSITIONS 00005700
+UTDATETP DS    CL1                   DATE TYPE                          00005800
+UTKEYSEQ DS    XL2                   KEY SEQUENCE                       00005900
+UTWORKAR DS    CL20                  WORK AREA - FIRST 4 BYTES IS AN    00006000
+*                                    * ADDRESS IF UTDATACT = T OR D     00006100
+*                                    * OR IF UTSRCFMT = W               00006200
+UTOCCLNG EQU   *-UTOCCURS            LENGTH OF 1 OCCURRENCE             00006300

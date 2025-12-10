@@ -1,0 +1,622 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+.* THE FOLLOWING STATEMENT(S) MODIFIED BY                     2024349   00001999
+&LA      TSTS9AD &WR1=,&WR2=,&WR3=,&WR4=,&FL=,&REC=,&GP=,              X00002000
+               &Q=,&NOEOR=,&NOITR=,&KEY=,&TYPE=,&PG=AD,                X00003000
+               &GM=NO,&SACB=YES,&EIB=YES                                00004000
+         GBLB  &SW,&SW2                                       2024349   00006000
+         LCLA  &NO                                                      00008000
+         LCLC  &F                                                       00009000
+         LCLC  &CL                                                      00010000
+.********************************************************************** 00011000
+.*                                                                    * 00012000
+.*       THIS MACRO OBTAINS THE ADDRESS OF INDEXES OR RECORDS THAT    * 00013000
+.*       HAVE BEEN LOADED INTO STORAGE BY THE TS IN-CORE LOAD.        * 00014000
+.*                                                          * 2024349   00014500
+.*       THIS MACRO HAS BEEN MODIFIED TO ALLOW TSSCF RECORDS  2024349   00014510
+.*       TO BE READ FROM A FILE (SHARED DATA TABLE) BASED ON  2024349   00014520
+.*       THE SETTINGS IN THE ENVIRONMENT OPTION RECORD AT THE 2024349   00014530
+.*       TIME OF THE LAST CORE LOAD.  IF THE OPTION WAS ON    2024349   00014540
+.*       THE SCF RECORDS ARE NOT LOADED TO CORE, THE SCF      2024349   00014550
+.*       FILE INDEX LOCATION WILL BE ZERO (QSIXSAL),          2024349   00014560
+.*       THE CORE SEARCH IS BYPASSED, AND THE SCF FILE IS     2024349   00014570
+.*       READ.  IF THE SCF FILE INDEX LOCATION IS NOT ZERO    2024349   00014580
+.*       A CORE SEARCH IS DONE TO FIND THE RECORD.            2024349   00014590
+.*                                                                    * 00015000
+.*       &SW    - USED TO CONTROL CODE GENERATION; RESET WITH TSTS9CS * 00016000
+.*       &SW2   - USED TO CONTROL CODE GENERATION; RESET      2024349   00016100
+.*                WITH TSTS9CS                                2024349   00016200
+.*                                                                    * 00017000
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00018000
+.*                                                                    * 00019000
+.*       &LA    - LABEL OF MACRO (ALL LABELS IN MACRO CONTAIN THIS    * 00020000
+.*                AS A PREFIX                                         * 00021000
+.*       &WR1   - REGISTER USED IN USING QSIDST STATEMENT     2024349 * 00021010
+.*       &WR3   - ADDRESS OF INDEX/RECORD                             * 00022000
+.*       &WR2   - ADDRESS OF QUEUE INDEX RECORD OCCURRENCE            * 00023000
+.*       &WR4   - BAR OF QIFREC/QIRREC                                * 00024000
+.*       &FL    - FILENAME (3 CHARS - E.G. SOR, EMR, ITR)             * 00025000
+.*       &REC   - 0-OBTAIN INDEX ADDRESS ONLY                         * 00026000
+.*              - 1-OBTAIN INDEX ADDRESS AND RECORD ADDRESS           * 00027000
+.*              - 2-OBTAIN RECORD ADDRESS ONLY                        * 00028000
+.*       &GP    - 0-GROUP IS NOT TO BE MOVED, 1-GROUP IS TO BE MOVED  * 00029000
+.*       &Q     - FILE INDEX TYPE: S-SCF, L-LDR, B-BCR, T-TBL         * 00030000
+.*       &NOEOR - IF 'YES', THEN EOR NOT AVAILABLE AND CLASS IS IN    * 00031000
+.*                SAVE AREA IN STORAGE                                * 00032000
+.*       &NOITR - IF 'YES', THEN RECORD/INDEX IS NOT STORED IN THE ITR* 00033000
+.*       &KEY   - IF 'YES', THEN MACRO WILL BE BUILD SVRECKY USING    * 00034000
+.*                SVBLDKEY.                                           * 00035000
+.*       &TYPE  - 'STRG' (FOR STORAGE) OR 'MACRO' (FOR CODE)          * 00036000
+.*       &PG    - PGM TYPE , AD IS DEFAULT USED FOR CSECTS    00701824* 00037000
+.*       &GM    - GETMAIN REQUEST FLAG, SENT FROM SOURCE PGM  2601681 * 00038000
+.*                IF IT IS NOT GOING TO PASS THE ADDRESSES    2601681 * 00039000
+.*                ANYWHERE ELSE, GETMAIN DOES NOT HAVE TO BE  2601681 * 00040000
+.*                DONE. DEFAULT IS 'YES'                      2601681 * 00041000
+.*       &SACB  - SACB IS AVAILABLE FROM SOURCE PROGRAM       2024349   00041100
+.*                DEFAULT IS 'YES'.  IF SACB IS NOT PRESENT   2024349   00041200
+.*                IN SOURCE PROGRAM SEND A VALUE OF 'NO'      2024349   00041300
+.*       &EIB   - EIB ADDRESSABILITY IS AVAILABLE FROM SOURCE 2024349   00041400
+.*                PGM DEFAULT IS 'YES'. IF EIB ADDRESSABILITY 2024349   00041500
+.*                IS NOT PRESENT IN SOURCE PROGRAM SEND A     2024349   00041600
+.*                VALUE OF 'NO'                               2024349   00041700
+.*                                                            1717039 * 00041800
+.* NOTE! THIS MACRO NOW USES R6,R7,R8,R9 FOR THE MVCL OF A    1717039 * 00041810
+.*       TAR TO GETMAIN STORAGE.                              1717039 * 00041820
+.*       IN ADDITION TO THE HARD-CODED TAR RECORD LENGTH,     1717039 * 00041830
+.*       LOCATIONS OF SEVERAL TAR FIELDS ARE HARDCODED        1717039 * 00041840
+.*       BECAUSE NOT ALL PROGRAMS INCLUDE THE TAR COPYBOOK.   1717039 * 00041850
+.********************************************************************** 00042000
+.*                 ** HISTORY OF REVISIONS **                         * 00043000
+.*                                                                    * 00044000
+.* DESCRIPTION                                                CHNGID  * 00045000
+.* _________________________________________________________  _______ * 00046000
+.*                                                                    * 00046001
+.* 05/09/16  COMBINE SEQ 1 AND 2 OF TARS INTO ONE             1717039 * 00046990
+.* 10/14/14  CORRECT SETTING WR3 TO RECORD ADDRESS ON READ    1526630   00046991
+.* 04/30/14  ADD SEQUENCE FOR TAR READ                        1436551   00046992
+.* 04/18/13  RETROFIT FOR VSE                                 1416419   00046994
+.* 08/22/12  MODIFIED TO SET VARIABLE FOR ERROR MESSAGE       1316112   00046995
+.* 09/24/12  FORCE COMPARE OF ENTIRE QUEUE                    1326137   00046999
+.* 10/30/09  CHANGE SER LENGTH TO NEW SIZE                    1025861   00047000
+.* 05/16/07  CHANGE TTR LENGTH TO NEW SIZE                    0735633   00047001
+.* 06/29/01  MODIFIED FOR SDT PROCESSING OF SCF               2024349 * 00047002
+.* 01/20/00  SET GM TO 'NO' FOR 31-BIT, REMOVE 24-BIT         2024183 * 00047005
+.* 08/08/00  CHECK HIGH RECORD KEY IN SEGMENT AGAINST CURRENT 2023782 * 00047988
+.*           SEARCH KEY TO PREVENT UNNECESSARY CYCLES         2023782 * 00047990
+.* 01/10/95  PERFORM GETSTOR INSTEAD OF GETMAIN IF NCA ADDR   2600213 * 00048000
+.*           OR SACB ADDR IS STORED IN THE M013 FIELD.  THIS  2600213 * 00049000
+.*           MODULE WAS RESEQUENCED BY THIS RSEC.             2600213 * 00050000
+.*                                                                    * 00051000
+.********************************************************************** 00052000
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00053000
+*********************************************************************** 00054000
+*        STORAGE DEFINITIONS FOR MACRO 'TSTS9AD'                      * 00055000
+*********************************************************************** 00056000
+M001     DS    F                     RECORD INDEX ADDRESS SAVE AREA     00057000
+M002     DS    F                     RECORD ADDRESS SAVE AREA           00058000
+M002S1   DS    F                     RECORD ADDRESS SEQ 1     1717039   00058010
+M003     DS    F                     NEXT INDEX RECORD ADDR SAVE AREA   00059000
+M004     DS    F                     FIRST FILE INDEX ADDRESS           00060000
+M005     DS    F                     OCCURRENCE ADDRESS                 00061000
+M006     DS    F                     SAVE AREA FOR &WR3                 00062000
+M006STG  DS    F                     SAVE &WR3 IN GETSTOR     1717039   00062010
+M010     DS    F                     SAVE AREA FOR &WR2       2024349   00062100
+M011     DS    4F                    SAVE AREA FOR R14-R1     2024349   00062200
+M012     DS    F                     SAVE AREA FOR &WR1       2024349   00062300
+M013     DC    F'0'                  NCA ADDRESS              2024349   00063000
+M014     DS    F                     SACB ADDRESS             2600213   00064000
+M015     DS    7F                    GETSTOR PARMLIST         2600213   00065000
+M016     DS    40F                   SASERV WORKAREA          2600213   00066000
+M01719   DS    0CL12   MUST STAY ON FWORD BOUNDARY            2024349   00066900
+M017     DS    F                     GETSTOR ACQUIRED ADDRESS 2600213   00067000
+M018     DS    F                     GETSTOR REQUEST LENGTH   2600213   00068000
+M019     DS    F                     GETSTOR ACQUIRED LENGTH  2600213   00069000
+.* KEEP THE ABOVE 3 FULLWORDS UNDER M01719                    2024349   00069100
+M009     DS    4F                    SAVE AR FOR GETMAIN/MVCL 0712185   00070000
+M008     DS    F                     GETMAIN LENGTH AREA      2024349   00071000
+M021     DS    F                     SAVE REG FOR TSTS4SDT    2024349   00071100
+M007     DS    H                     OCCURRENCE NUMBER                  00074000
+M023     DS    H                     LENGTH FOR TSTS4SDT      2024349   00074100
+M020     DS    CL12                  GETSTOR VERB LITERAL     2600213   00076000
+SVBLDKEY DS    CL30                  KEY IF OPTION KEY=YES              00077000
+SVEIBRC  DS    CL1                   FIRST BYTE OF EIBRCODE   2024349   00077100
+WTARUSCT DS    XL2                   TAR USE COUNT            1717039   00077120
+WADRETRN DS    CL1                   RETURN CODE                        00078000
+*                                    VALUES:  0 - GOOD RETURN           00079000
+*                                             1 - FILE NOT FOUND        00080000
+.MCRO    ANOP                                                           00081000
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00082000
+         AIF   ('&WR1' EQ 'R14').WR1ERR                       2024349   00082010
+         AIF   ('&WR1' EQ 'R15').WR1ERR                       2024349   00082020
+         AIF   ('&WR1' EQ 'R1').WR1ERR                        2024349   00082030
+         AIF   ('&EIB' EQ 'YES').WROK                         2024349   00082040
+         AIF   ('&WR4' EQ 'R14').WR4ERR                       2024349   00082050
+         AIF   ('&WR4' EQ 'R15').WR4ERR                       2024349   00082060
+         AIF   ('&WR4' EQ 'R1').WR4ERR                        2024349   00082070
+.WROK    ANOP                                                 2024349   00082080
+&NO      SETA  1                                                        00083000
+.********************************************************************** 00084000
+.* SAVE INDEX RECORD INFO ABOUT EITHER SCF (&Q=S) OR FILE (&Q=L)      * 00085000
+.********************************************************************** 00086000
+&LA.&FL(&NO)00 EQU  *                                                   00087000
+         MVC   M004,QSIX&Q.AR        SAVE ADDR OF 1ST FILE IDX RCD      00088000
+         MVC   M005,QSIX&Q.OA        SAVE OCCURRENCE ADDRESS            00089000
+         MVC   M007,QSIX&Q.ON        SAVE OCCURRENCE NUMBER             00090000
+         MVI   WADRETRN,C'0'         PRESET RETURN CODE       2024349   00090100
+.********************************************************************** 00091000
+.* WHILE &NO < TOTAL NUMBER OF FILES, PROCESS NEXT FILE               * 00092000
+.********************************************************************** 00093000
+.ADDR    AIF   (&NO GT N'&FL).ENDADDR                                   00094000
+         ACTR  50                                                       00095000
+&LA.&FL(&NO)10 EQU   *                                                  00096000
+         MVI   FILNAME,C' '          CLEAR FILE NAME WORK AREA2600213   00097000
+         MVC   FILNAME+1(L'FILNAME-1),FILNAME                 2600213   00098000
+.********************************************************************** 00100000
+.* IF THE FILE INDEX TYPE IS 'S' FOR SCF, THE FILENAME STARTS WITH    * 00101000
+.* 'SY', OTHERWISE, THE FILENAME STARTS WITH 'TS'.                    * 00102000
+.********************************************************************** 00103000
+         AIF   ('&Q' NE 'S').SETTS                                      00104000
+&F       SETC  'SY'                                                     00105000
+         ICM   R15,15,M004           IS 1ST IDX RCD VALID?    2024349   00105120
+         BZ    &LA.&FL(&NO)SR           NO - READ FILE        2024349   00105140
+         AGO   .SETSY                                                   00106000
+.SETTS   ANOP                                                           00107000
+&F       SETC  'TS'                                                     00108000
+.SETSY   ANOP                                                           00109000
+.********************************************************************** 00110000
+.* IF THE FILE IS THE TTR OR MSG OR IF THERE IS NO EOR AVAILABLE      * 00111000
+.* ('&NOEOR' NOT OMITTED), THEN THE CLASS IS IN STORAGE RATHER THAN   * 00112000
+.* IN THE EOR.                                                        * 00113000
+.********************************************************************** 00114000
+&CL      SETC  'SV'                                                     00115000
+         AIF   ('&FL(&NO)' EQ 'TTR' OR '&FL(&NO)' EQ 'MSG' OR          X00116000
+               '&FL(&NO)' EQ 'SER' OR T'&NOEOR NE 'O').NODFLT           00117000
+&CL      SETC  'EOR'                                                    00118000
+.NODFLT  ANOP                                                           00119000
+         MVC   FILNAM,=C'&F&FL(&NO)' MOVE FILENAME TO WORK AREA         00120000
+.********************************************************************** 00121000
+.* THE FILE GROUP IS MOVED ONLY IF &GP=1                              * 00122000
+.********************************************************************** 00123000
+         AIF   (&GP(&NO) EQ 0).NOGP                                     00124000
+         AIF   ('&FL(&NO)' NE 'ICR').GP                                 00125000
+         MVC   FILGRP,TTRTBRGP       MOVE ICR FILE GROUP TO WORK AREA   00126000
+         AGO   .NOGP                                                    00127000
+.GP      ANOP                                                 2024349   00127100
+         MVC   FILGRP,TTR&FL(&NO).GP  FILE GRP TO WORK AREA   2024349   00128000
+.NOGP    ANOP                                                           00129000
+.********************************************************************** 00130000
+.* IF &REC=2, DO NOT GET THE INDEX                                    * 00131000
+.********************************************************************** 00132000
+         AIF   (&REC(&NO) EQ 2).NONDX                                   00133000
+         BAS   &WR3,&PG.NDEX00         FIND RECORD INDEX      2024183   00134000
+         NI    M001,X'7F'              FLAG AS RECORD INDEX   2024349   00134500
+.NONDX   ANOP                                                           00135000
+         AIF   (&REC(&NO) EQ 0).NOREC                                   00136000
+         ICM   &WR3,15,M001          LOAD RECORD INDEX ADDR   2024349   00137000
+         BZ    &LA.&FL(&NO)20         FATAL ERROR-NO ADDR     2024349   00139000
+         MVI   SVRECKY,C' '          INITIALIZE KEY AREA                00140000
+         MVC   SVRECKY+1(L'SVRECKY-1),SVRECKY                           00141000
+         AIF   ('&KEY' EQ 'YES').KEY1                                   00142000
+         MVC   SVRECKY(10),&CL&FL(&NO).CL  MOVE CLASS TO WORK AREA      00143000
+.KEY1    ANOP                                                           00144000
+         AIF   (T'&KEY EQ 'O' OR '&KEY' NE 'YES').KEY2                  00145000
+         MVC   SVRECKY(L'SVBLDKEY),SVBLDKEY  MOVE BUILT KEY             00146000
+.KEY2    ANOP                                                           00147000
+         BAS   &WR3,&PG.RECS00         FIND RECORD ADDRESS    2024183   00148000
+         ICM   &WR3,15,M002          LOAD RECORD ADDRESS      2024349   00149000
+*                                                                       00150000
+         BZ    &LA.&FL(&NO)20         FATAL ERROR-NO ADDR     2024349   00152000
+.********************************************************************** 00153000
+.* IF THE RECORD ADDRESS IS NOT TO BE INSERTED INTO THE ITR, SKIP     * 00154000
+.* THE NEXT INSTRUCTION                                               * 00155000
+.********************************************************************** 00156000
+         AIF   (T'&NOITR NE 'O').NOITR1                                 00157000
+         MVC   ITR&FL(&NO).AD,M002   YES - SAVE REC ADDR IN ITR         00158000
+.NOITR1  ANOP                                                           00159000
+         B     &LA.&NO&SYSNDX                                           00160000
+&LA.&FL(&NO)20 EQU *                                                    00161000
+         MVC   OUTMSGM(4),=C'&FL(&NO). '  SET FILE INDICATOR            00162000
+         MVI   WADRETRN,C'1'              SET RETURN CODE               00163000
+         B     &PG.EX&SYSNDX           BRANCH TO EXIT POINT   00701824  00164000
+.NOREC   ANOP                                                           00165000
+.********************************************************************** 00166000
+.* IF THE INDEX ADDR IS NOT TO BE INSERTED INTO THE ITR, SKIP         * 00167000
+.* THE NEXT INSTRUCTION                                               * 00168000
+.********************************************************************** 00169000
+         AIF   (&REC(&NO) GT 0 ).REC                                    00170000
+         AIF   (T'&NOITR NE 'O').REC                                    00171000
+         MVC   ITR&FL(&NO).X,M001    SAVE INDEX ADDR IN ITR             00172000
+.REC     ANOP                                                           00173000
+&LA.&NO&SYSNDX  EQU   *                                                 00174000
+.********************************************************************** 00175000
+.* GO TO NEXT PARAMETER IN SUBLIST                                    * 00176000
+.********************************************************************** 00177000
+&NO      SETA  &NO+1                                                    00178000
+         AGO   .ADDR                                                    00179000
+.ENDADDR ANOP                                                           00180000
+.* ENDWHILE                                                             00181000
+         B     &PG.EX&SYSNDX           EXIT FROM MACRO        00701824  00182000
+.********************************************************************** 00183000
+.*       THE FIRST TIME THIS MACRO APPEARS IN A PROGRAM, SUBROUTINES  * 00184000
+.*       ADNDEX00 & ADRECS00 WILL APPEAR, BUT THEY WILL BE SUPPRESSED * 00185000
+.*       IN SUBSEQUENT EXPANSIONS. (&SW STARTS OUT AS ZERO.)          * 00186000
+.********************************************************************** 00187000
+         AIF   (&SW EQ 1).CKSCF                               2024349   00188100
+&SW      SETB  (1)                                            2024349   00188200
+         EJECT                                                          00190000
+*********************************************************************   00191000
+*  LOOK UP RECORD INDEX ADDRESS IN CORE                             *   00192000
+*********************************************************************   00193000
+         SPACE                                                          00194000
+&PG.NDEX00 EQU   *                                            00701824  00195000
+         ST    &WR3,M006             SAVE RETURN REGISTER               00196000
+         XC    M001,M001             CLEAR RCD INDEX ADDR SAVE AREA     00197000
+         ICM   &WR4,15,M004          POINT TO 1ST FILE IDX REC2024349   00198000
+         BZ    &PG.NDEX30             0 NONE FOR GROUP, RTN   2024349   00200000
+         USING QIFREC,&WR4           *                                  00201000
+         ICM   &WR2,15,M005          POINT TO FIRST OCCUR     2024349   00202000
+         BZ    &PG.NDEX30             0 NONE FOR GROUP, RTN   2024349   00204000
+         USING QIFENT,&WR2           *                                  00205000
+         MVC   M003,QIFXNA           SAVE NEXT INDEX ADDRESS            00206000
+         XR    &WR3,&WR3             CLEAR WORK REGISTER                00207000
+         ICM   &WR3,3,QIFUSOC        LOAD # OF INDEX ENTRIES USED       00208000
+         SH    &WR3,M007             CALCULATE REMAINING ENTRIES USED   00209000
+         LA    &WR3,1(&WR3)          PLUS 1                             00210000
+&PG.NDEX10 EQU   *                                            00701824  00211000
+         CLC   FILNAME,QIFNM         MATCH ON FILE NAME?                00212000
+         BNE   &PG.NDEX20            NO, TRY NEXT INDEX OCCUR 00701824  00213000
+         MVC   M001,QIFRXA           MOVE RECORD INDEX ADDRESS          00214000
+         B     &PG.NDEX30              TO SAVE AREA AND RTN   00701824  00215000
+&PG.NDEX20 EQU   *                                            00701824  00216000
+         LA    &WR2,L'QIFENTL(&WR2)  POINT TO NEXT FILE INDEX OCCUR     00217000
+         BCT   &WR3,&PG.NDEX10         REPEAT PROCESS         00701824  00218000
+*                                                                       00219000
+         ICM   &WR4,15,M003          NO, LOAD NEXT INDEX ADDR 2024349   00220000
+         BZ    &PG.NDEX30             NEXT ADDR IS ZERO RETN  2024349   00222000
+         MVC   M003,QIFXNA           SAVE NEXT INDEX ADDRESS            00223000
+         LA    &WR2,QIFENTS          POINT TO FIRST FILE INDEX OCCUR    00224000
+         XR    &WR3,&WR3             CLEAR WORK REGISTER                00225000
+         ICM   &WR3,3,QIFUSOC        LOAD # OF INDEX ENTRIES USED       00226000
+         B     &PG.NDEX10           LOOP FILE INDEX AGAIN     00701824  00227000
+         SPACE                                                          00228000
+&PG.NDEX30 EQU   *                                            00701824  00229000
+         L     &WR3,M006             RESTORE RETURN REGISTER            00230000
+         BR    &WR3                  RETURN                             00231000
+         EJECT                                                          00232000
+*********************************************************************   00233000
+*  LOOK UP RECORD ADDRESS IN CORE                                   *   00234000
+*********************************************************************   00235000
+         SPACE                                                          00236000
+&PG.RECS00 EQU *                                              00701824  00237000
+         ST    &WR3,M006             SAVE RETURN REGISTER               00238000
+         XC    M002,M002             CLEAR RCD ADDR SAVE AREA           00239000
+         XC    M002S1,M002S1         CLEAR RCD ADDR SEQ 1     1717039   00239100
+         L     &WR4,M001             POINT TO RECORD INDEX ADDRESS      00240000
+         DROP  &WR4                                                     00241000
+         USING QIRREC,&WR4                                              00242000
+&PG.RECS10 EQU   *                                            00701824  00243000
+         MVC   M003,QIRXNA           SAVE NEXT INDEX ADDRESS            00244000
+         XR    &WR3,&WR3             CLEAR WORK REGISTER                00245000
+         ICM   &WR3,3,QIRUSOC        LOAD # OF INDEX ENTRIES USED       00246000
+         BZ    &PG.RECS50            ZERO - GET OUT           2024349   00248000
+         LA    &WR2,QIRENTS          POINT TO FIRST FILE INDEX OCCUR    00249000
+         DROP  &WR2                                                     00250000
+         USING QIRENT,&WR2                                              00251000
+&PG.RECS20 EQU   *                                            00701824  00252000
+         CLC   SVRECKY,QIRRKY        MATCH ON RECORD KEY                00256000
+         BNE   &PG.RECS30            NO, TRY NEXT RCD OCCUR   00701824  00257000
+         MVC   M002,QIRRECA          MOVE RECORD ADDRESS                00351000
+         B     &PG.RECS50            SAVE AREA AND RETURN     00701824  00352000
+&PG.RECS30 EQU   *                                            00701824  00353000
+         LA    &WR2,L'QIRENTL(&WR2)  POINT TO NEXT RECORD ADDR OCCUR    00354000
+         BCT   &WR3,&PG.RECS20       REPEAT PROCESS           00701824  00355000
+&PG.RECS45 EQU   *                                            2023782   00359010
+         ICM   &WR4,15,M003          NO,  LOAD NEXT INDEX ADR 2024349   00360000
+         BNZ   &PG.RECS10            ADDR VALID LOOP FILE IDX 2024349   00362000
+&PG.RECS50 EQU   *                                            00701824  00363000
+         AIF   ('&Q' NE 'S').NOTSCF                           1717039   00363010
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1717039   00363011
+         AIF   ('&PG' NE 'AD' AND '&PG' NE 'VC' AND                    X00363012
+               '&FL(1)' NE 'TAR').NOTSCF                      1717039   00363014
+         CLC   FILNAM+2(3),=C'TAR'   TAR?                     1717039   00363020
+         BNE   &PG.RECS70            NO - SKIP TAR LOGIC      1717039   00363030
+         OC    M002,M002             WAS A RECORD FOUND?      1717039   00363040
+         BNZ   &PG.RECS55            YES - GO CHECK THE SEQ   1717039   00363050
+         OC    M002S1,M002S1         WAS SEQ 1 FOUND?         1717039   00363060
+         BZ    &PG.RECS70            NO - GO RETURN NO ADDR   1717039   00363070
+         MVC   M002,M002S1           LOAD SEQ 1 ADDR          1717039   00363080
+         B     &PG.RECS70            GO RETURN IT             1717039   00363090
+&PG.RECS55 EQU   *                                            1717039   00363100
+         ST    &WR3,M006STG          SAVE REG                 1717039   00363110
+         L     &WR3,M002             LOAD RECORD JUST FOUND   1717039   00363120
+         CLC   25(2,&WR3),=X'0001'   TARSEQ* = 0001?          1717039   00363130
+         BNE   &PG.RECS60            NO - GO COMBINE 1 & 2    1717039   00363140
+         L     &WR3,M006STG          RELOAD REG               1717039   00363150
+         MVC   M002S1,M002           SAVE SEQ 1 ADDR          1717039   00363160
+         XC    M002,M002             CLEAR REC ADDR           1717039   00363170
+         B     &PG.RECS30            GO GET NEXT RECORD       1717039   00363180
+&PG.RECS60 EQU   *                                            1717039   00363190
+         XR    &WR3,&WR3                                      1717039   00363210
+         ICM   &WR3,3,&PG.TARL       INSERT GETSTOR LENGTH    1717039   00363220
+         MH    &WR3,=H'2'            DOUBLE IT                1717039   00363230
+         STCM  &WR3,3,M018+2         SAVE FOR GETSTOR         1717039   00363240
+         BAS   &WR3,&PG.SGM00        BRANCH TO GETSTOR/READ   1717039   00363250
+         STM   R6,R9,M009            SAVE REGS FOR MVCL       1717039   00363260
+         L     R6,M017               LOAD STORAGE ADDRESS     1717039   00363270
+         L     R8,M002S1             LOAD SEQ 1 REC ADDR      1717039   00363280
+         MVC   WTARUSCT,78(R8)       SAVE SEQ 1 TARUSCT*      1717039   00363290
+         XR    R7,R7                 CLEAR REG FOR INSERT     1717039   00363300
+         ICM   R7,3,0(R8)            INSERT SEQ 1 REC LENGTH  1717039   00363310
+         LR    R9,R7                 LOAD LENGTH FOR SOURCE   1717039   00363320
+         MVCL  R6,R8                 MOVE SEQ 1 TO STORAGE    1717039   00363330
+         L     R8,M002               LOAD SEQ 2 REC ADDR      1717039   00363340
+         ICM   R7,3,WTARUSCT         INSERT SEQ 1 USE COUNT   1717039   00363350
+         ICM   R9,3,78(R8)           INSERT SEQ 2 TARUSCT*    1717039   00363360
+         AR    R7,R9                 ADD                      1717039   00363370
+         STCM  R7,3,WTARUSCT         SAVE TOTAL USE COUNT     1717039   00363380
+         ICM   R7,3,0(R8)            INSERT SEQ 2 REC LENGTH  1717039   00363390
+         LA    R9,80                 LOAD TARAUTHO-TAR* LEN   1717039   00363400
+         SR    R7,R9                 ADJUST LENGTH            1717039   00363420
+         LR    R9,R7                 LOAD LENGTH FOR SOURCE   1717039   00363430
+         LA    R8,80(R8)             LOAD ADDR OF TARAUTHO*   1717039   00363440
+         MVCL  R6,R8                 MOVE SEQ 2 ENTRIES       1717039   00363450
+         L     R6,M017               LOAD STORAGE ADDRESS     1717039   00363460
+         MVC   78(2,R6),WTARUSCT     SAVE TOTAL TARUSCT*      1717039   00363470
+         MVC   M002,M017             RETURN STORAGE ADDRESS   1717039   00363480
+         LM    R6,R9,M009            RELOAD REGS              1717039   00363490
+&PG.RECS70 EQU   *                                            1717039   00363500
+.NOTSCF  ANOP                                                 1717039   00363510
+         L     &WR3,M006             RESTORE RETURN REGISTER            00368000
+         BR    &WR3                  RETURN                             00369000
+         DROP  &WR2,&WR4                                      2024349   00369100
+.CKSCF   ANOP                                                 2024349   00369140
+         AIF   ('&Q' EQ 'S').SCF                              2024349   00369150
+         AGO   .SKIPSUB                                       2024349   00369200
+.SCF     ANOP                                                 2024349   00369300
+         AIF   (&SW2 EQ 1).SCFREAD                            2024349   00369400
+&SW2     SETB  (1)                                            2024349   00369410
+************************************************************* 2024349   00369420
+*  GETMAIN FOR RECORD AND READ SCF FILE FOR RECORD          * 2024349   00369430
+************************************************************* 2024349   00369440
+.* THE FOLLOWING STATEMENT(S) MODIFIED BY                     2024349   00369449
+         SPACE                                                          00369450
+&PG.AORL   DC   X'0672'                DEFINE REC LENGTH      2024349   00369470
+&PG.DCRL   DC   X'1040'                DEFINE REC LENGTH      2024349   00369480
+&PG.SERL   DC   X'0A28'                DEFINE REC LENGTH      1025861   00369490
+&PG.SORL   DC   X'0258'                DEFINE REC LENGTH      2024349   00369500
+&PG.TARL   DC   X'2570'                DEFINE REC LENGTH      1717039   00369510
+&PG.TTRL   DC   X'0672'                DEFINE REC LENGTH      0735633   00369520
+&PG.VCRL   DC   X'076A'                DEFINE REC LENGTH      2024349   00369530
+&PG.VDRL   DC   X'00FF'                DEFINE REC LENGTH      2024349   00369540
+&PG.VTRL   DC   X'02F4'                DEFINE REC LENGTH      2024349   00369550
+&PG.SGM00  EQU  *                                             1717039   00369560
+         ST    &WR3,M006STG          SAVE RETURN REGISTER     1717039   00369570
+         ST    &WR2,M010             SAVE REGISTER            2024349   00369572
+         ST    &WR1,M012             SAVE QSI REGISTER        2024349   00369574
+         AIF   ('&EIB' EQ 'YES').SCFEIB1                      2024349   00369580
+         ST    &WR4,M021             SAVE REG                 2024349   00369590
+         L     &WR4,DFHEIBP          GET EIB ADDRESS          2024349   00369600
+         USING DFHEIBLK,&WR4                                  2024349   00369610
+.SCFEIB1 ANOP                                                 2024349   00369620
+         AIF   ('&SACB' EQ 'NO').SCFGETM                      2024349   00369630
+         ICM   &WR3,15,M013          INSERT PASSED ADDRESS    2024349   00369640
+         BZ    &PG.SCFGM              NO NCA/SACB-DO GETMAIN  2024349   00369650
+         CLC   0(6,&WR3),=C'** NCA'  NCA PASSED?              2024349   00369660
+         BE    &PG.SCFNC              YES GO FIND SACB        2024349   00369670
+         CLC   0(4,&WR3),=C'SACB'    SACB PASSED?             2024349   00369680
+         BE    &PG.SCFSA              YES GET GETSTOR EP      2024349   00369690
+         B     &PG.SCFGM              NO DO GETMAIN           2024349   00369700
+&PG.SCFNC  EQU   *                                            2024349   00369710
+         ICM   &WR3,15,NCASACBA-TSNCA(&WR3) SACB ADR FROM NCA 2024349   00369720
+         BZ    &PG.SCFGM              NO ADDRESS? DO GETMAIN  2024349   00369730
+         CLC   0(4,&WR3),=C'SACB'    SACB VALID?              2024349   00369740
+         BNE   &PG.SCFGM              NO DO GETMAIN           2024349   00369750
+&PG.SCFSA  EQU   *                                            2024349   00369760
+         ST    &WR3,M014             SAVE SACB ADDRESS        2024349   00369870
+         LA    &WR2,DFHEIBLK         GET EIB ADDRESS          2024349   00369880
+         ST    &WR2,M015             STORE IN 1ST PARM        2024349   00369890
+         LA    &WR2,M014             GET SACB ADDRESS         2024349   00369900
+         ST    &WR2,M015+4           STORE IN 2ND PARM        2024349   00369910
+         ICM   &WR3,15,SACBGSFS-SACB(&WR3) GETSTOR ENTRY PT   2024349   00369920
+         BZ    &PG.SCFS2              NO EP CALL SAS0001C     2024349   00369930
+         LA    &WR2,M017             GET GST ACQUIRED ADDR    2024349   00369940
+         ST    &WR2,M015+8           STORE IN 3RD PARM        2024349   00369950
+         LA    &WR2,M018             GET GST REQUEST LENGTH   2024349   00369960
+         ST    &WR2,M015+12          STORE IN 4TH PARM        2024349   00369970
+         LA    &WR2,M019             GET GST ACQUIRED LENGTH  2024349   00369980
+         ST    &WR2,M015+16          STORE IN 4TH PARM        2024349   00369990
+         OI    M015+16,X'80'         INDICATE LAST PARM       2024349   00370000
+         STM   R14,R1,M011           SAVE CALLING REGISTERS   2024349   00370002
+         LR    R15,&WR3              GETSTOR ENTRY POINT      2024349   00370004
+         LA    R1,M015               LOAD PARMLIST ADDRESS    2024349   00370010
+         BASR  R14,R15               BASR TO GETSTOR ROUTINE  2024349   00370020
+         LM    R14,R1,M011           LOAD CALLING REGISTERS   2024349   00370022
+         B     &PG.SCFSD             RETURN STORAGE AREA      1717039   00370026
+&PG.SCFS2  EQU   *                                            2024349   00370050
+         MVC   M020,=C'GETSTOR 0062' INIT GETSTOR VERB        2024349   00370060
+         LA    &WR2,M016             GET SASERV WRKAREA ADDR  2024349   00370070
+         ST    &WR2,M015+8           STORE IN 3RD PARM        2024349   00370080
+         LA    &WR2,M020             GET FUNCTION NAME        2024349   00370090
+         ST    &WR2,M015+12          STORE IN 4TH PARM        2024349   00370100
+         LA    &WR2,M017             GET GST ACQUIRED ADDR    2024349   00370110
+         ST    &WR2,M015+16          STORE IN 5TH PARM        2024349   00370120
+         LA    &WR2,M018             GET GST REQUEST LENGTH   2024349   00370130
+         ST    &WR2,M015+20          STORE IN 6TH PARM        2024349   00370140
+         LA    &WR2,M019             GET GST ACQUIRED LENGTH  2024349   00370150
+         ST    &WR2,M015+24          STORE IN 7TH PARM        2024349   00370160
+         OI    M015+24,X'80'         INDICATE LAST PARM       2024349   00370170
+         STM   R14,R1,M011           SAVE CALLING REGISTERS   2024349   00370172
+         LA    R1,M015               LOAD PARMLIST ADDRESS    2024349   00370180
+         L     R15,=V(SAS0001C)      LOAD SAS0001C ENTRY PT   2024349   00370190
+         BASR  R14,R15               PERFORM GETSTOR ROUTINE  2024349   00370200
+         LM    R14,R1,M011           LOAD CALLING REGISTERS   2024349   00370202
+         B     &PG.SCFSD             RETURN STORAGE AREA      1717039   00370210
+.SCFGETM ANOP                                                 2024349   00370230
+&PG.SCFGM  EQU   *                                            2024349   00370240
+         MVC   M008,M018             SET LENGTH FOR GETMAIN   2024349   00370250
+         STM   R14,R1,M011           SAVE CALLING REGISTERS   2024349   00370252
+         COPY  TSTS4GTM                                       2024349   00370260
+         LM    R14,R1,M011           LOAD CALLING REGISTERS   1717039   00370261
+         ST    &WR1,M017             SAVE STORAGE ADDRESS     1717039   00370264
+         MVC   SVEIBRC,EIBRCODE      SAVE EIBRCODE            2024349   00370270
+         AIF   ('&EIB' EQ 'YES').SCFEIB2                      2024349   00370280
+         L     &WR4,M021             RESTORE REG              2024349   00370290
+         DROP  &WR4                  AND DROP ADDRESS         2024349   00370300
+.SCFEIB2 ANOP                                                 2024349   00370310
+         CLI   SVEIBRC,X'00'         TEST FOR ERROR           2024349   00370320
+         BE    &PG.SCFSD             NO - GO DO READ          2024349   00370330
+         MVI   WADRETRN,C'1'         SET ERROR FLAG           2024349   00370340
+         XC    M002,M002             CLEAR ADDRESS            2024349   00370344
+         XC    M017,M017             CLEAR ADDRESS            1717039   00370350
+&PG.SCFSD  EQU   *                                            2024349   00370360
+         L     &WR3,M006STG          RESTORE RETURN REGISTER  1717039   00370361
+         L     &WR2,M010             LOAD REGISTER            1717039   00370362
+         L     &WR1,M012             LOAD QSI REGISTER        1717039   00370363
+         BR    &WR3                  RETURN                   1717039   00370364
+&PG.SCF00  EQU   *                                            1717039   00370365
+         ST    &WR3,M006STG          SAVE RETURN REGISTER     1717039   00370366
+         ST    &WR2,M010             SAVE REGISTER            1717039   00370367
+         ST    &WR1,M012             SAVE ADDR                1717039   00370368
+         AIF   ('&EIB' EQ 'YES').SCFEIB3                      2024349   00370370
+         ST    &WR4,M021             SAVE REG                 2024349   00370380
+         L     &WR4,DFHEIBP          GET EIB ADDRESS          2024349   00370390
+         USING DFHEIBLK,&WR4                                  2024349   00370400
+.SCFEIB3 ANOP                                                 2024349   00370410
+         L     &WR1,M002             GET STORAGE ADDRESS      2024349   00370414
+         STM   R14,R1,M011           SAVE CALLING REGISTERS   2024349   00370416
+         COPY TSTS4SDT                                        2024349   00370420
+         LM    R14,R1,M011           LOAD CALLING REGISTERS   2024349   00370422
+         AIF   ('&EIB' EQ 'YES').SCFEIB4                      2024349   00370430
+         L     &WR4,M021             RESTORE REG              2024349   00370440
+         DROP  &WR4                  AND DROP ADDRESS         2024349   00370450
+.SCFEIB4 ANOP                                                 2024349   00370460
+         CLI   SVEIBRC,X'00'         TEST FOR ERROR           2024349   00370470
+         BE    &PG.SCFSC             NO ERROR - CONTINUE      2024349   00370480
+         MVI   WADRETRN,C'1'         SET NOT FOUND ERROR      2024349   00370490
+         XC    M002,M002             CLEAR ADDRESS            2024349   00370492
+         MVC   FILNAM,=C'&F&FL(&NO)' MOVE FILENAME TO WK AREA 1316112   00370494
+         SPACE 1                                              2024349   00370500
+&PG.SCFSC  EQU  *                                             2024349   00370510
+         L     &WR3,M006STG          RESTORE RETURN REGISTER  1717039   00370560
+         L     &WR2,M010             LOAD REGISTER            2024349   00370562
+         L     &WR1,M012             LOAD QSI REGISTER        2024349   00370564
+         BR    &WR3                  RETURN                   2024349   00370570
+.SCFREAD ANOP                                                 2024349   00370590
+&NO      SETA  1                                              2024349   00370595
+.************************************************************ 2024349   00370620
+.* WHILE &NO < TOTAL NUMBER OF FILES, PROCESS NEXT FILE     * 2024349   00370630
+.************************************************************ 2024349   00370640
+.ADDR2   AIF   (&NO GT N'&FL).ENDADD2                         2024349   00370650
+         ACTR  50                                             2024349   00370660
+&LA.&FL(&NO)SR  EQU  *                                        2024349   00370665
+         MVI   SVRECKY,C' '          INITIALIZE KEY AREA      2024349   00370700
+         MVC   SVRECKY+1(L'SVRECKY-1),SVRECKY                 2024349   00370710
+         AIF   ('&KEY' EQ 'YES').KEY3                         2024349   00370720
+         MVC   SVRECKY(3),=C'&FL(&NO)'  MOVE REC TYPE TO WORK 2024349   00370730
+&CL      SETC  'SV'                                           2024349   00370740
+.* THE FOLLOWING STATEMENT(S) MODIFIED BY                     2024349   00370749
+         AIF   ('&FL(&NO)' EQ 'TTR' OR '&FL(&NO)' EQ 'MSG' OR          X00370750
+               T'&NOEOR NE 'O').NODFLT2                                 00370760
+&CL      SETC  'EOR'                                          2024349   00370770
+.NODFLT2 ANOP                                                 2024349   00370780
+         MVC   SVRECKY+3(10),&CL&FL(&NO).CL MOVE CLASS TO WK  2024349   00370790
+.KEY3    ANOP                                                 2024349   00370800
+         AIF   (T'&KEY EQ 'O' OR '&KEY' NE 'YES').KEY4        2024349   00370810
+         MVC   FILNAM+2(3),=C'&FL(&NO)' MOVE REC TYPE TO FILE 2024349   00370820
+         MVC   SVRECKY(3),=C'&FL(&NO)' MOVE REC TYPE TO WORK  2024349   00370830
+         MVC   SVRECKY+3(20),SVBLDKEY MOVE LAST 20 BYTE OF KY 2024349   00370840
+.KEY4    ANOP                                                 2024349   00370850
+         AIF   ('&FL(&NO)' NE 'VCR').KEY5                     2024349   00370860
+         MVC   SVRECKY+21(2),=X'0001'   MOVE VCR SEQ NO       2024349   00370870
+.KEY5    ANOP                                                 2024349   00370880
+         AIF   ('&FL(&NO)' NE 'TAR').KEY6                     1436551   00370882
+         MVC   SVRECKY+21(2),=X'0001'   MOVE TAR SEQ NO       1436551   00370884
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1436551   00370885
+.KEY6    ANOP                                                           00370886
+         XC    M01719,M01719    GETSTOR ACQ ADR, LEN, REQ LEN 2024349   00370890
+         MVC   M018+2(2),&PG&FL(&NO).L SET GETSTOR REQ LENGTH 2024349   00370920
+         AIF   ('&FL(&NO)' NE 'TAR').NOTTAR1                  1717039   00370922
+         XR    &WR3,&WR3             CLEAR REG FOR INSERT     1717039   00370923
+         ICM   &WR3,3,&PG.TARL       INSERT GETSTOR LENGTH    1717039   00370924
+         MH    &WR3,=H'2'            DOUBLE IT                1717039   00370925
+         STCM  &WR3,3,M018+2         SAVE FOR GETSTOR         1717039   00370926
+.NOTTAR1 ANOP                                                 1717039   00370927
+         MVC   M023,&PG&FL(&NO).L   SET LENGTH FOR READ       1717039   00370929
+         BAS   &WR3,&PG.SGM00        BRANCH TO GETSTOR        1717039   00370930
+         MVC   M002,M017             STORE RECORD ADDRESS     1717039   00370931
+         BAS   &WR3,&PG.SCF00        BRANCH TO READ           1717039   00370932
+         AIF   ('&FL(&NO)' NE 'TAR').NOTTAR2                  1717039   00370933
+         CLC   SVRECKY(3),=C'TAR'    TAR?                     1717039   00370934
+         BNE   &LA.&FL(&NO)40        NO - SKIP TAR LOGIC      1717039   00370935
+         CLI   SVEIBRC,X'00'         ERROR ON READ?           1717039   00370936
+         BNE   &LA.&FL(&NO)40        YES - EXIT               1717039   00370937
+         MVC   M002S1,M002           SAVE SEQ 1 RECORD        1717039   00370938
+         STM   R6,R9,M009            SAVE REGS FOR MVCL       1717039   00370939
+         L     R8,M002S1             LOAD SEQ 1 REC ADDR      1717039   00370940
+         MVC   WTARUSCT,78(R8)       SAVE SEQ 1 TARUSCT*      1717039   00370941
+         XR    R7,R7                 CLEAR REG FOR INSERT     1717039   00370942
+         ICM   R7,3,0(R8)            INSERT SEQ 1 REC LENGTH  1717039   00370943
+         LA    R8,0(R7,R8)           POINT PAST SEQ 1 STG     1717039   00370944
+         ST    R8,M002               READ SEQ 2 HERE          1717039   00370945
+         MVI   SVRECKY+22,X'02'      LOOK FOR SEQ 2           1717039   00370946
+         LM    R6,R9,M009            RELOAD REGS              1717039   00370947
+         BAS   &WR3,&PG.SCF00        BRANCH TO READ           1717039   00370948
+         CLI   SVEIBRC,X'00'         ERROR ON SEQ 2 READ?     1717039   00370949
+         BE    &LA.&FL(&NO)30        NO - GO SHIFT SEQ 2      1717039   00370950
+         MVC   M002,M002S1           RELOAD SEQ 1 ADDR        1717039   00370951
+         MVI   WADRETRN,C'0'         TURN OFF ERROR SWITCH    1717039   00370952
+         B     &LA.&FL(&NO)40        EXIT                     1717039   00370953
+&LA.&FL(&NO)30 EQU *                                          1717039   00370954
+         STM   R6,R9,M009            SAVE REGS FOR MVCL       1717039   00370955
+         L     R8,M002               LOAD SEQ 2 STORAGE LOC   1717039   00370956
+         LR    R6,R8                 LOAD SEQ 2 REC ADDR      1717039   00370957
+         XR    R7,R7                 CLEAR REG FOR INSERT     1717039   00370958
+         ICM   R7,3,WTARUSCT         INSERT SEQ 1 USE COUNT   1717039   00370959
+         XR    R9,R9                 CLEAR REG FOR INSERT     1717039   00370960
+         ICM   R9,3,78(R8)           INSERT SEQ 2 TARUSCT*    1717039   00370961
+         AR    R7,R9                 ADD                      1717039   00370962
+         STCM  R7,3,WTARUSCT         SAVE TOTAL USE COUNT     1717039   00370963
+         ICM   R7,3,0(R8)            INSERT SEQ 2 REC LENGTH  1717039   00370964
+         LA    R9,80                 LOAD TARAUTHO-TAR* LEN   1717039   00370965
+         SR    R7,R9                 ADJUST LENGTH            1717039   00370966
+         LR    R9,R7                 LOAD LENGTH FOR SOURCE   1717039   00370967
+         LA    R8,80(R8)             LOAD ADDR OF TARAUTHO*   1717039   00370974
+         MVCL  R6,R8                 MOVE SEQ 2 ENTRIES       1717039   00370975
+         L     R6,M002S1             LOAD SEQ 1 STG ADDR      1717039   00370976
+         MVC   78(2,R6),WTARUSCT     SAVE TOTAL TARUSCT*      1717039   00370977
+         ST    R6,M002               RETURN STORAGE ADDRESS   1717039   00370978
+         LM    R6,R9,M009            RELOAD REGS              1717039   00370979
+&LA.&FL(&NO)40 EQU *                                          1717039   00370980
+.NOTTAR2 ANOP                                                 1717039   00370981
+         AIF   (&REC(&NO) EQ 0).NOREC2                        1717039   00370982
+         OC    M002,M002             GOT RECORD ADDRESS?      1717039   00370983
+         BZ    &LA.&FL(&NO)20        NO-ERROR                 1717039   00370984
+.NOREC2  ANOP                                                 1717039   00370985
+         MVC   M001,M002             SET IND ADDR TO REC ADDR 1717039   00370986
+         ICM   &WR3,15,M001          LOAD RECORD ADDR         1717039   00370987
+         OI    M001,X'80'            FLAG AS RECORD-READ      1717039   00370988
+.************************************************************ 1717039   00370989
+.* IF THE RECORD ADDRESS IS NOT TO BE INSERTED INTO THE ITR,* 1717039   00370990
+.* SKIP THE NEXT INSTRUCTION                                * 1717039   00370991
+.************************************************************ 1717039   00370992
+         AIF   (T'&NOITR NE 'O').NOITR2                       2024349   00371000
+         MVC   ITR&FL(&NO).AD,M002   YES-SAVE REC ADDR IN ITR 2024349   00371010
+.NOITR2  ANOP                                                 2024349   00371020
+         B     &LA.&NO&SYSNDX                                 2024349   00371025
+.************************************************************ 2024349   00371030
+.* GO TO NEXT PARAMETER IN SUBLIST                          * 2024349   00371040
+.************************************************************ 2024349   00371050
+&NO      SETA  &NO+1                                          2024349   00371060
+         AGO   .ADDR2                                         2024349   00371070
+.WR1ERR  ANOP                                                 2024349   00371072
+         MNOTE 16,'WR1 MUST NOT BE R1, R14 OR R15'            2024349   00371073
+         AGO   .STRG                                          2024349   00371074
+.WR4ERR  ANOP                                                 2024349   00371076
+         MNOTE 16,'WR4 MUST NOT BE R1, R14 OR R15'            2024349   00371077
+         AGO   .STRG                                          2024349   00371078
+.ENDADD2 ANOP                                                 2024349   00371080
+.* ENDWHILE                                                   2024349   00371090
+.SKIPSUB ANOP                                                 2024349   00371100
+&PG.EX&SYSNDX DS 0H                    EXIT POINT             00701824  00372000
+.STRG    ANOP                                                           00373000
+         MEND                                                           00374000

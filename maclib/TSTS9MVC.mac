@@ -1,0 +1,76 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR                   *
+         MACRO -- MVCL -- MOVE IN 4K INCREMENTS, 1 PAGE AT A TIME       00010000
+&NAME    TSTS9MVC &TO=,&FROM=,&LENGTH=,&SLENGTH=,&WFWORD=               00020000
+.*--------------------------------------------------------------------* 00030000
+.*                 ** HISTORY OF REVISIONS **                         * 00040000
+.*                                                                    * 00050000
+.* DESCRIPTION                                                CHNGID  * 00060000
+.*__________________________________________________________  _______ * 00070000
+.* 07/13/15 INITIAL RELEASE                                    GN6881   00080001
+.*--------------------------------------------------------------------* 00090000
+.********************************************************************** 00100000
+.*                                                                    * 00110000
+.* FUNCTION:                                                          * 00120000
+.*                                                                    * 00130000
+.*       THIS MACRO MOVES DATA IN 4K INCREMENTS.                      * 00140000
+.*       IT IS INTENDED TO BE USED IN HIGH                            * 00150000
+.*       PERFORMANCE AREAS SINCE MOVING DATA IN 4K INCREMANTS         * 00160000
+.*       IS FASTER THAN MOVING THE ENTIRE DATA WITH ONE               * 00170000
+.*       MVCL INSTRUCTION.                                            * 00180000
+.*                                                                    * 00190000
+.* PARAMETERS:                                                        * 00200000
+.*                                                                    * 00210000
+.*                 MVCL USES AN EVEN/ODD REGISTER PAIR.               * 00220000
+.*                 THIS MACRO EXPECTS TO USE THE SAME                 * 00230000
+.*                 REGISTERS IN THE SAME MANNER AS THE                * 00240000
+.*                 MVCL INSTRUCTION.  THE DIFFERENCE IS               * 00250000
+.*                 THAT THE DATA IS MOVED IN PAGE                     * 00260000
+.*                 INCREMENTS (4K BLOCKS).                            * 00270000
+.*                                                                    * 00280000
+.*       TO     -  THIS IS THE REGISTER THAT CONTAINS THE             * 00290000
+.*                 ADDRESS OF STORAGE THAT IS TO BE COPIED            * 00300000
+.*                 TO.                                                * 00310000
+.*                                                                    * 00320000
+.*       FROM   -  THIS IS THE REGISTER THAT CONTAINS THE             * 00330000
+.*                 ADDRESS OF STORAGE THAT IS TO BE COPIED            * 00340000
+.*                 FROM.                                              * 00350000
+.*                                                                    * 00360000
+.*       LENGTH -  THIS IS THE REGISTER THAT CONTAINS THE             * 00370000
+.*                 LENGTH OF THE RECEIVING DATA AREA.                 * 00380000
+.*                                                                    * 00390000
+.*       SLENGTH-  THIS IS THE REGISTER THAT CONTAINS THE             * 00400000
+.*                 LENGTH OF THE SENDING DATA AREA.                   * 00410000
+.*                                                                    * 00420000
+.*       WFWORD -  A FULLWORD STOARGE WORK AREA. THIS AREA            * 00430000
+.*                 IS USED TO KEEP TRACK OF HOW MUCH DATA             * 00440000
+.*                 REMAINS TO BE MOVED.                               * 00450000
+.*                                                                    * 00460000
+.*                                                                    * 00470000
+.* ENVIRONMENT:                                                       * 00480000
+.*                                                                    * 00490000
+.*       ALL                                                          * 00500000
+.*                                                                    * 00510000
+.* EXAMPLE:                                                           * 00520000
+.*                                                                    * 00530000
+.*  MVCL1    TSTS9MVC TO=R4,FROM=R6,LENGTH=R5,SLENGTH=R7,WFWORD=FWORD * 00540000
+.*                                                                    * 00550000
+.********************************************************************** 00560000
+.*                                                                      00570000
+.*                                                                      00580000
+&NAME.S  DS    0H                                                       00590000
+         ST    &LENGTH,&WFWORD     STORE MOVE LEN                       00600000
+&NAME.L  DS    0H                                                       00610000
+         CHI   &LENGTH,4095        REMAINING LENGTH<4095?               00620000
+         BNH   &NAME.LM            YES, LAST MOVE                       00630000
+         AHI   &LENGTH,-4095       4095 FROM TOTAL LEN                  00640000
+         ST    &LENGTH,&WFWORD     STORE MOVE LEN                       00650000
+         LA    &LENGTH,4095        SET TO 4095                          00660000
+         MVCL  &TO,&FROM           MOVE 4095 BYTES                      00670000
+&NAME.LM DS    0H                                                       00680000
+         L     &LENGTH,&WFWORD     RESTORE LEN TO MOVE                  00690000
+         CHI   &LENGTH,4095        REMAINING LENGTH<4095?               00700000
+         BNH   &NAME.LE            YES, DONE LOOPING                    00710000
+         B     &NAME.L                                                  00720000
+&NAME.LE DS    0H                                                       00730000
+         MVCL  &TO,&FROM           FINAL MOVE                           00740000
+         MEND                                                           00750000

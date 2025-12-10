@@ -1,0 +1,317 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LA      TSTS9FG &TYPE=,&WR1=,&WR2=,&WR3=,&WR4=                         00000200
+.********************************************************************** 00000300
+.*                   ** MACRO DESCRIPTION **                          * 00000310
+.*                                                                    * 00000400
+.*       THIS MACRO WILL EXTRACT THE FOLLOWING PROCESSING GROUPS      * 00000500
+.*       FROM THE SEGMENT SPECIFICATION RECORD (SSR) FOR THE          * 00000600
+.*       SPECIFIED APPLICATION, FILE-ID, AND FILE KEY SUPPLIED        * 00000700
+.*       BY THE INVOKING ROUTINE:                                     * 00000800
+.*                                                                    * 00000900
+.*                    MASTER RECORD GROUP NUMBER                      * 00001000
+.*                    CONTROL RECORD GROUP NUMBER                     * 00001100
+.*                    ALPHA RECORD GROUP NUMBER                       * 00001200
+.*                    BATCH SEGMENT NUMBER                            * 00001300
+.*                    ITR MODEL POINTER                       9910846 * 00001310
+.*                                                                    * 00001400
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00001500
+.*                                                                    * 00001600
+.*       &LA  - LABEL FOR MACRO                                       * 00001700
+.*       &TYPE- 'STRG' (FOR STORAGE) OR 'MACRO' (FOR CODE)            * 00001800
+.*       &WR1 - WORK REGISTER                                         * 00001900
+.*       &WR2 - WORK REGISTER                                         * 00002000
+.*       &WR3 - SSR INDEX ADDRESS, SSR RECORD ADDRESS                 * 00002100
+.*       &WR4 - ADDRESS OF QUEUE INDEX ENTRIES (QIRENTS)              * 00002200
+.*                                                                    * 00002300
+.********************************************************************** 00002400
+.*--------------------------------------------------------------------* 00002402
+.*                  ** HISTORY OF REVISIONS **                        * 00002404
+.*                                                                    * 00002406
+.* DESCRIPTION                                                CHNGID  * 00002408
+.* _________________________________________________________  _______ * 00002410
+.*                                                                    * 00002412
+.* 05/20/08 PASS ON XLEN FLAG                                 0825701   00002491
+.* 08/08/06 USE SHORTER OF KEY LENGTH AND SSR LENGTH          0645490   00002492
+.* 06/18/97 ALLOW THE PASSING BACK OF THE ITR MODEL POINTER   9910846 * 00002493
+.* 05/29/96 CORRECT IMMEDIATE INSTRUCTIONS                    9713105 * 00002494
+.*                                                                    * 00002496
+.*--------------------------------------------------------------------* 00002498
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00002500
+*********************************************************************** 00002600
+*        STORAGE DEFINITIONS FOR MACRO 'TSTS9FG'                      * 00002700
+*********************************************************************** 00002800
+WFGDWRD  DS    D                     DBLWORD WORK AREA                  00002900
+WFGSSRX  DS    F                     SAVE AREA FOR SSR INDEX ADDRESS    00003000
+WFGPARIX DS    F                     PREVIOUS ADDRESS RECIDX            00003010
+WFGMARIX DS    F                     MATCHING ENTRY ADDRESS RECIDX      00003100
+WFGEARIX DS    F                     ENDING ADDRESS OF RECIDX           00003200
+WFGHWRD  DS    H                     HALFWORD WORK AREA                 00003300
+WFGKEYLG DS    H                     LENGTH OF LOOKUP KEY               00003400
+WFGFLHIT DS    CL1                   FILE-ID HIT SWITCH                 00003500
+WFGHIT   DS    CL1                   CONTROLS HIT SWITCH                00003600
+*                                    VALUES:  0 - NO HIT ON CONTROLS    00003700
+*                                             1 - HIT ON CONTROLS       00003800
+*                                                                       00003900
+WFGKEY   DS    0CL33                 LOOK-UP KEY                        00004000
+WFGAPPL  DS    CL2                      APPLICATION ID                  00004100
+WFGFILID DS    CL3                      APPLICATION FILE ID             00004200
+WFGFILK  DS    0CL28                    APPLICATION FILE KEY            00004300
+WFGCTLS  DS    CL14                     APPLICATION CONTROLS            00004400
+WFGACCT  DS    CL14                     APPLICATION ACCT NO             00004500
+WFGSEGF  DS    CL1                      SSR KEY FORMAT                  00004600
+WFGBTSEG DS    CL2                      BATCH SEGMENT NUMBER            00004700
+WFGFLEGP DS    0CL6                  FILE GROUPS                        00004800
+WFGMSTGP DS    CL2                      MASTER GROUP NUMBER             00004900
+WFGCTLGP DS    CL2                      CONTROL GROUP NUMBER            00005000
+WFGALPGP DS    CL2                      ALPHA GROUP NUMBER              00005100
+WFGMODEL DS    CL4                   ITR MODEL POINTER        9910846   00005110
+WFGXLEN  DS    CL1                   XLEN FLAG                0825701   00005120
+         DS    CL2                                            0825701   00005200
+.MCRO    ANOP                                                           00005300
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00005400
+********************************************************                00005500
+*  THIS ROUTINE INITIALIZES THE MACRO WORKING/STORAGE  *                00005600
+*  AND LOADS SSR INDEX ADDRESS                         *                00005700
+********************************************************                00005800
+&LA.INT00 EQU  *                                                        00005900
+         MVI   WFGFLHIT,C'0'         CLEAR FILE-ID HIT SWITCH           00006000
+         MVI   WFGHIT,C'0'           CLEAR CONTROLS HIT SWITCH          00006100
+         MVI   WFGFLEGP,C' '         CLEAR FILE GROUP NUMBERS           00006200
+         MVC   WFGFLEGP+1(L'WFGFLEGP-1),WFGFLEGP                        00006300
+         MVC   WFGBTSEG,=C'00'       CLEAR BATCH SEG NUMBER             00006400
+         XC    WFGPARIX,WFGPARIX     CLEAR PREVIOUS ADDR OF RECIDX      00006500
+         XC    WFGMARIX,WFGMARIX     CLEAR MATCH ADDR OF RECIDX         00006510
+         XC    WFGEARIX,WFGEARIX     CLEAR ENDING ADDR OF RECIDX        00006600
+         XC    WFGKEYLG,WFGKEYLG     CLEAR LOOKUP KEY LENGTH            00006700
+         ICM   &WR3,15,WFGSSRX       LOAD SSR INDEX ADDRESS             00006800
+         LTR   &WR3,&WR3             SSR RECIDX = ZEROS ?               00006900
+         BZ    &LA.EXIT00            ...YES, RETURN                     00007000
+         EJECT                                                          00007100
+********************************************************                00007200
+*  THIS ROUTINE CALCULATES THE LOOKUP KEY LENGTH.      *                00007300
+*  THIS IS DONE BY BUMPING TO THE END OF LOOKUP KEY    *                00007400
+*  AND BUMPING BACKWARDS THROUGH THE KEY ONE BYTE AT A *                00007500
+*  TIME.  THE KEY LENGTH IS DETERMINED WHEN THE FIRST  *                00007600
+*  NON-SPACE OR LOW-VALUE BYTE IS ENCOUNTERED          *                00007700
+********************************************************                00007800
+         SPACE                                                          00007900
+&LA.IDX00 EQU  *                                                        00008000
+         LA    &WR1,L'WFGFILK        LOAD LENGTH OF LOOKUP KEY          00008100
+         LA    &WR2,WFGFILK+L'WFGFILK  LOAD END OF LOOKUP KEY           00008200
+         SPACE                                                          00008300
+&LA.IDX10 EQU  *                                                        00008400
+         BCTR  &WR2,0                BUMP THROUGH LOOKUP KEY BACKWARD   00008500
+         CLI   0(&WR2),C' '          BYTE = SPACE ?                     00008600
+         BE    &LA.IDX20             ...YES, CHECK NEXT BYTE            00008700
+         CLI   0(&WR2),X'00'         BYTE = LOW-VALUES ?                00008800
+         BNE   &LA.IDX30             ...NO, SAVE LENGTH OF LOOKUP KEY   00008900
+         SPACE                                                          00009000
+&LA.IDX20 EQU  *                                                        00009100
+         BCT   &WR1,&LA.IDX10        CHECK ALL BYTES UNTIL NOT EQUAL    00009200
+*                                    SPACE OR LOW VALUES                00009300
+         B     &LA.EXIT00            RETURN (NO KEY ENTERED)            00009400
+         SPACE                                                          00009500
+&LA.IDX30 EQU  *                                                        00009600
+         BCTR  &WR1,0                SUBTRACT 1 FOR EXEC INSTR          00009700
+         STH   &WR1,WFGKEYLG         SAVE LOOKUP KEY LENGTH             00009800
+         SPACE 3                                                        00009900
+********************************************************                00010000
+*  THIS ROUTINE WILL CALCULATE THE ENDING ADDRESS OF   *                00010100
+*  THE QUEUE INDEX RECORD                              *                00010200
+********************************************************                00010300
+         SPACE                                                          00010400
+&LA.IDX40 EQU  *                                                        00010500
+         LA    &WR4,QIRENTS          LOAD INDEX ENTRIES ADDRESS         00010600
+         XR    &WR1,&WR1             CLEAR &WR1                         00010700
+         ICM   &WR1,3,QIRUSOC        # OF USED OCCURRENCES              00010800
+         STH   &WR1,WFGHWRD          SAVE # IN HWRD                     00010900
+         LA    &WR1,L'QIRENTL        LENGTH OF ONE OCCURRENCE           00011000
+         MH    &WR1,WFGHWRD          MULTIPLY BY #                      00011100
+         AR    &WR1,&WR4             CALCULATE END OF QIE RECORD        00011200
+         ST    &WR1,WFGEARIX         SAVE ENDING ADDRESS RECIDX         00011300
+         SPACE 3                                                        00011400
+********************************************************                00011500
+* THIS ROUTINE LOOKS FOR APPL-ID AND FILE-ID MATCHES   *                00011600
+*                                                      *                00011700
+* COMPARE LOOK-UP APPL ID TO SSR OCCURANCE APPL ID     *                00011800
+*     ... LOOK-UP LOWER, GET OUT AND USE LAST SSR, IF  *                00011900
+*         ONE WAS FOUND                                *                00012000
+*     ... LOOK-UP HIGHER, BUMP TO NEXT SSR ENTRY       *                00012100
+*     ... EQUAL, GO ON TO LOOK FOR FILE-ID MATCH       *                00012200
+*                                                      *                00012300
+* COMPARE LOOK-UP FILE-ID TO SSR OCCURANCE FILE-ID     *                00012400
+*     ... EQUAL, GO ON TO LOOK FOR FILE KEY MATCH      *                00012500
+*     ... NOT EQUAL, IS THE SSR ENTRY EQUAL APPL DFLT? *                00012600
+*         ... EQUAL, GO ON TO LOOK FOR FILE KEY MATCH  *                00012700
+*         ... NOT EQUAL, BUMP TO NEXT SSR ENTRY        *                00012800
+********************************************************                00012900
+         SPACE                                                          00013000
+&LA.IDX50 EQU  *                                                        00013100
+         CLC   WFGAPPL,QIRRKY        APPLICATIONS EQUAL ?               00013200
+         BL    &LA.IDX90             ...LOOK-UP LOW, USE LAST SSR SAVED 00013300
+         BH    &LA.IDX80             ...LOOK-UP HIGH,READ NXT SSR ENTRY 00013400
+         CLC   WFGFILID,QIRRKY+2     ARE FILE IDS EQUAL?                00013500
+         BNE   &LA.IDX55             ...NO, GO LOOK FOR DEFAULT ENTRY   00013600
+         MVI   WFGFLHIT,C'1'         ...YES, INDICATE FILE MATCH FOUND  00013700
+         B     &LA.IDX60             ...GO COMPARE FILE KEYS            00013800
+&LA.IDX55 EQU *                                                         00013900
+         CLI   WFGFLHIT,C'1'         FILE FOUND PREVIOUSLY?   9713105   00014000
+         BE    &LA.IDX90             ...YES, USE LAST SSR ENTRY SAVED   00014100
+         CLC   QIRRKY+2(L'WFGFILID),=X'FFFFFF' HIT FILE DEFAULT?        00014200
+         BNE   &LA.IDX80                       ...NO,READ NXT SSR ENTRY 00014300
+         SPACE 3                                                        00014400
+********************************************************                00014500
+*                                                      *                00014600
+*  APPLICATION AND FILE MATCH HAVE BEEN FOUND -- IDX60 *                00014700
+*                                                      *                00014800
+*  THESE ROUTINES WILL COMPARE THE LOOK-UP KEY AND THE *                00014900
+*  SSR OCCURRENCE KEY FOR A MATCH                      *                00015000
+*                                                      *                00015100
+*======================================================*                00015200
+*  LOOK-UP KEY EQUAL SSR OCCURRENCE KEY ---     IDX100 *                00015300
+*                                                      *                00015400
+*     ... MATCH WAS FOUND                              *                00015500
+*     ... PROCESS SSR OCCURRENCE                       *                00015600
+*                                                      *                00015700
+*======================================================*                00015800
+*  LOOK-UP KEY HIGHER THAN SSR OCCURRENCE KEY -- IDX70 *                00015900
+*                                                      *                00016000
+*     ... POSSIBLE MATCH WAS FOUND                                      00016100
+*            ... ADDRESS OF SSR OCCURRENCE SAVED       *                00016200
+*            ... BUMP TO NEXT SSR OCCURRENCE     IDX80 *                00016300
+*                                                      *                00016400
+*                                                      *                00016500
+*======================================================*                00016600
+*  LOOK-UP KEY LOWER THAN SSR OCCURRENCE KEY --- IDX90 *                00016700
+*                                                      *                00016800
+*     ... POSSIBLE MATCH WAS FOUND ON PREVIOUS         *                00016900
+*         OCCURRENCE                                   *                00017000
+*                                                      *                00017100
+*            ... ADDRESS OF SSR OCCURRENCE SAVED       *                00017200
+*                EQUAL LOW-VALUES?-- NO MATCH          *                00017300
+*                                                      *                00017400
+*                    ... RETURN TO INVOKING MODULE     *                00017500
+*                                                      *                00017600
+*            ... ADDRESS OF SSR OCCURRENCE SAVED       *                00017700
+*                NOT EQUAL LOW-VALUES? --MATCH FOUND   *                00017800
+*                                                      *                00017900
+*                    ... RESTORE ADDRESS OF SSR        *                00018000
+*                        OCCURRENCE SAVED              *                00018100
+*                    ... PROCESS SSR OCCURRENCE        *                00018200
+*                                                      *                00018300
+********************************************************                00018400
+&LA.IDX60 EQU *                                                         00018500
+         LA    &WR1,L'WFGFILK          LENGTH OF LOOKUP KEY   0645490   00018505
+         LA    &WR2,QIRRKY+5+L'WFGFILK  LOAD END OF SSR KEY   0645490   00018510
+&LA.IDX61 EQU  *                                              0645490   00018520
+         BCTR  &WR2,0                BUMP THRU SSR KEY BACK   0645490   00018525
+         CLI   0(&WR2),C' '          BYTE = SPACE ?           0645490   00018530
+         BE    &LA.IDX62             ...YES, CHECK NEXT BYTE  0645490   00018535
+         CLI   0(&WR2),X'00'         BYTE = LOW-VALUES ?      0645490   00018540
+         BNE   &LA.IDX63             ...NO, COMPARE LENGTHS   0645490   00018545
+&LA.IDX62 EQU  *                                              0645490   00018555
+         BCT   &WR1,&LA.IDX61        CHECK UNTIL NOT          0645490   00018560
+*                                    SPACE OR LOW VALUES      0645490   00018565
+         B     &LA.IDX70             NO CTLS TREAT LK HIGH    0645490   00018570
+&LA.IDX63 EQU  *                                              0645490   00018580
+         BCTR  &WR1,0                SUBT 1 FOR EXEC INSTR    0645490   00018585
+         CH    &WR1,WFGKEYLG         COMPARE TO LOOKUP KEY    0645490   00018590
+         BNH   &LA.IDX64             USE SHORTER OF TWO       0645490   00018595
+         LH    &WR1,WFGKEYLG         RESTORE SAVED LOOKUP KEY LNG-1     00018600
+&LA.IDX64 EQU  *                                              0645490   00018610
+         EX    &WR1,&LA.IDX200       COMPARE LOOKUP AND SSR KEYS        00018700
+         BL    &LA.IDX90             ...LOW, USE LAST SSR ENTRY SAVED   00018900
+         SPACE 3                                                        00019000
+********************************************************                00019100
+*          LOOK-UP KEY > OR = THAN SSR KEY             *      0645490   00019200
+********************************************************                00019300
+&LA.IDX70 EQU  *                                                        00019400
+         STCM  &WR4,15,WFGPARIX      SAVE PREV ADDR OF SSR    0645490   00019500
+         SPACE 3                                                        00019600
+********************************************************                00019700
+*   THIS ROUTINE WILL BUMP TO NEXT SSR OCCURRENCE      *                00019800
+*                                                      *                00019900
+*   WHEN ALL OCCURRENCES FOR THE RECORD INDEX IN       *                00020000
+*   PROCESS HAVE BEEN PROCESSED, IT WILL DETERMINE     *                00020100
+*   IF THERE ARE ADDITIONAL RECORD INDEXES FOR SSR.    *                00020200
+*   IF ADDTIONAL SSR RECORD INDEXES ARE AVAILABLE,     *                00020300
+*   THEY WILL BE SEARCHED.                             *                00020400
+********************************************************                00020500
+         SPACE                                                          00020600
+&LA.IDX80 EQU  *                                                        00020700
+         LA    &WR4,L'QIRENTL(&WR4)  NEXT QUEUE REC OCCURRENCE          00020800
+         C     &WR4,WFGEARIX         END OF OCCURRENCES ?               00020900
+         BL    &LA.IDX50             ...NO, COMPARE LOOKUP KEYS         00021000
+         CLC   QIRXNA,=F'0'          ...YES, IS THAT ALL THERE WAS?     00021100
+         BE    &LA.IDX90             ...YES, USE LAST SSR ENTRY SAVED   00021200
+         ICM   &WR3,15,QIRXNA        ...YES, POINT TO NEXT INDEX REC    00021300
+         B     &LA.IDX40             GO - PROCESS NEXT SSR INDEX REC    00021400
+         SPACE 3                                                        00021500
+********************************************************                00021600
+*           LOOK-UP KEY LOWER THAN SSR KEY             *                00021700
+*           --USE PREVIOUS SSR ADDR, IF THERE WAS ONE  *                00021800
+********************************************************                00021900
+         SPACE                                                          00022000
+&LA.IDX90 EQU *                                                         00022100
+         ICM   &WR4,15,WFGPARIX      INSERT PREVIOUS ADDR OF RECIDX     00022200
+         LTR   &WR4,&WR4             PREVIOUS ADDR OF RECIDX = ZEROS ?  00022300
+         BZ    &LA.EXIT00            ...YES, RETURN                     00022400
+********************************************************                00022500
+*            LOOK-UP KEY AND SSR KEY EQUAL             *                00022600
+********************************************************                00022700
+         SPACE                                                          00022800
+&LA.IDX100 EQU *                                                        00022900
+         STCM  &WR4,15,WFGMARIX      ...SAVE THE MATCHING ENTRY ADDR    00022910
+         MVI   WFGHIT,C'1'           INDICATE THAT A MATCH WAS FOUND    00023000
+         B     &LA.REC00             PROCESS THE OCCURRENCE             00023100
+         SPACE 3                                                        00023200
+         SPACE 3                                                        00023300
+********************************************************                00023400
+*  THIS ROUTINE WILL DO A VARIABLE LENGTH COMPARISON   *                00023500
+*  OF LOOK-UP AND SSR FILE KEYS                        *                00023600
+********************************************************                00023700
+         SPACE                                                          00023800
+&LA.IDX200 CLC WFGFILK(0),QIRRKY+5    LOOKUP AND SSR FILE KEY SAME ?    00023900
+         EJECT                                                          00024000
+********************************************************                00024100
+*  THIS WILL ESTABLISH ADDRESSABILITY TO SSR RECORD    *                00024200
+*  LOADED INTO CICS DYNAMIC STORAGE                    *                00024300
+*                                                      *                00024400
+*  IT DOES THIS BY EXTRACTING THE RECORD ADDRESS FROM  *                00024500
+*  THE SSR OCCURRENCE RECORD.                          *                00024600
+********************************************************                00024700
+&LA.REC00 EQU  *                     PROCESS SSR RECORD                 00024800
+         CLI   WFGHIT,C'1'           MATCH FOUND FOR LOOKUP KEY ?       00024900
+         BNE   &LA.EXIT00            ...NO, RETURN                      00025000
+         ICM   &WR3,15,QIRRECA       POINT TO SSR RECORD                00025100
+         DROP  &WR3,&WR4             DROP REGISTERS                     00025200
+         USING TSTSSSR,&WR3          ESTABLISH ADDRESSABILITY TO SSR    00025300
+         SPACE 3                                                        00025400
+********************************************************                00025500
+*  THIS WILL EXTRACT THE FOLLOWING PROCESSING GROUP    *                00025600
+*  NUMBERS FROM THE SEGMENT SPECIFICATION RECORD (SSR) *                00025700
+*                                                      *                00025800
+*           ...  MASTER GROUP NUMBER                   *                00025900
+*           ...  CONTROL GROUP NUMBER                  *                00026000
+*           ...  ALPHA GROUP NUMBER                    *                00026100
+*           ...  BATCH SEGMENT NUMBER                  *                00026200
+*                                                      *      9910846   00026210
+*           ...  ITR MODEL POINTER                     *      9910846   00026220
+********************************************************                00026300
+         SPACE                                                          00026400
+&LA.REC10 EQU  *                                                        00026500
+         MVC   WFGMSTGP,SSRMSTGP     MOVE MASTER GROUP NUMBER           00026600
+         MVC   WFGCTLGP,SSRCTLGP     MOVE CONTROL GROUP NUMBER          00026700
+         MVC   WFGALPGP,SSRALPGP     MOVE ALPHA GROUP NUMBER            00026800
+         MVC   WFGBTSEG,SSRBTSEG     MOVE BATCH SEGMENT NUMBER          00026900
+         MVC   WFGMODEL,SSRMODEL     MOVE ITR MODEL POINTER   9910846   00026910
+         MVC   WFGXLEN,SSRXLNRC      MOVE XLEN FLAG           0825701   00026920
+         DROP  &WR3                  DROP REGISTER                      00027000
+********************************************************                00027100
+*  THIS ROUTINE RETURN CONTROL TO INVOKING PROGRAM     *                00027200
+********************************************************                00027300
+         SPACE                                                          00027400
+&LA.EXIT00 EQU *                     COMMON EXIT POINT                  00027500
+.STRG    ANOP                                                           00027600
+         MEND                                                           00027700

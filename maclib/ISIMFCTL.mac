@@ -1,0 +1,64 @@
+         MACRO                                                          00000100
+         ISIMFCTL &DSECT=NO,&ALIGN=NO                                   00000200
+         LCLB  &DST,&ALN                                                00000300
+         AIF   ('&ALIGN' EQ 'YES').SETALN                               00000400
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00000500
+         AIF   ('&DSECT' EQ 'NO').START                                 00000600
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00000700
+         MEXIT                                                          00000800
+.SETALN  ANOP                                                           00000900
+&ALN     SETB  1                                                        00001000
+&DST     SETB  0                                                        00001100
+         AGO   .START                                                   00001200
+.SETYES  ANOP                                                           00001300
+&ALN     SETB  0                                                        00001400
+&DST     SETB  1                                                        00001500
+         AGO   .START                                                   00001600
+.START   ANOP                                                           00001700
+*                                                                       00001800
+*                        IMF CONTROL BLOCK                              00001900
+*                                                                       00002000
+         AIF   (&DST).DSECT                                             00002100
+         AIF   (NOT &ALN).EQUAT                                         00002200
+ISIMFCTL DS    0D                                                       00002300
+         AGO   .CONTIN                                                  00002400
+.EQUAT   ANOP                                                           00002500
+ISIMFCTL EQU   *                                                        00002600
+         AGO   .CONTIN                                                  00002700
+.DSECT   ANOP                                                           00002800
+ISIMFCTL DSECT                                                          00002900
+         AGO   .CONTIN                                                  00003000
+.CONTIN  ANOP                                                           00003100
+CTLOPT   DS    CL2                     OPTION                           00003200
+CTLRETCD DS    PL4                     RETURN CODE                      00003300
+CTLCOMM  DS    CL8                     CURRENT COMMAND                  00003400
+         DS    CL142                                                    00003500
+CTLKEY   DS    CL64                    EXTRACT KEY                      00003600
+CTLNKEY  DS    CL64                    NEW COPY KEY                     00003700
+CTLDDN   DS    CL8                     DDNAME                           00003800
+CTLLRECL DS    CL2                     LRECL (BINARY HALFWORD)          00003900
+CTLBLKSZ DS    CL4                     BLKSIZE (BINARY FULLWORD)        00004000
+CTLRECFM DS    CL3                     RECORD FORMAT                    00004100
+CTLDSOR  DS    CL1                     DISK ORGANIZATION (S/V)          00004200
+CTCHMP   DS    CL4                     CICS HMP COMMAND                 00004300
+CTCBPTR  DS    CL4                     CICS BUFFER POINTER              00004400
+CTCISKEY DS    CL8                     CICS SAVE CURRENT KEY            00004500
+CTCPATH  DS    CL8                     CICS SAVE CURRENT PATH           00004600
+CTCNKEY  DS    CL8                     CICS NEW KEY                     00004700
+CTCRECS  DS    PL8                     CICS NUMBER OF RECORDS           00004800
+CTCBYTES DS    PL8                     CICS NUMBER OF BYTES             00004900
+CTCSWT   DS    CL1                     CICS FILE SWITCH                 00005000
+CTLACC   DS    CL1                     ACCESS                           00005100
+CTLRPLFG DS    CL1                     UPDATE RPL FLAG                  00005200
+CTLDEBUG DS    CL1                     DEBUG SWITCH (Y=ON)              00005300
+CTLBANK  DS    CL2                     SECURITY BANK NUMBER             00005400
+CTLGROUP DS    CL4                     SECURITY GROUP                   00005500
+CTLOPID  DS    CL4                     SECURITY OPID                    00005600
+CTLTRMID DS    CL4                     SECURITY TERMID                  00005700
+CTLVORG  DS    CL1                     VSAM ORGINZATION                 00005710
+CTLDCRCL DS    CL10                    DCR CLASS                        00005720
+CTLRPTLV DS    CL5                     EOR REPORT LEVELS                00005725
+CTLEMPID DS    CL8                     EOR EMPLOYEE ID                  00005730
+CTLEORGP DS    CL2                     EOR GROUP ID                     00005740
+CTLEND   EQU   *                                                        00005800
+         MEND                                                           00005900

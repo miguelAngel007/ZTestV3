@@ -1,0 +1,63 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*          DATA SET SIMOVE     AT LEVEL 001 AS OF 02/14/83              00000100
+         MACRO                                                          00000200
+&LABEL   SIMOVE &FROM,&TO,&LENGTH                                       00000300
+         LCLB  &FREG,&TREG,&LREG,&FNOREG,&TNOREG,&LNOREG                00000400
+         LCLC  &FRREG,&TOREG,&LNREG                                     00000500
+         AIF   (T'&FROM NE 'O').FROMOK                                  00000600
+         MNOTE 'FROM OPERAND MISSING, REG 13 ASSUMED'                   00000700
+&FREG    SETB  1                                                        00000800
+.FROMOK  AIF   (T'&TO NE 'O').TOOK                                      00000900
+         MNOTE 'TO OPERAND MISSING, REG 14 ASSUMED'                     00001000
+&TREG    SETB  1                                                        00001100
+.TOOK    AIF   (T'&LENGTH NE 'O').LNGOK                                 00001200
+         MNOTE 'LENGTH OPERAND MISSING, REG 15 ASSUMED'                 00001300
+&LREG    SETB  1                                                        00001400
+.LNGOK   AIF   (T'&FROM EQ 'O').FRMOK                                   00001500
+         AIF   ('&FROM'(1,1) EQ '(').FRMOK                              00001600
+&FNOREG  SETB  1                                                        00001700
+&FREG    SETB  1                                                        00001800
+.FRMOK   AIF   (T'&TO EQ 'O').TOK                                       00001900
+         AIF   ('&TO'(1,1) EQ '(').TOK                                  00002000
+&TNOREG  SETB  1                                                        00002100
+&TREG    SETB  1                                                        00002200
+.TOK     AIF   (T'&LENGTH EQ 'O').FIXREG                                00002300
+         AIF   ('&LENGTH'(1,1) EQ '(').FIXREG                           00002400
+&LNOREG  SETB  1                                                        00002500
+&LREG    SETB  1                                                        00002600
+.FIXREG  AIF   (&FNOREG).CKTNOR                                         00002700
+&FRREG   SETC  '&FROM(1)'                                               00002800
+.CKTNOR  AIF   (&TNOREG).CKLNOR                                         00002900
+&TOREG   SETC  '&TO(1)'                                                 00003000
+.CKLNOR  AIF   (&LNOREG).CKFREG                                         00003100
+&LNREG   SETC  '&LENGTH(1)'                                             00003200
+.CKFREG  AIF   (NOT &FREG).TOFIX                                        00003300
+&FRREG   SETC  '13'                                                     00003400
+.TOFIX   AIF   (NOT &TREG).LNFIX                                        00003500
+&TOREG   SETC  '14'                                                     00003600
+.LNFIX   AIF   (NOT &LREG).ENDFIX                                       00003700
+&LNREG   SETC  '15'                                                     00003800
+.ENDFIX  ANOP                                                           00003900
+         AIF   (T'&LABEL EQ 'O').NOLABL                                 00004000
+&LABEL   EQU   *                                                        00004100
+.NOLABL  AIF   (NOT &FNOREG).CHKTNO                                     00004200
+         LA    13,&FROM                                                 00004300
+.CHKTNO  AIF   (NOT &TNOREG).CHKLNO                                     00004400
+         LA    14,&TO                                                   00004500
+.CHKLNO  AIF   (NOT &LNOREG).MSTRT                                      00004600
+         L     15,&LENGTH                                               00004700
+.MSTRT   LR    1,&LNREG                                                 00004800
+         SRA   1,8                                                      00004900
+         LTR   1,1                                                      00005000
+         BZ    *+30                                                     00005100
+         BM    *+44                                                     00005200
+         MVC   0(256,&TOREG),0(&FRREG)                                  00005300
+         SH    &LNREG,=H'256'                                           00005400
+         LA    &FRREG,256(0,&FRREG)                                     00005500
+         LA    &TOREG,256(0,&TOREG)                                     00005600
+         BCT   1,*-18                                                   00005700
+         SH    &LNREG,=H'1'                                             00005800
+         BM    *+14                                                     00005900
+         STC   &LNREG,*+5                                               00006000
+         MVC   0(0,&TOREG),0(&FRREG)                                    00006100
+         MEND                                                           00006200

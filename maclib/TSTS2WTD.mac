@@ -1,0 +1,91 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                                                                     * 00000200
+*           TSTS2WTD --- WRITE TRANSIENT DATA MESSAGE FORMAT          * 00000300
+*                                                                     * 00000400
+*---------------------------------------------------------------------* 00000500
+*********************************************************************** 00000600
+*                                                                     * 00000700
+*   ERROR MESSAGE FORMAT FOR ERRORS CARRIED WITH A START TRANSACTION  * 00000800
+*   TO 'WTCN', WITH A START TRANSACTION 'WTP1' OR 'WTP2' ATTACHED TO  * 00000900
+*   A PRINTER.                                                        * 00001000
+*   THE MESSAGE FORMAT 'WTDMSTD' SHOULD ALSO BE USED FOR ANY WRITE    * 00001100
+*   TO THE TRANSIENT DATA QUEUE 'WTOP' FROM TS.                       * 00001200
+*                                                                     * 00001300
+*********************************************************************** 00001400
+         SPACE 2                                                        00001500
+WTDMSF   DS    0CL135                MESSAGE SYSTEM FORMAT              00001600
+WTDML    DS    XL2                     MESSAGE LENGTH                   00001700
+*                                      VALUE: +135                      00001800
+         DS    CL1                     FILLER                           00001900
+WTDMSTD  DS    0CL132                MESSAGE STANDARD                   00002000
+WTDMDM   DS    CL2                     MESSAGE DATE MONTH               00002100
+WTDMDS   DS    CL1                     MESSAGE DATE SLASH               00002200
+WTDMDD   DS    CL2                     MESSAGE DATE DAY                 00002300
+         DS    CL1                     FILLER                           00002400
+         SPACE                                                          00002500
+WTDMTH   DS    CL2                     MESSAGE TIME HOUR                00002600
+WTDMTC1  DS    CL1                     MESSAGE TIME COLON 1             00002700
+WTDMTM   DS    CL2                     MESSAGE TIME MINUTES             00002800
+WTDMTC2  DS    CL1                     MESSAGE TIME COLON 2             00002900
+WTDMTS   DS    CL2                     MESSAGE TIME SECONDS             00003000
+         DS    CL1                     FILLER                           00003100
+         SPACE                                                          00003200
+WTDMTI   DS    CL4                     MESSAGE TERMINAL ID              00003300
+         DS    CL1                     FILLER                           00003400
+         SPACE                                                          00003500
+WTDMD    DS    0CL112                MESSAGE DESCRIPTION                00003600
+*=*-------------------------*=*                                         00003700
+*=*  INTELLIGENT TERMINALS  *=*                                         00003800
+*=*-------------------------*=*                                         00003900
+         SPACE                                                          00004000
+WTDIPGM  DS    CL4                     INTELLIGENT PROGRAM ID           00004100
+         DS    CL1                     FILLER                           00004200
+WTDIMSGC DS    CL6                     INTELLIGENT MESSAGE CODE         00004300
+         DS    CL1                     FILLER                           00004400
+WTDISVCD DS    CL1                     INTELLIGENT SEVERITY CODE        00004500
+         SPACE                                                          00004600
+*=*--------------------------------------------*=*                      00004700
+*=*               VALUES:                      *=*                      00004800
+*=*      A - IMMEDIATE (HIGHEST) - ABEND       *=*                      00004900
+*=*      F - FATAL, STOP - STOP PROCESSING     *=*                      00005000
+*=*      E - FATAL, CONTINUE - EDIT ONLY       *=*                      00005100
+*=*      S - OVERRIDE, SUPERVISOR              *=*                      00005200
+*=*      O - OVERRIDE, EMPLOYEE                *=*                      00005300
+*=*      I - INFORMATIONAL (LOWEST)            *=*                      00005400
+*=*--------------------------------------------*=*                      00005500
+         SPACE                                                          00005600
+WTDICOLN DC    C':'                    INTELLIGENT COLON                00005700
+         DS    CL1                     FILLER                           00005800
+WTDIMSG  DS    CL25                    INTELLIGENT ERROR MESSAGE        00005900
+         DS    CL72                    FILLER                           00006000
+         SPACE 3                                                        00006100
+         ORG   WTDIPGM                                                  00006200
+         SPACE                                                          00006300
+*=*----------------------------*=*                                      00006400
+*=*  ADMINISTRATIVE TERMINALS  *=*                                      00006500
+*=*----------------------------*=*                                      00006600
+         SPACE 2                                                        00006700
+WTDAPGM  DS    CL8                      ADMINISTRATIVE PROGRAM ID       00006800
+         DS    CL1                      FILLER                          00006900
+WTDAMSGC DS    CL6                      ADMINISTRATIVE MESSAGE CODE     00007000
+         DS    CL1                      FILLER                          00007100
+WTDASVCD DS    CL1                      ADMINISTRATIVE SEVERITY CODE    00007200
+         SPACE                                                          00007300
+*=*--------------------------------------------*=*                      00007400
+*=*               VALUES:                      *=*                      00007500
+*=*      A - IMMEDIATE (HIGHEST) - ABEND       *=*                      00007600
+*=*      F - FATAL, STOP - STOP PROCESSING     *=*                      00007700
+*=*      E - FATAL, CONTINUE - EDIT ONLY       *=*                      00007800
+*=*      S - OVERRIDE, SUPERVISOR              *=*                      00007900
+*=*      O - OVERRIDE, EMPLOYEE                *=*                      00008000
+*=*      I - INFORMATIONAL (LOWEST)            *=*                      00008100
+*=*--------------------------------------------*=*                      00008200
+         SPACE                                                          00008300
+WTDACOLN DC    C':'                     ADMINISTRATIVE COLON            00008400
+         DS    CL1                      FILLER                          00008500
+WTDAMSG  DS    CL50                     ADMINISTRATIVE ERROR MESSAGE    00008600
+         DS    CL43                     FILLER                          00008700
+         ORG                                                            00008800
+WTDMSLM  EQU   *-WTDMSF              SYMBOLIC LENGTH OF MESSAGE         00008900
+         SPACE                                                          00009000

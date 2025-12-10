@@ -1,0 +1,22 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*                                                                     * 00002000
+*                   TSTS2S14 --  SYSTEM TRANSACTION                   * 00003000
+*                       CHANGE ATM CURRENT DATE                       * 00004000
+*                                                                     * 00005000
+*********************************************************************** 00006000
+         SPACE 2                                                        00007000
+TS14     DS    0CL80                 TRANSACTION AREA                   00008000
+TS14TRNC DS    CL4                   TRANSACTION CODE                   00009000
+*                    VALUE:  TS14 - CHANGE ATM CURRENT DATE             00010000
+TS14SER  DS    0CL17                 SER DATA                           00011000
+TS14SERC DS    CL1                     DATE CHANGE CODE                 00012000
+*                    VALUES:   R - ROLL ATM                             00013000
+*                              D - SET DYNAMIC STG ATM DATE             00014000
+*                              B - SET BOTH SER FILE AND DYNAMIC STG    00015000
+TS14CLAS DS    CL10                    CLASS                            00016000
+TS14ADTE DS    0CL6                    ATM CURRENT DATE                 00017000
+TS14AMM  DS    CL2                       MONTH                          00018000
+TS14ADD  DS    CL2                       DAY                            00019000
+TS14AYY  DS    CL2                       YEAR                           00020000
+         DS    CL59                    FILLER                           00021000

@@ -1,0 +1,76 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+         SACP9MGM &PREFIX=SAM                                           00000200
+         LCLC  &PR                                                      00000300
+&PR      SETC  '&PREFIX'                                                00000400
+.*--------------------------------------------------------------------- 00000500
+.*                   ** MACRO DESCRIPTION **                            00000600
+.*                                                                      00000700
+.* SACP9MGM IS THE MACRO TO GENERATE THE SA MIGRATION RECORDS LAYOUT    00000800
+.*                                                                      00000900
+.*--------------------------------------------------------------------- 00001000
+.*                  ** HISTORY OF REVISIONS **                          00001100
+.*                                                                      00001200
+.* DESCRIPTION                                                CHNGID    00001300
+.* __________________________________________________________ _______   00001400
+.* 10/29/04 MODIFY DPR                                        0514957   00001496
+.* 07/31/03 ADD TYPE 3 ERROR CODE                             0344845   00001498
+.* 02/05/03 RESEQUENCE                                        0324604   00001500
+.* 06/17/02 INITIAL DISTRIBUTION                              0314486   00001600
+.* __________________________________________________________ _______   00001700
+&PR.REC   DS    0CL250                                                  00001800
+&PR.1RKEY DS    0CL70              KEY FOR DPR RECORD                   00001900
+&PR.RECTY DS    CL1                                                     00002000
+* VALUES:  1=DPR, 2=MODULE, 3=SELECT CARD                               00002100
+&PR.1RSC  DS    0CL8               RSEC                                 00002200
+&PR.1APPL DS    CL2                APPLICATION                          00002300
+&PR.1RSEC DS    CL4                RSEC NUMBER                          00002400
+          DS    CL2                FILLER FOR EXPANSION                 00002500
+          DS    CL61               FILLER FOR EXPANSION                 00002600
+&PR.1SSEQ DS    CL2                SPACES FOR SORT                      00002700
+&PR.1DPR  DS    CL6                DPR NUMBER                 0514957   00002800
+          DS    CL172              UNUSED FOR TYPE 1          0514957   00002900
+          ORG   &PR.REC                                                 00003000
+&PR.2RKEY DS    0CL70              KEY FOR MODULE RECORD                00003100
+          DS    CL1                RECORD TYPE '2'                      00003200
+&PR.2CID  DS    0CL8               CHANGE ID                            00003300
+&PR.2RSC  DS    0CL8               RSEC                                 00003400
+&PR.2APPL DS    CL2                APPLICATION                          00003500
+&PR.2RSEC DS    CL4                RSEC NUMBER                          00003600
+          DS    CL2                FILLER FOR EXPANSION                 00003700
+&PR.2MOD  DS    CL10               MODULE                               00003800
+          DS    CL51               FILLER FOR EXPANSION                 00003900
+&PR.2SSEQ DS    CL2                SPACES FOR SORT                      00004000
+&PR.2ACT  DS    CL1                ACTION CODE                          00004100
+          DS    CL177              UNUSED FOR TYPE 2                    00004200
+          ORG   &PR.REC                                                 00004300
+&PR.3RKEY DS    0CL70              KEY FOR CONTROL RECORD               00004400
+          DS    CL1                RECORD TYPE '3'                      00004500
+&PR.3CID  DS    0CL8               CHANGE ID                            00004600
+&PR.3RSC  DS    0CL8               RSEC                                 00004700
+&PR.3APPL DS    CL2                APPLICATION                          00004800
+&PR.3RSEC DS    CL4                RSEC NUMBER                          00004900
+          DS    CL2                FILLER FOR EXPANSION                 00005000
+&PR.3CCTL DS    0CL61              CHANGE CONTROL KEY                   00005100
+&PR.3CTYP DS    CL1                CONTROL RECORD TYPE                  00005200
+* VALUES ARE:  PA-PARMS, DI-DICTIONARY, TS-TS CONTROL RECORDS           00005300
+&PR.3CREC DS    0CL60              KEY OF RECORD                        00005400
+&PR.3CKAP DS    CL2                APPLICATION (DICTIONARY)             00005500
+&PR.3CKEN DS    CL3                ENTITY TYPE (DICTIONARY)             00005600
+&PR.3CKNM DS    CL8                ENTITY NAME (DICTIONARY)             00005700
+          DS    CL47               UNUSED (DICTIONARY)                  00005800
+          ORG   &PR.3CREC                                     0344845   00005810
+&PR.3SID  DS    CL8                STRUCTURE ID (PARMS)       0344845   00005820
+&PR.3CTL1 DS    CL4                CONTROL 1 (PARMS)          0344845   00005830
+          DS    CL48               UNUSED (PARMS)             0344845   00005840
+&PR.3SSEQ DS    CL2                SORT SEQUENCE                        00005900
+&PR.3CCOD DS    CL1                ACTION CODE                          00006000
+* VALUES ARE:  A-ADD, C-CHANGE, D-DELETE                                00006100
+&PR.3CDIS DS    CL2                DISTRIBUTION CODE                    00006200
+&PR.3SREC DS    CL160              SELECT CARD(S)                       00006300
+&PR.3ERRC DS    CL1                ERROR CODE                 0344845   00006310
+* VALUES ARE:  5-DIST CODE, 6-SORT SEQ, SPACES-NO ERROR       0344845   00006320
+*              7-PARMS CTL1                                   0344845   00006330
+          DS    CL14                                          0344845   00006400
+          ORG                                                           00006500
+          MEND                                                          00006600

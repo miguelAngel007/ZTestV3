@@ -1,0 +1,102 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00001000
+*********************************************************************** 00002000
+*           TSTS2QFM - MQ FORMAT MESSAGE COMMUNICATIONS AREA          * 00003000
+*                                                                     * 00004000
+* FOR INFORMATION ON THE FIELDS IN THIS COPYBOOK, SEE MODULE TSTS1QFM.* 00005000
+*                                                                     * 00006000
+*---------------------------------------------------------------------* 00007000
+*                   HISTORY OF REVISIONS                              * 00008000
+*   DESCRIPTION                                                CHG ID * 00009000
+* ----------------------------------------------------------- ------- * 00010000
+* 11/26/08 ADD FORMAT       - QFMMSFMT                        0925694   00011988
+* 02/19/07 ADD PRIORITY     - QFMMSGPR                        0735336   00011989
+* 02/28/05 ADD MESSAGE TYPE - QFMMSGTY                        0535195   00011990
+* 06/14/04 ADD APC SOURCE,EMP ID,RPT LVL,PHY LOC              0514798   00011991
+* 05/27/03 ADD EXPIRY TIME AND REPORT OPTIONS                 0364780   00011992
+* 06/05/03 ADD REPLY Q MGR, OPEN QUEUE MANAGER                0364804   00011994
+* 10/01/01 NEW COPYBOOK.                                      2024376   00011998
+*********************************************************************** 00012000
+*                                                                       00013000
+TSTS2QFM DSECT                                                          00014000
+QFM      DS    0CL14845                                       0514798   00015000
+QFMMXET  DS    CL1             MAXIMUM ERROR SEVERITY CODE              00016000
+QFMMGCT  DS    PL4             NUMBER OF MESSAGES                       00017000
+*                                                                       00018000
+QFMMSDF  DS    0CL14840       MSG DEF - OCCURS 20 TIMES       0514798   00019000
+QFMMSD1  DS    0CL742          MESSAGE: 1ST OCCURRENCE        0514798   00020000
+*                                                                       00021000
+QFMOPTF  DS    0CL3            OPTIONS FIELDS                           00022000
+QFM1ACT  DS    CL1             MQ ACTION FIELD                          00023000
+*                              P - PUT                                  00024000
+*                              1 - PUT1                                 00025000
+QFMLUOT  DS    CL1             LU6.2 OR OTHER TYPE OF MESSAGE           00026000
+*                              1 - LU6.2                                00027000
+*                              2 - OTHER                                00028000
+QFMBNNC  DS    CL1             BUILD NNC WITH OUTPUT MESSAGE?           00029000
+*                              Y - YES, PLEASE DO                       00030000
+*                              N - NO, I DON'T NEED ONE                 00031000
+*                                                                       00032000
+QFMNNCF  DS    0CL8            NNC FIELDS                               00033000
+QFMNNCP  DS    CL8             NNC BUILD ITR/EOR PHASE NAME             00034000
+*                                                                       00035000
+QFMAPCF  DS    0CL66           APC FIELDS - FIELDS FOR TSHDR  0514798   00036000
+QFMCTRC  DS    CL4             CICS TRAN CODE                           00037000
+QFMEXTC  DS    CL4             EXTERNAL TRAN CODE                       00038000
+QFMAPPL  DS    CL2             APPLICATION CODE                         00039000
+QFMTSQN  DS    CL4             TRANSACTION SEQUENCE NUMBER              00040000
+QFMSECC  DS    CL1             FUNCTIONAL SECURITY CODE                 00041000
+QFMBMDT  DS    CL1             BUSINESS MODULE TYPE                     00042000
+QFMBUSM  DS    CL8             BUSINESS MODULE                          00043000
+QFMDGCT  DS    CL2             NUMBER OF DAGS                           00044000
+QFMPRID  DS    CL4             PROCESS ID                               00045000
+QFMEMPD  DS    CL8             EMPLOYEE ID                    0514798   00045100
+QFMSOUR  DS    CL2             SOURCE                         0514798   00045200
+QFMLVL1  DS    CL2             RPT LEVEL 1                    0514798   00045300
+QFMLVL2  DS    CL3             RPT LEVEL 2                    0514798   00045400
+QFMLVL3  DS    CL3             RPT LEVEL 3                    0514798   00045500
+QFMLVL4  DS    CL4             RPT LEVEL 4                    0514798   00045600
+QFMPHYL  DS    CL4             PHYSICAL LOCATION              0514798   00045700
+         DS    CL10            FILLER                         0514798   00045800
+*                                                                       00046000
+QFMDGHD  DS    CL300          DAG HEADER DATA: OCCURS 20 TIMES          00047000
+*                              15 X 20 = 300                            00048000
+*                              FOR INDIVIDUAL FIELDS SEE DSECT          00049000
+*                              BELOW                                    00050000
+*                                                                       00051000
+QFMMSLN  DS    XL4             MESSAGE LENGTH                           00052000
+QFMFQNME DS    CL48            FULL MQ QUEUE NAME                       00053000
+QFMRQNME DS    CL48            REPLY QUEUE NAME                         00054000
+QFMRQMGR DS    CL48            REPLY QUEUE MANAGER            0364804   00054100
+QFMEXPRY DS    XL4             EXPIRY TIME                    0364780   00054200
+QFMREPRT DS    XL4             REPORT OPTIONS                 0364780   00054300
+QFMODQMG DS    CL48            OUTPUT QUEUE MANAGER           0364804   00054400
+QFMMSGID DS    CL24            MESSAGE ID                     0364780   00054500
+QFMCORID DS    CL24            CORRELATION ID                 0364780   00054600
+*                                                                       00055000
+QFMERROR DS    0CL43           ERROR CODES                    0364780   00056000
+QFMERRTY DS    CL1             ERROR TYPE                               00059000
+QFMERRCD DS    CL4             ERROR CODE                               00060000
+QFMRESN  DS    CL4             REASON CODE                              00061000
+QFMCOMP  DS    CL4             COMPLETION CODE                          00062000
+QFMTEXT  DS    CL30            ERROR MESSAGE TEXT                       00063000
+QFMPMO   DS    XL4             PUT OPTIONS                              00064000
+QFMCOOPO DS    CL1             OPEN OPTIONS/PUT OPTIONS                 00066000
+         DS    CL3                                            0514798   00067000
+QFMAPPID DS    CL32            APPLICATION ID DATA                      00068000
+QFMCONTX DS    XL4             CONTEXT DATA                             00069000
+QFMMSGTY DS    XL4             MESSAGE TYPE                   0535195   00069500
+QFMMSGPR DS    XL4             MESSAGE PRIORITY               0735336   00069510
+QFMMSFMT DS    CL8             MESSAGE FORMAT                 0925694   00069520
+         DS    CL10            FILLER                         0925694   00070000
+QFMLEN   EQU   *-QFMMSDF                                                00071000
+         DS    CL13414         OCCURRENCE 2 THRU 20           0364804   00072000
+QFMMXLEN EQU   *-QFM                                          0514798   00072100
+************************************************************            00073000
+QFMDGH1  DSECT                                                          00074000
+QFMMSAD  DS    XL4             MESSAGE ADDRESS                          00075000
+QFMDAGN  DS    CL8             MESSAGE DAG NAME                         00076000
+QFMALLC  DS    CL1             DAG ALLOCATION  (EX: M FOR MOD)          00077000
+QFMDISP  DS    CL1             DAG DISPOSITION (EX: K FOR KEEP)         00078000
+QFMACT   DS    CL1             ACTION (I, O, B)                         00079000
+QFMDLEN  EQU *-QFMMSAD         LENGTH OF ONE OCCURRENCE                 00080000

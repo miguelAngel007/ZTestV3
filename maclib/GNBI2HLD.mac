@@ -1,0 +1,113 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** COPYBOOK DESCRIPTION **                         * 00002000
+*                                                                     * 00003000
+*GNBI1/2HLD COPYBOOK TO DESCRIBE HOLDING FILE RECORD FORMAT FOR EIC   * 00004000
+*                                                                     * 00005000
+*                                                                     * 00006000
+*---------------------------------------------------------------------* 00007000
+*                  ** HISTORY OF REVISIONS **                         * 00008000
+*                                                                     * 00009000
+* DESCRIPTION                                                 CHNGID  * 00010000
+* __________________________________________________________  _______ * 00011000
+*                                                                     * 00012000
+* 05/13/05 GN5191 EXPAND LVLS CHANGE OCCUR OF TOT AREA        0635191   00012100
+* 04/09/04 GN4798 INITIAL RELEASE                                     * 00013000
+* ___________________________________________________________________ * 00014000
+*                                                                     * 00015000
+GNHLDA   DSECT                                                          00016000
+GNHLD    DS    0CL11076                                                 00017000
+HLDACLN  DS    XL2            LENGTH OF RECORD                          00018000
+         DS    CL2            FILLER                                    00019000
+HLDKKEY  DS    0CL40          KEY                                       00020000
+HLDKICT  DS    0CL4           SAIN RECORD CONTROL                       00021000
+HLDKICX  DS    CL2            SAIN CONTROL PREFIX                       00022000
+HLDKIC2  DS    CL2            SAIN CONTROL 2 CHAR                       00023000
+HLDKDTE  DS    0CL6           PROCESS DATE                              00024000
+HLDKDYR  DS    CL2            PROCESS YEAR                              00025000
+HLDKDMO  DS    CL2            PROCESS MONTH                             00026000
+HLDKDDA  DS    CL2            PROCESS DAY                               00027000
+HLDKRKY  DS    0CL11          SOURCE/SUN-SEQ                            00028000
+HLDKRSR  DS    CL8            RUN SOURCE                                00029000
+HLDKRSQ  DS    CL3            RUN SEQUENCE                              00030000
+HLDKFSQ  DS    PL9            FORMAT SEQUENCE                           00031000
+         DS    CL2                                                      00032000
+HLDKFOR  DS    CL1            FORMAT-RECORD TYPE                        00033000
+HLDKFDT  EQU   C'D'           DATE FORMAT                               00034000
+HLDKFQU  EQU   C'Q'           QUEUE FORMAT                              00035000
+HLDKFHD  EQU   C'H'           RUN HEADER FORMAT                         00036000
+HLDKFIH  EQU   C'J'           FILE HEADER FORMAT                        00037000
+HLDKFRC  EQU   C'R'           DETAIL RECORD FORMAT                      00038000
+HLDKFTC  EQU   C'T'           CALCULATED TOTAL FORMAT                   00039000
+HLDKFIT  EQU   C'W'           FILE TOTAL FORMAT                         00040000
+HLDKBDT  DS    CL1            BACK DATE S                               00041000
+         DS    CL6            FILLER                                    00042000
+HLDKLGN  EQU   *-GNHLD        LENGTH OF KEY + LENGTH FIELDS             00043000
+HLDAUDT  DS    CL20           AUDIT AREA                                00044000
+HLDKNPC  DS    CL1            PROCESS ACTION                            00045000
+         DS    CL11           FILLER                                    00046000
+HLDALGN  EQU   *-GNHLD        LENGTH OF KEY + LENGTH + AUDIT            00047000
+HLDREST  DS    CL(11000)      MAX AREA OF RECORD                        00048000
+         ORG   HLDREST                                                  00049000
+HLDQUER  DS    0CL59          QUEUE RECORD                              00050000
+HLDQNME  DS    CL48           QUEUE NAME                                00051000
+HLDQINS  DS    CL4            QUEUE INPUT OPTION                        00052000
+HLDQINC  DS    CL1            QUEUE INPUT CONTEXT                       00053000
+HLDQINR  DS    CL1            QUEUE INPUT REPLY-ER                      00054000
+HLDQOTP  DS    CL4            QUEUE OUTPUT OPTION                       00055000
+HLDQOTC  DS    CL1            QUEUE OUTPUT CONTEXT                      00056000
+HLDQLGN  EQU   *-HLDQUER      LENGTH OF QUEUE AREA                      00057000
+         ORG   HLDREST                                                  00058000
+HLDDDTR  DS    0CL18          DATE RECORD                               00059000
+HLDDPPT  DS    0CL6           PREV PROCESS DATE                         00060000
+HLDDPPY  DS    CL2            PREV PROCESS YEAR                         00061000
+HLDDPPM  DS    CL2            PREV PROCESS MONTH                        00062000
+HLDDPPD  DS    CL2            PREV PROCESS DA                           00063000
+HLDDCPT  DS    0CL6           CURR PROCESS DATE                         00064000
+HLDDCPY  DS    CL2            CURR PROCESS YEAR                         00065000
+HLDDCPM  DS    CL2            CURR PROCESS MONTH                        00066000
+HLDDCPD  DS    CL2            CURR PROCESS DA                           00067000
+HLDDJPT  DS    0CL6           PROJ PROCESS DATE                         00068000
+HLDDJPY  DS    CL2            PROJ PROCESS YEAR                         00069000
+HLDDJPM  DS    CL2            PROJ PROCESS MONTH                        00070000
+HLDDJPD  DS    CL2            PROJ PROCESS DA                           00071000
+HLDDLGN  EQU   *-HLDDDTR      LENGTH OF DATE  AREA                      00072000
+         ORG   HLDREST                                                  00073000
+HLDJHDR  DS    0CL11          INPUT FILE HEADER/TRAILER                 00074000
+HLDJCDT  DS    0CL6           FILE PROCESS DATE                         00075000
+HLDJCPY  DS    CL2            CURR PROCESS YEAR                         00076000
+HLDJCPM  DS    CL2            CURR PROCESS MONTH                        00077000
+HLDJCPD  DS    CL2            CURR PROCESS DA                           00078000
+HLDJBAT  DS    CL4            INPUT FILE BATCH                          00079000
+HLDJBDT  DS    CL1            INPUT FILE BACKDATE                       00080000
+HLDJHLN  EQU   *-HLDJHDR      LENGTH OF INPUT HEADER                    00081000
+HLDJTTL  DS    0CL33          INPUT FILE TOTALS                         00082000
+HLDJDRA  DS    PL9            INPUT FILE DEBIT AMT                      00083000
+HLDJDRC  DS    PL5            INPUT FILE DEBIT COUNT                    00084000
+HLDJCRA  DS    PL9            INPUT FILE CREDIT AMT                     00085000
+HLDJCRC  DS    PL5            INPUT FILE CREDIT COUNT                   00086000
+HLDJNMC  DS    PL5            INPUT FILE COUNT                          00087000
+HLDJTGN  EQU   *-HLDJHDR      LENGTH OF INPUT TRAILER                   00088000
+         ORG   HLDREST                                                  00089000
+HLDSCAD  DS    0CL74          CALC TOTAL OR DETAIL STEM       0635191   00090000
+HLDSBLV  DS    CL1            BREAK LEVEL                               00091000
+HLDSLVS  DS    0CL70          LEVELS                          0635191   00092000
+HLDSLV1  DS    CL14           LEVEL 1                         0635191   00092100
+HLDSLV2  DS    CL14           LEVEL 2                         0635191   00093000
+HLDSLV3  DS    CL14           LEVEL 3                         0635191   00094000
+HLDSLV4  DS    CL14           LEVEL 4                         0635191   00095000
+HLDSLV5  DS    CL14           LEVEL 5                         0635191   00095100
+HLDSCUR  DS    CL3            CURRENCY                                  00096000
+HLDSLGN  EQU   *-HLDSCAD      LENGTH OF STEM CALC  AREA                 00097000
+HLDTTOT  DS    CL10632        CALC TOTAL RECORD               0635191   00098000
+HLDTLGN  EQU   *-HLDSCAD      LENGTH OF CALC TOTAL AREA                 00099000
+         DS    CL308          FILLER                          0635191   00100000
+         ORG   HLDTTOT                                                  00101000
+HLDRDTR  DS    0CL10632       DETAIL RECORD                   0635191   00102000
+HLDRDST  DS    CL8            DST OF DETAIL RECORD                      00103000
+HLDRDAG  DS    CL8            DAG OF DETAIL RECORD                      00104000
+HLDRDSL  EQU   *-HLDSCAD      LENGTH OF DETAIL STEM                     00105000
+HLDRREC  DS    CL10616        MAX SIZE OF OUT DETAIL          0635191   00106000
+HLDRLGN  EQU   *-HLDRREC      MAX LENGTH OF OUT DETAIL                  00107000
+         DS    CL294          FILLER                          0635191   00108000
+HLDMAXL  EQU   *-GNHLD        MAX REC LENGTH                            00109000

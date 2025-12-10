@@ -1,0 +1,40 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*****************************************************************       00000100
+* COMMAREA FOR TSHELP   - PROCESS HELP SCREENS                  *       00000200
+* 03/30/99 ADDED LANG CODE TO ENABLE MULTI-LANG TS HELP       9913918   00000210
+*****************************************************************       00000300
+HLCAREA  DS    0CL410                                         2501359   00000400
+HLCEYEC  DS    CL8                     EYECATCHER 'HLP1' OR 'HLP2'      00000500
+HLCTYPE  DS    CL3                     TYPE OF HELP REQUESTED           00000600
+HLCAPPL  DS    CL2                     APPLICATION                      00000700
+HLCSCNUM DS    CL2                     HELP SCREEN NUMBER               00000800
+HLCNXTSN DS    CL2                     HELP NEXT SCREEN NUMBER          00000900
+HLCMSGNM DS    CL4                     MESSAGE NUMBER                   00001000
+HLCDAG   DS    CL8                     DAG                              00001100
+HLCFLD   DS    CL8                     FIELD ID                         00001200
+HLCDATE  DS    PL5                     EFFECTIVE DATE                   00001300
+HLCCTLS  DS    CL12                    CONTROLS 1 - 4                   00001400
+HLCSDRCL DS    CL10                    SDR CLASS                        00001500
+HLCSDRNM DS    CL8                     SCREEN NAME                      00001600
+HLCSDRSQ DS    CL2                     SCREEN SEQUENCE NUMBER           00001700
+HLCPF1A  DS    CL1                     HOLD FOR PF1 ATTRIBUTE           00001800
+HLCPF2A  DS    CL1                     HOLD FOR PF2 ATTRIBUTE           00001900
+HLCPFCA  DS    CL1                     HOLD FOR PF12 ATTR     2501359   00002000
+*  TSTSHLP1 REFERENCES THE CURSOR POSITION WITH AN OFFSET.    2501359   00002010
+*  MODIFY TSTSHLP1 IF THE OFFSET OF THIS FIELD CHANGES.       2501359   00002020
+HLC1STT  DS    CL1                     1ST TIME THRU SWITCH   2501359   00002100
+HLCCPOS  DS    XL2                     HOLD OF CURSOR         2501359   00002200
+HLCSAPDT DS    CL238                   HOLD FOR SAP9070D DATA 2501359   00002300
+*  TSTSHLP1 REFERENCES SDR FIELD LENGTH, RETRIEVAL INDICATOR, 2501359   00002310
+*  DATA LENGTH, AND DATA FIELDS WITH AN OFFSET.               2501359   00002320
+*  MODIFY TSTSHLP1 IF THE OFFSET OF THESE FIELDS CHANGE.      2501359   00002330
+HLCSDRLN DS    XL2                     SDR FIELD LENGTH       2501359   00002400
+HLCRETIN DS    CL1                     RETRIEVAL INDICATOR    2501359   00002800
+         DS    CL1                     FILLER                 2501359   00002900
+HLCRETLN DS    XL1                     RETRIEVAL DATA LENGTH  2501359   00003000
+HLCRETDA DS    CL72                    RETRIEVAL DATA         2501359   00003100
+HLC1IMFL DS    CL1                     INQ/MAINT FLAG         2501359   00003200
+HLCLNGCD DS    CL2                     LANGUAGE CODE          9913918   00003250
+         DS    CL12                    FILLER                 9913918   00003300
+HLCLEN   EQU   *-HLCAREA                                      2501359   00003400
+*  00000210 00003250 00003300                                 9913918   00003401

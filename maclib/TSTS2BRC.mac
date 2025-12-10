@@ -1,0 +1,145 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*  01/05/88, 08:40                                                    * 00000200
+*                            TSTS8BRQ                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*                 BMS REQUEST COMMUNICATION AREA                      * 00000500
+*---------------------------------------------------------------------* 00000600
+         SPACE 2                                                        00000700
+TSBRQ    DSECT                                                          00000800
+BRQ      DS    0X                                                       00000900
+*                                                                       00001000
+*        REQUEST AREA                                                   00001100
+BRQREQOC DS    XL1                   OVERALL REQUEST COMPLETED FLAG     00001200
+BRQREQMN DS    CL8                   MAP NAME FOR REQUEST               00001300
+BRQREQMA DS    XL4                   MAP ADDR FOR REQUEST               00001400
+BRQREQMX DS    PL2                   MAXIMUM NUMBER OF REQUESTS '10'    00001500
+BRQREQUS DS    PL2                   NUMBER OF REQUESTS TO PROCESS      00001600
+BRQREQTB DS    0CL20                 REQUEST TABLE                      00001700
+BRQREQ1  DS    0CL2                  1ST OCCUR OF REQUEST TABLE         00001800
+BRQREQ   DS    CL1                   REQUEST                            00001900
+BRQREQC  DS    CL1                   REQUEST COMPLETION                 00002000
+BRQREQ2  DS    CL18                  2ND-10TH OCCUR                     00002100
+*                                                                       00002200
+*        APPLICATION TRANSACTION DATA                                   00002300
+BRQTRDES DS    CL15                  APPL TRANSACTION DESCRIPTION       00002400
+BRQTRPRC DS    CL1                   APPL TRANSACTION PROCESS CODE      00002500
+BRQTRDCF DS    CL1                   APPL TRANSACTION DR/CR FLAG        00002600
+BRQTRIEF DS    CL1                   APPL TRANSACTION INQ/ENTRY FLAG    00002700
+BRQTRCLF DS    CL1                   APPL TRANSACTION CLOSE FLAG        00002800
+BRQTRAMT DS    PL8                   APPL TRANSACTION AMOUNT            00002900
+BRQTRPEN DS    PL8                   APPL TRANSACTION PENALTY AMOUNT    00003000
+BRQTREFD DS    CL6                   APPL TRANSACTION EFFECTIVE DATE    00003100
+BRQTREXC DS    CL2                   APPL TRANSACTION EXCEPTION CODE    00003200
+BRQTRPTD DS    CL10                  APPL TRANSACTION REPORT DESCRIPT   00003300
+BRQTRCOF DS    CL1                   APPL TRANSACTION CREATE OFFLINE    00003400
+BRQTRRTF DS    CL1                   APPL TRANSACTION REAL TIME FLAG    00003500
+BRQTRNDF DS    CL1                   APPL TRANSACTION NEXT DAY  FLAG    00003600
+         DS    XL8                   FILLER                             00003700
+*                                                                       00003800
+*        INITIAL REQUEST                                                00003900
+BRQIRTT  DS    0X                    TERMINAL TYPE INFORMATION          00004000
+BRQIRMNO DS    CL30                  PROCESS NORMAL MESSAGE             00004100
+BRQIRMTS DS    CL30                  TRANSACTION SYSTEM ERROR MESSAGE   00004200
+BRQIRMSE DS    CL30                  SECURITY ERROR MESSAGE             00004300
+         DS    XL8                   FILLER                             00004400
+BRQIREMP DS    0X                    EMPLOYEE INFORMATION               00004500
+BRQIRTRF DS    CL1                   EMPLOYEE IN TRAINING FLAG          00004600
+BRQIRUTF DS    CL1                   UPDATE IN TRAINING FLAG            00004700
+BRQIRLTF DS    CL1                   LOG IN TRAINING FLAG               00004800
+         DS    XL8                   FILLER                             00004900
+BRQIRSCR DS    0X                    SCREEN INFORMATION                 00005000
+BRQIRMAD DS    XL4                   MAP ADDRESS                        00005100
+BRQIRMLG DS    XL2                   MAP LENGTH                         00005200
+BRQIRSDR DS    CL10                  SDR NAME                           00005300
+BRQIRPKF DS    CL1                   PROGRAM KEY FUNCTION               00005400
+BRQIRKDL DS    XL2                   PROGRAM KEY DATA LENGTH            00005500
+BRQIRKDA DS    CL10                  PROGRAM KEY DATA                   00005600
+BRQIRUX1 DS    CL8                   USER EXIT 1                        00005700
+BRQIRUX2 DS    CL8                   USER EXIT 2                        00005800
+BRQIRUX3 DS    CL8                   USER EXIT 3                        00005900
+BRQIRUX4 DS    CL8                   USER EXIT 4                        00006000
+BRQIRUX5 DS    CL8                   USER EXIT 5                        00006100
+BRQIRPCF DS    CL1                   PROCESS COMPLETE FLAG              00006200
+         DS    XL8                   FILLER                             00006300
+BRQIRAPP DS    0X                    APPLICATION INFORMATION            00006400
+BRQIRCTL DS    CL14                  APPLICATION PROCESSING CONTROLS    00006500
+BRQIRGNO DS    CL2                   APPLICATION GROUP NUMBER           00006600
+         DS    XL8                   FILLER                             00006700
+BRQIRXCT DS    0X                    TRANSFER CONTROL INFORMATION       00006800
+BRQIRXTI DS    CL4                   TRANSFER CONTROL TRAN ID           00006900
+BRQIRXPN DS    CL8                   TRANSFER CONTROL PROGRAM NAME      00007000
+         DS    XL8                   FILLER                             00007100
+*                                                                       00007200
+*        TRANSFER CONTROL REQUEST                                       00007300
+BRQXCTID DS    CL4                   TRAN ID                            00007400
+BRQXCPGM DS    CL8                   PROGRAM NAME                       00007500
+         DS    XL4                   FILLER                             00007600
+*                                                                       00007700
+*        TRANSACTION SECURITY REQUEST                                   00007800
+BRQTSTAB DS    0XL80                 TRANSACTION SECURITY TABLE         00007900
+BRQTS1   DS    0XL8                  1ST OCCUR OF TRANS SECURITY TABLE  00008000
+BRQTSTCD DS    CL4                   TRANSACTION CODE                   00008100
+BRQTSUCD DS    CL4                   USER CODE                          00008200
+BRQTS2   DS    XL72                  2ND-10TH OCCUR                     00008300
+         DS    XL8                   FILLER                             00008400
+*                                                                       00008500
+*        VALIDATE CONTROLS REQUEST                                      00008600
+BRQVCTLS DS    CL14                  CONTROLS TO BE VALIDATED           00008700
+BRQVCGNO DS    CL2                   APPLICATION GROUP NUMBER           00008800
+         DS    XL8                   FILLER                             00008900
+*                                                                       00009000
+*        PROTECT ALL FIELDS REQUEST                                     00009100
+BRQPFLG  DS    CL1                   PROTECT ALL FIELDS FLAG            00009200
+         DS    XL4                   FILLER                             00009300
+*                                                                       00009400
+*        LOAD ATTRIBUTE REQUEST                                         00009500
+BRQLAPPD DS    CL4                   APPENDED DATA                      00009600
+         DS    XL4                   FILLER                             00009700
+*                                                                       00009800
+*        ACCOUNT SECURITY REQUEST                                       00009900
+BRQACCAD DS    XL4                   ACCOUNT RECORD ADDRESS             00010000
+         DS    XL4                   FILLER                             00010100
+*                                                                       00010200
+*        EDIT REQUEST                                                   00010300
+BRQEDBCF DS    CL1                   EDITED A TSBCR FIELD FLAG          00010400
+         DS    XL4                   FILLER                             00010500
+*                                                                       00010600
+*        ERROR PROCESSING REQUEST                                       00010700
+BRQERTAD DS    XL4                   MESSAGE TABLE ADDRESS              00010800
+BRQERSAD DS    XL4                   SCREENS PROCESSED TABLE ADDRESS    00010900
+BRQERMSG DS    CL80                  FORMATTED ERROR MESSAGE            00011000
+         DS    XL8                   FILLER                             00011100
+*                                                                       00011200
+*        TSBCR UPDATE REQUEST                                           00011300
+BRQBCRAD DS    XL4                   BCR RECORD ADDRESS                 00011400
+         DS    XL4                   FILLER                             00011500
+*                                                                       00011600
+*        TSBCR LOGGING AND TOTALLING REQUEST                            00011700
+BRQLGEOR DS    CL1                   REWRITE EOR FLAG                   00011800
+BRQLGTOT DS    CL1                   BYPASS TOTALLING FLAG              00011900
+BRQLGLOG DS    CL1                   WRITE LOG FLAG                     00012000
+BRQLGPAD DS    XL4                   PHANTOM FIELD ADDRESS              00012100
+BRQLGDAD DS    XL4                   DATA OCCURRENCE ADDRESS            00012200
+BRQLGPRB DS    XL4                   PREVIOUS LOG RBA                   00012300
+BRQLGNRB DS    XL4                   NEW LOG RBA                        00012400
+         DS    XL8                   FILLER                             00012500
+*                                                                       00012600
+*        INQUIRY REQUEST                                                00012700
+BRQIQPCF DS    CL1                   PROCESSING COMPLETE INQUIRY FLAG   00012800
+BRQIQTAB DS    0XL90                 FILE POINTER TABLE                 00012900
+BRQIQFP1 DS    0XL9                  1ST OCCUR OF FILE POINTER TABLE    00013000
+BRQINQFI DS    CL5                   FILE ID                            00013100
+BRQINQAD DS    XL4                   FILE ADDRESS                       00013200
+BRQIQFP2 DS    XL81                  2ND-10TH OCCUR                     00013300
+         DS    XL8                   FILLER                             00013400
+*                                                                       00013500
+*        SAVE DATA                                                      00013600
+BRQITRAD DS    XL4                   ITR ADDRESS                        00013700
+BRQEORAD DS    XL4                   EOR ADDRESS                        00013800
+BRQQSIAD DS    XL4                   QSI ADDRESS                        00013900
+BRQSDRAD DS    XL4                   SDR ADDRESS                        00014000
+         DS    XL20                  FILLER                             00014100
+*                                                                       00014200
+BRQEND   EQU   *                     SYMBOLIC END OF COMM AREA          00014300
+BRQLEN   EQU   *-BRQ                 SYMBOLIC LENGTH OF COMM AREA       00014400

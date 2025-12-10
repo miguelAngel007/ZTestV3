@@ -1,0 +1,61 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+*---------------------------------------------------------------------* 00010000
+*   NXDSCALC - COPYBOOK TO PASS INFORMATION TO FINXXRTM (ONLINE)      * 00020000
+*              AND NXXRTM (BATCH) PROGRAMS                            * 00030000
+*---------------------------------------------------------------------* 00040000
+*                  ** HISTORY OF REVISIONS **                         * 00050000
+* DESCRIPTION                                                 CHNGID  * 00060000
+* __________________________________________________________  _______ * 00070000
+* 07/08/96 FLOATING DECIMAL                                   DECI040 * 00080000
+*---------------------------------------------------------------------* 00090000
+SIDSLXRT DSECT                                                DECI040   00100000
+XRTACT   DS     CL1                    ACTION                           00110000
+XRTRC    DS     CL1                    RETURN CODE                      00120000
+XRTNUM   DS     CL3                    CURRENCY NUMBER                  00130000
+XRTKEY   DS     0CL25                  KEY                              00140000
+XRTSOUR  DS     CL3                      SOURCE CURRENCY      DECI040   00150000
+XRTBASE  DS     CL3                      BASE CURRENCY        DECI040   00160000
+XRTTARG  DS     CL3                      TARGET CURRENCY      DECI040   00170000
+XRTBANK  DS     0CL4                     BANK NUMBER                    00180000
+XRTBNK0  DS     CL2                      BANK ZEROS           DECI040   00190000
+XRTBNK1  DS     CL2                      BANK CTL1            DECI040   00200000
+XRTQUAL  DS     CL4                      QUALIFIER                      00210000
+XRTDATE  DS     CL8                      DATE(CCYYMMDD)                 00220000
+XRTIAMT  DS     PL9                    INPUT AMOUNT                     00230000
+XRTOAMT  DS     PL9                    OUTPUT AMOUNT                    00240000
+XRTDESC  DS     CL24                   DESCRIPTION OF CURRENCY          00250000
+XRTLANG  DS     CL2                    LANGUAGE OF DESC       MLNI038   00260000
+XRTBOPT  DS     CL1                    BASE OPTION            DECI040   00270000
+XRTBDES  DS     CL24                   BASE CURR DESC         DECI040   00280000
+XRTSCUS  DS     CL4                    SOURCE CUST            DECI040   00290000
+XRTBCUS  DS     CL4                    BASE CUST              DECI040   00300000
+XRTTCUS  DS     CL4                    TARGET CUST            DECI040   00310000
+XRTSDEC  DS     CL1                    SOURCE DECIMAL         DECI040   00320000
+XRTBDEC  DS     CL1                    BASE DECIMAL           DECI040   00330000
+XRTTDEC  DS     CL1                    TARGET DECIMAL         DECI040   00340000
+XRTSAPP  DS     CL2                    SOURCE APPLICATION     DECI040   00350000
+XRTSCT0  DS     CL2                    SOURCE CTL1 SPACE      DECI040   00360000
+XRTSCTX  DS     0CL12                  SOURCE XRC KEY         DECI040   00370000
+XRTSCT1  DS     CL2                      SOURCE CTRL1         DECI040   00380000
+XRTSCT2  DS     CL3                      SOURCE CTRL2         DECI040   00390000
+XRTSCT3  DS     CL3                      SOURCE CTRL3         DECI040   00400000
+XRTSCT4  DS     CL4                      SOURCE CTRL4         DECI040   00410000
+XRTTAPP  DS     CL2                    TARGET APPLICATION     DECI040   00420000
+XRTTCT0  DS     CL2                    TARGET CTL1 SPACE      DECI040   00430000
+XRTTCTX  DS     0CL12                  TARGET XRC KEY         DECI040   00440000
+XRTTCT1  DS     CL2                      TARGET CTRL1         DECI040   00450000
+XRTTCT2  DS     CL3                      TARGET CTRL2         DECI040   00460000
+XRTTCT3  DS     CL3                      TARGET CTRL3         DECI040   00470000
+XRTTCT4  DS     CL4                      TARGET CTRL4         DECI040   00480000
+XRTERAT  DS     PL6                    EFFECTIVE RATE         DECI040   00490000
+XRTSRAT  DS     PL6                    SOURCE RATE            DECI040   00500000
+XRTTRAT  DS     PL6                    TARGET RATE            DECI040   00510000
+XRTRDET  DS     0CL22                  RETURN DETAILS         DECI040   00520000
+XRTRCUR  DS     CL3                      RETURN CURRENCY      DECI040   00530000
+XRTRDEC  DS     CL1                      RETURN DECIMAL       DECI040   00540000
+XRTRAMT  DS     PL9                      RETURN AMOUNT        DECI040   00550000
+XRTRRAT  DS     PL8                      RETURN RATE          DECI040   00560000
+XRTROVR  DS     CL1                      RETURN OVERRIDE      DECI040   00570000
+XRTBAMT  DS     PL9                      BASE AMOUNT          DECI040   00580000
+         DS     CL5                    *                      DECI040   00590000
+XRTOCLEN EQU    *-XRTACT               OCCURENCE LENGTH       DECI040   00600001

@@ -1,0 +1,43 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                            SACTRYCA                                 * 00002000
+*                       TRANSACTION SYSTEM                            * 00003000
+*                          COUNTRY CODE                               * 00004000
+*                                                                     * 00005000
+*                      HISTORY OF REVISIONS                           * 00006000
+* DESCRIPTION                                                         * 00007000
+* --------------------------------------------------------------------* 00008000
+* 06-10-13 ADD CURRENCY CODE, DECIMAL POSITION                1416478 * 00008096
+* 03-25-13 ADDED WAIVER REQUIRED, BI-LATERAL AGREE            1336410 * 00008098
+* 08-02-12 ADDED TAX REPORTING FLAG                           1316278 * 00008100
+* 02-28-02 ADDED TAX TREATY INFO AND PROVINCE CODES           2024327 * 00008200
+* 01-27-98 NEW COPYBOOK                                       9913615 * 00009000
+*---------------------------------------------------------------------* 00010000
+         SPACE 2                                                        00011000
+SACTRYCD DSECT                                                          00012000
+SACC     DS    0CL300                SA COUNTRY CODES                   00013000
+SACCLNG  DS    XL2                   RECORD LENGTH                      00014000
+         DS    CL2                   FILLER                             00015000
+SACCRK   DS    0CL60                 RECORD KEY                         00016000
+SACCSN   DS    CL8                     STRUCTURE NAME                   00017000
+SACCC1   DS    XL2                     CNTL-1                           00018000
+SACCSK   DS    0CL50                   SEARCH-KEY                       00019000
+SACCLANG DS    CL2                       LANGUAGE                       00020000
+SACCTYPE DS    CL3                       CC TYPE CODE                   00021000
+SACCCTRY DS    0CL5                      CC CTRY CODE                   00022000
+SACCCONT DS    CL1                         CONTINENT                    00023000
+SACCCTRC DS    CL4                         COUNTRY                      00024000
+         DS    CL40                      FILLER                         00025000
+SACCLMDT DS    PL5                   LAST MAINT DATE                    00026000
+SACCLMTM DS    PL5                   LAST MAINT TIME                    00027000
+SACCNAME DS    CL60                  COUNTRY NAME                       00028000
+SACCRTES DS    0CL6                  TAX TREATY RATES         1336410   00028100
+SACCPDBY DS    PL6                   INTEREST PAID BY US      1336410   00028200
+SACCTXFG DS    CL1                   TAX REPORTING FLAG       1316278   00028302
+         DS    CL5                   FILLER                   1316278   00028403
+SACCPVCD DS    50CL2                 PROVINCE CODE            2024327   00028500
+SACWAIRQ DS    CL1                   WAIVER REQUIRED          1336410   00028502
+SACBILAG DS    CL1                   BI LATERAL AGREE         1336410   00028504
+SACCURCD DS    CL3                   CURRENCY CODE            1416478   00028506
+SACDECPS DS    CL1                   DECIMAL POSITION         1416478   00028508
+         DS    CL48                  FILLER                   1416478   00029000

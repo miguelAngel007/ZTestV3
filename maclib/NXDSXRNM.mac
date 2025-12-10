@@ -1,0 +1,126 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+***********************************************************************
+***   * CO0270 21/01/05 JAVP NUEVAS MONEDAS                          **
+***********************************************************************
+*********************************************************************** 00010000
+*  NXDSQUAL --- VALID QUALIFIERS BY BANK                              * 00020000
+*                                                                     * 00030000
+*    1 - 4    4 DIGIT BANK NUMBER (BLANKS IS DEFAULT)                 * 00040000
+*    5 - 8    QUALIFIER                                               * 00050000
+*   10        MID-RATE OPTION (BLANKS IS DEFAULT)              DECI040* 00060000
+*********************************************************************** 00070000
+NXDSQUAL DS   0F                                                        00080000
+         DC   CL10'    CASH  '                                          00090000
+         DC   CL10'    FMS  M'                                          00120000
+         DC   CL10'    SBS   '         IB-05/09/96                      00001100
+         DC   CL10'    SBS1  '         IB-05/09/96                      00001100
+         DC   CL10'    SBS2  '         IB-05/09/96                      00001100
+         DC   CL10'    SBS3  '         IB-05/09/96                      00001100
+         DC   CL10'    SPOT  '                                          00100000
+         DC   CL10'    TVCK  '                                          00110000
+         DC   CL10'    LEGA  '                                          00110000
+         DC   CL10'    MORA  '                                          00110000
+         DC   CL10'    XFER M'                                          00130000
+         DC   10X'FF' DECI040                                           00140000
+         EJECT                                                          00150000
+*********************************************************************** 00160000
+*  NXDSROPT --- RETURN OPTION BY CONTROL 1                     DECI040* 00170000
+*                                                              DECI040* 00180000
+*    1 - 4    4 DIGIT BANK NUMBER (BLANKS IS DEFAULT)          DECI040* 00190000
+*    6        RETRUN OPTION                                    DECI040* 00200000
+*                0 = ORIGINAL (DEFAULT IF NOT INDICATED        DECI040* 00210000
+*                              IN BANL NUMBER)                 DECI040* 00220000
+*                1 = LOCAL                                     DECI040* 00230000
+*********************************************************************** 00240000
+NXDSROPT DS   0F                                               DECI040  00250000
+         DC   CL6'     0'                                               00260000
+         DC   CL6'0084 0'                                               00270000
+         DC   CL6'0085 1'                                               00280000
+         DC   6X'FF'                                           DECI040  00290000
+         EJECT                                                 DECI040  00300000
+*********************************************************************** 00310000
+*  NXDSXRNM --- VALID INTERNATIONAL CURRENCY TABLE                    * 00320000
+*                                                                     * 00330000
+*    1 - 4    4 DIGIT BANK NUMBER                                     * 00340000
+*    5 - 7    CURRENCY CODE                                           * 00350000
+*    8 - 9    LANGUAGE                                        MLNI038 * 00360000
+*   10        DECIMAL POSITION (DEFAULT IS 2)                 DECI040 * 00370000
+*   11 -34    CURRENCY DESCRIPTION                            MLNI038 * 00380000
+*  LOOKUP IS BY BANK AND CURRENCY CODE IF THE BANK NUMBER IS IN       * 00390000
+*    THE TABLE.  IF NOT, CURRENCY CODE IS USED FROM ENTRIES WITH A    * 00400000
+*    BLANK BANK NUMBER.                                               * 00410000
+*********************************************************************** 00420000
+NXDSLENG EQU  34       LENGTH OF EACH TABLE ENTRY             MLNI038   00430000
+NXDSXRNM DS   0F                                                        00440000
+         DC   CL34'          MONEDA NO ESPECIFICADA'                    00450000
+         DC   CL34'    AED   UN ARAB EMIRATES DIRHAM'                   00470000
+         DC   CL34'    ARP   ARGENTINA PESO'                            00530000
+         DC   CL34'    ATS   AUSTRIA SCHILLING'                         00540000
+         DC   CL34'    AUD   AUSTRALIAN DOLLAR'                         00550000
+         DC   CL34'    BEF   BELGIUM FRANC'           IB-05/09/96       00003100
+         DC   CL34'    BMD   BERMUDA DOLLAR  '                          00630000
+         DC   CL34'    BOB   BOLIVIA PESO'                              00630000
+         DC   CL34'    BRC   BRAZIL CRUZEIRO'                           00660000
+         DC   CL34'    BRL   BRAZIL REAL'                               00660000
+         DC   CL34'    CAD   CANADIAN DOLLAR'                           00720000
+         DC   CL34'    CHF   SWISS FRANC'                               00730000
+         DC   CL34'    CLP   CHILEAN PESO'                              00750000
+         DC   CL34'    CNY   CHINA YUAN'                                00800000
+         DC   CL34'    COP   COLOMBIA PESO'                             00790000
+         DC   CL34'    CYP   CYPRUS POUND'                              00840000
+         DC   CL34'    DEM   DEUTSCHE MARK'                             00860000
+         DC   CL34'    DKK   DANISH KRONE'                              00880000
+         DC   CL34'    ECS   ECUADOR SUCRE'                             00910000
+         DC   CL34'    EGP   EGYPTIAN POUND'                            00920000
+         DC   CL34'    ESB   SPAIN PESETA'                              00930000
+         DC   CL34'    EUR   EUROPA EURO'                               00930000
+         DC   CL34'    FIM   FINNISH MARKKA'                            00960000
+         DC   CL34'    FRF   FRENCH FRANC'                              00990000
+         DC   CL34'    GBP   GREAT BRITAIN POUND'                       01000001
+         DC   CL34'    GIP   GIBRALTAR POUND'                           01020000
+         DC   CL34'    GRD   GREECE DRACHMA'                            01050000
+         DC   CL34'    HKD   HONG KONG DOLLAR'                          01090000
+         DC   CL34'    IEP   IRISH PUNT'                                01140000
+         DC   CL34'    ILS   ISRAEL SHEKEL'                             01150000
+         DC   CL34'    INR   INDIA RUPEE'                               01160000
+         DC   CL34'    IQD   IRAQ DINAR'                                01170000
+         DC   CL34'    IRR   IRANIAN RIAL'                              01180000
+         DC   CL34'    ISK   ICELAND KRONA'                             01190000
+         DC   CL34'    ITL   ITALY LIRA'                                01200000
+         DC   CL34'    JPY   JAPANESE YEN'                              01230001
+         DC   CL34'    KRW   SOUTH KOREA WON'                           00005800
+         DC   CL34'    KWD   KUWAITI DINAR'                             01310000
+         DC   CL34'    LBP   LEBANESE POUND'                            01340000
+         DC   CL34'    LUF   LUXEMBOURG FRANC'                          01380000
+         DC   CL34'    MOP   MACAO PATACA'                              01430000
+         DC   CL34'    MTP   MALTA POUND'                               01460000
+         DC   CL34'    MXN   MEXICO PESO'                               01500000
+         DC   CL34'    MXP   MEXICO PESO'                               01500000
+         DC   CL34'    MYR   MALAYSIA RINGGIT'                          01510000
+         DC   CL34'    NLG   DUTCH GUILDER'                             01550000
+         DC   CL34'    NOK   NORWEGIAN KRONER'                          01560000
+         DC   CL34'    NZD   NEW ZEALAND DOLLAR'                        01580000
+         DC   CL34'    OMR   OMAN RIAL'                                 01590000
+         DC   CL34'    PAB   PANAMA BALBOA'                             01590000
+         DC   CL34'    PES   PERU NUEVO SOL'          IB-05/09/96       01620000
+         DC   CL34'    PHP   PHILIPPINES PESO'                          01640000
+         DC   CL34'    PKR   PAKISTAN RUPEE'                            01650000
+         DC   CL34'    PLZ   POLAND ZLOTY'                              01660000
+         DC   CL34'    PTE   PORTUGAL ESCUDO'                           01670000
+         DC   CL34'    PYG   PARAGUAY GUARANI'                          01670000
+         DC   CL34'    QAR   QUATAR RIYAL'                              01690000
+         DC   CL34'    RUR   RUSSIA RUBLE'                    0209007   01710000
+         DC   CL34'    SAR   SAUDI-ARABIA RIYAL'                        01730000
+         DC   CL34'    SEK   SWEDEN KRONA'                              01770000
+         DC   CL34'    SGD   SINGAPORE DOLLAR'                          01780000
+         DC   CL34'    SLT   SLOVENIA TOLAR'                  0209007   01810000
+         DC   CL34'    THB   THAI BAHT'                                 01890000
+         DC   CL34'    TRL   TURKEY LIRA'                               01930000
+         DC   CL34'    USD   USA DOLLAR'                                01980000
+         DC   CL34'    UYP   URUGUAY PESO'                              02010000
+         DC   CL34'    UYU   URUGUAY PESO'                              02010000
+         DC   CL34'    VEB   VENEZUALAN BOLIVAR'                        02020000
+         DC   CL34'    ZAR   SOUTH AFRICAN RAND'                        02090000
+*        DC   CL34'0050GBP   GREAT BRITAIN POUND'                       02130000
+*        DC   CL34'0050USD   USA DOLLAR'                                02140000
+         DC   34X'FF'                                         MLNI038   02150000

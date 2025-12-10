@@ -1,0 +1,236 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                TSTS2SOR -- SYSTEM OPTIONS RECORD                    * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 11/20/12 REPLACED PND FLAG WITH UOP - USER OPTION           1325978   00000476
+* 08/24/10 REPLACED ACH FLAG WITH FILLER                      1115962   00000478
+* 11/27/07 ADDED NEW STATUS FIELD FOR MAKER/CHECKER           0835688   00000480
+* 07/22/03 ADDED IM PASSBOOK TRANSACTION SYSTEM FILE          0424801 * 00000482
+* 10/18/02 ADDED SOREEG (OVERRIDE EOR GRP ON TSEJ)            0324593 * 00000484
+* 02/15/97 ADDED NEW FIELDS FOR 24X7 PROCESSING               9910919 * 00000486
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000488
+*             SOCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000489
+*             SOCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000490
+*             SORLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000491
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000492
+*             SOCACHID DS    CL8         CA CHANGE ID         2602105 * 00000493
+*          CHANGED FILLER LENGTH                              2602105 * 00000494
+*                      DS    CL3         FILLER               2602105 * 00000495
+*                                                             2602105 * 00000496
+*                                                                     * 00000497
+*---------------------------------------------------------------------* 00000498
+*                                                                       00000499
+TSTSSOR  DSECT                                                          00000500
+SOR      DS    0X                                                       00000600
+SORLNG   DS    XL2                   SOR RECORD LENGTH                  00000700
+*                                    MAX. VALUE '+600'                  00000800
+         DS    XL2                   FILLER                             00000900
+SORKEY   DS    0CL23                 KEY                                00001000
+SORRECID DS    CL3                   RECORD ID                          00001100
+*                                    VALUE 'SOR'                        00001200
+SORCLASS DS    CL10                  CLASS                              00001300
+SORPMOD  DS    CL1                   PROCESS MODE                       00001400
+*                                    VALUE 'T' - TS, 'F' - FI           00001500
+SORAPID  DS    CL2                   APPLICATION ID                     00001600
+*                                    VALUE ANY APPLICATION ID           00001700
+         DS    CL6                   FILLER                             00001800
+SORFNDES DS    CL1                   FUNCTION DESCRIPTION INDICATOR     00001900
+*                                    VALUE 'D' - INDICATES A DESC REC   00002000
+*                                                                       00002100
+SOCAFCL  DS    XL1                   FILE CONVERSION LEVEL    2602105   00002110
+SOCARCL  DS    XL1                   REC CONVERSION LEVEL     2602105   00002120
+*                                                             2602105   00002130
+SORLMNT  DS    0CL28                 LAST MAINTENANCE INFO    2602105   00002140
+SORMDAT  DS    CL6                   LAST MAINTENANCE DATE MMDDYY       00002200
+SORMTIM  DS    CL6                   LAST MAINTENANCE TIME HHMMSS       00002300
+SORMEMP  DS    CL8                   LAST MAINTENANCE EMPLOYEE ID       00002400
+SOCACHID DS    CL8                   CA CHANGE ID             2602105   00002500
+         ORG   SOCACHID                                       2602105   00002510
+SOMTRM   DS    CL8                   LAST MAINTENANCE TERM ID 2602105   00002520
+         DS    CL3                   FILLER                   2602105   00002600
+*                                                                       00002700
+SORTSSEC DS   0CL540                 TS SECURITY OPTIONS                00002800
+SOROVRLV DS    CL2                   OVERRIDE LEVEL                     00002900
+SORFSINQ DS    CL2                   FIELD SECURITY INQUIRY LEVEL       00003000
+SORFSDE  DS    CL2                   FIELD SECURITY DATA ENTRY LEVEL    00003100
+         DS    XL32                  FILLER                             00003200
+*                                                                       00003300
+SORTSFIL DS    0CL45                 TRANSACTION SYSTEM FILES/RECORDS   00003400
+SORAOR   DS    CL1                   APPLICATION OPTION RECORD          00003500
+SORBDR   DS    CL1                   BALANCE DESCRIPTION FILE           00003600
+SORCIR   DS    CL1                   CHECK INVENTORY FILE               00003700
+SORLDR   DS    CL1                   LOAD DEFINITON RECORD              00003800
+SORDCR   DS    CL1                   DEFAULT CONTROLS RECORD            00003900
+SORCDR   DS    CL1                   CONTROLLER DEFINITION RECORD       00004000
+SOREBR   DS    CL1                   EMPLOYEE BULLETIN FILE             00004100
+SOREOD   DS    CL1                   END OF DAY PROCESSING    9910919   00004200
+SOREOR   DS    CL1                   EMPLOYEE OPTIONS RECORD            00004300
+SORFDR   DS    CL1                   FILE DEFINITION RECORD             00004400
+SORGLR   DS    CL1                   GENERAL LEDGER FILE                00004500
+SORITR   DS    CL1                   INSTITUTION TERMINAL FILE          00004600
+         DS    CL1                   FILLER                   9910919   00004700
+SORNDP   DS    CL1                   NEXT DAY POSTING FILE              00004800
+SORPBK   DS    CL1                   ST PASSBOOK FILE         0424801   00004900
+SORUOP   DS    CL1                   USER OPTIONS             1325978   00005000
+SORRPT   DS    CL1                   REPORTS FILE                       00005100
+SORSDR   DS    CL1                   SCREEN DEFINITION FILE             00005200
+SORSER   DS    CL1                   SYSTEM ENVIRONMENT RECORD          00005300
+SORSOR   DS    CL1                   SECURITY OPTIONS RECORD            00005400
+SORTAR   DS    CL1                   TRANSACTION AUTHORIZATION FILE     00005500
+SORTBR   DS    CL1                   TRANSACTION BUILD FILE             00005600
+SORTCR   DS    CL1                   TRANSACTION CONTROL FILE           00005700
+SORTDR   DS    CL1                   TOTALS DESCRIPTION FILE            00005800
+SORTTR   DS    CL1                   TERMINAL TYPE RECORD               00005900
+SORVCR   DS    CL1                   VALID CONTROLS RECORD              00006000
+SORVTR   DS    CL1                   VALID TERMINAL RECORD              00006100
+SORLWT   DS    CL1                   LOAD INCORE RECORD                 00006200
+         DS    CL1                   FILLER                   1115962   00006300
+SORICR   DS    CL1                   INPUT CONTROLS                     00006400
+SORSHR   DS    CL1                   STANDARD HEADINGS                  00006500
+SORFIR   DS    CL1                   FIELD DEFINITION RECORD            00006600
+SORUPD   DS    CL1                   UPDATE PROCESS DATES               00006700
+SOREJR   DS    CL1                   ELETRONIC JOURNAL REDISPLAY        00006800
+SORVDR   DS    CL1                   VALID DEPARTMENT RECORD  0722348   00006810
+SORSSR   DS    CL1                   SEGMENT SPECIFICATION    2501276   00006830
+SORNDC   DS    CL1                   NEXT-DAY POSTING CPL FLAG9910919   00006840
+SOREEG   DS    CL1                   OVERRIDE EOR GRP ON TSEJ 0324593   00006845
+SORIPBK  DS    CL1                   IM PASSBOOK FILE         0424801   00006847
+SORCHKR  DS    CL1                   CHECKER ACCESS           0835688   00006850
+         DS    XL5                   FILLER                   0835688   00006900
+         DS    CL457                 FILLER                             00007000
+         ORG   SORTSSEC                                                 00007100
+SORAPSEC DS   0CL540                 APPLICATION SECURITY               00007200
+SORDEFSQ DS    CL1                   BUILT BY DEFAULT                   00007300
+*                                    0 - NOT BUILT BY DEFAULT           00007400
+*                                    1 - BUILT BY DEFAULT               00007500
+SORFLRLM DS    PL8                   FLOOR LIMIT                        00007600
+SORAPFNC DS    CL1                   ALL FUNCTIONS FLAG       00705392  00007700
+*                0 - DONT ALLOW ACCESS TO ALL FUNCTIONS       00705392  00007800
+*                1 - ALLOW ACCESS TO ALL FUNCTIONS            00705392  00007900
+         DS    CL10                  FILLER                             00008000
+SORFUNC  DS   0CL108                 FUNCTION AUTHORIZATION             00008100
+SORSECCD DS    CL1                   SECURITY CODE                      00008200
+*                                    0 - 9 AND A - Z                    00008300
+SORFUNIN DS    CL2                   FUNCTION INDICATOR                 00008400
+*                00 - NO OTHER FUNCTION REQUIRED              0725052   00008500
+*                01 - CIF REQ FOR NEW ACCOUNT BEFORE FUNCTION 0725052   00008600
+*                02 - CIF REQ FOR NAME/ADDRESS BEFORE FUNCTION0725052   00008610
+SORFUNCS DS     CL105                2ND - 36TH OCCURRANCES             00008700
+         DS     CL4                  FILLER                             00008800
+SORAPTS  DS    0CL77                 VARIABLE BY APPLICATION            00008900
+SORACDM  DS    0CL4                  DORMANT ACCOUNT RESTRICTIONS       00009000
+SORACDMD DS    CL1                   RESTRICT DORMANT FLAG - DEBIT      00009100
+SORACDMC DS    CL1                   RESTRICT DORMANT FLAG - CREDIT     00009200
+SORACDMI DS    CL1                   RESTRICT DORMANT FLAG - INQUIRY    00009300
+SORACDMM DS    CL1                   RESTRICT DORMANT FLAG - MAINT      00009400
+*                                                                       00009500
+SORACIN  DS    0CL4                  INACTIVE/PAID ACCT RESTRICTIONS    00009600
+SORACIND DS    CL1                   RESTRICT INACT/PD FLAG - DEBIT     00009700
+SORACINC DS    CL1                   RESTRICT INACT/PD FLAG - CREDIT    00009800
+SORACINI DS    CL1                   RESTRICT INACT/PD FLAG - INQUIRY   00009900
+SORACINM DS    CL1                   RESTRICT INACT/PD FLAG - MAINT     00010000
+*                                                                       00010100
+SORACEM  DS    0CL4                  EMPLOYEE ACCOUNT RESTRICTIONS      00010200
+SORACEMD DS    CL1                   RESTRICT EMPLOYEE FLAG - DEBIT     00010300
+SORACEMC DS    CL1                   RESTRICT EMPLOYEE FLAG - CREDIT    00010400
+SORACEMI DS    CL1                   RESTRICT EMPLOYEE FLAG - INQUIRY   00010500
+SORACEMM DS    CL1                   RESTRICT EMPLOYEE FLAG - MAINT     00010600
+*                                                                       00010700
+SORACCL  DS    0CL4                  CLOSED ACCOUNT RESTRICTIONS        00010800
+SORACCLD DS    CL1                   RESTRICT CLOSED FLAG - DEBIT       00010900
+SORACCLC DS    CL1                   RESTRICT CLOSED FLAG - CREDIT      00011000
+SORACCLI DS    CL1                   RESTRICT CLOSED FLAG - INQUIRY     00011100
+SORACCLM DS    CL1                   RESTRICT CLOSED FLAG - MAINT       00011200
+*                                                                       00011300
+SORACDL  DS    0CL4                  DELETED ACCOUNT RESTRICTIONS       00011400
+SORACDLD DS    CL1                   RESTRICT DELETED FLAG - DEBIT      00011500
+SORACDLC DS    CL1                   RESTRICT DELETED FLAG - CREDIT     00011600
+SORACDLI DS    CL1                   RESTRICT DELETED FLAG - INQUIRY    00011700
+SORACDLM DS    CL1                   RESTRICT DELETED FLAG - MAINT      00011800
+*                                                                       00011900
+SORACNW  DS    0CL4                  NEW ACCT ACCOUNT RESTRICTIONS      00012000
+SORACNWD DS    CL1                   RESTRICT NEW ACCT FLAG - DEBIT     00012100
+SORACNWC DS    CL1                   RESTRICT NEW ACCT FLAG - CREDIT    00012200
+SORACNWI DS    CL1                   RESTRICT NEW ACCT FLAG - INQUIRY   00012300
+SORACNWM DS    CL1                   RESTRICT NEW ACCT FLAG - MAINT     00012400
+*                                                                       00012500
+SORACCM  DS    0CL4                  COMMERCIAL ACCOUNT RESTRICTIONS    00012600
+SORACCMD DS    CL1                   RESTRICT COMMERCIAL FLAG - DEBIT   00012700
+SORACCMC DS    CL1                   RESTRICT COMMERCIAL FLAG - CREDIT  00012800
+SORACCMI DS    CL1                   RESTRICT COMMERCIAL FLAG - INQUIRY 00012900
+SORACCMM DS    CL1                   RESTRICT COMMERCIAL FLAG - MAINT   00013000
+*                                                                       00013100
+SORACPN  DS    0CL4                  PENALTY TYPE ACCOUNT RESTRICTIONS  00013200
+SORACPND DS    CL1                   RESTRICT PENALTY FLAG - DEBIT      00013300
+SORACPNC DS    CL1                   RESTRICT PENALTY FLAG - CREDIT     00013400
+SORACPNI DS    CL1                   RESTRICT PENALTY FLAG - INQUIRY    00013500
+SORACPNM DS    CL1                   RESTRICT PENALTY FLAG - MAINT      00013600
+*                                                                       00013700
+SORACTE  DS    0CL4                  TERMINATED ACCOUNT RESTRICTIONS    00013800
+SORACTED DS    CL1                   RESTRICT TERMINATED FLAG - DEBIT   00013900
+SORACTEC DS    CL1                   RESTRICT TERMINATED FLAG - CREDIT  00014000
+SORACTEI DS    CL1                   RESTRICT TERMINATED FLAG - INQ     00014100
+SORACTEM DS    CL1                   RESTRICT TERMINATED FLAG - MAINT   00014200
+*                                                                       00014300
+SORACLC  DS    0CL4                  LOST CONTACT ACCCOUNT RESTRICTIONS 00014400
+SORACLCD DS    CL1                   RESTRICT LOST ACCT FLAG - DEBIT    00014500
+SORACLCC DS    CL1                   RESTRICT LOST ACCT FLAG - CREDIT   00014600
+SORACLCI DS    CL1                   RESTRICT LOST ACCT FLAG - INQ      00014700
+SORACLCM DS    CL1                   RESTRICT LOST ACCT FLAG - MAINT    00014800
+*                                                                       00014900
+SORACTF  DS    0CL4                  TRANSFER ACCOUNT RESTRICTIONS      00015000
+SORACTFD DS    CL1                   RESTRICT TFR ACCT FLAG - DEBIT     00015100
+SORACTFC DS    CL1                   RESTRICT TFR ACCT FLAG - CREDIT    00015200
+SORACTFI DS    CL1                   RESTRICT TFR ACCT FLAG - INQ       00015300
+SORACTFM DS    CL1                   RESTRICT TFR ACCT FLAG - MAINT     00015400
+*                                                                       00015500
+SORNOAF  DS    0CL4                  NO ACTIVITY ACCT RESTRICT          00015600
+SORNOAFD DS    CL1                   RESTRICT NO ACTIV - DEBIT          00015700
+SORNOAFC DS    CL1                   RESTRICT NO ACTIV - CREDIT         00015800
+SORNOAFI DS    CL1                   RESTRICT NO ACTIV - INQ            00015900
+SORNOAFM DS    CL1                   RESTRICT NO ACTIV - MAINT          00016000
+*                                                                       00016100
+SORFRZF  DS    0CL4                  FROZEN ACCT RESTRICTIONS           00016200
+SORFRZFD DS    CL1                   RESTRICT FROZEN - DEBIT            00016300
+SORFRZFC DS    CL1                   RESTRICT FROZEN - CREDIT           00016400
+SORFRZFI DS    CL1                   RESTRICT FROZEN - INQ              00016500
+SORFRZFM DS    CL1                   RESTRICT FROZEN - MAINT            00016600
+*                                                             2501326   00016605
+SORNORF  DS    0CL4                  NORMAL ACCT RESTRICTIONS 2501326   00016610
+SORNORFD DS    CL1                   RESTRICT NORMAL - DEBIT  2501326   00016615
+SORNORFC DS    CL1                   RESTRICT NORMAL - CREDIT 2501326   00016620
+SORNORFI DS    CL1                   RESTRICT NORMAL - INQ    2501326   00016625
+SORNORFM DS    CL1                   RESTRICT NORMAL - MAINT  2501326   00016630
+*                                                                       00016700
+         DS    CL4                   FILLER                   2501326   00016800
+SORAPCM  DS    CL1                   CRITICAL MAINTENANCE FLAG          00016900
+*                                    0 - DONT ALLOW CRIT MAINT          00017000
+*                                    1 - ALLOW CRIT MAINT               00017100
+         DS    CL4                   FILLER                             00017200
+SORFILE  DS    0CL8                  FILE RESTRICTION                   00017300
+SORAPMN  DS    CL1                   MONETARY                           00017400
+SORAPGR  DS    CL1                   TRAN GRID                          00017500
+SORAPBC  DS    CL1                   BCR                                00017600
+SORAPEN  DS    CL1                   ENVIRONMENT                        00017700
+SORAPPR  DS    CL1                   PRODUCT                            00017800
+SORAPQU  DS    CL1                   QUERY                              00017900
+SORAPLK  DS    CL1                   LOOKUP                             00018000
+SORAPRP  DS    CL1                   REPORT                             00018100
+         DS    CL4                   FILLER                             00018200
+*                                                                       00018300
+         ORG   SORAPTS                                                  00018400
+SORAPFI  DS    CL77                  FI APPLICATION OCCURRENCE          00018500
+*                                                                       00018600
+         DS    CL331                 FILLER                             00018700
+         ORG   SORTSSEC                                                 00018800
+SORFUNDS DS   0CL540                 FUNCTION DESCRIPTIONS              00018900
+SORDESC  DS    CL15                  DESCRIPTION                        00019000
+SORDESCS DS    CL525                 2ND - 36TH OCCURRANCES             00019100

@@ -1,0 +1,20 @@
+*ASM XOPTS(NOEPILOG,SP)                                                 00000100
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000110
+*                  ** HISTORY OF REVISIONS **                         * 00000120
+*                                                                     * 00000130
+* DESCRIPTION                                                 CHNGID  * 00000140
+* __________________________________________________________  _______ * 00000150
+* 05/01/97 BYPASS UCTRAN ALTER FOR SOSI TERMINALS             9913481 * 00000196
+*---------------------------------------------------------------------* 00000198
+* THIS IS A COPYBOOK TO DO A CICS SET TERMINAL UCTRAN ONLY              00000200
+*        EXEC  CICS ASSIGN SOSI(SOSITCT).                     9913481   00000210
+         DFHECALL =X'02088000082E00000000000000000000000000000000',(___*
+               1__RF,SOSITCT)
+         CLC   SOSITCT,=X'FF00'        IS THIS A DBCS TERM    9913481   00000220
+         BE    SOSIRETU                YES DON'T ALTER UCTRAN 9913481   00000230
+*        EXEC CICS SET TERMINAL(EIBTRMID) UCTRAN NOHANDLE               00000300
+         DFHECALL =X'5214000028015E00',(CHA4,EIBTRMID),(FB_4,=A(450))
+SOSIRETU EQU   *                                              9913481   00000400
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

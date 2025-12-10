@@ -1,0 +1,57 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000001
+*                     ** HISTORY OF REVISIONS **                      * 00000003
+*                                                                     * 00000005
+* DESCRIPTION                                                 CHNGID  * 00000007
+* __________________________________________________________  _______ * 00000009
+* 06/25/03 CHG COMPARE INSTR - SAVE STORAGE LIT POOL             4532 * 00000094
+* 07/10/97 FIX FLEX ACCT PROCESSING FOR CL - REG CORRUPTED    9913509 * 00000096
+*---------------------------------------------------------------------* 00000098
+*********************************************************************   00000100
+*      FLEX ACCOUNT USER PARSING FOR PDA - USER CODE 1              *   00000200
+*********************************************************************   00000300
+PDAACX00 EQU   *                                                        00000400
+         XC    TSACX,TSACX             CLEAR FLEX ACCT RECORD           00000500
+         MVC   ACXITRA,STMITRA         STEM ITR ADDR TO FLEX ITR ADDR   00000600
+         MVC   ACXFKEY,SPACES          MOVE 40 BLANKS TO KEY AREA       00000700
+         MVC   ACXFKEY+40(3),SPACES    MOVE 3 BLANKS TO KEY AREA        00000800
+         XR    R9,R9                   CLEAR REGISTER                   00000900
+         ICM   R9,15,SVICRADD          POINT TO ICR                     00001000
+         USING ICRSEG1,R9              ADDRESS ICR                      00001100
+         MVC   ACXAPPL,ICR1TCAP        MOVE APPLICATION FROM ICR        00001200
+         USING ICRSEG3A,R6             ADDRESS ICR SEGMENT 3A           00001300
+         XR    R1,R1                   CLEAR REG FOR INSERT             00001400
+         L     R8,SVTOTADD             BEGIN PARSE ADR TO R8  9913509   00001500
+         ICM   R1,3,SVFLDLEN           GET SOURCE LENGTH FOR FLEX KEY   00001600
+         BCTR  R1,0                    SUBTRACT FOR EXECUTE             00001700
+         EX    R1,PDAACX10             MOVE FLEX KEY FROM WORKAREA      00001800
+         LA    R10,SIWSLKCA            SET UP DSECT BASE REG            00001900
+         USING SIDSLKCA,R10            ESTABLISH ADDRESSABILITY         00002000
+         MVC   LINKPPTN,=C'TSNTLACX'   MOVE NAME OF LINKTO PROGRAM      00002100
+         SIPLIST PARMLIST,(DFHEIBLK,SIWSLKCA,TSACX)                     00002200
+         LA    R1,PARMLIST             POINT TO PARAMETER STRING        00002300
+         CALL  FILINK                                                   00002400
+         CLI   ACXRTCD,C'0'            WAS THERE AN ERROR?    0354532   00002500
+         BE    PDAACX20                NO - GO DO USER KDA PARSING      00002600
+         MVC   WMSMGCOD,=C'9999'       YES - SET UP ERROR MSG           00002700
+         MVC   WMSMGVA1(L'LINKPPTN),LINKPPTN  PROG NAME IN &1           00002800
+         MVC   WMSMGVA2(25),ACXERR  ERROR MESSAGE IN &2                 00002900
+         B     ERRPR000                GO PROCESS ERROR                 00003000
+         SPACE                                                          00003100
+PDAACX10 MVC   ACXFKEY(0),0(R8)       *** EXECUTED MOVE INSTRUCTION     00003200
+         SPACE                                                          00003300
+PDAACX20 EQU   *                                                        00003400
+         ICM   R1,15,STMALDA           LOAD STEM LDA ADDRESS (WORKAREA) 00003500
+         XR    R10,R10                 CLEAR WORK REGISTER              00003600
+         ICM   R10,3,ICR3ADLN          LOAD DATA PARSE LENGTH - DEST    00003700
+         EX    R10,PDAACX30            MOVE SI KEY                      00003800
+         B     PDAACX40                GO TO END OF USERPARSE           00003900
+         SPACE                                                          00004000
+PDAACX30 MVC   0(0,R1),ACXSKEY         *** EXECUTED MOVE INSTRUCTION    00004100
+         SPACE                                                          00004200
+PDAACX40 EQU   *                                                        00004300
+         DROP  R9                                                       00004400
+         DROP  R10                                                      00004500
+         USING TSTSITR,R9              READDRESS ITR                    00004600
+         USING ICR3COC1,R10            READDRESS SEG 3C OCCURS          00004700
+         EJECT                                                          00004800

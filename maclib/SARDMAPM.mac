@@ -1,0 +1,1614 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SARDMAPM &DAG=,                                               +00002000
+               &DSECT=YES,                                             +00003000
+               &EJECT=YES                                               00004000
+         LCLA  &I                                                       00005000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00006000
+&MACNME  SETC  'SARDMAPM'                                               00007000
+&MACVER  SETC  '0004'                                                   00008000
+&MACREL  SETC  '.000'                                                   00009000
+&MACDATE SETC  '07/19/91'                                               00010000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00011000
+               - &MACDATE'                                              00012000
+&I       SETA  1                                                        00013000
+         AIF   (T'&DAG NE 'O').DMAP002                                  00014000
+         MNOTE 8,'&MACNME - DAG PARAMETER IS MISSING, MACRO EXPANSION I+00015000
+               GNORED'                                                  00016000
+         MEXIT                                                          00017000
+.DMAP002 ANOP                                                           00018000
+         AIF   ('&DSECT' EQ 'YES' OR '&DSECT' EQ 'NO').DMAP004          00019000
+         MNOTE 8,'&MACNME - DSECT PARAMETER MUST BE "YES" OR "NO", MACR+00020000
+               O EXPANSION IGNORED'                                     00021000
+.DMAP004 ANOP                                                           00022000
+         AIF   ('&EJECT' EQ 'YES' OR '&EJECT' EQ 'NO').DMAP006          00023000
+         MNOTE 8,'&MACNME - EJECT PARAMETER MUST BE "YES" OR "NO", MACR+00024000
+               O EXPANSION IGNORED'                                     00025000
+.DMAP006 ANOP                                                           00026000
+.DMAP010 ANOP                                                           00027000
+         AIF   ('&DAG(&I)' NE 'SAR8020T').DMAP020                       00028000
+         AIF   ('&EJECT' EQ 'YES').DMAP012                              00029000
+         SPACE 2                                                        00030000
+         AGO   .DMAP014                                                 00031000
+.DMAP012 ANOP                                                           00032000
+         EJECT                                                          00033000
+.DMAP014 ANOP                                                           00034000
+*---------------------------------------------------------------------* 00034005
+*                  ** HISTORY OF REVISIONS **                         * 00034010
+*                                                                     * 00034015
+* DESCRIPTION                                                 CHNGID  * 00034020
+* __________________________________________________________  _______ * 00034025
+* 05/08/12 ADD DEFINITION TYPE, SAXDS AREA                    1326235   00034080
+* 07/29/08 CHANGE FOR SAR8021T MULTIPLE RECORDS               0915039   00034082
+* 02/20/07 ADD COMMENT FOR X'20' MASKING BIT IN SRVFLAGS,     0735608   00034084
+*          ADD MASKING AND SPOOL HTML FLAGS TO RPT DEF LAYOUT 0735608   00034085
+* 03/17/05 ADDED THE DSECTS AND STORAGE AREAS FOR THE DAGS    0545204   00034088
+*          SAR8025T,SAR9005D,SAR9015D,SAR9024D,SAR9025D       0545204   00034090
+* 04/02/04 CHANGE FILE SIZES FOR SAHST FILE EXPANSION         0444970   00034092
+* 04/16/03 CHANGE FILE SIZES FOR SAXTR FILE EXPANSION         0354655   00034094
+* 05/01/97 MULTI-DECIMAL/DBCS ENABLE                          9913481 * 00034096
+*---------------------------------------------------------------------* 00034098
+*        *---------------------------------------------------*          00035000
+*        * EAA/SA REPORTING                                  *          00036000
+*        * SCHEDULING APPLICATION EVENT/REPORT XREF TABLE    *          00037000
+*        *---------------------------------------------------*          00038000
+         SPACE                                                          00039000
+         AIF   ('&DSECT' EQ 'NO').DMAP018                               00040000
+SAR8020T DSECT                                                          00041000
+AEXFIX   DS    0XL06                                                    00042000
+AEXLRECL DS    XL02          ..RECORD LENGTH                            00043000
+AEXHDR   DS    0XL04                                                    00044000
+AEXMAX#  DS    XL02          ..MAXIMUM NBR OF TABLE ENTRIES(999)        00045000
+AEXNTRY# DS    XL02          ..NBR OF TABLE ENTRIES                     00046000
+         ORG   AEXFIX                                                   00047000
+AEXNTRY  DS    0XL10                                                    00048000
+AEXEVENT DS    CL05          ..EVENT CODE                               00049000
+AEXRPTID DS    0XL05         ..REPORT ID                                00050000
+AEXRPTNO DS    PL03          ....REPORT NBR                             00051000
+AEXSKID  DS    XL02          ....SEARCH KEY REPORT ID                   00052000
+         AGO   .DMAP800                                                 00053000
+.DMAP018 ANOP                                                           00054000
+         DS    0D                                                       00055000
+SAR8020T DS    0XL9996                                                  00056000
+AEXFIX   DS    0XL06                                                    00057000
+AEXLRECL DS    XL02          ..RECORD LENGTH                            00058000
+AEXHDR   DS    0XL04                                                    00059000
+AEXMAX#  DS    XL02          ..MAXIMUM NBR OF TABLE ENTRIES(999)        00060000
+AEXNTRY# DS    XL02          ..NBR OF TABLE ENTRIES                     00061000
+AEXTBL   DS    999XL10                                                  00062000
+         ORG   AEXTBL                                                   00063000
+AEXNTRY  DS    0XL10                                                    00064000
+AEXEVENT DS    CL05          ..EVENT CODE                               00065000
+AEXRPTID DS    0XL05         ..REPORT ID                                00066000
+AEXRPTNO DS    PL03          ....REPORT NBR                             00067000
+AEXSKID  DS    XL02          ....SEARCH KEY REPORT ID                   00068000
+         ORG                                                            00069000
+         AGO   .DMAP800                                                 00070000
+.DMAP020 ANOP                                                           00071000
+         AIF   ('&DAG(&I)' NE 'SAR8021T').DMAP030                       00072000
+         AIF   ('&EJECT' EQ 'YES').DMAP022                              00073000
+         SPACE 2                                                        00074000
+         AGO   .DMAP024                                                 00075000
+.DMAP022 ANOP                                                           00076000
+         EJECT                                                          00077000
+.DMAP024 ANOP                                                           00078000
+*        *---------------------------------------------------*          00079000
+*        * EAA/SA REPORTING                                  *          00080000
+*        * SCHEDULING REPORT TABLE (VECTOR)                  *          00081000
+*        *---------------------------------------------------*          00082000
+         SPACE                                                          00083000
+         AIF   ('&DSECT' EQ 'NO').DMAP028                               00084000
+SAR8021T DSECT                                                          00085000
+SRVFIX   DS    0XL43                                          0915039   00086000
+SRVLRECL DS    XL02          ..RECORD LENGTH                            00087000
+SRVSEQ#  DS    XL02          ..SEQUENCE NUMBER                0915039   00087100
+SRVMRECS DS    CL1           ..MORE RECORDS INDICATOR         0915039   00087200
+SRVDATES DS    0XL10         ..PROCESSING DATE RANGE                    00088000
+SRVPDATE DS    PL05          ....PROCESS DATE                           00089000
+SRVTDATE DS    PL05          ....THRU DATE                              00090000
+SRVPCLVL DS    XL02          ..LEVEL OF PROCESS CONTROL                 00091000
+SRVPC    DS    0XL22         ..PROCESS CONTROL INFO                     00092000
+SRVINST  DS    CL04          ....PROCESS CONTROL INST                   00093000
+SRVCTL2  DS    CL03          ....PROCESS CONTROL CONTROL 2              00094000
+SRVCTL3  DS    CL03          ....PROCESS CONTROL CONTROL 3              00095000
+SRVCTL4  DS    CL04          ....PROCESS CONTROL CONTROL 4              00096000
+         DS    CL08          ....FILLER                                 00097000
+         ORG   SRVCTL2                                                  00098000
+SRVRCCR  DS    0CL18                                                    00099000
+SRVGLRC  DS    9CL02         ....PROCESS CONTROL GL RC                  00100000
+SRVHDR   DS    0XL04                                                    00101000
+SRVMAX#  DS    XL02          ..MAXIMUM NBR OF TABLE ENTRIES(452)        00102000
+SRVNTRY# DS    XL02          ..NBR OF TABLE ENTRIES                     00103000
+         ORG   SRVFIX                                                   00104000
+SRVNTRY  DS    0XL22                                                    00105000
+SRVRPTID DS    0XL05         ..REPORT ID                                00106000
+SRVRPTNO DS    PL03          ....REPORT NBR                             00107000
+SRVSKID  DS    XL02          ....REPORT SEARCH KEY ID                   00108000
+SRVSRT#  DS    PL02          ..SORT KEY SUBSCRIPT                       00109000
+SRVDMTNM DS    CL08          ..REPORT MODULE/DMT NAME                   00110000
+SRVFRM   DS    CL01          ..FORM CODE                                00111000
+SRVDIST  DS    CL04          ..DIST CODE                                00112000
+SRVPRTY  DS    CL01          ..PRIORITY                                 00113000
+SRVFLAGS DS    XL01          ..COMBINED FLAGS                           00114000
+SRVHISTF EQU   X'80'         ....HISTORY FLAG                           00115000
+SRVRSELF EQU   X'40'         ....REPORT SELECTION CRITERIA FLAG         00116000
+SRVMASKF EQU   X'20'         ....MASKING FLAG                 0735608   00116100
+SRVSREQF EQU   X'10'         ....REPORT WAS SCHEDULED BY REQUEST        00117000
+SRVIAMSC EQU   X'08'         ....IAM ADS EXTRACT              1326235   00117005
+*                            ....LOW ORDER 3 BITS CONSOLIDATION LEVEL   00118000
+         AGO   .DMAP800                                                 00119000
+.DMAP028 ANOP                                                           00120000
+         DS    0D                                                       00121000
+SAR8021T DS    0XL9987                                        0915039   00122000
+SRVFIX   DS    0XL43                                          0915039   00123000
+SRVLRECL DS    XL02          ..RECORD LENGTH                            00124000
+SRVSEQ#  DS    XL02          ..SEQUENCE NUMBER                0915039   00124100
+SRVMRECS DS    CL1           ..MORE RECORDS INDICATOR         0915039   00124200
+SRVDATES DS    0XL10         ..PROCESSING DATE RANGE                    00125000
+SRVPDATE DS    PL05          ....PROCESS DATE                           00126000
+SRVTDATE DS    PL05          ....THRU DATE                              00127000
+SRVPCLVL DS    XL02          ..LEVEL OF PROCESS CONTROL                 00128000
+SRVPC    DS    0XL22         ..PROCESS CONTROL INFO                     00129000
+SRVINST  DS    CL04          ....PROCESS CONTROL INST                   00130000
+SRVCTL2  DS    CL03          ....PROCESS CONTROL CONTROL 2              00131000
+SRVCTL3  DS    CL03          ....PROCESS CONTROL CONTROL 3              00132000
+SRVCTL4  DS    CL04          ....PROCESS CONTROL CONTROL 4              00133000
+         DS    CL08          ....FILLER                                 00134000
+         ORG   SRVCTL2                                                  00135000
+SRVRCCR  DS    0CL18                                                    00136000
+SRVGLRC  DS    9CL02         ....PROCESS CONTROL GL RC                  00137000
+SRVHDR   DS    0XL04                                                    00138000
+SRVMAX#  DS    XL02          ..MAXIMUM NBR OF TABLE ENTRIES(452)        00139000
+SRVNTRY# DS    XL02          ..NBR OF TABLE ENTRIES                     00140000
+SRVTBL   DS    452XL22                                                  00141000
+         ORG   SRVTBL                                                   00142000
+SRVNTRY  DS    0XL22                                                    00143000
+SRVRPTID DS    0XL05         ..REPORT ID                                00144000
+SRVRPTNO DS    PL03          ....REPORT NBR                             00145000
+SRVSKID  DS    XL02          ....REPORT SEARCH KEY ID                   00146000
+SRVSRT#  DS    PL02          ..SORT KEY SUBSCRIPT                       00147000
+SRVDMTNM DS    CL08          ..REPORT MODULE/DMT NAME                   00148000
+SRVFORM  DS    CL01          ..FORM CODE                                00149000
+SRVDIST  DS    CL04          ..DIST CODE                                00150000
+SRVPRTY  DS    CL01          ..PRIORITY                                 00151000
+SRVFLAGS DS    XL01          ..COMBINED FLAGS                           00152000
+SRVHISTF EQU   X'80'         ....HISTORY FLAG                           00153000
+SRVRSELF EQU   X'40'         ....REPORT SELECTION CRITERIA FLAG         00154000
+SRVMASKF EQU   X'20'         ....MASKING FLAG                 0735608   00154100
+SRVSREQF EQU   X'10'         ....REPORT WAS SCHEDULED BY REQUEST        00155000
+SRVIAMSC EQU   X'08'         ....IAM ADS EXTRACT              1326235   00155005
+*                            ....LOW ORDER 3 BITS CONSOLIDATION LEVEL   00156000
+         ORG                                                            00157000
+         AGO   .DMAP800                                                 00158000
+.DMAP030 ANOP                                                           00159000
+         AIF   ('&DAG(&I)' NE 'SAR9COMK').DMAP040                       00160000
+         AIF   ('&EJECT' EQ 'YES').DMAP032                              00161000
+         SPACE 2                                                        00162000
+         AGO   .DMAP034                                                 00163000
+.DMAP032 ANOP                                                           00164000
+         EJECT                                                          00165000
+.DMAP034 ANOP                                                           00166000
+*        *---------------------------------------------------*          00167000
+*        * EAA/SA REPORTING                                  *          00168000
+*        * COMMUNICATION AREA                                *          00169000
+*        *---------------------------------------------------*          00170000
+         SPACE                                                          00171000
+         AIF   ('&DSECT' EQ 'NO').DMAP038                               00172000
+SAR9COMK DSECT                                                          00173000
+CTLHDR   DS    0XL04                                                    00174000
+CTLBRKLV DS    XL02          ..REPORT TOTAL BREAK LEVEL                 00175000
+CTLNTRY# DS    XL02          ..REPORT TOTAL BREAK ENTRY COUNT           00176000
+         ORG   CTLHDR                                                   00177000
+CTLNTRY  DS    0XL177                                                   00178000
+CTLCURV  DS    CL30          ....ENTRY CURRENT VALUE                    00179000
+CTLCUREQ DS    CL40          ....ENTRY CURRENT EQUATE VALUE             00180000
+CTLPREV  DS    CL30          ....ENTRY PREVIOUS VALUE                   00181000
+CTLPREEQ DS    CL40          ....ENTRY PREVIOUS EQUATE VALUE            00182000
+CTLTITLE DS    CL20          ....ENTRY FIELD TITLE                      00183000
+CTLDAGNM DS    CL08          ....ENTRY DAG NAME                         00184000
+CTLELENM DS    CL08          ....ENTRY ELE NAME                         00185000
+CTLPGBRF DS    CL01          ....ENTRY PAGE BREAK FLAG                  00186000
+         ORG   CTLHDR+L'CTLHDR+(L'CTLNTRY*10)                           00187000
+CTLTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00188000
+CTLRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00188010
+CTLSMIF  DS    CL01          ..CUSTOMER SERVICE INTERFACE FLAG          00188020
+CTLSMDAR DS    XL02          ..CUSTOMER SERVICE DAYS RETENTION          00188030
+CTLLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00188040
+CTLLSRC  DS    CL01          ..REPORT LANGUAGE SOURCE CODE    9913481   00188050
+CTLCRPT  DS    CL03          ..REPORT LEVEL CURRENCY CODE     9913481   00188055
+CTLCTOT  DS    CL01          ..REPORT LEVEL CURR TOTAL FLAG   9913481   00188060
+         AGO   .DMAP800                                                 00189000
+.DMAP038 ANOP                                                           00190000
+         DS    0D                                                       00191000
+SAR9COMK DS    0XL1786                                        9913481   00192000
+CTLHDR   DS    0XL04                                                    00193000
+CTLBRKLV DS    XL02          ..REPORT TOTAL BREAK LEVEL                 00194000
+CTLNTRY# DS    XL02          ..REPORT TOTAL BREAK ENTRY COUNT           00195000
+CTLTBL   DS    10XL177                                                  00196000
+         ORG   CTLTBL                                                   00197000
+CTLNTRY  DS    0XL177                                                   00198000
+CTLCURV  DS    CL30          ....ENTRY CURRENT VALUE                    00199000
+CTLCUREQ DS    CL40          ....ENTRY CURRENT EQUATE VALUE             00200000
+CTLPREV  DS    CL30          ....ENTRY PREVIOUS VALUE                   00201000
+CTLPREEQ DS    CL40          ....ENTRY PREVIOUS EQUATE VALUE            00202000
+CTLTITLE DS    CL20          ....ENTRY FIELD TITLE                      00203000
+CTLDAGNM DS    CL08          ....ENTRY DAG NAME                         00204000
+CTLELENM DS    CL08          ....ENTRY ELE NAME                         00205000
+CTLPGBRF DS    CL01          ....ENTRY PAGE BREAK FLAG                  00206000
+         ORG                                                            00207000
+CTLTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00208000
+CTLRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00208010
+CTLSMIF  DS    CL01          ..CUSTOMER SERVICE INTERFACE FLAG          00208020
+CTLSMDAR DS    XL02          ..CUSTOMER SERVICE DAYS RETENTION          00208030
+CTLLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00208040
+CTLLSRC  DS    CL01          ..REPORT LANGUAGE SOURCE CODE    9913481   00208050
+CTLCRPT  DS    CL03          ..REPORT LEVEL CURRENCY CODE     9913481   00208055
+CTLCTOT  DS    CL01          ..REPORT LEVEL CURR TOTAL FLAG   9913481   00208060
+         AGO   .DMAP800                                                 00209000
+.DMAP040 ANOP                                                           00210000
+         AIF   ('&DAG(&I)' NE 'SAR9000D').DMAP050                       00211000
+         AIF   ('&EJECT' EQ 'YES').DMAP042                              00212000
+         SPACE 2                                                        00213000
+         AGO   .DMAP044                                                 00214000
+.DMAP042 ANOP                                                           00215000
+         EJECT                                                          00216000
+.DMAP044 ANOP                                                           00217000
+*        *---------------------------------------------------*          00218000
+*        * EAA/SA REPORTING                                  *          00219000
+*        * DEFAULTS                                          *          00220000
+*        *---------------------------------------------------*          00221000
+         SPACE                                                          00222000
+         AIF   ('&DSECT' EQ 'NO').DMAP048                               00223000
+SAR9000D DSECT                                                          00224000
+DFLFIX   DS    0XL34                                                    00225000
+DFLSPOOL DS    CL01          ..REPORT SPOOL CODE                        00226000
+DFLSOPT  DS    4CL01         ..REPORT SPOOL OPTIONS                     00227000
+DFLFRM   DS    CL01          ..REPORT FORM CODE                         00228000
+DFLDIST  DS    CL04          ..REPORT DISTRIBUTION CODE                 00229000
+DFLPRI   DS    CL01          ..REPORT PRIORITY CODE                     00230000
+DFLHDGF  DS    CL01          ..REPORT STD HEADING FLAG                  00231000
+DFLTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00232000
+DFLPGSZ  DS    PL02          ..NBR OF LINES PER PAGE                    00233000
+DFLSTATF DS    CL01          ..BILLING STATISTICS FLAG                  00234000
+DFLRCAPF DS    CL01          ..REPORT RECAP FLAG                        00235000
+DFLRCLVL DS    CL01          ..REPORT RECAP LEVEL                       00236000
+DFLDAGNI DS    CL08          ..INST DAG NAME                            00237000
+DFLELENI DS    CL08          ..INST ELE NAME                            00238000
+         ORG   DFLFIX                                                   00239000
+DFLNTRY  DS    0CL16         ..TABLE ENTRY FOR CTL1:CTL4                00240000
+DFLDAGNM DS    CL08          ....SOURCE DAG NAME                        00241000
+DFLELENM DS    CL08          ....SOURCE ELE NAME                        00242000
+         ORG   DFLFIX+L'DFLFIX+(L'DFLNTRY*4)                            00243000
+DFLSYSNM DS    CL32          ..SYSTEM (APPL) NAME                       00244000
+DFLEQMOD DS    CL08          ..USER EQUATE MODULE                       00245000
+DFLRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00245010
+DFLLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00245015
+DFLLSRC  DS    CL01          ..REPORT LANGUAGE SOURCE CODE    9913481   00245020
+DFLCTOT  DS    CL01          ..REPORT CUREENCY TOTAL FLAG     9913481   00245025
+         DS    CL05          ..FILLER                         9913481   00246000
+         AGO   .DMAP800                                                 00247000
+.DMAP048 ANOP                                                           00248000
+         DS    0D                                                       00249000
+SAR9000D DS    0XL148                                         9913481   00250000
+DFLFIX   DS    0XL34                                                    00251000
+DFLSPOOL DS    CL01          ..REPORT SPOOL CODE                        00252000
+DFLSOPT  DS    4CL01         ..REPORT SPOOL OPTIONS                     00253000
+DFLFRM   DS    CL01          ..REPORT FORM CODE                         00254000
+DFLDIST  DS    CL04          ..REPORT DISTRIBUTION CODE                 00255000
+DFLPRI   DS    CL01          ..REPORT PRIORITY CODE                     00256000
+DFLHDGF  DS    CL01          ..REPORT STD HEADING FLAG                  00257000
+DFLTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00258000
+DFLPGSZ  DS    PL02          ..NBR OF LINES PER PAGE                    00259000
+DFLSTATF DS    CL01          ..BILLING STATISTICS FLAG                  00260000
+DFLRCAPF DS    CL01          ..REPORT RECAP FLAG                        00261000
+DFLRCLVL DS    CL01          ..REPORT RECAP LEVEL                       00262000
+DFLDAGNI DS    CL08          ..INST DAG NAME                            00263000
+DFLELENI DS    CL08          ..INST ELE NAME                            00264000
+DFLTBL   DS    4CL16                                                    00265000
+         ORG   DFLTBL                                                   00266000
+DFLNTRY  DS    0CL16         ..TABLE ENTRY FOR CTL1:CTL4                00267000
+DFLDAGNM DS    CL08          ....SOURCE DAG NAME                        00268000
+DFLELENM DS    CL08          ....SOURCE ELE NAME                        00269000
+         ORG                                                            00270000
+DFLSYSNM DS    CL32          ..SYSTEM (APPL) NAME                       00271000
+DFLEQMOD DS    CL08          ..USER EQUATE MODULE                       00272000
+DFLRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00272010
+DFLLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00272015
+DFLLSRC  DS    CL01          ..REPORT LANGUAGE SOURCE CODE    9913481   00272020
+DFLCTOT  DS    CL01          ..REPORT CUREENCY TOTAL FLAG     9913481   00272025
+         DS    CL05          ..FILLER                         9913481   00273000
+         AGO   .DMAP800                                                 00274000
+.DMAP050 ANOP                                                           00275000
+         AIF   ('&DAG(&I)' NE 'SAR9011D').DMAP060                       00276000
+         AIF   ('&EJECT' EQ 'YES').DMAP052                              00277000
+         SPACE 2                                                        00278000
+         AGO   .DMAP054                                                 00279000
+.DMAP052 ANOP                                                           00280000
+         EJECT                                                          00281000
+.DMAP054 ANOP                                                           00282000
+*        *---------------------------------------------------*          00283000
+*        * EAA/SA REPORTING                                  *          00284000
+*        * REPORT EXTRACT RECORD                             *          00285000
+*        *---------------------------------------------------*          00286000
+         SPACE                                                          00287000
+         AIF   ('&DSECT' EQ 'NO').DMAP058                               00288000
+SAR9011D DSECT                                                          00289000
+XTRREC   EQU   *                                                        00290000
+XTRFIX   DS    0XL184        ..FIXED AREA                     9913481   00291000
+XTRLRECL DS    XL02          ....RECORD LENGTH                          00292000
+XTRASRT  DS    0XL116        ....APPLICATION SORT AREA                  00293000
+XTRFRM   DS    CL01          ......FORM CODE                            00294000
+XTRDIST  DS    CL04          ......DISTRIBUTION CODE                    00295000
+XTRPC    DS    0CL22         ......PROCESS CONTROLS                     00296000
+XTRINST  DS    CL04          ........INSTITUTION                        00297000
+XTRPCTL2 DS    CL03          ........CONTROL 2                          00298000
+XTRPCTL3 DS    CL03          ........CONTROL 3                          00299000
+XTRPCTL4 DS    CL04          ........CONTROL 4                          00300000
+         DS    CL08                                                     00301000
+         ORG   XTRPCTL2                                                 00302000
+XTRRCCR  DS    0CL18                                                    00303000
+XTRGLRC  DS    9CL02         ........GL RC                              00304000
+XTRRPT   DS    PL03          ......REPORT NBR                           00305000
+XTRSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00306000
+XTRUSRT  DS    XL80          ......USER SORT AREA                       00307000
+XTRRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00308000
+XTRPRI   DS    CL01          ....REPORT PRIORITY                        00309000
+XTRCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00310000
+XTRAPPL  DS    CL02          ....APPLICATION ID                         00311000
+XTRSAPPL DS    CL02          ....SUB-APPLICATION ID                     00312000
+XTREVENT DS    CL05          ....REPORTING EVENT CODE                   00313000
+XTRMCTLS DS    0CL22         ....MASTER CONTROLS                        00314000
+XTRMCTL1 DS    CL02          ......MASTER CTL1                          00315000
+XTRMCTL2 DS    CL03          ......MASTER CTL2                          00316000
+XTRMCTL3 DS    CL03          ......MASTER CTL3                          00317000
+XTRMCTL4 DS    CL04          ......MASTER CTL4                          00318000
+         DS    CL10          ......FILLER                               00319000
+XTRACCT  DS    CL24          ....ACCOUNT NBR                            00320000
+XTRPROD  DS    CL04          ....PRODUCT TYPE                           00321000
+XTRLMST  DS    CL02          ....LANGUAGE CODE                9913481   00321010
+XTRCMST  DS    CL03          ....CURRENCY CODE                9913481   00321015
+XTRFIXL  EQU   *-XTRFIX                                                 00322000
+XTRVAR   EQU   *             ..VARIABLE AREA                            00323000
+         AGO   .DMAP800                                                 00324000
+.DMAP058 ANOP                                                           00325000
+         DS    0D                                                       00326000
+SAR9011D DS    0XL6140                                        0354655   00327010
+XTRREC   DS    0XL6140                                        0354655   00328010
+XTRFIX   DS    0XL184        ..FIXED AREA                     9913481   00329000
+XTRLRECL DS    XL02          ....RECORD LENGTH                          00330000
+XTRASRT  DS    0XL116        ....APPLICATION SORT AREA                  00331000
+XTRFRM   DS    CL01          ......FORM CODE                            00332000
+XTRDIST  DS    CL04          ......DISTRIBUTION CODE                    00333000
+XTRPC    DS    0CL22         ......PROCESS CONTROLS                     00334000
+XTRINST  DS    CL04          ........INSTITUTION                        00335000
+XTRPCTL2 DS    CL03          ........CONTROL 2                          00336000
+XTRPCTL3 DS    CL03          ........CONTROL 3                          00337000
+XTRPCTL4 DS    CL04          ........CONTROL 4                          00338000
+         DS    CL08                                                     00339000
+         ORG   XTRPCTL2                                                 00340000
+XTRRCCR  DS    0CL18                                                    00341000
+XTRGLRC  DS    9CL02         ........GL RC                              00342000
+XTRRPT   DS    PL03          ......REPORT NBR                           00343000
+XTRSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00344000
+XTRUSRT  DS    XL80          ......USER SORT AREA                       00345000
+XTRRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00346000
+XTRPRI   DS    CL01          ....REPORT PRIORITY                        00347000
+XTRCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00348000
+XTRAPPL  DS    CL02          ....APPLICATION ID                         00349000
+XTRSAPPL DS    CL02          ....SUB-APPLICATION ID                     00350000
+XTREVENT DS    CL05          ....REPORTING EVENT CODE                   00351000
+XTRMCTLS DS    0CL22         ....MASTER CONTROLS                        00352000
+XTRMCTL1 DS    CL02          ......MASTER CTL1                          00353000
+XTRMCTL2 DS    CL03          ......MASTER CTL2                          00354000
+XTRMCTL3 DS    CL03          ......MASTER CTL3                          00355000
+XTRMCTL4 DS    CL04          ......MASTER CTL4                          00356000
+         DS    CL10          ......FILLER                               00357000
+XTRACCT  DS    CL24          ....ACCOUNT NBR                            00358000
+XTRPROD  DS    CL04          ....PRODUCT TYPE                           00359000
+XTRLMST  DS    CL02          ....LANGUAGE CODE                9913481   00359010
+XTRCMST  DS    CL03          ....CURRENCY CODE                9913481   00359015
+XTRFIXL  EQU   *-XTRFIX                                                 00360000
+XTRVAR   EQU   *             ..VARIABLE AREA                            00361000
+         DS    XL5956                                         0354655   00362010
+         AGO   .DMAP800                                                 00363000
+.DMAP060 ANOP                                                           00364000
+         AIF   ('&DAG(&I)' NE 'SAR9012D').DMAP070                       00365000
+         AIF   ('&EJECT' EQ 'YES').DMAP062                              00366000
+         SPACE 2                                                        00367000
+         AGO   .DMAP064                                                 00368000
+.DMAP062 ANOP                                                           00369000
+         EJECT                                                          00370000
+.DMAP064 ANOP                                                           00371000
+*        *---------------------------------------------------*          00372000
+*        * EAA/SA REPORTING                                  *          00373000
+*        * HISTORY REQUEST RECORD                            *          00374000
+*        *---------------------------------------------------*          00375000
+         SPACE                                                          00376000
+         AIF   ('&DSECT' EQ 'NO').DMAP068                               00377000
+SAR9012D DSECT                                                          00378000
+REQREC   EQU   *                                                        00379000
+REQFIX   DS    0XL184        ..FIXED AREA                     9913481   00380000
+REQLRECL DS    XL02          ....RECORD LENGTH                          00381000
+REQASRT  DS    0XL116        ....APPLICATION SORT AREA                  00382000
+REQFRM   DS    CL01          ......FORM CODE                            00383000
+REQDIST  DS    CL04          ......DISTRIBUTION CODE                    00384000
+REQPC    DS    0CL22         ......PROCESS CONTROLS                     00385000
+REQINST  DS    CL04          ........INSTITUTION                        00386000
+REQPCTL2 DS    CL03          ........CONTROL 2                          00387000
+REQPCTL3 DS    CL03          ........CONTROL 3                          00388000
+REQPCTL4 DS    CL04          ........CONTROL 4                          00389000
+         DS    CL08                                                     00390000
+         ORG   REQPCTL2                                                 00391000
+REQRCCR  DS    0CL18                                                    00392000
+REQGLRC  DS    9CL02         ........GL RC                              00393000
+REQRPT   DS    PL03          ......REPORT NBR                           00394000
+REQSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00395000
+REQUSRT  DS    XL80          ......USER SORT AREA                       00396000
+REQRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00397000
+REQPRI   DS    CL01          ....REPORT PRIORITY                        00398000
+REQCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00399000
+REQAPPL  DS    CL02          ....APPLICATION ID                         00400000
+REQSAPPL DS    CL02          ....SUB-APPLICATION ID                     00401000
+REQEVENT DS    CL05          ....REPORTING EVENT CODE                   00402000
+REQMCTLS DS    0CL22         ....MASTER CONTROLS                        00403000
+REQMCTL1 DS    CL02          ......MASTER CTL1                          00404000
+REQMCTL2 DS    CL03          ......MASTER CTL2                          00405000
+REQMCTL3 DS    CL03          ......MASTER CTL3                          00406000
+REQMCTL4 DS    CL04          ......MASTER CTL4                          00407000
+         DS    CL10          ......FILLER                               00408000
+REQACCT  DS    CL24          ....ACCOUNT NBR                            00409000
+REQPROD  DS    CL04          ....PRODUCT TYPE                           00410000
+REQLMST  DS    CL02          ....LANGUAGE CODE                9913481   00410010
+REQCMST  DS    CL03          ....CURRENCY CODE                9913481   00410015
+REQFIXL  EQU   *-REQFIX                                                 00411000
+REQVAR   EQU   *             ..VARIABLE AREA                            00412000
+         AGO   .DMAP800                                                 00413000
+.DMAP068 ANOP                                                           00414000
+         DS    0D                                                       00415000
+SAR9012D DS    0XL440                                         9913481   00416000
+REQREC   DS    0XL440                                         9913481   00417000
+REQFIX   DS    0XL184        ..FIXED AREA                     9913481   00418000
+REQLRECL DS    XL02          ....RECORD LENGTH                          00419000
+REQASRT  DS    0XL116        ....APPLICATION SORT AREA                  00420000
+REQFRM   DS    CL01          ......FORM CODE                            00421000
+REQDIST  DS    CL04          ......DISTRIBUTION CODE                    00422000
+REQPC    DS    0CL22         ......PROCESS CONTROLS                     00423000
+REQINST  DS    CL04          ........INSTITUTION                        00424000
+REQPCTL2 DS    CL03          ........CONTROL 2                          00425000
+REQPCTL3 DS    CL03          ........CONTROL 3                          00426000
+REQPCTL4 DS    CL04          ........CONTROL 4                          00427000
+         DS    CL08                                                     00428000
+         ORG   REQPCTL2                                                 00429000
+REQRCCR  DS    0CL18                                                    00430000
+REQGLRC  DS    9CL02         ........GL RC                              00431000
+REQRPT   DS    PL03          ......REPORT NBR                           00432000
+REQSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00433000
+REQUSRT  DS    XL80          ......USER SORT AREA                       00434000
+REQRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00435000
+REQPRI   DS    CL01          ....REPORT PRIORITY                        00436000
+REQCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00437000
+REQAPPL  DS    CL02          ....APPLICATION ID                         00438000
+REQSAPPL DS    CL02          ....SUB-APPLICATION ID                     00439000
+REQEVENT DS    CL05          ....REPORTING EVENT CODE                   00440000
+REQMCTLS DS    0CL22         ....MASTER CONTROLS                        00441000
+REQMCTL1 DS    CL02          ......MASTER CTL1                          00442000
+REQMCTL2 DS    CL03          ......MASTER CTL2                          00443000
+REQMCTL3 DS    CL03          ......MASTER CTL3                          00444000
+REQMCTL4 DS    CL04          ......MASTER CTL4                          00445000
+         DS    CL10          ......FILLER                               00446000
+REQACCT  DS    CL24          ....ACCOUNT NBR                            00447000
+REQPROD  DS    CL04          ....PRODUCT TYPE                           00448000
+REQLMST  DS    CL02          ....LANGUAGE CODE                9913481   00448010
+REQCMST  DS    CL03          ....CURRENCY CODE                9913481   00448015
+REQFIXL  EQU   *-REQFIX                                                 00449000
+REQVAR   EQU   *             ..VARIABLE AREA                            00450000
+         DS    XL256                                                    00451000
+         AGO   .DMAP800                                                 00452000
+.DMAP070 ANOP                                                           00453000
+         AIF   ('&DAG(&I)' NE 'SAR9013D').DMAP080                       00454000
+         AIF   ('&EJECT' EQ 'YES').DMAP072                              00455000
+         SPACE 2                                                        00456000
+         AGO   .DMAP074                                                 00457000
+.DMAP072 ANOP                                                           00458000
+         EJECT                                                          00459000
+.DMAP074 ANOP                                                           00460000
+*        *---------------------------------------------------*          00461000
+*        * EAA/SA REPORTING                                  *          00462000
+*        * HISTORY EXTRACT RECORD                            *          00463000
+*        *---------------------------------------------------*          00464000
+         SPACE                                                          00465000
+         AIF   ('&DSECT' EQ 'NO').DMAP078                               00466000
+SAR9013D DSECT                                                          00467000
+HSTREC   EQU   *                                                        00468000
+HSTFIX   DS    0XL184        ..FIXED AREA                     9913481   00469000
+HSTLRECL DS    XL02          ....RECORD LENGTH                          00470000
+HSTASRT  DS    0XL116        ....APPLICATION SORT AREA                  00471000
+HSTFRM   DS    CL01          ......FORM CODE                            00472000
+HSTDIST  DS    CL04          ......DISTRIBUTION CODE                    00473000
+HSTPC    DS    0CL22         ......PROCESS CONTROLS                     00474000
+HSTINST  DS    CL04          ........INSTITUTION                        00475000
+HSTPCTL2 DS    CL03          ........CONTROL 2                          00476000
+HSTPCTL3 DS    CL03          ........CONTROL 3                          00477000
+HSTPCTL4 DS    CL04          ........CONTROL 4                          00478000
+         DS    CL08                                                     00479000
+         ORG   HSTPCTL2                                                 00480000
+HSTRCCR  DS    0CL18                                                    00481000
+HSTGLRC  DS    9CL02                                                    00482000
+HSTRPT   DS    PL03          ......REPORT NBR                           00483000
+HSTSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00484000
+HSTUSRT  DS    XL80          ......USER SORT AREA                       00485000
+HSTRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00486000
+HSTPRI   DS    CL01          ....REPORT PRIORITY                        00487000
+HSTCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00488000
+HSTAPPL  DS    CL02          ....APPLICATION ID                         00489000
+HSTSAPPL DS    CL02          ....SUB-APPLICATION ID                     00490000
+HSTEVENT DS    CL05          ....REPORTING EVENT CODE                   00491000
+HSTMCTLS DS    0CL22         ....MASTER CONTROLS                        00492000
+HSTMCTL1 DS    CL02          ......MASTER CTL1                          00493000
+HSTMCTL2 DS    CL03          ......MASTER CTL2                          00494000
+HSTMCTL3 DS    CL03          ......MASTER CTL3                          00495000
+HSTMCTL4 DS    CL04          ......MASTER CTL4                          00496000
+         DS    CL10          ......FILLER                               00497000
+HSTACCT  DS    CL24          ....ACCOUNT NBR                            00498000
+HSTPROD  DS    CL04          ....PRODUCT TYPE                           00499000
+HSTLMST  DS    CL02          ....LANGUAGE CODE                9913481   00499010
+HSTCMST  DS    CL03          ....CURRENCY CODE                9913481   00499015
+HSTFIXL  EQU   *-HSTFIX                                                 00500000
+HSTVAR   EQU   *             ..VARIABLE AREA                            00501000
+         AGO   .DMAP800                                                 00502000
+.DMAP078 ANOP                                                           00503000
+         DS    0D                                                       00504000
+SAR9013D DS    0XL6140                                        0444970   00505000
+HSTREC   DS    0XL6140                                        0444970   00506000
+HSTFIX   DS    0XL184        ..FIXED AREA                     9913481   00507000
+HSTLRECL DS    XL02          ....RECORD LENGTH                          00508000
+HSTASRT  DS    0XL116        ....APPLICATION SORT AREA                  00509000
+HSTFRM   DS    CL01          ......FORM CODE                            00510000
+HSTDIST  DS    CL04          ......DISTRIBUTION CODE                    00511000
+HSTPC    DS    0CL22         ......PROCESS CONTROLS                     00512000
+HSTINST  DS    CL04          ........INSTITUTION                        00513000
+HSTPCTL2 DS    CL03          ........CONTROL 2                          00514000
+HSTPCTL3 DS    CL03          ........CONTROL 3                          00515000
+HSTPCTL4 DS    CL04          ........CONTROL 4                          00516000
+         DS    CL08                                                     00517000
+         ORG   HSTPCTL2                                                 00518000
+HSTRCCR  DS    0CL18                                                    00519000
+HSTGLRC  DS    9CL02                                                    00520000
+HSTRPT   DS    PL03          ......REPORT NBR                           00521000
+HSTSKID  DS    XL02          ......SEARCH KEY REPORT ID                 00522000
+HSTUSRT  DS    XL80          ......USER SORT AREA                       00523000
+HSTRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE              00524000
+HSTPRI   DS    CL01          ....REPORT PRIORITY                        00525000
+HSTCODE  DS    CL01          ....RECORD CODE (R=RPT H=HST Q=REQ)        00526000
+HSTAPPL  DS    CL02          ....APPLICATION ID                         00527000
+HSTSAPPL DS    CL02          ....SUB-APPLICATION ID                     00528000
+HSTEVENT DS    CL05          ....REPORTING EVENT CODE                   00529000
+HSTMCTLS DS    0CL22         ....MASTER CONTROLS                        00530000
+HSTMCTL1 DS    CL02          ......MASTER CTL1                          00531000
+HSTMCTL2 DS    CL03          ......MASTER CTL2                          00532000
+HSTMCTL3 DS    CL03          ......MASTER CTL3                          00533000
+HSTMCTL4 DS    CL04          ......MASTER CTL4                          00534000
+         DS    CL10          ......FILLER                               00535000
+HSTACCT  DS    CL24          ....ACCOUNT NBR                            00536000
+HSTPROD  DS    CL04          ....PRODUCT TYPE                           00537000
+HSTLMST  DS    CL02          ....LANGUAGE CODE                9913481   00537010
+HSTCMST  DS    CL03          ....CURRENCY CODE                9913481   00537015
+HSTFIXL  EQU   *-HSTFIX                                                 00538000
+HSTVAR   EQU   *             ..VARIABLE AREA                            00539000
+         DS    XL5956                                         0444970   00540000
+         AGO   .DMAP800                                                 00541000
+.DMAP080 ANOP                                                           00542000
+         AIF   ('&DAG(&I)' NE 'SAR9020D').DMAP090                       00543000
+         AIF   ('&EJECT' EQ 'YES').DMAP082                              00544000
+         SPACE 2                                                        00545000
+         AGO   .DMAP084                                                 00546000
+.DMAP082 ANOP                                                           00547000
+         EJECT                                                          00548000
+.DMAP084 ANOP                                                           00549000
+*        *---------------------------------------------------*          00550000
+*        * EAA/SA REPORTING                                  *          00551000
+*        * EVENT/REPORT XREF                                 *          00552000
+*        *---------------------------------------------------*          00553000
+         SPACE                                                          00554000
+         AIF   ('&DSECT' EQ 'NO').DMAP088                               00555000
+SAR9020D DSECT                                                          00556000
+XRFFIX   DS    0XL20                                                    00557000
+XRFLRECL DS    XL02          ..RECORD LENGTH                            00558000
+XRFRKEY  DS    0XL16         ..RECORD KEY                               00559000
+XRFAPPL  DS    CL02          ....APPLICATION                            00560000
+XRFSAPPL DS    CL02          ....SUB-APPLICATION                        00561000
+XRFINST  DS    XL02          ....INSTITUTION                            00562000
+XRFCTL2  DS    CL03          ....CONTROL 2                              00563000
+XRFCTL3  DS    CL03          ....CONTROL 3                              00564000
+XRFCTL4  DS    CL04          ....CONTROL 4                              00565000
+XRFHDR   DS    0XL02                                                    00566000
+XRFNTRY# DS    XL02          ..NBR OF TABLE ENTRIES  MAX(1246)          00567000
+         ORG   XRFFIX                                                   00568000
+XRFNTRY  DS    0XL08                                                    00569000
+XRFEVENT DS    CL05          ..REPORT EVENT                             00570000
+XRFRPTNO DS    PL03          ..REPORT NBR                               00571000
+         AGO   .DMAP800                                                 00572000
+.DMAP088 ANOP                                                           00573000
+         DS    0D                                                       00574000
+SAR9020D DS    0XL9988                                                  00575000
+XRFFIX   DS    0XL20                                                    00576000
+XRFLRECL DS    XL02          ..RECORD LENGTH                            00577000
+XRFRKEY  DS    0XL16         ..RECORD KEY                               00578000
+XRFAPPL  DS    CL02          ....APPLICATION                            00579000
+XRFSAPPL DS    CL02          ....SUB-APPLICATION                        00580000
+XRFINST  DS    XL02          ....INSTITUTION                            00581000
+XRFCTL2  DS    CL03          ....CONTROL 2                              00582000
+XRFCTL3  DS    CL03          ....CONTROL 3                              00583000
+XRFCTL4  DS    CL04          ....CONTROL 4                              00584000
+XRFHDR   DS    0XL02                                                    00585000
+XRFNTRY# DS    XL02          ..NBR OF TABLE ENTRIES  MAX(1246)          00586000
+XRFTBL   DS    1246XL08                                                 00587000
+         ORG   XRFTBL                                                   00588000
+XRFNTRY  DS    0XL08                                                    00589000
+XRFEVENT DS    CL05          ..REPORT EVENT                             00590000
+XRFRPTNO DS    PL03          ..REPORT NBR                               00591000
+         ORG                                                            00592000
+         AGO   .DMAP800                                                 00593000
+.DMAP090 ANOP                                                           00594000
+         AIF   ('&DAG(&I)' NE 'SAR9021D').DMAP100                       00595000
+         AIF   ('&EJECT' EQ 'YES').DMAP092                              00596000
+         SPACE 2                                                        00597000
+         AGO   .DMAP094                                                 00598000
+.DMAP092 ANOP                                                           00599000
+         EJECT                                                          00600000
+.DMAP094 ANOP                                                           00601000
+*        *---------------------------------------------------*          00602000
+*        * EAA/SA REPORTING                                  *          00603000
+*        * REPORT DEFINITION                                 *          00604000
+*        *---------------------------------------------------*          00605000
+         SPACE                                                          00606000
+         AIF   ('&DSECT' EQ 'NO').DMAP098                               00607000
+SAR9021D DSECT                                                          00608000
+RPTDEF   DS    0XL9975                                                  00609000
+RPTFIX   DS    0XL160                                                   00610000
+RPTLRECL DS    XL02          ..RECORD LENGTH                            00611000
+RPTNO    DS    PL03          ..STRUCTURE KEY                            00612000
+RPTFREQ  DS    CL01          ..REPORT FREQUENCY                         00613000
+RPTREQD  DS    CL08          ..REQUEST DATE YYYYMMDD                    00614000
+RPTSRT#  DS    PL02          ..SORT PATTERN NBR                         00615000
+RPTEVENT DS    10CL05        ..REPORT EVENT CODES                       00616000
+RPTTITLE DS    CL40          ..REPORT TITLE                             00617000
+RPTDMTNM DS    CL08          ..REPORT MODULE/DMT NAME                   00618000
+RPTSPOOL DS    CL01          ..REPORT SPOOL CODE                        00619000
+RPTSOPT  DS    4CL01         ..REPORT SPOOL OPTIONS                     00620000
+RPTFRM   DS    CL01          ..REPORT FORM CODE                         00621000
+RPTDIST  DS    CL04          ..REPORT DISTRIBUTION CODE                 00622000
+RPTPRI   DS    CL01          ..REPORT PRIORITY CODE                     00623000
+RPTHDGF  DS    CL01          ..REPORT STD HEADING FLAG                  00624000
+RPTHISTF DS    CL01          ..HISTORY ACCEPTED FLAG                    00625000
+RPTTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00626000
+RPTPGSZ  DS    PL02          ..NBR OF LINES PER PAGE                    00627000
+RPTEHDR  DS    0XL04         ..ELEMENT TABLE HEADER                     00628000
+RPTEMAX# DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES (26)      00629000
+RPTENTY# DS    XL02          ....NBR OF TABLE ENTRIES                   00630000
+RPTSHDR  DS    0XL04         ..SELECTION CRITERIA TABLE HEADER          00631000
+RPTSMAX# DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES (117)     00632000
+RPTSNTY# DS    XL02          ....NBR OF TABLE ENTRIES                   00633000
+RPTCONSF DS    CL01          ..PROCESS CONTROL CONSOLIDATION FLAG       00633010
+RPTRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00633020
+RPTSMIF  DS    CL01          ..CUSTOMER SERVICE INTERFACE FLAG          00633030
+RPTSMDAR DS    XL02          ..CUSTOMER SERVICE DAYS RETENTION          00633040
+RPTLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00633050
+RPTLSRC  DS    C 01          ..REPORT LANGUAGE SOURCE CODE    9913481   00633060
+RPTCTOT  DS    CL01          ..REPORT CURRENCY TOTAL FLAG     9913481   00633065
+RPTHTML  DS    CL01          ..SPOOL HTML FLAG                0735608   00633070
+RPTMASK  DS    CL01          ..MASKING FLAG                   0735608   00633075
+         DS    CL10          ..FILLER                         1326235   00634000
+RPTDTYP  DS    CL1           ..DEFINTION TYPE                 1326235   00634005
+RPTVAR   EQU   *                                                        00635000
+         ORG   RPTFIX                                                   00636000
+RPTENTRY DS    0XL22         ..ELEMENT TABLE ENTRY                      00637000
+RPTDAGNM DS    CL08          ....DAG NAME                               00638000
+RPTELENM DS    CL08          ....ELE NAME                               00639000
+RPTOCCR1 DS    XL02          ....OCCURANCE AT LEVEL 1                   00640000
+RPTOCCR2 DS    XL02          ....OCCURANCE AT LEVEL 2                   00641000
+RPTOCCR3 DS    XL02          ....OCCURANCE AT LEVEL 3                   00642000
+         ORG   RPTVAR+(L'RPTENTRY*26)                                   00643000
+RPTSNTRY DS    0XL79         ..SELECTION CRITERIA TABLE ENTRY           00644000
+         ORG   RPTFIX                                                   00645000
+RPTSTEXT DS    XL79          ....SELECTION TEXT                         00646000
+RPTSEND  EQU   RPTSNTRY+(L'RPTSNTRY*117)                                00647000
+RPTDEFL  EQU   *-RPTDEF                                                 00648000
+         AGO   .DMAP800                                                 00649000
+.DMAP098 ANOP                                                           00650000
+         DS    0D                                                       00651000
+SAR9021D DS    0XL9975                                                  00652000
+RPTFIX   DS    0XL160                                                   00653000
+RPTLRECL DS    XL02          ..RECORD LENGTH                            00654000
+RPTNO    DS    PL03          ..STRUCTURE KEY                            00655000
+RPTFREQ  DS    CL01          ..REPORT FREQUENCY                         00656000
+RPTREQD  DS    CL08          ..REQUEST DATE YYYYMMDD                    00657000
+RPTSRTNO DS    PL02          ..SORT PATTERN NBR                         00658000
+RPTEVENT DS    10CL05        ..REPORT EVENT CODES                       00659000
+RPTTITLE DS    CL40          ..REPORT TITLE                             00660000
+RPTDMTNM DS    CL08          ..REPORT MODULE/DMT NAME                   00661000
+RPTSPOOL DS    CL01          ..REPORT SPOOL CODE                        00662000
+RPTSOPT  DS    4CL01         ..REPORT SPOOL OPTIONS                     00663000
+RPTFRM   DS    CL01          ..REPORT FORM CODE                         00664000
+RPTDIST  DS    CL04          ..REPORT DISTRIBUTION CODE                 00665000
+RPTPRI   DS    CL01          ..REPORT PRIORITY CODE                     00666000
+RPTHDGF  DS    CL01          ..REPORT STD HEADING FLAG                  00667000
+RPTHISTF DS    CL01          ..HISTORY ACCEPTED FLAG                    00668000
+RPTTNLYF DS    CL01          ..TOTALS ONLY FLAG                         00669000
+RPTPGSZ  DS    PL02          ..NBR OF LINES PER PAGE                    00670000
+RPTEHDR  DS    0XL04         ..ELEMENT TABLE HEADER                     00671000
+RPTEMAX# DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES (26)      00672000
+RPTENTY# DS    XL02          ....NBR OF TABLE ENTRIES                   00673000
+RPTSHDR  DS    0XL04         ..SELECTION CRITERIA TABLE HEADER          00674000
+RPTSMAX# DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES (117)     00675000
+RPTSNTY# DS    XL02          ....NBR OF TABLE ENTRIES                   00676000
+RPTCONSF DS    CL01          ..PROCESS CONTROL CONSOLIDATION FLAG       00676010
+RPTRLTF  DS    CL01          ..REPORT LEVEL TOTALS FLAG                 00676020
+RPTSMIF  DS    CL01          ..CUSTOMER SERVICE INTERFACE FLAG          00676030
+RPTSMDAR DS    XL02          ..CUSTOMER SERVICE DAYS RETENTION          00676040
+RPTLRPT  DS    CL02          ..REPORT LEVEL LANGUAGE CODE     9913481   00676050
+RPTLSRC  DS    CL01          ..REPORT LANGUAGE SOURCE CODE    9913481   00676060
+RPTCTOT  DS    CL01          ..REPORT CURRENCY TOTAL FLAG     9913481   00676065
+RPTHTML  DS    CL01          ..SPOOL HTML FLAG                0735608   00676070
+RPTMASK  DS    CL01          ..MASKING FLAG                   0735608   00676075
+         DS    CL10          ..FILLER                         1326235   00677000
+RPTDTYP  DS    CL1           ..DEFINTION TYPE                 1326235   00677005
+RPTVAR   DS    0XL9815                                                  00678000
+RPTETBL  DS    26XL22                                                   00679000
+         ORG   RPTETBL                                                  00680000
+RPTENTRY DS    0XL22         ..ELEMENT TABLE ENTRY                      00681000
+RPTDAGNM DS    CL08          ....DAG NAME                               00682000
+RPTELENM DS    CL08          ....ELE NAME                               00683000
+RPTOCCR1 DS    XL02          ....OCCURANCE AT LEVEL 1                   00684000
+RPTOCCR2 DS    XL02          ....OCCURANCE AT LEVEL 2                   00685000
+RPTOCCR3 DS    XL02          ....OCCURANCE AT LEVEL 3                   00686000
+         ORG                                                            00687000
+RPTSTBL  DS    117XL79                                                  00688000
+         ORG   RPTSTBL                                                  00689000
+RPTSNTRY DS    0XL79         ..SELECTION CRITERIA TABLE ENTRY           00690000
+RPTSTEXT DS    XL79          ....SELECTION TEXT                         00691000
+         ORG                                                            00692000
+         AGO   .DMAP800                                                 00693000
+.DMAP100 ANOP                                                           00694000
+         AIF   ('&DAG(&I)' NE 'SAR9022D').DMAP110                       00695000
+         AIF   ('&EJECT' EQ 'YES').DMAP102                              00696000
+         SPACE 2                                                        00697000
+         AGO   .DMAP014                                                 00698000
+.DMAP102 ANOP                                                           00699000
+         EJECT                                                          00700000
+.DMAP104 ANOP                                                           00701000
+*        *---------------------------------------------------*          00702000
+*        * EAA/SA REPORTING                                  *          00703000
+*        * SORT PATTERN DEFINITION                           *          00704000
+*        *---------------------------------------------------*          00705000
+         SPACE                                                          00706000
+         AIF   ('&DSECT' EQ 'NO').DMAP108                               00707000
+SAR9022D DSECT                                                          00708000
+SRTFIX   DS    0XL08                                                    00709000
+SRTLRECL DS    XL02          ..RECORD LENGTH                            00710000
+SRTNO    DS    PL02          ..STRUCTURE KEY                            00711000
+SRTHDR   DS    0XL04         ..TABLE HEADER                             00712000
+SRTMAX   DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES           00713000
+SRTNTRY# DS    XL02          ....NBR OF TABLE ENTRIES                   00714000
+         ORG   SRTFIX                                                   00715000
+SRTNTRY  DS    0XL40         ..TABLE ENTRY                              00716000
+SRTDAGNM DS    CL08          ....SOURCE DAG NAME                        00717000
+SRTELENM DS    CL08          ....SOURCE ELE NAME                        00718000
+SRTSHNM  DS    CL20          ....SOURCE SHORT NAME                      00719000
+SRTORDER DS    CL01          ....SORT ORDER A/D                         00720000
+SRTTOTF  DS    CL01          ....TOTALING(CTL) FIELD FLAG               00721000
+SRTPGBRF DS    CL01          ....PAGE BREAK FLAG                        00722000
+         DS    CL01          ....FILLER                                 00723000
+         AGO   .DMAP800                                                 00724000
+.DMAP108 ANOP                                                           00725000
+         DS    0D                                                       00726000
+SAR9022D DS    0XL1328                                                  00727000
+SRTFIX   DS    0XL08                                                    00728000
+SRTLRECL DS    XL02          ..RECORD LENGTH                            00729000
+SRTNO    DS    PL02          ..STRUCTURE KEY                            00730000
+SRTHDR   DS    0XL04         ..TABLE HEADER                             00731000
+SRTMAX   DS    XL02          ....MAXIMUM NBR OF TABLE ENTRIES           00732000
+SRTNTRY# DS    XL02          ....NBR OF TABLE ENTRIES                   00733000
+SRTTBL   DS    33XL40                                                   00734000
+         ORG   SRTTBL                                                   00735000
+SRTNTRY  DS    0XL40         ..TABLE ENTRY                              00736000
+SRTDAGNM DS    CL08          ....SOURCE DAG NAME                        00737000
+SRTELENM DS    CL08          ....SOURCE ELE NAME                        00738000
+SRTSHNM  DS    CL20          ....SOURCE SHORT NAME                      00739000
+SRTORDER DS    CL01          ....SORT ORDER A/D                         00740000
+SRTTOTF  DS    CL01          ....TOTALING(CTL) FIELD FLAG               00741000
+SRTPGBRF DS    CL01          ....PAGE BREAK FLAG                        00742000
+         DS    CL01          ....FILLER                                 00743000
+         ORG                                                            00744000
+         AGO   .DMAP800                                                 00745000
+.DMAP110 ANOP                                                           00746000
+         AIF   ('&DAG(&I)' NE 'SAR9030D').DMAP120                       00747000
+         AIF   ('&EJECT' EQ 'YES').DMAP112                              00748000
+         SPACE 2                                                        00749000
+         AGO   .DMAP114                                                 00750000
+.DMAP112 ANOP                                                           00751000
+         EJECT                                                          00752000
+.DMAP114 ANOP                                                           00753000
+*        *---------------------------------------------------*          00754000
+*        * EAA/SA REPORTING                                  *          00755000
+*        * SCHEDULING CONTROL (PROCESSING DATES)             *          00756000
+*        *---------------------------------------------------*          00757000
+         SPACE                                                          00758000
+         AIF   ('&DSECT' EQ 'NO').DMAP118                               00759000
+SAR9030D DSECT                                                          00760000
+SCDFIX   DS    0XL120                                                   00761000
+SCDINST  DS    XL02          ..INSTITUTION                              00762000
+SCDAPPL  DS    CL02          ..APPLICATION                              00763000
+SCDCTL1  DS    CL02          ..CONTROL 1                                00764000
+SCDCTL2  DS    CL03          ..CONTROL 2                                00765000
+SCDCTL3  DS    CL03          ..CONTROL 3                                00766000
+SCDCTL4  DS    CL04          ..CONTROL 4                                00767000
+SCDSAPPL DS    CL02          ..SUB-APPLICATION                          00768000
+SCDPDATE DS    0CL08         ..PROCESS DATE                             00769000
+SCDPCENT DS    CL02          ....PROCESS CENTURY                        00770000
+SCDPYEAR DS    ZL02          ....PROCESS YEAR                           00771000
+SCDPMNTH DS    ZL02          ....PROCESS MONTH                          00772000
+SCDPDAY  DS    ZL02          ....PROCESS DAY                            00773000
+SCDTDATE DS    0CL08         ..PROCESS THRU DATE                        00774000
+SCDTCENT DS    ZL02          ....THRU CENTURY                           00775000
+SCDTYEAR DS    ZL02          ....THRU YEAR                              00776000
+SCDTMNTH DS    ZL02          ....THRU MONTH                             00777000
+SCDTDAY  DS    ZL02          ....THRU DAY                               00778000
+SCDBUSF  DS    CL01          ..BUSINESS DAY INDICATOR (FLAG)            00779000
+SCDPDA#  DS    ZL02          ..NBR OF PROCESS DAYS                      00780000
+SCDBUSDA DS    ZL02          ..BUSINESS DAY                             00781000
+SCDBDA#  DS    ZL02          ..NBR OF BUSINESS DAYS IN MONTH            00782000
+SCDCDA#  DS    ZL02          ..NBR OF CALENDAR DAYS IN MONTH            00783000
+SCDMO1DA DS    CL08          ..1ST PROCESS DAY IN MONTH                 00784000
+SCDQT1DA DS    CL08          ..1ST PROCESS DAY IN QUARTER               00785000
+SCDYR1DA DS    CL08          ..1ST PROCESS DAY IN YEAR                  00786000
+SCDQTLDA DS    CL08          ..LAST PROCESS DAY IN QUARTER              00787000
+SCDYRLDA DS    CL08          ..LAST PROCESS DAY IN YEAR                 00788000
+SCDMOPDA DS    ZL02          ..NBR OF PREVIOUS DAYS IN MONTH            00789000
+SCDQTPDA DS    ZL02          ..NBR OF PREVIOUS DAYS IN QUARTER          00790000
+SCDYRPDA DS    ZL03          ..NBR OF PREVIOUS DAYS IN YEAR             00791000
+SCDMORDA DS    ZL02          ..NBR OF REMAINING DAYS IN MONTH           00792000
+SCDQTRDA DS    ZL02          ..NBR OF REMAINING DAYS IN QUARTER         00793000
+SCDYRRDA DS    ZL03          ..NBR OF REMAINING DAYS IN YEAR            00794000
+SCDMOBEG DS    CL01          ..BEGIN OF MONTH INDICATOR (FLAG)          00795000
+SCDQTBEG DS    CL01          ..BEGIN OF QUARTER INDICATOR (FLAG)        00796000
+SCDYRBEG DS    CL01          ..BEGIN OF YEAR INDICATOR (FLAG)           00797000
+SCDMOEND DS    CL01          ..END OF MONTH INDICATOR (FLAG)            00798000
+SCDQTEND DS    CL01          ..END OF QUARTER INDICATOR (FLAG)          00799000
+SCDYREND DS    CL01          ..END OF YEAR INDICATOR (FLAG)             00800000
+SCDDAOWK DS    CL09          ..DAY OF WEEK TITLE                        00801000
+         ORG   SCDFIX                                                   00802000
+SCDNTRY  DS    0XL06         ..DAY OF WEEK OCCURANCES FOR MO, QTR, YR   00803000
+SCD#FORM DS    PL02          ....NBR OF OCCURANCES FOR MONTH            00804000
+SCD#FORQ DS    PL02          ....NBR OF OCCURANCES FOR QUARTER          00805000
+SCD#FORY DS    PL02          ....NBR OF OCCURANCES FOR YEAR             00806000
+         AGO   .DMAP800                                                 00807000
+.DMAP118 ANOP                                                           00808000
+         DS    0D                                                       00809000
+SAR9030D DS    0XL162                                                   00810000
+SCDFIX   DS    0XL120                                                   00811000
+SCDINST  DS    XL02          ..INSTITUTION                              00812000
+SCDAPPL  DS    CL02          ..APPLICATION                              00813000
+SCDCTL1  DS    CL02          ..CONTROL 1                                00814000
+SCDCTL2  DS    CL03          ..CONTROL 2                                00815000
+SCDCTL3  DS    CL03          ..CONTROL 3                                00816000
+SCDCTL4  DS    CL04          ..CONTROL 4                                00817000
+SCDSAPPL DS    CL02          ..SUB-APPLICATION                          00818000
+SCDPDATE DS    0CL08         ..PROCESS DATE                             00819000
+SCDPCENT DS    CL02          ....PROCESS CENTURY                        00820000
+SCDPYEAR DS    ZL02          ....PROCESS YEAR                           00821000
+SCDPMNTH DS    ZL02          ....PROCESS MONTH                          00822000
+SCDPDAY  DS    ZL02          ....PROCESS DAY                            00823000
+SCDTDATE DS    0CL08         ..PROCESS THRU DATE                        00824000
+SCDTCENT DS    ZL02          ....THRU CENTURY                           00825000
+SCDTYEAR DS    ZL02          ....THRU YEAR                              00826000
+SCDTMNTH DS    ZL02          ....THRU MONTH                             00827000
+SCDTDAY  DS    ZL02          ....THRU DAY                               00828000
+SCDBUSF  DS    CL01          ..BUSINESS DAY INDICATOR (FLAG)            00829000
+SCDPDA#  DS    ZL02          ..NBR OF PROCESS DAYS                      00830000
+SCDBUSDA DS    ZL02          ..BUSINESS DAY                             00831000
+SCDBDA#  DS    ZL02          ..NBR OF BUSINESS DAYS IN MONTH            00832000
+SCDCDA#  DS    ZL02          ..NBR OF CALENDAR DAYS IN MONTH            00833000
+SCDMO1DA DS    CL08          ..1ST PROCESS DAY IN MONTH                 00834000
+SCDQT1DA DS    CL08          ..1ST PROCESS DAY IN QUARTER               00835000
+SCDYR1DA DS    CL08          ..1ST PROCESS DAY IN YEAR                  00836000
+SCDQTLDA DS    CL08          ..LAST PROCESS DAY IN QUARTER              00837000
+SCDYRLDA DS    CL08          ..LAST PROCESS DAY IN YEAR                 00838000
+SCDMOPDA DS    ZL02          ..NBR OF PREVIOUS DAYS IN MONTH            00839000
+SCDQTPDA DS    ZL02          ..NBR OF PREVIOUS DAYS IN QUARTER          00840000
+SCDYRPDA DS    ZL03          ..NBR OF PREVIOUS DAYS IN YEAR             00841000
+SCDMORDA DS    ZL02          ..NBR OF REMAINING DAYS IN MONTH           00842000
+SCDQTRDA DS    ZL02          ..NBR OF REMAINING DAYS IN QUARTER         00843000
+SCDYRRDA DS    ZL03          ..NBR OF REMAINING DAYS IN YEAR            00844000
+SCDMOBEG DS    CL01          ..BEGIN OF MONTH INDICATOR (FLAG)          00845000
+SCDQTBEG DS    CL01          ..BEGIN OF QUARTER INDICATOR (FLAG)        00846000
+SCDYRBEG DS    CL01          ..BEGIN OF YEAR INDICATOR (FLAG)           00847000
+SCDMOEND DS    CL01          ..END OF MONTH INDICATOR (FLAG)            00848000
+SCDQTEND DS    CL01          ..END OF QUARTER INDICATOR (FLAG)          00849000
+SCDYREND DS    CL01          ..END OF YEAR INDICATOR (FLAG)             00850000
+SCDDAOWK DS    CL09          ..DAY OF WEEK TITLE                        00851000
+SCDTBL   DS    7XL06                                                    00852000
+         ORG   SCDTBL                                                   00853000
+SCDNTRY  DS    0XL06         ..DAY OF WEEK OCCURANCES FOR MO, QTR, YR   00854000
+SCD#FORM DS    PL02          ....NBR OF OCCURANCES FOR MONTH            00855000
+SCD#FORQ DS    PL02          ....NBR OF OCCURANCES FOR QUARTER          00856000
+SCD#FORY DS    PL02          ....NBR OF OCCURANCES FOR YEAR             00857000
+         ORG                                                            00858000
+         AGO   .DMAP800                                                 00859000
+.DMAP120 ANOP                                                           00860000
+         AIF   ('&DAG(&I)' NE 'SAR9040D').DMAP130                       00861000
+         AIF   ('&EJECT' EQ 'YES').DMAP122                              00862000
+         SPACE 2                                                        00863000
+         AGO   .DMAP124                                                 00864000
+.DMAP122 ANOP                                                           00865000
+         EJECT                                                          00866000
+.DMAP124 ANOP                                                           00867000
+*        *---------------------------------------------------*          00868000
+*        * EAA/SA REPORTING                                  *          00869000
+*        * USER FREQUENCY DEFINITION                         *          00870000
+*        *---------------------------------------------------*          00871000
+         SPACE                                                          00872000
+         AIF   ('&DSECT' EQ 'NO').DMAP128                               00873000
+SAR9040D DSECT                                                          00874000
+FRQFIX   DS    0XL04                                                    00875000
+FRQLRECL DS    XL02          ..RECORD LENGTH                            00876000
+FRQHDR   DS    0XL02         ..TABLE HEADER                             00877000
+FRQNTRY# DS    XL02          ....NBR OF TABLE ENTRIES                   00878000
+         ORG   FRQFIX                                                   00879000
+FRQNTRY  DS    0XL22                                                    00880000
+FRQUSER  DS    CL01          ....USER FREQ CODE                         00881000
+FRQBASIS DS    CL01          ....BASIS CODE                             00882000
+FRQMOFRQ DS    ZL02          ....MONTHLY FREQ CODE                      00883000
+         ORG   FRQMOFRQ                                                 00884000
+FRQGRP   DS    ZL01          ....FREQ GROUP (1:4,6)                     00885000
+FRQSEQ   DS    ZL01          ....FREQ SEQ (1:6)                         00886000
+FRQBVAL  DS    8ZL02         ....BASIS VALUE                            00887000
+         ORG   FRQBVAL                                                  00888000
+FRQBVALA DS    ZL02                                                     00889000
+FRQBVALB DS    ZL02                                                     00890000
+FRQBVALC DS    ZL02                                                     00891000
+FRQBVALD DS    ZL02                                                     00892000
+         SPACE 1                                                        00893000
+FRQBVAL1 DS    ZL02          ......PRIOR DAY FOR FRQBVALA               00894000
+FRQBVAL2 DS    ZL02          ......PRIOR DAY FOR FRQBVALB               00895000
+FRQBVAL3 DS    ZL02          ......PRIOR DAY FOR FRQBVALC               00896000
+FRQBVAL4 DS    ZL02          ......PRIOR DAY FOR FRQBVALD               00897000
+         SPACE 1                                                        00898000
+FRQPDAF  DS    CL01          ....PRIOR DAY FLAG                         00899000
+FRQMENDF DS    CL01          ....MONTH END FLAG                         00900000
+         AGO   .DMAP800                                                 00901000
+.DMAP128 ANOP                                                           00902000
+         DS    0D                                                       00903000
+SAR9040D DS    0XL444                                                   00904000
+FRQFIX   DS    0XL04                                                    00905000
+FRQLRECL DS    XL02          ..RECORD LENGTH                            00906000
+FRQHDR   DS    0XL02         ..TABLE HEADER                             00907000
+FRQNTRY# DS    XL02          ....NBR OF TABLE ENTRIES                   00908000
+FRQTBL   DS    20XL22                                                   00909000
+         ORG   FRQTBL                                                   00910000
+FRQNTRY  DS    0XL22                                                    00911000
+FRQUSER  DS    CL01          ....USER FREQ CODE                         00912000
+FRQBASIS DS    CL01          ....BASIS CODE                             00913000
+FRQMOFRQ DS    ZL02          ....MONTHLY FREQ CODE                      00914000
+         ORG   FRQMOFRQ                                                 00915000
+FRQGRP   DS    ZL01          ....FREQ GROUP (1:4,6)                     00916000
+FRQSEQ   DS    ZL01          ....FREQ SEQ (1:6)                         00917000
+FRQBVAL  DS    8ZL02         ....BASIS VALUE                            00918000
+         ORG   FRQBVAL                                                  00919000
+FRQBVALA DS    ZL02                                                     00920000
+FRQBVALB DS    ZL02                                                     00921000
+FRQBVALC DS    ZL02                                                     00922000
+FRQBVALD DS    ZL02                                                     00923000
+         SPACE 1                                                        00924000
+FRQBVAL1 DS    ZL02          ......PRIOR DAY FOR FRQBVALA               00925000
+FRQBVAL2 DS    ZL02          ......PRIOR DAY FOR FRQBVALB               00926000
+FRQBVAL3 DS    ZL02          ......PRIOR DAY FOR FRQBVALC               00927000
+FRQBVAL4 DS    ZL02          ......PRIOR DAY FOR FRQBVALD               00928000
+         SPACE 1                                                        00929000
+FRQPDAF  DS    CL01          ....PRIOR DAY FLAG                         00930000
+FRQMENDF DS    CL01          ....MONTH END FLAG                         00931000
+         ORG   FRQTBL+L'FRQTBL*20                                       00932000
+         AGO   .DMAP800                                                 00933000
+.DMAP130 ANOP                                                           00934000
+         AIF   ('&DAG(&I)' NE 'SAR9050D').DMAP140                       00935000
+         AIF   ('&EJECT' EQ 'YES').DMAP132                              00936000
+         SPACE 2                                                        00937000
+         AGO   .DMAP134                                                 00938000
+.DMAP132 ANOP                                                           00939000
+         EJECT                                                          00940000
+.DMAP134 ANOP                                                           00941000
+*        *---------------------------------------------------*          00942000
+*        * EAA/SA REPORTING                                  *          00943000
+*        * EQUATE DATA LOOKUP INTERFACE                      *          00944000
+*        *---------------------------------------------------*          00945000
+         SPACE                                                          00946000
+         AIF   ('&DSECT' EQ 'NO').DMAP138                               00947000
+SAR9050D DSECT                                                          00948000
+EQUAREA  DS    0CL87                                                    00949000
+EQUFUNCT DS    CL01          ..FUNCTION CODE                            00950000
+EQUDAGNM DS    CL08          ..DAG NAME                                 00951000
+EQUELENM DS    CL08          ..ELEMENT NAME                             00952000
+EQUFVAL  DS    CL30          ..FROM VALUE                               00953000
+EQUTVAL  DS    CL40          ..TO (EQUATE) VALUE                        00954000
+         AGO   .DMAP800                                                 00955000
+.DMAP138 ANOP                                                           00956000
+         DS    0D                                                       00957000
+SAR9050D DS    0CL87                                                    00958000
+EQUAREA  DS    0CL87                                                    00959000
+EQUFUNCT DS    CL01          ..FUNCTION CODE                            00960000
+EQUDAGNM DS    CL08          ..DAG NAME                                 00961000
+EQUELENM DS    CL08          ..ELEMENT NAME                             00962000
+EQUFVAL  DS    CL30          ..FROM VALUE                               00963000
+EQUTVAL  DS    CL40          ..TO (EQUATE) VALUE                        00964000
+         AGO   .DMAP800                                                 00965000
+.DMAP140 ANOP                                                           00966000
+         AIF   ('&DAG(&I)' NE 'SAR8030T').DMAP150                       00967000
+         AIF   ('&EJECT' EQ 'YES').DMAP142                              00968000
+         SPACE 2                                                        00969000
+         AGO   .DMAP144                                                 00970000
+.DMAP142 ANOP                                                           00971000
+         EJECT                                                          00972000
+.DMAP144 ANOP                                                           00973000
+*        *---------------------------------------------------*          00974000
+*        * EAA/SA REPORTING                                  *          00975000
+*        * USER EVENT LIST                                   *          00976000
+*        *---------------------------------------------------*          00977000
+         SPACE                                                          00978000
+         AIF   ('&DSECT' EQ 'NO').DMAP148                               00979000
+SAR8030T DSECT                                                          00980000
+UELHDR   DS    0XL08        USER EVENT HEADER                           00981000
+UELREQ#  DS    XL02          ..NBR REQUESTED                            00982000
+UELNTRY# DS    XL02          ..NBR OF TABLE ENTRIES                     00983000
+UELMAX#  DS    XL02          ..MAXIMUM NBR OF TABLE ENTRIES             00984000
+         DS    XL02          ..SUBSCRIPT                                00985000
+         ORG   UELHDR                                                   00986000
+UELNTRY  DS    0CL16         ..TABLE ENTRY                              00987000
+UELEVENT DS    CL05          ....REPORT EVENT                           00988000
+UELSCHF  DS    CL01          ....SCHEDULED INDICATOR                    00989000
+UELSELF  DS    CL01          ....SELECT INDICATOR                       00990000
+UELHISTF DS    CL01          ....HISTORY INDICATOR                      00991000
+UELPGM   DS    CL08          ....PRE-EXTRACT MODULE                     00992000
+         AGO   .DMAP800                                                 00993000
+.DMAP148 ANOP                                                           00994000
+         MNOTE 4,'DSECT=NO FOR DAG=SAR8030T DOES NOT EXIST'             00995000
+         AGO   .DMAP800                                                 00996000
+.DMAP150 ANOP                                                           00997000
+         AIF   ('&DAG(&I)' NE 'SAR9PSRD').DMAP160                       00998000
+         AIF   ('&EJECT' EQ 'YES').DMAP152                              00999000
+         SPACE 2                                                        01000000
+         AGO   .DMAP154                                                 01001000
+.DMAP152 ANOP                                                           01002000
+         EJECT                                                          01003000
+.DMAP154 ANOP                                                           01004000
+*        *---------------------------------------------------*          01005000
+*        * EAA/SA REPORTING                                  *          01006000
+*        * PRINT SELECT ROUTINE COMM AREA                    *          01007000
+*        *---------------------------------------------------*          01008000
+         SPACE                                                          01009000
+         AIF   ('&DSECT' EQ 'NO').DMAP158                               01010000
+SAR9PSRD DSECT                                                          01011000
+PSRFIX   DS    0XL04                                                    01012000
+PSRFUNC  DS    XL02          ..FUNCTION CODE                            01013000
+PSRSETUP EQU   0             ....PARSE PRINT SELECT STATEMENTS          01014000
+PSRSELCT EQU   4             ....SELECT REPORT EXTRACT RECORD           01015000
+PSRRC    DS    XL02          ..RETURN CODE                              01016000
+PSROK    EQU   0             ....SELECT REPORT EXTRACT                  01017000
+PSRIGN   EQU   4             ....IGNORE REPORT EXTRACT                  01018000
+PSRERROR EQU   8             ....ERRORS HAVE OCCURED                    01019000
+         AGO   .DMAP800                                                 01020000
+.DMAP158 ANOP                                                           01021000
+         DS    0F                                                       01022000
+SAR9PSRD DS    0XL04                                                    01023000
+PSRFIX   DS    0XL04                                                    01024000
+PSRFUNC  DS    XL02          ..FUNCTION CODE                            01025000
+PSRSETUP EQU   0             ....PARSE PRINT SELECT STATEMENTS          01026000
+PSRSELCT EQU   4             ....SELECT REPORT EXTRACT RECORD           01027000
+PSRRC    DS    XL02          ..RETURN CODE                              01028000
+PSROK    EQU   0             ....SELECT REPORT EXTRACT                  01029000
+PSRIGN   EQU   4             ....IGNORE REPORT EXTRACT                  01030000
+PSRERROR EQU   8             ....ERRORS HAVE OCCURED                    01031000
+         AGO   .DMAP800                                                 01032000
+.DMAP160 ANOP                                                           01033000
+         AIF   ('&DAG(&I)' NE 'SAR9TFXD').DMAP170                       01034000
+         AIF   ('&EJECT' EQ 'YES').DMAP162                              01035000
+         SPACE 2                                                        01036000
+         AGO   .DMAP164                                                 01037000
+.DMAP162 ANOP                                                           01038000
+         EJECT                                                          01039000
+.DMAP164 ANOP                                                           01040000
+*        *---------------------------------------------------*          01041000
+*        * EAA/SA REPORTING                                  *          01042000
+*        * TOTAL FIELD EXTRACT COMM AREA                     *          01043000
+*        *---------------------------------------------------*          01044000
+         SPACE                                                          01045000
+         AIF   ('&DSECT' EQ 'NO').DMAP168                               01046000
+SAR9TFXD DSECT                                                          01047000
+TFXFIX   DS    0XL06                                                    01048000
+TFXFUNC  DS    XL02          ..FUNCTION CODE                            01049000
+TFXRPTBK EQU   0             ....PROCESS REPORT BREAK                   01050000
+TFXCTLCK EQU   4             ....PROCESS CONTROL CHECK                  01051000
+TFXCTLBK EQU   8             ....PROCESS CONTROL BREAK                  01052000
+TFXROLL  EQU   12            ....PROCESS ROLL CONTROL                   01053000
+TFXBRKL  DS    XL02          ..BREAK LEVEL                              01054000
+TFXRC    DS    XL02          ..RETURN CODE                              01055000
+TFXOK    EQU   0             ....NO ERRORS                              01056000
+         AGO   .DMAP800                                                 01057000
+.DMAP168 ANOP                                                           01058000
+         DS    0F                                                       01059000
+SAR9TFXD DS    0XL06                                                    01060000
+TFXFIX   DS    0XL06                                                    01061000
+TFXFUNC  DS    XL02          ..FUNCTION CODE                            01062000
+TFXRPTBK EQU   0             ....PROCESS REPORT BREAK                   01063000
+TFXCTLCK EQU   4             ....PROCESS CONTROL CHECK                  01064000
+TFXCTLBK EQU   8             ....PROCESS CONTROL BREAK                  01065000
+TFXROLL  EQU   12            ....PROCESS ROLL CONTROL                   01066000
+TFXBRKL  DS    XL02          ..BREAK LEVEL                              01067000
+TFXRC    DS    XL02          ..RETURN CODE                              01068000
+TFXOK    EQU   0             ....NO ERRORS                              01069000
+         AGO   .DMAP800                                                 01070000
+.DMAP170 ANOP                                                           01071000
+         AIF   ('&DAG(&I)' NE 'SAR9PCMK').DMAP180                       01072000
+         AIF   ('&EJECT' EQ 'YES').DMAP172                              01073000
+         SPACE 2                                                        01074000
+         AGO   .DMAP174                                                 01075000
+.DMAP172 ANOP                                                           01076000
+         EJECT                                                          01077000
+.DMAP174 ANOP                                                           01078000
+*        *---------------------------------------------------*          01079000
+*        * EAA/SA REPORTING                                  *          01080000
+*        * PARMS SEARCH KEY SAVE AREA FOR SIGNAL PROCESS     *          01081000
+*        *---------------------------------------------------*          01082000
+         SPACE                                                          01083000
+         AIF   ('&DSECT' EQ 'NO').DMAP178                               01084000
+SAR9PCMK DSECT                                                          01085000
+PCMSKEY  DS    0CL38         PARMS SEARCH KEYS                          01086000
+PCMAPPL  DS    CL02          ..APPLICATION CODE                         01087000
+PCMSAPPL DS    CL02          ..SUB-APPLICATION CODE                     01088000
+PCMCTL2  DS    CL03          ..CTL2                                     01089000
+PCMCTL3  DS    CL03          ..CTL3                                     01090000
+PCMCTL4  DS    CL04          ..CTL4                                     01091000
+PCMACCT  DS    CL24          ..ACCOUNT NBR                              01092000
+PCMFIID  DS    XL02          PARMS INSTITUTION ID                       01093000
+PCMEFDT  DS    PL05          PARMS EFFECTIVE DATE                       01094000
+         AGO   .DMAP800                                                 01095000
+.DMAP178 ANOP                                                           01096000
+         DS    0D                                                       01097000
+         DC    CL8'*SKEY==>'                                            01098000
+PCMSKEY  DS    0CL38         PARMS SEARCH KEYS                          01099000
+PCMAPPL  DC    CL02' '       ..APPLICATION CODE                         01100000
+PCMSAPPL DC    CL02' '       ..SUB-APPLICATION CODE                     01101000
+PCMCTL2  DC    CL03' '       ..CTL2                                     01102000
+PCMCTL3  DC    CL03' '       ..CTL3                                     01103000
+PCMCTL4  DC    CL04' '       ..CTL4                                     01104000
+PCMACCT  DC    CL24' '       ..ACCOUNT NBR                              01105000
+PCMFIID  DC    XL02'00'      PARMS INSTITUTION ID                       01106000
+PCMEFDT  DC    PL05'0'       PARMS EFFECTIVE DATE                       01107000
+         AGO   .DMAP800                                                 01108000
+.DMAP180 ANOP                                                           01109000
+         AIF   ('&DAG(&I)' NE 'SAR8025T').DMAP190             0545204   01109005
+         AIF   ('&EJECT' EQ 'YES').DMAP182                    0545204   01109010
+         SPACE 2                                              0545204   01109015
+         AGO   .DMAP184                                       0545204   01109020
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109024
+.DMAP182 ANOP                                                           01109025
+         EJECT                                                0545204   01109030
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109034
+.DMAP184 ANOP                                                           01109035
+*        *------------------------------------------------*   0545204   01109040
+*        * EAA/SA REPORTING                               *   0545204   01109045
+*        * SCHEDULING PUBLICATION TABLE (VECTOR)          *   0545204   01109050
+*        *------------------------------------------------*   0545204   01109055
+         SPACE 1                                              0545204   01109060
+         AIF   ('&DSECT' EQ 'NO').DMAP188                     0545204   01109065
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109069
+SAR8025T DSECT                                                          01109070
+SPVFIX   DS    0XL60                                          0545204   01109075
+SPVLRECL DS    XL02          ..RECORD LENGTH                  0545204   01109080
+SPVDATES DS    0XL10         ..PROCESSING DATE RANGE          0545204   01109085
+SPVPDATE DS    PL05          ....PROCESS DATE                 0545204   01109090
+SPVTDATE DS    PL05          ....THRU DATE                    0545204   01109095
+SPVPCLVL DS    XL02          ..LEVEL OF PROCESS CONTROL       0545204   01109100
+SPVPC    DS    0XL22         ..PROCESS CONTROL INFO           0545204   01109105
+SPVINST  DS    CL04          ....PROCESS CONTROL INST         0545204   01109110
+SPVCTL2  DS    CL03          ....PROCESS CONTROL CONTROL 2    0545204   01109115
+SPVCTL3  DS    CL03          ....PROCESS CONTROL CONTROL 3    0545204   01109120
+SPVCTL4  DS    CL04          ....PROCESS CONTROL CONTROL 4    0545204   01109125
+         DS    CL08          ....FILLER                       0545204   01109130
+         ORG   SPVCTL2                                        0545204   01109135
+SPVRCCR  DS    0CL18                                          0545204   01109140
+SPVGLRC  DS    9CL02         ....PROCESS CONTROL GL RC        0545204   01109145
+         DS    CL20          ....FILLER                       0545204   01109150
+SPVHDR   DS    0XL04                                          0545204   01109155
+SPVMAX#  DS    XL02          ..MAX NBR OF TABLE ENTRIES(389)  0545204   01109160
+SPVNTRY# DS    XL02          ..NBR OF TABLE ENTRIES           0545204   01109165
+         ORG   SPVFIX                                         0545204   01109170
+SPVNTRY  DS    0XL26                                          0545204   01109175
+SPVRPTEV DS    CL5           ..EVENT ID                       0545204   01109180
+SPVSKID  DS    XL02          ..SEARCH KEY ID                  0545204   01109185
+SPVSIGNL DS    CL01          ..SIGNAL LEVEL                   0545204   01109190
+SPVAPDAG DS    CL08          ..APPL DAG NAME                  0545204   01109195
+SPVAPDLN DS    XL02          ..APPL DAG LENGTH                0545204   01109200
+         DS    CL08          ..FILLER                         0545204   01109205
+         AGO   .DMAP800                                       0545204   01109210
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109214
+.DMAP188 ANOP                                                           01109215
+         DS    0D                                             0545204   01109220
+SAR8025T DS    0XL9988                                        0545204   01109225
+SPVFIX   DS    0XL40                                          0545204   01109230
+SPVLRECL DS    XL02          ..RECORD LENGTH                  0545204   01109235
+SPVDATES DS    0XL10         ..PROCESSING DATE RANGE          0545204   01109240
+SPVPDATE DS    PL05          ....PROCESS DATE                 0545204   01109245
+SPVTDATE DS    PL05          ....THRU DATE                    0545204   01109250
+SPVPCLVL DS    XL02          ..LEVEL OF PROCESS CONTROL       0545204   01109255
+SPVPC    DS    0XL22         ..PROCESS CONTROL INFO           0545204   01109260
+SPVINST  DS    CL04          ....PROCESS CONTROL INST         0545204   01109265
+SPVCTL2  DS    CL03          ....PROCESS CONTROL CONTROL 2    0545204   01109270
+SPVCTL3  DS    CL03          ....PROCESS CONTROL CONTROL 3    0545204   01109275
+SPVCTL4  DS    CL04          ....PROCESS CONTROL CONTROL 4    0545204   01109280
+         DS    CL08          ....FILLER                       0545204   01109285
+         ORG   SPVCTL2                                        0545204   01109290
+SPVRCCR  DS    0CL18                                          0545204   01109295
+SPVGLRC  DS    9CL02         ....PROCESS CONTROL GL RC        0545204   01109300
+SPVHDR   DS    0XL04                                          0545204   01109305
+SPVMAX#  DS    XL02          ..MAX NBR OF TABLE ENTRIES(389)  0545204   01109310
+SPVNTRY# DS    XL02          ..NBR OF TABLE ENTRIES           0545204   01109315
+SPVTBL   DS    389XL22                                        0545204   01109320
+         ORG   SPVTBL                                         0545204   01109325
+SPVNTRY  DS    0XL06                                          0545204   01109330
+SPVRPTID DS    0XL05         ..REPORT ID                      0545204   01109335
+SPVRPTNO DS    PL03          ....REPORT NBR                   0545204   01109340
+SPVSKID  DS    XL02          ....REPORT SEARCH KEY ID         0545204   01109345
+SPVFLAGS DS    XL01          ..COMBINED FLAGS                 0545204   01109375
+SPVHISTF EQU   X'80'         ....HISTORY FLAG                 0545204   01109380
+SPVRSELF EQU   X'40'         ....RPT SELECTION CRITERIA FLAG  0545204   01109385
+SPVSREQF EQU   X'10'         ....RPT WAS SCHEDULED BY REQUEST 0545204   01109390
+*                            LOW ORDR 3BITS CONSOLIDATION LVL 0545204   01109395
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109399
+         ORG                                                            01109400
+         AGO   .DMAP800                                       0545204   01109405
+*------------------------------------------------------------ 0545204   01109410
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109414
+.DMAP190 ANOP                                                           01109415
+         AIF   ('&DAG(&I)' NE 'SAR9005D').DMAP200             0545204   01109420
+         AIF   ('&EJECT' EQ 'YES').DMAP192                    0545204   01109425
+         SPACE 2                                              0545204   01109430
+         AGO   .DMAP194                                       0545204   01109435
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109439
+.DMAP192 ANOP                                                           01109440
+         EJECT                                                0545204   01109445
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109449
+.DMAP194 ANOP                                                           01109450
+*        *--------------------------------------------------* 0545204   01109455
+*        * EAA/SA PUBLICATION DEFAULTS                      * 0545204   01109460
+*        *--------------------------------------------------* 0545204   01109465
+         SPACE 1                                              0545204   01109470
+         AIF   ('&DSECT' EQ 'NO').DMAP198                     0545204   01109475
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109479
+SAR9005D DSECT                                                          01109480
+DFPFIX   DS    0XL09         ..FIXED AREA                     0545204   01109482
+DFPSIGNL DS    CL01          ..SIGNAL LEVEL                   0545204   01109485
+DFPAPDAG DS    CL08          ..APPL DAG NAME                  0545204   01109490
+         DS    CL108         ..FILLER                         0545204   01109495
+         AGO   .DMAP800                                       0545204   01109500
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109504
+.DMAP198 ANOP                                                           01109505
+         DS    0D                                             0545204   01109510
+SAR9005D DS    0XL117                                         0545204   01109515
+DFPFIX   DS    0XL09         ..FIXED AREA                     0545204   01109517
+DFPSIGNL DS    CL01          ..SIGNAL LEVEL                   0545204   01109520
+DFPAPDAG DS    CL08          ..APPL DAG NAME                  0545204   01109525
+         DS    CL108         ..FILLER                         0545204   01109530
+         AGO   .DMAP800                                       0545204   01109535
+*------------------------------------------------------------ 0545204   01109540
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109544
+.DMAP200 ANOP                                                           01109545
+         AIF   ('&DAG(&I)' NE 'SAR9015D').DMAP210             0545204   01109550
+         AIF   ('&EJECT' EQ 'YES').DMAP202                    0545204   01109555
+         SPACE 2                                              0545204   01109560
+         AGO   .DMAP204                                       0545204   01109565
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109569
+.DMAP202 ANOP                                                           01109570
+         EJECT                                                0545204   01109575
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109579
+.DMAP204 ANOP                                                           01109580
+*        *--------------------------------------------------* 0545204   01109585
+*        * EAA/SA EVENT PUBLICATION                         * 0545204   01109590
+*        * PUBLICATION EXTRACT RECORD                       * 0545204   01109595
+*        *--------------------------------------------------* 0545204   01109600
+         SPACE 1                                              0545204   01109605
+         AIF   ('&DSECT' EQ 'NO').DMAP208                     0545204   01109610
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109614
+SAR9015D DSECT                                                          01109615
+XPBREC   EQU   *                                              0545204   01109620
+XPBFIX   DS    0XL123        ..FIXED AREA                     0545204   01109625
+XPBLRECL DS    XL02          ....RECORD LENGTH                0545204   01109630
+XPBPC    DS    0CL22         ......PROCESS CONTROLS           0545204   01109635
+XPBINST  DS    CL04          ........INSTITUTION              0545204   01109640
+XPBPCTL2 DS    CL03          ........CONTROL 2                0545204   01109645
+XPBPCTL3 DS    CL03          ........CONTROL 3                0545204   01109650
+XPBPCTL4 DS    CL04          ........CONTROL 4                0545204   01109655
+         DS    CL08                                           0545204   01109660
+         ORG   XPBPCTL2                                       0545204   01109665
+XPBRCCR  DS    0CL18                                          0545204   01109670
+XPBGLRC  DS    9CL02         ........GL RC                    0545204   01109675
+XPBEVENT DS    CL05          ....REPORTING EVENT CODE         0545204   01109680
+XPBSKID  DS    XL02          ......SEARCH KEY REPORT ID       0545204   01109685
+XPBRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE    0545204   01109690
+XPBAPPL  DS    CL02          ....APPLICATION ID               0545204   01109695
+XPBSAPPL DS    CL02          ....SUB-APPLICATION ID           0545204   01109700
+XPBMCTLS DS    0CL22         ....MASTER CONTROLS              0545204   01109705
+XPBMCTL1 DS    CL02          ......MASTER CTL1                0545204   01109710
+XPBMCTL2 DS    CL03          ......MASTER CTL2                0545204   01109715
+XPBMCTL3 DS    CL03          ......MASTER CTL3                0545204   01109720
+XPBMCTL4 DS    CL04          ......MASTER CTL4                0545204   01109725
+         DS    CL10          ......FILLER                     0545204   01109730
+XPBACCT  DS    CL24          ....ACCOUNT NBR                  0545204   01109735
+XPBPROD  DS    CL04          ....PRODUCT TYPE                 0545204   01109740
+XPBLMST  DS    CL02          ....LANGUAGE CODE                0545204   01109745
+XPBCMST  DS    CL03          ....CURRENCY CODE                0545204   01109750
+XPBSIGNL DS    CL01          ....SIGNAL LEVEL                 0545204   01109755
+XPBAPDAG DS    CL08          ....APPLICATION DAG NAME         0545204   01109760
+         DS    CL20          ....FILLER                       0545204   01109765
+XPBFIXL  EQU   *-XPBFIX                                       0545204   01109770
+XPBVAR   EQU   *             ..VARIABLE AREA                  0545204   01109775
+         AGO   .DMAP800                                       0545204   01109780
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109784
+.DMAP208 ANOP                                                           01109785
+         DS    0D                                             0545204   01109790
+SAR9015D DS    0XL6144                                        0545204   01109795
+XPBREC   DS    0XL6144                                        0545204   01109800
+XPBFIX   DS    0XL123        ..FIXED AREA                     0545204   01109805
+XPBLRECL DS    XL02          ....RECORD LENGTH                0545204   01109810
+XPBPC    DS    0CL22         ......PROCESS CONTROLS           0545204   01109815
+XPBINST  DS    CL04          ........INSTITUTION              0545204   01109820
+XPBPCTL2 DS    CL03          ........CONTROL 2                0545204   01109825
+XPBPCTL3 DS    CL03          ........CONTROL 3                0545204   01109830
+XPBPCTL4 DS    CL04          ........CONTROL 4                0545204   01109835
+         DS    CL08                                           0545204   01109840
+         ORG   XPBPCTL2                                       0545204   01109845
+XPBRCCR  DS    0CL18                                          0545204   01109850
+XPBGLRC  DS    9CL02         ........GL RC                    0545204   01109855
+XPBEVENT DS    CL05          ....REPORTING EVENT CODE         0545204   01109860
+XPBSKID  DS    XL02          ......SEARCH KEY REPORT ID       0545204   01109865
+XPBRSEQ  DS    XL04          ......EXTRACT RECORD SEQUENCE    0545204   01109870
+XPBAPPL  DS    CL02          ....APPLICATION ID               0545204   01109875
+XPBSAPPL DS    CL02          ....SUB-APPLICATION ID           0545204   01109880
+XPBMCTLS DS    0CL22         ....MASTER CONTROLS              0545204   01109885
+XPBMCTL1 DS    CL02          ......MASTER CTL1                0545204   01109890
+XPBMCTL2 DS    CL03          ......MASTER CTL2                0545204   01109895
+XPBMCTL3 DS    CL03          ......MASTER CTL3                0545204   01109900
+XPBMCTL4 DS    CL04          ......MASTER CTL4                0545204   01109905
+         DS    CL10          ......FILLER                     0545204   01109910
+XPBACCT  DS    CL24          ....ACCOUNT NBR                  0545204   01109915
+XPBPROD  DS    CL04          ....PRODUCT TYPE                 0545204   01109920
+XPBLMST  DS    CL02          ....LANGUAGE CODE                0545204   01109925
+XPBCMST  DS    CL03          ....CURRENCY CODE                0545204   01109930
+XPBSIGNL DS    CL01          ....SIGNAL LEVEL                 0545204   01109935
+XPBAPDAG DS    CL08          ....APPLICATION DAG NAME         0545204   01109940
+         DS    CL20          ....FILLER                       0545204   01109945
+XPBFIXL  EQU   *-XPBFIX                                       0545204   01109950
+XPBVAR   EQU   *             ..VARIABLE AREA                  0545204   01109955
+         DS    XL6017                                         0545204   01109960
+         AGO   .DMAP800                                       0545204   01109965
+*----------------------------------------------------------   0545204   01109970
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109974
+.DMAP210 ANOP                                                           01109975
+         AIF   ('&DAG(&I)' NE 'SAR9024D').DMAP220             0545204   01109980
+         AIF   ('&EJECT' EQ 'YES').DMAP212                    0545204   01109985
+         SPACE 2                                              0545204   01109990
+         AGO   .DMAP214                                       0545204   01109995
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01109999
+.DMAP212 ANOP                                                           01110000
+         EJECT                                                0545204   01110005
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110009
+.DMAP214 ANOP                                                           01110010
+*        *--------------------------------------------------* 0545204   01110015
+*        * EAA/SA PUBLICATION EVENT XREF DEFNITIONS         * 0545204   01110020
+*        *--------------------------------------------------* 0545204   01110025
+         SPACE 1                                              0545204   01110030
+         AIF   ('&DSECT' EQ 'NO').DMAP218                     0545204   01110035
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110039
+SAR9024D DSECT                                                          01110040
+XPXFIX   DS    0XL20                                          0545204   01110045
+XPXLRECL DS    XL02          ..RECORD LENGTH                  0545204   01110050
+XPXRKEY  DS    0XL16         ..RECORD KEY                     0545204   01110055
+XPXAPPL  DS    CL02          ....APPLICATION                  0545204   01110060
+XPXSAPPL DS    CL02          ....SUB-APPLICATION              0545204   01110065
+XPXINST  DS    XL02          ....INSTITUTION                  0545204   01110070
+XPXCTL2  DS    CL03          ....CONTROL 2                    0545204   01110075
+XPXCTL3  DS    CL03          ....CONTROL 3                    0545204   01110080
+XPXCTL4  DS    CL04          ....CONTROL 4                    0545204   01110085
+XPXHDR   DS    0XL02                                          0545204   01110090
+XPXNTRY# DS    XL02          ..NBR OF TABLE ENTRIES  MAX(389) 0545204   01110095
+         ORG   XPXFIX                                         0545204   01110100
+XPXNTRY  DS    0XL05                                          0545204   01110105
+XPXEVENT DS    CL05          ..REPORT EVENT                   0545204   01110110
+         DS    CL500         ..FILLER                         0545204   01110115
+         AGO   .DMAP800                                       0545204   01110120
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110124
+.DMAP218 ANOP                                                           01110125
+         DS    0D                                             0545204   01110130
+SAR9024D DS    0XL2465                                        0545204   01110135
+XPXFIX   DS    0XL20                                          0545204   01110140
+XPXLRECL DS    XL02          ..RECORD LENGTH                  0545204   01110145
+XPXRKEY  DS    0XL16         ..RECORD KEY                     0545204   01110150
+XPXAPPL  DS    CL02          ....APPLICATION                  0545204   01110155
+XPXSAPPL DS    CL02          ....SUB-APPLICATION              0545204   01110160
+XPXINST  DS    XL02          ....INSTITUTION                  0545204   01110165
+XPXCTL2  DS    CL03          ....CONTROL 2                    0545204   01110170
+XPXCTL3  DS    CL03          ....CONTROL 3                    0545204   01110175
+XPXCTL4  DS    CL04          ....CONTROL 4                    0545204   01110180
+XPXHDR   DS    0XL02                                          0545204   01110185
+XPXNTRY# DS    XL02          ..NBR OF TABLE ENTRIES  MAX(389) 0545204   01110190
+XPXTBL   DS    389XL05                                        0545204   01110195
+         ORG   XPXTBL                                         0545204   01110200
+XPXNTRY  DS    0XL05                                          0545204   01110205
+XPXEVENT DS    CL05          ..REPORT EVENT                   0545204   01110210
+         DS    CL500         ..FILLER                         0545204   01110215
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110219
+         ORG                                                            01110220
+         AGO   .DMAP800                                       0545204   01110225
+*----------------------------------------------------------   0545204   01110230
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110234
+.DMAP220 ANOP                                                           01110235
+         AIF   ('&DAG(&I)' NE 'SAR9025D').DMAP230             0545204   01110240
+         AIF   ('&EJECT' EQ 'YES').DMAP222                    0545204   01110245
+         SPACE 2                                              0545204   01110250
+         AGO   .DMAP224                                       0545204   01110255
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110259
+.DMAP222 ANOP                                                           01110260
+         EJECT                                                0545204   01110265
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110269
+.DMAP224 ANOP                                                           01110270
+*        *--------------------------------------------------* 0545204   01110275
+*        * EAA/SA PUBLICATION DEFINITIONS                   * 0545204   01110280
+*        *--------------------------------------------------* 0545204   01110285
+         SPACE 1                                              0545204   01110290
+         AIF   ('&DSECT' EQ 'NO').DMAP228                     0545204   01110295
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110299
+SAR9025D DSECT                                                          01110300
+RPEREC   EQU   *                                              0545204   01110305
+RPEFIX   DS    0XL65         ..FIXED AREA                     0545204   01110310
+RPELRECL DS    XL02          ..RECORD LENGTH                  0545204   01110315
+RPERPTEV DS    CL05          ..EVENT ID                       0545204   01110320
+RPEEVDES DS    CL40          ..EVENT DESCRIPTION              0545204   01110325
+RPEFREQ  DS    CL01          ..REPORT FREQUENCY               0545204   01110330
+RPEREQD  DS    CL08          ..REQUEST DATE YYYYMMDD          0545204   01110335
+RPESIGNL DS    CL01          ..SIGNAL LEVEL                   0545204   01110340
+RPEAPDAG DS    CL08          ..APPL DAG NAME                  0545204   01110345
+         DS    CL108         ..FILLER                         0545204   01110350
+         AGO   .DMAP800                                       0545204   01110355
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110359
+.DMAP228 ANOP                                                           01110360
+         DS    0D                                             0545204   01110365
+SAR9025D DS    0XL173                                         0545204   01110370
+RPEREC   DS    0XL173                                         0545204   01110375
+RPEFIX   DS    0XL65         ..FIXED AREA                     0545204   01110380
+RPELRECL DS    XL02          ..RECORD LENGTH                  0545204   01110385
+RPERPTEV DS    CL05          ..EVENT ID                       0545204   01110390
+RPEEVDES DS    CL40          ..EVENT DESCRIPTION              0545204   01110395
+RPEFREQ  DS    CL01          ..REPORT FREQUENCY               0545204   01110400
+RPEREQD  DS    CL08          ..REQUEST DATE YYYYMMDD          0545204   01110405
+RPESIGNL DS    CL01          ..SIGNAL LEVEL                   0545204   01110410
+RPEAPDAG DS    CL08          ..APPL DAG NAME                  0545204   01110415
+         DS    CL108         ..FILLER                         0545204   01110420
+         AGO   .DMAP800                                       0545204   01110425
+*----------------------------------------------------------   0545204   01110430
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0545204   01110434
+.DMAP230 ANOP                                                           01110435
+         AIF   ('&DAG(&I)' NE 'SAR8023T').DMAP250             1326235   01110438
+         AIF   ('&EJECT' EQ 'YES').DMAP232                    1326235   01110440
+         SPACE 2                                              1326235   01110442
+         AGO   .DMAP234                                       1326235   01110444
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110445
+.DMAP232 ANOP                                                           01110446
+         EJECT                                                1326235   01110448
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110449
+.DMAP234 ANOP                                                           01110450
+*        *------------------------------------------------*   1326235   01110452
+*        * ADS EXTRACT DEFINITIONS                        *   1326235   01110454
+*        *------------------------------------------------*   1326235   01110456
+         SPACE 1                                              1326235   01110458
+         AIF   ('&DSECT' EQ 'NO').DMAP238                     1326235   01110460
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110461
+SAR8023T DSECT                                                          01110462
+IAMREC   EQU   *                                              1326235   01110465
+IAMFIX   DS    0CL120        ..FIXED AREA                     1326235   01110470
+IAMLRECL DS    XL02          ..RECORD LENGTH                  1326235   01110475
+IAMKEY   DS    0CL25         ..RECORD KEY                     1326235   01110480
+IAMENTYP DS    CL03          ....ENTITY TYPE 'IAM'            1326235   01110485
+IAMENPRE DS    CL05          ....ENTITY NAME PREFIX '$$XD#'   1326235   01110490
+IAMENSUF DS    CL05          ....ENTITY NAME SUFFIX           1326235   01110495
+         DS    CL93          ....FILLER                       1326235   01110500
+IAMTBL   DS    CL6000                                         1326235   01110505
+IAMFIXL  EQU   *-IAMFIX                                       1326235   01110547
+         AGO   .DMAP800                                       1326235   01110550
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110559
+.DMAP238 ANOP                                                           01110560
+SAR8023T DS    0XL6122                                        1326235   01110565
+IAMREC   DS    0XL6122                                        1326235   01110570
+IAMFIX   DS    0CL120        ..FIXED AREA                     1326235   01110575
+IAMLRECL DS    XL02          ..RECORD LENGTH                  1326235   01110580
+IAMKEY   DS    0CL25         ..RECORD KEY                     1326235   01110585
+IAMENTYP DS    CL03          ....ENTITY TYPE 'IAM'            1326235   01110590
+IAMENPRE DS    CL05          ....ENTITY NAME PREFIX '$$XD#'   1326235   01110595
+IAMENSUF DS    CL05          ....ENTITY NAME SUFFIX           1326235   01110600
+         DS    CL93          ....FILLER                       1326235   01110605
+IAMTBL   DS    CL6000                                         1326235   01110610
+IAMFIXL  EQU   *-IAMFIX                                       1326235   01110805
+         AGO   .DMAP800                                       1326235   01110807
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110809
+.DMAP250 ANOP                                                           01110810
+         AIF   ('&DAG(&I)' NE 'SAR9014D').DMAP800             1326235   01110812
+         AIF   ('&EJECT' EQ 'YES').DMAP252                    1326235   01110814
+         SPACE 2                                              1326235   01110816
+         AGO   .DMAP254                                       1326235   01110818
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110819
+.DMAP252 ANOP                                                           01110820
+         EJECT                                                1326235   01110822
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110823
+.DMAP254 ANOP                                                           01110824
+*        *-------------------------------------------------*  1326235   01110826
+*        * ADS EXTRACT                                     *  1326235   01110828
+*        * REPORT EXTRACT RECORD                           *  1326235   01110830
+*        *-------------------------------------------------*  1326235   01110832
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110833
+         SPACE                                                          01110834
+         AIF   ('&DSECT' EQ 'NO').DMAP258                     1326235   01110836
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110837
+SAR9014D DSECT                                                          01110838
+XTDREC   EQU   *                                              1326235   01110840
+XTDFIX   DS    0XL88         ..FIXED AREA                     1326235   01110844
+XTDLRECL DS    XL02          ....RECORD LENGTH                1326235   01110848
+XTDDMTNM DS    CL08          ....DMT NAME                     1326235   01110852
+XTDVARLN DS    CL05          ....VAR DATA LENGTH              1326235   01110854
+XTDDATE  DS    CL08          ....SYS DATE                     1326235   01110856
+XTDTIME  DS    CL08          ....SYS TIME                     1326235   01110858
+XTDRPT   DS    CL05          ....REPORT NBR                   1326235   01110860
+XTDEXTSQ DS    XL04          ....EXTRACT SEQ                  1326235   01110864
+XTDEXTCD DS    CL01          ....EXTRACT CD                   1326235   01110868
+XTDAPPL  DS    CL02          ....APPL ID                      1326235   01110870
+XTDSAPPL DS    CL02          ....SUB-APPLICATION ID           1326235   01110874
+XTDEVENT DS    CL05          ....REPORTING EVENT CODE         1326235   01110880
+XTDMCTLS DS    0CL22         ....MASTER CONTROLS              1326235   01110888
+XTDMCTL1 DS    CL02          ......MASTER CTL1                1326235   01110890
+XTDMCTL2 DS    CL03          ......MASTER CTL2                1326235   01110892
+XTDMCTL3 DS    CL03          ......MASTER CTL3                1326235   01110894
+XTDMCTL4 DS    CL04          ......MASTER CTL4                1326235   01110896
+XTDACCT  DS    CL24          ....ACCOUNT NBR                  1326235   01110900
+XTDFIXL  EQU   *-XTDFIX                                       1326235   01110908
+XTDVAR   EQU   *             ..VARIABLE AREA                  1326235   01110910
+         AGO   .DMAP800                                       1326235   01110912
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110913
+.DMAP258 ANOP                                                           01110914
+         DS    0D                                             1326235   01110916
+SAR9014D DS    0XL6140                                        1326235   01110918
+XTDREC   DS    0XL6140                                        1326235   01110925
+XTDFIX   DS    0XL88         ..FIXED AREA                     1326235   01110930
+XTDLRECL DS    XL02          ....RECORD LENGTH                1326235   01110934
+XTDDMTNM DS    CL08          ....DMT NAME                     1326235   01110938
+XTDVARLN DS    CL05          ....VAR DATA LENGTH              1326235   01110940
+XTDDATE  DS    CL08          ....SYS DATE                     1326235   01110944
+XTDTIME  DS    CL08          ....SYS TIME                     1326235   01110946
+XTDRPT   DS    CL05          ....REPORT NBR                   1326235   01110948
+XTDEXTSQ DS    XL04          ....EXTRACT SEQ                  1326235   01110950
+XTDEXTCD DS    CL01          ....EXTRACT CD                   1326235   01110954
+XTDAPPL  DS    CL02          ....APPL ID                      1326235   01110958
+XTDSAPPL DS    CL02          ....SUB-APPLICATION ID           1326235   01110964
+XTDEVENT DS    CL05          ....REPORTING EVENT CODE         1326235   01110966
+XTDMCTLS DS    0CL22         ....MASTER CONTROLS              1326235   01110968
+XTDMCTL1 DS    CL02          ......MASTER CTL1                1326235   01110970
+XTDMCTL2 DS    CL03          ......MASTER CTL2                1326235   01110972
+XTDMCTL3 DS    CL03          ......MASTER CTL3                1326235   01110974
+XTDMCTL4 DS    CL04          ......MASTER CTL4                1326235   01110976
+XTDACCT  DS    CL24          ....ACCOUNT NBR                  1326235   01110980
+XTDFIXL  EQU   *-XTDFIX                                       1326235   01110988
+XTDVAR   EQU   *             ..VARIABLE AREA                  1326235   01110990
+         DS    XL6073                                         1326235   01110992
+         AGO   .DMAP800                                       1326235   01110994
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1326235   01110995
+.DMAP800 ANOP                                                           01110996
+&I       SETA  &I+1                                                     01111000
+         AIF   (N'&DAG GE &I).DMAP010                                   01112000
+.DMAP900 ANOP                                                           01113000
+         MEND                                                           01114000

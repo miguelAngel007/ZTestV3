@@ -1,0 +1,29 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000000
+* ***                STANDARD PARSED DATA AREA                    *** * 00001000
+*********************************************************************** 00002000
+         SPACE                                                          00003000
+SPDADSCT DSECT                                                          00004000
+SPDALEN  DS    XL2                 LENGTH OF PDA                        00005000
+SPDAKEY  DS    CL8                 KEY AREA                             00006000
+SPDASYS  DS    CL8                 SYSTEM ID                            00007000
+         DS    XL1                 FILLER ALWAYS LOW VALUES             00008000
+SPDAFNC  DS    XL1                                                      00009000
+SPDASETU EQU   X'01'               SETUP COMMAND                        00010000
+SPDAPPLY EQU   X'02'               APPLY COMMAND                        00011000
+SPDAEXTR EQU   X'04'               EXTRACT COMMAND                      00012000
+SPDACOPY EQU   X'08'               COPY COMMAND                         00013000
+SPDASELE EQU   X'10'               SELECT COMMAND                       00014000
+SPDAEXCP EQU   X'20'               EXCEPT COMMAND                       00015000
+SPDANEWN EQU   X'40'               NEWNAME COMMAND                      00016000
+SPDAFILL EQU   X'80'               UNUSED                               00017000
+SPDAFAID DS    CL1                 FUNCTION AID                         00018000
+SPDDCOM  DS    CL2                 DRIVER COMMUNICATION CODE            00019000
+SPDSPGM  DS    CL8                 SETUP PROGRAM ID                     00020000
+SPDEPGM  DS    CL8                 EXTRACT PROGRAM ID                   00021000
+SPDAPGM  DS    CL8                 APPLY PROGRAM ID                     00022000
+SPDCPGM  DS    CL8                 COPY  PROGRAM ID                     00023000
+SPDACCT  DS    XL2                 NUMBER OF ACTION CODES SELECTED      00024000
+SPDACTC  DS    5CL5                ACTION CODES SELECTED                00025000
+SPDSYSP  EQU   *                   BEGINNING OF SYSTEM SPECIFIC AREA    00026000
+*********************************************************************** 00027000

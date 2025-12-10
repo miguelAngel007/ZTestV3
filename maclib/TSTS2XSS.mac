@@ -1,0 +1,49 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'TSTS2XSS - XML FIS STANDARD RESPONSE HEADER'            00001000
+*********************************************************************** 00001100
+*             TSTS2XSS--XML FIS STANDARD RESPONSE HEADER              * 00001200
+*                                                                     * 00001300
+* THIS COPYBOOK DESCRIBES THE FIS STANDARD RESPONSE HEADER AREA OF    * 00001400
+* AN OUTBOUND MESSAGE. IT INCLUDES THE LENGTH FIELDS AND OCCURRENCE   * 00001500
+* COUNTERS FOR VARIABLE FIELDS. IT IS USED IN TSTSOXM1 WHEN BUILDING  * 00001600
+* A FIXED MESSAGE RESPONSE TO BE PARSED IN THE PIPELINE BY THE IBM    * 00001700
+* PARSER.                                                             * 00001800
+*                                                                     * 00001900
+*                        HISTORY OF REVISIONS                         * 00002000
+* DATE      DESCRIPTION                                       CHNGID  * 00002100
+*------------------------------------------------------------ ------- * 00002200
+* 03/12/13  INITIAL RELEASE                                   ~~~6381 * 00002400
+*********************************************************************** 00002500
+TSXSSHDR DSECT                         STANDARD RESPONSE HEADER         00002600
+TSXSHVER DS    CL5                     VERSION                          00002700
+TSXSRTCL DS    H                       RETURN CODE LENGTH (1)           00002800
+TSXSRTC  DS    CL255                   RETURN CODE                      00002900
+TSXSUUID DS    CL36                    UUID                             00003000
+TSXSACT# DS    F                       ACTIVITY# (0)                    00003100
+TSXSACTL DS    H                       ACTIVITY LENGTH (0)              00003200
+TSXSACTV DS    CL255                   ACTIVITY                         00003300
+TSXSLCL  DS    CL5                     LOCALE                           00003400
+TSXSSPL# DS    F                       SERVICE PARAMETER LIST# (0)      00003500
+TSXSSPR# DS    F                       SERVICE PARAMETER LIST# (0)      00003600
+TSXSSPC  DS    CL16                    SERVICE PARAMETER CONTAINER      00003700
+TSXSMSG# DS    F                       MESSAGE CONTAINER COUNT (1)      00003800
+TSXSMSC# DS    F                       MESSAGE COUNT                    00003900
+TSXSMSCO DS    CL16                    MESSAGE CONTAINER NAME           00004000
+TSXSHDRL EQU   *-TSXSHVER              RESPONSE HEADER LENGTH           00004100
+TSXSMSGD DSECT                         STATUS MESSAGE DEFINITION        00004200
+TSXSCODL DS    H                       MESSAGE CODE LENGTH (6)          00004300
+TSXSCODE DS    CL255                   MESSAGE CODE                     00004400
+TSXSTYPL DS    H                       TYPE LENGTH                      00004500
+TSXSTYPE DS    CL21                    MESSAGE TYPE                     00004600
+TSXSDAL# DS    F                       DATALINK COUNT (0)               00004700
+TSXSDALL DS    H                       DATALINK LENGTH (0)              00004800
+TSXSDALI DS    CL255                   DATALINK ID                      00004900
+TSXSMLC# DS    F                       LOCALE COUNT (0)                 00005000
+TSXSMLC  DS    CL5                     LOCALE                           00005100
+TSXSTXT# DS    F                       TEXT COUNT (1)                   00005200
+TSXSTXTL DS    H                       TEXT LENGTH                      00005300
+TSXSTEXT DS    CL255                   MESSAGE TEXT                     00005400
+TSXSMPL# DS    F                       MSG PARAMETER LIST COUNT (0)     00005500
+TSXSMP#  DS    F                       MSG PARAMETER COUNT (0)          00005600
+TSXSMPC  DS    CL16                    MSG PARAMETER CONTAINER          00005700
+TSXSMSGL EQU   *-TSXSCODL              MESSAGE OCCURRENCE LENGTH        00005800

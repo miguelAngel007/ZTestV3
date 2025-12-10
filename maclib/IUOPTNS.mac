@@ -1,0 +1,126 @@
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00000100
+***                                                                 *** 00000200
+***      IU INSTALLATION OPTIONS                                    *** 00000300
+***                                                                 *** 00000400
+*********************************************************************** 00000500
+*                  ** HISTORY OF REVISIONS **                         * 00000502
+*                                                                     * 00000504
+* DESCRIPTION                                                 CHNGID  * 00000506
+* __________________________________________________________  _______ * 00000508
+* 05/17/11 CHANGED TO USE LIBRARIAN AS SOURCE MGT             GNUP001 * 00000590
+* 08/27/10 CHANGED &PAN TO 0 AND &PDS TO 1                    GNUP001 * 00000590
+* 08/19/09 MODIFIED FOR IU SCF EXPANSION FOR MVS              1015835   00000592
+*                                                                     * 00000594
+*---------------------------------------------------------------------* 00000596
+         EJECT                                                1015835   00000598
+         GBLA  &TBLSIZE                                       2024183   00000600
+         GBLB  &PAN,&LIB,&PDS,&CRL,&PPUSER,&MQSER,&MIG        0314486   00000700
+         GBLB  &PPS,&PPTRACK,&PPJA,&PPDEV,&LAM,&SQL,&IUSM2    0414894   00000710
+         GBLC  &OPSYS,&WRKUNIT,&PPJATBL,&SCFLG                1015835   00000800
+         GBLC  &ASMNAM,&COBIIN,&COB3LNK,&OS390                2024183   00000810
+         SPACE                                                          00001800
+&SCFLG   SETC  '150'          MVS IU SCF RECORD SIZE          1015835   00002000
+&OPSYS   SETC  'MVS'          MVS                             2024183   00002100
+&WRKUNIT SETC  'SYSDA'        WORK UNIT FOR TEMPORARY FILES             00002200
+&TBLSIZE SETA  6000           MAXIMUM MEMBERS IN ONE UPDATE   2024183   00002300
+*                             STORAGE OF THIS NUMBER TIMES 80 WILL BE   00002400
+*                             ALLOCATED FROM GETMAIN/GETVIS IN THE      00002500
+*                             FOLLOWING PROGTAMS:                       00002600
+*                               IUSRCMNT                                00002700
+*                               IUGENUPD                                00002800
+*                               IUJCLCST                                00002900
+*                               IUJCLGEN                      9913437   00002905
+*                                                             9913437   00002910
+&ASMNAM  SETC  'ASMA90'       ASSEMBLER NAME                  9913405   00002920
+&COBIIN  SETC  'IGYCRCTL'     COBII NAME                      9913437   00002990
+*                                                             2602932   00003070
+*        SOURCE MANAGEMENT SYSTEM INDICATORS                            00003100
+*        ONLY ONE INDICATOR CAN BE SET                                  00003200
+*        FOR MVS - USE PAN OR LIB OR PDS                      2024183   00003400
+*                                                                       00003500
+*PAN     SETB  1              0 - NOT USING PANVALET FOR SOURCE MGMT    00003800
+&PAN     SETB  0              0 - NOT USING PANVALET FOR SOURCGNUP001   00003801
+*                             1 - USING PANVALET FOR SOURCE MGMT        00003900
+*LIB     SETB  0              0 - NOT USING LIBRARIAN FOR SOURCE MGMT   00004000
+&LIB     SETB  1              0 - NOT USING LIBRARIAN FOR SOURGNUP001   00004000
+*                             1 - USING LIBRARIAN FOR SOURCE MGMT       00004100
+*&LAM     SETB  0              0 - NOT USING LIBRARIAN ACCESS  9713230  00004110
+&LAM     SETB  1              0 - NOT USING LIBRARIAN ACCESS  GNUP001   00004110
+*                             1 - USING LIBRARIAN ACCESS      9713230   00004120
+*                                 REQUIRES LIB = 1 AND MVS    9913801   00004130
+*                                 LAM IS USED FOR THE JCL,    9713230   00004140
+*                                 MACRO, COPY, PARAMETER, AND 9713230   00004150
+*                                 PROCEDURE LIBRARIES.        9713230   00004160
+&PDS     SETB  0              0 - NOT USING MVS PDS FOR SRCE MGMT       00004200
+*                             1 - USING MVS PDS FOR SRCE MGMT           00004300
+&MQSER   SETB  0              0 - NOT USING MQSERIES          2021752   00004305
+*                             1 - USING MQSERIES              2021752   00004310
+&SQL     SETB  0              0 - NOT USING DB2/SQL           2021752   00004315
+*                             1 - USING DB2/SQL               2021752   00004320
+&COB3LNK SETC  '1'            0 - COBOL 370(MVS) IN JOBLIB    9913405   00004954
+*                             1 - COBOL 370(MVS) IN LINKLIST  9913405   00004955
+&OS390   SETC  '1'            0 - NOT OS/390                  9913405   00004957
+*                             1 - OS/390                      9913405   00004958
+&IUSM2   SETB  0              0 - MOD,DELETE + SPACE=(N,N,N)  0414894   00004960
+*                             1 - MOD,DELETE + SPACE=(N,N)    0414894   00004970
+&PPS     SETB  0              0 - NOT USING PPS               0414894   00004980
+*                             1 - USING PPS                   0414894   00004990
+&CRL     SETB  0              0 - NOT USING CHANGE REVIEW LOGGING       00005000
+*                             1 - USING CHANGE REVIEW LOGGING           00005100
+&PPTRACK SETB  1              0 - NOT USING PROGRAM TRACKING  9713230   00005110
+*                             1 - USING PROGRAM TRACKING      9713230   00005120
+&PPJA    SETB  1              0 - NOT USING JOB ACCOUNTING    9713230   00005130
+*                             1 - USING JOB ACCOUNTING        9713230   00005140
+&PPJATBL SETC  'ATCUJVTB'     JA TABLE NAME                   9713230   00005150
+*                                                             9713230   00005160
+&PPDEV   SETB  0              RESERVED                        9713230   00005170
+*                             0 - DISTRIBUTION                9713230   00005180
+*                             1 - DEVELOPMENT ONLY            9713230   00005190
+&MIG     SETB  0              RESERVED                        0314486   00005192
+&PPUSER  SETB  0              RESERVED                                  00005200
+         SPACE                                                          00005300
+*                                                                       00011300
+*        CHECK OPSYS OPTIONS                                            00011400
+*                                                                       00011500
+         AIF   (&PPS).PPSOK                                   9713230   00011610
+*      DON'T CHANGE THE FOLLOWING                             9713230   00011620
+&CRL     SETB  0              PPS IS REQUIRED                 9713230   00011630
+&PPTRACK SETB  0              PPS IS REQUIRED                 9713230   00011640
+&PPJA    SETB  0              PPS IS REQUIRED                 9713230   00011650
+*      DON'T CHANGE THE PRECEDING                             9713230   00011660
+.PPSOK   ANOP                                                 9713230   00011670
+         AIF   ('&OPSYS' EQ 'MVS').MVSOPTN                              00011700
+         MNOTE 16,'OPSYS OPTION MUST BE MVS'                  2024183   00011900
+         AGO   .END                                                     00012000
+*                                                                       00012100
+*        CHECK MVS OPTIONS                                              00012200
+*                                                                       00012300
+.MVSOPTN ANOP                                                           00012400
+         AIF   (&PDS).CHKPDS                                            00012500
+         AIF   (&PAN).CHKPANM                                           00012600
+         AIF   (&LIB).CHKLIBM                                           00012700
+         AGO   .NOLIBM                                                  00012900
+.CHKPDS  ANOP                                                           00013000
+         AIF   (&PAN).SRCERRM                                           00013100
+         AIF   (&LIB).SRCERRM                                           00013200
+         AIF   (&LAM).SRCERRM                                 9713230   00013210
+         AGO   .MVSOPTE                                                 00013400
+.CHKPANM ANOP                                                           00013500
+         AIF   (&PDS).SRCERRM                                           00013600
+         AIF   (&LIB).SRCERRM                                           00013700
+         AIF   (&LAM).SRCERRM                                 9713230   00013710
+         AGO   .MVSOPTE                                                 00013900
+.CHKLIBM ANOP                                                           00014000
+         AIF   (&PDS).SRCERRM                                           00014100
+         AIF   (&PAN).SRCERRM                                           00014200
+         AGO   .MVSOPTE                                                 00014400
+.SRCERRM ANOP                                                           00015000
+         MNOTE 16,'ONLY ONE SOURCE LIBRARY OPTION MUST BE SET'          00015100
+         AGO   .END                                                     00015200
+.NOLIBM  ANOP                                                           00015300
+         MNOTE 4,'SOURCE LIBRARY NOT SPECIFIED, PDS ASSUMED'            00015400
+&PDS     SETB   1                                                       00015500
+&LAM     SETB   0                                             2024183   00015510
+         AGO   .MVSOPTE                                                 00015600
+.MVSOPTE ANOP                                                           00015700

@@ -1,0 +1,263 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAATRCEM &TYPE=LABEL,                                         +00002000
+               &TRACE=OFF,                                             +00003000
+               &PRINT=OFF                                               00004000
+.* --------------------------------------------------------- *          00005000
+.* MACRO ID: SAATRCEM                                        *          00006000
+.*    TITLE: LABEL TRACE MACRO                               *          00007000
+.*     DATE: 12/21/90                                        *          00008000
+.*                                                           *          00009000
+.*     DESC: THIS MACRO IS USED TO TRACK/TRACE THROUGH A     *          00010000
+.*           PROGRAM OR A GROUP OF PROGRAMS.  THE OUTPUT     *          00011000
+.*           CONSIST OF CSECT NAME AND LABEL WITHIN CSECT.   *          00012000
+.*           THE OUTPUT CAN BE DIRECTED TO A TRACE TABLE     *          00013000
+.*           OR TO SIMESS (EAA/SA) OR TO SIPRINT.  THE       *          00014000
+.*           LOCATION AND SIZE OF THE TRACE TABLE IS         *          00015000
+.*           CONTROLED BY THE SAA8BEGM MACRO.                *          00016000
+.*                                                           *          00017000
+.*  OPTIONS:                                                 *          00018000
+.*                                                           *          00019000
+.*       SAATRCEM TYPE=INITIAL|INIT|                         *          00020000
+.*                     LABEL|               (DEFAULT)        *          00021000
+.*                     ROUTINE|RTN|                          *          00022000
+.*                     FINAL|END                             *          00023000
+.*             TRACE=ON|YES|                                 *          00024000
+.*                   OFF|NO|                (DEFAULT)        *          00025000
+.*                   GEN                                     *          00026000
+.*             PRINT=ON|YES                                  *          00027000
+.*                   OFF|NO                 (DEFAULT)        *          00028000
+.*                                                           *          00029000
+.* EXTERNAL: THE FOLLOWING GLOBAL DATA IS DEFINED EXTERNAL   *          00030000
+.*           TO THIS MACRO.                                  *          00031000
+.*           A) &MAINFLG  MACRO(SAA8BEGM)                    *          00032000
+.*           B) &GMODNME  MACRO(SAA8BEGM)                    *          00033000
+.*           C) &TRCECDE  MACRO(SAA8BEGM,SAADMAPM)           *          00034000
+.*           D) &ASTGFLG  MACRO(SAA8BEGM)                    *          00035000
+.*                                                           *          00036000
+.*           THE FOLLOWING DATA IS DEFINED EXTERNAL TO THIS  *          00037000
+.*           MACRO.                                          *          00038000
+.*           A) TRCETBL  MACRO(SAADMAPM)                     *          00039000
+.*                                                           *          00040000
+.*  REG USE: R0: WORK REG                                    *          00041000
+.*           R1: ADDR OF CSECT AND LABEL; PARAMETER ADDR;    *          00042000
+.*               WORK REG                                    *          00043000
+.*           R2: WORK REG                                    *          00044000
+.*           R3: WORK REG                                    *          00045000
+.*           RE: STANDARD LINKAGE                            *          00046000
+.*           RF: STANDARD LINKAGE                            *          00047000
+.*                                                           *          00048000
+.*    MAINT:                                                 *          00049000
+.*                                                           *          00050000
+.* --------------------------------------------------------- *          00051000
+.*                 ** HISTORY OF REVISIONS **                         * 00051010
+.*                                                                    * 00051020
+.*DESCRIPTION                                                 CHNGID  * 00051030
+.*__________________________________________________________  _______ * 00051040
+.*08/13/97 MODIFIED FOR COBOL/VSE TO USE GNCALL               9913437 * 00051978
+.*                                                                    * 00051980
+.*--------------------------------------------------------------------* 00051990
+         GBLB  &MAINFLG,&ASTGFLG                                        00052000
+         GBLB  &GTRC1ST,&GTRCON,&GTRCOFF,&GTRCGEN,&GPRTON,&GPRTOFF      00053000
+         GBLC  &GMODNME,&TRCECDE,&C                                     00054000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00055000
+&MACNME  SETC  'SAATRCEM'                                               00056000
+&MACVER  SETC  '0003'                                                   00057000
+&MACREL  SETC  '.003'                                                   00058000
+&MACDATE SETC  '02/27/91'                                               00059000
+.* --------------------------------------------------------- *          00060000
+.* DETERMINE TYPE OF MACRO EXPANSION                         *          00061000
+.* --------------------------------------------------------- *          00062000
+.TRC0100 ANOP                                                           00063000
+         AIF   (&GTRC1ST).TRC0200                                       00064000
+         AIF   (&MAINFLG AND T'&TYPE NE 'O' AND ('&TYPE' EQ 'INITIAL'  +00065000
+               OR '&TYPE' EQ 'INIT')).TRC1000                           00066000
+         AIF   (NOT &MAINFLG AND '&TRCECDE' NE 'G' AND                 +00067000
+               ('&TYPE' EQ 'INITIAL' OR '&TYPE' EQ 'INIT')).TRC1000     00068000
+         AIF   (NOT &MAINFLG AND '&TRCECDE' EQ 'G').TRC0110             00069000
+         MNOTE 08,'&MACNME - TYPE=INITIAL MUST BE THE FIRST COMMAND PRO+00070000
+               CSSED'                                                   00071000
+         MEXIT                                                          00072000
+.TRC0110 ANOP                                                           00073000
+&GTRC1ST SETB  1                                                        00074000
+.TRC0200 ANOP                                                           00075000
+         AIF   (T'&TYPE EQ 'O').TRC3000          LABEL (DEFAULT)        00076000
+         AIF   ('&TYPE' EQ 'LABEL').TRC3000      LABEL                  00077000
+         AIF   ('&TYPE' EQ 'ROUTINE' OR '&TYPE' EQ 'RTN').TRC4000       00078000
+         AIF   ('&TYPE' EQ 'FINAL' OR '&TYPE' EQ 'END').TRC8000         00079000
+         MNOTE 08,'&MACNME - TYPE=&TYPE PARAMETER IS INVALID'           00080000
+         MEXIT                                                          00081000
+.* --------------------------------------------------------- *          00082000
+.* TYPE=INITIAL  MACRO EXPANSION                             *          00083000
+.* --------------------------------------------------------- *          00084000
+.TRC1000 ANOP                                                           00085000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00086000
+               - &MACDATE'                                              00087000
+&GTRC1ST SETB  1                                                        00088000
+         AIF   (T'&TRACE EQ 'O').TRC1002                                00089000
+         AIF   ('&TRACE' EQ 'OFF' OR '&TRACE' EQ 'NO').TRC1010          00090000
+         AIF   ('&TRACE' EQ 'ON' OR '&TRACE' EQ 'YES').TRC1020          00091000
+         AIF   ('&TRACE' EQ 'GEN').TRC1030                              00092000
+.TRC1002 ANOP                                                           00093000
+         MNOTE 04,'&MACNME - TRACE= PARAMETER WAS OMITED OR INVALID'    00094000
+         MNOTE 04,'&MACNME - TRACE=OFF IS ASSUMED'                      00095000
+.TRC1010 ANOP                                                           00096000
+&GTRCON  SETB  0                                                        00097000
+&GTRCOFF SETB  1                                                        00098000
+&GTRCGEN SETB  0                                                        00099000
+         AGO   .TRC1200                                                 00100000
+.TRC1020 ANOP                                                           00101000
+&GTRCON  SETB  1                                                        00102000
+&GTRCOFF SETB  0                                                        00103000
+&GTRCGEN SETB  0                                                        00104000
+         AGO   .TRC1200                                                 00105000
+.TRC1030 ANOP                                                           00106000
+&GTRCON  SETB  0                                                        00107000
+&GTRCOFF SETB  0                                                        00108000
+&GTRCGEN SETB  1                                                        00109000
+.TRC1200 ANOP                                                           00110000
+         AIF   (T'&PRINT EQ 'O').TRC1202                                00111000
+         AIF   ('&PRINT' EQ 'OFF' OR '&PRINT' EQ 'NO').TRC1210          00112000
+         AIF   ('&PRINT' EQ 'ON' OR '&PRINT' EQ 'YES').TRC1220          00113000
+.TRC1202 ANOP                                                           00114000
+         MNOTE 04,'&MACNME - PRINT= PARAMETER WAS OMITED OR INVALID'    00115000
+         MNOTE 04,'&MACNME - PRINT=OFF IS ASSUMED'                      00116000
+.TRC1210 ANOP                                                           00117000
+&GPRTON  SETB  0                                                        00118000
+&GPRTOFF SETB  1                                                        00119000
+         AGO   .TRC1300                                                 00120000
+.TRC1220 ANOP                                                           00121000
+&GPRTON  SETB  1                                                        00122000
+&GPRTOFF SETB  0                                                        00123000
+.TRC1300 ANOP                                                           00124000
+         AIF   (&GTRCON OR &GTRCGEN).TRC1310                            00125000
+         MEXIT                                                          00126000
+.TRC1310 ANOP                                                           00127000
+         XC    TRCETBL(TRCENTRY-TRCETBL+L'TRCENTRY),TRCETBL             00128000
+         LA    R1,TRCENTRY+L'TRCENTRY                                   00129000
+         ST    R1,TRCETBL+04           SAVE CURRENT ENTRY ADDR          00130000
+         LA    R1,TRCENTRY+TRCETBLE                                     00131000
+         ST    R1,TRCETBL+08           SAVE LAST ENTRY ADDR             00132000
+         AIF   (&ASTGFLG).TRC1314                                       00133000
+         AGO   .TRC1318                                                 00134000
+.TRC1314 ANOP                                                           00135000
+         GNCALL SAS0001B,TYPE=LOAD,WORKREG=R1                 9913437   00136000
+         ST    R1,TRCEHCR@             SAVE STUMP ADDR                  00137000
+         LA    R1,SAS9GCAD                                              00138000
+         ST    R1,TRCEPRM1             SAVE GCA ADDR                    00139000
+         LA    R1,TRCEMCMD                                              00140000
+         ST    R1,TRCEPRM2             SAVE ERRORGCA CMD ADDR           00141000
+         OI    TRCEPRM2,X'80'          SET END OF PARAMETER LIST        00142000
+         MVC   TRCEMCMD,=CL12'ERRORGCA0043'                             00143000
+.TRC1318 ANOP                                                           00144000
+         AIF   (&GTRCGEN).TRC1320                                       00145000
+         MEXIT                                                          00146000
+.TRC1320 ANOP                                                           00147000
+         MNOTE *,'TEST FOR SYSPARM=LBLTRCE'                             00148000
+         MEXIT                                                          00149000
+.* --------------------------------------------------------- *          00150000
+.* TYPE=LABEL  MACRO EXPANSION                               *          00151000
+.* --------------------------------------------------------- *          00152000
+.TRC3000 ANOP                                                           00153000
+         AIF   (T'&LABEL NE 'O').TRC3002                                00154000
+         MNOTE 08,'&MACNME - A LABEL IS REQUIRED TO EXPAND THIS MACRO'  00155000
+         MEXIT                                                          00156000
+.TRC3002 ANOP                                                           00157000
+         AIF   (&GTRCON).TRC3004                                        00158000
+         AIF   (&GTRCGEN).TRC3008                                       00159000
+&LABEL   EQU   *                                                        00160000
+         MEXIT                                                          00161000
+.TRC3004 ANOP                                                           00162000
+&LABEL   BAL   R1,TRCE&C.RTN                                            00163000
+         DC    CL08'&GMODNME',CL08'&LABEL'                              00164000
+         MEXIT                                                          00165000
+.TRC3008 ANOP                                                           00166000
+&LABEL   TM    TRCETBL+12,X'40'        Q. TRACE TURNED ON               00167000
+         BZ    *+4+4+L'TRCENTRY        A. NO, BYPASS                    00168000
+         BAL   R1,TRCE&C.RTN                                            00169000
+         DC    CL08'&GMODNME',CL08'&LABEL'                              00170000
+         MEXIT                                                          00171000
+.* --------------------------------------------------------- *          00172000
+.* TYPE=ROUTINE  MACRO EXPANSION                             *          00173000
+.* --------------------------------------------------------- *          00174000
+.TRC4000 ANOP                                                           00175000
+         AIF   (&GTRCON OR &GTRCGEN).TRC4002                            00176000
+         MEXIT                                                          00177000
+.TRC4002 ANOP                                                           00178000
+         AIF   (&GPRTON).TRC4200                                        00179000
+.TRC4100 ANOP                                                           00180000
+         AIF   (T'&LABEL EQ 'O').TRC4102                                00181000
+&LABEL   EQU   *                                                        00182000
+.TRC4102 ANOP                                                           00183000
+TRCE&C.RTN EQU   *                                                      00184000
+         L     R2,TRCETBL                                               00185000
+         A     R2,=F'1'                INCR NBR OF RECORDED TRACES      00186000
+         ST    R2,TRCETBL                                               00187000
+         L     R2,TRCETBL+04           POINT TO CURRENT ENTRY           00188000
+         MVC   0(L'TRCENTRY,R2),0(R1)  MOVE TO CURRENT ENTRY            00189000
+         LA    R2,L'TRCENTRY(,R2)                                       00190000
+         C     R2,TRCETBL+08           Q. AT END OF TABLE               00191000
+         BH    *+4+4+4                 A. YES,                          00192000
+         ST    R2,TRCETBL+04           A. NO, SAVE POINTER TO CURRENT   00193000
+         B     L'TRCENTRY(,R1)         ..RETURN TO CALLING ROUTINE      00194000
+         LA    R2,TRCENTRY                                              00195000
+         ST    R2,TRCETBL+04           SAVE POINTER TO CURRENT ENTRY    00196000
+         B     L'TRCENTRY(,R1)         RETURN TO CALLING ROUTINE        00197000
+         MEXIT                                                          00198000
+.TRC4200 ANOP                                                           00199000
+TRCE&C.RTN EQU   *                                                      00200000
+         MNOTE 08,'PRINT FUNCTION IS UNAVAILABLE'                       00201000
+         MEXIT                                                          00202000
+.* --------------------------------------------------------- *          00203000
+.* TYPE=FINAL  MACRO EXPANSION                               *          00204000
+.* --------------------------------------------------------- *          00205000
+.TRC8000 ANOP                                                           00206000
+         AIF   (&GTRCON OR &GTRCGEN).TRC8002                            00207000
+         MEXIT                                                          00208000
+.TRC8002 ANOP                                                           00209000
+         AIF   (T'&PRINT EQ 'O').TRC8010                                00210000
+         AIF   ('&PRINT' EQ 'OFF' OR '&PRINT' EQ 'NO').TRC8010          00211000
+         AIF   ('&PRINT' EQ 'ON' OR '&PRINT' EQ 'YES').TRC8020          00212000
+.TRC8004 ANOP                                                           00213000
+         MNOTE 04,'&MACNME - PRINT= PARAMETER WAS OMITED OR INVALID'    00214000
+         MNOTE 04,'&MACNME - PRINT=OFF IS ASSUMED'                      00215000
+.TRC8010 ANOP                                                           00216000
+         MEXIT                                                          00217000
+.TRC8020 ANOP                                                           00218000
+         AIF   (&ASTGFLG).TRC8024                                       00219000
+         MEXIT                                                          00220000
+.TRC8024 ANOP                                                           00221000
+         AIF   (NOT &GTRCGEN).TRC8026                                   00222000
+         TM    TRCETBL+12,X'40'        Q. TRACE TURNED ON               00223000
+         BZ    TRCE&C.END              A. NO, EXIT                      00224000
+.TRC8026 ANOP                                                           00225000
+         L     R0,TRCETBL              GET NBR OF RECORDED TRACES       00226000
+         L     R2,TRCETBL+04           GET ADDR OF CURRENT ENTRY        00227000
+         LA    R3,TRCENTRY             GET ADDR OF BEG OF TABLE         00228000
+TRCE&C.FNL EQU   *                                                      00229000
+         S     R2,=A(L'TRCENTRY)                                        00230000
+         OC    0(L'TRCENTRY,R2),0(R2)  Q. FINISHED YET                  00231000
+         BZ    TRCE&C.END              A. YES, EXIT                     00232000
+         CR    R2,R3                   Q. BEYOND LIMITS OF TABLE        00233000
+         BNL   *+4+4                   A. NO, BYPASS                    00234000
+         L     R2,TRCETBL+8            A. YES, POSITION TO END OF TABLE 00235000
+         C     R2,TRCETBL+4            Q. MADE IT BACK TO CURRENT YET   00236000
+         BE    TRCE&C.END              A. YES, EXIT                     00237000
+         MVI   SAGEBFMT,C'F'           SET MSG FORMAT CODE              00238000
+         XC    SAGEBMES,SAGEBMES       SETUP MSG NBR 0000               00239000
+         CVD   R0,TRCEWORK                                              00240000
+         BCTR  R0,R0                   DECREMENT NBR OF RECORDED TRACES 00241000
+         OI    TRCEWORK+L'TRCEWORK-1,X'0F'                              00242000
+         UNPK  SAGEBFTX+7(7),TRCEWORK+L'TRCEWORK-4(4)                   00243000
+         MVC   SAGEBFTX(8),=C'LTRACE  '                                 00244000
+         MVC   SAGEBFTX+14(7),=C' CSECT='                               00245000
+         MVC   SAGEBFTX+21(8),0(R2)                                     00246000
+         MVC   SAGEBFTX+29(8),=C', LABEL='                              00247000
+         MVC   SAGEBFTX+37(8),8(R2)                                     00248000
+         LA    R1,TRCEPRMS             GET ADDR OF ERROR PARM LIST      00249000
+         L     RF,TRCEHCR@             GET ADDR OF STUMP                00250000
+         BALR  RE,RF                   DO ERROR VERB                    00251000
+         B     TRCE&C.FNL              GO GET NEXT                      00252000
+TRCE&C.END EQU   *                                                      00253000
+         SPACE 2                                                        00254000
+         MEND                                                           00255000

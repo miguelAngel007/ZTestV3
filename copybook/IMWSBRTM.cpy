@@ -1,0 +1,69 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+000100****************************************************************
+000200*              IMBR INTEREST RATES FILE                        *
+000300****************************************************************
+000400*
+000500 01  BONUS-RATE-AREA.
+000600     03  IMBR-KEY.
+000700         05  IMBR-CONTROLS.
+000800             07  IMBR-CTL1          PIC XX.
+000900             07  IMBR-CTL2          PIC XXX.
+001000             07  IMBR-CTL3          PIC XXX.
+001100   02 IMBR-ENTRY OCCURS 100 TIMES.
+001200     03  IMBR-PRODUCT-TYPE          PIC XXX.                      2016374
+001300     03  IMBR-DESC                  PIC X(30).
+001400     03  FILLER                     PIC X.
+001500     03  IMBR-SINGLE-AREA           COMP-3.
+001600         05  IMBR-SINGLE-RATE       PIC S9V9(8).
+001700         05  IMBR-SINGLE-INCR       PIC S9V9(8).
+001800         05  IMBR-SINGLE-MAX        PIC S9V9(8).
+001900     03  FILLER REDEFINES IMBR-SINGLE-AREA COMP-3.
+002000         05  IMBR-SINGLE-RATE-R     PIC S999V9(6).
+002100         05  IMBR-SINGLE-INCR-R     PIC S999V9(6).
+002200         05  IMBR-SINGLE-MAX-R      PIC S999V9(6).
+002300     03  IMBR-TIER-AREA             COMP-3.
+002400         05  IMBR-TIER-RATE-1       PIC S9V9(8).
+002500         05  IMBR-TIER-INCR-1       PIC S9V9(8).
+002600         05  IMBR-TIER-MAX-1        PIC S9V9(8).
+002700         05  IMBR-TIER-RATE-2       PIC S9V9(8).
+002800         05  IMBR-TIER-INCR-2       PIC S9V9(8).
+002900         05  IMBR-TIER-MAX-2        PIC S9V9(8).
+003000         05  IMBR-TIER-RATE-3       PIC S9V9(8).
+003100         05  IMBR-TIER-INCR-3       PIC S9V9(8).
+003200         05  IMBR-TIER-MAX-3        PIC S9V9(8).
+003300         05  IMBR-TIER-RATE-4       PIC S9V9(8).
+003400         05  IMBR-TIER-INCR-4       PIC S9V9(8).
+003500         05  IMBR-TIER-MAX-4        PIC S9V9(8).
+003600         05  IMBR-TIER-RATE-5       PIC S9V9(8).
+003700         05  IMBR-TIER-INCR-5       PIC S9V9(8).
+003800         05  IMBR-TIER-MAX-5        PIC S9V9(8).
+003900         05  IMBR-TIER-RATE-6       PIC S9V9(8).
+004000         05  IMBR-TIER-INCR-6       PIC S9V9(8).
+004100         05  IMBR-TIER-MAX-6        PIC S9V9(8).
+004200         05  IMBR-TIER-RATE-7       PIC S9V9(8).
+004300         05  IMBR-TIER-INCR-7       PIC S9V9(8).
+004400         05  IMBR-TIER-MAX-7        PIC S9V9(8).
+004500         05  IMBR-TIER-RATE-8       PIC S9V9(8).
+004600         05  IMBR-TIER-INCR-8       PIC S9V9(8).
+004700         05  IMBR-TIER-MAX-8        PIC S9V9(8).
+004800         05  IMBR-TIER-RATE-9       PIC S9V9(8).
+004900         05  IMBR-TIER-INCR-9       PIC S9V9(8).
+005000         05  IMBR-TIER-MAX-9        PIC S9V9(8).
+005100     03  FILLER REDEFINES IMBR-TIER-AREA COMP-3
+005200                                    OCCURS 9 TIMES.
+005300         05  IMBR-TIER-RATE-R       PIC S999V9(6).
+005400         05  IMBR-TIER-INCR-R       PIC S999V9(6).
+005500         05  IMBR-TIER-MAX-R        PIC S999V9(6).
+005600     03  IMBR-TIER-LMT-AREA         COMP-3.
+005700         05  IMBR-TIER-LMT-1        PIC S9(13)V99.
+005800         05  IMBR-TIER-LMT-2        PIC S9(13)V99.
+005900         05  IMBR-TIER-LMT-3        PIC S9(13)V99.
+006000         05  IMBR-TIER-LMT-4        PIC S9(13)V99.
+006100         05  IMBR-TIER-LMT-5        PIC S9(13)V99.
+006200         05  IMBR-TIER-LMT-6        PIC S9(13)V99.
+006300         05  IMBR-TIER-LMT-7        PIC S9(13)V99.
+006400         05  IMBR-TIER-LMT-8        PIC S9(13)V99.
+006500     03  FILLER REDEFINES IMBR-TIER-LMT-AREA COMP-3
+006600                                    OCCURS 8 TIMES.
+006700         05  IMBR-TIER-LMT-R        PIC S9(13)V99.
+006800     03  FILLER                     PIC X(52).

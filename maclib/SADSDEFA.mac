@@ -1,0 +1,603 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'DSDIDEFS - DATA DICTIONARY DEFINITION ROUTINE'          00000001
+*********************************************************************** 00001000
+* THIS ROUTINE MAINTAINS THE DICTIONARY DEFINITIONS.                  * 00002000
+* REGISTER THREE POINTS TO THE DICTIONARY COMMUNICATION AREA ADDRESS. * 00003000
+* REGISTER FOUR POINTS TO THE TYPE TABLE.                             * 00004000
+* REGISTER FIVE POINTS TO THE INPUT / OUTPUT AREA.                    * 00005000
+* REGISTER SEVEN IS USED TO STORE THE COMMAND OPERAND LENGTHS.        * 00006000
+* REGISTER EIGHT POINTS TO THE FIELD TABLE.                           * 00007000
+* REGISTER THIRTEEN POINTS TO THE REGISTER SAVE AREA ADDRESS.         * 00008000
+* REGISTER FOURTEEN IS THE RETURN ADDRESS.                            * 00009000
+* REGISTER FIFTEEN IS THE ENTRY POINT ADDRESS FOR DSDIDEFS.           * 00010000
+*                                                                     * 00011000
+* THE FIELD TABLE PASSED BY THE PARSING ROUTINE IS VALIDATED.  EACH   * 00012000
+* FIELD IN THE FIELD TABLE IS CHECKED FOR A MATCHING FIELD NAME IN THE* 00013000
+* DEFINITION RECORD.  IF THE FIELD IS OK, THE ATTRIBUTES FROM THE     * 00014000
+* DEFINITION RECORD ARE STORED IN THE FIELD TABLE (IF NEEDED).        * 00015000
+*                                                                     * 00016000
+* CREATE AND DROP COMMANDS ARE PROCESSED BY THIS MODULE.              * 00017000
+*                                                                     * 00018000
+* REGISTERS (3),(4), AND (8) ARE GLOBAL REGISTERS AND SHOULD NOT BE   * 00019000
+* MODIFIED.                                                           * 00020000
+*********************************************************************** 00021000
+*                       HISTORY OF REVISIONS                          * 00021100
+* DESCRIPTION                                                 CHNGID  * 00021200
+* ----------------------------------------------------------  ------- * 00021300
+* 03/06/95 MOD FOR AUDIT FAC (SAVE FL/REC/LVL IN ENTYTPE TBL) 2602105 * 00021994
+*                                                                     * 00021996
+**********************************************************************  00021998
+         EJECT                                                          00022000
+DSDIDEFS CSECT                                                          00023000
+*********************************************************************** 00024000
+*        PROGRAM INITIALIZATION                                       * 00025000
+*********************************************************************** 00026000
+         STM   R14,R12,12(R13)    SAVE CALLERS REGISTERS                00027000
+         LR    R2,R15             SET BASE REGISTER                     00028000
+         USING DSDIDEFS,R2        TELL ASSEMBLER OF BASE REGISTER       00029000
+         USING DSCMAREA,R3        DICTIONARY COMMUNICATION AREA         00030000
+         ST    R13,DICMRREG+4     SAVE CALLERS REG 13                   00031000
+         LA    R15,DICMRREG       GET DICTIONARY REGISTER SAVE AREA     00032000
+         ST    R15,8(R13)         CHAIN SAVE AREA ADDRESSES             00033000
+         LR    R13,R15            SET NEW SAVEAREA ADDRESS              00034000
+         XC    DICMSTAT,DICMSTAT  CLEAR STATUS CODE                     00035000
+         CLI   DICMMORE,C'Y'      MORE RECORD TO PROCESS?               00036000
+         BE    DIDFENEX           YES - THEN DON'T DISTURB TABLES       00037000
+         LA    R4,DICMWORK+4      GET TYPE TABLE POINTER                00038000
+         LA    R8,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START             00039000
+         ICM   R5,15,DICMWORK     GET FREE SPACE POINTER                00040000
+         LA    R5,DICMFLDL(R5)    BUMP PAST LAST ENTRY                  00041000
+         STCM  R5,15,DICMWORK     SAVE FOR FUTURE REFERENCE             00042000
+         ICM   R0,15,DICMLITA     GET END OF FREE SPACE ADDRESS         00043000
+         SR    R0,R5              CALCULATE FREE SPACE SIZE             00044000
+*        C     R0,=F'1024'        IS THERE AT LEAST 1K OF FREE SPACE?   00045000
+         C     R0,=F'300'         IS THERE AT LEAST 300 IN FREE SPACE?  00046000
+         BL    DIDFOSER           NO - REPORT OUT OF STORAGE ERROR      00047000
+*********************************************************************   00048000
+*        LOAD DEFINITION TABLE                                        * 00049000
+*********************************************************************** 00050000
+DIDFLOAD EQU   *                                                        00051000
+         CLC   DICMCMD,=C'MASTER' IS COMMAND FOR MASTER I/O ?           00052000
+         BNE   DIDFNMST           NO - CONTINUE TO PROCESS              00053000
+         MVC   DICMDEFS,DICMEXT   SAVE ACCESS TYPE                      00054000
+         MVC   DICPKEY,DICMKEY    SAVE CALLERS KEY                      00055000
+         MVC   DICMETYP(3,R4),DICMKFRM PUT ENTITY TYPE IN ENTITY TABLE  00056000
+         CLC   DICMKAPL,=C'$$'    IS MASTER COMMAND FOR DEFINITION?     00057000
+         BE    DIDFENEX           YES - THEN KEY IS OK                  00058000
+         CLC   DICMKFRM,=C'ALI'   IS MASTER COMMAND FOR ALIAS?          00059000
+         BE    DIDFENEX           YES - THEN KEY IS OK                  00060000
+         CLI   DICMEXT,DICMBRWS   IS THIS A MASTER BROWSE REQUEST?      00061000
+         BE    DIDFENEX           YES - THEN KEY IS OK                  00062000
+DIDFNMST EQU   *                                                        00063000
+         CLC   DICMETYP(3,R4),=C'ALI' FORMAT TYPE FOR ALIAS?            00064000
+         BE    DIDFALI            YES - GO PROCESS ALIAS                00065000
+DIDFLOOP EQU   *                                                        00066000
+         MVI   DICMEXT,DICMREAD   SET READ FUNCTION                     00067000
+         CLC   DICMCMD,=C'CREATE' IS COMMAND FOR CREATE?                00068000
+         BE    DIDFLOP1           YES - DO NOT DO LOCATE READ           00069000
+*        CLC   DICMCMD,=C'DROP  ' IS COMMAND FOR DROP?                  00070000
+         CLC   DICMCMD,=C'DRIP  ' IS COMMAND FOR DROP?                  00071000
+         BE    DIDFLOP1           YES - DO NOT DO LOCATE READ           00072000
+         MVI   DICMEXT,DICMREAL   SET READ LOCATE FUNCTION              00073000
+DIDFLOP1 EQU   *                                                        00074000
+         XC    DICMKEY,DICMKEY    CLEAR DICTIONARY KEY                  00075000
+         MVC   DICMKAPL,=C'$$'    INSERT APPLICATION CODE IN KEY        00076000
+         MVC   DICMKFRM,DICMETYP(R4)  FORM TYPE TO LOAD                 00077000
+         MVC   DICMKNAM,=8C' '    CLEAR NAME AREA                       00078000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER FOR NOT FOUND  00079000
+         XC    2+L'DICMKEY(256,R5),2+L'DICMKEY(R5) CLEAR PART BUFFER    00080000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00081000
+         BALR  R14,R15            GET DEFINITION RECORD                 00082000
+         ST    R5,DICMAFLD        SAVE THE ADDRESS OF THE DEFINITION    00083000
+         MVC   DICMEFRL(2,R4),(SAREPFLV-SAREPLEN)(R5) SV LVLS 2602105   00083100
+         CLC   DICMSTAT,=4X'00'   ANY ERRORS ?                          00084000
+         BE    DIDFBCHK           NO - INIT TABLE                       00085000
+         CLC   DICMCMD,=C'CREATE' IS COMMAND FOR CREATE?                00086000
+         BE    DIDFLDSW           YES - SET WRITE NEW DEF INDICATOR     00087000
+         B     DIDFDERR           REPORT DEFINITION NOT FOUND           00088000
+DIDFLDSW EQU   *                                                        00089000
+         XC    DICMSTAT,DICMSTAT  CLEAR NOT FOUND ERROR                 00090000
+         NI    DICMDTS,255-DICMRWD RESET RE-WRITE FLAG                  00091000
+         OI    DICMDTS,DICMWRD    TURN ON WRITE FLAG                    00092000
+         B     DIDFCREA           GO CREATE NEW DEFINITION              00093000
+DIDFBCHK EQU   *                                                        00094000
+         CLC   DICMCMD,=C'MASTER' IS COMMAND FOR MASTER I/O ?           00095000
+         BE    DIDFMSTR           YES, GO DO MASTER                     00096000
+         OI    DICMDTS,DICMRWD    INDICATE RE-WRITE DEFINITION          00097000
+         CLC   DICMCMD,=C'CREATE' IS COMMAND FOR CREATE?                00098000
+         BE    DIDFCREA           YES - WRITE NEW DEF FIELD             00099000
+*        CLC   DICMCMD,=C'DROP  ' IS COMMAND FOR DROP?                  00100000
+         CLC   DICMCMD,=C'DRIP  ' IS COMMAND FOR DROP?                  00101000
+         BE    DIDFDROP           YES - GO DROP FIELD FROM DEF          00102000
+         NI    DICMDTS,255-DICMRWD RESET REWRITE INDICATOR              00103000
+*********************************************************************** 00104000
+*        VALIDATE FIELD NAMES                                         * 00105000
+*********************************************************************** 00106000
+DIDFVALF EQU   *                                                        00107000
+         XR    R9,R9              CLEAR COUNTER REG                     00108000
+         ICM   R9,3,DICMDNUM(R5)  LOAD FIELD COUNTER                    00109000
+         LA    R5,DICMDFIX(R5)    BUMP PAST FIXED PORTION               00110000
+         LTR   R9,R9              ANY FIELDS IN DEF?                    00111000
+         BZ    DIDFDERR           NO - REPORT ERROR                     00112000
+         LA    R15,X'101'         FIXED FIELD 1, OCCUR FIELD 1          00113000
+DIDFVALI EQU   *                                                        00114000
+         CLI   DICMSFLD(R8),X'00' IS THIS THEN END OF FIELD TABLE?      00115000
+         BE    DIDFNDEF           YES - THEN GET NEXT DEFINITION        00116000
+         CLC   DICMDFNM(8,R5),DICM1NAM(R8) WAS THIS NAME CHOSEN?        00117000
+         BNE   DIDFV2CK           NO - CHECK SECOND OPERAND             00118000
+         CLC   DICMKFRM,DICM1TYP(R8) IS NAME FOR THIS DEFINITION?       00119000
+         BE    DIDFV1OP           YES - PLUG ATTRIBUTES                 00120000
+         CLC   DICM1TYP(3,R8),=X'000000' WAS ENTITY TYPE SPECIFIED?     00121000
+         BNE   DIDFV2CK           YES - THEN CHECK SECOND OPERAND       00122000
+         MVC   DICM1TYP(3,R8),DICMKFRM PLUG ENTITY TYPE                 00123000
+DIDFV1OP EQU   *                                                        00124000
+         CLC   DICM1ATT(2,R8),=X'0000' WAS ATTRIBUTE SPECIFIED?         00125000
+         BNE   DIDFV1LN           YES - CHECK LENGTH                    00126000
+         MVC   DICM1ATT(2,R8),DICMDATT(R5) MOVE IN ATTRIBUTE            00127000
+DIDFV1LN EQU   *                                                        00128000
+         CLC   DICM1LEN(2,R8),=X'0000' WAS LENGTH SPECIFIED?            00129000
+         BNE   DIDFV1OC           YES - CHECK OCCURS                    00130000
+         MVC   DICM1LEN(2,R8),DICMDLEN(R5) MOVE IN LENGTH               00131000
+DIDFV1OC EQU   *                                                        00132000
+         MVC   DICM1IND(1,R8),DICMDOCR(R5) MOVE IN OCCURS INDICATOR     00133000
+         STCM  R15,2,DICM1FLD(R8)                                       00134000
+         CLI   DICMDOCR(R5),C'Y'  IS THIS FIELD AN OCCURS FIELD         00135000
+         BNE   DIDFV2CK                                                 00136000
+         STCM  R15,1,DICM1FLD(R8)                                       00137000
+DIDFV2CK EQU   *                                                        00138000
+         CLI   DICMSFLD(R8),C'S'  IS THIS A SELECTED FIELD?             00139000
+         BNE   DIDFV2DO           NO - THEN CHECK SECOND OPERAND        00140000
+DIDFVBMP EQU   *                                                        00141000
+         LA    R8,DICMFLDL(R8)    BUMP TO NEXT FIELD ENTRY              00142000
+         B     DIDFVALI           DO NEXT FIELD TABLE ENTRY             00143000
+DIDFV2DO EQU   *                                                        00144000
+         CLC   DICMDFNM(8,R5),DICM2NAM(R8) WAS THIS NAME CHOSEN?        00145000
+         BNE   DIDFVBMP           NO - GET NEXT FIELD ENTRY             00146000
+         CLC   DICMKFRM,DICM2TYP(R8) IS NAME FOR THIS DEFINITION?       00147000
+         BE    DIDFV2OP           YES - PLUG ATTRIBUTES                 00148000
+         CLC   DICM2TYP(3,R8),=X'000000' WAS ENTITY TYPE SPECIFIED?     00149000
+         BNE   DIDFVBMP           YES - THEN GET NEXT FIELD ENTRY       00150000
+         MVC   DICM2TYP(3,R8),DICMKFRM PLUG ENTITY TYPE                 00151000
+DIDFV2OP EQU   *                                                        00152000
+         CLC   DICM2ATT(2,R8),=X'0000' WAS ATTRIBUTE SPECIFIED?         00153000
+         BNE   DIDFV2LN           YES - CHECK LENGTH                    00154000
+         MVC   DICM2ATT(2,R8),DICMDATT(R5) MOVE IN ATTRIBUTE            00155000
+DIDFV2LN EQU   *                                                        00156000
+         CLC   DICM2LEN(2,R8),=X'0000' WAS LENGTH SPECIFIED?            00157000
+         BNE   DIDFV2OC           YES - CHECK OCCURS                    00158000
+         MVC   DICM2LEN(2,R8),DICMDLEN(R5) MOVE IN LENGTH               00159000
+DIDFV2OC EQU   *                                                        00160000
+         MVC   DICM2IND(1,R8),DICMDOCR(R5) MOVE IN OCCURS INDICATOR     00161000
+         STCM  R15,2,DICM2FLD(R8)                                       00162000
+         CLI   DICMDOCR(R5),C'Y'  IS THIS FIELD AN OCCURS FIELD         00163000
+         BNE   DIDFVBMP                                                 00164000
+         STCM  R15,1,DICM2FLD(R8)                                       00165000
+         B     DIDFVBMP           GET NEXT FIELD ENTRY                  00166000
+DIDFNDEF EQU   *                                                        00167000
+         CLI   DICMDOCR(R5),C'Y'  IS THIS FIELD AN OCCURS FIELD         00168000
+         BE    DIDFNDE1           YES, GO ADD 1 TO OCCUR FIELD          00169000
+         LA    R15,255(R15)       BUMP FIXED FIELD COUNTER UP           00170000
+DIDFNDE1 EQU *                                                          00171000
+         LA    R15,1(R15)         BUMP OCCUR FIELD COUNTER UP           00172000
+         LA    R5,DICMDEFL(R5)    BUMP TO NEXT DEFINITION FIELD         00173000
+         LA    R8,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START             00174000
+         BCT   R9,DIDFVALI        REPEAT UNTIL ALL DEF FIELDS CHECKED   00175000
+         BAL   R14,DIDFBLDS       CHECK IF ALL FIELDS WERE SELECTED     00176000
+         LA    R4,DICMELEN(R4)    BUMP TO NEXT ENTITY TABLE ENTRY       00177000
+         ICM   R5,15,DICMWORK     RESET RECORD AREA POINTER             00178000
+         CLC   DICMETYP(3,R4),=X'000000' ANY MORE ENTITIES ?            00179000
+         BE    DIDFTVAL           NO - THEN VALIDATE FIELD ENTRIES      00180000
+         B     DIDFLOOP           PROCESS NEXT DEFINITION TYPE          00181000
+*********************************************************************** 00182000
+*        BUILD FIELD SELECTION TABLE IF ALL FIELDS SELECTED           * 00183000
+*********************************************************************** 00184000
+DIDFBLDS EQU   *                                                        00185000
+         TM    DICMDTS,DICMALL    WERE ALL FIELDS SELECTED?             00186000
+         BNOR  R14                NO - THEN RETURN                      00187000
+         ICM   R5,15,DICMAFLD     GET DEFINITION OFFSET                 00188000
+         ICM   R8,15,DICMWORK     GET FIELD TABLE END                   00189000
+         XR    R9,R9              CLEAR WORK REG                        00190000
+         XR    R10,R10            CLEAR WORK REG                        00191000
+         LA    R11,DICMFLDL       GET FIELD TABLE ENTRY SIZE            00192000
+         XR    R12,R12            CLEAR COUNTER REG                     00193000
+         ICM   R12,3,DICMDNUM(R5)  GET NUMBER OF DEFINITION FIELDS      00194000
+         SR    R8,R11             BUMP BACK TO TRUE TABLE START         00195000
+         MR    R10,R12            CALCULATE STORAGE LENGTH NEEDED       00196000
+         AR    R8,R11             ADD THE LENGTH NEEDED                 00197000
+         XC    0(DICMFLDL,R8),0(R8) CLEAR THE LAST ENTRY                00198000
+         LA    R8,DICMFLDL(R8)    PLUS DUMMY ENTRY AT END OF TABLE      00199000
+         ICM   R12,15,DICMLITA    GET LITERAL START ADDRESS             00200000
+         CR    R8,R12             DO ADDRESSES OVERLAP                  00201000
+         BH    DIDFOSER           YES - REPORT ERROR                    00202000
+         ICM   R10,15,DICMWORK    GET OLD END OF TABLE                  00203000
+         STCM  R8,15,DICMWORK     SAVE NEW END OF TABLE IN CONTROL AREA 00204000
+         LR    R8,R5              POINT TO THE DEFINITION               00205000
+         XR    R9,R9              CLEAR WORK REGISTER                   00206000
+         LA    R9,DICMFLDL        GET LENGTH OF FIELD ENTRY             00207000
+         SR    R10,R9             BUMP BACK TO TRUE FIELD TAB START     00208000
+         ICM   R9,3,DICMDNUM(R8)  GET NUMBER OF DEF ENTRIES             00209000
+         LA    R8,DICMDFIX(R8)    BUMP PAST FIXED PORTION               00210000
+         LA    R1,X'101'          FIXED FIELD 1, OCCUR FIELD 1          00211000
+DIDFBLUP EQU   *                                                        00212000
+         XC    0(DICMFLDL,R10),0(R10) CLEAR FIELD TAB ENTRY             00213000
+         MVI   DICMSFLD(R10),C'S' SET FIELD SELECTED FLAG               00214000
+         MVC   DICM1TYP(L'DICMKFRM,R10),DICMETYP(R4) DEF TYPE           00215000
+         MVC   DICM1NAM(L'DICMKFLD,R10),DICMDFNM(R8) DEF FIELD NAME     00216000
+         MVC   DICM1LEN(2,R10),DICMDLEN(R8)          DEF FIELD LENGTH   00217000
+         MVC   DICM1ATT(2,R10),DICMDATT(R8)          DEF ATTRIBUTE      00218000
+         MVC   DICM1IND(1,R10),DICMDOCR(R8)          DEF SUB IND        00219000
+         STCM  R1,2,DICM1FLD(R10)                                       00220000
+         CLI   DICMDOCR(R8),C'Y'  IS THIS FIELD AN OCCURS FIELD         00221000
+         BNE   DIDFBDE2                                                 00222000
+         STCM  R1,1,DICM1FLD(R10)                                       00223000
+DIDFBDE2 EQU *                                                          00224000
+         CLI   DICMDOCR(R8),C'Y'  IS THIS FIELD AN OCCURS FIELD         00225000
+         BE    DIDFBDE1           YES, GO ADD 1 TO OCCUR FIELD          00226000
+         LA    R1,255(R1)         BUMP FIXED FIELD COUNTER UP           00227000
+DIDFBDE1 EQU *                                                          00228000
+         LA    R1,1(R1)           BUMP OCCUR FIELD COUNTER UP           00229000
+         LA    R8,DICMDEFL(R8)   NEXT DEFINITION ENTRY                  00230000
+         LA    R10,DICMFLDL(R10) NEXT FIELD TAB ENTRY                   00231000
+         BCT   R9,DIDFBLUP       REPEAT UNTIL ALL DEF ENTRIES BUILT     00232000
+         XC    0(DICMFLDL,R10),0(R10) CLEAR FIELD TAB ENTRY             00233000
+         LA    R10,DICMFLDL(R10) NEXT FIELD TAB ENTRY                   00234000
+         STCM  R10,15,DICMWORK   SAVE NEW DEF START ADDRESS             00235000
+         LA    R8,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START             00236000
+         BR    R14                                                      00237000
+*********************************************************************** 00238000
+*        VALIDATE FIELD TABLE ENTRIES                                 * 00239000
+*********************************************************************** 00240000
+DIDFTVAL EQU   *                                                        00241000
+         LA    R8,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START             00242000
+DIDFTLUP EQU   *                                                        00243000
+         CLI   DICMSFLD(R8),X'00' END OF FIELD TABLE?                   00244000
+         BE    DIDFENEX           YES - THEN ALL DONE                   00245000
+         CLC   DICM1TYP(3,R8),=X'000000' IS ENTITY TYPE PRESENT?        00246000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00247000
+         BAL   R14,DIDFE1CK       VALIDATE ENTITY TYPE                  00248000
+         CLC   DICM1NAM(8,R8),=CL8'APPL' IS NAME FOR APPLICATION?       00249000
+         BE    DIDFN1SA           YES - SET ATTRIBUTES                  00250000
+         CLC   DICM1NAM(8,R8),=CL8'NAME' IS NAME FOR ENTITY NAME?       00251000
+         BE    DIDFN1SN           YES - SET ATTRIBUTES                  00252000
+         CLC   DICM1NAM(8,R8),=CL8'ALIAS' IS NAME FOR ALIAS  NAME?      00253000
+         BE    DIDFN1SS           YES - SET ATTRIBUTES                  00254000
+         CLC   DICM1NAM(8,R8),=CL8'INDEX' IS NAME FOR FIELD INDEX?      00255000
+         BE    DIDFN1SI           YES - SET ATTRIBUTES                  00256000
+         CLC   DICM1NAM(8,R8),=CL8'HINDEX' IS NAME FOR FIELD HINDEX?    00257000
+         BE    DIDFN1SH           YES - SET ATTRIBUTES                  00258000
+         CLC   DICM1ATT(2,R8),=X'0000' IS ATTRIBUTE PRESENT ?           00259000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00260000
+         CLC   DICM1LEN(2,R8),=X'0000' IS LENGTH PRESENT?               00261000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00262000
+         CLC   DICM1IND(1,R8),=X'00'   IS OCCURS INDICATOR PRESENT?     00263000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00264000
+DIDFT2CK EQU   *                                                        00265000
+         CLI   DICMSFLD(R8),C'S'  IS THIS A SELECTED FIELD?             00266000
+         BE    DIDFTNXT           YES - THERE IS NO SECOND OPERAND      00267000
+         CLC   DICM2TYP(3,R8),=X'000000' IS ENTITY TYPE PRESENT?        00268000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00269000
+         BAL   R14,DIDFE2CK       VALIDATE ENTITY TYPE                  00270000
+         CLC   DICM2NAM(8,R8),=CL8'APPL' IS NAME FOR APPLICATION?       00271000
+         BE    DIDFN2SA           YES - SET ATTRIBUTES                  00272000
+         CLC   DICM2NAM(8,R8),=CL8'NAME' IS NAME FOR ENTITY NAME?       00273000
+         BE    DIDFN2SN           YES - SET ATTRIBUTES                  00274000
+         CLC   DICM2NAM(8,R8),=CL8'ALIAS' IS NAME FOR ALIAS  NAME?      00275000
+         BE    DIDFN2SS           YES - SET ATTRIBUTES                  00276000
+         CLC   DICM2NAM(8,R8),=CL8'INDEX' IS NAME FOR FIELD INDEX?      00277000
+         BE    DIDFN2SI           YES - SET ATTRIBUTES                  00278000
+         CLC   DICM2NAM(8,R8),=CL8'HINDEX' IS NAME FOR FIELD HINDEX?    00279000
+         BE    DIDFN2SH           YES - SET ATTRIBUTES                  00280000
+         CLC   DICM2ATT(2,R8),=X'0000' IS ATTRIBUTE PRESENT ?           00281000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00282000
+         CLC   DICM2LEN(2,R8),=X'0000' IS LENGTH PRESENT?               00283000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00284000
+         CLC   DICM2IND(1,R8),=X'00'   IS OCCURS INDICATOR PRESENT?     00285000
+         BE    DIDFIERR           NO - THEN REPORT ERROR                00286000
+DIDFTNXT EQU   *                                                        00287000
+         LA    R8,DICMFLDL(R8)    BUMP TO NEXT FIELD ENTRY              00288000
+         B     DIDFTLUP           CHECK NEXT FIELD ENTRY                00289000
+DIDFN1SA EQU   *                                                        00290000
+         MVC   DICM1ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00291000
+         MVC   DICM1LEN(2,R8),=X'0002' FORCE LENGTH OF TWO              00292000
+         MVC   DICM1IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00293000
+         B     DIDFT2CK                CHECK SECOND OPERAND             00294000
+DIDFN1SN EQU   *                                                        00295000
+         MVC   DICM1ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00296000
+         MVC   DICM1LEN(2,R8),=X'0008' FORCE LENGTH OF EIGHT            00297000
+         MVC   DICM1IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00298000
+         B     DIDFT2CK                CHECK SECOND OPERAND             00299000
+DIDFN1SS EQU   *                                                        00300000
+         MVC   DICM1ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00301000
+         MVC   DICM1LEN(2,R8),=X'0014' FORCE LENGTH OF TWENTY           00302000
+         MVC   DICM1IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00303000
+         B     DIDFT2CK                CHECK SECOND OPERAND             00304000
+DIDFN1SI EQU   *                                                        00305000
+         MVC   DICM1ATT(2,R8),=C'B '   FORCE ATTRIBUTE TYPE OF BINARY   00306000
+         MVC   DICM1LEN(2,R8),=X'0004' FORCE LENGTH OF FOUR             00307000
+         MVC   DICM1IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00308000
+         B     DIDFT2CK                CHECK SECOND OPERAND             00309000
+DIDFN1SH EQU   *                                                        00310000
+         MVC   DICM1ATT(2,R8),=C'B '   FORCE ATTRIBUTE TYPE OF BINARY   00311000
+         MVC   DICM1LEN(2,R8),=X'0004' FORCE LENGTH OF FOUR             00312000
+         MVC   DICM1IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00313000
+         B     DIDFT2CK                CHECK SECOND OPERAND             00314000
+DIDFN2SA EQU   *                                                        00315000
+         MVC   DICM2ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00316000
+         MVC   DICM2LEN(2,R8),=X'0002' FORCE LENGTH OF TWO              00317000
+         MVC   DICM2IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00318000
+         B     DIDFTNXT                CHECK SECOND OPERAND             00319000
+DIDFN2SN EQU   *                                                        00320000
+         MVC   DICM2ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00321000
+         MVC   DICM2LEN(2,R8),=X'0008' FORCE LENGTH OF EIGHT            00322000
+         MVC   DICM2IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00323000
+         B     DIDFTNXT                CHECK SECOND OPERAND             00324000
+DIDFN2SS EQU   *                                                        00325000
+         MVC   DICM2ATT(2,R8),=C'C '   FORCE ATTRIBUTE TYPE OF CHAR     00326000
+         MVC   DICM2LEN(2,R8),=X'0014' FORCE LENGTH OF TWENTY           00327000
+         MVC   DICM2IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00328000
+         B     DIDFTNXT                CHECK SECOND OPERAND             00329000
+DIDFN2SI EQU   *                                                        00330000
+         MVC   DICM2ATT(2,R8),=C'B '   FORCE ATTRIBUTE TYPE OF BINARY   00331000
+         MVC   DICM2LEN(2,R8),=X'0004' FORCE LENGTH OF FOUR             00332000
+         MVC   DICM2IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00333000
+         B     DIDFTNXT                CHECK SECOND OPERAND             00334000
+DIDFN2SH EQU   *                                                        00335000
+         MVC   DICM2ATT(2,R8),=C'B '   FORCE ATTRIBUTE TYPE OF BINARY   00336000
+         MVC   DICM2LEN(2,R8),=X'0002' FORCE LENGTH OF FOUR             00337000
+         MVC   DICM2IND(1,R8),=C'N'    FORCE OCCURS IND OF 'NO'         00338000
+         B     DIDFTNXT                CHECK SECOND OPERAND             00339000
+*********************************************************************** 00340000
+*        VALIDATE ENTITY TYPE                                         * 00341000
+*********************************************************************** 00342000
+DIDFE1CK EQU   *                                                        00343000
+         LA    R4,DICMWORK+4      GET TYPE TABLE POINTER                00344000
+DIDFECK1 EQU   *                                                        00345000
+         CLC   DICMETYP(3,R4),DICM1TYP(R8) FIELD ENTITY IN ENTITY TABLE 00346000
+         BER   R14                YES - THEN ENTITY TYPE IS OK          00347000
+         LA    R4,DICMELEN(R4)    BUMP TO NEXT ENTITY TABLE ENTRY       00348000
+         CLC   DICMETYP(3,R4),=X'000000' ANY MORE ENTITIES ?            00349000
+         BE    DIDFENER           NO - THEN ENTITY TYPE IS INVALID      00350000
+         B     DIDFECK1           CHECK AGAIN                           00351000
+         BR    R14                     RETURN TO CALLER                 00352000
+DIDFE2CK EQU   *                                                        00353000
+         LA    R4,DICMWORK+4      GET TYPE TABLE POINTER                00354000
+DIDFECK2 EQU   *                                                        00355000
+         CLC   DICM2TYP(3,R8),=C'LIT' IS THIS A LITERAL ?               00356000
+         BER   R14                YES - THEN ENTITY TYPE IS OK          00357000
+         CLC   DICMETYP(3,R4),DICM2TYP(R8) FIELD ENTITY IN ENTITY TABLE 00358000
+         BER   R14                YES - THEN ENTITY TYPE IS OK          00359000
+         LA    R4,DICMELEN(R4)    BUMP TO NEXT ENTITY TABLE ENTRY       00360000
+         CLC   DICMETYP(3,R4),=X'000000' ANY MORE ENTITIES ?            00361000
+         BE    DIDFENER           NO - THEN ENTITY TYPE IS INVALID      00362000
+         B     DIDFECK2           CHECK AGAIN                           00363000
+         BR    R14                     RETURN TO CALLER                 00364000
+*********************************************************************** 00365000
+*        CREATE/DROP SYNONYM                                          * 00366000
+*********************************************************************** 00367000
+DIDFALI  EQU   *                                                        00368000
+         MVC   DICMKEY,DICMEAPL(R4) MOVE SYNONYM KEY TO DICT. KEY       00369000
+         MVC   2(L'DICMKEY,R5),DICMEAPL(R4) MOVE KEY TO BUFFER          00370000
+         MVC   2+L'DICMKEY(8,R5),DICMCNAM MOVE ENTITY NAME TO BUFFER    00371000
+         LA    R0,L'DICMKEY+L'DICMKFLD CALCULATE RECORD LENGTH          00372000
+         STCM  R0,3,0(R5)         SET LENGTH IN BUFFER                  00373000
+         MVI   DICMEXT,DICMWRIT   SET WRITE INDICATOR ON                00374000
+         CLC   DICMCMD,=C'CREATE' IS COMMAND FOR CREATE                 00375000
+         BE    DIDFALIW           YES - PERFORM I/O                     00376000
+         MVI   DICMEXT,DICMDELE   SET DELETE INDICATOR ON               00377000
+DIDFALIW EQU   *                                                        00378000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00379000
+         BALR  R14,R15            GET DEFINITION RECORD                 00380000
+         B     DIDFENEX           RETURN TO NUC                         00381000
+*********************************************************************** 00382000
+*        CREATE NEW DEFINITION FIELD ENTRY                            * 00383000
+*********************************************************************** 00384000
+DIDFCREA EQU   *                                                        00385000
+         MVC   (SAREPAUD-SAREP)(L'SAREPAUD,R5),DICMCAUD       2602105   00385100
+DIDFCREF EQU   *                                              2602105   00385200
+         ICM   R7,15,DICMWORK     GET DEFINITION START ADDRESS          00386000
+         LR    R5,R7              SAVE DEF START ADDR                   00387000
+         XR    R6,R6              CLEAR WORK REG                        00388000
+         ICM   R6,3,DICMDNUM(R5)  GET NUMBER OF DEF FIELDS              00389000
+         LR    R9,R6              SAVE NUMBER OF DEFINITIONS            00390000
+         LA    R5,DICMDFIX(R5)    BUMP PAST FIXED PORTION               00391000
+         LTR   R6,R6              ANY FIELDS IN DEFINITION?             00392000
+         BZ    DIDFCFLP           BYPASS DEFINITION SCAN                00393000
+DIDFCLUP EQU   *                                                        00394000
+         CLC   DICMDFNM(8,R5),DICM1NAM(R8) IS FIELD IN TABLE?           00395000
+         BE    DIDFDNER                                                 00396000
+         LA    R5,DICMDEFL(R5)    BUMP TO NEXT DEFINITION ENTRY         00397000
+         BCT   R6,DIDFCLUP                                              00398000
+DIDFCFLP EQU   *                                                        00399000
+         CLI   DICMSFLD(R8),X'00' ANY MORE FIELD ENTRIES?               00400000
+         BE    DIDFCUPD           NO - UPDATE NUMBER OF DEF FIELDS      00401000
+         LA    R9,1(R9)           INCREMENT NUMBER OF DEF FIELDS        00402000
+         CH    R9,=H'55'          NUMBER OF FIELDS GREATER THAN 55?     00403000
+         BH    DIDFNERR           YES - TELL NUC OF ERROR               00404000
+         STCM  R9,3,DICMDNUM(R7)  PUT BACK IN DEFINITION                00405000
+         XC    0(DICMDEFL,R5),0(R5) CLEAR DEF ENTRY AREA                00406000
+         MVC   DICMDFNM(L'DICMCNAM,R5),DICM1NAM(R8) FIELD NAME IN DEF   00407000
+         MVC   DICMDATT(2,R5),DICM1ATT(R8) PUT ATTRIBUTE IN DEF         00408000
+         MVC   DICMDLEN(2,R5),DICM1LEN(R8) PUT LENGTH IN DEF            00409000
+         MVC   DICMDOCR(1,R5),DICM1IND(R8) PUT OCCURS IND IN DEF        00410000
+         LA    R8,DICMFLDL(R8)    BUMP TO NEXT FIELD TABLE ENTRY        00411000
+         B     DIDFCREF           CHECK NEXT FLD TABLE ENTRY  2602105   00412000
+DIDFCUPD EQU   *                                                        00413000
+         B     DIDFEND            GO REWRITE/WRITE DEFINITION           00414000
+*********************************************************************** 00415000
+*        DROP   DEFINITION FIELD ENTRY                                * 00416000
+*********************************************************************** 00417000
+DIDFDROP EQU   *                                                        00418000
+         TM    DICMDTS,DICMALL    ALL FIELDS SELECTED?                  00419000
+         BO    DIDFDALL           YES - DELETE DEFINITION RECORD        00420000
+         LR    R14,R8             SAVE FIELD TABLE ADDRESS              00421000
+         LR    R8,R5              SWAP POINTER REGISTERS                00422000
+         XR    R6,R6              CLEAR WORK REG                        00423000
+         ICM   R6,3,DICMDNUM(R8)  GET NUMBER OF DEF FIELDS              00424000
+         LA    R8,DICMDFIX(R8)    BUMP PAST FIXED PORTION               00425000
+         LR    R0,R8              SAVE DEFINITION ENTRY ADDRESS         00426000
+DIDFRLUP EQU   *                                                        00427000
+         CLI   DICMSFLD(R14),X'00' ANY MORE FIELD ENTRIES?              00428000
+         BE    DIDFRBMP           NO - CHECK NEXT DEF ENTRY             00429000
+         CLC   DICMDFNM(8,R8),DICM1NAM(R14)   FIELD IN TABLE?           00430000
+         BE    DIDFRCMP                                                 00431000
+DIDFRFBM EQU   *                                                        00432000
+         LA    R14,DICMFLDL(R14)  BUMP TO NEXT FIELD ENTRY              00433000
+         B     DIDFRLUP           TEST NEXT FIELD                       00434000
+DIDFRBMP EQU   *                                                        00435000
+         LA    R8,DICMDEFL(R8)    BUMP TO NEXT DEF   ENTRY              00436000
+         LR    R0,R8              SAVE DEFINITION ENTRY ADDRESS         00437000
+         LA    R14,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START            00438000
+         BCT   R6,DIDFRLUP        SCAN THRU ALL OF DEFINITION           00439000
+         XR    R6,R6              CLEAR WORK REG                        00440000
+         ICM   R6,3,DICMDNUM(R5)  GET NUMBER OF DEF FIELDS              00441000
+         LTR   R6,R6              ANY FIELDS LEFT?                      00442000
+         BNZ   DIDFEND            YES - GO REWRITE DEF RECORD           00443000
+DIDFDALL EQU   *                                                        00444000
+         MVI   DICMEXT,DICMDELE                                         00445000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00446000
+         BALR  R14,R15            GET DEFINITION RECORD                 00447000
+         CLC   DICMSTAT,=4X'00'   ANY ERRORS ?                          00448000
+         BNE   DIDFENEX           YES - TELL NUC OF ERROR               00449000
+         XC    0(DICMDFIX,R5),0(R5) CLEAR FIXED PORTION OF DEF AREA     00450000
+         NI    DICMDTS,255-DICMRWD RESET DEFINITION RE-WRITE FLAG       00451000
+         B     DIDFEND            RETURN                                00452000
+DIDFRCMP EQU   *                                                        00453000
+         XR    R9,R9              CLEAR WORK REG                        00454000
+         ICM   R9,3,0(R5)         SET  MVCL LENGTH                      00455000
+         AR    R9,R5               (END OF DEF TABLE)                   00456000
+         SR    R9,R8                (MINUS CURRENT POSITION=LENGTH)     00457000
+         LR    R10,R8             SET FROM ADDRESS                      00458000
+         LA    R10,DICMDEFL(R10)                                        00459000
+         LR    R11,R9             SET SECOND LENGTH SAVE AS FIRST       00460000
+         MVCL  R8,R10             COMPRESS DEFINITION TABLE             00461000
+         XR    R9,R9              CLEAR WORK REG                        00462000
+         ICM   R9,3,DICMDNUM(R5)  GET NUMBER OF DEF FIELDS              00463000
+         BCTR  R9,0               DECREMENT BY ONE                      00464000
+         STCM  R9,3,DICMDNUM(R5)  RESTORE IN DEF TABLE                  00465000
+         OI    DICMDTS,DICMRWD    SET DEFINITION RE-WRITE FLAG          00466000
+         LR    R8,R0              RESET DEFINITION ENTRY ADDRESS        00467000
+         MVC   DICM1NAM(8,R14),=8C' ' CLEAR NAME FROM FIELD TABLE       00468000
+         B     DIDFRFBM           CHECK FOR MORE FIELDS TO DROP         00469000
+*********************************************************************** 00470000
+*        VALIDATE FIELD NAME FOR MASTER I/O                           * 00471000
+*********************************************************************** 00472000
+DIDFMSTR EQU   *                                                        00473000
+         MVC   DICMEXT,DICMDEFS   RESET ACCESS TYPE                     00474000
+         MVC   DICMKEY,DICPKEY    RESET CALLERS KEY                     00475000
+         XR    R9,R9              CLEAR COUNTER REG                     00476000
+         ICM   R9,3,DICMDNUM(R5)  LOAD FIELD COUNTER                    00477000
+         LA    R5,DICMDFIX(R5)    BUMP PAST FIXED PORTION               00478000
+         LTR   R9,R9              ANY FIELDS IN DEF?                    00479000
+         BZ    DIDFDERR           NO - REPORT ERROR                     00480000
+         L     R1,=XL4'00000101'  SET FIELD NUMBER TO ONE               00481000
+DIDFMSTL EQU   *                                                        00482000
+         CLC   DICMDFNM(8,R5),DICMKFLD WAS THIS NAME CHOSEN?            00483000
+         BE    DIDFMSTF           YES- PUT FIELD NUMBER IN KEY          00484000
+         CLI   DICMDOCR(R5),C'Y'  IS FIELD INDEXED ?                    00485000
+         BE    DIDFMSBI             Y. SKIP TO INCR CHILD FIELD CTR     00486000
+         LA    R1,X'0001'(,R1)      N. INCREMENT ROOT FIELD CTR         00487000
+         B     DIDFMSBB           BYPASS BUMPS                          00488000
+DIDFMSBI EQU   *                                                        00489000
+         LA    R1,X'0100'(,R1)    INCREMENT CHILD FIELD CTR             00490000
+DIDFMSBB EQU   *                                                        00491000
+         LA    R5,DICMDEFL(R5)   NEXT DEFINITION ENTRY                  00492000
+         BCT   R9,DIDFMSTL       CONTINUE TO LOOK FOR FIELD             00493000
+         CLC   DICMKFLD(4),=C'ALL ' IS THIS KEYWORD ALL                 00494000
+         BNE   DIDFMSNA          NO - NOT KEYWORD ALL                   00495000
+         MVI   DICMKFLD+7,X'00'  INDICATE ENTIRE ITERATION              00496000
+         B     DIDFENEX          RETURN TO NUC                          00497000
+DIDFMSNA EQU   *                                                        00498000
+         LA    R0,305             INVALID FIELD NAME SPECIFIED          00499000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00500000
+         B     DIDFENEX           RETURN TO NUC                         00501000
+DIDFMSTF EQU   *                                                        00502000
+         CLI   DICMDOCR(R5),C'Y'  IS FIELD INDEXED ?                    00503000
+         BNE   DIDFMSFI             N. USE ROOT FIELD # (ASIS)          00504000
+         SRL   R1,8                 Y. USE CHILD FIELD # (RJ IN REG 1)  00505000
+DIDFMSFI DS   0H                                                        00506000
+         STC   R1,DICMKFLD+7       SET FIELD # RJ IN FIELDNAME FIELD    00507000
+         CLI   DICMEXT,DICMREAD    IS THIS A MASTER-GET REQUEST         00508000
+         BNE   DIDFENEX              N. SKIP TO EXIT                    00509000
+         LA    R14,0               R14 = X'00' FILL CHAR FOR FIELD      00510000
+         CLI   DICMDATT(R5),C'A'   IS FIELD ALPHABETIC                  00511000
+         BE    DIDFALFA              Y. SKIP TO SET BLANK FILL CHAR     00512000
+         CLI   DICMDATT(R5),C'C'   IS FIELD CHARACTER                   00513000
+         BNE   DIDFFILL              Y. SKIP FILL CHAR RESET            00514000
+DIDFALFA DS   0H                                                        00515000
+         LA    R14,C' '            R14 = X'40' FILL CHAR FOR FIELD      00516000
+DIDFFILL DS   0H                                                        00517000
+         L     R1,4(R13)           R1 = A(CALLER'S SAVEAREA)            00518000
+         L     R1,10*4(R1)         R1 = A(CALLER'S R5 = USER BUFR AREA) 00519000
+         STC   R14,L'DICMKEY+2(R1) SET FIELD FILL CHARACTER             00520000
+         IC    R14,DICMDLEN+1(R5)  R14 = MAX FIELD LENGTH               00521000
+         S     R14,=F'2'           R14 = LC'MAX FIELD LENGTH-1          00522000
+         BM    DIDFENEX            EXIT IF ORIGINAL WAS LESS THAN 2     00523000
+         EX    R14,DIDFCLR         SET USER BUFR = FILL CHAR/MAX FLDLEN 00524000
+         B     DIDFENEX           RETURN TO NUC                         00525000
+DIDFCLR  MVC   L'DICMKEY+3(0,R1),L'DICMKEY+2(R1) INIT VARLEN FIELD      00526000
+*                                                                       00527000
+*********************************************************************** 00528000
+*        ERROR HANDLING ROUTINES                                      * 00529000
+*********************************************************************** 00530000
+DIDFOSER EQU   *                                                        00531000
+         LA    R0,314             NO STORAGE FOR RECORD ACCESS          00532000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00533000
+         B     DIDFEND            RETURN TO NUC                         00534000
+DIDFDERR EQU   *                                                        00535000
+         CLC   DICMSTAT+2(2),=H'311' DICTIONARY UNAVAILABLE?            00536000
+         BE    DIDFEND            YES - RETURN WITH THAT ERROR          00537000
+         LA    R0,303             DEFINITION RECORD NOT FOUND           00538000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00539000
+         B     DIDFEND            RETURN TO NUC                         00540000
+DIDFIERR EQU   *                                                        00541000
+         LA    R0,323             FIELD ATTRIBUTES MISSING              00542000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00543000
+         B     DIDFEND            RETURN TO NUC                         00544000
+DIDFDNER EQU   *                                                        00545000
+         LA    R0,324             FIELD ATTRIBUTES MISSING              00546000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00547000
+         B     DIDFEND            RETURN TO NUC                         00548000
+DIDFNERR EQU   *                                                        00549000
+         LA    R0,325             TOO MANY DEFINITION FIELDS            00550000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00551000
+         B     DIDFEND            RETURN TO NUC                         00552000
+DIDFENER EQU   *                                                        00553000
+         LA    R0,304             INVALID ENTITY TYPE SPECIFIED         00554000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00555000
+         B     DIDFEND            RETURN TO NUC                         00556000
+*********************************************************************** 00557000
+*        RETURN TO NUCLEUS - (RE)WRITE DEFINITION IF NEEDED           * 00558000
+*********************************************************************** 00559000
+DIDFEND  EQU   *                                                        00560000
+         ICM   R5,15,DICMWORK     SET BUFFER ADDRESS FOR WRITE          00561000
+         MVI   DICMEXT,DICMWRIT   SET WRITE INDICATOR ON                00562000
+         TM    DICMDTS,DICMRWD    IS DEFINITION REWRITE FLAG SET?       00563000
+         BNO   DIDFENRW           NO  - THEN WRITE NEW DEFINITION       00564000
+         MVI   DICMEXT,DICMDELE   SET DELETE INDICATOR ON               00565000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00566000
+         BALR  R14,R15            DELETE DEFINITION RECORD              00567000
+         OI    DICMDTS,DICMWRD    SET WRITE INDICATOR ON                00568000
+         MVI   DICMEXT,DICMWRIT   SET WRITE INDICATOR ON                00569000
+DIDFENRW EQU   *                                                        00570000
+         TM    DICMDTS,DICMWRD    IS DEFINITION WRITE FLAG ON?          00571000
+         BNO   DIDFENEX           NO - THEN EXIT TO NUCLEUS             00572000
+         NI    DICMDTS,255-(DICMRWD+DICMWRD) RESET FLAGS                00573000
+         XR    R8,R8              CLEAR WORK REG                        00574000
+         XR    R9,R9              CLEAR WORK REG                        00575000
+         XR    R10,R10            CLEAR ANOTHER WORK REG                00576000
+         ICM   R9,3,DICMDNUM(R5)  GET NUMBER OF DEF FIELD ENTRIES       00577000
+         LA    R10,DICMDEFL       GET FIELD ENTRY LENGTH                00578000
+         MR    R8,R10             CALCULATE NUMBER OF BYTES             00579000
+         LA    R9,DICMDFIX(R9)    ADD IN FIXED PORTION LENGTH           00580000
+         STCM  R9,3,0(R5)         SET IN OUTPUT BUFFER                  00581000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00582000
+         BALR  R14,R15            GET DEFINITION RECORD                 00583000
+DIDFENEX EQU   *                                                        00584000
+         NI    DICMDTS,255-DICMALL RESET ALL FIELDS FLAG                00585000
+         L     R15,4(R13)         GET CALLERS REG 13                    00586000
+         LR    R13,R15            RESTORE CALLERS REGISTER SAVE AREA    00587000
+         LM    R14,R12,12(R13)    RESTORE CALLERS REGISTERS             00588000
+         BR    R14                RETURN TO CALLER                      00589000
+         TITLE 'DSDIDEFS - LITERAL POOL'                                00590000
+         LTORG                                                          00591000
+         DROP                                                           00592000

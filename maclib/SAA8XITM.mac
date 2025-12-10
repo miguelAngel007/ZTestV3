@@ -1,0 +1,245 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAA8XITM &RC=,                                                +00002000
+               &EC=                                           0535115   00003000
+.********************************************************************** 00004000
+.* MACRO ID: SAA8XITM                                                 * 00005000
+.*    TITLE: EXIT ROUTINE                                             * 00006000
+.*     DATE: 12/11/89                                                 * 00007000
+.*                                                                    * 00008000
+.*     DESC: THIS MACRO IS USED TO RETURN TO THE CALLING              * 00009000
+.*           ROUTINE WITH OPTIONAL RETURN CODE AND ERROR              * 00010000
+.*           CODE.                                                    * 00011000
+.*                                                                    * 00012000
+.*  OPTIONS:                                                          * 00013000
+.*                                                                    * 00014000
+.*       SAA8XITM RC=HWD1|FWD1|AWD1|LITERIAL|(R15)                    * 00015000
+.*             EC=HWD2|FWD2|AWD2|LITERIAL|(R0)                        * 00016000
+.*                                                            0535115 * 00016010
+.*                                                                    * 00017000
+.********************************************************************** 00018000
+.*                    ** HISTORY OF REVISIONS **                      * 00019000
+.* DESCRIPTION                                                CHNGID  * 00019010
+.* ---------------------------------------------------------- --------* 00019020
+.* 12/31/04 REMOVE XACK                                       0535115 * 00020990
+.* 03/21/00 31-BIT                                            2024183 * 00020992
+.* 07/10/94 AMODE 31 SUPPORT                                  2600590 * 00020994
+.*                                                                    * 00020996
+.********************************************************************** 00020998
+         GBLB  &LSTGFLG,&GSTGFLG,&TSTGFLG,&ASTGFLG,&MAINFLG,&VSE        00021000
+         GBLC  &LBAR,&GBAR                                              00022000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00023000
+         LCLC  &INIT1,&INIT2,&INST1,&INST2                              00024000
+         LCLC  &INITA,&INITB,&INSTA,&INSTB                              00025000
+&MACNME  SETC  'SAA8XITM'                                               00026000
+&MACVER  SETC  '0026'                                         2600590   00027000
+&MACREL  SETC  '.000'                                                   00028000
+&MACDATE SETC  '12/11/89'                                               00029000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00030000
+               - &MACDATE'                                              00031000
+.*       *---------------------------------------------------*          00032000
+.*       * TEST FOR RC= PARAMETER                            *          00033000
+.*       *---------------------------------------------------*          00034000
+.XIT0100 ANOP                                                           00035000
+         AIF   (T'&RC EQ 'O').XIT0199                                   00036000
+         AIF   (T'&RC EQ 'F' OR T'&RC EQ 'A').XIT0150                   00037000
+         AIF   (T'&RC EQ 'H' OR T'&RC EQ 'Y').XIT0140                   00038000
+         AIF   (T'&RC EQ 'X').XIT0130                                   00039000
+         AIF   ('&RC'(1,1) EQ '(').XIT0120                              00040000
+         AIF   (T'&RC EQ 'N').XIT0110                                   00041000
+.*       MNOTE 8,'&MACNME - RC PARAMETER IS INVALID, MACRO EXPANSION IG 00042000
+.*             NORED'                                                   00043000
+.*       MEXIT                                                          00044000
+.XIT0110 ANOP                                                           00045000
+&INST1   SETC  'LA   '                                                  00046000
+&INSTA   SETC  'RF,&RC'                                                 00047000
+         AGO   .XIT0199                                                 00048000
+.XIT0120 ANOP                                                           00049000
+         AIF   ('&RC(1)' EQ '15' OR '&RC(1)' EQ 'RF' OR                +00050000
+               '&RC(1)' EQ 'R15').XIT0199                               00051000
+         MNOTE 8,'&MACNME - RC PARAMETER VALUE(&RC) IS INVALID, MACRO E+00052000
+               XPANSION IGNORED'                                        00053000
+         MEXIT                                                          00054000
+.XIT0130 ANOP                                                           00055000
+         AIF   (L'&RC EQ 4).XIT0138                                     00056000
+         AIF   (L'&RC EQ 3).XIT0136                                     00057000
+         AIF   (L'&RC EQ 2).XIT0134                                     00058000
+         AIF   (L'&RC EQ 1).XIT0132                                     00059000
+         MNOTE 8,'&MACNME - RC PARAMETER HAS AN INVALID LENGTH, MACRO E+00060000
+               XPANSION IGNORED'                                        00061000
+         MEXIT                                                          00062000
+.XIT0132 ANOP                                                           00063000
+&INIT1   SETC  'XR   '                                                  00064000
+&INITA   SETC  'RF,RF'                                                  00065000
+&INST1   SETC  'ICM  '                                                  00066000
+&INSTA   SETC  'RF,1,&RC'                                               00067000
+         AGO   .XIT0199                                                 00068000
+.XIT0134 ANOP                                                           00069000
+&INIT1   SETC  'XR   '                                                  00070000
+&INITA   SETC  'RF,RF'                                                  00071000
+&INST1   SETC  'ICM  '                                                  00072000
+&INSTA   SETC  'RF,3,&RC'                                               00073000
+         AGO   .XIT0199                                                 00074000
+.XIT0136 ANOP                                                           00075000
+&INIT1   SETC  'XR   '                                                  00076000
+&INITA   SETC  'RF,RF'                                                  00077000
+&INST1   SETC  'ICM  '                                                  00078000
+&INSTA   SETC  'RF,7,&RC'                                               00079000
+         AGO   .XIT0199                                                 00080000
+.XIT0138 ANOP                                                           00081000
+&INST1   SETC  'ICM  '                                                  00082000
+&INSTA   SETC  'RF,15,&RC'                                              00083000
+         AGO   .XIT0199                                                 00084000
+.XIT0140 ANOP                                                           00085000
+&INST1   SETC  'LH   '                                                  00086000
+&INSTA   SETC  'RF,&RC'                                                 00087000
+         AGO   .XIT0199                                                 00088000
+.XIT0150 ANOP                                                           00089000
+&INST1   SETC  'L    '                                                  00090000
+&INSTA   SETC  'RF,&RC'                                                 00091000
+         AGO   .XIT0199                                                 00092000
+.XIT0199 ANOP                                                           00093000
+.*       *---------------------------------------------------*          00094000
+.*       * TEST FOR EC= PARAMETER                            *          00095000
+.*       *---------------------------------------------------*          00096000
+.XIT0200 ANOP                                                           00097000
+         AIF   (T'&EC EQ 'O').XIT0299                                   00098000
+         AIF   (T'&RC NE 'O').XIT0202                                   00099000
+         MNOTE 8,'&MACNME - RC PARAMETER WAS OMITED, MACRO EXPANSION IG+00100000
+               NORED'                                                   00101000
+         MEXIT                                                          00102000
+.XIT0202 ANOP                                                           00103000
+         AIF   (T'&EC EQ 'F' OR T'&EC EQ 'A').XIT0250                   00104000
+         AIF   (T'&EC EQ 'H' OR T'&EC EQ 'Y').XIT0240                   00105000
+         AIF   (T'&EC EQ 'X').XIT0230                                   00106000
+         AIF   ('&EC'(1,1) EQ '(').XIT0220                              00107000
+         AIF   (T'&EC EQ 'N').XIT0210                                   00108000
+.*       MNOTE 8,'&MACNME - EC PARAMETER IS INVALID, MACRO EXPANSION IG 00109000
+.*             NORED'                                                   00110000
+.*       MEXIT                                                          00111000
+.XIT0210 ANOP                                                           00112000
+&INST2   SETC  'LA   '                                                  00113000
+&INSTB   SETC  'R0,&EC'                                                 00114000
+         AGO   .XIT0299                                                 00115000
+.XIT0220 ANOP                                                           00116000
+         AIF   ('&EC(1)' EQ '0' OR '&EC(1)' EQ 'R0' OR                 +00117000
+               '&EC(1)' EQ 'R00').XIT0299                               00118000
+         MNOTE 8,'&MACNME - EC PARAMETER VALUE(&EC) IS INVALID, MACRO E+00119000
+               XPANSION IGNORED'                                        00120000
+         MEXIT                                                          00121000
+.XIT0230 ANOP                                                           00122000
+         AIF   (L'&EC EQ 4).XIT0238                                     00123000
+         AIF   (L'&EC EQ 3).XIT0236                                     00124000
+         AIF   (L'&EC EQ 2).XIT0234                                     00125000
+         AIF   (L'&EC EQ 1).XIT0232                                     00126000
+         MNOTE 8,'&MACNME - EC PARAMETER HAS AN INVALID LENGTH, MACRO E+00127000
+               XPANSION IGNORED'                                        00128000
+         MEXIT                                                          00129000
+.XIT0232 ANOP                                                           00130000
+&INIT2   SETC  'XR   '                                                  00131000
+&INITB   SETC  'R0,R0'                                                  00132000
+&INST2   SETC  'ICM  '                                                  00133000
+&INSTB   SETC  'R0,1,&EC'                                               00134000
+         AGO   .XIT0299                                                 00135000
+.XIT0234 ANOP                                                           00136000
+&INIT2   SETC  'XR   '                                                  00137000
+&INITB   SETC  'R0,R0'                                                  00138000
+&INST2   SETC  'ICM  '                                                  00139000
+&INSTB   SETC  'R0,3,&EC'                                               00140000
+         AGO   .XIT0299                                                 00141000
+.XIT0236 ANOP                                                           00142000
+&INIT2   SETC  'XR   '                                                  00143000
+&INITB   SETC  'R0,R0'                                                  00144000
+&INST2   SETC  'ICM  '                                                  00145000
+&INSTB   SETC  'R0,7,&EC'                                               00146000
+         AGO   .XIT0299                                                 00147000
+.XIT0238 ANOP                                                           00148000
+&INST2   SETC  'ICM  '                                                  00149000
+&INSTB   SETC  'R0,15,&EC'                                              00150000
+         AGO   .XIT0299                                                 00151000
+.XIT0240 ANOP                                                           00152000
+&INST2   SETC  'LH   '                                                  00153000
+&INSTB   SETC  'R0,&EC'                                                 00154000
+         AGO   .XIT0299                                                 00155000
+.XIT0250 ANOP                                                           00156000
+&INST2   SETC  'L    '                                                  00157000
+&INSTB   SETC  'R0,&EC'                                                 00158000
+         AGO   .XIT0299                                                 00159000
+.XIT0299 ANOP                                                           00160000
+.*       *---------------------------------------------------*          00161000
+.*       * GENERATE CODE                                     *          00162000
+.*       *---------------------------------------------------*          00163000
+.XIT1000 ANOP                                                           00164000
+         SPACE 2                                                        00165000
+*        *---------------------------------------------------*          00166000
+*        * RETURN TO CALLER                                  *          00167000
+*        *---------------------------------------------------*          00168000
+         SPACE 1                                                        00169000
+         AIF   ('&LABEL' EQ '').XIT1002                                 00170000
+&LABEL   EQU   *                                                        00171000
+.XIT1002 ANOP                                                           00172000
+         AIF   (NOT &GSTGFLG).XIT1020                                   00173000
+         AIF   (NOT &MAINFLG).XIT1020                                   00174000
+         LR    R1,&GBAR                POINT TO GLOBAL STORAGE          00175000
+         L     R0,GBLLEN               GET LENGTH OF GLOBAL STORAGE     00176000
+         AIF   (&VSE).VSE9010                                           00177000
+.MVS9010 ANOP                                                           00178000
+         FREEMAIN R,LV=(0),A=(1)       FREE GLOBAL STORAGE              00179000
+         AGO   .NOP9010                                                 00180000
+.VSE9010 ANOP                                                           00181000
+         FREEVIS LENGTH=(0),ADDRESS=(1)  FREE GLOBAL STORAGE            00182000
+.NOP9010 ANOP                                                           00183000
+.XIT1020 ANOP                                                           00184000
+         AIF   (NOT &LSTGFLG).XIT1022                                   00185000
+         LR    R1,&LBAR                POINT TO LOCAL STORAGE           00186000
+         L     R0,0(,&LBAR)            GET LENGTH OF LOCAL STORAGE      00187000
+.XIT1022 ANOP                                                           00188000
+         USING CRSA,RD                                                  00189000
+         L     RD,CRSABWD              GET CALLER'S RSA ADDR            00190000
+         AIF   (NOT &LSTGFLG).XIT1100                                   00191000
+         AIF   (&VSE).VSE9020                                           00192000
+.MVS9020 ANOP                                                           00193000
+         FREEMAIN R,LV=(0),A=(1)       FREE LOCAL STORAGE               00194000
+         AGO   .NOP9020                                                 00195000
+.VSE9020 ANOP                                                           00196000
+         FREEVIS LENGTH=(0),ADDRESS=(1)  FREE LOCAL STORAGE             00197000
+.NOP9020 ANOP                                                           00198000
+.XIT1100 ANOP                                                           00199000
+         AIF   (T'&RC EQ 'O' AND T'&EC EQ 'O').XIT1130                  00200000
+         AIF   (T'&RC NE 'O' AND T'&EC EQ 'O').XIT1120                  00201000
+         AIF   (T'&RC NE 'O' AND T'&EC NE 'O').XIT1110                  00202000
+         MNOTE 8,'&MACNME - A MACRO CODING ERROR HAS OCCURED, MACRO EXP+00203000
+               ANSION IGNORED'                                          00204000
+         MEXIT                                                          00205000
+.XIT1110 ANOP                                                           00206000
+         L     RE,CRSACRE              RESTORE REGISTER 14              00207000
+         AIF   ('&INIT1' EQ '').XIT1112                                 00208000
+         &INIT1 &INITA                                                  00209000
+.XIT1112 ANOP                                                           00210000
+         AIF   ('&INST1' EQ '').XIT1114                                 00211000
+         &INST1 &INSTA                                                  00212000
+.XIT1114 ANOP                                                           00213000
+         AIF   ('&INIT2' EQ '').XIT1116                                 00214000
+         &INIT2 &INITB                                                  00215000
+.XIT1116 ANOP                                                           00216000
+         AIF   ('&INST2' EQ '').XIT1118                                 00217000
+         &INST2 &INSTB                                                  00218000
+.XIT1118 ANOP                                                           00219000
+         LM    R1,RC,CRSACR1           RESTORE CALLER'S REGISTERS       00220000
+         AGO   .XIT1199                                                 00221000
+.XIT1120 ANOP                                                           00222000
+         L     RE,CRSACRE              RESTORE REGISTER 14              00223000
+         AIF   ('&INIT1' EQ '').XIT1122                                 00224000
+         &INIT1 &INITA                                                  00225000
+.XIT1122 ANOP                                                           00226000
+         AIF   ('&INST1' EQ '').XIT1124                                 00227000
+         &INST1 &INSTA                                                  00228000
+.XIT1124 ANOP                                                           00229000
+         LM    R0,RC,CRSACR0           RESTORE CALLER'S REGISTERS       00230000
+         AGO   .XIT1199                                                 00231000
+.XIT1130 ANOP                                                           00232000
+         LM    RE,RC,CRSACRE           RESTORE CALLER'S REGISTERS       00233000
+.XIT1199 ANOP                                                           00234000
+         DROP  RD                                                       00235000
+         BSM   0,RE                RTN TO CALLER W/HIS AMODE  2600590   00236030
+         MEND                                                           00237000

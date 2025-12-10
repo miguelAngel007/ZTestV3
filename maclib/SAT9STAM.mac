@@ -1,0 +1,26 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAT9STAM &DSECT=NO                                             00002000
+         AIF ('&DSECT' EQ 'NO').CNAME                                   00003000
+*  THE FOLLOWING DSECT MAP THE STATS COLLECTION RECORD FOR TBL MANGR.   00004000
+SAT9STAM DSECT                                                          00005000
+         AGO   .DNAME                                                   00006000
+.CNAME   ANOP                                                           00007000
+SAT9STAM DS    0CL310                                                   00008000
+.DNAME   ANOP                                                           00009000
+SATRCLEN DS    CL2                     RECORD LENGTH                    00010000
+SATQID   DS    CL8                     QUEUE ID                         00011000
+SATDATE  DS    PL5                     SYSTEM DATE                      00012000
+SATTIME  DS    PL4                     SYSTEM TIME                      00013000
+SATRQCDE DS    CL4                     REQUEST CODE                     00014000
+SATRSTAT DS    CL4                     RETURN STATUS                    00015000
+SATTRMID DS    CL8                     TERMINAL ID                      00016000
+SATOPRID DS    CL8                     OPERATOR ID                      00017000
+SATMODID DS    CL8                     LAST PGM INVOKED                 00018000
+SATTRAN  DS    CL4                     TRANSACTION ID                   00019000
+         DS    CL7                     FILLER                           00020000
+SATKEYLN DS    CL2                     KEY LENGTH                       00021000
+SATDATLN EQU   *-SAT9STAM              CONSTANT DATA LENGTH             00022000
+SATRKEY  DS    CL256                   REQUESTED KEY                    00023000
+SATLEN   EQU   *-SAT9STAM                                               00024000
+         MEND                                                           00025000

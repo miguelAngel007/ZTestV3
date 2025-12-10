@@ -1,0 +1,50 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                TSTS2SCT  ---  SCREEN CHAINING TABLE                 * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+         SPACE                                                          00000600
+SCTDSECT DSECT                                                          00000700
+SCT      DS    0CL505   *SCREEN CHAINING TABLE LENGTH                   00000800
+*                           5 BYTE ENTRIES TIMES 99 OCCURRENCES         00000900
+*                           PLUS A 10 BYTE STEM                         00001000
+         SPACE                                                          00001100
+*********************************************************************** 00001200
+*                 DESCRIPTION OF SCT STEM IN LINKAGE                  * 00001300
+*********************************************************************** 00001400
+         SPACE                                                          00001500
+SCTSTRT  EQU   *        *START OF SCT STEM DESCRIPTION                  00001600
+SCTTRNID DS    CL8      *SDR TRAN ID                                    00001700
+SCTEDITF DS    CL1      *SDR TRANSACTION EDIT FLAG                      00001800
+*                           F - FEATURE EDITING                         00001900
+*                           L - DO EDITS AFTER LAST SCREEN              00002000
+SCTCHALL DS    CL1      *PROCESS ALL SCREENS                            00002100
+SCTSLNG  EQU   *-SCTSTRT  *SCT STEM LENGTH                              00002200
+SCTENTR  DS    CL495    *OCCURRENCES 1 - 99 OF SCT ENTRIES              00002300
+SCTLNG   EQU   *-SCT    *LENGTH OF SCREEN CHAINING TABLE                00002400
+         SPACE                                                          00002500
+*********************************************************************** 00002600
+*            DESCRIPTION OF ONE SCT OCCURRENCE IN LINKAGE             * 00002700
+*********************************************************************** 00002800
+         SPACE                                                          00002900
+SCTOCCUR DSECT                                                          00003000
+SCTSTART EQU   *        *START OF SCREEN CHAINING OCCURRENCE DESCR      00003100
+SCTCHNUM DS    CL2      *SDR CHAIN NUMBER                               00003200
+SCTCHST  DS    CL1      *SDR CHAIN STATUS                               00003300
+*                           0 - NOT USED                                00003400
+*                           1 - SELECTED                                00003500
+*                           2 - LAST                                    00003600
+SCTCHIAD DS    CL1      *SDR CHAIN AID1 RETURN                          00003700
+SCTQITEM DS    CL1      *SDR CHAIN QUEUE ITEM STATUS                    00003800
+*                             - NOT WRITTEN                             00003900
+*                           1 - WRITTEN                                 00004000
+SCTOLNG  EQU   *-SCTSTART  *ONE SCT OCCURRENCE LENGTH                   00004100
+         SPACE                                                          00004200
+*********************************************************************** 00004300
+* ******************************************************************* * 00004400
+* *                                                                 * * 00004500
+* *                   END OF SCREEN CHAINING TABLE                  * * 00004600
+* *                                                                 * * 00004700
+* ******************************************************************* * 00004800
+*********************************************************************** 00004900

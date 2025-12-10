@@ -1,0 +1,28 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*----------------------------------------------------------------*      00000100
+*                                                                *      00000200
+*             ONLINE REPORT INQUIRY INDEX RECORD                 *      00000300
+*                                                                *      00000400
+*----------------------------------------------------------------*      00000500
+ORIREC   DS    0C                      / ONLINE REPORT INDEX RECORD   / 00000600
+ORIKEY   DS    0XL29                   / ORI KEY                      / 00000700
+ORICTLS  DS    0XL12                   / ORI CONTROLS FOR REGULAR REPS/ 00000800
+ORICTL1  DS    CL2                     / ORI CONTROL 1                / 00000900
+ORICTL2  DS    CL3                     / ORI CONTROL 2                / 00001000
+ORICTL3  DS    CL3                     / ORI CONTROL 3                / 00001100
+ORICTL4  DS    CL4                     / ORI CONTROL 4                / 00001200
+         ORG   ORICTLS                 / REDEFINE REG CONTROLS        / 00001300
+ORIFMCTL DS    0CL12                   / ORI CONTROLS FOR FMS 0833482 / 00001400
+ORICUST  DS    XL2                     / ORI FMS CUSTOMER NUMBER      / 00001500
+ORIRC    DS    CL10                    / ORI FMS INTERNAL RC  0833482 / 00001600
+ORIREPT  DS    0CL8                    / ORI REPORT NAME              / 00001800
+ORIAPPL  DS    CL2                     / ORI REPORT APPLICATION       / 00001900
+ORIPRGID DS    CL2                     / ORI REPORT PROGRAM ID        / 00002000
+ORIPH12  DS    CL2                     / ORI REPORT PHASE 1 - 2       / 00002100
+ORIPH34  DS    CL2                     / ORI REPORT PHASE 3 - 4       / 00002200
+ORIDATE  DS    XL3                     / ORI REPORT DATE              / 00002300
+ORISEQ   DS    XL6                     / ORI REPORT SEQUENCE NUMBER   / 00002400
+ORISTRBA DS    XL4                     / ORI REPORT STARTIND RBA      / 00002500
+ORIENRBA DS    XL4                     / ORI REPORT ENDING RBA        / 00002600
+         DS    XL13                    / FILLER                       / 00002700
+ORILEN   EQU   *-ORIREC                / ORI RECORD LENGTH            / 00002800

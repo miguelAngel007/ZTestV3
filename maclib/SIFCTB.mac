@@ -1,0 +1,1397 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+* 08/22/00 31-BIT                                             2024183   00000099
+         MACRO                                                          00000100
+         SIFCTB                                                        X00000200
+               &APPL=,                                                 X00000300
+               &VERSION=,                                              X00000400
+               &BANK=,                                                 X00000500
+               &CUST=,                                                 X00000600
+               &CTL2=,                                                 X00000700
+               &CTL3=,                                                 X00000800
+               &FORMCD=,                                               X00000900
+               &RESP=,                                                 X00001000
+               &RPTNM=,                                                X00001100
+               &DDNAME=,                                               X00001200
+               &TYPE=,                                                 X00001300
+               &HDRLINE=,                                              X00001400
+               &COMPSEQ=,                                              X00001500
+               &SORT=                                                   00001600
+.*                                                                      00001700
+.*       GLOBAL C TABLE FOR SORTING ENTRIES HAS THE FOLLOWING FORMAT    00001800
+.*       (ALL EXCEPT FM AND AP APPLICATIONS)                            00001900
+.*       # POS                                                          00002000
+.*         02  BANK NUMBER                                              00002100
+.*         01  FORMS CODE PASSED FROM CALLING PROGRAM                   00002200
+.*         03  CONTROL 2                                                00002300
+.*         03  CONTROL 3                                                00002400
+.*         06  LAST 6 CHARACTERS OF REPORT NAME                         00002500
+.*         08  PRINT FILE DD NAME                                       00002600
+.*                                                                      00002700
+.*                                                                      00002800
+.*       GLOBAL C TABLE FOR SORTING ENTRIES HAS THE FOLLOWING FORMAT    00002900
+.*       (FMS AND AP APPLICATIONS)                                      00003000
+.*       # POS                                                          00003100
+.*         04  CUSTOMER NUMBER                                          00003200
+.*         01  FORMS CODE PASSED FROM CALLING PROGRAM                   00003300
+.*         18  RESPONSIBILITY CENTER                          2120563   00003400
+.*         06  LAST 6 CHARACTERS OF REPORT NAME                         00003500
+.*         08  PRINT FILE DD NAME                                       00003600
+.*                                                                      00003700
+         GBLA  &NENT,&FE,&M1,&M2,&F,&MAXENT,&KEYL                       00003800
+         GBLA  &LFC,&LAPPL,&LBANK,&LVER,&LCTL2,&LCTL3,&LRPTNM,&LDDNM    00003900
+         GBLA  &LVVER,&HVVER,&LVBANK,&HVBANK,&LVCTL2,&HVCTL2            00004000
+         GBLA  &LVCTL3,&HVCTL3,&LHDRLIN                                 00004100
+         GBLA  &LCUST,&LRESP,&LRESP2                          2120563   00004200
+         GBLA  &LVCUST,&HVCUST                                          00004300
+         GBLA  &SEQCNT,&MAXSEQ                                          00004400
+         GBLA  &NOKEYS                                                  00004500
+         GBLB  &GIAPPL,&ERR,&GIVER,&SEQTBL,&SRT,&FMS,&SIFCTB            00004600
+         GBLB  &FIRSTSW,&INITIAL,&FINAL                                 00004700
+         GBLC  &H,&MVER,&MMOD,&MDATE,&HAPPL,&HVER                       00004800
+         GBLC  &T(1000),&V(1000)                                        00004900
+         GBLC  &SEQ1(32),&SEQ2(32)                                      00005000
+         GBLC  &LVRESP,&HVRESP                                          00005100
+         GBLC  &KEYWD(60)                                               00005200
+         GBLC  &QUOTE,&CSECTNM                                          00005300
+         LCLA  &WORK,&G,&J                                              00005400
+         LCLA  &X1,&X2,&X3,&X4,&X5,&Y1,&Y2,&Y3                          00005500
+         LCLB  &INIT,&REQUIRE,&END,&LIBANK,&LIFORM                      00005600
+         LCLB  &LIRPTNM,&LIDDNM,&LICTL2,&LICTL3                         00005700
+         LCLB  &LICUST,&LIRESP                                          00005800
+         LCLC  &HBANK,&HCTL2,&HCTL3,&HRPTNM,&WE                         00005900
+         LCLC  &HDDNM,&HDDNM1,&HDDNM2,&HDDNM3                           00006000
+         LCLC  &HHDRLIN,&S(16)                                          00006100
+         LCLC  &HCUST,&HRESP                                            00006200
+         LCLC  &RESPWK,&RESPCH                                          00006300
+         LCLC  &DDNMPRT(10),&WORKC,&WORKC1,&WORKC2,&WORKC3,&WORKC4      00006400
+         LCLC  &KEYID,&KEYTYPE,&KEYLEN                                  00006500
+.INITBEG ANOP                                                           00006600
+         AIF   (&FIRSTSW EQ 1).I020060                                  00006700
+&FIRSTSW SETB  (1)                                                      00006800
+.*       ----------------                                               00006900
+.*       SET ANY DEFAULTS                                               00007000
+.*       ----------------                                               00007100
+&H       SETC  '* SIFCTB -'        MACRO NAME FOR MNOTE LINES           00007200
+&MVER    SETC  '04.00'             MACRO VERSION NUMBER                 00007300
+&MMOD    SETC  '01.01'             MACRO MODIFICATION NUMBER  2120563   00007400
+&MDATE   SETC  '05/31/92'          MACRO AS OF DATE           2120563   00007500
+         MNOTE '&H SYSTEMATICS  - VER &MVER MOD &MMOD - &MDATE'         00007600
+&MAXENT  SETA  1000                MAXIMUM ENTRIES IN FORM TABLE        00007700
+&MAXSEQ  SETA  16                  MAXIMUM ENTRIES IN SEQUENCE TABLE    00007800
+&NENT    SETA  0                   SORT TABLE ENTRY COUNTER             00007900
+&LAPPL   SETA  2                   LENGTH OF APPLICATION                00008000
+&LVER    SETA  1                   LENGTH OF VERSION                    00008100
+&LFC     SETA  1                   LENGTH OF FORM CODE                  00008200
+&LBANK   SETA  2                   LENGTH OF BANK NUMBER ENTRY          00008300
+&LCTL2   SETA  3                   LENGTH OF CTL2 ENTRY                 00008400
+&LCTL3   SETA  3                   LENGTH OF CTL3 ENTRY                 00008500
+&LCUST   SETA  4                   LENGTH OF CUST ENTRY                 00008600
+&LRESP   SETA  18                  LENGTH OF RESP ENTRY                 00008700
+&LRESP2  SETA  18                  LENGTH OF RESP ENTRY       2120563   00008710
+&LRPTNM  SETA  6                   LENGTH OF RPTNM ENTRY                00008800
+&LNAME   SETA  8                   LENGTH OF NAME ENTRY                 00008900
+&LDDNM   SETA  40                  LENGTH OF DD NAME ENTRY              00009000
+&LHDRLIN SETA  8                   LENGTH OF HEADER LINE NAME           00009100
+&KEYL    SETA  &LBANK+&LFC+&LCTL2+&LCTL3+&LRPTNM KEY LENGTH             00009200
+&HAPPL   SETC  '        '(1,&LAPPL)                                     00009300
+&HVER    SETC  '1'                 DEVAULT VERSION                      00009400
+&SRT     SETB  1                   DEFAULT TO SORT TABLE                00009500
+&QUOTE   SETC  ''''                QUOTE MARK                           00009600
+.*       ---------------------------------                              00009700
+.*       SET DDNAME PARAMETERS FOR EDITING                              00009800
+.*       ---------------------------------                              00009900
+.*       FORMAT -                                                       00010000
+.*         1-8  - KEYWORD                                               00010100
+.*          10  - FIELD TYPE (A-ALPHABETIC, N-NUMERIC, X-ALPHANUMERIC)  00010200
+.*          12  - MAXIMUM LENGTH OF FIELD                               00010300
+.*                                                                      00010400
+&KEYWD(01) SETC 'FORM    ,A,1'                                          00010500
+&KEYWD(02) SETC 'PGM     ,A,8'                                          00010600
+&KEYWD(03) SETC 'PGMID   ,A,8'                                          00010700
+&KEYWD(04) SETC 'PROG    ,A,8'                                          00010800
+&KEYWD(05) SETC 'PROGID  ,A,8'                                          00010900
+&KEYWD(06) SETC 'APPL    ,A,2'                                          00011000
+&KEYWD(07) SETC 'RPT     ,X,6'                                          00011100
+&KEYWD(08) SETC 'RPT1    ,X,1'                                          00011200
+&KEYWD(09) SETC 'RPT2    ,X,2'                                          00011300
+&KEYWD(10) SETC 'RPT3    ,X,3'                                          00011400
+&KEYWD(11) SETC 'RPT4    ,X,4'                                          00011500
+&KEYWD(12) SETC 'RPT5    ,X,5'                                          00011600
+&KEYWD(13) SETC 'MAIN    ,X,2'                                          00011700
+&KEYWD(14) SETC 'USER    ,X,4'                                          00011800
+&KEYWD(15) SETC 'RPTNO   ,N,3'                                          00011900
+&KEYWD(16) SETC 'BCRCL   ,N,8'                                          00012000
+&KEYWD(17) SETC 'BCRC1   ,N,2'                                          00012100
+&KEYWD(18) SETC 'BCRC2   ,N,3'                                          00012200
+&KEYWD(19) SETC 'BCRC3   ,N,3'                                          00012300
+&KEYWD(20) SETC 'BCRC4   ,X,4'                                          00012400
+&KEYWD(21) SETC 'BANK    ,N,2'                                          00012500
+&KEYWD(22) SETC 'BK      ,N,2'                                          00012600
+&KEYWD(23) SETC 'CTL2    ,N,3'                                          00012700
+&KEYWD(24) SETC 'CTL3    ,N,3'                                          00012800
+&KEYWD(25) SETC 'CTL4    ,X,4'                                          00012900
+&KEYWD(26) SETC 'BCRBANK ,N,2'                                          00013000
+&KEYWD(27) SETC 'BCRBK   ,N,2'                                          00013100
+&KEYWD(28) SETC 'BCRCTL2 ,N,3'                                          00013200
+&KEYWD(29) SETC 'BCRCTL3 ,N,3'                                          00013300
+&KEYWD(30) SETC 'BCRCTL4 ,X,4'                                          00013400
+&KEYWD(31) SETC 'RPTCL   ,N,8'                                          00013500
+&KEYWD(32) SETC 'RPTC1   ,N,2'                                          00013600
+&KEYWD(33) SETC 'RPTC2   ,N,3'                                          00013700
+&KEYWD(34) SETC 'RPTC3   ,N,3'                                          00013800
+&KEYWD(35) SETC 'RPTC4   ,X,4'                                          00013900
+&KEYWD(36) SETC 'RPTBANK ,N,2'                                          00014000
+&KEYWD(37) SETC 'RPTBK   ,N,2'                                          00014100
+&KEYWD(38) SETC 'RPTCTL2 ,N,3'                                          00014200
+&KEYWD(39) SETC 'RPTCTL3 ,N,3'                                          00014300
+&KEYWD(40) SETC 'RPTCTL4 ,X,4'                                          00014400
+&KEYWD(41) SETC 'CUST    ,N,4'                                          00014500
+&KEYWD(42) SETC 'CUSTNO  ,N,4'                                          00014600
+&KEYWD(43) SETC 'RESP    ,N,8'                                          00014700
+&KEYWD(44) SETC 'RESP1   ,N,2'                                          00014800
+&KEYWD(45) SETC 'RESP2   ,N,2'                                          00014900
+&KEYWD(46) SETC 'RESP3   ,N,2'                                          00015000
+&KEYWD(47) SETC 'RESP4   ,N,2'                                          00015100
+&KEYWD(48) SETC 'RESP5   ,N,2'                                          00015200
+&KEYWD(49) SETC 'RESP6   ,N,2'                                          00015300
+&KEYWD(50) SETC 'RESP7   ,N,2'                                          00015400
+&KEYWD(51) SETC 'RESP8   ,N,2'                                          00015500
+&KEYWD(52) SETC 'RESP9   ,N,2'                                          00015600
+&KEYWD(53) SETC 'PRTID   ,A,1'                                          00015700
+&KEYWD(54) SETC 'SAPPL   ,A,2'                                          00015800
+&KEYWD(55) SETC 'SKID    ,N,4'                                          00015900
+&NOKEYS  SETA  55                                                       00016000
+.I020060 ANOP                                                           00016100
+.*       ------------------------------------------                     00016200
+.*       SET LOW AND HIGH VALUES FOR EDITING FIELDS                     00016300
+.*       ------------------------------------------                     00016400
+&LVVER   SETA  0                                                        00016500
+&HVVER   SETA  9                                                        00016600
+&LVBANK  SETA  0                                                        00016700
+&HVBANK  SETA  99                                                       00016800
+&LVCTL2  SETA  0                                                        00016900
+&HVCTL2  SETA  999                                                      00017000
+&LVCTL3  SETA  0                                                        00017100
+&HVCTL3  SETA  999                                                      00017200
+&LVCUST  SETA  0000                                                     00017300
+&HVCUST  SETA  9999                                                     00017400
+&LVRESP  SETC  '000000000000000000'                                     00017500
+&HVRESP  SETC  '999999999999999999'                                     00017600
+&REQUIRE SETB  (0)                 INDICATES OTHER FIELDS ARE REQUIRED  00017700
+&INIT    SETB  (0)                 LOCAL INDICATES THIS PASS IS INIT    00017800
+&END     SETB  (0)                 LOCAL INDICATES THIS PASS IS FINAL   00017900
+&HCTL2   SETC  '        '(1,&LCTL2)                                     00018000
+&HCTL3   SETC  '        '(1,&LCTL3)                                     00018100
+&HRESP   SETC  '                  '(1,&LRESP)                           00018200
+&HRPTNM  SETC  '        '(1,&LRPTNM)                                    00018300
+&HDDNM   SETC  '                                        '(1,&LDDNM)     00018400
+.I020BEG ANOP                                                           00018500
+         AIF   ('&TYPE' EQ 'DOC').FCHGDOC                               00018600
+         AIF   (&FINAL NE 1).I020END                                    00018700
+         MNOTE 8,'&H TYPE=FINAL HAS BEEN SPECIFIED NO MORE OCCURRANCES X00018800
+               OF THIS MACRO MAY OCCUR'                                 00018900
+&ERR     SETB  (1)                                                      00019000
+         MEXIT                                                          00019100
+.I020END ANOP                                                           00019200
+         AIF   (T'&COMPSEQ NE 'O').F210BEG                              00019300
+.I040BEG ANOP                                                           00019400
+         AIF   (T'&TYPE EQ 'O').I040END                                 00019500
+         AIF   ('&TYPE' EQ 'FINAL').I040040                             00019600
+         AIF   ('&TYPE' EQ 'INITIAL').I040060                           00019700
+         MNOTE 8,'&H ONLY VALID ENTRY FOR TYPE IS ''INITIAL'' OR ''FINAX00019800
+               AL'''                                                    00019900
+&ERR     SETB  (1)                                                      00020000
+         AGO   .I040END                                                 00020100
+.I040040 ANOP                                                           00020200
+&END     SETB  (1)                                                      00020300
+&FINAL   SETB  (1)                                                      00020400
+         AGO   .I040END                                                 00020500
+.I040060 ANOP                                                           00020600
+         AIF   (&INITIAL NE 1).I040080                                  00020700
+         MNOTE 4,'&H TYPE INITIAL ALREADY SPECIFIED'                    00020800
+         AGO   .I040END                                                 00020900
+.I040080 ANOP                                                           00021000
+&INIT    SETB  (1)                                                      00021100
+&INITIAL SETB  (1)                                                      00021200
+.I040END ANOP                                                           00021300
+.*                                                                      00021400
+.*       ----------------------                                         00021500
+.*       CHECK APPLICATION CODE                                         00021600
+.*       ----------------------                                         00021700
+.*                                                                      00021800
+.F010BEG ANOP                                                           00021900
+         AIF   (T'&APPL  EQ 'O').F010END                                00022000
+         AIF   (&GIAPPL NE 1).F010020                                   00022100
+         MNOTE 8,'&H APPL HAS ALREADY BEEN SPECIFIED'                   00022200
+&ERR     SETB  (1)                                                      00022300
+         AGO   .F010END                                                 00022400
+.F010020 ANOP                                                           00022500
+&GIAPPL  SETB  (1)                                                      00022600
+         AIF   (K'&APPL EQ &LAPPL).F010040                              00022700
+         MNOTE 8,'&H APPL MUST BE &LAPPL CHARACTER(S) IN LENGTH'        00022800
+&ERR     SETB  (1)                                                      00022900
+.F010040 ANOP                                                           00023000
+         AIF   (T'&APPL NE 'C').F010060                                 00023100
+         MNOTE 8,'&H APPL MUST BE ALPHABETIC'                           00023200
+&ERR     SETB  (1)                                                      00023300
+         AGO   .F010END                                                 00023400
+.F010060 ANOP                                                           00023500
+&HAPPL   SETC  '&APPL'                                                  00023600
+&FMS     SETB  ('&APPL' EQ 'FM' OR '&APPL' EQ 'AP')                     00023700
+         AIF   (NOT &FMS).F010END                                       00023800
+&KEYL    SETA  &LCUST+&LFC+&LRESP+&LRPTNM SORT KEY LENGTH               00023900
+.F010END ANOP                                                           00024000
+.*                                                                      00024100
+.*       --------------------------                                     00024200
+.*       CHECK TABLE VERSION NUMBER                                     00024300
+.*       --------------------------                                     00024400
+.*                                                                      00024500
+.F020BEG ANOP                                                           00024600
+         AIF   (T'&VERSION EQ 'O').F020END                              00024700
+         AIF   (&GIVER NE 1).F020020                                    00024800
+         MNOTE 8,'&H VERSION HAS ALREADY BEEN SPECIFIED'                00024900
+&ERR     SETB  (1)                                                      00025000
+         AGO   .F020END                                                 00025100
+.F020020 ANOP                                                           00025200
+&GIVER   SETB  (1)                                                      00025300
+         AIF   (K'&VERSION EQ &LVER).F020040                            00025400
+         MNOTE 8,'&H VERSION MUST BE &LVER CHARACTER(S) IN LENGTH'      00025500
+&ERR     SETB  (1)                                                      00025600
+.F020040 ANOP                                                           00025700
+         AIF   (&VERSION GE &LVVER AND &VERSION LE &HVVER).F020060      00025800
+         MNOTE 8,'&H VERSION MUST BE NUMERIC'                           00025900
+&ERR     SETB  (1)                                                      00026000
+         AGO   .F020END                                                 00026100
+.F020060 ANOP                                                           00026200
+&HVER    SETC  '&VERSION'                                               00026300
+.F020END ANOP                                                           00026400
+.*                                                                      00026500
+.*       -----------------                                              00026600
+.*       CHECK BANK NUMBER                                              00026700
+.*       -----------------                                              00026800
+.*                                                                      00026900
+.FINDIT  ANOP                                                           00027000
+.F030BEG ANOP                                                           00027100
+         AIF   (&LIBANK EQ 1).F030END                                   00027200
+         AIF   (T'&BANK NE 'O').F030040                                 00027300
+         AIF   (&INIT EQ 1).F030010                                     00027400
+         AIF   (&END NE 1).F030020                                      00027500
+.F030010 ANOP                                                           00027600
+         AIF   (&REQUIRE EQ 0).F030END                                  00027700
+&LIBANK  SETB  (1)                                                      00027800
+.F030020 ANOP                                                           00027900
+         AIF   (&FMS).F030END                                           00028000
+         MNOTE 8,'&H BANK MUST BE SPECIFIED WITH THIS ENTRY'            00028100
+&ERR     SETB  (1)                                                      00028200
+         AGO   .F030END                                                 00028300
+.F030040 ANOP                                                           00028400
+         AIF   (&FMS).F030050                                           00028500
+&LIBANK  SETB  (1)                                                      00028600
+&REQUIRE SETB  (1)                                                      00028700
+         AIF   ((&BANK GE &LVBANK) AND (&BANK LE &HVBANK)).F030060      00028800
+         MNOTE 8,'&H BANK OUT OF RANGE OR NOT NUMERIC'                  00028900
+&ERR     SETB  (1)                                                      00029000
+         AGO   .F030END                                                 00029100
+.F030050 ANOP                                                           00029200
+         MNOTE 8,'&H BANK IS INVALID WITH APPL=&HAPPL SPECIFIED'        00029300
+&ERR     SETB  (1)                                                      00029400
+         AGO   .F030END                                                 00029500
+.F030060 ANOP                                                           00029600
+&WORK    SETA  K'&BANK+1                                                00029700
+&HBANK   SETC  '00000000'(1,&LBANK)                                     00029800
+&HBANK   SETC  '&HBANK&BANK'(&WORK,&LBANK)                              00029900
+.F030END ANOP                                                           00030000
+.*                                                                      00030100
+.*       -----------------                                              00030200
+.*       CHECK CUST NUMBER                                              00030300
+.*       -----------------                                              00030400
+.*                                                                      00030500
+.F035BEG ANOP                                                           00030600
+         AIF   (&LICUST EQ 1).F035END                                   00030700
+         AIF   (T'&CUST NE 'O').F035040                                 00030800
+         AIF   (&INIT EQ 1).F035010                                     00030900
+         AIF   (&END NE 1).F035020                                      00031000
+.F035010 ANOP                                                           00031100
+         AIF   (&REQUIRE EQ 0).F035END                                  00031200
+&LICUST  SETB  (1)                                                      00031300
+.F035020 ANOP                                                           00031400
+         AIF   (NOT &FMS).F035END                                       00031500
+         MNOTE 8,'&H CUST MUST BE SPECIFIED WITH THIS ENTRY'            00031600
+&ERR     SETB  (1)                                                      00031700
+         AGO   .F035END                                                 00031800
+.F035040 ANOP                                                           00031900
+         AIF   (NOT &FMS).F035050                                       00032000
+&LICUST  SETB  (1)                                                      00032100
+&REQUIRE SETB  (1)                                                      00032200
+         AIF   ((&CUST GE &LVCUST) AND (&CUST LE &HVCUST)).F035060      00032300
+         MNOTE 8,'&H CUST OUT OF RANGE OR NOT NUMERIC'                  00032400
+&ERR     SETB  (1)                                                      00032500
+         AGO   .F035END                                                 00032600
+.F035050 ANOP                                                           00032700
+         MNOTE 8,'&H CUST IS INVALID WITH APPL=&HAPPL SPECIFIED'        00032800
+&ERR     SETB  (1)                                                      00032900
+         AGO   .F035END                                                 00033000
+.F035060 ANOP                                                           00033100
+&WORK    SETA  K'&CUST+1                                                00033200
+&HCUST   SETC  '00000000'(1,&LCUST)                                     00033300
+&HCUST   SETC  '&HCUST&CUST'(&WORK,&LCUST)                              00033400
+.F035END ANOP                                                           00033500
+.*                                                                      00033600
+.*       ---------------                                                00033700
+.*       CHECK FORM CODE                                                00033800
+.*       ---------------                                                00033900
+.*                                                                      00034000
+.F040BEG ANOP                                                           00034100
+         AIF   (&LIFORM EQ 1).F040END                                   00034200
+         AIF   (T'&FORMCD NE 'O').F040060                               00034300
+         AIF   (&INIT EQ 1).F040020                                     00034400
+         AIF   (&END NE 1).F040040                                      00034500
+.F040020 ANOP                                                           00034600
+         AIF   (&REQUIRE EQ 0).F040END                                  00034700
+&LIFORM  SETB  (1)                                                      00034800
+.F040040 ANOP                                                           00034900
+         MNOTE 8,'&H FORMCD MUST BE SPECIFIED WITH THIS ENTRY'          00035000
+&ERR     SETB  (1)                                                      00035100
+         AGO   .F040END                                                 00035200
+.F040060 ANOP                                                           00035300
+&LIFORM  SETB  (1)                                                      00035400
+&REQUIRE SETB  (1)                                                      00035500
+         AIF   (K'&FORMCD EQ &LFC).F040080                              00035600
+         MNOTE 8,'&H FORMCD MUST BE &LFC CHARACTER(S) IN LENGTH'        00035700
+&ERR     SETB  (1)                                                      00035800
+         AGO   .F040END                                                 00035900
+.F040080 ANOP                                                           00036000
+.F040END ANOP                                                           00036100
+.*                                                                      00036200
+.*       ----------                                                     00036300
+.*       CHECK SORT                                                     00036400
+.*       ----------                                                     00036500
+.*                                                                      00036600
+.F050BEG ANOP                                                           00036700
+         AIF   (T'&SORT EQ 'O').F050END                                 00036800
+         AIF   ('&SORT' EQ 'YES' OR '&SORT' EQ 'NO').F050040            00036900
+         MNOTE 8,'&H SORT PARAMETER MUST BE YES OR NO'                  00037000
+&ERR     SETB  (1)                                                      00037100
+         AGO   .F050END                                                 00037200
+.F050040 ANOP                                                           00037300
+&SRT     SETB  1                                                        00037400
+         AIF   ('&SORT' EQ 'YES').F050END                               00037500
+&SRT     SETB  0                                                        00037600
+.F050END ANOP                                                           00037700
+.*                                                                      00037800
+.*       ----------                                                     00037900
+.*       CHECK CTL2                                                     00038000
+.*       ----------                                                     00038100
+.*                                                                      00038200
+.F080BEG ANOP                                                           00038300
+         AIF   (&LICTL2 EQ 1).F080END                                   00038400
+         AIF   (T'&CTL2 EQ 'O').F080END                                 00038500
+         AIF   (&FMS).F080050                                           00038600
+&LICTL2  SETB  (1)                                                      00038700
+&REQUIRE SETB  (1)                                                      00038800
+         AIF   ((&CTL2 GE &LVCTL2) AND (&CTL2 LE &HVCTL2)).F080060      00038900
+         MNOTE 8,'&H CTL2 OUT OF RANGE OR NOT NUMERIC'                  00039000
+&ERR     SETB  (1)                                                      00039100
+         AGO   .F080END                                                 00039200
+.F080050 ANOP                                                           00039300
+         MNOTE 8,'&H CTL2 IS INVALID WITH APPL=&HAPPL SPECIFIED'        00039400
+&ERR     SETB  (1)                                                      00039500
+         AGO   .F080END                                                 00039600
+.F080060 ANOP                                                           00039700
+&WORK    SETA  K'&CTL2+1                                                00039800
+&HCTL2   SETC  '00000000'(1,&LCTL2)                                     00039900
+&HCTL2   SETC  '&HCTL2&CTL2'(&WORK,&LCTL2)                              00040000
+.F080END ANOP                                                           00040100
+.*                                                                      00040200
+.*       ----------                                                     00040300
+.*       CHECK CTL3                                                     00040400
+.*       ----------                                                     00040500
+.*                                                                      00040600
+.F100BEG ANOP                                                           00040700
+         AIF   (&LICTL3 EQ 1).F100END                                   00040800
+         AIF   (T'&CTL3 EQ 'O').F100END                                 00040900
+         AIF   (&FMS).F100050                                           00041000
+&LICTL3  SETB  (1)                                                      00041100
+&REQUIRE SETB  (1)                                                      00041200
+         AIF   ((&CTL3 GE &LVCTL3) AND (&CTL3 LE &HVCTL3)).F100060      00041300
+         MNOTE 8,'&H CTL3 OUT OF RANGE OR NOT NUMERIC'                  00041400
+&ERR     SETB  (1)                                                      00041500
+         AGO   .F100END                                                 00041600
+.F100050 ANOP                                                           00041700
+         MNOTE 8,'&H CTL3 IS INVALID WITH APPL=&HAPPL SPECIFIED'        00041800
+&ERR     SETB  (1)                                                      00041900
+         AGO   .F100END                                                 00042000
+.F100060 ANOP                                                           00042100
+&WORK    SETA  K'&CTL3+1                                                00042200
+&HCTL3   SETC  '00000000'(1,&LCTL3)                                     00042300
+&HCTL3   SETC  '&HCTL3&CTL3'(&WORK,&LCTL3)                              00042400
+.F100END ANOP                                                           00042500
+.*                                                                      00042600
+.*       ----------                                                     00042700
+.*       CHECK RESP                                                     00042800
+.*       ----------                                                     00042900
+.*                                                                      00043000
+.F110BEG ANOP                                                           00043100
+         AIF   (&LIRESP EQ 1).F110END                                   00043200
+         AIF   (T'&RESP EQ 'O').F110END                                 00043300
+         AIF   (NOT &FMS).F110050                                       00043400
+&RESPWK  SETC  '&RESP'                                                  00043500
+&X1      SETA  K'&RESP                                                  00043600
+&X2      SETA  0                                                        00043700
+         AIF   ('&HVER' EQ '1').F110010                       2120563   00043710
+&LRESP2  SETA  10                                             2120563   00043720
+&LVRESP  SETC  '0000000000'                                   2120563   00043730
+&HVRESP  SETC  '9999999999'                                   2120563   00043740
+.F110010 ANOP                                                           00043800
+&X2      SETA  &X2+1                                                    00043900
+         AIF   (&X2 GT &X1).F110030                                     00044000
+&RESPCH  SETC  '&RESPWK'(&X2,1)                                         00044100
+         AIF   ('&RESPCH' LT '0').F110020                               00044200
+         AIF   ('&RESPCH' GT '9').F110020                               00044300
+         AGO   .F110010                                                 00044400
+.F110020 ANOP                                                           00044500
+         MNOTE 8,'&H RESP PARAMETER NOT NUMERIC'                        00044600
+&ERR     SETB  (1)                                                      00044700
+         AGO   .F110END                                                 00044800
+.F110030 ANOP                                                           00044900
+&LIRESP  SETB  (1)                                                      00045000
+&REQUIRE SETB  (1)                                                      00045100
+         AIF   ('&RESPWK' LT '&LVRESP').F110035                         00045200
+         AIF   ('&RESPWK' LE '&HVRESP').F110060                         00045300
+.F110035 ANOP                                                           00045400
+         MNOTE 8,'&RESPWK LT &LVRESP OR GT &HVRESP'                     00045500
+         MNOTE 8,'&H RESP OUT OF RANGE'                                 00045600
+&ERR     SETB  (1)                                                      00045700
+         AGO   .F110END                                                 00045800
+.F110050 ANOP                                                           00045900
+         MNOTE 8,'&H RESP IS INVALID WITH APPL=&HAPPL SPECIFIED'        00046000
+&ERR     SETB  (1)                                                      00046100
+         AGO   .F110END                                                 00046200
+.F110060 ANOP                                                           00046300
+&LIRESP  SETB  (1)                                                      00046400
+&WORK    SETA  18-K'&RESP                                     2120563   00046500
+&HRESP   SETC  '000000000000000000'(1,&LRESP)                           00046600
+&HRESP   SETC  '&RESP'(1,&LRESP2).'&HRESP'(1,&WORK)           2120563   00046700
+.F110END ANOP                                                           00046800
+.*                                                                      00046900
+.*       -----------------                                              00047000
+.*       CHECK REPORT NAME                                              00047100
+.*       -----------------                                              00047200
+.*                                                                      00047300
+.F120BEG ANOP                                                           00047400
+         AIF   (&LIRPTNM EQ 1).F120END                                  00047500
+         AIF   (T'&RPTNM EQ 'O').F120END                                00047600
+&LIRPTNM SETB  (1)                                                      00047700
+&REQUIRE SETB  (1)                                                      00047800
+         AIF   (K'&RPTNM LE &LRPTNM).F120020                            00047900
+         MNOTE 8,'&H RPTNM MUST BE 1 TO &LRPTNM CHARACTER(S) IN LENGTH' 00048000
+&ERR     SETB  (1)                                                      00048100
+         AGO   .F120END                                                 00048200
+.F120020 ANOP                                                           00048300
+&HRPTNM  SETC  '&RPTNM        '(1,&LRPTNM)                              00048400
+.F120END ANOP                                                           00048500
+.*                                                                      00048600
+.*       --------------------                                           00048700
+.*       CHECK DDNAME COMMAND                                           00048800
+.*       --------------------                                           00048900
+.*                                                                      00049000
+.F130BEG ANOP                                                           00049100
+         AIF   (&LIDDNM EQ 1).F130END                                   00049200
+         AIF   (T'&DDNAME NE 'O').F130030                               00049300
+         AIF   (&INIT EQ 1).F130010                                     00049400
+         AIF   (&END NE 1).F130020                                      00049500
+.F130010 ANOP                                                           00049600
+         AIF   (&REQUIRE EQ 0).F130END                                  00049700
+&LIDDNM  SETB  (1)                                                      00049800
+.F130020 ANOP                                                           00049900
+         MNOTE 8,'&H DDNAME MUST BE SPECIFIED WITH THIS ENTRY'          00050000
+&ERR     SETB  (1)                                                      00050100
+         AGO   .F130END                                                 00050200
+.F130030 ANOP                                                           00050300
+&LIDDNM  SETB  (1)                                                      00050400
+&REQUIRE SETB  (1)                                                      00050500
+         AIF   ('&DDNAME'(1,6) NE 'PRTOUT').F130110                     00050600
+         MNOTE 8,'&H DDNAME MUST NOT BEGIN WITH PRTOUT'                 00050700
+&ERR     SETB  (1)                                                      00050800
+         AGO   .F130END                                                 00050900
+.F130110 ANOP                                                           00051000
+.*       CHECK FOR SUBSTITUTION PARAMETERS                              00051100
+         AIF   ('&DDNAME'(1,1) EQ '(').F130120                          00051200
+.*       CHECK FOR VALID DDNAME                                         00051300
+         AIF   ('&DDNAME'(1,1) EQ '#').F130119                          00051400
+         AIF   ('&DDNAME'(1,1) EQ '@').F130119                          00051500
+         AIF   ('&DDNAME'(1,1) EQ '$').F130119                          00051600
+         AIF   ('&DDNAME'(1,1) LT 'A').F130115                          00051700
+         AIF   ('&DDNAME'(1,1) LE 'Z').F130119                          00051800
+.F130115 ANOP                                                           00051900
+         MNOTE 8,'&H DDNAME MUST BEGIN WITH ALPHABETIC OR NATIONAL CHARX00052000
+               ACTER'                                                   00052100
+&ERR     SETB  (1)                                                      00052200
+         AGO   .F130END                                                 00052300
+.F130119 ANOP                                                           00052400
+&HDDNM   SETC  '&DDNAME'                                                00052500
+         AGO   .F130END                                                 00052600
+.F130120 ANOP                                                           00052700
+.*       PROCESS DDNAME FOR SUBSTITUTION PARAMETERS                     00052800
+&X1      SETA  N'&DDNAME            NO. OF PARAMETERS                   00052900
+&X2      SETA  0                    PARAMETER SUBSCRIPT                 00053000
+.F130130 ANOP                                                           00053100
+&X3      SETA  1                    KEYWORD SUBSCRIPT                   00053200
+&X2      SETA  &X2+1                                                    00053300
+         AIF   (&X2 GT &X1).F130900                                     00053400
+&WORKC   SETC  '&DDNAME(&X2)'                                           00053500
+         AIF   ('&WORKC'(1,1) EQ '''').F130300     HANDLE LITERAL       00053600
+&Y1      SETA  K'&WORKC                                                 00053700
+&Y2      SETA  0                                                        00053800
+&Y4      SETA  0                                                        00053900
+&WORKC2  SETC  ''                                                       00054000
+.F130135 ANOP                                                           00054100
+&Y2      SETA  &Y2+1                                                    00054200
+         AIF   (&Y2 GT &Y1).F130139                                     00054300
+         AIF   ('&WORKC'(&Y2,1) EQ '(').F130139                         00054400
+         AGO   .F130135                                                 00054500
+.F130139 ANOP                                                           00054600
+&Y3      SETA  &Y2-1                                                    00054700
+&WORKC1  SETC  '&WORKC'(1,&Y3)                                          00054800
+&WORKC1  SETC  '&WORKC1        '(1,8)                                   00054900
+         AIF   (&Y2 GT &Y1).F130140                                     00055000
+&WORKC2  SETC  '&WORKC'(&Y2,1)                                          00055100
+&Y3      SETA  &Y2                                                      00055200
+.F130140 ANOP                                                           00055300
+&KEYID   SETC  '&KEYWD(&X3)'(1,8)                                       00055400
+&KEYTYPE SETC  '&KEYWD(&X3)'(10,1)                                      00055500
+&KEYLEN  SETC  '&KEYWD(&X3)'(12,1)                                      00055600
+         AIF   ('&WORKC1' EQ '&KEYID').F130150                          00055700
+&X3      SETA  &X3+1                                                    00055800
+         AIF   (&X3 LE &NOKEYS).F130140                                 00055900
+         MNOTE 8,'&H INVALID KEYWORD IN DDNAME ENTRY - &WORKC'          00056000
+&ERR     SETB  (1)                                                      00056100
+         AGO   .F130END                                                 00056200
+.F130150 ANOP                                                           00056300
+         AIF   ('&WORKC2' NE '(').F130170                               00056400
+&WORKC1  SETC  ''                                                       00056500
+.F130160 ANOP                                                           00056600
+&Y4      SETA  &Y4+1                                                    00056700
+&Y2      SETA  &Y2+1                                                    00056800
+         AIF   (&Y2 LE &Y1).F130160                                     00056900
+&WORKC1  SETC  '&WORKC'(&Y3,&Y4)                                        00057000
+         AIF   (K'&WORKC1 NE 5).F130168                                 00057100
+         AIF   ('&WORKC1'(1,1) NE '(').F130166                          00057200
+         AIF   ('&WORKC1'(3,1) NE ',').F130166                          00057300
+         AIF   ('&WORKC1'(5,1) NE ')').F130166                          00057400
+         AIF   ('&WORKC1'(2,1) LT '1').F130167                          00057500
+         AIF   ('&WORKC1'(2,1) GT '&KEYLEN').F130167                    00057600
+         AIF   ('&WORKC1'(4,1) LT '1').F130168                          00057700
+         AIF   ('&WORKC1'(4,1) GT '&KEYLEN').F130168                    00057800
+&WORKC3  SETC  '&WORKC1'(2,1)                                           00057900
+&WORKC4  SETC  '&WORKC1'(4,1)                                           00058000
+&X4      SETA  &WORKC3                                                  00058100
+&X5      SETA  &WORKC4                                                  00058200
+&X4      SETA  &X4+&X5                                                  00058300
+&X5      SETA  &KEYLEN                                                  00058400
+&X5      SETA  &X5+1                                                    00058500
+         AIF   (&X4 GT &X5).F130169                                     00058600
+         AGO   .F130170                                                 00058700
+.F130166 ANOP                                                           00058800
+         MNOTE 8,'&H INCORRECT SUBSTRING IN DDNAME ENTRY - &WORKC'      00058900
+&ERR     SETB  (1)                                                      00059000
+         AGO   .F130END                                                 00059100
+.F130167 ANOP                                                           00059200
+         MNOTE 8,'&H INVALID SUBSTRING START IN DDNAME ENTRY - &WORKC'  00059300
+&ERR     SETB  (1)                                                      00059400
+         AGO   .F130END                                                 00059500
+.F130168 ANOP                                                           00059600
+         MNOTE 8,'&H INVALID SUBSTRING LENGTH IN DDNAME ENTRY - &WORKC' 00059700
+&ERR     SETB  (1)                                                      00059800
+         AGO   .F130END                                                 00059900
+.F130169 ANOP                                                           00060000
+         MNOTE 8,'&H INVALID SUBSTRING START+LENGTH IN DDNAME - &WORKC' 00060100
+&ERR     SETB  (1)                                                      00060200
+         AGO   .F130END                                                 00060300
+.F130170 ANOP                                                           00060400
+         AIF   (&X2 NE 1).F130200                                       00060500
+         AIF   ('&KEYTYPE' NE 'N').F130180                              00060600
+         MNOTE 8,'&H FIRST KEYWORD IN DDNAME CANNOT BE A NUMERIC FIELD X00060700
+               -  &WORKC'                                               00060800
+&ERR     SETB  (1)                                                      00060900
+         AGO   .F130END                                                 00061000
+.F130180 ANOP                                                           00061100
+         AIF   ('&KEYTYPE' NE 'X').F130200                              00061200
+         MNOTE '&H IF &WORKC IS NUMERIC AT EXECUTION, SIPRINT WILL CANCX00061300
+               EL THE JOB IF THIS ENTRY IS SELECTED'                    00061400
+         AGO   .F130200                                                 00061500
+.F130200 ANOP                                                           00061600
+&DDNMPRT(&X2) SETC  '&WORKC'                                            00061700
+         AGO   .F130130                                                 00061800
+.F130300 ANOP                                                           00061900
+         AIF   (&X2 NE 1).F130310                                       00062000
+         AIF   ('&WORKC'(2,1) EQ '#').F130310                           00062100
+         AIF   ('&WORKC'(2,1) EQ '@').F130310                           00062200
+         AIF   ('&WORKC'(2,1) EQ '$').F130310                           00062300
+         AIF   ('&WORKC'(2,1) LT 'A').F130305                           00062400
+         AIF   ('&WORKC'(2,1) LE 'Z').F130310                           00062500
+.F130305 ANOP                                                           00062600
+         MNOTE 8,'&H DDNAME LITERAL MUST BEGIN WITH ALPHABETIC OR NATIOX00062700
+               NAL CHARACTER'                                           00062800
+&ERR     SETB  (1)                                                      00062900
+         AGO   .F130END                                                 00063000
+.F130310 ANOP                                                           00063100
+&DDNMPRT(&X2) SETC  '&QUOTE&WORKC&QUOTE'                                00063200
+         AGO   .F130130                                                 00063300
+.F130900 ANOP                                                           00063400
+&X1      SETA  0                                                        00063500
+&HDDNM   SETC  '('                                                      00063600
+.F130910 ANOP                                                           00063700
+&X1      SETA  &X1+1                                                    00063800
+&HDDNM   SETC  '&HDDNM&DDNMPRT(&X1)'                                    00063900
+&X2      SETA  &X1+1                                                    00064000
+         AIF   (&X2 GT 10).F130920                                      00064100
+         AIF   ('&DDNMPRT(&X2)' EQ '').F130920                          00064200
+&HDDNM   SETC  '&HDDNM,'                                                00064300
+         AGO   .F130910                                                 00064400
+.F130920 ANOP                                                           00064500
+&HDDNM   SETC  '&HDDNM)'                                                00064600
+.F130END ANOP                                                           00064700
+.*                                                                      00064800
+.*       ------------------                                             00064900
+.*       CHECK HDRLINE PARM                                             00065000
+.*       ------------------                                             00065100
+.*                                                                      00065200
+.F200BEG ANOP                                                           00065300
+&HHDRLIN SETC  '0'                                                      00065400
+         AIF   (T'&HDRLINE EQ 'O').F200END                              00065500
+         AIF   (K'&HDRLINE LE &LHDRLIN).F200020                         00065600
+         MNOTE 8,'&H HDRLINE MUST BE 1 TO &LHDRLIN CHARACTER(S) IN LENGX00065700
+               TH'                                                      00065800
+&ERR     SETB  (1)                                                      00065900
+         AGO   .F140END                                                 00066000
+.F200020 ANOP                                                           00066100
+&HHDRLIN SETC  '&HDRLINE'                                               00066200
+.F200END ANOP                                                           00066300
+         AGO   .CHECKIT                                                 00066400
+.*                                                                      00066500
+.*       ------------------                                             00066600
+.*       CHECK COMPSEQ PARM                                             00066700
+.*       ------------------                                             00066800
+.*                                                                      00066900
+.F210BEG ANOP                                                           00067000
+&F       SETA  2                                                        00067100
+&G       SETA  1                                                        00067200
+&J       SETA  0                                                        00067300
+&SEQCNT  SETA  &SEQCNT+1                                                00067400
+         AIF   (&SEQCNT LE &MAXSEQ).F210020                             00067500
+         MNOTE 8,'TOO MANY COMPSEQ PARAMETERS ENTERED, &MAXSEQ MAXIMUM' 00067600
+&ERR     SETB  (1)                                                      00067700
+         AGO   .FINALCK                                                 00067800
+.F210020 ANOP                                                           00067900
+&S(1)    SETC  'FFFF'                                                   00068000
+&S(2)    SETC  'FFFF'                                                   00068100
+&S(3)    SETC  'FFFF'                                                   00068200
+&S(4)    SETC  'FFFF'                                                   00068300
+&S(5)    SETC  'FFFF'                                                   00068400
+&S(6)    SETC  'FFFF'                                                   00068500
+&S(7)    SETC  'FFFF'                                                   00068600
+&S(8)    SETC  'FFFF'                                                   00068700
+&S(9)    SETC  'FFFF'                                                   00068800
+&S(10)   SETC  'FFFF'                                                   00068900
+&S(11)   SETC  'FFFF'                                                   00069000
+&S(12)   SETC  'FFFF'                                                   00069100
+&S(13)   SETC  'FFFF'                                                   00069200
+&S(14)   SETC  'FFFF'                                                   00069300
+&S(15)   SETC  'FFFF'                                                   00069400
+&S(16)   SETC  'FFFF'                                                   00069500
+         AIF   (&FMS).F220BEG                                           00069600
+         AIF   ('&COMPSEQ'(1,1) EQ '(').F210030                         00069700
+&F       SETA  1                                                        00069800
+.F210030 ANOP                                                           00069900
+         AIF   ('&COMPSEQ'(&F,3) NE 'BK0').F210035                      00070000
+&S(&G)   SETC  '8001'                                                   00070100
+&J       SETA  3                                                        00070200
+         AGO   .F210190                                                 00070300
+.F210035 ANOP                                                           00070400
+         AIF   ('&COMPSEQ'(&F,2) NE 'BK').F210040                       00070500
+&S(&G)   SETC  '0001'                                                   00070600
+&J       SETA  2                                                        00070700
+         AGO   .F210190                                                 00070800
+.F210040 ANOP                                                           00070900
+         AIF   ('&COMPSEQ'(&F,4) NE 'FORM').F210045                     00071000
+&S(&G)   SETC  '0200'                                                   00071100
+&J       SETA  4                                                        00071200
+         AGO   .F210190                                                 00071300
+.F210045 ANOP                                                           00071400
+         AIF   ('&COMPSEQ'(&F,5) NE 'CTL20').F210050                    00071500
+&S(&G)   SETC  '8302'                                                   00071600
+&J       SETA  5                                                        00071700
+         AGO   .F210190                                                 00071800
+.F210050 ANOP                                                           00071900
+         AIF   ('&COMPSEQ'(&F,4) NE 'CTL2').F210055                     00072000
+&S(&G)   SETC  '0302'                                                   00072100
+&J       SETA  4                                                        00072200
+         AGO   .F210190                                                 00072300
+.F210055 ANOP                                                           00072400
+         AIF   ('&COMPSEQ'(&F,5) NE 'CTL30').F210060                    00072500
+&S(&G)   SETC  '8602'                                                   00072600
+&J       SETA  5                                                        00072700
+         AGO   .F210190                                                 00072800
+.F210060 ANOP                                                           00072900
+         AIF   ('&COMPSEQ'(&F,4) NE 'CTL3').F210065                     00073000
+&S(&G)   SETC  '0602'                                                   00073100
+&J       SETA  4                                                        00073200
+         AGO   .F210190                                                 00073300
+.F210065 ANOP                                                           00073400
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT1').F210070                     00073500
+&S(&G)   SETC  '0900'                                                   00073600
+&J       SETA  4                                                        00073700
+         AGO   .F210190                                                 00073800
+.F210070 ANOP                                                           00073900
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT2').F210075                     00074000
+&S(&G)   SETC  '0901'                                                   00074100
+&J       SETA  4                                                        00074200
+         AGO   .F210190                                                 00074300
+.F210075 ANOP                                                           00074400
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT3').F210080                     00074500
+&S(&G)   SETC  '0902'                                                   00074600
+&J       SETA  4                                                        00074700
+         AGO   .F210190                                                 00074800
+.F210080 ANOP                                                           00074900
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT4').F210085                     00075000
+&S(&G)   SETC  '0903'                                                   00075100
+&J       SETA  4                                                        00075200
+         AGO   .F210190                                                 00075300
+.F210085 ANOP                                                           00075400
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT5').F210090                     00075500
+&S(&G)   SETC  '0904'                                                   00075600
+&J       SETA  4                                                        00075700
+         AGO   .F210190                                                 00075800
+.F210090 ANOP                                                           00075900
+         AIF   ('&COMPSEQ'(&F,3) NE 'RPT').F210095                      00076000
+&S(&G)   SETC  '0905'                                                   00076100
+&J       SETA  3                                                        00076200
+         AGO   .F210190                                                 00076300
+.F210095 ANOP                                                           00076400
+         MNOTE 8,'COMPSEQ PARAMETER MUST BE BK, BK0, FORM, CTL2, CTL20,X00076500
+                CTL3, CTL30, RPT'                                       00076600
+&ERR     SETB  (1)                                                      00076700
+         AGO   .FINALCK                                                 00076800
+.F210190 ANOP                                                           00076900
+&G       SETA  &G+1                                                     00077000
+         AIF   (&F EQ 1).F210195                                        00077100
+         AIF   (&G GT 16).F210195                                       00077200
+&F       SETA  &F+&J                                                    00077300
+         AIF   ('&COMPSEQ'(&F,1) EQ ')').F210195                        00077400
+&F       SETA  &F+1                                                     00077500
+         AGO   .F210030                                                 00077600
+.F210195 ANOP                                                           00077700
+&SEQTBL  SETB  1                                                        00077800
+&SEQ1(&SEQCNT)  SETC '&S(1)&S(2)&S(3)&S(4)&S(5)&S(6)&S(7)&S(8)'         00077900
+&SEQ2(&SEQCNT)  SETC '&S(9)&S(10)&S(11)&S(12)&S(13)&S(14)&S(15)&S(16)'  00078000
+         AGO   .FINALCK                                                 00078100
+.F210END ANOP                                                           00078200
+.*                                                                      00078300
+.*       ----------------------------------------------                 00078400
+.*       CHECK COMPSEQ PARM FOR FMS AND AP APPLICATIONS                 00078500
+.*       ----------------------------------------------                 00078600
+.*                                                                      00078700
+.F220BEG ANOP                                                           00078800
+         AIF   ('&COMPSEQ'(1,1) EQ '(').F220030                         00078900
+&F       SETA  1                                                        00079000
+.F220030 ANOP                                                           00079100
+         AIF   ('&COMPSEQ'(&F,5) NE 'CUST0').F220035                    00079200
+&S(&G)   SETC  '8003'                                                   00079300
+&J       SETA  5                                                        00079400
+         AGO   .F220290                                                 00079500
+.F220035 ANOP                                                           00079600
+         AIF   ('&COMPSEQ'(&F,4) NE 'CUST').F220040                     00079700
+&S(&G)   SETC  '0003'                                                   00079800
+&J       SETA  4                                                        00079900
+         AGO   .F220290                                                 00080000
+.F220040 ANOP                                                           00080100
+         AIF   ('&COMPSEQ'(&F,4) NE 'FORM').F220045                     00080200
+&S(&G)   SETC  '0400'                                                   00080300
+&J       SETA  4                                                        00080400
+         AGO   .F220290                                                 00080500
+.F220045 ANOP                                                           00080600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP10').F220050                   00080700
+&S(&G)   SETC  '8501'                                                   00080800
+&J       SETA  6                                                        00080900
+         AGO   .F220290                                                 00081000
+.F220050 ANOP                                                           00081100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP1').F220055                    00081200
+&S(&G)   SETC  '0501'                                                   00081300
+&J       SETA  5                                                        00081400
+         AGO   .F220290                                                 00081500
+.F220055 ANOP                                                           00081600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP20').F220060                   00081700
+&S(&G)   SETC  '8701'                                                   00081800
+&J       SETA  6                                                        00081900
+         AGO   .F220290                                                 00082000
+.F220060 ANOP                                                           00082100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP2').F220065                    00082200
+&S(&G)   SETC  '0701'                                                   00082300
+&J       SETA  5                                                        00082400
+         AGO   .F220290                                                 00082500
+.F220065 ANOP                                                           00082600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP30').F220070                   00082700
+&S(&G)   SETC  '8901'                                                   00082800
+&J       SETA  6                                                        00082900
+         AGO   .F220290                                                 00083000
+.F220070 ANOP                                                           00083100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP3').F220075                    00083200
+&S(&G)   SETC  '0901'                                                   00083300
+&J       SETA  5                                                        00083400
+         AGO   .F220290                                                 00083500
+.F220075 ANOP                                                           00083600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP40').F220080                   00083700
+&S(&G)   SETC  '8B01'                                                   00083800
+&J       SETA  6                                                        00083900
+         AGO   .F220290                                                 00084000
+.F220080 ANOP                                                           00084100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP4').F220085                    00084200
+&S(&G)   SETC  '0B01'                                                   00084300
+&J       SETA  5                                                        00084400
+         AGO   .F220290                                                 00084500
+.F220085 ANOP                                                           00084600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP50').F220090                   00084700
+&S(&G)   SETC  '8D01'                                                   00084800
+&J       SETA  6                                                        00084900
+         AGO   .F220290                                                 00085000
+.F220090 ANOP                                                           00085100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP5').F220095                    00085200
+&S(&G)   SETC  '0D01'                                                   00085300
+&J       SETA  5                                                        00085400
+         AGO   .F220290                                                 00085500
+.F220095 ANOP                                                           00085600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP60').F220100                   00085700
+&S(&G)   SETC  '8F01'                                                   00085800
+&J       SETA  6                                                        00085900
+         AGO   .F220290                                                 00086000
+.F220100 ANOP                                                           00086100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP6').F220105                    00086200
+&S(&G)   SETC  '0F01'                                                   00086300
+&J       SETA  5                                                        00086400
+         AGO   .F220290                                                 00086500
+.F220105 ANOP                                                           00086600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP70').F220110                   00086700
+&S(&G)   SETC  '9101'                                                   00086800
+&J       SETA  6                                                        00086900
+         AGO   .F220290                                                 00087000
+.F220110 ANOP                                                           00087100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP7').F220115                    00087200
+&S(&G)   SETC  '1101'                                                   00087300
+&J       SETA  5                                                        00087400
+         AGO   .F220290                                                 00087500
+.F220115 ANOP                                                           00087600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP80').F220120                   00087700
+&S(&G)   SETC  '9301'                                                   00087800
+&J       SETA  6                                                        00087900
+         AGO   .F220290                                                 00088000
+.F220120 ANOP                                                           00088100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP8').F220125                    00088200
+&S(&G)   SETC  '1301'                                                   00088300
+&J       SETA  5                                                        00088400
+         AGO   .F220290                                                 00088500
+.F220125 ANOP                                                           00088600
+         AIF   ('&COMPSEQ'(&F,6) NE 'RESP90').F220130                   00088700
+&S(&G)   SETC  '9501'                                                   00088800
+&J       SETA  6                                                        00088900
+         AGO   .F220290                                                 00089000
+.F220130 ANOP                                                           00089100
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP9').F220135                    00089200
+&S(&G)   SETC  '1501'                                                   00089300
+&J       SETA  5                                                        00089400
+         AGO   .F220290                                                 00089500
+.F220135 ANOP                                                           00089600
+         AIF   ('&HVER' EQ '1').F180145                       2120563   00089700
+         AIF   ('&COMPSEQ'(&F,5) NE 'RESP0').F180140          2120563   00089705
+&S(&G)   SETC  '8509'                                         2120563   00089710
+&J       SETA  5                                              2120563   00089715
+         AGO   .F180290                                       2120563   00089720
+.F180140 ANOP                                                 2120563   00089725
+         AIF   ('&COMPSEQ'(&F,4) NE 'RESP').F180145           2120563   00089730
+&S(&G)   SETC  '0509'                                         2120563   00089735
+&J       SETA  4                                              2120563   00089740
+         AGO   .F180290                                       2120563   00089745
+.F220145 ANOP                                                 2120563   00089750
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT1').F220150           2120563   00089755
+&S(&G)   SETC  '1700'                                                   00089800
+&J       SETA  4                                                        00089900
+         AGO   .F220290                                                 00090000
+.F220150 ANOP                                                           00091100
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT2').F220155           2120563   00091200
+&S(&G)   SETC  '1701'                                         2120563   00091300
+&J       SETA  4                                                        00091400
+         AGO   .F220290                                                 00091500
+.F220155 ANOP                                                           00091600
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT3').F220160           2120563   00091700
+&S(&G)   SETC  '1702'                                         2120563   00091800
+&J       SETA  4                                                        00091900
+         AGO   .F220290                                                 00092000
+.F220160 ANOP                                                           00092100
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT4').F220165           2120563   00092105
+&S(&G)   SETC  '1703'                                         2120563   00092110
+&J       SETA  4                                              2120563   00092115
+         AGO   .F220290                                       2120563   00092120
+.F220165 ANOP                                                 2120563   00092125
+         AIF   ('&COMPSEQ'(&F,4) NE 'RPT5').F220170           2120563   00092130
+&S(&G)   SETC  '1704'                                         2120563   00092135
+&J       SETA  4                                              2120563   00092140
+         AGO   .F220290                                       2120563   00092145
+.F220170 ANOP                                                 2120563   00092150
+         AIF   ('&COMPSEQ'(&F,3) NE 'RPT').F220200                      00092200
+&S(&G)   SETC  '1705'                                                   00092300
+&J       SETA  3                                                        00092400
+         AGO   .F220290                                                 00092500
+.F220200 ANOP                                                           00092600
+         MNOTE 8,'COMPSEQ PARAMETER MUST BE CUST, FORM, RESPX, RESPX0, X00092700
+                RPT (RESPX IS RESP1 THRU RESP9)'                        00092800
+&ERR     SETB  (1)                                                      00092900
+         AGO   .FINALCK                                                 00093000
+.F220290 ANOP                                                           00093100
+&G       SETA  &G+1                                                     00093200
+         AIF   (&F EQ 1).F220295                                        00093300
+         AIF   (&G GT 16).F220295                                       00093400
+&F       SETA  &F+&J                                                    00093500
+         AIF   ('&COMPSEQ'(&F,1) EQ ')').F220295                        00093600
+&F       SETA  &F+1                                                     00093700
+         AGO   .F220030                                                 00093800
+.F220295 ANOP                                                           00093900
+&SEQTBL  SETB  1                                                        00094000
+&SEQ1(&SEQCNT)  SETC '&S(1)&S(2)&S(3)&S(4)&S(5)&S(6)&S(7)&S(8)'         00094100
+&SEQ2(&SEQCNT)  SETC '&S(9)&S(10)&S(11)&S(12)&S(13)&S(14)&S(15)&S(16)'  00094200
+         AGO   .FINALCK                                                 00094300
+.F220END ANOP                                                           00094400
+.*                                                                      00094500
+.*       ------------------------                                       00094600
+.*       DETERMINE EXECUTION PATH                                       00094700
+.*       ------------------------                                       00094800
+.*                                                                      00094900
+.CHECKIT ANOP                                                           00095000
+         AIF   (&INIT EQ 1).C020040                                     00095100
+         AIF   (&END NE 1).C020END                                      00095200
+.C020040 ANOP                                                           00095300
+         AIF   (&REQUIRE EQ 0).FINALCK                                  00095400
+&INIT    SETB  (0)                                                      00095500
+&END     SETB  (0)                                                      00095600
+         AGO   .FINDIT                                                  00095700
+.C020END ANOP                                                           00095800
+.*                                                                      00095900
+.*       ----------------------------------------                       00096000
+.*       PUT NEW ENTRY IN TABLE FOR LATER SORTING                       00096100
+.*       ----------------------------------------                       00096200
+.*                                                                      00096300
+.F300BEG ANOP                                                           00096400
+&FE      SETA  1                                                        00096500
+&WE      SETC  ''                                                       00096600
+         AIF   (&FMS).F300010                                           00096700
+&WE      SETC  '&HBANK&FORMCD&HCTL2&HCTL3&HRPTNM&HDDNM'                 00096800
+         AGO   .F300020                                                 00096900
+.F300010 ANOP                                                           00097000
+&WE      SETC  '&HCUST&FORMCD&HRESP&HRPTNM&HDDNM'                       00097100
+.F300020 ANOP                                                           00097200
+         AIF   (&NENT EQ 0).F300050                                     00097300
+.F300030 ANOP                                                           00097400
+         AIF   (&FE GE &NENT).F300050                                   00097500
+         AIF   ('&T(&FE)'(1,&KEYL) EQ '&WE'(1,&KEYL)).F300040           00097600
+&FE      SETA  &FE+1                                                    00097700
+         AGO   .F300030                                                 00097800
+.F300040 ANOP                                                           00097900
+         MNOTE 8,'&H ABOVE ENTRY IS A DUPLICATE OF ANOTHER ENTRY'       00098000
+&ERR     SETB  (1)                                                      00098100
+         AGO   .F300END                                                 00098200
+.F300050 ANOP                                                           00098300
+         AIF   (&NENT+1 LE &MAXENT).F300060                             00098400
+         MNOTE 8,'&H NUMBER OF MACRO TABLE ENTRIES EXCEEDED'            00098500
+&ERR     SETB  (1)                                                      00098600
+         AGO   .F300END                                                 00098700
+.F300060 ANOP                                                           00098800
+&NENT    SETA  &NENT+1                                                  00098900
+&T(&NENT) SETC  '&WE'                                                   00099000
+&V(&NENT) SETC  '&HHDRLIN'                                              00099100
+.F300END ANOP                                                           00099200
+.*                                                                      00099300
+.*       ------------------------                                       00099400
+.*       DETERMINE EXECUTION PATH                                       00099500
+.*       ------------------------                                       00099600
+.*                                                                      00099700
+.FINALCK ANOP                                                           00099800
+.F400BEG ANOP                                                           00099900
+         AIF   (&FINAL NE 1).ENDEDIT                                    00100000
+.F400020 ANOP                                                           00100100
+         AIF   (&GIAPPL EQ 1).F400040                                   00100200
+         MNOTE 8,'APPLICATION WAS NOT SPECIFIED BEFORE TYPE=FINAL'      00100300
+&ERR     SETB  (1)                                                      00100400
+.F400040 ANOP                                                           00100500
+         AIF   (&GIVER EQ 1).F400060                                    00100600
+         MNOTE 8,'VERSION NOT SPECIFIED BEFORE TYPE=FINAL'              00100700
+&ERR     SETB  (1)                                                      00100800
+.F400060 ANOP                                                           00100900
+         AIF   (&NENT NE 0).F400080                                     00101000
+         MNOTE 8,'NO ENTRIES GENERATED'                                 00101100
+&ERR     SETB  (1)                                                      00101200
+.F400080 ANOP                                                           00101300
+         AIF   (&ERR NE 1).F400END                                      00101400
+         MNOTE 16,'&H SEVERE ERRORS MACRO GENERATION TERMINATED'        00101500
+.ENDEDIT ANOP                                                           00101600
+         MEXIT                                                          00101700
+.F400END ANOP                                                           00101800
+         AIF  (&FINAL EQ 1).SORTTBL                                     00101900
+         MEXIT                                                          00102000
+.*                                                                      00102100
+.*       ----------                                                     00102200
+.*       SORT TABLE                                                     00102300
+.*       ----------                                                     00102400
+.*                                                                      00102500
+.SORTTBL ANOP                                                           00102600
+         AIF   (NOT &SRT).BUILDIT                                       00102700
+&M2      SETA  &NENT                                                    00102800
+         AIF   (&NENT LE 1).BUILDIT                                     00102900
+&M1      SETA  &M2-1                                                    00103000
+.S010020 ANOP                                                           00103100
+         AIF   ('&T(&M1)'(1,&KEYL) LE '&T(&M2)'(1,&KEYL)).S010040       00103200
+&WE      SETC  '&T(&M1)'                                                00103300
+&T(&M1)  SETC  '&T(&M2)'                                                00103400
+&T(&M2)  SETC  '&WE'                                                    00103500
+&WE      SETC  '&V(&M1)'                                                00103600
+&V(&M1)  SETC  '&V(&M2)'                                                00103700
+&V(&M2)  SETC  '&WE'                                                    00103800
+.S010040 ANOP                                                           00103900
+&M1      SETA  &M1-1                                                    00104000
+         AIF   (&M1 GT 0).S010020                                       00104100
+         ACTR  &NENT*5                                                  00104200
+&M2      SETA  &M2-1                                                    00104300
+         AIF   (&M2 LE 1).S010END                                       00104400
+&M1      SETA  &M2-1                                                    00104500
+         ACTR  4096                                                     00104600
+         AGO   .S010020                                                 00104700
+.S010END ANOP                                                           00104800
+         ACTR  4096                                                     00104900
+.*                                                                      00105000
+.*       --------------------------------------                         00105100
+.*       BUILD FORMS CONTROL TABLE FOR ASSEMBLY                         00105200
+.*       --------------------------------------                         00105300
+.*                                                                      00105400
+.BUILDIT ANOP                                                           00105500
+         EJECT                                                          00105600
+&CSECTNM SETC  '&HAPPL&HVER.FCTBL'                                      00105700
+&HAPPL&HVER.FCTBL START 0                                               00105800
+&HAPPL&HVER.FCTBL AMODE 31                                    2024183   00105810
+&HAPPL&HVER.FCTBL RMODE ANY                                   2024183   00105820
+         DC    CL08'&HAPPL&HVER.FCTBL'                                  00105900
+         DC    CL08'VER4.1.1'                                 2120563   00106000
+         DC    A(*)                  RELOCATION CONSTANT                00106100
+DFLTDD   DC    2A(0)                 ADDRESS OF DEFAULT DD INFO         00106200
+         DC    2A(0)                                                    00106300
+         DC    AL2(0)                                                   00106400
+         DC    AL2(FORMTBL-*)        LENGTH OF COMPARE SEQUENCE TABLE   00106500
+*                                                                       00106600
+*        COMPARE SEQUENCE TABLE FORMAT                                  00106700
+*              EACH 32-BYTE ENTRY CONTAINS UP TO 16 COMPARE FIELDS OF   00106800
+*              TWO BYTES EACH.  THE FIRST BYTE IS THE OFFSET INTO THE   00106900
+*              KEY OF THE COMPARE FIELD.  IF THE HIGH ORDER BIT IS ON,  00107000
+*              THE FIELD IS COMPARED TO ZEROS.  THE SECOND BYTE IS THE  00107100
+*              LENGTH-1 (FOR EXECUTE) OF THE COMPARE FIELD.  FIELDS NOT 00107200
+*              USED MUST HAVE X'FF'.  X'FF' ALSO INDICATES THE END OF   00107300
+*              THE 32-BYTE ENTRIES.                                     00107400
+*                                                                       00107500
+         AIF   (&SEQTBL).B020060                                        00107600
+         AIF   (&FMS).B020010                                           00107700
+*        COMPARE SEQUENCE TABLE FOR DEFAULT COMPARE SEQUENCE            00107800
+         DC    X'00010200030206020905FFFFFFFFFFFF' BK,FORM,CTL2,CTL3,RP 00107900
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00108000
+         DC    X'00010200FFFFFFFFFFFFFFFFFFFFFFFF' BK,FORM              00108100
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00108200
+         DC    X'80010200FFFFFFFFFFFFFFFFFFFFFFFF' BK=0,FORM            00108300
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00108400
+         AGO   .B020070                                                 00108500
+.B020010 ANOP                                                           00108600
+         AIF   ('&HVER' NE '1').B020020                       2120563   00108610
+*        COMPARE SEQUENCE TABLE FOR DEFAULT COMPARE SEQUENCE            00108700
+         DC    X'000304000501070109010B010D011705' CUST,FORM,RESP1-5,RP 00108800
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00108900
+         DC    X'000304000501070109010B018D011705' W/ RESP5=00          00109000
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00109100
+         DC    X'000304000501070109018B018D011705' W/ RESP4-5=00        00109200
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00109300
+         DC    X'000304000501070189018B018D011705' W/ RESP3-5=00        00109400
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00109500
+         DC    X'000304000501870189018B018D011705' W/ RESP2-5=00        00109600
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00109700
+         DC    X'000304008501870189018B018D011705' W/ RESP1-5=00        00109800
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'            2120563   00109805
+         DC    X'00030400FFFFFFFFFFFFFFFFFFFFFFFF' CUST,FORM  2120563   00109810
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'            2120563   00109815
+         DC    X'80030400FFFFFFFFFFFFFFFFFFFFFFFF' CUST=0,FORM2120563   00109820
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'            2120563   00109825
+         AGO   .B020070                                       2120563   00109830
+.B020020 ANOP                                                 2120563   00109835
+*        COMPARE SEQUENCE TABLE FOR DFLT COMPARE SEQ - FMS 2  2120563   00109840
+         DC    X'0003040005091705FFFFFFFFFFFFFFFF' CUST,FORM,R2120563   00109845
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'            2120563   00109850
+         DC    X'0003040085091705FFFFFFFFFFFFFFFF' W/ RESP=00 2120563   00109855
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00109900
+         DC    X'00030400FFFFFFFFFFFFFFFFFFFFFFFF' CUST,FORM            00110000
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00110100
+         DC    X'80030400FFFFFFFFFFFFFFFFFFFFFFFF' CUST=0,FORM          00110200
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'                      00110300
+         AGO   .B020070                                                 00110400
+.B020060 ANOP                                                           00110500
+&F       SETA  1                                                        00110600
+.B020061 ANOP                                                           00110700
+         DC    XL16'&SEQ1(&F)'                                          00110800
+         DC    XL16'&SEQ2(&F)'                                          00110900
+&F       SETA  &F+1                                                     00111000
+         AIF   (&F LE &SEQCNT).B020061                                  00111100
+.B020070 ANOP                                                           00111200
+         DC    8X'FF'                INDICATE END OF TABLE              00111300
+FORMTBL  EQU   *                                                        00111400
+&F       SETA  1                                                        00111500
+&FE      SETA  1                                                        00111600
+.B020080 ANOP                                                           00111700
+         SPACE                                                          00111800
+         DC    AL1(L'FORM&F+13)                                         00111900
+         DC    AL4(&V(&FE))                                             00112000
+         DC    CL8' '                                                   00112100
+FORM&F   DC    C'&T(&FE)'                                               00112200
+&F       SETA  &F+1                                                     00112300
+&FE      SETA  &FE+1                                                    00112400
+         AIF   (&NENT LT &FE).B020END                                   00112500
+         AGO   .B020080                                                 00112600
+.B020END ANOP                                                           00112700
+         DC    X'FFFF'             INDICATE END OF TABLE                00112800
+&SIFCTB  SETB  1                                                        00112900
+         MEXIT                                                          00113000
+.FCHGDOC ANOP                                                           00113100
+         EJECT                                                          00113200
+         MNOTE '&H SYSTEMATICS  - VER &MVER MOD &MMOD - &MDATE'         00113300
+*SIFCTB MACRO                                                           00113400
+         SPACE                                                          00113500
+*AN SIFCTB MACRO IS USED TO BUILD A TABLE FOR USE BY THE SIPRINT SUB-   00113600
+*ROUTINE.                                                               00113700
+         MNOTE '*        MAXIMUM NUMBER OF ENTRIES ALLOWED IS &MAXENT'  00113800
+         SPACE                                                          00113900
+*APPL=                                                                  00114000
+         SPACE                                                          00114100
+*        USED TO IDENTIFY THE PHASE NAME PREFIX.  THIS PARAMETER IS     00114200
+*        NORMALLY THE APPLICATION CODE.  EX: DD=(IMPACS)                00114300
+         MNOTE '*        THIS PARAMETER IS &LAPPL CHARACTER(S) IN LENGTX00114400
+               H'                                                       00114500
+         SPACE                                                          00114600
+*BANK=                                                                  00114700
+         SPACE                                                          00114800
+*        BANK NUMBER ASSOCIATED WITH A PARTICULAR ENTRY OF THIS MACRO.  00114900
+*        THIS IS USED AS A KEY FOR THE TABLE ENTRY.                     00115000
+         MNOTE '*        THIS PARAMETER IS FROM 1 TO &LBANK CHARACTER(SX00115100
+               ) IN LENGTH'                                             00115200
+         MNOTE '*        VALID VALUES ARE &LVBANK TO &HVBANK'           00115300
+         SPACE                                                          00115400
+*COMPSEQ=          (OPTIONAL)                                           00115500
+         SPACE                                                          00115600
+*        BUILDS NEW COMPARE SEQUENCE FOR COMPARING THE PASSED PARAMETER 00115700
+*        KEY TO THE FORM CHANGE TABLE KEY.  COMPSEQ= MUST BE THE ONLY   00115800
+*        PARAMETER ENTERED ON THE SIFCTB MACRO.  EACH COMPSEQ= ENTRY    00115900
+*        DEFINES THE COMPARE FIELDS FOR ONE PASS THROUGH THE FORM       00116000
+*        CHANGE TABLE.  YOU CAN ENTER UP TO SIXTEEN COMPSEQ= PARAMETERS 00116100
+*        TO GENERATE UP TO SIXTEEN PASSES OF THE FORM CHANGE TABLE.     00116200
+*        THE VALID SUBFIELDS FOR THE COMPSEQ= PARAMETER ARE:            00116300
+*        BK    - COMPARE ON BANK NUMBER                                 00116400
+*        BK0   - COMPARE ON BANK NUMBER OF ZEROS                        00116500
+*        FORM  - COMPARE ON FORM CODE                                   00116600
+*        CTL2  - COMPARE ON CONTROL 2 FIELD                             00116700
+*        CTL20 - COMPARE ON CONTROL 2 FIELD OF ZEROS                    00116800
+*        CTL3  - COMPARE ON CONTROL 3 FIELD                             00116900
+*        CTL30 - COMPARE ON CONTROL 3 FIELD OF ZEROS                    00117000
+*        RPT   - COMPARE ON REPORT ID FIELD                             00117100
+*                                                                       00117200
+*        EXAMPLE:                                                       00117300
+*                                                                       00117400
+*        SIFCTB COMPSEQ=(BK,FORM,CTL2,CTL3,RPT)                         00117500
+*        SIFCTB COMPSEQ=(BK,FORM)                                       00117600
+*        SIFCTB COMPSEQ=(BK0,FORM)                                      00117700
+*                                                                       00117800
+*        GENERATES THREE PASSES OF THE FORM CHANGE TABLE.               00117900
+*            PASS 1 COMPARES ON BANK, FORM, CONTROL2, CONTROL 3, REPORT 00118000
+*            PASS 2 COMPARES ON BANK AND FORM                           00118100
+*            PASS 3 COMPARES ON BANK=00 AND FORM                        00118200
+*                                                                       00118300
+*        THE DEFAULT IS THE COMPARE SEQUENCE IN THE ABOVE EXAMPLE.      00118400
+         SPACE                                                          00118500
+*COMPSEQ=          (FMS AND AP APPLICATIONS - OPTIONAL)                 00118600
+         SPACE                                                          00118700
+*        BUILDS NEW COMPARE SEQUENCE FOR COMPARING THE PASSED PARAMETER 00118800
+*        KEY TO THE FORM CHANGE TABLE KEY.  COMPSEQ= MUST BE THE ONLY   00118900
+*        PARAMETER ENTERED ON THE SIFCTB MACRO.  EACH COMPSEQ= ENTRY    00119000
+*        DEFINES THE COMPARE FIELDS FOR ONE PASS THROUGH THE FORM       00119100
+*        CHANGE TABLE.  YOU CAN ENTER UP TO SIXTEEN COMPSEQ= PARAMETERS 00119200
+*        TO GENERATE UP TO SIXTEEN PASSES OF THE FORM CHANGE TABLE.     00119300
+*        THE VALID SUBFIELDS FOR THE COMPSEQ= PARAMETER ARE:            00119400
+*        CUST   - COMPARE ON CUSTOMER NUMBER                            00119500
+*        CUST0  - COMPARE ON CUSTOMER NUMBER OF ZEROS                   00119600
+*        FORM   - COMPARE ON FORM CODE                                  00119700
+*        RESP1  - COMPARE ON RESP CENTER 1 FIELD                        00119800
+*        RESP10 - COMPARE ON RESP CENTER 1 FIELD OF ZEROS               00119900
+*        RESP2  - COMPARE ON RESP CENTER 2 FIELD                        00120000
+*        RESP20 - COMPARE ON RESP CENTER 2 FIELD OF ZEROS               00120100
+*        RESP3  - COMPARE ON RESP CENTER 3 FIELD                        00120200
+*        RESP30 - COMPARE ON RESP CENTER 3 FIELD OF ZEROS               00120300
+*        RESP4  - COMPARE ON RESP CENTER 4 FIELD                        00120400
+*        RESP40 - COMPARE ON RESP CENTER 4 FIELD OF ZEROS               00120500
+*        RESP5  - COMPARE ON RESP CENTER 5 FIELD                        00120600
+*        RESP50 - COMPARE ON RESP CENTER 5 FIELD OF ZEROS               00120700
+*        RPT    - COMPARE ON REPORT ID FIELD                            00120800
+*                                                                       00120900
+*        EXAMPLE:                                                       00121000
+*                                                                       00121100
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP1,RESP2,RESP3,RESP4,RESP5,RPT)   00121200
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP1,RESP2,RESP3,RESP4,RESP50,RPT)  00121300
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP1,RESP2,RESP3,RESP40,RESP50,RPT) 00121400
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP1,RESP2,RESP30,RESP40,RESP50,RPTX00121500
+               )                                                        00121600
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP1,RESP20,RESP30,RESP40,RESP50,RPX00121700
+               T)                                                       00121800
+*        SIFCTB COMPSEQ=(CUST,FORM,RESP10,RESP20,RESP30,RESP40,RESP50,RX00121900
+               PT)                                                      00122000
+*        SIFCTB COMPSEQ=(CUST,FORM)                                     00122100
+*        SIFCTB COMPSEQ=(CUST0,FORM)                                    00122200
+*                                                                       00122300
+*        GENERATES EIGHT PASSES OF THE FORM CHANGE TABLE.               00122400
+*            PASS 1 COMPARES ON CUST, FORM, RESP1-5, REPORT             00122500
+*            PASS 2 COMPARES ON CUST, FORM, RESP1-4, RESP5=00, REPORT   00122600
+*            PASS 3 COMPARES ON CUST, FORM, RESP1-3, RESP4-5=00, REPORT 00122700
+*            PASS 4 COMPARES ON CUST, FORM, RESP1-2, RESP3-5=00, REPORT 00122800
+*            PASS 5 COMPARES ON CUST, FORM, RESP1-1, RESP2-5=00, REPORT 00122900
+*            PASS 6 COMPARES ON CUST, FORM, RESP1-5=00, REPORT          00123000
+*            PASS 7 COMPARES ON CUST AND FORM                           00123100
+*            PASS 8 COMPARES ON CUST=0000 AND FORM                      00123200
+*                                                                       00123300
+*        THE DEFAULT IS THE COMPARE SEQUENCE IN THE ABOVE EXAMPLE.      00123400
+         SPACE                                                          00123500
+*CTL2=             (OPTIONAL)                                           00123600
+         SPACE                                                          00123700
+*        INDICATES THE VALUE TO BE USED AS PART OF THE TABLE SEARCH KEY 00123800
+*        IN LOCATING THE PROPER ENTRY.  BLANKS IS THE DEFAULT.          00123900
+         MNOTE '*        THIS PARAMETER IS 1 TO &LCTL2 CHARACTER(S) IN X00124000
+               LENGTH'                                                  00124100
+         MNOTE '*        VALID VALUES ARE &LVCTL2 TO &HVCTL2'           00124200
+         SPACE                                                          00124300
+*CTL3=             (OPTIONAL)                                           00124400
+         SPACE                                                          00124500
+*        INDICATES THE VALUE TO BE USED AS PART OF THE TABLE SEARCH KEY 00124600
+*        IN LOCATING THE PROPER ENTRY.  BLANKS IS THE DEFAULT           00124700
+         MNOTE '*        THIS PARAMETER IS 1 TO &LCTL3 CHARACTER(S) IN X00124800
+               LENGTH'                                                  00124900
+         MNOTE '*        VALID VALUES ARE &LVCTL3 TO &HVCTL3'           00125000
+         SPACE                                                          00125100
+*CUST=             (FMS AND AP APPLICATIONS ONLY)                       00125200
+         SPACE                                                          00125300
+*        CUSTOMER NUMBER ASSOCIATED WITH A PARTICULAR ENTRY OF          00125400
+*        THIS MACRO. THIS IS USED AS A KEY FOR THE TABLE ENTRY.         00125500
+         MNOTE '*        THIS PARAMETER IS FROM 1 TO &LCUST CHARACTER(SX00125600
+               ) IN LENGTH'                                             00125700
+         MNOTE '*        VALID VALUES ARE &LVCUST TO &HVCUST'           00125800
+         SPACE                                                          00125900
+*FORMCD=                                                                00126000
+         SPACE                                                          00126100
+*        THE FORM CODE PASSED BY PROGRAMS AND USED AS A PART OF THE KEY 00126200
+*        FOR SEARCHING THE TABLE.                                       00126300
+         MNOTE '*        THIS PARAMETER IS &LFC CHARACTER(S) IN LENGTH' 00126400
+         SPACE                                                          00126500
+*HDRLINE=          (OPTIONAL)                                           00126600
+         SPACE                                                          00126700
+*        INDICATES THE NAME OF A DATA AREA WHICH WILL BE                00126800
+*        WRITTEN TO THE PRINTER IMMEDIATELY FOLLOWING A FORM CHANGE.    00126900
+*        THE FORMAT OF THIS AREA IS:                                    00127000
+*              ONE BYTE BINARY LENGTH OF THE FOLLOWING PRINT DATA       00127100
+*              PRINT DATA INCLUDING THE PRINT CONTROL CHARACTER         00127200
+*        THESE DATA LINES MUST BE CODED AFTER THE SIFCTB TYPE=FINAL     00127300
+*        MACRO.  THIS MAY BE OF VALUE WHEN INTERFACING WITH SOME        00127400
+*        MICROFICHE UNITS (E.G. KOMSTAR) OR THE VM OPERATING SYSTEM TO  00127500
+*        ROUTE PRINT OUTPUT.                                            00127600
+         MNOTE '*        THIS PARAMETER IS 1 TO &LHDRLIN CHARACTER(S) IX00127700
+               N LENGTH'                                                00127800
+*DDNAME=                                                                00127900
+         SPACE                                                          00128000
+*        THIS ENTRY IS THE DD NAME OF THE PRINT FILE FOR THIS ENTRY.    00128100
+*        FOR COMPATABILITY REASONS, THE DDNAME CANNOT START WITH        00128200
+*        "PRTOUT".                                                      00128300
+         MNOTE '*        THIS PARAMETER IS 1 TO &LDDNM CHARACTER(S) IN X00128400
+               LENGTH'                                                  00128500
+         SPACE                                                          00128600
+*RESP=                   (FMS AND AP APPLICATIONS ONLY)                 00128700
+         SPACE                                                          00128800
+*        INDICATES THE VALUE TO BE USED AS PART OF THE TABLE SEARCH KEY 00128900
+*        IN LOCATING THE PROPER ENTRY.  BLANKS IS THE DEFAULT.          00129000
+         MNOTE '*        THIS PARAMETER IS 1 TO &LRESP CHARACTER(S) IN X00129100
+               LENGTH'                                                  00129200
+         MNOTE '*        VALID VALUES ARE &LVRESP TO &HVRESP'           00129300
+         SPACE                                                          00129400
+*RPTNM=            (OPTIONAL)                                           00129500
+         SPACE                                                          00129600
+*        INDICATES UP TO THE LAST 6 CHARACTERS OF THE REPORT NAME       00129700
+*        TO BE USED AS PART OF THE TABLE SEARCH KEY IN LOCATING THE     00129800
+*        PROPER ENTRY.  BLANKS IS THE DEFAULT.                          00129900
+         MNOTE '*        THIS PARAMETER IS 1 TO &LRPTNM CHARACTER(S) INX00130000
+                LENGTH'                                                 00130100
+*SORT=             (OPTIONAL)                                           00130200
+         SPACE                                                          00130300
+*        INDICATES IF THE FORM CHANGE TABLE SHOULD BE SORTED BY THE     00130400
+*        KEY FIELD OR GENERATED IN THE INPUT SEQUENCE OF THE FORM       00130500
+*        CHANGE ENTRIES.  VALID VALUES ARE 'NO' OR 'YES'.  THE          00130600
+*        DEFAULT IS 'YES'.                                              00130700
+         SPACE                                                          00130800
+*TYPE=                                                                  00130900
+         SPACE                                                          00131000
+*        THIS PARAMETER IS USED TO IDENTIFY THE TYPE OF FCHG ENTRY      00131100
+*        BEING GENERATED.  SPECIFY TYPE=INITIAL ON THE FIRST OCCURRANCE 00131200
+*        IN ORDER THAT YOU MAY ENTER APPL AND VERSION AS A              00131300
+*        SEPARATE ENTRY.  ALL OTHER PARAMETERS MAY OR MAY NOT BE        00131400
+*        ENTERED AS YOU WISH.  IF ANY OTHER REQUIRED PARAMETERS ARE     00131500
+*        ENTERED ON THE TYPE=INITIAL LINE, ALL OTHER REQUIRED ENTRIES   00131600
+*        WILL BE NECESSARY.  SPECIFY TYPE=FINAL TO SIGNAL THE END OF    00131700
+*        ALL ENTRIES AND ALLOW THE GENERATION OF THE TABLE.  ONCE THE   00131800
+*        TYPE=FINAL HAS BEEN SPECIFIED, NO OTHER OCCURRANCES OF THE     00131900
+*        MACRO ARE ALLOWED.  TYPE=DOC WILL PRINT THIS DOCUMENT.         00132000
+         SPACE                                                          00132100
+*VERSION=                                                     2120563   00132200
+         SPACE                                                          00132300
+*        INDICATES THE VERSION OF THE TABLE TO BE GENERATED.            00132400
+         MNOTE '*        THIS PARAMETER IS &LVER CHARACTER(S) IN LENGTHX00132500
+               '                                                        00132600
+         MNOTE '*        VALID VALUES ARE &LVVER TO &HVVER'             00132700
+         SPACE                                                          00132800
+*SPECIAL NOTES:                                                         00132900
+         SPACE                                                          00133000
+*        ENTRIES MAY BE MADE IN ANY ORDER.                              00133100
+*        THE TABLE WILL NOT BE GENERATED IF THERE ARE SEVERE ERRORS.    00133200
+*        APPL= MUST BE SPECIFIED ON THE FIRST SIFCTB ENTRY.             00133300
+*        THE CUST= AND RESP= ENTRIES ARE USED WHEN THE APPL= PARAMETER  00133400
+*        IS EITHER FM OR AP.                                            00133500
+*        THE BANK=, CTL2=, AND CTL3= ENTRIES ARE USED FOR OTHER THAN    00133600
+*        FM AND AP APPLICATIONS.                                        00133700
+         SPACE                                                          00133800
+*EXAMPLE                                                                00133900
+         SPACE                                                          00134000
+*        SIFCTB                                                       X 00134100
+*              TYPE=INITIAL,                                          X 00134200
+*              APPL=RE,                                               X 00134300
+*              VERSION=1                                                00134400
+*        SIFCTB                                                       X 00134500
+*              BANK=10,                                               X 00134600
+*              FORMCD=A,                                              X 00134700
+*              CTL2=0,                                                X 00134800
+*              CTL3=10,                                               X 00134900
+*              DDNAME=B10A,                                           X 00135000
+*              HDRLINE=HDRLIN1                                          00135100
+*        SIFCTB                                                       X 00135200
+*              BANK=35,                                               X 00135300
+*              FORMCD=S,                                              X 00135400
+*              DDNAME=B35S                                              00135500
+*        SIFCTB                                                       X 00135600
+*              TYPE=FINAL                                               00135700
+*        EJECT                                                          00135800
+*HDRLIN1  DC    AL1(L'HDRLIN1D)                                         00135900
+*HDRLIN1D DC    CL133'1---ANY HEADER INFORMATION---'                    00136000
+*        END                                                            00136100
+*                                                                       00136200
+         EJECT                                                          00136300
+         MEXIT                                                          00136400
+         MEND                                                           00136500

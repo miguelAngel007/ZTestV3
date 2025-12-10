@@ -1,0 +1,18 @@
+**********************************************************************
+* COPYBOOK : CZTS2IMN - NEW ACCOUNT RECORD LAYOUT ( OCCURENCE )      *
+**********************************************************************
+IMNDSPDA DS   0X                   *
+IMNDHEAD DS   0CL25                * HEAD OCCURENCE
+IMNDKEY  DS   0CL22                * KEY
+IMNDCTLS DS   0CL12                * - CONTROLS
+IMNDCTL1 DS    CL2                 *   . CONTROL 1 : BANK
+IMNDCTL2 DS    CL3                 *   . CONTROL 2 : CURRENCY
+IMNDCTL3 DS    CL3                 *   . CONTROL 3 : BRACH
+IMNDCTL4 DS    CL4                 *   . CONTROL 4 : CATEGORY
+IMNDACCT DS    CL10                * - ACCOUNT NUMBER
+IMNDTRKY DS   0CL3                 * TRANSACTION KEY
+IMNDTRAN DS    CL2                 * TRANSACTION NUMBER
+IMNDCARD DS    CL1                 * CARD CODE
+*
+IMNDDATA DS   0CL75                * TRANSACTION DATA RECORD
+IMNDLEN  EQU   *-IMNDSPDA          * LENGTH OF PDA OCC ( 100 BYTES )

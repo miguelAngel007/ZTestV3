@@ -1,0 +1,56 @@
+***************************  CZTS2TX1  ******************************** 00001000
+*    STEAM REGISTER FOR CONVERSION SAFE TRANSACTION TO TS             * 00000900
+*********************************************************************** 00001000
+TX1DSECT DSECT                                                          00000700
+TX1      DS   0H                                                        00000100
+TX1RECSZ DS    XL2           REGISTER LENGTH                            00000100
+TX1STMSZ DS    XL2           STEAM REGISTER LENGTH                      00000100
+*    ------------------------------------------------------
+*    -   KEY OF RECORD                                    -
+*    ------------------------------------------------------
+TX1KEY   DS   0CL23          KEY                                        00001100
+TX1RECID DS    CL3           - RECORD ID 'ETR'                          00001100
+TX1CLASS DS    CL10          - CLASS                                    00001100
+TX1TRCDX DS   0CL8           EXTERNAL TRANSACTION CODE                  00001100
+TX1TRNCD DS    CL4           - TELLER TRANSACTION CODE                  00001100
+TX1TRCD1 DS    CL4           - FILLER TRANSACIONT CODE (AVAILABLE)      00001100
+TX1SEQN  DS    CL2           - SEQUENCE NUMBER - VALUE '00'             00001100
+*        END OF KEY
+TX1LMNT  DS   0CL24          LAST MAINTENANCE INFO                      00000170
+TX1LMDT  DS    CL6           - LAST MAINTENCE DATE MMDDYY               00000180
+TX1LMTM  DS    CL6           - LAST MAINTENCE TIME HHMMSS               00000190
+TX1LMEM  DS    CL8           - LAST MAINTENCE EMPLOYEE ID               00000200
+TX1LMTR  DS    CL4           - LAST MAINTENCE TERMINAL ID               00000210
+*
+TX1NRFLD DS    PL2           - NUMBER OF FIELDS OF TRANSACTION          00000210
+*
+TX1NETID DS    B             NETWORK ID                                 00000100
+TX1BCAEL EQU   B'00000000'   - BANCA ELECTRONICA                        00000110
+TX1MLRED EQU   B'00000001'   - MULTIRED                                 00000120
+TX1AUSRV EQU   B'00000010'   - AUTOSERVICIO                             00000130
+TX1DISPD EQU   B'00000011'   - DISPENSADORES DE DINERO                  00000140
+TX1PTVTA EQU   B'00000100'   - PUNTO DE VENTA NACIONAL                  00000150
+TX1VIATM EQU   B'00000101'   - VISA CAJEROS                             00000160
+TX1VIPOS EQU   B'00000110'   - VISA PUNTOS DE VENTA                     00000170
+TX1BCAEM EQU   B'00000111'   - BANCA EMPRESARIAL                        00000180
+TX1PRGIN EQU   B'00001000'   - INTERFACE PRODUCTOS GINA                 00000190
+*    ------------------------------------------------------
+*    -   KEY OF RECORD OF SYSTEMATICS'S TRANSACTION       -
+*    ------------------------------------------------------
+TX1SKEY  DS   0CL23          KEY                                        00001100
+TX1SRCID DS    CL3           - RECORD ID 'CDR'                          00001100
+TX1SCLAS DS    CL10          - CLASS                                    00001100
+TX1STXCD DS    CL8           - TRANSACTION CODE                         00001100
+TX1SSEQN DS    CL2           - SEQUENCE NUMBER - VALUE '00'             00001100
+*        END OF KEY
+*    ------------------------------------------------------
+*    -   KEY OF RECORD OF EXTERNAL FORMAT HEADER          -
+*    ------------------------------------------------------
+TX1EKEY  DS   0CL23          KEY                                        00001100
+TX1ERCID DS    CL3           - RECORD ID 'EFR'                          00001100
+TX1ECLAS DS    CL10          - CLASS                                    00001100
+TX1ETXCD DS    CL8           - FILLER - VALUE ZEROS                     00001100
+TX1ESEQN DS    CL2           - SEQUENCE NUMBER - VALUE '00'             00001100
+*        END OF KEY
+TX1FILL1 DS    XL8           FILLER (AVAILABLE)                         00001100
+TX1LENG  EQU   *-TX1         LENGTH OF REGISTER: FIXED PART             00002500

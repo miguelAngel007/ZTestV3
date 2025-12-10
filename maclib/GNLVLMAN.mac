@@ -1,0 +1,140 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   GNLVLMAN  ,               MACRO:MANAGE/XLAT DATA LEVEL NUMBER X00002000
+               &REQ=EXT,           REQUEST:INT(INTERNAL)¦EXT(EXTERNAL) X00003000
+               &LINT=,             LEVEL/INTERNAL FORMAT DATAAREA(HL2) X00004000
+               &LEXT=,             LEVEL/EXTERNAL FORMAT DATAAREA(CL8) X00005000
+               &FORM=2,            LEVEL FORMAT: 1(GN) ¦ 2(OTHER)      X00006000
+               &WORK=              DOUBLEWORD WORK AREA                 00007000
+.*********************************************************************  00008000
+.*                                                                    * 00009000
+.* GNLVLMAN MACRO                                                     * 00010000
+.*                                                                    * 00011000
+.* IF REQ = INT,                                                      * 00012000
+.*    GNLVLMAN FORMATS THE INTERNAL FORMAT LEVEL DATA FROM EXTERNAL.  * 00013000
+.*                                                                    * 00014000
+.* IF REQ = EXT,                                                      * 00015000
+.*    GNLVLMAN FORMATS THE EXTERNAL FORMAT LEVEL DATA FROM INTERNAL.  * 00016000
+.*                                                                    * 00017000
+.* FORMAT 1 (GN) LEVEL DATA FORMAT IS:                                * 00018000
+.*                                                                    * 00019000
+.*   INTERNAL FORMAT:  X'F DD U'          (XL2)                       * 00020000
+.*                       _ __ _                                       * 00021000
+.*                       .  . .           WHERE:                      * 00022000
+.*                       .  . ....         F = FILE LEVEL            *  00023000
+.*                       .  .    .         D = DATA LEVEL            *  00024000
+.*                       .  ..   .         U = USER LEVEL            *  00025000
+.*                       .   .   .                                   *  00026000
+.*                       .   .   .                                   *  00027000
+.*   EXTERNAL FORMAT:  C'FF DDD UU'       (CL7)                       * 00028000
+.*                                                                    * 00029000
+.*                                                                    * 00030000
+.* FORMAT 2 (NON-GN) LEVEL DATA FORMAT IS:                            * 00031000
+.*                                                                    * 00032000
+.*   INTERNAL FORMAT:  X'DDD  U'          (XL2)                       * 00033000
+.*                       ___  _                                       * 00034000
+.*                        .   .           WHERE:                      * 00035000
+.*                        .   .             D = DATA LEVEL            * 00036000
+.*                        .   .             U = USER LEVEL            * 00037000
+.*                        .   .                                       * 00038000
+.*                        .   .                                       * 00039000
+.*   EXTERNAL FORMAT:  C'DDDD.UU'         (CL7)                       * 00040000
+.*                                                                    * 00041000
+.*   GNLVLMAN REQUIRES A DOUBLEWORD WORK AREA PLUS REGS 14, 15, 0, 1. * 00042000
+.*                                                                    * 00043000
+.*--------------------------------------------------------------------* 00044000
+.*                  ** HISTORY OF REVISIONS **                        * 00045000
+.*                                                                    * 00046000
+.* DESCRIPTION                                                CHNGID  * 00047000
+.* _________________________________________________________  _______ * 00048000
+.*                                                                    * 00049000
+.* 02/07/97 ORIGINAL DISTRIBUTION                             9913251 * 00050000
+.*--------------------------------------------------------------------* 00051000
+.********************************************************************** 00052000
+&LABEL   DS    0H                                                       00053000
+         AIF   ('&REQ' EQ 'INT').INT000                                 00054000
+         AIF   ('&REQ' EQ 'EXT').EXT000                                 00055000
+         AIF   ('&REQ' EQ   '' ).EXT000                                 00056000
+         AGO   .ERRREQ                                                  00057000
+.INT000  ANOP                                                           00058000
+         AIF   ('&FORM' EQ '1').INT001                                  00059000
+         AIF   ('&FORM' EQ '2').INT002                                  00060000
+         AIF   ('&FORM' EQ '' ).INT002                                  00061000
+         AGO   .ERRFRM                                                  00062000
+* DEVELOP INTERNAL LEVEL DATA FROM EXTERNAL LEVEL DATA  (FORMAT 1)      00063000
+.INT001  ANOP                                                           00064000
+         LA    R0,0                R0 = CLEARED                         00065000
+         PACK  &WORK,&LEXT+0(2)    WORK = FILELEVEL (PACKED)            00066000
+         CVB   R1,&WORK            R1 = FILELEVEL (BINARY)/RJ           00067000
+         SLL   R1,12               R1 = FILELEVEL (HALFWORD/X'F...')    00068000
+         OR    R0,R1               SET R0 FILELEVEL                     00069000
+         PACK  &WORK,&LEXT+2(3)    WORK = DATALEVEL (PACKED)            00070000
+         CVB   R1,&WORK            R1 = DATALEVEL (BINARY)/RJ           00071000
+         SLL   R1,4                R1 = DATALEVEL (HALFWORD/X'.FF.')    00072000
+         OR    R0,R1               SET R0 DATALEVEL                     00073000
+         PACK  &WORK,&LEXT+5(2)    WORK = USERLEVEL (PACKED)            00074000
+         CVB   R1,&WORK            R1 = USERLEVEL (HALFWORK/X'...F')    00075000
+         OR    R0,R1               SET R0 USERLEVEL                     00076000
+         STCM  R0,B'0011',&LINT    RETURN INTERNAL LEVEL FORMAT 1       00077000
+         MEXIT                                                          00078000
+* DEVELOP INTERNAL LEVEL DATA FROM EXTERNAL LEVEL DATA  (FORMAT 2)      00079000
+.INT002  ANOP                                                           00080000
+         LA    R0,0                R0 = CLEARED                         00081000
+         PACK  &WORK,&LEXT+0(4)    WORK = DATALEVEL (PACKED)            00082000
+         CVB   R1,&WORK            R1 = DATALEVEL (BINARY)/RJ           00083000
+         SLL   R1,4                R1 = DATALEVEL (HALFWORD/X'.FF.')    00084000
+         OR    R0,R1               SET R0 DATALEVEL                     00085000
+         PACK  &WORK,&LEXT+5(2)    WORK = USERLEVEL (PACKED)            00086000
+         CVB   R1,&WORK            R1 = USERLEVEL (HALFWORK/X'...F')    00087000
+         OR    R0,R1               SET R0 USERLEVEL                     00088000
+         STCM  R0,B'0011',&LINT    RETURN INTERNAL LEVEL FORMAT 1       00089000
+         MEXIT                                                          00090000
+.EXT000  ANOP                                                           00091000
+         AIF   ('&FORM' EQ '1').EXT001                                  00092000
+         AIF   ('&FORM' EQ '2').EXT002                                  00093000
+         AIF   ('&FORM' EQ '' ).EXT002                                  00094000
+         AGO   .ERRFRM                                                  00095000
+* DEVELOP EXTERNAL LEVEL DATA FROM INTERNAL LEVEL DATA  (FORMAT 1)      00096000
+.EXT001  ANOP                                                           00097000
+         LA    R0,0                R0 = CLEARED                         00098000
+         ICM   R0,B'0011',&LINT    R0 = INTERNAL LEVEL                  00099000
+         SRL   R0,12               R0 = INTERNAL LEVEL: FILE            00100000
+         CVD   R0,&WORK            WORK = FILE LEVEL                    00101000
+         OI    &WORK+7,X'0F'       INSURE PRINTABLE SIGN                00102000
+         UNPK  &LEXT+0(2),&WORK    RETURN EXTERNAL LEVEL: FILE LEVEL    00103000
+         ICM   R0,B'0011',&LINT    R0 = INTERNAL LEVEL                  00104000
+         SLL   R0,20               R0 = INTERNAL LEVEL: DATA-USER/LJ    00105000
+         SRL   R0,24               R0 = INTERNAL LEVEL: DATA/RJ         00106000
+         CVD   R0,&WORK            WORK = DATA LEVEL                    00107000
+         OI    &WORK+7,X'0F'       INSURE PRINTABLE SIGN                00108000
+         UNPK  &LEXT+2(3),&WORK    RETURN EXTERNAL LEVEL: DATA LEVEL    00109000
+         ICM   R0,B'0011',&LINT    R0 = INTERNAL LEVEL                  00110000
+         SLL   R0,28               R0 = INTERNAL LEVEL: USER/LJ         00111000
+         SRL   R0,28               R0 = INTERNAL LEVEL: USER/RJ         00112000
+         CVD   R0,&WORK            WORK = USER LEVEL                    00113000
+         OI    &WORK+7,X'0F'       INSURE PRINTABLE SIGN                00114000
+         UNPK  &LEXT+5(2),&WORK    RETURN EXTERNAL LEVEL: USER LEVEL    00115000
+         MEXIT                                                          00116000
+* DEVELOP EXTERNAL LEVEL DATA FROM INTERNAL LEVEL DATA  (FORMAT 2)      00117000
+.EXT002  ANOP                                                           00118000
+         LA    R0,0                R0 = CLEARED                         00119000
+         ICM   R0,B'0011',&LINT    R0 = INTERNAL LEVEL                  00120000
+         SRL   R0,4                R0 = INTERNAL LEVEL: DATA/RJ         00121000
+         CVD   R0,&WORK            WORK = DATA LEVEL                    00122000
+         OI    &WORK+7,X'0F'       INSURE PRINTABLE SIGN                00123000
+         UNPK  &LEXT+2(4),&WORK    RETURN EXTERNAL LEVEL: DATA LEVEL    00124000
+         MVI   &LEXT+4,C'.'        RETURN EXTERNAL LEVEL: SEPARATOR     00125000
+         ICM   R0,B'0011',&LINT    R0 = INTERNAL LEVEL                  00126000
+         SLL   R0,28               R0 = INTERNAL LEVEL: USER/LJ         00127000
+         SRL   R0,28               R0 = INTERNAL LEVEL: USER/RJ         00128000
+         CVD   R0,&WORK            WORK = USER LEVEL                    00129000
+         OI    &WORK+7,X'0F'       INSURE PRINTABLE SIGN                00130000
+         UNPK  &LEXT+5(2),&WORK    RETURN EXTERNAL LEVEL: USER LEVEL    00131000
+         MEXIT                                                          00132000
+.ERRREQ  ANOP                                                           00133000
+         MNOTE  8,'REQ SPECIFICATION MUST BE INT OR EXT'                00134000
+         MEXIT                                                          00135000
+.ERRFRM  ANOP                                                           00136000
+         MNOTE  8,'FORM SPECIFICATION MUST BE FORMAT 1 OR 2'            00137000
+         MEXIT                                                          00138000
+         MEND                                                           00139000

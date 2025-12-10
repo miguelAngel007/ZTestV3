@@ -1,0 +1,383 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                  ** HISTORY OF REVISIONS **                         * 00002000
+*                                                                     * 00003000
+* DESCRIPTION                                                 CHNGID  * 00004000
+* __________________________________________________________  _______ * 00005000
+* 06/03/13 INITIAL DISTRIBUTION                                GN6478 * 00006000
+*---------------------------------------------------------------------* 00007000
+*************************************************************           00008000
+*  SINXVBCT --- VALID INTERNATIONAL CURRENCY VERBIAGE TABLE *           00009000
+*                                                           *           00010000
+*    1 - 3    CURRENCY CODE (CHARACTER)                     *           00011000
+*    4 - 18   CURRENCY DESCRIPTION                          *           00012000
+*   19 - 32   SUB-CURRENCY DESCRIPTION                      *           00013000
+*  LOOKUP IS BY COUNTRY CODE                                *           00014000
+*************************************************************           00015000
+NXVBLENG EQU  32       LENGTH OF EACH TABLE ENTRY                       00016000
+SINXVBCT DS   0F                                                        00017000
+*                       ANDORRA                                         00018000
+         DC   CL32'ADFEUROS          CENTS'                             00019000
+*                       UNITED ARAB EMIRATES                            00020000
+         DC   CL32'AEDDIRHAMS        FILS'                              00021000
+*                       AFGHANISTAN                                     00022000
+         DC   CL32'AFAAFGHANIS       PULS'                              00023000
+*                       ALBANIA                                         00024000
+         DC   CL32'ALLLEKS           CENTS'                             00025000
+*                       ARMENIA                                         00026000
+         DC   CL32'AMDDRAMS          CENTS'                             00027000
+*                       NETHERLANDS ANTILLES                            00028000
+         DC   CL32'ANGGUILDERS        '                                 00029000
+*                       ANGOLAN NEW KWANZA                              00030000
+         DC   CL32'AOAKWANZAS        CENTIMOS'                          00031000
+*                       ARGENTINA                                       00032000
+         DC   CL32'ARAAUSTRALS       CENTAVOS'                          00033000
+*                       AUSTRIA                                         00034000
+         DC   CL32'ATSEUROS          CENTS'                             00035000
+*                       AUSTRALIA                                       00036000
+         DC   CL32'AUDDOLLARS        CENTS'                             00037000
+*                       ARUBA                                           00038000
+         DC   CL32'AWGFLORINS        CENTS'                             00039000
+*                       AZERBAIJAN                                      00040000
+         DC   CL32'AZNMANATS         QEPIK'                             00041000
+*                       BOSNIA                                          00042000
+         DC   CL32'BAMMARKS          FENING'                            00043000
+*                       BARBADOS                                        00044000
+         DC   CL32'BBDDOLLARS        CENTS'                             00045000
+*                       BANGLADESH                                      00046000
+         DC   CL32'BDTTAKAS          CENTS'                             00047000
+*                       BELGIUM                                         00048000
+         DC   CL32'BEFEUROS          CENTS'                             00049000
+*                       BULGARIA                                        00050000
+         DC   CL32'BGNLEVS           STOTINKI'                          00051000
+*                       BAHRAIN                                         00052000
+         DC   CL32'BHDDINARS         FILS'                              00053000
+*                       BURUNDI                                         00054000
+         DC   CL32'BIFFRANCS         CENTIMES'                          00055000
+*                       BERMUDA                                         00056000
+         DC   CL32'BMDDOLLARS        CENTS'                             00057000
+*                       BRUNEI                                          00058000
+         DC   CL32'BNDDOLLAR         CENTS'                             00059000
+*                       BOLIVIA                                         00060000
+         DC   CL32'BOBBOLIVIANOS     CENTAVOS'                          00061000
+*                       BRAZIL                                          00062000
+         DC   CL32'BRLREALS          CENTAVOS'                          00063000
+*                       BAHAMAS                                         00064000
+         DC   CL32'BSDDOLLARS        CENTS'                             00065000
+*                       BHUTAN                                          00066000
+         DC   CL32'BTNNGULTRMS       CENTS'                             00067000
+*                       BOTSWANA                                        00068000
+         DC   CL32'BWPPULAS          CENTS'                             00069000
+*                       BELARUS                                         00070000
+         DC   CL32'BYRRUBLES         CENTS'                             00071000
+*                       BELIZE                                          00072000
+         DC   CL32'BZDDOLLARS        CENTS'                             00073000
+*                       CANADA                                          00074000
+         DC   CL32'CADDOLLARS        CENTS'                             00075000
+*                       CONGO                                           00076000
+         DC   CL32'CDFFRANCS         CENTIMES'                          00077000
+*                       SWITZERLAND                                     00078000
+         DC   CL32'CHFFRANCS         CENTIMES'                          00079000
+*                       CHILE                                           00080000
+         DC   CL32'CLPPESOS          CENTAVOS'                          00081000
+*                       CHINA                                           00082000
+         DC   CL32'CNYYUANS          FENS'                              00083000
+*                       COLOMBIA                                        00084000
+         DC   CL32'COPPESOS          CENTAVOS'                          00085000
+*                       COSTA RICA                                      00086000
+         DC   CL32'CRCCOLONS         CENTIMOS'                          00087000
+*                       CZECHOSLOVAKIA                                  00088000
+         DC   CL32'CZKKORUNAS        HALERS'                            00089000
+*                       CUBA                                            00090000
+         DC   CL32'CUPPESOS          CENTAVOS'                          00091000
+*                       CAPE VERDE                                      00092000
+         DC   CL32'CVEESCUDOS        CENTS'                             00093000
+*                       CYPRUS                                          00094000
+         DC   CL32'CYPEUROS          CENTS'                             00095000
+*                       GERMANY                                         00096000
+         DC   CL32'DEMEUROS          CENTS'                             00097000
+*                       DJIBOUTI                                        00098000
+         DC   CL32'DJFFRANCS         CENTIMES'                          00099000
+*                       DENMARK                                         00100000
+         DC   CL32'DKKKRONES         ORE'                               00101000
+*                       DOMINICAN REPUBLIC                              00102000
+         DC   CL32'DOPPESOS          CENTAVOS'                          00103000
+*                       ALGERIA                                         00104000
+         DC   CL32'DZDDINARS         FILS'                              00105000
+*                       ECUADOR                                         00106000
+         DC   CL32'ECSDOLLARS        CENTS'                             00107000
+*                       EL SALVADOR                                     00108000
+         DC   CL32'USDDOLLARS        CENTS'                             00109000
+*                       ESTONIA                                         00110000
+         DC   CL32'EEKEUROS          CENTS'                             00111000
+*                       EGYPT                                           00112000
+         DC   CL32'EGPPOUNDS         PIASTRES'                          00113000
+*                       ERITREA                                         00114000
+         DC   CL32'ERNNAKFAS         CENTS'                             00115000
+*                       EUROPEAN MONETARY UNION                         00116000
+         DC   CL32'EUREUROS          CENTS'                             00117000
+*                       SPAIN                                           00118000
+         DC   CL32'ESPEUROS          CENTS'                             00119000
+*                       ETHIOPIA                                        00120000
+         DC   CL32'ETBBIRRS          CENTS'                             00121000
+*                       FINLAND                                         00122000
+         DC   CL32'FIMEUROS          CENTS'                             00123000
+*                       FINLAND                                         00124000
+         DC   CL32'FJDDOLLARS        CENTS'                             00125000
+*                       FALKLAND ISLANDS                                00126000
+         DC   CL32'FKPPOUNDS         PENCE'                             00127000
+*                       FRANCE                                          00128000
+         DC   CL32'FRFEUROS          CENTS'                             00129000
+*                       GREAT BRITAIN                                   00130000
+         DC   CL32'GBPPOUNDS         PENCE'                             00131000
+*                       GEORGIA                                         00132000
+         DC   CL32'GELLARIS          TETRI'                             00133000
+*                       GHANA                                           00134000
+         DC   CL32'GHCCEDIS          CENTS'                             00135000
+*                       GIBRALTAR                                       00136000
+         DC   CL32'GIPPOUNDS         PENCE'                             00137000
+*                       GAMBIA                                          00138000
+         DC   CL32'GMDDALASIS        BUTUTS'                            00139000
+*                       GUINEA                                          00140000
+         DC   CL32'GNFFRANCS         CENTIMES'                          00141000
+*                       GREECE                                          00142000
+         DC   CL32'GRDEUROS          CENTS'                             00143000
+*                       GUATEMALA                                       00144000
+         DC   CL32'GTQQUETZALS       CENTAVOS'                          00145000
+*                       GUINEA-BISSAU                                   00146000
+         DC   CL32'GWPPESOS          CENTAVOS'                          00147000
+*                       GUYANA                                          00148000
+         DC   CL32'GYDDOLLARS        CENTS'                             00149000
+*                       HONG KONG                                       00150000
+         DC   CL32'HKDDOLLARS        CENTS'                             00151000
+*                       HONDURAS                                        00152000
+         DC   CL32'HNLLEMPIRAS       CENTAVOS'                          00153000
+*                       CROATIA                                         00154000
+         DC   CL32'HRKKUNAS          LIPA'                              00155000
+*                       HAITI                                           00156000
+         DC   CL32'HTGGOURDES        CENTIMES'                          00157000
+*                       HUNGARY                                         00158000
+         DC   CL32'HUFFORINTS        FILLER'                            00159000
+*                       INDONESIA                                       00160000
+         DC   CL32'IDRRUPIAHS        SEN'                               00161000
+*                       IRELAND                                         00162000
+         DC   CL32'IEPEUROS          CENTS'                             00163000
+*                       ISRAEL                                          00164000
+         DC   CL32'ILSSHEKELS        AGOROT'                            00165000
+*                       INDIA                                           00166000
+         DC   CL32'INRRUPEES         PAISE'                             00167000
+*                       IRAQ                                            00168000
+         DC   CL32'IQDDINARS         FILS'                              00169000
+*                       IRAN                                            00170000
+         DC   CL32'IRRRIALS          CENTS'                             00171000
+*                       ICELAND                                         00172000
+         DC   CL32'ISKKRONAS         AURAR'                             00173000
+*                       ITALY                                           00174000
+         DC   CL32'ITLEUROS          CENTS'                             00175000
+*                       JAMAICA                                         00176000
+         DC   CL32'JMDDOLLARS        CENTS'                             00177000
+*                       JORDAN                                          00178000
+         DC   CL32'JODDOLLARS        CENTS'                             00179000
+*                       JAPAN                                           00180000
+         DC   CL32'JPYYEN            CEN'                               00181000
+*                       KENYA                                           00182000
+         DC   CL32'KESSHILLINGS      CENTS'                             00183000
+*                       KYRGYZSTAN                                      00184000
+         DC   CL32'KGSSOMS           TYIYN'                             00185000
+*                       CAMBODIA                                        00186000
+         DC   CL32'KHRRIELS          CENTS'                             00187000
+*                       COMOROS                                         00188000
+         DC   CL32'KMFFRANCS         CENTIMES'                          00189000
+*                       NORTH KOREA                                     00190000
+         DC   CL32'KPWWON            CHON'                              00191000
+*                       SOUTH KOREA                                     00192000
+         DC   CL32'KRWWON            JEON'                              00193000
+*                       KUWAIT                                          00194000
+         DC   CL32'KWDDINARS         FILS'                              00195000
+*                       CAYMAN ISLANDS                                  00196000
+         DC   CL32'KYDDOLLARS        CENTS'                             00197000
+*                       KAZAKHSTAN                                      00198000
+         DC   CL32'KZTTENGE          TIIN'                              00199000
+*                       LAOS                                            00200000
+         DC   CL32'LAKKIPS           ATT'                               00201000
+*                       LEBANON                                         00202000
+         DC   CL32'LBPPOUNDS         PENCE'                             00203000
+*                       SRI LANKA                                       00204000
+         DC   CL32'LKRRUPEES         CENTS'                             00205000
+*                       LIBERIA                                         00206000
+         DC   CL32'LRDDOLLARS        CENTS'                             00207000
+*                       LESOTHO                                         00208000
+         DC   CL32'LSLLOTIS          LISENTE'                           00209000
+*                       LITHUANIA                                       00210000
+         DC   CL32'LTLLITAS          CENTU'                             00211000
+*                       LUXEMBOURG                                      00212000
+         DC   CL32'LUFEUROS          CENTS'                             00213000
+*                       LATVIA                                          00214000
+         DC   CL32'LVLLATS           CENTS'                             00215000
+*                       LIBYA                                           00216000
+         DC   CL32'LYDDINARS         DIRHAM'                            00217000
+*                       MOROCCO                                         00218000
+         DC   CL32'MADDIRHAMS        SANTIMAT'                          00219000
+*                       MOLDOVA                                         00220000
+         DC   CL32'MDLLEUS           BANI'                              00221000
+*                       MADAGASCAR                                      00222000
+         DC   CL32'MGAARIARY         CENTS'                             00223000
+*                       MACEDONIA                                       00224000
+         DC   CL32'MKDDENARS         DENI'                              00225000
+*                       MYANMAR OR BURMA                                00226000
+         DC   CL32'MMKKYATS          CENTS'                             00227000
+*                       MONGOLIA                                        00228000
+         DC   CL32'MNTTUGRIKS        CENTS'                             00229000
+*                       MACAU                                           00230000
+         DC   CL32'MOPPATACAS        CENTS'                             00231000
+*                       MAURITANIA                                      00232000
+         DC   CL32'MROOUGUIYAS       CENTS'                             00233000
+*                       MALTA                                           00234000
+         DC   CL32'MTLEUROS          CENTS'                             00235000
+*                       MAURITIUS                                       00236000
+         DC   CL32'MURRUPEES         CENTS'                             00237000
+*                       MALDIVES                                        00238000
+         DC   CL32'MVRRUFIYAAS       CENTS'                             00239000
+*                       MALAWI                                          00240000
+         DC   CL32'MWKKWACHAS        CENTS'                             00241000
+*                       MEXICO                                          00242000
+         DC   CL32'MXNPESOS          CENTAVOS'                          00243000
+*                       MALAYSIA                                        00244000
+         DC   CL32'MYRRINGGITS       SEN'                               00245000
+*                       MOZAMBIQUE                                      00246000
+         DC   CL32'MZMMETICALS       CENTS'                             00247000
+*                       NAMIBIA                                         00248000
+         DC   CL32'NADDOLLARS        CENTS'                             00249000
+*                       NIGERIA                                         00250000
+         DC   CL32'NGNNAIRAS         KOBO'                              00251000
+*                       NICARAGUA                                       00252000
+         DC   CL32'NIOCORDOBAS       CENTAVOS'                          00253000
+*                       NETHERLANDS                                     00254000
+         DC   CL32'NLGEUROS          CENTS'                             00255000
+*                       NORWAY                                          00256000
+         DC   CL32'NOKKRONES         ORE'                               00257000
+*                       NEPAL                                           00258000
+         DC   CL32'NPRRUPEES         PAISA'                             00259000
+*                       NEW ZEALAND                                     00260000
+         DC   CL32'NZDDOLLARS        CENTS'                             00261000
+*                       OMAN                                            00262000
+         DC   CL32'OMRRIALS          BAISA'                             00263000
+*                       PANAMA                                          00264000
+         DC   CL32'PABBALBOAS        CENTAVOS'                          00265000
+*                       PERU                                            00266000
+         DC   CL32'PENINTIS          CENTIMES'                          00267000
+*                       PAPUA NEW GUINEA                                00268000
+         DC   CL32'PGKKINAS          TOEA'                              00269000
+*                       PHILIPPINES                                     00270000
+         DC   CL32'PHPPESOS          CENTAVOS'                          00271000
+*                       PAKISTAN                                        00272000
+         DC   CL32'PKRRUPEES         PAISA'                             00273000
+*                       POLAND                                          00274000
+         DC   CL32'PLNZLOTYS         GROSZY'                            00275000
+*                       PORTUGAL                                        00276000
+         DC   CL32'PTEEUROS          CENTS'                             00277000
+*                       PARAGUAY                                        00278000
+         DC   CL32'PYGGUARANIS       CENTIMOS'                          00279000
+*                       QATAR                                           00280000
+         DC   CL32'QARRIYALS         DIRHAMS'                           00281000
+*                       ROMANIA                                         00282000
+         DC   CL32'RONLEUS           BANI'                              00283000
+*                       RUSSIA                                          00284000
+         DC   CL32'RUBRUBLES         KOPECKS'                           00285000
+*                       RWANDA                                          00286000
+         DC   CL32'RWFFRANCS         CENTIMES'                          00287000
+*                       SAUDI ARABIA                                    00288000
+         DC   CL32'SARRIYALS         DIRHAMS'                           00289000
+*                       SOLOMON ISLANDS                                 00290000
+         DC   CL32'SBDDOLLARS        CENTS'                             00291000
+*                       SEYCHELLES                                      00292000
+         DC   CL32'SCRRUPEES         CENTS'                             00293000
+*                       SUDAN                                           00294000
+         DC   CL32'SDGPOUNDS         PIASTRE'                           00295000
+*                       SWEDEN                                          00296000
+         DC   CL32'SEKKRONAS         ORE'                               00297000
+*                       SINGAPORE                                       00298000
+         DC   CL32'SGDDOLLARS        CENTS'                             00299000
+*                       ST. HELENA                                      00300000
+         DC   CL32'SHPPURNDS         CENTS'                             00301000
+*                       SLOVENIA                                        00302000
+         DC   CL32'SITEUROS          CENTS'                             00303000
+*                       SLOVAKIA                                        00304000
+         DC   CL32'SKKKORUNAS        CENTS'                             00305000
+*                       SIERRA LEONE                                    00306000
+         DC   CL32'SLLLEONES         CENTS'                             00307000
+*                       SOMALIA                                         00308000
+         DC   CL32'SOSSHILLINGS      CENTS'                             00309000
+*                       SURINAM                                         00310000
+         DC   CL32'SRDDOLLAR         CENTS'                             00311000
+*                       SURINAM                                         00312000
+         DC   CL32'SRGGUILDERS       CENTS'                             00313000
+*                       SAO TOME/PRINCIPE                               00314000
+         DC   CL32'STDDOBRAS         CENTS'                             00315000
+*                       EL SALVADOR                                     00316000
+         DC   CL32'SVCDOLLARS        CENTS'                             00317000
+*                       SYRIA                                           00318000
+         DC   CL32'SYPPOUND          PIASTRES'                          00319000
+*                       SWAZILAND                                       00320000
+         DC   CL32'SZLLILANGENI      CENTS'                             00321000
+*                       THAILAND                                        00322000
+         DC   CL32'THBBAHTS          SATANG'                            00323000
+*                       TAJIKISTAN                                      00324000
+         DC   CL32'TJSSOMONIS        CENTS'                             00325000
+*                       TURKMENISTAN                                    00326000
+         DC   CL32'TMMMANATS         CENTS'                             00327000
+*                       TUNISIA                                         00328000
+         DC   CL32'TNDDINARS         MILLIMES'                          00329000
+*                       TONGA                                           00330000
+         DC   CL32'TOPANGS           CENTS'                             00331000
+*                       EAST TIMOR                                      00332000
+         DC   CL32'TPEESCUDOS        CENTS'                             00333000
+*                       TURKEY                                          00334000
+         DC   CL32'TRYLIRAS          KURAS'                             00335000
+*                       TRINIDAD / TOBAGO                               00336000
+         DC   CL32'TTDDOLLARS        CENTS'                             00337000
+*                       TAIWAN                                          00338000
+         DC   CL32'TWDDOLLARS        CENTS'                             00339000
+*                       TANZANIA                                        00340000
+         DC   CL32'TZSSHILLINGS      CENTS'                             00341000
+*                       UKRAINE                                         00342000
+         DC   CL32'UAHHRYVNIAS       KOPIYOK'                           00343000
+*                       UGANDA                                          00344000
+         DC   CL32'UGXSHILLINGS      CENTS'                             00345000
+*                       USA                                             00346000
+         DC   CL32'USDDOLLARS        CENTS'                             00347000
+*                       URUGUAY                                         00348000
+         DC   CL32'UYPPESOS          CENTESIMOS'                        00349000
+*                       UZBEKISTAN                                      00350000
+         DC   CL32'UZSSUMS           TIYIN'                             00351000
+*                       VENEZUALA                                       00352000
+         DC   CL32'VEBBOLIVARS       CENTIMOS'                          00353000
+*                       VIETNAM                                         00354000
+         DC   CL32'VNDDONGS          XU'                                00355000
+*                       VANUATU                                         00356000
+         DC   CL32'VUVVATUS          CENTS'                             00357000
+*                       SAMOA                                           00358000
+         DC   CL32'WSTTALAS          CENTS'                             00359000
+*                       CFA FRANC BEAC                                  00360000
+         DC   CL32'XAFFRANCS         CENTS'                             00361000
+*                       EAST CARIBBEAN                                  00362000
+         DC   CL32'XCDDOLLARS        CENTS'                             00363000
+*                       EUROPEAN CURRENCY UNIT                          00364000
+         DC   CL32'XEUEUROS          CENTS'                             00365000
+*                       CFA FRANC                                       00366000
+         DC   CL32'XOFFRANCS         CENTIMES'                          00367000
+*                       TAHITI                                          00368000
+         DC   CL32'XPFTAHITIS        CENTS'                             00369000
+*                       YEMEN                                           00370000
+         DC   CL32'YERRIALS          FILS'                              00371000
+*                       YUGOSLAVIA                                      00372000
+         DC   CL32'YUMDINARS         PARA'                              00373000
+*                       SOUTH AFRICA                                    00374000
+         DC   CL32'ZARRANDS          CENTS'                             00375000
+*                       ZAMBIA                                          00376000
+         DC   CL32'ZMKKWACHAS        CENTS'                             00377000
+*                       ZAIRE                                           00378000
+         DC   CL32'ZRNZAIRES         CENTS'                             00379000
+*                       ZIMBABWE                                        00380000
+         DC   CL32'ZWDDOLLAR         CENTS'                             00381000
+         DC   32X'FF'                                                   00382000

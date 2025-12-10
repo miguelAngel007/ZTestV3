@@ -1,0 +1,463 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAABSRHM &TBLPTR=,  ANAME1|FNAME1|VNAME1|(RN)|(R3)            +00002000
+               &OFFSET=,     ANAME2|FNAME2|HNAME2|YNAME2|XNAME2|LIT2   +00003000
+               &LENGTH=,     ANAME3|FNAME3|HNAME3|YNAME3|XNAME3|LIT3   +00004000
+               &COUNT=,                (R8)                            +00005000
+               &ARGPTR=,               (R2)                            +00006000
+               &ARGLEN=,               (R1)                            +00007000
+               &INDEX=,      ANAME7|FNAME7|XNAME7                      +00008000
+               &RANK=,       ANAME8|FNAME8|HNAME8|YNAME8|XNAME8        +00009000
+               &RSA=NO       NO|YES|CNAME9                              00010000
+.* -------------------------------------------------------- *           00011000
+.* MACRO ID: SAABSRHM                                       *           00012000
+.*    TITLE: BINARY SEARCH ROUTINE                          *           00013000
+.*     DATE: 05/02/89                                       *           00014000
+.*                                                          *           00015000
+.*     DESC: THIS ROUTINE IS USED TO SEARCH A SORTED TABLE  *           00016000
+.*           (ASCENDING ORDER) FOR A PARTICULAR ARGUMENT    *           00017000
+.*           AND RETURN THE SUBSCRIPT AND INDEX/OFFSET OF   *           00018000
+.*           THE FIRST OCCURANCE.                           *           00019000
+.*                                                          *           00020000
+.*    INPUT: TBLPTR   POINTER TO THE TABLE TO BE SEARCHED   *           00021000
+.*                    DEFAULT(R3)                           *           00022000
+.*           OFFSET   DISPLACEMENT WITHIN THE TABLE ENTRY   *           00023000
+.*                    OF THE SEARCH KEY                     *           00024000
+.*           LENGTH   LENGTH OF EACH TABLE ENTRY            *           00025000
+.*           COUNT    NUMBER OF TABLE ENTRIES IN TABLE      *           00026000
+.*                    DEFAULT(R8)                           *           00027000
+.*           ARGPTR   POINTER TO THE SEARCH ARGUMENT        *           00028000
+.*                    DEFAULT(R2)                           *           00029000
+.*           ARGLEN   LENGTH OF THE SEARCH ARGUMENT         *           00030000
+.*                    DEFAULT(R1)                           *           00031000
+.*           RSA      POINTER TO A 64 BYTE REGISTER SAVE    *           00032000
+.*                    AREA                                  *           00033000
+.*                                                          *           00034000
+.*   OUTPUT: RANK     SUBSCRIPT OF THE TABLE ENTRY MATCHING *           00035000
+.*                    THE SEARCH ARGUMENT.                  *           00036000
+.*           INDEX    OFFSET OF THE TABLE ENTRY MATCHING    *           00037000
+.*                    THE SEARCH ARGUMENT.                  *           00038000
+.*           R0       SAME AS RANK                          *           00039000
+.*           R15      RETURN CODE (0=FOUND, 4=NOT FOUND)    *           00040000
+.*                                                          *           00041000
+.*      REG:  R0: TABLE ENTRY SUBSCRIPT OF LAST MATCH       *           00042000
+.*            R1: SEARCH ARGUMENT LENGTH                    *           00043000
+.*            R2: SEARCH ARGUMENT ADDR                      *           00044000
+.*            R3: SEARCH TABLE ADDR                         *           00045000
+.*            R4: NOT USED                                  *           00046000
+.*            R5: SUBSCRIPT OF LAST GUESS                   *           00047000
+.*            R6: SUBSCRIPT OF MIN (LOWER LIMIT)            *           00048000
+.*            R7: SUBSCRIPT/INDEX OF MID (CURRENT GUESS)    *           00049000
+.*            R8: SUBSCRIPT OF MAX (UPPER LIMIT)            *           00050000
+.*            R9: NOT USED                                  *           00051000
+.*            RA: NOT USED                                  *           00052000
+.*            RB: NOT USED                                  *           00053000
+.*            RC: NOT USED                                  *           00054000
+.*            RD: NOT USED                                  *           00055000
+.*            RE: NOT USED                                  *           00056000
+.*            RF: RETURN CODE (0=FOUND, 4=NOT FOUND)        *           00057000
+.*    MAINT:                                                *           00058000
+.*                                                          *           00059000
+.* -------------------------------------------------------- *           00060000
+         GBLC  &C                                                       00061000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00062000
+         LCLA  &RSAFLG                                                  00063000
+         LCLB  &INIT1,&INIT2,&INIT3,&INIT4                              00064000
+         LCLC  &INST1,&INST2,&INST3,&INST4,&INST5,&INST6,&INST7,&INST8  00065000
+         LCLC  &INSTA,&INSTB,&INSTC,&INSTD,&INSTE,&INSTF,&INSTG,&INSTH  00066000
+         LCLC  &INST9                                                   00067000
+         LCLC  &INSTI                                                   00068000
+&MACNME  SETC  'SAABSRHM'                                               00069000
+&MACVER  SETC  '0003'                                                   00070000
+&MACREL  SETC  '.000'                                                   00071000
+&MACDATE SETC  '03/26/90'                                               00072000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00073000
+               - &MACDATE'                                              00074000
+.BSRH100 ANOP                                                           00075000
+         AIF   (T'&TBLPTR EQ 'O').BSRH199                               00076000
+         AIF   (T'&TBLPTR EQ 'A' OR T'&TBLPTR EQ 'F'                   +00077000
+               OR T'&TBLPTR EQ 'V').BSRH130                             00078000
+         AIF   (T'&TBLPTR EQ 'X').BSRH120                               00079000
+         AIF   ('&TBLPTR'(1,1) EQ '(').BSRH110                          00080000
+         MNOTE 8,'&MACNME - TBLPTR PARAMETER HAS INVALID DATA FORMAT, M+00081000
+               ACRO EXPANSION TERMINATED'                               00082000
+         MEXIT                                                          00083000
+.BSRH110 ANOP                                                           00084000
+         AIF   ('&TBLPTR(1)' EQ '3' OR '&TBLPTR(1)' EQ 'R3'            +00085000
+               OR '&TBLPTR(1)' EQ 'R03').BSRH199                        00086000
+&INST1   SETC  'LR   '                                                  00087000
+&INSTA   SETC  'R3,&TBLPTR(1)'                                          00088000
+         AGO   .BSRH199                                                 00089000
+.BSRH120 ANOP                                                           00090000
+         AIF   (L'&TBLPTR EQ 4).BSRH124                                 00091000
+         AIF   (L'&TBLPTR EQ 3).BSRH122                                 00092000
+         MNOTE 8,'&MACNME - TBLPTR PARAMETER MUST HAVE A LENGTH OF 3 OR+00093000
+               4, MACRO EXPANSION TERMINATED'                           00094000
+         MEXIT                                                          00095000
+.BSRH122 ANOP                                                           00096000
+&INST1   SETC  'ICM  '                                                  00097000
+&INSTA   SETC  'R3,7,&TBLPTR'                                           00098000
+&INIT1   SETB  1                                                        00099000
+         AGO   .BSRH199                                                 00100000
+.BSRH124 ANOP                                                           00101000
+&INST1   SETC  'ICM  '                                                  00102000
+&INSTA   SETC  'R3,15,&TBLPTR'                                          00103000
+         AGO   .BSRH199                                                 00104000
+.BSRH130 ANOP                                                           00105000
+&INST1   SETC  'L    '                                                  00106000
+&INSTA   SETC  'R3,&TBLPTR'                                             00107000
+         AGO   .BSRH199                                                 00108000
+.BSRH199 ANOP                                                           00109000
+.BSRH200 ANOP                                                           00110000
+         AIF   (T'&ARGPTR EQ 'O').BSRH299                               00111000
+         AIF   (T'&ARGPTR EQ 'A' OR T'&ARGPTR EQ 'F'                   +00112000
+               OR T'&ARGPTR EQ 'V').BSRH230                             00113000
+         AIF   (T'&ARGPTR EQ 'X').BSRH220                               00114000
+         AIF   ('&ARGPTR'(1,1) EQ '(').BSRH210                          00115000
+         MNOTE 8,'&MACNME - ARGPTR PARAMETER HAS INVALID DATA FORMAT, M+00116000
+               ACRO EXPANSION TERMINATED'                               00117000
+         MEXIT                                                          00118000
+.BSRH210 ANOP                                                           00119000
+         AIF   ('&ARGPTR(1)' EQ '2' OR '&ARGPTR(1)' EQ 'R2'            +00120000
+               OR '&ARGPTR(1)' EQ 'R02').BSRH299                        00121000
+&INST2   SETC  'LR   '                                                  00122000
+&INSTB   SETC  'R2,&ARGPTR(1)'                                          00123000
+         AGO   .BSRH299                                                 00124000
+.BSRH220 ANOP                                                           00125000
+         AIF   (L'&ARGPTR EQ 4).BSRH224                                 00126000
+         AIF   (L'&ARGPTR EQ 3).BSRH222                                 00127000
+         MNOTE 8,'&MACNME - ARGPTR PARAMETER MUST HAVE A LENGTH OF 3 OR+00128000
+               4, MACRO EXPANSION TERMINATED'                           00129000
+         MEXIT                                                          00130000
+.BSRH222 ANOP                                                           00131000
+&INST2   SETC  'ICM  '                                                  00132000
+&INSTB   SETC  'R2,7,&ARGPTR'                                           00133000
+&INIT2   SETB  1                                                        00134000
+         AGO   .BSRH299                                                 00135000
+.BSRH224 ANOP                                                           00136000
+&INST2   SETC  'ICM  '                                                  00137000
+&INSTB   SETC  'R2,15,&ARGPTR'                                          00138000
+         AGO   .BSRH299                                                 00139000
+.BSRH230 ANOP                                                           00140000
+&INST2   SETC  'L    '                                                  00141000
+&INSTB   SETC  'R2,&ARGPTR'                                             00142000
+         AGO   .BSRH299                                                 00143000
+.BSRH299 ANOP                                                           00144000
+.BSRH300 ANOP                                                           00145000
+         AIF   (T'&ARGLEN EQ 'O').BSRH399                               00146000
+         AIF   (T'&ARGLEN EQ 'A' OR T'&ARGLEN EQ 'F').BSRH350           00147000
+         AIF   (T'&ARGLEN EQ 'Y' OR T'&ARGLEN EQ 'H').BSRH340           00148000
+         AIF   (T'&ARGLEN EQ 'X').BSRH330                               00149000
+         AIF   ('&ARGLEN'(1,1) EQ '(').BSRH320                          00150000
+         AIF   (T'&ARGLEN EQ 'N').BSRH310                               00151000
+.*       MNOTE 8,'&MACNME - ARGLEN PARAMETER HAS INVALID DATA FORMAT, M 00152000
+.*             ACRO EXPANSION TERMINATED'                               00153000
+.*       MEXIT                                                          00154000
+.BSRH310 ANOP                                                           00155000
+&INST3   SETC  'LA   '                                                  00156000
+&INSTC   SETC  'R1,&ARGLEN'                                             00157000
+         AGO   .BSRH399                                                 00158000
+.BSRH320 ANOP                                                           00159000
+         AIF   ('&ARGLEN(1)' EQ '1' OR '&ARGLEN(1)' EQ 'R1'            +00160000
+               OR '&ARGLEN(1)' EQ 'R01').BSRH399                        00161000
+&INST3   SETC  'LR   '                                                  00162000
+&INSTC   SETC  'R1,&ARGLEN(1)'                                          00163000
+         AGO   .BSRH299                                                 00164000
+.BSRH330 ANOP                                                           00165000
+         AIF   (L'&ARGLEN EQ 4).BSRH338                                 00166000
+         AIF   (L'&ARGLEN EQ 3).BSRH336                                 00167000
+         AIF   (L'&ARGLEN EQ 2).BSRH334                                 00168000
+         AIF   (L'&ARGLEN EQ 1).BSRH332                                 00169000
+         MNOTE 8,'&MACNME - ARGLEN PARAMETER MUST HAVE A LENGTH OF 4 OR+00170000
+               LESS, MACRO EXPANSION TERMINATED'                        00171000
+         MEXIT                                                          00172000
+.BSRH332 ANOP                                                           00173000
+&INST3   SETC  'ICM  '                                                  00174000
+&INSTC   SETC  'R1,1,&ARGLEN'                                           00175000
+&INIT3   SETB  1                                                        00176000
+         AGO   .BSRH399                                                 00177000
+.BSRH334 ANOP                                                           00178000
+&INST3   SETC  'ICM  '                                                  00179000
+&INSTC   SETC  'R1,3,&ARGLEN'                                           00180000
+&INIT3   SETB  1                                                        00181000
+         AGO   .BSRH399                                                 00182000
+.BSRH336 ANOP                                                           00183000
+&INST3   SETC  'ICM  '                                                  00184000
+&INSTC   SETC  'R1,7,&ARGLEN'                                           00185000
+&INIT3   SETB  1                                                        00186000
+         AGO   .BSRH399                                                 00187000
+.BSRH338 ANOP                                                           00188000
+&INST3   SETC  'ICM  '                                                  00189000
+&INSTC   SETC  'R1,15,&ARGLEN'                                          00190000
+         AGO   .BSRH399                                                 00191000
+.BSRH340 ANOP                                                           00192000
+&INST3   SETC  'LH   '                                                  00193000
+&INSTC   SETC  'R1,&ARGLEN'                                             00194000
+         AGO   .BSRH399                                                 00195000
+.BSRH350 ANOP                                                           00196000
+&INST3   SETC  'L    '                                                  00197000
+&INSTC   SETC  'R1,&ARGLEN'                                             00198000
+         AGO   .BSRH399                                                 00199000
+.BSRH399 ANOP                                                           00200000
+.BSRH400 ANOP                                                           00201000
+         AIF   (T'&COUNT EQ 'O').BSRH499                                00202000
+         AIF   (T'&COUNT EQ 'A' OR T'&COUNT EQ 'F').BSRH450             00203000
+         AIF   (T'&COUNT EQ 'Y' OR T'&COUNT EQ 'H').BSRH440             00204000
+         AIF   (T'&COUNT EQ 'X').BSRH430                                00205000
+         AIF   ('&COUNT'(1,1) EQ '(').BSRH420                           00206000
+         AIF   (T'&COUNT EQ 'N').BSRH410                                00207000
+.*       MNOTE 8,'&MACNME - COUNT PARAMETER HAS INVALID DATA FORMAT, MA 00208000
+.*             CRO EXPANSION TERMINATED'                                00209000
+.*       MEXIT                                                          00210000
+.BSRH410 ANOP                                                           00211000
+&INST4   SETC  'LA   '                                                  00212000
+&INSTD   SETC  'R8,&COUNT'                                              00213000
+         AGO   .BSRH499                                                 00214000
+.BSRH420 ANOP                                                           00215000
+         AIF   ('&COUNT(1)' EQ '8' OR '&COUNT(1)' EQ 'R8'              +00216000
+               OR '&COUNT(1)' EQ 'R08').BSRH499                         00217000
+&INST4   SETC  'LR   '                                                  00218000
+&INSTD   SETC  'R8,&COUNT(1)'                                           00219000
+         AGO   .BSRH499                                                 00220000
+.BSRH430 ANOP                                                           00221000
+         AIF   (L'&COUNT EQ 4).BSRH438                                  00222000
+         AIF   (L'&COUNT EQ 3).BSRH436                                  00223000
+         AIF   (L'&COUNT EQ 2).BSRH434                                  00224000
+         AIF   (L'&COUNT EQ 1).BSRH432                                  00225000
+         MNOTE 8,'&MACNME - ARGLEN PARAMETER MUST HAVE A LENGTH OF 4 OR+00226000
+               LESS, MACRO EXPANSION TERMINATED'                        00227000
+         MEXIT                                                          00228000
+.BSRH432 ANOP                                                           00229000
+&INST4   SETC  'ICM  '                                                  00230000
+&INSTD   SETC  'R8,1,&COUNT'                                            00231000
+&INIT4   SETB  1                                                        00232000
+         AGO   .BSRH499                                                 00233000
+.BSRH434 ANOP                                                           00234000
+&INST4   SETC  'ICM  '                                                  00235000
+&INSTD   SETC  'R8,3,&COUNT'                                            00236000
+&INIT4   SETB  1                                                        00237000
+         AGO   .BSRH499                                                 00238000
+.BSRH436 ANOP                                                           00239000
+&INST4   SETC  'ICM  '                                                  00240000
+&INSTD   SETC  'R8,7,&COUNT'                                            00241000
+&INIT4   SETB  1                                                        00242000
+         AGO   .BSRH499                                                 00243000
+.BSRH438 ANOP                                                           00244000
+&INST4   SETC  'ICM  '                                                  00245000
+&INSTD   SETC  'R8,15,&COUNT'                                           00246000
+         AGO   .BSRH499                                                 00247000
+.BSRH440 ANOP                                                           00248000
+&INST4   SETC  'LH   '                                                  00249000
+&INSTD   SETC  'R8,&COUNT'                                              00250000
+         AGO   .BSRH499                                                 00251000
+.BSRH450 ANOP                                                           00252000
+&INST4   SETC  'L    '                                                  00253000
+&INSTD   SETC  'R8,&COUNT'                                              00254000
+         AGO   .BSRH499                                                 00255000
+.BSRH499 ANOP                                                           00256000
+.BSRH500 ANOP                                                           00257000
+         AIF   (T'&LENGTH NE 'O').BSRH510                               00258000
+         MNOTE 8,'&MACNME - LENGTH PARAMETER WAS OMITTED, MACRO EXPANSI+00259000
+               ON TERMINATED'                                           00260000
+         MEXIT                                                          00261000
+.BSRH510 ANOP                                                           00262000
+         AIF   (T'&LENGTH EQ 'A' OR T'&LENGTH EQ 'F').BSRH516           00263000
+         AIF   (T'&LENGTH EQ 'Y' OR T'&LENGTH EQ 'H').BSRH514           00264000
+         AIF   (T'&LENGTH EQ 'N').BSRH512                               00265000
+.*       MNOTE 8,'&MACNME - LENGTH PARAMETER HAS INVALID DATA FORMAT, M 00266000
+.*             ACRO EXPANSION TERMINATED'                               00267000
+.*       MEXIT                                                          00268000
+.BSRH512 ANOP                                                           00269000
+&INST5   SETC  'MH   '                                                  00270000
+&INSTE   SETC  'R7,=Y(&LENGTH)'                                         00271000
+         AGO   .BSRH599                                                 00272000
+.BSRH514 ANOP                                                           00273000
+&INST5   SETC  'MH   '                                                  00274000
+&INSTE   SETC  'R7,&LENGTH'                                             00275000
+         AGO   .BSRH599                                                 00276000
+.BSRH516 ANOP                                                           00277000
+&INST5   SETC  'MH   '                                                  00278000
+&INSTE   SETC  'R7,&LENGTH.+2'                                          00279000
+         AGO   .BSRH599                                                 00280000
+.BSRH599 ANOP                                                           00281000
+.BSRH600 ANOP                                                           00282000
+         AIF   (T'&OFFSET NE 'O').BSRH610                               00283000
+         MNOTE 8,'&MACNME - OFFSET PARAMETER WAS OMITTED, MACRO EXPANSI+00284000
+               ON TERMINATED'                                           00285000
+         MEXIT                                                          00286000
+.BSRH610 ANOP                                                           00287000
+         AIF   (T'&OFFSET EQ 'A' OR T'&OFFSET EQ 'F').BSRH616           00288000
+         AIF   (T'&OFFSET EQ 'Y' OR T'&OFFSET EQ 'H').BSRH614           00289000
+         AIF   (T'&OFFSET EQ 'N').BSRH612                               00290000
+.*       MNOTE 8,'&MACNME - OFFSET PARAMETER HAS INVALID DATA FORMAT, M 00291000
+.*             ACRO EXPANSION TERMINATED'                               00292000
+.*       MEXIT                                                          00293000
+.BSRH612 ANOP                                                           00294000
+&INST6   SETC  'A    '                                                  00295000
+&INSTF   SETC  'R7,=A(&OFFSET)'                                         00296000
+         AGO   .BSRH699                                                 00297000
+.BSRH614 ANOP                                                           00298000
+&INST6   SETC  'AH   '                                                  00299000
+&INSTF   SETC  'R7,&OFFSET'                                             00300000
+         AGO   .BSRH699                                                 00301000
+.BSRH616 ANOP                                                           00302000
+&INST6   SETC  'A    '                                                  00303000
+&INSTF   SETC  'R7,&OFFSET'                                             00304000
+         AGO   .BSRH699                                                 00305000
+.BSRH699 ANOP                                                           00306000
+.BSRH700 ANOP                                                           00307000
+         AIF   (T'&INDEX NE 'O').BSRH710                                00308000
+         MNOTE 8,'&MACNME - INDEX PARAMETER WAS OMITTED, MACRO EXPANSIO+00309000
+               N TERMINATED'                                            00310000
+         MEXIT                                                          00311000
+.BSRH710 ANOP                                                           00312000
+         AIF   (T'&INDEX EQ 'A' OR T'&INDEX EQ 'F').BSRH730             00313000
+         AIF   (T'&INDEX EQ 'X').BSRH720                                00314000
+         MNOTE 8,'&MACNME - INDEX PARAMETER HAS INVALID DATA FORMAT, MA+00315000
+               CRO EXPANSION TERMINATED'                                00316000
+         MEXIT                                                          00317000
+.BSRH720 ANOP                                                           00318000
+         AIF   (L'&INDEX EQ 4).BSRH722                                  00319000
+         MNOTE 8,'&MACNME - INDEX PARAMETER MUST HAVE A LENGTH OF 4, MA+00320000
+               CRO EXPANSION TERMINATED'                                00321000
+         MEXIT                                                          00322000
+.BSRH722 ANOP                                                           00323000
+&INST7   SETC  'SR   '                                                  00324000
+&INSTG   SETC  'R7,R3'                                                  00325000
+&INST8   SETC  'STCM '                                                  00326000
+&INSTH   SETC  'R7,15,&INDEX'                                           00327000
+         AGO   .BSRH739                                                 00328000
+.BSRH730 ANOP                                                           00329000
+&INST7   SETC  'SR   '                                                  00330000
+&INSTG   SETC  'R7,R3'                                                  00331000
+&INST8   SETC  'ST   '                                                  00332000
+&INSTH   SETC  'R7,&INDEX'                                              00333000
+         AGO   .BSRH739                                                 00334000
+.BSRH739 ANOP                                                           00335000
+.BSRH740 ANOP                                                           00336000
+         AIF   (T'&RANK NE 'O').BSRH750                                 00337000
+         MNOTE 8,'&MACNME - RANK PARAMETER WAS OMITTED, MACRO EXPANSION+00338000
+               TERMINATED'                                              00339000
+         MEXIT                                                          00340000
+.BSRH750 ANOP                                                           00341000
+         AIF   (T'&RANK EQ 'A' OR T'&RANK EQ 'F').BSRH780               00342000
+         AIF   (T'&RANK EQ 'Y' OR T'&RANK EQ 'H').BSRH770               00343000
+         AIF   (T'&RANK EQ 'X').BSRH760                                 00344000
+         MNOTE 8,'&MACNME - RANK PARAMETER HAS INVALID DATA FORMAT, MAC+00345000
+               RO EXPANSION TERMINATED'                                 00346000
+         MEXIT                                                          00347000
+.BSRH760 ANOP                                                           00348000
+         AIF   (L'&RANK EQ 4).BSRH764                                   00349000
+         AIF   (L'&RANK EQ 2).BSRH762                                   00350000
+         MNOTE 8,'&MACNME - RANK PARAMETER MUST HAVE A LENGTH OF 4 OR 2+00351000
+               , MACRO EXPANSION TERMINATED'                            00352000
+         MEXIT                                                          00353000
+.BSRH762 ANOP                                                           00354000
+&INST9   SETC  'STCM '                                                  00355000
+&INSTI   SETC  'R0,3,&RANK'                                             00356000
+         AGO   .BSRH799                                                 00357000
+.BSRH764 ANOP                                                           00358000
+&INST9   SETC  'STCM '                                                  00359000
+&INSTI   SETC  'R0,15,&RANK'                                            00360000
+         AGO   .BSRH799                                                 00361000
+.BSRH770 ANOP                                                           00362000
+&INST9   SETC  'STH  '                                                  00363000
+&INSTI   SETC  'R0,&RANK'                                               00364000
+         AGO   .BSRH799                                                 00365000
+.BSRH780 ANOP                                                           00366000
+&INST9   SETC  'ST   '                                                  00367000
+&INSTI   SETC  'R0,&RANK'                                               00368000
+         AGO   .BSRH799                                                 00369000
+.BSRH799 ANOP                                                           00370000
+.BSRH800 ANOP                                                           00371000
+         AIF   (T'&RSA EQ 'O').BSRH899                                  00372000
+         AIF   ('&RSA' EQ 'NO').BSRH899                                 00373000
+         AIF   ('&RSA' EQ 'YES').BSRH820                                00374000
+         AIF   (T'&RSA NE 'N').BSRH810                                  00375000
+         MNOTE 4,'&MACNME - RSA PARAMETER INVALID, NO ASSUMED'          00376000
+         AGO   .BSRH899                                                 00377000
+.BSRH810 ANOP                                                           00378000
+         STM   R0,R15,&RSA .           SAVE CALLER'S REGISTERS          00379000
+&RSAFLG  SETA  1                                                        00380000
+         AGO   .BSRH899                                                 00381000
+.BSRH820 ANOP                                                           00382000
+         STM   R0,R15,BSRH&C.RSA .     SAVE CALLER'S REGISTERS          00383000
+&RSAFLG  SETA  2                                                        00384000
+         AGO   .BSRH899                                                 00385000
+.BSRH899 ANOP                                                           00386000
+.BSRH900 ANOP                                                           00387000
+         LA    R15,4 .                 SET RETURN CODE TO NOT FOUND     00388000
+         XC    &RANK,&RANK             CLEAR RETURN SUBSCRIPT           00389000
+         XC    &INDEX,&INDEX           CLEAR RETURN INDEX/OFFSET        00390000
+         XR    R0,R0 .                 CLEAR LAST HIT                   00391000
+         XR    R5,R5 .                 CLEAR LAST GUESS                 00392000
+         BCTR  R5,R0 .                 BYPASS SAME GUESS TEST 1ST TIME  00393000
+         LA    R6,1 .                  INIT MIN POSITION                00394000
+         AIF   ('&INST4' EQ '').BSRH910                                 00395000
+         AIF   (NOT &INIT4).BSRH902                                     00396000
+         XR    R8,R8 .                 CLEAR NBR OF TABLE ENTRIES       00397000
+.BSRH902 ANOP                                                           00398000
+         &INST4 &INSTD                 SET MAX = NBR OF TABLE ENTRIES   00399000
+.BSRH910 ANOP                                                           00400000
+         AIF   ('&INST1' EQ '').BSRH920                                 00401000
+         AIF   (NOT &INIT1).BSRH912                                     00402000
+         XR    R3,R3 .                 CLEAR REGISTER                   00403000
+.BSRH912 ANOP                                                           00404000
+         &INST1 &INSTA                 GET ADDR OF SEARCH TABLE         00405000
+.BSRH920 ANOP                                                           00406000
+         AIF   ('&INST2' EQ '').BSRH930                                 00407000
+         AIF   (NOT &INIT2).BSRH922                                     00408000
+         XR    R2,R2 .                 CLEAR REGISTER                   00409000
+.BSRH922 ANOP                                                           00410000
+         &INST2 &INSTB                 GET ADDR OF SEARCH ARGUMENT      00411000
+.BSRH930 ANOP                                                           00412000
+         AIF   ('&INST3' EQ '').BSRH940                                 00413000
+         AIF   (NOT &INIT3).BSRH932                                     00414000
+         XR    R1,R1 .                 CLEAR REGISTER                   00415000
+.BSRH932 ANOP                                                           00416000
+         &INST3 &INSTC                 GET LENGTH OF SEARCH ARGUMENT    00417000
+.BSRH940 ANOP                                                           00418000
+         BCTR  R1,R0 .                 ADJUST LGTH FOR EXECUTE          00419000
+BSRH&C.100 EQU   *                                                      00420000
+         LA    R7,0(R8,R6) .           GUESS = (MAX+MIN)                00421000
+         SRL   R7,1 .                  GUESS = GUESS/2                  00422000
+         CR    R7,R5 .                 Q. GUESS = LAST GUESS            00423000
+         BE    BSRH&C.900 .            A. YES,                          00424000
+         LR    R5,R7 .                 LAST GUESS = GUESS               00425000
+         LR    R0,R7 .                 SAVE SUBSCRIPT                   00426000
+         BCTR  R7,R0 .                 COMPUTE INDEX VALUE              00427000
+         &INST5 &INSTE                                                  00428000
+         LA    R7,0(R7,R3) .                                            00429000
+         &INST6 &INSTF                                                  00430000
+         EX    R1,BSRH&C.CLC .         Q. ARG > GUESS                   00431000
+         BH    BSRH&C.110 .            A. YES, GO ADJUST MIN            00432000
+         LR    R8,R5 .                 ..ADJUST MAX                     00433000
+         BL    BSRH&C.100 .            A. NO, GO TRY AGAIN              00434000
+         &INST7 &INSTG                 ..SAVE LAST HIT                  00435000
+         &INST8 &INSTH                                                  00436000
+         &INST9 &INSTI                                                  00437000
+         B     BSRH&C.100 .            GO TRY AGAIN                     00438000
+         SPACE 2                                                        00439000
+BSRH&C.CLC CLC   0(0,R2),0(R7)                                          00440000
+         AIF   (&RSAFLG LT 2).BSRH950                                   00441000
+BSRH&C.RSA DC    16F'0'                                                 00442000
+.BSRH950 ANOP                                                           00443000
+         SPACE 2                                                        00444000
+BSRH&C.110 EQU   *                                                      00445000
+         LA    R6,1(,R5) .             MIN=(GUESS+1)                    00446000
+         B     BSRH&C.100 .            GO TRY AGAIN                     00447000
+         SPACE 2                                                        00448000
+BSRH&C.900 EQU   *                                                      00449000
+         OC    &RANK,&RANK             Q. ANY HITS FOUND                00450000
+         BZ    BSRH&C.999 .            A. NO, GO EXIT                   00451000
+         XR    R15,R15 .               SET RETURN CODE TO FOUND         00452000
+BSRH&C.999 EQU   *                                                      00453000
+         AIF   (&RSAFLG EQ 0).BSRH970                                   00454000
+         AIF   (&RSAFLG EQ 1).BSRH960                                   00455000
+         LM    R1,R14,BSRH&C.RSA+4 .   RESTORE CALLER'S REGISTERS       00456000
+         AGO   .BSRH970                                                 00457000
+.BSRH960 ANOP                                                           00458000
+         LM    R1,R14,&RSA+4 .         RESTORE CALLER'S REGISTERS       00459000
+         AGO   .BSRH970                                                 00460000
+.BSRH970 ANOP                                                           00461000
+         MEND                                                           00462000

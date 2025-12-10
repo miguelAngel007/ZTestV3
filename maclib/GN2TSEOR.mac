@@ -1,0 +1,49 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'GN2TSEOR - TSEORDB I/O COMMAREA'                        00001000
+*********************************************************************** 00002000
+* GN2TSEOR - THIS COPYBOOK DESCRIBES THE COMMUNICATION AREA TO        * 00003000
+*            THE TSEORDB DB2 I/O MODULES.                             * 00004000
+*---------------------------------------------------------------------* 00005000
+*                     ** HISTORY OF REVISIONS **                      * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+*------------------------------------------------------------ ------- * 00008000
+* 10/31/16 INITIAL RELEASE                                     GN7046 * 00010000
+*********************************************************************** 00011000
+PEOLIST  DS    0CL160                DB2 IO PARM LIST                   00012000
+PEOFUNC  DS    CL2                   FUNCTION CODE                      00013000
+*              VALUE 'BA'            BEGIN DAY - ALL EORS               00014000
+*              VALUE 'BI'            BEGIN DAY - INDIVIDUAL EOR         00015000
+*              VALUE 'DE'            DELETE                             00016000
+*              VALUE 'DG'            DELETE FILE GROUP                  00017000
+*              VALUE 'EQ'            GET EQUAL                          00018000
+*              VALUE 'GE'            GET GREATER THAN OR EQUAL          00019000
+*              VALUE 'GT'            GET GREATER THAN                   00020000
+*              VALUE 'GU'            GET FOR UPDATE                     00021000
+*              VALUE 'IN'            INSERT                             00022000
+*              VALUE 'LE'            GET LESS THAN OR EQUAL             00023000
+*              VALUE 'LT'            GET LESS THAN                      00024000
+*              VALUE 'SE'            SER FETCH                          00025000
+*              VALUE 'UP'            UPDATE                             00026000
+PEOCURSR DS    CL1                   CURSOR SET FLAG                    00027000
+*              VALUE Y               CURSOR SET YES                     00028000
+*              VALUE N               CURSOR SET NO (DEFAULT)            00029000
+PEOPWFLG DS    CL1                   TSPSW FLAG                         00030000
+*              VALUE P               TSPSW REQUEST                      00031000
+*              VALUE SPACE           TSEOR REQUEST (DEFAULT)            00032000
+PEOFILGP DS    CL2                   FILE GROUP                         00033000
+PEOSYSDT DS    CL6                   SYSTEM DATE                        00034000
+PEOPURDT DS    CL6                   PURGE DATE                         00035000
+PEOSERCL DS    CL10                  SER CLASS                          00036000
+PEOKEYAD DS    XL4                   KEY ADDRESS                        00037000
+PEORECAD DS    XL4                   RECORD ADDRESS                     00038000
+PEORECLN DS    XL2                   RECORD LENGTH                      00039000
+PEORTCDE DS    XL2                   RETURN CODE                        00040000
+*              VALUE 0               OK                                 00041000
+*              VALUE 16              BAD REQUEST                        00042000
+*              VALUE 100             NOT FOUND OR END OF FILE           00043000
+*              VALUE -305            NULLS                              00044000
+*              VALUE -803            DUPLICATE RECORD                   00045000
+*              VALUE -911            DEADLOCK WITH ROLLBACK             00046000
+*              VALUE -913            DEADLOCK WITHOUT ROLLBACK          00047000
+PEORTTXT DS    CL120                 MSG TEXT                           00048000
+PEOLEN   EQU   *-PEOLIST             PARM LIST LENGTH                   00049000

@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                            TSTS2XCT                                 * 00000200
+*                       TRANSACTION SYSTEM                            * 00000300
+*        COMMUNICATION AREA BETWEEN TSTSXCT1 AND TS/BMS, TS/NATIVE,   * 00000400
+*                 TS/CTLS, SA-SERVE, CIF, AND FIAS.                   * 00000500
+*********************************************************************** 00000600
+         SPACE 2                                                        00000700
+TSXCT    DS    0XL72                                                    00000800
+XCTID    DS    CL8                   WHERE COMM AREA ORIGINATED         00000900
+*                                    VALUES: TSBMSCA  - FROM TS/BMS     00001000
+*                                            TSNATCA  - FROM TS/NATIVE  00001100
+*                                            TSCTLCA  - FROM TS/CTLS    00001200
+*                                            TSSASCA  - FROM SA-SERVE   00001300
+*                                            TSFISCA  - FROM FIAS       00001400
+*                                            TSTSXCT1 - FROM TSTSXCT1   00001500
+XCTRNCOD DS    CL8                   TRAN CODE                          00001600
+XCTRNADR DS    XL4                   TRANSMISSION ADDRESS               00001700
+XCTRNLNG DS    XL2                   TRANSMISSION OR TRAN CODE LENGTH   00001800
+XCTITRAD DS    XL4                   ITR ADDRESS                        00001900
+XCTEORAD DS    XL4                   EOR ADDRESS                        00002000
+XCTQSIAD DS    XL4                   QSI ADDRESS                        00002100
+XCTBRQAD DS    XL4                   BRQ ADDRESS                        00002200
+XCTSACB  DS    XL4                   SACB ADDRESS                       00002300
+XCTCOMAD DS    XL4                   APPL COMM AREA ADDRESS             00002400
+         DS    XL4                   FILLER                             00002500
+XCTXCTPG DS    CL8                   XCTL PROGRAM NAME                  00002600
+XCTSOURC DS    CL1                   SOURCE FLAG                        00002700
+*                                    VALUES: 1 = TS/BMS                 00002800
+*                                            2 = TS/NATIVE              00002900
+*                                            3 = SA-SERVE               00003000
+*                                            4 = TS/CTLS                00003100
+*                                            5 = FIAS                   00003200
+XCTTARSC DS    CL1                   TAR SEARCH FLAG                    00003300
+*                                    VALUES: 0 = NO TAR SEARCH REQ      00003400
+*                                            1 = TAR SEARCH REQUIRED    00003500
+XCTFORTD DS    CL1                   FORCE TRANSFER DATA                00003600
+*                                    VALUES: 0 = DON'T FORCE XFR DATA   00003700
+*                                            1 = FORCE TRANSFER DATA    00003800
+XCTAPPLF DS    CL2                   APPLICATION OF 'FROM' TRANSACTION  00003900
+XCTCOMLN DS    XL2                   LENGTH OF APPL COMM AREA           00004000
+XCTXCTLN DS    XL2                   LENGTH OF XCT1 COMM AREA           00004100
+XCTCIFST DS    CL2                   CIF STATUS INDICATOR               00004200
+         DS    CL3                   FILLER                             00004300
+XCTEND   EQU   *                     SYMBOLIC END OF COMM AREA          00004400
+XCTLEN   EQU   *-TSXCT               SYMBOLIC LENGTH OF COMM AREA       00004500

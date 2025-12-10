@@ -1,0 +1,104 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+         SIEXLATE &WAREA=                                               00000200
+.*********************************************************************  00000300
+.*  THIS MACRO TRANSLATES A SINGLE BYTE TO 2 DISPLAY FORMAT BYTES       00000400
+.*       GIVING THE HEX VALUE OF THE FIELD AND ALSO TO 3 BYTES GIVING   00000500
+.*       THE DECIMAL VALUE OF THE FIELD.                                00000600
+.*  THE USER'S ASSEMBLER PROGRAM MUST SUPPLY A 6-BYTE FIELD (THE        00000700
+.*       EXTERNAL WORK AREA) TO THE MACRO. BYTE 1 OF THIS EXTERNAL AREA 00000800
+.*       MUST BE THE BYTE TO BE TRANSLATED. BYTES 2-3 ARE THE BYTES     00000900
+.*       THAT WILL CONTAIN THE DISPLAY FORMAT HEX VALUE, AND BYTES 4-6  00001000
+.*       WILL CONTAIN THE DISPLAY FORMAT DECIMAL VALUE. BYTES 2-6 DON'T 00001100
+.*       NEED TO BE SET TO LOW VALUES BEFORE CALLING SIEXLATE.          00001200
+.*  THE LOCATION OF THE EXTERNAL WORK AREA MAY BE SUPPLIED BY PASSING   00001300
+.*       EITHER THE SYMBOLIC NAME OF THE AREA (ASSUMING YOU GIVE IT A   00001400
+.*       NAME) OR YOU MAY LOAD THE ADDRESS OF THE AREA INTO A REGISTER  00001500
+.*       AND PASS THE REGISTER TO THE MACRO. SEE EXAMPLES BELOW.        00001600
+.* -------------------------------------------------------------------  00001700
+.*        6-BYTE WORK AREA FOR SIEXLATE                                 00001800
+.* -------------------------------------------------------------------  00001900
+.* AREA1    DS    0CL6                                                  00002000
+.* ARG      DC    XL1'00'                 INITIAL ARGUMENT AREA         00002100
+.* HEXDCML  DC    XL2'0000'               HEXADECIMAL RETURN AREA       00002200
+.* DECIMAL  DC    XL3'000000'             DECIMAL RETURN AREA           00002300
+.* -------------------------------------------------------------------  00002400
+.*                                                                      00002500
+.*          SIEXLATE  WAREA=AREA1           (SYMBOLIC NAME)             00002600
+.*                                 OR                                   00002700
+.*          LA        6,AREA1                                           00002800
+.*          SIEXLATE  WAREA=(6)             (REGISTER NOTATION)         00002900
+.*                                                                      00003000
+.*                                                                      00003100
+.*          THE CONTENTS OF REGS 1 AND 15 WILL BE ALTERED.              00003200
+.*          THEREFORE, IF IMPORTANT, THEIR CONTENTS MUST BE SAVED FOR   00003300
+.*          LATER RESTORATION.                                          00003400
+.********************************************************************   00003500
+         GBLC   &NDX,&SECTNM                                            00003600
+         LCLC   &REG                                                    00003700
+         AIF    ('&SECTNM' EQ '&SYSECT').NOTFRST                        00003800
+&SECTNM  SETC   '&SYSECT'                                               00003900
+&NDX     SETC   '&SYSNDX'                                               00004000
+         B      EXBY&NDX               BRANCH PAST COMMON CODE          00004100
+EXLA&NDX EQU   *                                                        00004200
+         UNPK  1(3,1),0(2,1)           UNPACK HEX BYTE                  00004300
+         NC    1(2,1),EXWA&NDX+28      CLEAR ZONES                      00004400
+         TR    1(2,1),EXWA&NDX+12      TRANSLATE TO CHARACTER           00004500
+         ST    15,EXWA&NDX+8           SAVE REG 15                      00004600
+         SR    15,15                   CLEAR REG 15                     00004700
+         IC    15,0(0,1)               LOAD ARGUMNT TO REG 0            00004800
+         CVD   15,EXWA&NDX             CONVERT BINARY TO PACKED         00004900
+         UNPK  3(3,1),EXWA&NDX+6(2)    CONVERT PACKED TO ZONED DECIMAL  00005000
+         OI    5(1),X'F0'              CHG LOW-ORDER ZONE FROM C TO F   00005100
+         L     15,EXWA&NDX+8           RESTORE REG 15                   00005200
+         BR    15                      RETURN TO CALLING ADDR           00005300
+EXWA&NDX DC    D'0'                    DOUBLEWORD WORK AREA             00005400
+         DC    F'0'                    SAVE AREA FOR REG 15             00005500
+         DC    CL16'0123456789ABCDEF'  TRANSLATE TABLE                  00005600
+         DC    XL2'0F0F'                                                00005700
+EXBY&NDX DS    0H                                                       00005800
+.NOTFRST ANOP                                                           00005900
+.********************************************************************   00006000
+.*  THE 'AIF' STATEMENTS CHECK (#1) TO ENSURE THAT A PARM WAS PASSED    00006100
+.*  TO THE MACRO; IF NOT, A TERMINAL MNOTE. (#2) FOR A LEFT PAREN TO    00006200
+.*  DETERMINE REGISTER OR SYMBOLIC NOTATION. (#3) FOR A 1-BYTE OR       00006300
+.*  (#4) A 2-BYTE REGISTER NUMBER.                                      00006400
+.********************************************************************   00006500
+         AIF   (T'&WAREA EQ 'O').WANULL                                 00006600
+         AIF   ('&WAREA'(1,1) NE '(').NOTREG                            00006700
+         AIF   ('&WAREA'(3,1) EQ ')').RG1BYT                            00006800
+         AIF   ('&WAREA'(4,1) EQ ')').RG2BYT                            00006900
+         AGO   .NORPRN                                                  00007000
+.*********************************************************************  00007100
+.* '.NOTREG' PROCESSES FOR SYMBOLIC (NOT REGISTER) NOTATION. '.RG1BYT'  00007200
+.*  PROCESSES FOR A 1-BYTE REG #, '.RG2BYT' FOR A 2-BYTE REG #.         00007300
+.*********************************************************************  00007400
+.NOTREG  ANOP                                                           00007500
+         LA    1,&WAREA               LOAD ADDRESS OF XTRNL WORK AREA   00007600
+         AGO   .PROCES                                                  00007700
+.RG1BYT  ANOP                                                           00007800
+         AIF   ('&WAREA'(2,1) GT '9').RG1BE2                            00007900
+         AIF   ('&WAREA'(2,1) EQ '1').PROCES                            00008000
+&REG     SETC  '&WAREA'(2,1)                                            00008100
+         LR    1,&REG                 LOAD ADDRESS OF XTRNL WORK AREA   00008200
+         AGO   .PROCES                                                  00008300
+.RG2BYT  ANOP                                                           00008400
+         AIF   ('&WAREA'(2,2) GT '15').RG1BE4                           00008500
+         AIF   ('&WAREA'(2,2) EQ '01').PROCES                           00008600
+&REG     SETC  '&WAREA'(2,2)                                            00008700
+         LR    1,&REG                 LOAD ADDRESS OF XTRNL WORK AREA   00008800
+.PROCES  ANOP                                                           00008900
+         BAL   15,EXLA&NDX                                              00009000
+         MEXIT                                                          00009100
+.NORPRN  MNOTE 3,'NO MATCHING RIGHT PAREN OR REG # GT 2 DIGITS'         00009200
+         MNOTE 3,'MACRO EXPANSION TERMINATED'                           00009300
+         MEXIT                                                          00009400
+.WANULL  MNOTE 3,'WAREA PARAMETER NOT PROVIDED'                         00009500
+         MNOTE 3,'MACRO EXPANSION TERMINATED'                           00009600
+         MEXIT                                                          00009700
+.RG1BE2  MNOTE 3,'INVALID REGISTER NUMBER - GREATER THAN 9'             00009800
+         MNOTE 3,'MACRO EXPANSION TERMINATED'                           00009900
+         MEXIT                                                          00010000
+.RG1BE4  MNOTE 3,'INVALID REGISTER NUMBER - GREATER THAN 15'            00010100
+         MNOTE 3,'MACRO EXPANSION TERMINATED'                           00010200
+         MEND                                                           00010300

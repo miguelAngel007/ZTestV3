@@ -1,0 +1,135 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR                   *
+         MACRO                                                          00000100
+&N       TSTS9MP &WR1=,&WR2=,&WR3=,&SDRA=,&MAPA=,&DTYP=,&SDET=,        X00000200
+               &MDET=,&FID=,&EXTA=,&TYPE=                               00000300
+.********************************************************************** 00000400
+.*     MAP MACRO TO ASSOCIATE SDR FIELDS WITH MAP FIELDS FOR TS/BMS   * 00000500
+.*                                                                    * 00000600
+.*  THIS MACRO WILL DO ONE OF THE FOLLOWING:                          * 00000700
+.*                                                                    * 00000800
+.*  1)  TAKE AN SDR DETAIL ADDRESS (SDET) AND RETURN THE CORRESPONDING* 00000900
+.*      MAP OCCURRENCE ADDRESS (MDET) AND DETAIL FIELD ID (FID)       * 00001000
+.*  2)  TAKE A MAP OCCURRENCE ADDRESS (MDET) AND RETURN THE           * 00001100
+.*      CORRESPONDING SDR DETAIL ADDRESS (SDET) AND FIELD ID (FID)    * 00001200
+.*  3)  TAKE AN SDR FIELD ID (FID) AND RETURN THE CORRESPONDING SDR   * 00001300
+.*      DETAIL ADDRESS (SDET) AND MAP OCCURRENCE ADDRESS (MDET)       * 00001400
+.*                                                                    * 00001500
+.*  IF AN ERROR OCCURS, HIGH VALUES WILL BE RETURNED IN ALL THREE     * 00001600
+.*  FIELDS (SDET, MDET, AND FID)                                      * 00001700
+.********************************************************************** 00001800
+.*   WR1  =  WORK REGISTER NUMBER 1                                   * 00001900
+.*   WR2  =  WORK REGISTER NUMBER 2                                   * 00002000
+.*   WR3  =  WORK REGISTER NUMBER 3                                   * 00002100
+.*   SDRA =  SCREEN DEFINITION RECORD ADDRESS                         * 00002200
+.*           LENGTH=FULLWORD, REQUIRED                                * 00002300
+.*   MAPA =  MAP RECEIVE AREA ADDRESS                                 * 00002400
+.*           LENGTH=FULLWORD, REQUIRED                                * 00002500
+.*   DTYP =  DETAIL TYPE (S=SCREEN DETAIL P=PHANTOM DETAIL)           * 00002600
+.*           LENGTH=1, WILL BE RETURNED                               * 00002700
+.*   SDET =  SCREEN DEFINITION RECORD DETAIL ADDRESS                  * 00002800
+.*           LENGTH=FULLWORD, OPTIONAL                                * 00002900
+.*   MDET =  MAP RECEIVE AREA OCCURRENCE ADDRESS                      * 00003000
+.*           LENGTH=FULLWORD, OPTIONAL                                * 00003100
+.*   FID  =  MAP FIELD ID                                             * 00003200
+.*   EXTA =  EXTENDED FIELD ATTRIBUTES ON MAP ('Y' - YES)             * 00003300
+.*   TYPE =  STRG OR MACRO FOR STORAGE AREA OR CODE                   * 00003400
+.********************************************************************** 00003500
+         SPACE                                                          00003600
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00003700
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00003800
+.STRG    ANOP                                                           00003900
+MPADD1   DS    F                                                        00004000
+MPADD2   DS    F                                                        00004100
+MPADD3   DS    F                                                        00004200
+         AIF   ('&TYPE' EQ 'STRG').END                                  00004300
+.MCRO    ANOP                                                           00004400
+         SPACE                                                          00004500
+         MVI   &DTYP,C'S'              INDICATE SCREEN DETAIL           00004600
+         ICM   &WR3,15,&SDRA           LOAD SDR START ADDRESS           00004700
+         LTR   &WR3,&WR3               IS SDR ADDRESS AVAILABLE         00004800
+         BZ    &N.NFND00               NO - GO SET ERROR AND RETURN     00004900
+         USING SDRSEG1,&WR3            ADDRESS SDR STEM SEGMENT         00005000
+         LA    &WR1,SDR2VAR            POINT TO BEG VARIABLE SEGS 2-4   00005100
+         XR    &WR2,&WR2               CLEAR WORK REGISTER              00005200
+         ICM   &WR2,3,SDR1FKLG         LENGTH OF FUNC KEY SEG           00005300
+         AR    &WR1,&WR2               ADD LENGTH OF FUNC KEY SEG       00005400
+         XR    &WR2,&WR2               CLEAR WORK REGISTER              00005500
+         IC    &WR2,SDR1FFLG           LENGTH OF FREE FORM SEG          00005600
+         AR    &WR1,&WR2               ADD LENGTH OF FREE FORM SEG      00005700
+         ST    &WR1,MPADD1             SAVE START ADDRESS               00005800
+         ICM   &WR2,3,SDR1SCLG         LENGTH OF SCREEN SEG             00005900
+         AR    &WR1,&WR2               ADD LENGTH OF SCREEN SEG         00006000
+         ST    &WR1,MPADD2             SAVE END OF SEGMENTS             00006100
+         DROP  &WR3                                                     00006200
+         L     &WR1,MPADD1             POINT TO SCREEN STEM             00006300
+         USING SDRSEG4A,&WR1           ADDRESS SCREEN STEM              00006400
+         ICM   &WR2,3,SDR4ALEN         LENGTH OF THIS SCR'S DETAILS     00006500
+         AR    &WR2,&WR1               ADD LENGTH OF SCREEN DETAILS     00006600
+         ST    &WR2,MPADD3             SAVE END SCREEN DETAILS          00006700
+         LA    &WR1,SDR4BVAR           POINT TO SCREEN DETAIL           00006800
+         DROP  &WR1                                                     00006900
+         USING SDRSEG4B,&WR1           ADDRESS SCREEN DETAIL            00007000
+         ICM   &WR3,15,&MAPA           POINT TO MAP AREA                00007100
+         LTR   &WR3,&WR3               IS MAP ADDRESS AVAILABLE         00007200
+         BZ    &N.CKDT00               NO - CK IF MAP OCCUR LOC AVAIL   00007300
+         LA    &WR3,12(&WR3)           BUMP 12                          00007400
+         B     &N.SCDT00               GO PROCESS SCREEN DETAIL         00007500
+&N.CKDT00 EQU  *                                                        00007600
+         CLC   &MDET,=4X'00'           MAP OCCUR LOCATION AVAIL         00007700
+         BNE   &N.NFND00               YES - GO SET ERROR AND RETURN    00007800
+&N.SCDT00 EQU  *                                                        00007900
+         CLC   &SDET,=4X'00'           SDR DETAIL LOCATION AVAIL        00008000
+         BNE   &N.CMPS00               YES - GO COMPARE ADDR            00008100
+         CLC   &MDET,=4X'00'           MAP OCCUR LOCATION AVAIL         00008200
+         BNE   &N.CMPM00               YES - GO COMPARE ADDR            00008300
+         CLC   &FID,SDR4BFID           FIELD IDS MATCH                  00008400
+         BE    &N.FIND00               YES - GO STORE RET ADDR          00008500
+         B     &N.NEXT00               NO  - GO BUMP TO NEXT DETAIL     00008600
+&N.CMPS00 EQU  *                                                        00008700
+         C     &WR1,&SDET              AT SDR LOCATION                  00008800
+         BE    &N.FIND00               YES - GO STORE RET ADDR          00008900
+         B     &N.NEXT00               NO  - GO BUMP TO NEXT DETAIL     00009000
+&N.CMPM00 EQU  *                                                        00009100
+         C     &WR3,&MDET              AT MAP LOCATION                  00009200
+         BE    &N.FIND00               YES - GO STORE RET ADDR          00009300
+&N.NEXT00 EQU  *                                                        00009400
+         CLI   &DTYP,C'P'              PHANTOM DETAILS                  00009500
+         BE    &N.NXTC00               YES - BYPASS MAP BUMP            00009600
+         CLC   &MAPA,=4X'00'           MAP ADDRESS GIVEN                00009700
+         BE    &N.NXTC00               NO  - BYPASS MAP BUMP            00009800
+         CLC   SDR4BFID,=8X'00'        FIELD ID?                        00009900
+         BE    &N.NXTC00               NO - BYPASS MAP BUMP             00010000
+         LA    &WR3,3(&WR3)            BUMP PAST MAP LEN AND ATTR       00010100
+         CLI   &EXTA,C'Y'              MAP HAS EXTENDED ATTRIBUTES?     00010200
+         BNE   &N.NEXT10               NO - CONTINUE                    00010300
+         LA    &WR3,4(&WR3)            BUMP 4 BYTES FOR EXTENDED ATTR   00010400
+&N.NEXT10 EQU  *                                                        00010500
+         XR    &WR2,&WR2               CLEAR WORK REGISTER              00010600
+         ICM   &WR2,3,SDR4BFLN         LOAD SCREEN FIELD LENGTH         00010700
+         AR    &WR3,&WR2               BUMP PAST MAP DATA FIELD         00010800
+&N.NXTC00 EQU  *                                                        00010900
+         XR    &WR2,&WR2               CLEAR WORK REGISTER              00011000
+         ICM   &WR2,3,SDR4BDLG         LENGTH OF THIS DETAIL            00011100
+         AR    &WR1,&WR2               POINT TO NEXT DETAIL             00011200
+         C     &WR1,MPADD3             MORE SCREEN DETAIL               00011300
+         BL    &N.SCDT00               YES - PROCESS NEXT DETAIL        00011400
+         MVI   &DTYP,C'P'              INDICATE PHANTOM DETAIL          00011500
+         C     &WR1,MPADD2             MORE PHANTOM DETAIL              00011600
+         BL    &N.SCDT00               YES - PROCESS NEXT DETAIL        00011700
+         B     &N.NFND00               GO SET ERROR AND RETURN          00011800
+&N.FIND00 EQU  *                                                        00011900
+         MVC   &FID,SDR4BFID           MOVE FIELD ID                    00012000
+         STCM  &WR1,15,&SDET           STORE SDR DETAIL ADDRESS         00012100
+         STCM  &WR3,15,&MDET           STORE MAP OCCURS ADDRESS         00012200
+         B     &N.EXIT00               GO RETURN                        00012300
+&N.NFND00 EQU  *                                                        00012400
+         MVC   &FID,=8X'FF'            SET TO HIGH-VAL--INDICATE ERROR  00012500
+         MVC   &SDET,=4X'FF'           SET TO HIGH-VAL--INDICATE ERROR  00012600
+         MVC   &MDET,=4X'FF'           SET TO HIGH-VAL--INDICATE ERROR  00012700
+         B     &N.EXIT00                                                00012800
+         DROP  &WR1                    DROP REGISTER BEFORE RETURN      00012900
+         SPACE                                                          00013000
+         DS    0H                                                       00013100
+&N.EXIT00 EQU   *                                                       00013200
+.END     ANOP                                                           00013300
+         MEND                                                           00013400

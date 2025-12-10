@@ -1,0 +1,193 @@
+000100 01  DA-UPD-CARD-REC.
+000200     03  DA-UPD-KEY-NAME         PIC X(8).
+000300     03  DA-UPD-KEY-SEQ          PIC 9(5).
+000400     03  DA-UPD-PROC             PIC X.
+000500     03  DA-UPD-TYPE             PIC X.
+000600     03  DA-UPD-IMAGE            PIC X(65).
+000700 01  FILLER           REDEFINES  DA-UPD-CARD-REC.
+000800     03  FILLER                  PIC X(15).
+000900     03  DA-UPD-FLD-SEQ          PIC 9(5).
+001000     03  DA-UPD-EXT-NAME         PIC X(30).
+001100     03  DA-UPD-DATA-TYPE        PIC X.
+001200         88  DA-DVL-DATA-TYPE VALUE 'B'     'C'  'G'  'P'  'Z'
+001300                                       '*'  'X'  'N'  'U'.        DC013091
+001400     03  DA-UPD-DATA-QUAL        PIC X.
+001500         88  DA-DVL-DATA-QUAL VALUE 'I'     'L'  'R'  'S'  'U'
+001600                                       '2'  '3'  '*'.
+001700         88  DA-DVL-RECD-QUAL VALUE '='     '>'  '<'.
+001800         88  DA-DVL-RKEY-QUAL VALUE 'D'     'K'  'U'  '*'.
+001900         88  DA-DVL-RBRK-QUAL VALUE '1'     '2'  '3'  '4'.
+002000     03  DA-UPD-DATA-SIGN        PIC X.
+002100         88  DA-DVL-DATA-SIGN VALUE '+'     '-'  'C'  'L'  'R'
+002200                                       '*'.
+002300     03  DA-UPD-FLD-LGTH         PIC 9(5).
+002400     03  DA-UPD-DEC-CNT          PIC 9(3).
+002500     03  DA-UPD-OCC-CNT          PIC 9(5).
+002600     03  DA-UPD-POS              PIC 9(5).
+002700     03  DA-UPD-SPL-HAND         PIC X.
+002800         88  DA-DVL-SPL-SRCE     VALUE 'D'  'E'  'S'  '*'.
+002900         88  DA-DVL-SPL-RSLT     VALUE 'S'  '*'.
+003000     03  DA-UPD-SPL-ROUT         PIC X(8).
+003100 01  FILLER           REDEFINES  DA-UPD-CARD-REC.
+003200     03  FILLER                  PIC X(15).
+003300     03  DA-UPD-PRT-OPT          PIC X.
+003400         88  DA-DVL-PRT-OPT      VALUE '1'  '2'  '3'  '4'  '*'.
+003500     03  DA-UPD-EDT-OPT          PIC X(2).
+003600         88  DA-DVL-EDT-OPT      VALUE 'A*' 'A1' 'A2' 'A3' 'A4'
+003700                                       'D*' 'D1' 'D2' 'D3' 'D4'
+003800                                       '**'.
+003900     03  FILLER                  PIC X(62).
+004000 01  FILLER           REDEFINES  DA-UPD-CARD-REC.
+004100     03  FILLER                  PIC X(15).
+004200     03  DA-UPD-IO-ROUT          PIC X(8).
+004300     03  DA-UPD-IO-TABLE         PIC X(8).
+004400     03  DA-UPD-IO-EDIT          PIC X(8).
+004500     03  DA-UPD-IO-LGTH          PIC 9(5).
+004600     03  DA-UPD-IO-LGTHX         REDEFINES DA-UPD-IO-LGTH.
+004700         05  FILLER              PIC X(5).
+004800     03  DA-UPD-IO-LIMIT         PIC 9(7).
+004900     03  DA-UPD-IO-LIMITX        REDEFINES DA-UPD-IO-LIMIT.
+005000         05  FILLER              PIC X(7).
+005100     03  FILLER                  PIC X(29).
+005200 01  FILLER           REDEFINES  DA-UPD-CARD-REC.
+005300     03  FILLER                  PIC X(15).
+005400     03  DA-UPD-S-EDIT           PIC X(8).
+005500     03  FILLER                  PIC X(8).
+005600     03  DA-UPD-S-ROUT           PIC X(8).
+005700     03  FILLER                  PIC X(41).
+005800 01  FILLER          REDEFINES   DA-UPD-CARD-REC.
+005900     03  FILLER                  PIC X(15).
+006000     03  DA-UPD-X-FLD-SEQ        PIC X(5).
+006100     03  FILLER                  PIC X(33).
+006200     03  DA-UPD-X-FLD-LGTH       PIC X(5).
+006300     03  DA-UPD-X-DEC-CNT        PIC X(3).
+006400     03  DA-UPD-X-OCC-CNT        PIC X(5).
+006500     03  DA-UPD-X-POS            PIC X(5).
+006600     03  FILLER                  PIC X(9).
+006700     EJECT
+006800************************************************************
+006900*           *** DA UPDATE CARD FORMATS ***                 *
+007000*           ***      SOURCE & RESULT      ***              *
+007100************************************************************
+007200*  COLUMN(S):                                              *
+007300*  ---------1---------2---------3---------4---------5      *
+007400*  12345678901234567890123456789012345678901234567890      *
+007500*  XXXXXXXX                                                *
+007600*  ¦       NNNNN                                           *
+007700*  ¦       ¦    X                                          *
+007800*  ¦       ¦    ¦X                                         *
+007900*  ¦       ¦    ¦¦NNNNN                                    *
+008000*  ¦       ¦    ¦¦¦    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      *
+008100*  ¦       ¦    ¦¦¦    ¦                                   *
+008200*  ¦       ¦    ¦¦¦    - EXTERNAL NAME/ROUTINE             *
+008300*  ¦       ¦    ¦¦------ FIELD SEQUENCE                    *
+008400*  ¦       ¦    ¦¦------ UPDATE TYPE (S/R)                 *
+008500*  ¦       ¦    ¦------- A = ADD, C = CHG, D = DEL         *
+008600*  ¦       ¦------------ KEY FIELD SEQUENCE                *
+008700*  ¦-------------------- KEY TABLE NAME                    *
+008800*                                                          *
+008900*                                                          *
+009000*                                                          *
+009100*  COLUMN(S):                                              *
+009200*  5--------6---------7---------8                          *
+009300*  123456789012345678901234567890                          *
+009400*  X                                                       *
+009500*  ¦X                                                      *
+009600*  ¦¦X                                                     *
+009700*  ¦¦¦NNNNN                                                *
+009800*  ¦¦¦¦    NNN                                             *
+009900*  ¦¦¦¦    ¦  NNNNN                                        *
+010000*  ¦¦¦¦    ¦  ¦    NNNNN                                   *
+010100*  ¦¦¦¦    ¦  ¦    ¦ ¦- X                                  *
+010200*  ¦¦¦¦    ¦  ¦    ¦ ¦   XXXXXXXX                          *
+010300*  ¦¦¦¦    ¦  ¦    ¦ ¦   ¦                                 *
+010400*  ¦¦¦¦    ¦  ¦    ¦ ¦   SPECIAL HANDLE ROUTINE            *
+010500*  ¦¦¦¦    ¦  ¦    ¦ ¦-- SPECIAL HANDLE OPTION             *
+010600*  ¦¦¦¦    ¦  ¦    ¦---- RELATIVE FILE POSITION            *
+010700*  ¦¦¦¦    ¦  ¦--------- OCCURS COUNT                      *
+010800*  ¦¦¦¦    ¦------------ DECIMALS COUNT                    *
+010900*  ¦¦¦¦----------------- FIELD LENGTH                      *
+011000*  ¦¦¦------------------ DATA SIGN/ALIGNMENT               *
+011100*  ¦¦------------------- DATA QUALIFIER                    *
+011200*  ¦-------------------- DATA TYPE                         *
+011300*                                                          *
+011400************************************************************
+011500     EJECT
+011600************************************************************
+011700*           *** DA UPDATE CARD FORMATS ***                 *
+011800*           ***   MISCELLANEOUS (FIELDS)  ***              *
+011900************************************************************
+012000*  COLUMN(S):                                              *
+012100*  ---------1---------2---------3---------4---------5      *
+012200*  12345678901234567890123456789012345678901234567890      *
+012300*  XXXXXXXX                                                *
+012400*  ¦       NNNNN                                           *
+012500*  ¦       ¦    X                                          *
+012600*  ¦       ¦    ¦X                                         *
+012700*  ¦       ¦    ¦¦X                                        *
+012800*  ¦       ¦    ¦¦¦XX                                      *
+012900*  ¦       ¦    ¦¦¦¦                                       *
+013000*  ¦       ¦    ¦¦¦¦---- EDITING OPTION                    *
+013100*  ¦       ¦    ¦¦¦----- PRINT OPTION                      *
+013200*  ¦       ¦    ¦¦------ UPDATE TYPE (M)                   *
+013300*  ¦       ¦    ¦------- A = ADD, C = CHG, D = DEL         *
+013400*  ¦       ¦------------ KEY FIELD SEQUENCE                *
+013500*  ¦-------------------- KEY TABLE NAME                    *
+013600*                                                          *
+013700************************************************************
+013800     SKIP2
+013900************************************************************
+014000*           ***       INPUT / OUTPUT      ***              *
+014100************************************************************
+014200*  COLUMN(S):                                              *
+014300*  ---------1---------2---------3---------4---------5-     *
+014400*  123456789012345678901234567890123456789012345678901     *
+014500*  XXXXXXXX                                                *
+014600*  ¦       NNNNN                                           *
+014700*  ¦       ¦    X                                          *
+014800*  ¦       ¦    ¦X                                         *
+014900*  ¦       ¦    ¦¦XXXXXXXX                                 *
+015000*  ¦       ¦    ¦¦¦ ¦---- XXXXXXXX                         *
+015100*  ¦       ¦    ¦¦¦ ¦¦----------- XXXXXXXX                 *
+015200*  ¦       ¦    ¦¦¦ ¦¦¦------------------ NNNNN            *
+015300*  ¦       ¦    ¦¦¦ ¦¦¦  ¦-------------------- NNNNNNN     *
+015400*  ¦       ¦    ¦¦¦ ¦¦¦  ¦                                 *
+015500*  ¦       ¦    ¦¦¦ ¦¦¦  ¦                                 *
+015600*  ¦       ¦    ¦¦¦ ¦¦¦  I-O RECORD LIMIT                  *
+015700*  ¦       ¦    ¦¦¦ ¦¦¦- I-O RECORD LENGTH                 *
+015800*  ¦       ¦    ¦¦¦ ¦¦-- I-O EDIT ROUTINE                  *
+015900*  ¦       ¦    ¦¦¦ ¦--- I-O TABLE NAME                    *
+016000*  ¦       ¦    ¦¦------ I-O PROCESSING ROUTINE            *
+016100*  ¦       ¦    ¦¦------ UPDATE TYPE (I/O)                 *
+016200*  ¦       ¦    ¦------- A = ADD, C = CHG, D = DEL         *
+016300*  ¦       ¦------------ KEY FIELD SEQUENCE                *
+016400*  ¦-------------------- KEY TABLE NAME                    *
+016500*                                                          *
+016600************************************************************
+016700     EJECT
+016800************************************************************
+016900*           *** DA UPDATE CARD FORMATS ***                 *
+017000*           ***   MISCELLANEOUS (PHASES)  ***              *
+017100************************************************************
+017200*  COLUMN(S):                                              *
+017300*  ---------1---------2---------3---------4---------5      *
+017400*  12345678901234567890123456789012345678901234567890      *
+017500*  XXXXXXXX                                                *
+017600*  ¦       NNNNN                                           *
+017700*  ¦       ¦    X                                          *
+017800*  ¦       ¦    ¦X                                         *
+017900*  ¦       ¦    ¦¦XXXXXXXX                                 *
+018000*  ¦       ¦    ¦¦¦ ¦---- XXXXXXXX                         *
+018100*  ¦       ¦    ¦¦¦ ¦ ¦---------- XXXXXXXX                 *
+018200*  ¦       ¦    ¦¦¦ ¦ ¦                                    *
+018300*  ¦       ¦    ¦¦¦ ¦ ¦                                    *
+018400*  ¦       ¦    ¦¦¦ ¦ ¦- SPECIAL PROC PHASE I              *
+018500*  ¦       ¦    ¦¦¦ ¦--- UNUSED                            *
+018600*  ¦       ¦    ¦¦¦----- SPECIAL EDIT PHASE I              *
+018700*  ¦       ¦    ¦¦------ UPDATE TYPE (P)                   *
+018800*  ¦       ¦    ¦------- A = ADD, C = CHG, D = DEL         *
+018900*  ¦       ¦------------ KEY FIELD SEQUENCE                *
+019000*  ¦-------------------- KEY TABLE NAME                    *
+019100*                                                          *
+019200************************************************************
+019300     EJECT

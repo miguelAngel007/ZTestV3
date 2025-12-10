@@ -1,0 +1,38 @@
+      **********************************************************        00000580
+      *    KOTBIN01   TABLA DE EQUIVALENCIAS DE BIN PARA KO    *        00000580
+      *                                                        *        00000580
+      *    EN ESTA TABLA SE DEBERA INCLUIR LOS NUEVOS BINES    *        00000580
+      *    QUE SE APERTUREN EN TARJETA DE CREDITOS, RELACIO-   *        00000580
+      *    NADOS CON EL CODIGO DE SOCIO. SE RESPETARA LA SE-   *        00000580
+      *    CUENCIA ESTABLECIDA.                                *        00000580
+      *                                                        *        00000580
+      **********************************************************        00000580
+      *    SI SE MODIFICA ESTA TABLA COMPILAR TODOS LOS PRO-   *        00000580
+      *    GRAMAS INVOLUCRADOS.                                *        00000580
+      *                                                        *        00000580
+      *    PROG. KOFMT04     FORMATEO DE TARJ.CRED. PARA KO.   *        00000580
+      **********************************************************        00000580
+      *                                      WUS.  MAR-1997    *        00000580
+      **********************************************************        00000580
+       01  WT-KOTBIN01.
+           02  WT-EQUIV-BIN.
+               03  FILLER   PIC X(11)  VALUE  '45477503-01'.
+               03  FILLER   PIC X(11)  VALUE  '45477603-02'.
+               03  FILLER   PIC X(11)  VALUE  '45477903-03'.
+               03  FILLER   PIC X(11)  VALUE  '45681403-04'.
+               03  FILLER   PIC X(11)  VALUE  '49133703-05'.
+               03  FILLER   PIC X(11)  VALUE  '80000103-06'.
+               03  FILLER   PIC X(11)  VALUE  '80000203-07'.
+               03  FILLER   PIC X(11)  VALUE  '80000303-08'.
+               03  FILLER   PIC X(11)  VALUE  '47324460-09'.
+               03  FILLER   PIC X(11)  VALUE  '47324560-10'.
+               03  FILLER   PIC X(11)  VALUE  '80000403-11'.
+               03  FILLER   PIC X(11)  VALUE  '80000503-12'.
+           02  FILLER  REDEFINES  WT-EQUIV-BIN.
+               03  WT-BIN-TARJ    OCCURS  12  INDEXED  BY  WI-X.
+                   04  WT-BIN.
+                       05  WT-BINX     PIC 9(6).
+                       05  WT-SOCIO    PIC 9(2).
+                   04  FILLER          PIC X(1).
+                   04  WT-EQUIV        PIC 9(2).
+      *                                                                 00000810

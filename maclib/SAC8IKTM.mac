@@ -1,0 +1,138 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAC8IKTM                                                      X00002000
+               &TYPE=START,                                            X00003000
+               &DATALEN=0,                                             X00004000
+               &KEYWORD=,                                              X00005000
+               &ECPOS=0,                                               X00006000
+               &LENGTH=0,                                              X00007000
+               &PLPOS=0,                                               X00008000
+               &PLWIDTH=0,                                             X00009000
+               &DATATYP=CH,                                            X00010000
+               &ITER=0,                                                X00011000
+               &KEYMLNG=8,                                             X00012000
+               &VARLENG=NO,                                            X00013000
+               &VALTYPE=ANY,                                           X00014000
+               &VALADDR=0,                                             X00015000
+               &SUBTABA=0,                                             X00016000
+               &FILLCHR=64,                                            X00017000
+               &HIRANG=0,                                              X00018000
+               &LOWRANG=0                                               00019000
+         GBLC  &V1,&KL                                                  00020000
+         GBLA  &V2,&V3                                                  00021000
+         AIF ('&TYPE' EQ '').TYP0001                                    00022000
+         AIF ('&TYPE' EQ 'START').TABGEN                                00023000
+         AIF ('&TYPE' EQ 'ENTRY').NTRYGEN                               00024000
+         AIF ('&TYPE' EQ 'END').TABEND                                  00025000
+         MNOTE 8,'INVALID -TYPE- SPECIFIED - EXPANSION ABANDONED'       00026000
+         MEXIT                                                          00027000
+.TABGEN  ANOP                                                           00028000
+         AIF (K'&NAME GT 7).NAM0001                                     00029000
+         AIF ('&NAME' EQ '').NAM0002                                    00030000
+&NAME    DS    0F                                                       00031000
+         DC    CL8'SAC8IKTM'           EYEBALL                          00032000
+         DC    A(40)                   TABLE ENTRY LENGTH               00033000
+         DC    A(&NAME.Z-1)            TABLE ENDING ADDRESS             00034000
+         DC    A(&DATALEN)             LENGTH OF PARSED DATA AREA       00035000
+         MEXIT                                                          00036000
+.NTRYGEN ANOP                                                           00037000
+         AIF ('&KEYWORD' EQ '').KEY0001                                 00038000
+&V2      SETA  0                                                        00039000
+         AIF ('&DATATYP' EQ 'NONE').VAL0001                             00040000
+&V2      SETA  1                                                        00041000
+         AIF ('&DATATYP' EQ 'CH').VAL0001                               00042000
+&V2      SETA  2                                                        00043000
+         AIF ('&DATATYP' EQ 'PK').VAL0001                               00044000
+&V2      SETA  3                                                        00045000
+         AIF ('&DATATYP' EQ 'BI').VAL0001                               00046000
+&V2      SETA  4                                                        00047000
+         AIF ('&DATATYP' EQ 'OI').VAL0001                               00048000
+&V2      SETA  5                                                        00049000
+         AIF ('&DATATYP' EQ 'OC').VAL0001                               00050000
+&V2      SETA  6                                                        00051000
+         AIF ('&DATATYP' EQ 'MI').VAL0001                               00052000
+&V2      SETA  7                                                        00053000
+         AIF ('&DATATYP' EQ 'MK').VAL0001                               00054000
+&V2      SETA  8                                                        00055000
+         AIF ('&DATATYP' EQ 'CHV').VAL0001                              00056000
+         AGO   .DTYP001                                                 00057000
+.VAL0001 ANOP                                                           00058000
+&V3      SETA  1                                                        00059000
+         AIF ('&VALTYPE' EQ 'TABLE').NTRY002                            00060000
+&V3      SETA  2                                                        00061000
+         AIF ('&VALTYPE' EQ 'RANGE').NTRY002                            00062000
+&V3      SETA  3                                                        00063000
+         AIF ('&VALTYPE' EQ 'ANY').NTRY002                              00064000
+&V3      SETA  4                                                        00065000
+         AIF ('&VALTYPE' EQ 'NOVALUE').NTRY002                          00066000
+&V3      SETA  5                                                        00067000
+         AIF ('&VALTYPE' EQ 'INVALID').NTRY002                          00068000
+&V3      SETA  6                                                        00069000
+         AIF ('&VALTYPE' EQ 'KEYWORDS').NTRY002                         00070000
+         AGO   .VTYP001                                                 00071000
+.NTRY002 ANOP                                                           00072000
+         AIF ((&PLPOS+&PLWIDTH) GT 132).PL00001                         00073000
+         DC    CL8'&KEYWORD'           TABLE KEYWORD                    00074000
+         DC    AL1(&KEYMLNG-1)         MINIMUM KEY KENGTH               00075000
+         DC    AL1(&V3)                VALIDATION TYPE                  00076000
+         DC    AL1(&LENGTH)            KEYWORD'S DATA LENGTH            00077000
+         DC    AL1(&FILLCHR)           FILL CHARACTER                   00078000
+         DC    AL1(&V2)                TYPE OF DATA MOVEMENT            00079000
+         DC    AL1(&PLWIDTH)           LENGTH OF FIELD ON PRINT LINE    00080000
+         DC    AL1(0)                  NEXT OFFSET POSITION TO PRINT    00081000
+         DC    AL1(0)                  RESERVED                         00082000
+         DC    AL4(&PLPOS)             WHERE TO PLACE ON PRINT LINE     00083000
+         AIF ('&VALTYPE' NE 'RANGE').NOTRANG                            00084000
+         DC    FL4'&LOWRANG'             LOW RANGE VALUE                00085000
+         AGO   .NOTVADR                                                 00086000
+.NOTRANG ANOP                                                           00087000
+         DC    AL4(&VALADDR)           VALIDATION TABLE ADDRESS         00088000
+.NOTVADR ANOP                                                           00089000
+         DC    FL4'&HIRANG'              HIGH RANGE VALUE               00090000
+         DC    AL4(&ECPOS)             OFFSET FOR MOVE                  00091000
+         DC    AL4(&SUBTABA)           SUB KEYWORD TABLE ADDRESS        00092000
+         AIF (&ITER GT 1).ITERS                                         00093000
+         DC    AL2(0)                  MAX NUMBER OF ITERATIONS         00094000
+         AGO   .CONT1                                                   00095000
+.ITERS   ANOP                                                           00096000
+         DC    AL2(&ITER-1)            MAX NUMBER OF ITERATIONS         00097000
+.CONT1   ANOP                                                           00098000
+         DC    AL2(0)                  ACTUAL NUMBER OF ITERATIONS      00099000
+         MEXIT                                                          00100000
+.TABEND  ANOP                                                           00101000
+&NAME.Z  DS    0F                                                       00102000
+         MEXIT                                                          00103000
+.TAB0001 ANOP                                                           00104000
+         MNOTE 8,'KEYWORD LENGTH INVALID OR NOT SPECIFIED'              00105000
+         MEXIT                                                          00106000
+.TYP0001 ANOP                                                           00107000
+         MNOTE 8,'INVALID TYPE SPECIFICATION'                           00108000
+         MEXIT                                                          00109000
+.NAM0001 ANOP                                                           00110000
+         MNOTE 8,'TABLE NAME IS LONGER THAN SEVEN (7) CHARACTERS'       00111000
+         MEXIT                                                          00112000
+.NAM0002 ANOP                                                           00113000
+         MNOTE 8,'TABLE NAME WAS NOT SPECIFIED'                         00114000
+         MEXIT                                                          00115000
+.KEY0001 ANOP                                                           00116000
+         MNOTE 8,'KEYWORD WAS NOT SPECIFIED'                            00117000
+         MEXIT                                                          00118000
+.POS0001 ANOP                                                           00119000
+         MNOTE 8,'ECPOS WAS NOT SPECIFIED'                              00120000
+         MEXIT                                                          00121000
+.LEN0001 ANOP                                                           00122000
+         MNOTE 8,'LENGTH WAS NOT SPECIFIED'                             00123000
+         MEXIT                                                          00124000
+.DTP0001 ANOP                                                           00125000
+         MNOTE 8,'DATATYPE WAS NOT SPECIFIED'                           00126000
+         MEXIT                                                          00127000
+.DTYP001 ANOP                                                           00128000
+         MNOTE 8,'DATA MOVEMENT TYPE IS INVALID'                        00129000
+         MEXIT                                                          00130000
+.VTYP001 ANOP                                                           00131000
+         MNOTE 8,'VALIDATION TYPE IS INVALID'                           00132000
+         MEXIT                                                          00133000
+.PL00001 ANOP                                                           00134000
+         MNOTE 8,'PRINT POSITION AND/OR PRINT WIDTH IS INVALID'         00135000
+         MEXIT                                                          00136000
+         MEND                                                           00137000

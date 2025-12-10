@@ -1,0 +1,113 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00010000
+*                                                                     * 00020000
+* SAA9MSKA - COMMUNICATION AREA FOR SAAMASKB SUBROUTINE WHICH IS USED * 00030000
+*            FOR SECURING SENSITIVE FIELDS.                           * 00040000
+*                                                                     * 00050000
+* THE COMMUNICATION AREA INCLUDES A 200-BYTE FIXED AREA AND THIRTY    * 00060000
+* 60-BYTE ENTRIES TO REQUEST SECURITY FOR UP TO THIRTY FIELDS.  THE   * 00070000
+* CALLER MUST SET THE NUMBER OF ENTRIES USED.                         * 00080000
+*                                                                     * 00090000
+* FIELD INFORMATION PASSED TO SAAMASKB MUST INCLUDE THE DATA ADDRESS, * 00100000
+* THE RETURN ADDRESS (WHICH MAY BE THE SAME AS THE DATA ADDRESS), AND * 00110000
+* EITHER THE DAG/ELEMENT OR THE ELEMENT/FIELD LENGTH.  IF A DAG/      * 00120000
+* ELEMENT IS PASSED, SAAMASKB RETURNS THE FIELD LENGTH FROM DATA      * 00130000
+* DICTIONARY.  IF AN ELEMENT ID IS PASSED WITHOUT A DAG NAME, THE     * 00140000
+* DICTIONARY IS NOT READ AND THE PASSED FIELD LENGTH IS USED TO MASK  * 00150000
+* DATA.  SAAMASKB RETURNS AN AUTHORIZED FLAG AND THE ALTERED DATA.    * 00160000
+*                                                                     * 00170000
+* TO MASK ALL APPLICABLE ELEMENTS FOR A DAG, THE CALLER WILL PASS THE * 00180000
+* DAG NAME AND DAG ADDRESS.  IN ADDITION TO MASKING DATA WITHIN THE   * 00190000
+* DAG AREA, SAAMASKB WILL FILL IN A TABLE ENTRY FOR EACH ELEMENT      * 00200000
+* IN THE DAG THAT IS SENSITIVE UNTIL ALL AVAILABLE ENTRIES ARE USED.  * 00210000
+* ADDITIONAL CALLS MAY BE MADE TO SAAMASKB TO PROCESS THE NEXT 30.    * 00220000
+* TO DO THIS, JUST CALL THE ROUTINE AGAIN, NO CHANGES ARE REQUIRED    * 00230000
+* TO THE COMMAREA.                                                    * 00240000
+*                                                                     * 00250000
+* AN INPUT/OUTPUT REQUEST SPECIFIES WHETHER THE SAAMASKB PROCESSING   * 00260000
+* IS TO IGNORE INPUT DATA ("I") OR MASK OUTPUT DATA ("O").            * 00270000
+*                                                                     * 00280000
+* WHEN AN ONLINE PROGRAM CALLS SAAMASKC, WHERE APPLICABLE, EITHER THE * 00290000
+* NCA, BRQ OR GCA ADDRESS NEEDS TO BE PASSED.                         * 00300000
+*                                                                     * 00310000
+* NOTE THAT ALL DATA, EVEN IF REFERENCED BY A DAG/ELEMENT, MUST BE IN * 00320000
+* INPUT/OUTPUT TRANSMISSION FORMAT IN ORDER TO BE CLEARED OR MASKED.  * 00330000
+* (THAT IS, BINARY AND PACKED DATA CANNOT BE MASKED.)                 * 00340000
+*                                                                     * 00350000
+* BATCH CALLING PROGRAMS MUST CALL SAAMASKB AT END OF JOB IN ORDER    * 00360000
+* TO HAVE THE GNCDE FILE CLOSED.  SET FIELD IDENDMSK TO 'E'.          * 00370000
+*                                                                     * 00380000
+* IDEOGRAPHIC FIELDS ARE NOT ELIGIBLE TO BE SENSTIVE FIELDS.          * 00390000
+*---------------------------------------------------------------------* 00400000
+*                     ** HISTORY OF REVISIONS **                      * 00410000
+* DATE     DESCRIPTION                                        CHNGID  * 00420000
+* ________ __________________________________________________ _______ * 00430000
+*                                                                     * 00440000
+* 03/21/14 SUPPORT ENCRYPTION - REQUEST BATCH MASK ONLINE     1436560 * 00440100
+* 03/20/06 INITIAL DISTRIBUTION                               0715441 * 00450000
+*********************************************************************** 00460000
+IDMASK   DSECT                                                          00470000
+IDCA     DS    0CL2000                 START OF COMMON AREA             00480000
+IDEYEC   DS    CL8                     EYE CATCHER                      00490000
+*                                       VALUE: '**MASK**'               00500000
+IDCALNG  DS    XL2                     COMMAREA LENGTH                  00510000
+IDAPPL   DS    CL2                     APPLICATION ID                   00520000
+IDCTL1   DS    CL2                     CONTROL 1                        00530000
+         DS    CL18                                                     00540000
+IDCANCAA DS    XL4                     NCA ADDRESS                      00550000
+IDCABRQA DS    XL4                     BRQ ADDRESS                      00560000
+IDCAGCAA DS    XL4                     GCA ADDRESS                      00570000
+IDCALOGA DS    XL4                     LOG ADDRESS                      00580000
+IDIOREQ  DS    CL1                     INPUT/OUTPUT REQUEST             00590000
+*                                       VALUE: 'I' - INPUT              00600000
+*                                              'O' - OUTPUT             00610000
+IDDAGNM  DS    CL8                     DAG NAME TO PROCESS FULL DAG     00620000
+IDDAGAD  DS    XL4                     ADDRESS OF DAG AREA              00630000
+IDNOELE  DS    XL3                     NUMBER OF SENSITIVE ELEMENTS     00640000
+IDELEIP  DS    XL3                     ELEMENT IN PROCESS               00650000
+IDNOENT  DS    XL3                     NUMBER OF ENTRIES                00660000
+IDRETCD  DS    XL2                     RETURN CODE                      00670000
+*                                       VALUE: 00 - GOOD                00680000
+*                                              01 - NO DATA PASSED      00690000
+*                                              02 - ITR/EOR ERROR       00700000
+*                                              03 - SACB/GCA/BRQ ERROR  00710000
+*                                              04 - QSI ERROR           00720000
+*                                              05 - SOR ERROR           00730000
+*                                              06 - TBL ENTRY ERROR     00740000
+IDSRCID  DS    XL8                     SOURCE INDICATOR                 00750000
+IDUSERAR DS    XL50                    USER AREA                        00760000
+IDENDMSK DS    CL1                     CLOSE FUNCTION VALUE 'E'         00770000
+IDMOREID DS    CL1                     MORE INDICATOR VALUE 'Y'         00780000
+IDBEGELE DS    CL8                     BEGINNING ELEMENT                00790000
+IDBEGDIM DS    CL6                     BEGINNING DIMENSION              00800000
+IDGNPRM  DS    CL1                     READ GNPRM/GNCDE                 00810000
+*                                       VALUE: P  - READ GNPRM          00820000
+*                                          NOT P  - READ GNCDE          00830000
+IDOLBTCH DS    CL1                     USE BATCH MASK ONLINE  1436560   00830100
+*                                       VALUE: B  - USE BATCH 1436560   00830110
+*                                          NOT B  - USE SOR   1436560   00830120
+         DS    CL52                    FILLER                 1436560   00840000
+IDSTMLEN EQU   *-IDMASK                STEM LENGTH                      00850000
+IDTBLENT DS    CL1800                  30 60-BYTE DATA ENTRIES          00860000
+IDLENGTH EQU   *-IDMASK                IDMASK CA LENGTH                 00870000
+*                                                                       00880000
+IDENTRY  DSECT                                                          00890000
+IDENTBEG DS    0CL60                                                    00900000
+IDDATADR DS    XL4                     DATA ADDRESS                     00910000
+IDDATRTN DS    XL4                     RETURN ADDRESS                   00920000
+IDDATLEN DS    XL2                     DATA LENGTH                      00930000
+IDDATOFF DS    XL2                     DATA OFFSET                      00940000
+IDDATDAG DS    CL8                     DAG NAME                         00950000
+IDDATELE DS    CL8                     ELEMENT NAME                     00960000
+IDDATDM  DS    0XL6                    DIMENSION                        00970000
+IDDATDM1 DS    XL2                     DIMENSION 1                      00980000
+IDDATDM2 DS    XL2                     DIMENSION 2                      00990000
+IDDATDM3 DS    XL2                     DIMENSION 3                      01000000
+IDAUTHOR DS    CL1                     AUTHORITY                        01010000
+*                                       VALUE: 'A' - AUTHORIZED         01020000
+*                                              'U' - UNAUTHORIZED       01030000
+*                                              'N' - NO MASK            01040000
+*                                              'I' - INSUFFICIENT INFO  01050000
+*                                              'E' - ERROR              01060000
+         DS    CL25                   FILLER                            01070000
+IDENTLEN EQU   *-IDDATADR              IDENTRY LENGTH                   01080000

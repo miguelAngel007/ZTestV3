@@ -1,0 +1,52 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                               SIDTFICH                              * 00000020
+*                              SIFICHE AREA                           * 00000030
+*---------------------------------------------------------------------* 00000040
+*                  ** HISTORY OF REVISIONS **                         * 00000050
+* DESCRIPTION                                                 CHNGID  * 00000060
+* __________________________________________________________  _______ * 00000070
+* 05/01/97 ALLOW 211 BYTE RECORD FOR DBCS PRINTING USING TRC  9913481 * 00000096
+* 06/22/95 REMOVE THE FCHXLT FLAG                             2602409 * 00000098
+*---------------------------------------------------------------------* 00000099
+FCHREC   DS    0CL211        FICHE RECORD DESCRIPTION         9913481   00000100
+FCHSPLAR DS    0CL77         SPOOL CONTROL AREA                         00000200
+FCHCD    DS    CL1           CODE                                       00000300
+FCHFORM  DS    CL1           FORM                                       00000400
+FCHPGM   DS    0CL8          PROGRAM                                    00000500
+FCHAPPL  DS    CL2               APPLICATION                            00000600
+FCHMAIN  DS    CL2               MAINLINE NUMBER                        00000700
+FCHUSER  DS    CL4               USER IDENTIFICATION                    00000800
+FCHRPTNO DS    CL3           REPORT NUMBER                              00000900
+FCHBCRSW DS    CL1           BCR CONTROL BREAK SWITCH                   00001000
+FCHBCRCL DS    0CL22         BCR CONTROLS                               00001100
+FCHBCRC1 DS    CL2               CONTROL 1                              00001200
+FCHBCRC2 DS    CL3               CONTROL 2                              00001300
+FCHBCRC3 DS    CL3               CONTROL 3                              00001400
+FCHBCRC4 DS    CL4               CONTROL 4                              00001500
+         DS    CL10              FILLER                                 00001600
+         ORG   FCHBCRCL                                                 00001700
+FCXBCRC1 DS    CL4           FMS CUSTOMER NUMBER                        00001800
+FCXRESP  DS    CL18          FMS RESPONSIBILITY NUMBER                  00001900
+         ORG                                                            00002000
+FCHRPTSW DS    CL1           RPT CONTROL BREAK SWITCH                   00002100
+FCHRPTCL DS    0CL22         RPT CONTROLS                               00002200
+FCHRPTC1 DS    CL2               CONTROL 1                              00002300
+FCHRPTC2 DS    CL3               CONTROL 2                              00002400
+FCHRPTC3 DS    CL3               CONTROL 3                              00002500
+FCHRPTC4 DS    CL4               CONTROL 4                              00002600
+         DS    CL10              FILLER                                 00002700
+FCHBSTAT DS    CL1           BILLING STATUS SWITCH                      00002800
+FCHLNENO DS    PL4           LINE NUMBER (PACKED S9(7))                 00002900
+FCHLNETY DS    CL1           LINE TYPE                                  00003000
+FCHSUBTY DS    CL1           SUB TYPE                                   00003100
+FCHRPTLV DS    CL1           REPORT LEVEL                               00003200
+FCHPRTID DS    CL1           PRINT FILE ID                              00003300
+FCHEXTFL DS    CL1           3800 EXTENDED PROCESSING FLAG              00003400
+FCHEXTLN DS    XL2           3800 LINE LENGTH BINARY                    00003500
+         DS    CL1           FILLER                           2602409   00003600
+         DS    CL5           FILLER                                     00003700
+FCHPRTLN DS    0CL134        PRINT LINE                       9913481   00003800
+FCHPLCTL DS    CL1           PRINT CONTROL CHARACTER                    00003900
+FCHPLTRC DS    CL1           PRINT TRC                        9913481   00003910
+FCHPRTDT DS    CL132         PRINT LINE DATA                            00004000

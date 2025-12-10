@@ -1,0 +1,562 @@
+         MACRO                                                          00000100
+         ISPARMS &CHARSET=ENGLISH                                       00000200
+ISPARMS  CSECT                                                          00000300
+         AIF   ('&CHARSET' EQ 'ENGLISH').ENGLISH                        00000400
+         AIF   ('&CHARSET' EQ 'UK').UK                                  00000500
+         AIF   ('&CHARSET' EQ 'TURKISH').TURKISH                        00000600
+         AIF   ('&CHARSET' EQ 'THAI').THAI                              00000700
+         MNOTE 'INVALID CHARSET PARAMETER, MACRO TERMINATED'            00000800
+         MEXIT                                                          00000900
+*                                                                       00001000
+********************************************************************    00001100
+*                                                                  *    00001200
+*    ENGLISH (U.S.) CHARACTER SET PARAMETERS                       *    00001300
+*                                                                  *    00001400
+********************************************************************    00001500
+*                                                                       00001600
+.ENGLISH ANOP                                                           00001700
+SLASH    DC    X'E0'      BACK SLASH                                    00001800
+QUOTE    DC    X'7F'      QUOTE                                         00001900
+EXCLMTN  DC    X'5A'      EXCLAMATION POINT                             00002000
+         DS    X                                                        00002100
+*------------------------------------------------------------------*    00002200
+*                                                                  *    00002300
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00002400
+*    CHARSET WHEN MAIL MERGE FORMAT IS SPECIFIED IN A QUERY.       *    00002500
+*    MAIL MERGE FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS. SO   *    00002600
+*    THIS TABLE TRANSLATES COMMAS WITHIN FIELDS TO A SPACE AND     *    00002700
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00002800
+*                                                                  *    00002900
+*------------------------------------------------------------------*    00003000
+MAILMTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00003100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00003200
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00003300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00003400
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........¢.<(+|  00003500
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........!$*);¬  00003600
+         DC    X'60614B4B4B4B4B4B4B696A406C6D6E6F'    -/.......Ñ¦ %_>?  00003700
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E7F'    .........`:#@'="  00003800
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00003900
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00004000
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00004100
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00004200
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00004300
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00004400
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00004500
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00004600
+*------------------------------------------------------------------*    00004700
+*                                                                  *    00004800
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00004900
+*    CHARSET WHEN LOTUS FORMAT (DEFAULT) IS SPECIFIED IN A QUERY.  *    00005000
+*    LOTUS FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS AND        *    00005100
+*    CHARACTER FIELDS HAVE QUOTES AROUND THEM.                     *    00005200
+*    THIS TABLE TRANSLATES QUOTES WITHIN FIELDS TO A SPACE AND     *    00005300
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00005400
+*                                                                  *    00005500
+*------------------------------------------------------------------*    00005600
+LOTUSTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00005700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00005800
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00005900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00006000
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........¢.<(+|  00006100
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........!$*);¬  00006200
+         DC    X'60614B4B4B4B4B4B4B696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00006300
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E40'    .........`:#@'=   00006400
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00006500
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00006600
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00006700
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00006800
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00006900
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00007000
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00007100
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00007200
+*------------------------------------------------------------------*    00007300
+*                                                                  *    00007400
+*    THE FOLLOWING TABLE TRANSLATES A FORWARD SLASH TO A BACK      *    00007500
+*    SLASH.  WHEN MODIFING THIS TABLE CHANGE THE VALUE AT LOCATION *    00007600
+*    X'61' (FORWARD SLASH) TO THE HEX REPRESENTATION OF A BACK     *    00007700
+*    SLASH IN YOUR COUNTRY.                                        *    00007800
+*                                                                  *    00007900
+*------------------------------------------------------------------*    00008000
+SLASHTB  DC    X'000102030405060708090A0B0C0D0E0F'                      00008100
+         DC    X'101112131415161718191A1B1C1D1E1F'                      00008200
+         DC    X'202122232425262728292A2B2C2D2E2F'                      00008300
+         DC    X'303132333435363738393A3B3C3D3E3F'                      00008400
+         DC    X'404142434445464748494A4B4C4D4E4F'                      00008500
+         DC    X'505152535455565758595A5B5C5D5E5F'                      00008600
+         DC    X'60E062636465666768696A6B6C6D6E6F'  CHG X'61' TO X'E0'  00008700
+         DC    X'707172737475767778797A7B7C7D7E7F'                      00008800
+         DC    X'808182838485868788898A8B8C8D8E8F'                      00008900
+         DC    X'909192939495969798999A9B9C9D9E9F'                      00009000
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'                      00009100
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'                      00009200
+         DC    X'C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF'                      00009300
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'                      00009400
+         DC    X'E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF'                      00009500
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF'                      00009600
+*------------------------------------------------------------------*    00009700
+*                                                                  *    00009800
+*    THE FOLLOWING TABLE TRANSLATES LOWER CASE LETTERS TO UPPER    *    00009900
+*    CASE LETTERS.  ALL UPPER CASE LETTERS, SPECIAL CHARACTERS,    *    00010000
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00010100
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00010200
+*                                                                  *    00010300
+*------------------------------------------------------------------*    00010400
+UPRCASE  DS    0CL256                 UPPER CASE TRANSLATE TABLE        00010500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00010600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00010700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00010800
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00010900
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........¢.<(+|  00011000
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........!$*);¬  00011100
+         DC    X'60614B4B4B4B4B4B4B696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00011200
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E40'    .........`:#@'=   00011300
+         DC    X'4BC1C2C3C4C5C6C7C8C98A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00011400
+         DC    X'4BD1D2D3D4D5D6D7D8D94B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00011500
+         DC    X'A0A1E2E3E4E5E6E7E8E9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00011600
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00011700
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00011800
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00011900
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00012000
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00012100
+*------------------------------------------------------------------*    00012200
+*                                                                  *    00012300
+*    THE FOLLOWING TABLE TRANSLATES UPPER CASE LETTERS TO LOWER    *    00012400
+*    CASE LETTERS.  ALL LOWER CASE LETTERS, SPECIAL CHARACTERS,    *    00012500
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00012600
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00012700
+*                                                                  *    00012800
+*------------------------------------------------------------------*    00012900
+LWRCASE  DS    0CL256                 LOWER CASE TRANSLATE TABLE        00013000
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00013100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00013200
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00013300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00013400
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........¢.<(+|  00013500
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........!$*);¬  00013600
+         DC    X'60614B4B4B4B4B4B4B696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00013700
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E40'    .........`:#@'=   00013800
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00013900
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00014000
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00014100
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00014200
+         DC    X'C08182838485868788894B4B4B4B4B4B'    {ABCDEFGHI......  00014300
+         DC    X'D09192939495969798994B4B4B4B4B4B'    }JKLMNOPQR......  00014400
+         DC    X'E04BA2A3A4A5A6A7A8A94B4B4B4B4B4B'    \.STUVWXYZ......  00014500
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00014600
+         AGO   .END                                                     00014700
+*                                                                       00014800
+********************************************************************    00014900
+*                                                                  *    00015000
+*    THAI CHARACTER SET PARAMETERS                                 *    00015100
+*                                                                  *    00015200
+********************************************************************    00015300
+*                                                                       00015400
+.THAI    ANOP                                                           00015500
+SLASH    DC    X'E0'      BACK SLASH                                    00015600
+QUOTE    DC    X'7F'      QUOTE                                         00015700
+EXCLMTN  DC    X'5A'      EXCLAMATION POINT                             00015800
+         DS    X                                                        00015900
+*------------------------------------------------------------------*    00016000
+*                                                                  *    00016100
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00016200
+*    CHARSET WHEN MAIL MERGE FORMAT IS SPECIFIED IN A QUERY.       *    00016300
+*    MAIL MERGE FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS. SO   *    00016400
+*    THIS TABLE TRANSLATES COMMAS WITHIN FIELDS TO A SPACE AND     *    00016500
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00016600
+*                                                                  *    00016700
+*------------------------------------------------------------------*    00016800
+MAILMTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00016900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00017000
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00017100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00017200
+         DC    X'404B424344454647484B4A4B4C4D4E4F'     .........¢.<(+|  00017300
+         DC    X'504B525354555657584B5A5B5C5D5E5F'    &.........!$*) ¬  00017400
+         DC    X'606162636465666768696A406C6D6E6F'    -/.......Ñ¦ %_>?  00017500
+         DC    X'704B72737475767778797A7B7C7D7E7F'    .........`:#@'="  00017600
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00017700
+         DC    X'4B9192939495969798999A9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00017800
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00017900
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00018000
+         DC    X'C0C1C2C3C4C5C6C7C8C94BCBCCCDCECF'    {ABCDEFGHI......  00018100
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'    }JKLMNOPQR......  00018200
+         DC    X'E04BE2E3E4E5E6E7E8E9EAABECEDEEEF'    \.STUVWXYZ......  00018300
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFC4B4B4B'    0123456789......  00018400
+*------------------------------------------------------------------*    00018500
+*                                                                  *    00018600
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00018700
+*    CHARSET WHEN LOTUS FORMAT (DEFAULT) IS SPECIFIED IN A QUERY.  *    00018800
+*    LOTUS FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS AND        *    00018900
+*    CHARACTER FIELDS HAVE QUOTES AROUND THEM.                     *    00019000
+*    THIS TABLE TRANSLATES QUOTES WITHIN FIELDS TO A SPACE AND     *    00019100
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00019200
+*                                                                  *    00019300
+*------------------------------------------------------------------*    00019400
+LOTUSTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00019500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00019600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00019700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00019800
+         DC    X'404B42434445464748494A4B4C4D4E4F'     .........¢.<(+|  00019900
+         DC    X'504B52535455565758595A5B5C5D5E5F'    &.........!$*)    00020000
+         DC    X'606162636465666768696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00020100
+         DC    X'4B4B72737475767778797A7B7C7D7E40'    .........`:#@'=   00020200
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00020300
+         DC    X'4B9192939495969798999A9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00020400
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00020500
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00020600
+         DC    X'C0C1C2C3C4C5C6C7C8C94BCBCCCDCECF'    {ABCDEFGHI......  00020700
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'    }JKLMNOPQR......  00020800
+         DC    X'E04BE2E3E4E5E6E7E8E9EAEBECEDEEEF'    \.STUVWXYZ......  00020900
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFC4B4B4B'    0123456789......  00021000
+*------------------------------------------------------------------*    00021100
+*                                                                  *    00021200
+*    THE FOLLOWING TABLE TRANSLATES A FORWARD SLASH TO A BACK      *    00021300
+*    SLASH.  WHEN MODIFING THIS TABLE CHANGE THE VALUE AT LOCATION *    00021400
+*    X'61' (FORWARD SLASH) TO THE HEX REPRESENTATION OF A BACK     *    00021500
+*    SLASH IN YOUR COUNTRY.                                        *    00021600
+*                                                                  *    00021700
+*------------------------------------------------------------------*    00021800
+SLASHTB  DC    X'000102030405060708090A0B0C0D0E0F'                      00021900
+         DC    X'101112131415161718191A1B1C1D1E1F'                      00022000
+         DC    X'202122232425262728292A2B2C2D2E2F'                      00022100
+         DC    X'303132333435363738393A3B3C3D3E3F'                      00022200
+         DC    X'404142434445464748494A4B4C4D4E4F'                      00022300
+         DC    X'505152535455565758595A5B5C5D5E5F'                      00022400
+         DC    X'60E062636465666768696A6B6C6D6E6F'  CHG X'61' TO X'E0'  00022500
+         DC    X'707172737475767778797A7B7C7D7E7F'                      00022600
+         DC    X'808182838485868788898A8B8C8D8E8F'                      00022700
+         DC    X'909192939495969798999A9B9C9D9E9F'                      00022800
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'                      00022900
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'                      00023000
+         DC    X'C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF'                      00023100
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'                      00023200
+         DC    X'E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF'                      00023300
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF'                      00023400
+*------------------------------------------------------------------*    00023500
+*                                                                  *    00023600
+*    THE FOLLOWING TABLE TRANSLATES LOWER CASE LETTERS TO UPPER    *    00023700
+*    CASE LETTERS.  ALL UPPER CASE LETTERS, SPECIAL CHARACTERS,    *    00023800
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00023900
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00024000
+*                                                                  *    00024100
+*------------------------------------------------------------------*    00024200
+UPRCASE  DS    0CL256                 UPPER CASE TRANSLATE TABLE        00024300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00024400
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00024500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00024600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00024700
+         DC    X'404B42434445464748494A4B4C4D4E4F'     .........¢.<(+|  00024800
+         DC    X'504B52535455565758595A5B5C5D5E5F'    &.........!$*)    00024900
+         DC    X'606162636465666768696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00025000
+         DC    X'4B4B72737475767778797A7B7C7D7E40'    .........`:#@'=   00025100
+         DC    X'4BC1C2C3C4C5C6C7C8C98A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00025200
+         DC    X'4BD1D2D3D4D5D6D7D8D99A9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00025300
+         DC    X'A0A1E2E3E4E5E6E7E8E9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00025400
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00025500
+         DC    X'C0C1C2C3C4C5C6C7C8C94BCBCCCDCECF'    {ABCDEFGHI......  00025600
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'    }JKLMNOPQR......  00025700
+         DC    X'E04BE2E3E4E5E6E7E8E9EAEBECEDEEEF'    \.STUVWXYZ......  00025800
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFC4B4B4B'    0123456789......  00025900
+*------------------------------------------------------------------*    00026000
+*                                                                  *    00026100
+*    THE FOLLOWING TABLE TRANSLATES UPPER CASE LETTERS TO LOWER    *    00026200
+*    CASE LETTERS.  ALL LOWER CASE LETTERS, SPECIAL CHARACTERS,    *    00026300
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00026400
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00026500
+*                                                                  *    00026600
+*------------------------------------------------------------------*    00026700
+LWRCASE  DS    0CL256                 LOWER CASE TRANSLATE TABLE        00026800
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00026900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00027000
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00027100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00027200
+         DC    X'404B42434445464748494A4B4C4D4E4F'     .........¢.<(+|  00027300
+         DC    X'504B52535455565758595A5B5C5D5E5F'    &.........!$*)    00027400
+         DC    X'606162636465666768696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00027500
+         DC    X'4B4B72737475767778797A7B7C7D7E40'    .........`:#@'=   00027600
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00027700
+         DC    X'4B9192939495969798999A9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00027800
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ~STUVWXYZ¡¿ÐÝÞ®  00027900
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ^£¥·©§¶¼½¾[]¯¨´×  00028000
+         DC    X'C08182838485868788894BCBCCCDCECF'    {ABCDEFGHI......  00028100
+         DC    X'D0919293949596979899DADBDCDDDEDF'    }JKLMNOPQR......  00028200
+         DC    X'E04BA2A3A4A5A6A7A8A9EAEBECEDEEEF'    \.STUVWXYZ......  00028300
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFC4B4B4B'    0123456789......  00028400
+         AGO   .END                                                     00028500
+*                                                                       00028600
+********************************************************************    00028700
+*                                                                  *    00028800
+*    ENGLISH (U.K.) CHARACTER SET PARAMETERS                       *    00028900
+*                                                                  *    00029000
+********************************************************************    00029100
+*                                                                       00029200
+.UK      ANOP                                                           00029300
+SLASH    DC    X'E0'      BACK SLASH                                    00029400
+QUOTE    DC    X'7F'      QUOTE                                         00029500
+EXCLMTN  DC    X'5A'      EXCLAMATION POINT                             00029600
+         DS    X                                                        00029700
+*------------------------------------------------------------------*    00029800
+*                                                                  *    00029900
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00030000
+*    CHARSET WHEN MAIL MERGE FORMAT IS SPECIFIED IN A QUERY.       *    00030100
+*    MAIL MERGE FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS. SO   *    00030200
+*    THIS TABLE TRANSLATES COMMAS WITHIN FIELDS TO A SPACE AND     *    00030300
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00030400
+*                                                                  *    00030500
+*------------------------------------------------------------------*    00030600
+MAILMTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00030700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00030800
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00030900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00031000
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........$.<(+|  00031100
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........! *) ¬  00031200
+         DC    X'60614B4B4B4B4B4B4B696A406C6D6E6F'    -/.......Ñ¦ %_>?  00031300
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E7F'    .........`:#@'="  00031400
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00031500
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00031600
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ-STUVWXYZ¡¿ÐÝÞ®  00031700
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ¢     ¶¼½¾ ]~¨´×  00031800
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00031900
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00032000
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00032100
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00032200
+*------------------------------------------------------------------*    00032300
+*                                                                  *    00032400
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00032500
+*    CHARSET WHEN LOTUS FORMAT (DEFAULT) IS SPECIFIED IN A QUERY.  *    00032600
+*    LOTUS FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS AND        *    00032700
+*    CHARACTER FIELDS HAVE QUOTES AROUND THEM.                     *    00032800
+*    THIS TABLE TRANSLATES QUOTES WITHIN FIELDS TO A SPACE AND     *    00032900
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00033000
+*                                                                  *    00033100
+*------------------------------------------------------------------*    00033200
+LOTUSTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00033300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00033400
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00033500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00033600
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........$.<(+|  00033700
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........! *) ¬  00033800
+         DC    X'60614B4B4B4B4B4B4B696A406C6D6E6F'    -/.......Ñ¦,%_>?  00033900
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E7F'    .........`:#@'=   00034000
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00034100
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00034200
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ-STUVWXYZ¡¿ÐÝÞ®  00034300
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ¢     ¶¼½¾ ]~¨´×  00034400
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00034500
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00034600
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00034700
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00034800
+*------------------------------------------------------------------*    00034900
+*                                                                  *    00035000
+*    THE FOLLOWING TABLE TRANSLATES A FORWARD SLASH TO A BACK      *    00035100
+*    SLASH.  WHEN MODIFING THIS TABLE CHANGE THE VALUE AT LOCATION *    00035200
+*    X'61' (FORWARD SLASH) TO THE HEX REPRESENTATION OF A BACK     *    00035300
+*    SLASH IN YOUR COUNTRY.                                        *    00035400
+*                                                                  *    00035500
+*------------------------------------------------------------------*    00035600
+SLASHTB  DC    X'000102030405060708090A0B0C0D0E0F'                      00035700
+         DC    X'101112131415161718191A1B1C1D1E1F'                      00035800
+         DC    X'202122232425262728292A2B2C2D2E2F'                      00035900
+         DC    X'303132333435363738393A3B3C3D3E3F'                      00036000
+         DC    X'404142434445464748494A4B4C4D4E4F'                      00036100
+         DC    X'505152535455565758595A5B5C5D5E5F'                      00036200
+         DC    X'60E062636465666768696A6B6C6D6E6F'  CHG X'61' TO X'E0'  00036300
+         DC    X'707172737475767778797A7B7C7D7E7F'                      00036400
+         DC    X'808182838485868788898A8B8C8D8E8F'                      00036500
+         DC    X'909192939495969798999A9B9C9D9E9F'                      00036600
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'                      00036700
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'                      00036800
+         DC    X'C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF'                      00036900
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'                      00037000
+         DC    X'E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF'                      00037100
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF'                      00037200
+*------------------------------------------------------------------*    00037300
+*                                                                  *    00037400
+*    THE FOLLOWING TABLE TRANSLATES LOWER CASE LETTERS TO UPPER    *    00037500
+*    CASE LETTERS.  ALL UPPER CASE LETTERS, SPECIAL CHARACTERS,    *    00037600
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00037700
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00037800
+*                                                                  *    00037900
+*------------------------------------------------------------------*    00038000
+UPRCASE  DS    0CL256                 UPPER CASE TRANSLATE TABLE        00038100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00038200
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00038300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00038400
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00038500
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........$.<(+|  00038600
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........! *) ¬  00038700
+         DC    X'60614B4B4B4B4B4B4B696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00038800
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E40'    .........`:#@'=   00038900
+         DC    X'4BC1C2C3C4C5C6C7C8C98A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00039000
+         DC    X'4BD1D2D3D4D5D6D7D8D94B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00039100
+         DC    X'A0A1E2E3E4E5E6E7E8E9AAABACADAEAF'    µ-STUVWXYZ¡¿ÐÝÞ®  00039200
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ¢ ¥·©§¶¼½¾  ~  ×  00039300
+         DC    X'C0C1C2C3C4C5C6C7C8C94B4B4B4B4B4B'    {ABCDEFGHI......  00039400
+         DC    X'D0D1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    }JKLMNOPQR......  00039500
+         DC    X'E04BE2E3E4E5E6E7E8E94B4B4B4B4B4B'    \.STUVWXYZ......  00039600
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00039700
+*------------------------------------------------------------------*    00039800
+*                                                                  *    00039900
+*    THE FOLLOWING TABLE TRANSLATES UPPER CASE LETTERS TO LOWER    *    00040000
+*    CASE LETTERS.  ALL LOWER CASE LETTERS, SPECIAL CHARACTERS,    *    00040100
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00040200
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00040300
+*                                                                  *    00040400
+*------------------------------------------------------------------*    00040500
+LWRCASE  DS    0CL256                 LOWER CASE TRANSLATE TABLE        00040600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00040700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00040800
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00040900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00041000
+         DC    X'404B4B4B4B4B4B4B4B4B4A4B4C4D4E4F'     .........$.<(+|  00041100
+         DC    X'504B4B4B4B4B4B4B4B4B5A5B5C5D5E5F'    &.........! *) ¬  00041200
+         DC    X'60614B4B4B4B4B4B4B696A6B6C6D6E6F'    -/.......Ñ¦,%_>?  00041300
+         DC    X'4B4B4B4B4B4B4B4B4B797A7B7C7D7E40'    .........`:#@'=   00041400
+         DC    X'4B8182838485868788898A8B8C8D8E8F'    .ABCDEFGHI«»ðýþ±  00041500
+         DC    X'4B9192939495969798994B9B9C9D9E9F'    .JKLMNOPQR.ºæ¸Æ¤  00041600
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'    µ-STUVWXYZ¡¿ÐÝÞ®  00041700
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'    ¢ ¥·©§¶¼½¾ ]~¨´×  00041800
+         DC    X'C08182838485868788894B4B4B4B4B4B'    {ABCDEFGHI......  00041900
+         DC    X'D09192939495969798994B4B4B4B4B4B'    }JKLMNOPQR......  00042000
+         DC    X'E04BA2A3A4A5A6A7A8A94B4B4B4B4B4B'    \.STUVWXYZ......  00042100
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B4B4B4B4B'    0123456789......  00042200
+         AGO   .END                                                     00042300
+*                                                                       00042400
+********************************************************************    00042500
+*                                                                  *    00042600
+*    TURKISH CHARACTER SET PARAMETERS                              *    00042700
+*                                                                  *    00042800
+********************************************************************    00042900
+*                                                                       00043000
+.TURKISH ANOP                                                           00043100
+SLASH    DC    X'DC'      BACK SLASH                                    00043200
+QUOTE    DC    X'FC'      QUOTE                                         00043300
+EXCLMTN  DC    X'4F'      EXCLAMATION POINT                             00043400
+         DS    X                                                        00043500
+*------------------------------------------------------------------*    00043600
+*                                                                  *    00043700
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00043800
+*    CHARSET WHEN MAIL MERGE FORMAT IS SPECIFIED IN A QUERY.      *     00043900
+*    MAIL MERGE FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS. SO   *    00044000
+*    THIS TABLE TRANSLATES COMMAS WITHIN FIELDS TO A SPACE AND     *    00044100
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00044200
+*                                                                  *    00044300
+*------------------------------------------------------------------*    00044400
+MAILMTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00044500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00044600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00044700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00044800
+         DC    X'404B4B4B4B4B4B4B484B4B4B4C4D4E4F'     .......{...<(+!  00044900
+         DC    X'504B4B4B4B4B4B4B4B4B4B4B5C5D5E5F'    &...........*);   00045000
+         DC    X'60614B4B4B4B4B4B684B4B406C6D6E6F'    -/...... .. %_>?  00045100
+         DC    X'4B4B4B4B4B4B4B4B4B4B7A4B4B4B7E4B'    ..........:...=.  00045200
+         DC    X'4B8182838485868788894B4B8C8D8E4B'    .ABCDEFGHI..}`¦.  00045300
+         DC    X'4B9192939495969798994B4B4B4B4B4B'    .JKLMNOPQR......  00045400
+         DC    X'4B4BA2A3A4A5A6A7A8A94B4BACADAE4B'    µ~STUVWXYZ¡¿Ð$@.  00045500
+         DC    X'B0B14B4B4B4B4B4B4B4BBABB4B4BBE4B'      ........¬|..'.  00045600
+         DC    X'4BC1C2C3C4C5C6C7C8C94B4BCC4B4B4B'    .ABCDEFGHI..~...  00045700
+         DC    X'4BD1D2D3D4D5D6D7D8D94B4BDC4B4B4B'    .JKLMNOPQR..\...  00045800
+         DC    X'4B4BE2E3E4E5E6E7E8E94B4BEC4B4B4B'    ..STUVWXYZ..#...  00045900
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4BFC4B4B4B'    0123456789.."...  00046000
+*------------------------------------------------------------------*    00046100
+*                                                                  *    00046200
+*    THE FOLLOWING IS A TABLE OF ALL VALID CHARACTERS FOR THIS     *    00046300
+*    CHARSET WHEN LOTUS FORMAT (DEFAULT) IS SPECIFIED IN A QUERY. *     00046400
+*    LOTUS FORMAT IS ALL FIELDS ARE SEPERATED BY COMMAS AND        *    00046500
+*    CHARACTER FIELDS HAVE QUOTES AROUND THEM.                     *    00046600
+*    THIS TABLE TRANSLATES QUOTES WITHIN FIELDS TO A SPACE AND     *    00046700
+*    ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD (C'.' X'4B')*    00046800
+*                                                                  *    00046900
+*------------------------------------------------------------------*    00047000
+LOTUSTBL DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00047100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00047200
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00047300
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00047400
+         DC    X'404B4B4B4B4B4B4B484B4B4B4C4D4E4F'     .......{...<(+!  00047500
+         DC    X'504B4B4B4B4B4B4B4B4B4B4B5C5D5E5F'    &...........*);   00047600
+         DC    X'60614B4B4B4B4B4B684B4B6B6C6D6E6F'    -/...... ..,%_>?  00047700
+         DC    X'4B4B4B4B4B4B4B4B4B4B7A4B4B4B7E4B'    ..........:...=.  00047800
+         DC    X'4B8182838485868788894B4B8C8D8E4B'    .ABCDEFGHI..}`¦.  00047900
+         DC    X'4B9192939495969798994B4B4B4B4B4B'    .JKLMNOPQR......  00048000
+         DC    X'4B4BA2A3A4A5A6A7A8A94B4BACADAE4B'    µ~STUVWXYZ¡¿Ð$@.  00048100
+         DC    X'B0B14B4B4B4B4B4B4B4BBABB4B4BBE4B'      ........¬|..'.  00048200
+         DC    X'4BC1C2C3C4C5C6C7C8C94B4BCC4B4B4B'    .ABCDEFGHI..~...  00048300
+         DC    X'4BD1D2D3D4D5D6D7D8D94B4BDC4B4B4B'    .JKLMNOPQR..\...  00048400
+         DC    X'E04BE2E3E4E5E6E7E8E94B4BEC4B4B4B'    ..STUVWXYZ..#...  00048500
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4B404B4B4B'    0123456789.."...  00048600
+*------------------------------------------------------------------*    00048700
+*                                                                  *    00048800
+*    THE FOLLOWING TABLE TRANSLATES A FORWARD SLASH TO A BACK      *    00048900
+*    SLASH.  WHEN MODIFING THIS TABLE CHANGE THE VALUE AT LOCATION *    00049000
+*    X'61' (FORWARD SLASH) TO THE HEX REPRESENTATION OF A BACK     *    00049100
+*    SLASH IN YOUR COUNTRY.                                        *    00049200
+*                                                                  *    00049300
+*------------------------------------------------------------------*    00049400
+SLASHTB  DC    X'000102030405060708090A0B0C0D0E0F'                      00049500
+         DC    X'101112131415161718191A1B1C1D1E1F'                      00049600
+         DC    X'202122232425262728292A2B2C2D2E2F'                      00049700
+         DC    X'303132333435363738393A3B3C3D3E3F'                      00049800
+         DC    X'404142434445464748494A4B4C4D4E4F'                      00049900
+         DC    X'505152535455565758595A5B5C5D5E5F'                      00050000
+         DC    X'60DC62636465666768696A6B6C6D6E6F'  CHG X'61' TO X'DC'  00050100
+         DC    X'707172737475767778797A7B7C7D7E7F'                      00050200
+         DC    X'808182838485868788898A8B8C8D8E8F'                      00050300
+         DC    X'909192939495969798999A9B9C9D9E9F'                      00050400
+         DC    X'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'                      00050500
+         DC    X'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF'                      00050600
+         DC    X'C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF'                      00050700
+         DC    X'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF'                      00050800
+         DC    X'E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF'                      00050900
+         DC    X'F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF'                      00051000
+*------------------------------------------------------------------*    00051100
+*                                                                  *    00051200
+*    THE FOLLOWING TABLE TRANSLATES LOWER CASE LETTERS TO UPPER    *    00051300
+*    CASE LETTERS.  ALL UPPER CASE LETTERS, SPECIAL CHARACTERS,    *    00051400
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00051500
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00051600
+*                                                                  *    00051700
+*------------------------------------------------------------------*    00051800
+UPRCASE  DS    0CL256                 UPPER CASE TRANSLATE TABLE        00051900
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00052000
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00052100
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00052200
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00052300
+         DC    X'404B4B4B4B4B4B4B484B4B4B4C4D4E4F'     .......{...<(+!  00052400
+         DC    X'504B4B4B4B4B4B4B4B4B4B4B5C5D5E5F'    &...........*);   00052500
+         DC    X'60614B4B4B4B4B4B684B4B6B6C6D6E6F'    -/...... ..,%_>?  00052600
+         DC    X'4B4B4B4B4B4B4B4B4B4B7A4B4B4B7E4B'    ..........:...=.  00052700
+         DC    X'4BC1C2C3C4C5C6C7C8C94B4B8C8D8E4B'    .ABCDEFGHI..}`¦.  00052800
+         DC    X'4BD1D2D3D4D5D6D7D8D94B4B4B4B4B4B'    .JKLMNOPQR......  00052900
+         DC    X'4B4BE2E3E4E5E6E7E8E94B4BACADAE4B'    µ~STUVWXYZ¡¿Ð$@.  00053000
+         DC    X'B0B14B4B4B4B4B4B4B4BBABB4B4BBE4B'      ........¬|..'.  00053100
+         DC    X'4BC1C2C3C4C5C6C7C8C94B4BCC4B4B4B'    .ABCDEFGHI..~...  00053200
+         DC    X'4BD1D2D3D4D5D6D7D8D94B4BDC4B4B4B'    .JKLMNOPQR..\...  00053300
+         DC    X'4B4BE2E3E4E5E6E7E8E94B4BEC4B4B4B'    ..STUVWXYZ..#...  00053400
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4BFC4B4B4B'    0123456789.."...  00053500
+*------------------------------------------------------------------*    00053600
+*                                                                  *    00053700
+*    THE FOLLOWING TABLE TRANSLATES UPPER CASE LETTERS TO LOWER    *    00053800
+*    CASE LETTERS.  ALL LOWER CASE LETTERS, SPECIAL CHARACTERS,    *    00053900
+*    AND NUMBERS SHOULD TRANSLATE TO THEMSELVES. THIS TABLE        *    00054000
+*    TRANSLATES ANY INVALID CHARACTER FOR THIS CONTRY TO A PERIOD. *    00054100
+*                                                                  *    00054200
+*------------------------------------------------------------------*    00054300
+LWRCASE  DS    0CL256                 LOWER CASE TRANSLATE TABLE        00054400
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00054500
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00054600
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00054700
+         DC    X'4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B4B'    ................  00054800
+         DC    X'404B4B4B4B4B4B4B484B4B4B4C4D4E4F'     .......{...<(+!  00054900
+         DC    X'504B4B4B4B4B4B4B4B4B4B4B5C5D5E5F'    &...........*);   00055000
+         DC    X'60614B4B4B4B4B4B684B4B6B6C6D6E6F'    -/...... ..,%_>?  00055100
+         DC    X'4B4B4B4B4B4B4B4B4B4B7A4B4B4B7E4B'    ..........:...=.  00055200
+         DC    X'4B8182838485868788894B4B8C8D8E4B'    .ABCDEFGHI..}`¦.  00055300
+         DC    X'4B9192939495969798994B4B4B4B4B4B'    .JKLMNOPQR......  00055400
+         DC    X'4B4BA2A3A4A5A6A7A8A94B4BACADAE4B'    µ~STUVWXYZ¡¿Ð$@.  00055500
+         DC    X'B0B14B4B4B4B4B4B4B4BBABB4B4BBE4B'      ........¬|..'.  00055600
+         DC    X'4B8182838485868788894B4BCC4B4B4B'    .ABCDEFGHI..~...  00055700
+         DC    X'4B9192939495969798994B4BDC4B4B4B'    .JKLMNOPQR..\...  00055800
+         DC    X'4B4BA2A3A4A5A6A7A8A94B4BEC4B4B4B'    ..STUVWXYZ..#...  00055900
+         DC    X'F0F1F2F3F4F5F6F7F8F94B4BFC4B4B4B'    0123456789.."...  00056000
+         AGO   .END                                                     00056100
+.END     MEND                                                           00056200

@@ -1,0 +1,51 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                               SIDSSPAR                              * 00000020
+*                              SISPOOL AREA                           * 00000030
+*---------------------------------------------------------------------* 00000040
+*                  ** HISTORY OF REVISIONS **                         * 00000050
+* DESCRIPTION                                                 CHNGID  * 00000060
+* __________________________________________________________  _______ * 00000070
+* 08/09/01 ADD THE $ PRINT INDICATOR                          2024346 * 00000097
+* 06/22/95 REMOVE THE SPLXLATE FLAG                           2602409 * 00000098
+*---------------------------------------------------------------------* 00000099
+SPLCTLAR DSECT               SPOOL CONTROL AREA                         00000100
+SPLCD    DS    CL1           CODE                                       00000200
+SPLFORM  DS    CL1           FORM                                       00000300
+SPLPGM   DS    0CL8          PROGRAM                                    00000400
+SPLAPPL  DS    CL2               APPLICATION                            00000500
+SPLMAIN  DS    CL2               MAINLINE NUMBER                        00000600
+SPLUSER  DS    CL4               USER IDENTIFICATION                    00000700
+SPLRPTNO DS    CL3           REPORT NUMBER                              00000800
+SPLBCRSW DS    CL1           BCR CONTROL BREAK SWITCH                   00000900
+SPLBCRCL DS    0CL22         BCR CONTROLS                               00001000
+SPLBCRC1 DS    CL2               CONTROL 1                              00001100
+SPLBCRC2 DS    CL3               CONTROL 2                              00001200
+SPLBCRC3 DS    CL3               CONTROL 3                              00001300
+SPLBCRC4 DS    CL4               CONTROL 4                              00001400
+         DS    CL10              FILLER                                 00001500
+         ORG   SPLBCRCL                                                 00001600
+SPXBCRC1 DS    CL4           FMS CUSTOMER NUMBER                        00001700
+SPXRESP  DS    CL18          FMS RESPONSIBILITY NUMBER                  00001800
+         ORG   SPXRESP                                        2120563   00001810
+SPYRESP  DS    CL10          FMS VER 2 RESPONSIBILITY NUMBER  2120563   00001820
+         ORG                                                            00001900
+SPLRPTSW DS    CL1           RPT CONTROL BREAK SWITCH                   00002000
+SPLRPTCL DS    0CL22         RPT CONTROLS                               00002100
+SPLRPTC1 DS    CL2               CONTROL 1                              00002200
+SPLRPTC2 DS    CL3               CONTROL 2                              00002300
+SPLRPTC3 DS    CL3               CONTROL 3                              00002400
+SPLRPTC4 DS    CL4               CONTROL 4                              00002500
+         DS    CL10              FILLER                                 00002600
+SPLBSTAT DS    CL1           BILLING STATUS SWITCH                      00002700
+SPLLNENO DS    PL4           LINE NUMBER (PACKED S9(7))                 00002800
+SPLLNETY DS    CL1           LINE TYPE                                  00002900
+SPLSUBTY DS    CL1           SUB TYPE                                   00003000
+SPLRPTLV DS    CL1           REPORT LEVEL                               00003100
+SPLPRTID DS    CL1           PRINT FILE ID                              00003200
+SPLEXTFL DS    CL1           3800 EXTENDED PROCESSING FLAG              00003300
+SPLEXTLN DS    XL2           3800 LINE LENGTH BINARY                    00003400
+SPLPRTD  DS    CL1           PRINT $ INDICATOR                2024346   00003500
+SPLSAPPL DS    CL2           SUB-APPLICATION (EAA/SA REQUIRED)          00003510
+SPLSKID  DS    XL2           RPT SEARCH KEY RPTID (EAA/SA REQUIRED)     00003520
+SPLFCVER DS    CL1           FORM CHANGE TABLE VERSION NUMBER 2120563   00003600

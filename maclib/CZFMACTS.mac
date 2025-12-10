@@ -1,0 +1,612 @@
+         MACRO                                                          00000100
+         CZFMACTS                                                      X00000200
+               &TYPE=,                                                 X00000300
+               &CICS=DBDCCICS,                                         X00000400
+               &USERS=,                                                X00000500
+               &DSKFWRT=N,                                             X00000600
+               &HELP=            HELP FUNCTION                          00000700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000800
+.*********                   P R O L O G                       ******** 00000900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001000
+.*                                                                    * 00001100
+.*   MACRO NAME : CZFMACTS                                            * 00001200
+.*                                                                    * 00001300
+.*   DESCRIPTIVE NAME : SEGMENT 15 START INSERTION MACRO              * 00001400
+.*                                                                    * 00001500
+.*   STATUS : VERSION 1                                               * 00001600
+.*            RELEASE LEVEL = 1                                       * 00001700
+.*            MODIFICATION LEVEL = 0                                  * 00001800
+.*                                                                    * 00001900
+.*   COPYRIGHT:                                                       * 00002000
+.*                                                                    * 00002100
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983,1984  * 00002200
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983,1984  * 00002300
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00002400
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00002500
+.*                                                                    * 00002600
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00002700
+.*                                                                    * 00002800
+.*   FUNCTION:  TO INSERT A GROUP OF TABLES AND CONSTANTS AT THE      * 00002900
+.*              BEGINNING OF THE AP SEGMENT 15. THE INFORMATION       * 00003000
+.*              CONTAINED IN THE TABLES IS PREDEFINED.                * 00003100
+.*                                                                    * 00003200
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00003300
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00003400
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00003500
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00003600
+.*             OF THE PARAMETER USERS.                                * 00003700
+.*             THE PREDEFINED INFORMATION IS PUT IN PLACE.            * 00003800
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00003900
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00004000
+.*                                                                    * 00004100
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00004200
+.*                                                                    * 00004300
+.*   EXTERNAL MODULE(S) CALL :  CZFMHELP TO VALIDATE HELP REQUESTS    * 00004400
+.*                              CZFMHIMS TO PRINT REQUESTED MESSAGES  * 00004500
+.*                                                                    * 00004600
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00004700
+.*                                                                    * 00004800
+.*   CHARACTERISTICS :                                                * 00004900
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00005000
+.*                                                                    * 00005100
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00005200
+.*                                                                    * 00005300
+.*   RESTRICTIONS: NONE                                               * 00005400
+.*                                                                    * 00005500
+.*   PARAMETERS RECEIVED:                                             * 00005600
+.*                                                                    * 00005700
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00005800
+.*             CICS=              *CICS/VS VTAM NODE NAME             * 00005900
+.*             USERS=             *MAXIMUM NUMBER OF USERS AUTHORIZED * 00006000
+.*                                *   TO OPERATE IN ANY OF THE        * 00006100
+.*                                *   CONTROLLERS (001 TO 124).       * 00006200
+.*             DSKFWRT=           *DISKETTE FORCED WRITE              * 00006300
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00006400
+.*                                                                    * 00006500
+.*   CONTROL BLOCK(S) BUILT :                                         * 00006600
+.*                                                                    * 00006700
+.*            TABLES AND CONSTANTS INSERTED AT THE BEGINNIG OF        * 00006800
+.*                  AP SEGMENT 15                                     * 00006900
+.*                                                                    * 00007000
+.*            - INFORMATION TO TRANSMIT TABLES TO CONTROLLER          * 00007100
+.*            - CONTROLLER INFORMATION                                * 00007200
+.*            - SEGMENT 15 TABLES ADDRESSES                           * 00007300
+.*            - PERMANENT FILE LAYOUT                                 * 00007400
+.*            - SYSTEM USERS TABLE                                    * 00007500
+.*                                                                    * 00007600
+.*   GENERATED CODE :                                                 * 00007700
+.*                                                                    * 00007800
+.*            - INFORMATION TO TRANSMIT TABLES TO CONTROLLER          * 00007900
+.*            - CONTROLLER INFORMATION                                * 00008000
+.*            - SEGMENT 15 TABLES ADDRESSES                           * 00008100
+.*            - PERMANENT FILE LAYOUT                                 * 00008200
+.*            - SYSTEM USERS TABLE                                    * 00008300
+.*                                                                    * 00008400
+.*   NOTES:  NONE                                                     * 00008500
+.*                                                                    * 00008600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008800
+.*                                                                    * 00008900
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00009000
+.*                                                                    * 00009100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009200
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00009300
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00009400
+         GBLA  &MACTS             *MACRO CZFMACTS INDICATOR             00009500
+         GBLA  &MACTS1            *MACRO CZFMACTS INDICATOR FOR ENTRY   00009600
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00009700
+         GBLA  &CTUSERS           *NUMBER OF USERS                      00009800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009900
+.*                                                                    * 00010000
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00010100
+.*                                                                    * 00010200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00010300
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00010400
+         LCLB  &ERRIND            *ERROR INDICATOR                      00010500
+         LCLB  &D                 *DISKETTE INDICATOR                   00010600
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00010700
+&ERRIND  SETB  0                  *INITIALIZE VALUE OF ERROR INDICATOR  00010800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00010900
+.*                                                                    * 00011000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00011100
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00011200
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00011300
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00011400
+.*   PERFORMED.                                                       * 00011500
+.*                                                                    * 00011600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00011700
+         CZFMHELP HELP=&HELP                                            00011800
+         AIF (&HELPARM EQ 1).HELP                                       00011900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00012000
+.*                                                                    * 00012100
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00012200
+.*                                                                    * 00012300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00012400
+.P1VAL   ANOP                                                           00012500
+         AIF   (&MACTS EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00012600
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00012700
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                00012800
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                00012900
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 00013000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00013100
+.*                                                                    * 00013200
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 00013300
+.*                                                                    * 00013400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00013500
+.P1V1    ANOP                                                           00013600
+         AIF (&MACTS NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00013700
+&MACTS   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00013800
+         AIF (&MFINAL GT 0).NOFINAL                                     00013900
+.SETMAC  ANOP                                                           00014000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00014100
+&MACREC  SETC  'CZFMACTS'         *NAME OF CURRENT MACRO                00014200
+         TITLE 'SEGMENT 15 START INSERTION'                             00014300
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00014400
+*                                                                    *  00014500
+*   MACRO NAME : CZFMACTS                                            *  00014600
+*                                                                    *  00014700
+*   DESCRIPTIVE NAME : SEGMENT 15 START INSERTION MACRO              *  00014800
+*                                                                    *  00014900
+*   STATUS : VERSION 1                                               *  00015000
+*            RELEASE LEVEL = 0                                       *  00015100
+*            MODIFICATION LEVEL = 0                                  *  00015200
+*                                                                    *  00015300
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00015400
+         AGO   .END               *EXIT FROM THE MACRO                  00015500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00015600
+.*                                                                    * 00015700
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 00015800
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 00015900
+.*                                                                    * 00016000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00016100
+.P2V1    ANOP                                                           00016200
+         AIF (&MACTS NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00016300
+         AIF (&MACTS1 NE 0).P2E1A *MORE THAN ONE TYPE ENTRY RECEIVED    00016400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00016500
+.*                                                                    * 00016600
+.*   VALIDATE PARAMETER USERS IN MACRO TYPE=ENTRY :                   * 00016700
+.*        - MUST BE NUMERIC FROM 001 TO 124                           * 00016800
+.*                                                                    * 00016900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00017000
+.P2V2    ANOP                                                           00017100
+.*                                                                      00017200
+         AIF    (T'&USERS EQ 'O').P2E2                                  00017300
+         AIF    (T'&USERS NE 'N').P2E2                                  00017400
+         AIF    (&USERS LT 1 OR  &USERS GT 124).P2E2                    00017500
+&CTUSERS SETA   &USERS                                                  00017600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00017700
+.*                                                                    * 00017800
+.*   VALIDATE PARAMETER CICS IN MACRO TYPE=ENTRY :                    * 00017900
+.*        - ANY VALID VTAM NODE NAME                                  * 00018000
+.*        - DEFAULT IS DBDCCICS                                       * 00018100
+.*                                                                    * 00018200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00018300
+.P2V3    ANOP                                                           00018400
+         AIF    (T'&CICS EQ 'O').P2E3                                   00018500
+         AIF    (T'&CICS EQ 'N').P2E3                                   00018600
+         AIF    (K'&CICS LT 1 OR K'&CICS GT 8).P2E3                     00018700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00018800
+.*                                                                    * 00018900
+.*   VALIDATE PARAMETER DSKFWRT IN MACRO TYPE=ENTRY :                 * 00019000
+.*        - MUST BE EITHER 'Y' OR 'N'                                 * 00019100
+.*                                                                    * 00019200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00019300
+.P2V3A   ANOP                                                           00019400
+         AIF    ('&DSKFWRT' EQ 'Y').P2V3B                               00019500
+         AIF    ('&DSKFWRT' EQ 'N').P2V3B                               00019600
+         AGO    .P2E3A                                                  00019700
+.P2V3B   ANOP                                                           00019800
+&D       SETB   ('&DSKFWRT' EQ 'Y')                                     00019900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00020000
+.*                                                                    * 00020100
+.*   IF NOT ERROR FOUND, INSERT TABLES AND CONSTANTS                  * 00020200
+.*                                                                    * 00020300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00020400
+.P2V4    ANOP                                                           00020500
+         AIF   (&ERRIND).END                                            00020600
+&MACTS1  SETA  1                  *SET ON MACRO ENTRY RECEIVED IND      00020700
+.*                                          *INSERTION BEGINS           00020800
+*********************************************************************** 00020900
+*                                                                     * 00021000
+*                                                                     * 00021100
+*        INFORMATION TO TRANSMIT TABLES TO CONTROLLER                 * 00021200
+*                                                                     * 00021300
+*                                                                     * 00021400
+*********************************************************************** 00021500
+APTABLES CSECT                                                          00021600
+USERSADR DC    A(SYSUSERS)                                              00021700
+USERSLEN DC    A(SYSUSLEN)                                              00021800
+PFADDR   DC    A(PFLAYOUT)                                              00021900
+CTS15    EQU   *                   *INFORMATION ABOUT SEGMENT 15 TABLES 00022000
+         DC    A(CZFAS15S)                                              00022100
+         DC    CL2'CT'                                                  00022200
+         DC    AL2(S15LENG)                             @000294 (R1.2)  00022300
+         DC    YL1((S15LENG+255)/256)                                   00022400
+         DC    XL3'00'              *FILLER                             00022500
+CTS13    EQU   *                   *INFORMATION ABOUT SEGMENT 13 TABLES 00022600
+         DC    A(CZFAS13S)                                              00022700
+         DC    CL2'CT'                                                  00022800
+         DC    YL2(S13LENG)                                             00022900
+         DC    YL1((S13LENG+255)/256)                                   00023000
+         DC    XL3'00'              *FILLER                             00023100
+MSCONTL  EQU   *                    *INFORMATION ABOUT MESSAGES TABLE   00023200
+         DC    A(CZFAMS)                                                00023300
+         DC    CL2'OM'                                                  00023400
+         DC    YL2(MSLEN)                                               00023500
+         DC    YL1((MSLEN+255)/256)                                     00023600
+         DC    XL3'00'              *FILLER                             00023700
+OBCONTL  EQU   *                   *INFORMATION ABOUT WORKSTATIONS TABL 00023800
+         DC    A(CZFAOB)                                                00023900
+         DC    CL2'OB'                                                  00024000
+         DC    YL2(OBLEN)                                               00024100
+         DC    YL1((OBLEN+255)/256)                                     00024200
+         DC    XL3'00'              *FILLER                             00024300
+OTCONTL  EQU   *                    *INFORMATION ABOUT OPERATORS TABLE  00024400
+         DC    A(CZFAOT)                                                00024500
+         DC    CL2'OT'                                                  00024600
+         DC    YL2(OTLEN)                                               00024700
+         DC    YL1((OTLEN+255)/256)                                     00024800
+         DC    XL3'00'              *FILLER                             00024900
+PACONTL  EQU   *                    *INFORMATION ABOUT PARAMETERS TABLE 00025000
+         DC    A(CZFAPA)                                                00025100
+         DC    CL2'PA'                                                  00025200
+         DC    YL2(PALEN)                                               00025300
+         DC    YL1((PALEN+255)/256)                                     00025400
+         DC    XL3'00'              *FILLER                             00025500
+         EJECT                                                          00025600
+*********************************************************************** 00025700
+*                                                                     * 00025800
+*                                                                     * 00025900
+*        START OF TABLES TO BE STORED IN SEGMENT 15                   * 00026000
+*                                                                     * 00026100
+*                                                                     * 00026200
+*********************************************************************** 00026300
+CZFACTMS CSECT                      CONTROLLER TABLES MODULE START      00026400
+CZFAS15S EQU   *                                                        00026500
+*********************************************************************** 00026600
+*                                                                     * 00026700
+*     CONTROLLER INFORMATION. THIS FILLER OF 51 BYTES WILL BE         * 00026800
+*     OVERLAID BY THE MODULE CZFACI THAT CONTAINS THE SPECIFIC        * 00026900
+*     INFORMATION ABOUT THE CONTROLLER THAT WILL RECEIVE THE TABLES.  * 00027000
+*     THIS OPERATION IS PERFORMED JUST BEFORE TRANSMISSION TO         * 00027100
+*     ALLOW THE USE OF THE SAME TABLES FOR DIFFERENT CONTROLLERS.     * 00027200
+*     THE SPACE IS INCLUDED HERE TO GUARANTEE THE CORRECT             * 00027300
+*     ADDRESSABILITY FOR THE TABLES CREATED IN THIS MODULE.           * 00027400
+*                                                                     * 00027500
+*********************************************************************** 00027600
+CONTLLER EQU   *                                                        00027700
+         DC    XL1'00'            *CONTROLLER ID                        00027800
+         DC    XL6'00'            *CONTROLLER DATE                      00027900
+         DC    CL6' '             *2ND DISKETTE LABEL                   00028000
+         DC    X'00'              *PROCESSING FLAG                      00028100
+         DC    X'00'              *2ND DISKETTE CONTROL BYTE            00028200
+         DC    BL1'0000000&D'     *DISKETTE OPERATIONAL STATUS          00028300
+         DC    BL1'10010010'      *SIGN ON FLAG                         00028400
+         DC    BL1'00001000'      *APPLICATION FLAG                     00028500
+         DC    AL1(8)             *HOST PROGRAM NAME'S LENGTH           00028600
+         DC    CL8'&CICS'         *HOST VTAM NODE NAME                  00028700
+         DC    CL1' '             *RESERVED                             00028800
+         DC    CL1' '             *RESERVED                             00028900
+         DC    CL1' '             *RESERVED                             00029000
+         DC    CL1' '             *RESERVED                             00029100
+         DC    CL1' '             *RESERVED                             00029200
+         DC    CL1' '             *RESERVED                             00029300
+*                * TOTAL OF SEGMENT 15 + SEGMENT 13 BLOCKS              00029400
+         DC    YL1(((S15LENG+255)/256)+1) *NUMBER OF SEGMENT 15 BLOCKS  00029500
+         DC    YL1((((S15LENG+255)/256)+((S13LENG+255)/256))+1)         00029600
+         DC    AL2(0)             *MESSAGE SLOT NUMBER (DATA ENTRY)     00029700
+         DC    AL2(0)             *MESSAGE SLOT NUMBER (ADMINISTRATIVE) 00029800
+         DC    AL2(0)             *MESSAGE SLOT NUMBER (CTF)            00029900
+         DC    AL2(0)             *MESSAGE SLOT NUMBER (USER)           00030000
+         DC    AL2(90)            *MESSAGE SLOT NUMBER (MICR)           00030100
+         DC    BL1'00000000'      *AP OPTION BYTE 1                     00030200
+         DC    BL1'00000000'      *AP OPTION BYTE 2                     00030300
+         DC    AL2(74)            *NUMBER OF TRACKS FOR 2ND DISKETTE    00030400
+         DC    AL1(10)            *NUMBER OF TF RESERVE BLOCKS          00030500
+         DC    XL1'00'            *NUMBER OF RESTART MESSAGES           00030600
+         EJECT                                                          00030700
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00030800
+*                                                                    *  00030900
+*       WORDS AND DELIMITERS TABLE                                   *  00031000
+*                                                                    *  00031100
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00031200
+ALPHA01  EQU   17                 * WORD: ALPHA01      DELIMITER '11'   00031300
+ALPHA02  EQU   18                 * WORD: ALPHA02      DELIMITER '12'   00031400
+ALPHA03  EQU   19                 * WORD: ALPHA03      DELIMITER '13'   00031500
+ALPHA04  EQU   20                 * WORD: ALPHA04      DELIMITER '14'   00031600
+ALPHA05  EQU   21                 * WORD: ALPHA05      DELIMITER '15'   00031700
+ALPHA06  EQU   22                 * WORD: ALPHA06      DELIMITER '16'   00031800
+ACCT     EQU   123                * WORD: ACCT         DELIMITER '7B'   00031900
+ACCT2    EQU   74                 * WORD: ACCT2        DELIMITER '4A'   00032000
+AMT      EQU   78                 * WORD: AMT          DELIMITER '4E'   00032100
+BAL      EQU   92                 * WORD: BAL          DELIMITER '5C'   00032200
+CASH     EQU   75                 * WORD: CASH         DELIMITER '4B'   00032300
+LINE     EQU   80                 * WORD: LINE         DELIMITER '50'   00032400
+SER      EQU   76                 * WORD: SER          DELIMITER '4C'   00032500
+SPECIAL  EQU   65                 * WORD: SPECIAL      DELIMITER '41'   00032600
+WORD     EQU   66                 * WORD: WORD         DELIMITER '42'   00032700
+OTHER01  EQU   93                 * WORD: OTHER01      DELIMITER '5D'   00032800
+OTHER02  EQU   94                 * WORD: OTHER02      DELIMITER '5E'   00032900
+OTHER03  EQU   95                 * WORD: OTHER03      DELIMITER '5F'   00033000
+OTHER04  EQU   96                 * WORD: OTHER04      DELIMITER '60'   00033100
+OTHER05  EQU   97                 * WORD: OTHER05      DELIMITER '61'   00033200
+OTHER06  EQU   98                 * WORD: OTHER06      DELIMITER '62'   00033300
+OTHER07  EQU   99                 * WORD: OTHER07      DELIMITER '63'   00033400
+OTHER08  EQU   100                * WORD: OTHER08      DELIMITER '64'   00033500
+OTHER09  EQU   101                * WORD: OTHER09      DELIMITER '65'   00033600
+OTHER10  EQU   102                * WORD: OTHER10      DELIMITER '66'   00033700
+OTHER11  EQU   103                * WORD: OTHER11      DELIMITER '67'   00033800
+OTHER12  EQU   104                * WORD: OTHER12      DELIMITER '68'   00033900
+OTHER13  EQU   105                * WORD: OTHER13      DELIMITER '69'   00034000
+OTHER14  EQU   106                * WORD: OTHER14      DELIMITER '6A'   00034100
+OTHER15  EQU   107                * WORD: OTHER15      DELIMITER '6B'   00034200
+OTHER16  EQU   108                * WORD: OTHER16      DELIMITER '6C'   00034300
+OTHER17  EQU   109                * WORD: OTHER17      DELIMITER '6D'   00034400
+OTHER18  EQU   110                * WORD: OTHER18      DELIMITER '6E'   00034500
+OTHER19  EQU   111                * WORD: OTHER19      DELIMITER '6F'   00034600
+OTHER20  EQU   112                * WORD: OTHER20      DELIMITER '70'   00034700
+*                               OTHER21 TO OTHER30         ADDED JJ     00034800
+OTHER21  EQU   77                 * WORD: OTHER21      DELIMITER '4D'   00034900
+OTHER22  EQU   81                 * WORD: OTHER22      DELIMITER '51'   00035000
+OTHER23  EQU   82                 * WORD: OTHER23      DELIMITER '52'   00035100
+OTHER24  EQU   83                 * WORD: OTHER24      DELIMITER '53'   00035200
+OTHER25  EQU   84                 * WORD: OTHER25      DELIMITER '54'   00035300
+OTHER26  EQU   85                 * WORD: OTHER26      DELIMITER '55'   00035400
+OTHER27  EQU   86                 * WORD: OTHER27      DELIMITER '56'   00035500
+OTHER28  EQU   87                 * WORD: OTHER28      DELIMITER '57'   00035600
+OTHER29  EQU   88                 * WORD: OTHER29      DELIMITER '58'   00035700
+OTHER30  EQU   89                 * WORD: OTHER30      DELIMITER '59'   00035800
+*                               OTHER31 TO OTHER50         ADDED *IG*   00035900
+OTHER31  EQU   171                * WORD: OTHER31      DELIMITER 'AB'   00036000
+OTHER32  EQU   172                * WORD: OTHER32      DELIMITER 'AC'   00036100
+OTHER33  EQU   173                * WORD: OTHER33      DELIMITER 'AD'   00036200
+OTHER34  EQU   174                * WORD: OTHER34      DELIMITER 'AE'   00036300
+OTHER35  EQU   175                * WORD: OTHER35      DELIMITER 'AF'   00036400
+OTHER36  EQU   176                * WORD: OTHER36      DELIMITER 'B0'   00036500
+OTHER37  EQU   177                * WORD: OTHER37      DELIMITER 'B1'   00036600
+OTHER38  EQU   178                * WORD: OTHER38      DELIMITER 'B2'   00036700
+OTHER39  EQU   179                * WORD: OTHER39      DELIMITER 'B3'   00036800
+OTHER40  EQU   180                * WORD: OTHER40      DELIMITER 'B4'   00036900
+*                                                                       00037000
+OTHER41  EQU   181                * WORD: OTHER41      DELIMITER 'B5'   00037100
+OTHER42  EQU   182                * WORD: OTHER42      DELIMITER 'B6'   00037200
+OTHER43  EQU   183                * WORD: OTHER43      DELIMITER 'B7'   00037300
+OTHER44  EQU   184                * WORD: OTHER44      DELIMITER 'B8'   00037400
+OTHER45  EQU   185                * WORD: OTHER45      DELIMITER 'B9'   00037500
+OTHER46  EQU   186                * WORD: OTHER46      DELIMITER 'BA'   00037600
+OTHER47  EQU   187                * WORD: OTHER47      DELIMITER 'BB'   00037700
+OTHER48  EQU   188                * WORD: OTHER48      DELIMITER 'BC'   00037800
+OTHER49  EQU   189                * WORD: OTHER49      DELIMITER 'BD'   00037900
+OTHER50  EQU   190                * WORD: OTHER50      DELIMITER 'BE'   00038000
+*                                                                       00038100
+*                               OTHER51 TO OTHER99 JUL/88  ADDED *IB*   00038200
+OTHER51  EQU   128                * WORD: OTHER51      DELIMITER '80'   00038300
+OTHER52  EQU   129                * WORD: OTHER52      DELIMITER '81'   00038400
+OTHER53  EQU   130                * WORD: OTHER53      DELIMITER '82'   00038500
+OTHER54  EQU   131                * WORD: OTHER54      DELIMITER '83'   00038600
+OTHER55  EQU   132                * WORD: OTHER55      DELIMITER '84'   00038700
+OTHER56  EQU   133                * WORD: OTHER56      DELIMITER '85'   00038800
+OTHER57  EQU   134                * WORD: OTHER57      DELIMITER '86'   00038900
+OTHER58  EQU   135                * WORD: OTHER58      DELIMITER '87'   00039000
+OTHER59  EQU   136                * WORD: OTHER59      DELIMITER '88'   00039100
+OTHER60  EQU   137                * WORD: OTHER60      DELIMITER '89'   00039200
+OTHER61  EQU   138                * WORD: OTHER61      DELIMITER '8A'   00039300
+OTHER62  EQU   140                * WORD: OTHER62      DELIMITER '8C'   00039400
+OTHER63  EQU   141                * WORD: OTHER63      DELIMITER '8D'   00039500
+OTHER64  EQU   142                * WORD: OTHER64      DELIMITER '8E'   00039600
+OTHER65  EQU   143                * WORD: OTHER65      DELIMITER '8F'   00039700
+OTHER66  EQU   144                * WORD: OTHER66      DELIMITER '90'   00039800
+OTHER67  EQU   145                * WORD: OTHER67      DELIMITER '91'   00039900
+OTHER68  EQU   146                * WORD: OTHER68      DELIMITER '92'   00040000
+OTHER69  EQU   147                * WORD: OTHER69      DELIMITER '93'   00040100
+OTHER70  EQU   148                * WORD: OTHER70      DELIMITER '94'   00040200
+OTHER71  EQU   149                * WORD: OTHER71      DELIMITER '95'   00040300
+OTHER72  EQU   150                * WORD: OTHER72      DELIMITER '96'   00040400
+OTHER73  EQU   151                * WORD: OTHER73      DELIMITER '97'   00040500
+OTHER74  EQU   152                * WORD: OTHER74      DELIMITER '98'   00040600
+OTHER75  EQU   153                * WORD: OTHER75      DELIMITER '99'   00040700
+OTHER76  EQU   154                * WORD: OTHER76      DELIMITER '9A'   00040800
+OTHER77  EQU   155                * WORD: OTHER77      DELIMITER '9B'   00040900
+OTHER78  EQU   156                * WORD: OTHER78      DELIMITER '9C'   00041000
+OTHER79  EQU   157                * WORD: OTHER79      DELIMITER '9D'   00041100
+OTHER80  EQU   158                * WORD: OTHER80      DELIMITER '9E'   00041200
+OTHER81  EQU   159                * WORD: OTHER81      DELIMITER '9F'   00041300
+OTHER82  EQU   160                * WORD: OTHER82      DELIMITER 'A0'   00041400
+OTHER83  EQU   161                * WORD: OTHER83      DELIMITER 'A1'   00041500
+OTHER84  EQU   162                * WORD: OTHER84      DELIMITER 'A2'   00041600
+OTHER85  EQU   163                * WORD: OTHER85      DELIMITER 'A3'   00041700
+OTHER86  EQU   164                * WORD: OTHER86      DELIMITER 'A4'   00041800
+OTHER87  EQU   165                * WORD: OTHER87      DELIMITER 'A5'   00041900
+OTHER88  EQU   166                * WORD: OTHER88      DELIMITER 'A6'   00042000
+OTHER89  EQU   167                * WORD: OTHER89      DELIMITER 'A7'   00042100
+OTHER90  EQU   168                * WORD: OTHER90      DELIMITER 'A8'   00042200
+OTHER91  EQU   169                * WORD: OTHER91      DELIMITER 'A9'   00042300
+OTHER92  EQU   170                * WORD: OTHER92      DELIMITER 'AA'   00042400
+OTHER93  EQU   202                * WORD: OTHER93      DELIMITER 'CA'   00042500
+OTHER94  EQU   203                * WORD: OTHER94      DELIMITER 'CB'   00042600
+OTHER95  EQU   204                * WORD: OTHER95      DELIMITER 'CC'   00042700
+OTHER96  EQU   205                * WORD: OTHER96      DELIMITER 'CD'   00042800
+OTHER97  EQU   206                * WORD: OTHER97      DELIMITER 'CE'   00042900
+OTHER98  EQU   207                * WORD: OTHER98      DELIMITER 'CF'   00043000
+OTHER99  EQU   192                * WORD: OTHER99      DELIMITER 'C0'   00043100
+*                                                                       00043200
+COMP1    EQU   113                * WORD: COMP1        DELIMITER '71'   00043300
+COMP2    EQU   114                * WORD: COMP2        DELIMITER '72'   00043400
+COMP3    EQU   115                * WORD: COMP3        DELIMITER '73'   00043500
+COMP4    EQU   116                * WORD: COMP4        DELIMITER '74'   00043600
+COMP5    EQU   117                * WORD: COMP5        DELIMITER '75'   00043700
+COMP6    EQU   118                * WORD: COMP6        DELIMITER '76'   00043800
+COMP7    EQU   119                * WORD: COMP7        DELIMITER '77'   00043900
+COMP8    EQU   120                * WORD: COMP8        DELIMITER '78'   00044000
+COMP9    EQU   121                * WORD: COMP9        DELIMITER '79'   00044100
+         EJECT                                                          00044200
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00044300
+*                                                                    *  00044400
+*       DEVICE TABLE                                                 *  00044500
+*                                                                    *  00044600
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00044700
+DVC3604D EQU   02                 * DEVICE: 3604D      CODE '02'        00044800
+DVC36042 EQU   34                 * DEVICE: 36042      CODE '22'        00044900
+DVC36044 EQU   66                 * DEVICE: 36044      CODE '42'        00045000
+DVC36048 EQU   130                * DEVICE: 36048      CODE '82'        00045100
+DVC3604M EQU   03                 * DEVICE: 3604M      CODE '03'        00045200
+DVC3612J EQU   36                 * DEVICE: 3612J      CODE '24'        00045300
+DVC3612P EQU   68                 * DEVICE: 3612P      CODE '44'        00045400
+DVC3615  EQU   05                 * DEVICE: 3615       CODE '05'        00045500
+DVC3616J EQU   38                 * DEVICE: 3616J      CODE '26'        00045600
+DVC3616D EQU   70                 * DEVICE: 3616D      CODE '46'        00045700
+DVC3618  EQU   07                 * DEVICE: 3618       CODE '07'        00045800
+DVC3620J EQU   40                 * DEVICE: 3620J      CODE '28'        00045900
+DVC3620P EQU   72                 * DEVICE: 3620P      CODE '48'        00046000
+DVC4704  EQU   34                 * SAME AS:36042      CODE '22'        00046100
+DVC4710  EQU   14                 * DEVICE: 4710       CODE '0E'        00046200
+DVC4720  EQU   15                 * DEVICE: 4720       CODE '0F'  *JJ   00046300
+         EJECT                                                          00046400
+*********************************************************************** 00046500
+*                                                                     * 00046600
+*     SEGMENT 15 TABLES ADDRESSES. THIS GROUP OF ADDRESSES ALLOWS     * 00046700
+*     THE AP MODULE TO ACCESS ANY OF THE TABLES CONTAINING THE        * 00046800
+*     USER DEFINED INFORMATION REQUIRED TO PROCESS THE                * 00046900
+*     TRANSACTIONS.                                                   * 00047000
+*                                                                     * 00047100
+*********************************************************************** 00047200
+         DC    YL2(SYSUSERS-CZFACTMS+S15HDR) * OPERATOR CONTROL TABLE   00047300
+         DC    YL2(PFLAYOUT-CZFACTMS+S15HDR) * PERM. FILE LAYOUT TABLE  00047400
+         DC    YL2(APPLICAT-CZFACTMS+S15HDR) * APPLICATION TABLE        00047500
+         DC    YL2(TOTALS-CZFACTMS+S15HDR)   * TOTALS USAGE TABLE       00047600
+         DC    YL2(TXPROC-CZFACTMS+S15HDR)   * TRANSACTION ID TABLE     00047700
+         DC    YL2(FIELDS-CZFACTMS+S15HDR)   * FIELD DESCRIPTOR TABLE   00047800
+         DC    YL2(WORDS-CZFACTMS+S15HDR)    * WORD TABLE               00047900
+         DC    YL2(MSTENTR-CZFACTMS+S15HDR)  * OUTPUT FORMAT TABLE      00048000
+         DC    YL2(DATALENG)                                            00048100
+         EJECT                                                          00048200
+*********************************************************************** 00048300
+*                                                                     * 00048400
+*                                                                     * 00048500
+*          PERMANENT FILE LAYOUT                                      * 00048600
+*                                                                     * 00048700
+*                                                                     * 00048800
+*********************************************************************** 00048900
+PFLAYOUT EQU   *                  *TABLE START LABEL                    00049000
+         DC    YL2(4)             *NUMBER OF ENTRIES                    00049100
+         DC    AL2(PFELEN)        *LENGTH FOR EACH ENTRY                00049200
+*                                                                       00049300
+         DC    CL2'OM'            *FILE NAME                            00049400
+         DC    AL1(0)             *RESERVED                             00049500
+         DC    HL1'1'             *FT LENGTH OR RES FLAG                00049600
+         DC    YL2((MSLEN+255)/256)  *STARTING PF BLOCK NUMBER          00049700
+         DC    CL2'OB'            *FILE NAME                            00049800
+         DC    AL1(0)             *RESERVED                             00049900
+         DC    HL1'3'             *FT LENGTH OR RES FLAG                00050000
+         DC    YL2((OBLEN+255)/256)  *STARTING PF BLOCK NUMBER          00050100
+         DC    CL2'OT'            *FILE NAME                            00050200
+         DC    AL1(0)             *RESERVED                             00050300
+         DC    BL1'10000000'      *FT LENGTH OR RES FLAG                00050400
+         DC    YL2((OTLEN+255)/256)  *STARTING PF BLOCK NUMBER          00050500
+         DC    CL2'PA'            *FILE NAME                            00050600
+         DC    AL1(0)             *RESERVED                             00050700
+         DC    HL1'4'             *FT LENGTH OR RES FLAG                00050800
+         DC    YL2((PALEN+255)/256)  *STARTING PF BLOCK NUMBER          00050900
+PFELEN   EQU   6                  *PERM. FILE ENTRY LENGTH              00051000
+         EJECT                                                          00051100
+*********************************************************************** 00051200
+*                                                                     * 00051300
+*                                                                     * 00051400
+*     SYSTEM USERS TABLE.THIS FILLER WILL BE                          * 00051500
+*     OVERLAID BY THE MODULE CZFACI THAT CONTAINS THE SPECIFIC        * 00051600
+*     INFORMATION ABOUT THE CONTROLLER THAT WILL RECEIVE THIS TABLE.  * 00051700
+*     THIS OPERATION IS PERFORMED JUST BEFORE TRANSMISSION TO         * 00051800
+*     ALLOW THE USE OF THE SAME TABLES FOR DIFFERENT CONTROLLERS.     * 00051900
+*     THE SPACE IS INCLUDED HERE TO GUARANTEE THE CORRECT             * 00052000
+*     ADDRESSABILITY FOR THE TABLES CREATED IN THIS MODULE.           * 00052100
+*     THE SPACE IS RESERVED ACCORDING TO THE NUMBER OF SYSTEM         * 00052200
+*     USERS REQUIRED. EVERY ELEMENT IN THE TABLE REQUIRES 12 BYTES.   * 00052300
+*     SOME SUGGESTED VALUES ARE:                                      * 00052400
+*                                                                     * 00052500
+*        - 384 TO STORE UP TO 32 SYSTEM USERS.                        * 00052600
+*        - 768 TO STORE UP TO 64 SYSTEM USERS.                        * 00052700
+*        -1152 TO STORE UP TO 96 SYSTEM USERS.                        * 00052800
+*                                                                     * 00052900
+*********************************************************************** 00053000
+SYSUSERS EQU   *                                                        00053100
+         DC    XL12'00'           *FILLER TO STORE THE HEADER + ALIGNM. 00053200
+         DC    &CTUSERS.XL12'00'  *FILLER TO STORE UP TO 32 SYST. USERS 00053300
+         EJECT                                                          00053400
+SYSUSLEN EQU   *-SYSUSERS                                               00053500
+         AGO   .END                                                     00053600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00053700
+.*                                                                    * 00053800
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00053900
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00054000
+.*            A MACRO TYPE=INITIAL AND A MACRO TYPE=ENTRY             * 00054100
+.*                                                                    * 00054200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00054300
+.P3V1    ANOP                                                           00054400
+         AIF (&MACTS NE 1).P3E1                                         00054500
+         AIF (&MACTS1 NE 1).P3E1A                                       00054600
+&MACTS   SETA  2                                                        00054700
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00054800
+         AGO   .END                                                     00054900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00055000
+.*                                                                    * 00055100
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00055200
+.*    MESSAGES REQUIRED.                                                00055300
+.*                                                                    * 00055400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00055500
+.HELP    ANOP                                                           00055600
+         CZFMHIMS MSGNUM=998                                            00055700
+         CZFMHIMS MSGNUM=84                                             00055800
+         CZFMHIMS MSGNUM=2                                              00055900
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTS                            00056000
+         CZFMHIMS MSGNUM=85                                             00056100
+         CZFMHIMS MSGNUM=75                                             00056200
+         CZFMHIMS MSGNUM=99                                             00056300
+         CZFMHIMS MSGNUM=120                                            00056400
+         CZFMHIMS MSGNUM=86                                             00056500
+         CZFMHIMS MSGNUM=74                                             00056600
+       AGO   .END                                                       00056700
+.NOFINAL ANOP                                                           00056800
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00056900
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00057000
+.PCOMP   ANOP                                                           00057100
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTS                            00057200
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00057300
+         AGO   .END                                                     00057400
+.PUE1    ANOP                                                           00057500
+         CZFMHIMS MSGNUM=84                                             00057600
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00057700
+         AGO   .END                                                     00057800
+.P1E1    ANOP                                                           00057900
+         CZFMHIMS MSGNUM=2                                              00058000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00058100
+         AGO   .END                                                     00058200
+.P2E1    ANOP                                                           00058300
+         CZFMHIMS MSGNUM=85                                             00058400
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00058500
+         AGO   .END                                                     00058600
+.P2E1A   ANOP                                                           00058700
+         CZFMHIMS MSGNUM=75                                             00058800
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00058900
+         AGO   .END                                                     00059000
+.P2E2    ANOP                                                           00059100
+         CZFMHIMS MSGNUM=74                                             00059200
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00059300
+         AGO   .P2V3                                                    00059400
+.P2E3    ANOP                                                           00059500
+         CZFMHIMS MSGNUM=99                                             00059600
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00059700
+         AGO   .P2V3A                                                   00059800
+.P2E3A   ANOP                                                           00059900
+         CZFMHIMS MSGNUM=120                                            00060000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00060100
+         AGO   .P2V4                                                    00060200
+.P3E1    ANOP                                                           00060300
+         CZFMHIMS MSGNUM=86                                             00060400
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00060500
+         AGO   .END                                                     00060600
+.P3E1A   ANOP                                                           00060700
+         CZFMHIMS MSGNUM=87                                             00060800
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00060900
+         AGO   .END                                                     00061000
+.END     ANOP                                                           00061100
+         MEND                                                           00061200

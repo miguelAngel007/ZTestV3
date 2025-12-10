@@ -1,0 +1,708 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000001
+*--------------------------------------------------------------------*  00000002
+*                  ** HISTORY OF REVISIONS **                        *  00000003
+*                                                                    *  00000004
+* DATE     DESCRIPTION                                        CHNGID *  00000005
+* ________ _________________________________________________  _______*  00000006
+* 09/16/15 ADDED NEW FIELDS FOR REST SERVICES                 1626902*  00000076
+* 02/10/14 ADDED SASIOPTA ADDRESS TO PCA                      1436560*  00000077
+* 08/29/12 ADDED SDR DATA END                                 1416320   00000078
+* 05/02/12 ADDED OUT ICR ADDR                                 1316257   00000079
+* 03/30/11 ADDED NEW FIELDS FOR WEB SERVICES                  1226081   00000080
+* 09/20/10 EXPAND MAXIMUM KEY SIZE                            1115989   00000081
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000082
+* 10/29/09 ADDED LOG GROUP FOR TRANSACTION                    1025861   00000083
+* 05/19/06 BROWSE PAGING OPT TO ONLY DISPLAY AN ITEM ONE TIME 0635478   00000084
+* 05/11/06 ADDED TRAN BACKDATE FLAG                           0645471   00000085
+* 09/06/05 ADDED PCA NEXT DAY EXIT FLAG TO TSCB               0615280   00000086
+* 05/28/03 REDUCE OVERRIDE OCCUR FROM 10 TO 6                 0364780   00000087
+* 11/26/02 ADD REAL TIME TRANSACTION FLAG                     0324631*  00000088
+* 09/29/00 ADD ICR AFTER PROCESSING FLAG                      2024224*  00000090
+* 03/22/00 ADD TRAN-NEXT-DAY, SER-SWITCH                      2021255   00000092
+* 01/11/99 ADD PCA CURRENCY REDISPLAY FIELD                   9914011*  00000093
+* 06/12/98 ADD SCREEN TYPE 6 FOR ARGO INQUIRY                 9913719*  00000095
+* 05/08/97 ADD FIELDS FOR FLOATING DECIMAL                    9913481*  00000096
+* 06/12/95 ADD PCA CURRENCY FIELD                             2602390*  00000097
+* 01/25/95 EXPAND ST CLOSE AMOUNT FIELD                       2602607*  00000098
+**********************************************************************  00000099
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*        TSTS2TSC  ---  TRANSACTION SYSTEM CONTROL BLOCK (TSCB)       * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+         SPACE                                                          00000600
+*********************************************************************** 00000700
+*                                                                     * 00000800
+*                              STEM AREA                              * 00000900
+*                                                                     * 00001000
+*********************************************************************** 00001100
+         SPACE                                                          00001200
+STEM     DSECT                                                          00001300
+STMSTART EQU   *                                                        00001400
+STMECATC DS    CL16     *STEM EYE CATCHER                               00001500
+*                           VALUE: *** TSCBSTEM ***                     00001600
+STMLAL   DS    XL4      *LENGTH OF ACQUIRED LINKAGE                     00001700
+         SPACE                                                          00001800
+*********************************************************************** 00001900
+*                     TRANSACTION PROCESSING DATA                     * 00002000
+*********************************************************************** 00002100
+         SPACE                                                          00002200
+STMATPA  DS    0CL60    *ADDRESSES OF PROCESSING AREAS                  00002300
+STMAPCA  DS    XL4          ADDRESS OF PCA (PROCESSING CONTROL AREA)    00002400
+STMAKDA  DS    XL4          ADDRESS OF KDA (KEY DATA AREA)              00002500
+STMKDAEA DS    XL4          KDA ENDING ADDRESS                          00002600
+STMATDA  DS    XL4          ADDRESS OF TDA (TOTALLING DATA AREA)        00002700
+STMAMDA  DS    XL4          ADDRESS OF MDA (MESSAGE DISPLAY AREA)       00002800
+STMAPDA  DS    XL4          ADDRESS OF PDA (PROCESSING DATA AREA)       00002900
+STMAALA  DS    XL4          ADDRESS OF ALA (APPLICATION LOG AREA)       00003000
+STMARDA  DS    XL4          ADDRESS OF RDA (RECOVERY DATA AREA)         00003100
+STMALDA  DS    XL4          ADDRESS OF LDA (LOGGING DATA AREA)          00003200
+STMASACB DS    XL4          ADDRESS OF SACB (SYSTM ARCH CONTROL BLOCK)  00003300
+STMSTPIP DS    XL4          ADDRESS OF TCR STEP IN PROCESS              00003400
+STMTRMA  DS    XL4          ADDRESS OF TRANSMISSION           00702222  00003410
+STMWPTA  DS    XL4          ADDRESS OF WINDOW PROCESSING TABLE0807210   00003420
+STMOPFA  DS    XL4          ADDRESS OF OPOTIONAL FIELDS       0807210   00003430
+STMWPTLN DS    XL2          LENGTH OF WINDOW PROCESSING TABLE 0807210   00003440
+         DS    XL02         FILLER                            0807210   00003500
+         SPACE                                                          00003600
+STMARA   DS    0CL20    *ACQUIRED RECORD ADDRESSES                      00003700
+STMITRA  DS    XL4          ITR RECORD ADDRESS                          00003800
+STMEORA  DS    XL4          EOR RECORD ADDRESS                          00003900
+STMQSIA  DS    XL4          QUEUE STATUS ITEM ADDRESS                   00004000
+STMTCRA  DS    XL4          TCR RECORD ADDRESS                          00004100
+STMSDRA  DS    XL4          SDR RECORD ADDRESS                          00004200
+         SPACE                                                          00004300
+STMSDRFK DS    XL4      *SDR FUNCTION KEY ADDRESS                       00004400
+STMSFKLN DS    XL2      *SDR FUNCTION KEY LENGTH                        00004500
+STMXLTAD DS    XL4      *SDR XLT TABLE ADDRESS                9913481   00004600
+STMKDAL  DS    XL2      *LENGTH OF FIXED AREA OF KDA ENTRY              00004700
+STMPIA   DS    XL4      *PASSBOOK ITEM ADDR (ITEM TO BE PRINTED)        00004800
+         SPACE                                                          00004900
+STMAPIP  DS    XL4      *ADDRESS OF PCA IN PROCESS                      00005000
+STMNPO   DS    XL2      *NUMBER OF PCA OCCURRENCES                      00005100
+STMPOIP  DS    XL2      *PCA OCCURRENCE IN PROCESS                      00005200
+STMTSIP  DS    XL2      *TCR STEP IN PROCESS                            00005300
+STMSAPCF DS    XL4      *LENGTH OF FIXED PORTION OF PDA (FOR SA)        00005400
+STMSAPCV DS    XL4      *LENGTH OF VARIABLE PORTION OF PDA (FOR SA)     00005500
+STMLOGAD DS    XL4      *ADDRESS OF STORAGE FOR LOG > 4734    1226081   00005510
+         DS    CL8      *FILLER                               1226081   00005600
+*********************************************************************** 00005700
+*                       TRANSACTION CONTROL DATA                      * 00005800
+*********************************************************************** 00005900
+         SPACE                                                          00006000
+STMSRK   DS    0CL20    *SYSTEM REPORT KEY                              00006100
+STMSRL   DS    0CL12    *SYSTEM REPORT LEVELS                           00006200
+STMRL1   DS    CL2          SYSTEM REPORT LEVEL 1                       00006300
+STMRL2   DS    CL3          SYSTEM REPORT LEVEL 2                       00006400
+STMRL3   DS    CL3          SYSTEM REPORT LEVEL 3                       00006500
+STMRL4   DS    CL4          SYSTEM REPORT LEVEL 4                       00006600
+STMEID   DS    CL8      *EMPLOYEE ID                                    00006700
+         DS    CL4      *FILLER - RESERVED FOR RPT LVL EXPANSION        00006800
+STMTRTY  DS    CL2      *TERMINAL TYPE                                  00006900
+*                           TL - TELLER TERMINAL                        00007000
+*                           AD - ADMINISTRATIVE TERMINAL                00007100
+*                           PL - PLATFORM TERMINAL                      00007200
+STMDPF   DS    CL1      *DOCUMENT PREPARATION FLAG                      00007300
+*                           0 - NO                                      00007400
+*                           1 - YES                                     00007500
+STMTDATA DS    0CL177   *TRANSACTION DATA                               00007600
+STMTDAR  DS    CL15     *TRANSACTION DESCRIPTION (APPEARS ON REPORTS)   00007700
+STMTT    DS    CL6      *TRANSACTION TIME (FORMAT: HHMMSS)              00007800
+STMTC    DS    CL2      *TRANSACTION CENTURY                            00007900
+STMTD    DS    CL6      *TRANSACTION DATE                               00008000
+         ORG   STMTD                                                    00008100
+STMTDMD  DS    CL4      *TRANSACTION DATE MONTH DAY                     00008200
+         DS    CL2      *FILLER                                         00008300
+         ORG   STMTD                                                    00008400
+STMTDMO  DS    CL2      *TRANSACTION DATE MONTH                         00008500
+STMTDDA  DS    CL2      *TRANSACTION DATE DAY                           00008600
+STMTDYR  DS    CL2      *TRANSACTION DATE YEAR                          00008700
+         ORG                                                            00008800
+STMTNXD  DS    CL1      *TRAN NEXT DAY FLAG                   2021255   00008810
+STMSSWT  DS    CL1      *TRAN SER  SWITCHED                   2021255   00008820
+STMSSWP  DS    CL4      *TRAN SER SWITCH PROG                 2021255   00008830
+         DS    CL14     *FILLER                               2021255   00008900
+STMDATA  DS    0CL12    *DATA                                           00009000
+STMETC   DS    CL8          EXTERNAL TRANSACTION CODE                   00009100
+         DS    CL4          DATA FILLER                                 00009200
+STMSN    DS    CL8      *SERIAL NUMBER                                  00009300
+STMOL    DS    CL2      *OVERRIDE LEVEL                                 00009400
+STMOEN   DS    CL8      *OVERRIDE EMPLOYEE NUMBER                       00009500
+STMMTEO  DS    XL2      *MAXIMUM TRANSACTION ERROR OVERRIDE             00009600
+STMNTEOU DS    XL2      *NUMBER OF TRANSACTION ERROR OVERRIDE IN USE    00009700
+STMTEOC  DS    0CL36    *TRANSACTION ERROR OVERRIDE CODES     0364780   00009800
+STMFTEOC DS    CL6      *FIRST TRANS ERROR OVERRIDE CODE                00009900
+STMRTEOC DS    CL30     *REMAINING TRANS ERROR OVERRIDE CDES  0364780   00010000
+         DS    CL24     *FILLER                               0364780   00010010
+STMPMCA  DS    CL30     *PROCESS MODULE COMMUNICATION AREA              00010100
+STMRVSER DS    CL8      *REVERSAL SERIAL NUMBER               00702238  00010150
+STMTRML  DS    XL2      *TRANSMISSION LENGTH                  00702222  00010160
+STMSCTCS DS    CL2      *CURRENT SCREEN FOR SCREEN CHAINING   00702222  00010170
+         DS    CL6      *FILLER                               2602607   00010200
+STMCA    DS    CL8      *CLOSE AMOUNT                         2602607   00010300
+STMCURR  DS    CL3      *CURRENCY                             0722348   00010310
+STMTDEPT DS    CL3      *DEPARTMENT                           0722348   00010320
+STMBN    DS    CL5      *BATCH NUMBER                         0722348   00010400
+STMTSUB  DS    CL5      *SUB-BATCH NUMBER                     0722348   00010500
+STMROAP  DS    CL8      *REPLACEMENT OUTPUT ANALYSIS PHASE              00010600
+STMPAA   DS    XL4      *PRIMARY ACCOUNT ADDRESS                        00010700
+STMSTF   DS    0CL15    *SYSTEM TRANSACTION FLAGS                       00010800
+STMTSF   DS    CL1          TRANSACTION STATUS FLAG                     00010900
+*                              0 - CONTINUE PROCESSING                  00011000
+*                              1 - EDIT ONLY                            00011100
+*                              2 - ERROR OCCURRED IN EDIT-THEN-POST     00011200
+*                              3 - STOP PROCESSING                      00011300
+*                              4 - FLUSH REMAINING WORK       2500212   00011350
+STMRF    DS    CL1          REVERSAL (CORRECTION) FLAG                  00011400
+*                              0 - NOT REVERSAL                         00011500
+*                              1 - REVERSAL                             00011600
+*                              2 - PARTIAL REVERSAL           0802653   00011610
+STMREF   DS    CL1          REENTRY FLAG                                00011700
+STMFPF   DS    CL1          FORCE POST FLAG                             00011800
+*                              0 - DON'T FORCE POST TRANSACTION         00011900
+*                              1 - FORCE POST TRANSACTION               00012000
+STMETPF  DS    CL1          EDIT THEN POST FLAG                         00012100
+*                              0 - NO                                   00012200
+*                              1 - YES                                  00012300
+STMCTF   DS    CL1          CLOSE TRANSACTION FLAG                      00012400
+*                              0 - NOT CLOSE TRANSACTION                00012500
+*                              1 - CLOSE TRANSACTION                    00012600
+STMTF    DS    CL1          TOTALLING FLAG                              00012700
+STMPMEBF DS    CL1          PROCESS MODULE ERROR BACKOUT FLAG           00012800
+STMNDF   DS    CL1          NEXT DAY FLAG                               00012900
+STMSOF   DS    CL1          SIGN-ON FLAG                                00013000
+*                              0 - NOT SIGN-ON TRANSACTION              00013100
+*                              1 - SIGN-ON TRANSACTION                  00013200
+*                              2 - FORCED SIGN-ON                       00013300
+*                              3 - SIGN-OFF                             00013400
+*                              4 - FORCED SIGN-OFF                      00013500
+STMRBF   DS    CL1          REBID FLAG                                  00013600
+STMESOF  DS    CL1          EOR SECURITY ONLY FLAG                      00013700
+STMBALF  DS    CL1          TRANSACTION BALANCE FLAG                    00013800
+*                              0 - TRANSACTION SHOULD NOT BALANCE       00013900
+*                              1 - TRANSACTION SHOULD BALANCE           00014000
+STMPRVF  DS    CL1          PARTIAL REVERSAL FLAG             0802653   00014100
+*                              0 - PART REVERSAL NOT ALLOWED  0802653   00014110
+*                              1 - PART REVERSAL ALLOWED      0802653   00014120
+*                              2 - PART REVERSAL REQUIRED     0802653   00014130
+STMLKF   DS    CL1          LIST KEY FLAG                               00014200
+STMNEWTR DS    CL8      *NEW TRANSACTION REQUEST              0712367   00014210
+STMDPTFL DS    CL1      *DEPARTMENT CHANGE INDICATOR          0722348   00014220
+STMFLOG  DS    CL1      *FIRST LOG WRITTEN FOR EXTERNAL TRAN  9913481   00014230
+*                                0 - NO                       9913481   00014240
+*                                1 - YES                      9913481   00014250
+STMLGRP  DS    CL2      *LOG GROUP                            1025861   00014260
+STMXMLMG DS    CL1      *XML MESSAGE FLAG                     1226081   00014270
+*                                X'00' - NOT XML              1226081   00014280
+*                                C'X'  - XML                  1226081   00014290
+STMRACTN DS    CL1      *REST SERVICE ACTION (A,D,I,U)        1626902   00014295
+STMWFMT  DS    CL1      *WEB  SERVICE FORMAT (C,T)            1626902   00014297
+STMWOCE  DS    CL1      *WEB  SERVICE OCCURS END (Y,N)        1626902   00014299
+         DS    CL13     *FILLER                               1626902   00014300
+STMBKDT  DS    CL1      *TRAN BACKDATE FLAG                   0645471   00014310
+*                                0 - NO                       0645471   00014320
+*                                1 - YES                      0645471   00014330
+STMTBD   DS    CL6      *TRAN BUSINESS DATE                             00014400
+STMTPLI  DS    CL4      *TRAN PHYSICAL LOCATION - FROM ITR              00014500
+         SPACE                                                          00014600
+STMACI   DS    0CL7     *ACCOUNT CHAIN INFORMATION                      00014700
+STMACRBA DS    XL8      *ACCT CHAIN RBA                       1035850   00014800
+STMACNDF DS    CL1      *ACCT CHAIN NEXT DAY FLAG                       00014900
+STMACFGN DS    CL2      *ACCT CHAIN FILE GROUP NUMBER                   00015000
+         SPACE                                                          00015100
+STMCPOSI DS    0CL32    *CURSOR POSITION INFORMATION          2500597   00015120
+STMCPOS  DS    XL2      *CURSOR POSITION BINARY               2500597   00015125
+STMCFLD  DS    CL8      *CURSOR POSITION FIELD ID             2500597   00015130
+STMCDAG  DS    CL8      *CURSOR POSITION DAG NAME             2500597   00015135
+STMCELE  DS    CL8      *CURSOR POSITION ELEMENT NAME         2500597   00015140
+STMCDIM1 DS    XL2      *CURSOR POSITION ELEMENT OCCURENCE 1  2500597   00015145
+STMCDIM2 DS    XL2      *CURSOR POSITION ELEMENT OCCURENCE 2  2500597   00015150
+STMCDIM3 DS    XL2      *CURSOR POSITION ELEMENT OCCURENCE 3  2500597   00015155
+         SPACE                                                2500597   00015160
+         DS    CL2      *FILLER                               1035850   00015265
+         SPACE                                                          00015300
+STMLNG   EQU   *-STMSTART  *STEM LENGTH                                 00015400
+         SPACE                                                          00015500
+*********************************************************************** 00015600
+*                           END OF STEM AREA                          * 00015700
+*********************************************************************** 00015800
+         EJECT                                                          00015900
+*********************************************************************** 00016000
+*                                                                     * 00016100
+*                    PROCESSING CONTROL AREA (PCA)                    * 00016200
+*                    FOR INPUT CONTROL RECORD(ICR)                    * 00016300
+*                                                                     * 00016400
+*********************************************************************** 00016500
+         SPACE                                                          00016600
+PCA20OID DS    0CL8000     *20 OCCURRENCES OF PCA DATA                  00016700
+PCA1IOPD DS    CL400       *1ST OCCUR-DESCRIBED BY PCAOCCUR DSECT       00016800
+         DS    CL7600      *OCCURRENCES OF PCA 2-20  (VARIABLE)         00016900
+PCASTLNG EQU   *-STMSTART  *LENGTH OF STEM PLUS LARGEST PCA             00017000
+         SPACE                                                          00017100
+*********************************************************************** 00017200
+*             DESCRIPTION OF ONE ICR OCCURRENCE IN LINKAGE            * 00017300
+*********************************************************************** 00017400
+         SPACE                                                          00017500
+PCAOCCUR DSECT                                                          00017600
+PCASTART EQU   *        *START OF PCA OCCURRENCE DESCRIPTION            00017700
+PCAECATC DS    CL8      *PCA EYE CATCHER                                00017800
+*                           VALUE: ** PCA**                             00017900
+PCAATPA  DS    0CL40    *ADDRESSES OF TSCB AREAS                        00018000
+*  NOTE:  ----  THE ENDING ADDRESSES BELOW FOR THE KDA AND TDA          00018100
+*  ARE THE LAST BYTE OF THE AREA - NOT THE FIRST BYTE OF THE NEXT AREA. 00018200
+PCASAKDA DS    XL4          STARTING ADDRESS OF KEY DATA AREA           00018300
+PCAEAKDA DS    XL4          ENDING ADDRESS OF KEY DATA AREA             00018400
+PCASATDA DS    XL4          STARTING ADDRESS OF TOTALLING DATA AREA     00018500
+PCAEATDA DS    XL4          ENDING ADDRESS OF TOTALLING DATA AREA       00018600
+PCASAPDA DS    XL4          STARTING ADDRESS OF PROCESSING DATA AREA    00018700
+PCALPDA  DS    XL2          LENGTH OF PROCESSING DATA AREA              00018800
+PCASAPCE DS    XL4          STARTING ADDR OF PCA EXTEND AREA  1226081   00018810
+PCASDDE  DS    XL4          SDR DATA END ADDRESS              1416320   00018820
+         DS    XL10         FILLER                            1416320   00018900
+PCAPADRS DS    0CL44    *ADDRESSES NEEDED FOR PROCESSING                00019000
+PCASDRA  DS    XL4          SDR RECORD ADDRESS                          00019100
+PCASDDA  DS    XL4          SDR DATA ADDRESS                            00019200
+PCATBRA  DS    XL4          TBR RECORD ADDRESS                          00019300
+PCAICRA  DS    XL4          ICR RECORD ADDRESS                          00019400
+PCATARA  DS    XL4          TAR RECORD ADDRESS                          00019500
+PCASORSA DS    XL4          SOR RECORD STEM ADDRESS                     00019600
+PCASORAA DS    XL4          SOR RECORD APPLICATION ADDRESS              00019700
+PCAAORA  DS    XL4          AOR RECORD ADDRESS                          00019800
+PCALPA   DS    XL4          LOADED PROGRAM ADDRESS                      00019900
+PCAUGMA  DS    XL4          USER GETMAIN ADDRESS                        00020000
+PCALELR  DS    XL8          LAST ERROR LOG RBA                1035850   00020100
+         SPACE                                                          00020300
+PCAKTRA  DS    0CL16    *KEY FOR TCR RECORD ACCESS                      00020400
+PCATC    DS    CL10         TCR CLASS                                   00020500
+PCATITC  DS    0CL6         TCR INTERNAL TRAN CODE                      00020600
+PCATTC   DS    0CL4         TCR TRAN CODE                               00020700
+PCATA    DS    CL2             TCR APPLICATION                          00020800
+PCATBTC  DS    CL2             TCR BATCH TRAN CODE                      00020900
+PCATSFC  DS    CL2          TCR SUBFUNCTION CODE                        00021000
+         SPACE                                                          00021100
+*********************************************************************** 00021200
+* THE FOLLOWING FIELD, PROCESS LOG FLAG (PCAPLF), IS INITIALIZED TO   * 00021300
+* ZERO BY TSTSCTL1 LOG ROUTINE AND UPDATED BY THE LOGGING ROUTINES.   * 00021400
+*                                                                     * 00021500
+* IF THE USER LOG PHASE IS WRITTEN THAT PROGRAM SHOULD UPDATE THIS    * 00021600
+* FLAG AS FOLLOWS:                                                    * 00021700
+*    1. IF THE FLAG IS 0, MOVE A 2                                    * 00021800
+*    2. IF THE FLAG IS 1, MOVE A 3                                    * 00021900
+*                                                                     * 00022000
+*********************************************************************** 00022100
+PCAPLF   DS    CL1      *PROCESS LOG FLAG                               00022200
+*                           0 - NOT LOGGED                              00022300
+*                           1 - LOGGED BY TS                            00022400
+*                           2 - LOGGED BY USER PHASE                    00022500
+*                           3 - LOGGED BY BOTH                          00022600
+         SPACE                                                          00022700
+PCAAF    DS    CL1      *AUDIT FLAG                                     00022800
+*                           0 - NOT AUDITING                            00022900
+*                           1 - AUDITING, NO ERRORS IN PROCESSING       00023000
+*                           2 - AUDITING, ERRORS IN PROCESSING          00023100
+PCAITC   DS    CL8      *ICR TRAN CODE                                  00023200
+PCASPS   DS    0CL20    *TCR SKIP STEPS                                 00023300
+PCASSF   DS    CL1      *TCR SKIP STEP FLAG                             00023400
+*                           0 - DO NOT SKIP TCR STEP                    00023500
+*                           1 - SKIP TCR STEP                           00023600
+         DS    CL19     *REST OF OCCURRENCES OF TCR SKIP STEP FLAG      00023700
+PCAUGML  DS    XL2      *LENGTH OF AREA OBTAINED BY USER GETMAIN        00023800
+PCADCTLS DS    CL14     *APPLICATION DEFAULT CONTROLS                   00023900
+PCAAAPF  DS    CL1      *APPLICATION AVAILABLE FOR POSTING FLAG         00024000
+*                           0 - NO                                      00024100
+*                           1 - YES                                     00024200
+PCAISF   DS    CL1      *TCR SKIP FLAG                                  00024300
+*                           0 - DO NOT SKIP TCR                         00024400
+*                           1 - SKIP TCR                                00024500
+PCASFUF  DS    CL1      *SPECIAL FIELD UPD FLAG                         00024600
+*                           0 - NO                                      00024700
+*                           1 - YES                                     00024800
+PCACACF  DS    CL1      *CHANGE APPL CONTROLS FLAG                      00024900
+*                           0 - NO CHANGE                               00025000
+*                           1 - CHANGED                                 00025100
+PCADRCR  DS    CL1      *DEBIT/CREDIT FLAG                              00025200
+*                           0 - OTHER                                   00025300
+*                           1 - CREDIT                                  00025400
+*                           2 - DEBIT                                   00025500
+*                           3 - INQUIRY                                 00025600
+*                           4 - FM                                      00025700
+PCAIGNDF DS    CL1      *IGNORE NEXT DAY FLAG                           00025800
+*                           0 - PROCESS NEXT DAY IF INDICATED           00025900
+*                           1 - IGNORE NEXT DAY INDICATOR               00026000
+PCATRPF  DS    CL1      *TRANSACTION PROCESS FLAG                       00026100
+*                           VALUE:  0 - NOT PROCESSED                   00026200
+*                                   1 - PROCESSED                       00026300
+*                                   2 - FORCE POST                      00026400
+*                                   3 - LOG ONLY                        00026500
+PCADELGF DS    CL1      *DELETE LOG RECORD FLAG                         00026600
+PCASDCFL DS    CL1      *SAME DAY CORRECTION FLAG                       00026700
+*                           0 - HAS NOT BEEN TO TSTSSDC1 THIS PCA       00026800
+*                           1 - HAS BEEN TO TSTSSDC1 THIS PCA           00026900
+PCAIAFT  DS    CL1      *ICR AFTER POSTING FLAG               2024224   00026920
+PCARTFL  DS    CL1      *REAL TIME TRANSACTION FLAG           0324631   00027000
+PCASPC   DS    CL1      *SECURITY PROCESS CODE                          00027100
+         SPACE                                                          00027200
+PCASUBOA DS    CL1      *USER CODE                            2500786   00027300
+PCASAM   DS    CL2      *SYSTEM APPLICATION MNEMONIC                    00027400
+PCASTF   DS    CL1      *SYSTEM TRUNCATION FLAG                         00027500
+PCAAFGN  DS    CL2      *APPLICATION FILE GROUP NUMBER                  00027600
+PCASTI   DS    CL1      *SDR TYPE INDICATOR                             00027700
+*                           0 - INQUIRY, NOT TELLER                     00027800
+*                           1 - INQUIRY FOR TELLER                      00027900
+*                           2 - NORMAL RESPONSE, INQUIRY FOR TELLER     00028000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913719   00028009
+*                           6 - NORMAL RESP ARGO,INQUIRY FOR TELLER     00028010
+PCASN    DS    CL8      *SDR NAME                                       00028100
+PCACTLGP DS    CL2      *APPL CONTROL FILE GROUP NUMBER       2501276   00028110
+PCAALPGP DS    CL2      *APPL ALPHA FILE GROUP NUMBER         2501276   00028120
+         DS    CL12     *FILLER                               2501276   00028200
+PCAPBC   DS    CL1      *PASSBOOK CODE                                  00028300
+*                           4 - PASSBOOK DP/WTH                         00028400
+*                           9 - NOBOOK   DP/WTH                         00028500
+*                           A - PASSBOOK PRINT                          00028600
+PCASHSEQ DS    CL4      *STOP/HOLD SEQUENCE NUMBER                      00028700
+PCATF    DS    CL1      *TOTAL FLAG                                     00028800
+PCAAAS   DS    XL2      *AOR APPL SUBSCRIPT                             00028900
+PCATPF   DS    CL1      *TAKE PENALTY FLAG                              00029000
+PCAMPF   DS    CL1      *MEMO POST FLAG                                 00029100
+*                           VALUES: 0 - NO MEMO POST                    00029200
+*                                   1 - MEMO POST                       00029300
+PCARD    DS    CL10     *REPORT DESCRIPTION FROM ICR                    00029400
+PCAREC   DS    CL2      *REPORT EXCEPTION CODE                          00029500
+PCAUTC   DS    CL8      *USER TRAN CODE                                 00029600
+PCATSUC  DS    CL8      *TAR SECURITY USER CODE                         00029700
+PCAACC   DS    CL1      *ACCOUNT CATEGORY CODE                          00029800
+PCANAC   DS    CL1      *NEW ACCOUNT CODE                               00029900
+PCATGIT  DS    CL1      *TRAN GRID INTERNAL TYPE                        00030000
+PCAREVP  DS    CL8      *REVERSAL PHASE                                 00030100
+PCAREVPS DS    XL2      *REVERSED PCA SEQUENCE #                        00030200
+PCAULA   DS    CL100    *USER (LOG) AREA                                00030300
+PCAMHSL  DS    CL2      *MESSAGE HIGHEST SEVERITY LEVEL                 00030400
+PCAMHSC  DS    CL1      *MESSAGE HIGHEST SEVERITY CODE                  00030500
+*                           VALUES: A - IMMEDIATE ABEND                 00030600
+*                                   F - FATAL, STOP                     00030700
+*                                   E - FATAL, CONTINUE (EDIT ONLY)     00030800
+*                                   S - OVERRIDE, SUPERVISOR            00030900
+*                                   O - OVERRIDE, EMPLOYEE              00031000
+*                                   I - INFORMATIONAL                   00031100
+PCAIORKO DS    XL2      *I/O REQUEST KDA OCCURRENCE           00712628  00031105
+PCAIORAP DS    CL2      *I/O REQUEST APPLICATION              00712628  00031110
+PCAIORFN DS    CL8      *I/O REQUEST FILE NAME                00712628  00031115
+PCAIORKY DS    XL4      *I/0 REQUEST KEY ADDRESS              00712628  00031120
+PCAIORAD DS    XL4      *I/O REQUEST RECORD ADDRESS           00712628  00031125
+PCAIORRQ DS    CL1      *I/O REQUEST OPTIONS                  00712628  00031130
+*                            1-READ   2-READ/UPDATE           00712628  00031135
+*                            3-WRITE  4-REWRITE               00712628  00031140
+*                            V-VALIDATE CONTROLS ONLY         00712628  00031142
+PCAIORBF DS    CL1      *I/O REQUEST READ/BEFORE COMPLETED    00712628  00031145
+*                                                             00712628  00031150
+PCAIORTN DS    CL2      *I/O REQUEST RETURN CODE              00712628  00031160
+PCACURR  DS    CL3      *CURRENCY CODE                        2602390   00031170
+PCACURDC DS    CL1      *CURRENCY NUMBER OF DECIMALS          9913481   00031180
+PCACUST  DS    CL4      *NX FMS CUST NUMBER FOR CURRENCY      9913481   00031190
+PCARCUR  DS    CL3      *REDISPLAY CURRENCY CODE              9914011   00031195
+PCANDEXT DS    CL1      *NEXT DAY EXIT                        0615280   00031197
+PCABRSRP DS    CL1      *BRI1 SKIP ITEM REPEAT                0635478   00031199
+PCAAOPTA DS    XL4      *SASIOPTA ADDRESS                     1436560   00031200
+         DS    CL4      *FILLER                               1436560   00031290
+         SPACE                                                          00031300
+PCAOLNG  EQU   *-PCASTART  *ONE PCA OCCURRENCE LENGTH                   00031400
+         SPACE                                                          00031500
+*********************************************************************** 00031600
+*                 END OF PROCESSING CONTROL AREA (PCA)                * 00031700
+*********************************************************************** 00031800
+         SPACE 1                                              1226081   00031810
+************************************************************* 1226081   00031815
+*                    PROCESSING CONTROL AREA EXTENDED (PCE) * 1226081   00031820
+*                    FOR INPUT CONTROL RECORD(ICR)          * 1226081   00031825
+************************************************************* 1226081   00031830
+         SPACE 1                                              1226081   00031840
+PCE20OID DS    0CL2000     *20 OCCURRENCES OF PCE DATA        1226081   00031850
+PCE1IOPD DS    CL100       *1ST OCCUR-DESCR BY PCEOCCUR DSECT 1226081   00031860
+         DS    CL1900      *OCCURRENCES OF PCE 2-20  (VAR)    1226081   00031870
+PCESTLNG EQU   PCEOLNG*20  *LENGTH OF  LARGEST PCE            1226081   00031880
+         SPACE 1                                              1226081   00031890
+************************************************************* 1226081   00031900
+*             DESCRIPTION OF ONE PCE OCCURRENCE IN LINKAGE  * 1226081   00031910
+************************************************************* 1226081   00031920
+         SPACE 1                                              1226081   00031930
+PCEOCCUR DSECT                                                1226081   00031940
+PCESTART EQU   *        *START OF PCE OCCURRENCE DESCRIPTION  1226081   00031950
+PCEECATC DS    CL8      *PCE EYE CATCHER                      1226081   00031960
+*                           VALUE: ** PCE**                   1226081   00031970
+PCEXMLRQ DS    XL2          TAGGED XML OUTPUT REQUEST#        1226081   00031980
+PCEXMLP  DS    CL32         TAGGED XML PARENT                 1226081   00031990
+PCEXMLO  DS    XL2          TAGGED XML OCCURS NO              1226081   00032000
+PCEXMOA  DS    XL4          TAGGED XML OUT MSG ADDR           1226081   00032010
+PCEOTNM  DS    CL8          OUT ICR NAME                      1226081   00032020
+PCEPCALL DS    CL1          TYPE OF CALL TO PRS1              1226081   00032030
+*                           VALUE:  C  USE OUT ICR NAME       1226081   00032040
+*                           VALUE:  O  USE OUT ICR NAME MULT  1226081   00032050
+*                           VALUE:  T  TCR                    1226081   00032060
+PCEOICA  DS    XL4          OUT ICR ADDRESS                   1316257   00032065
+         DS    CL39         FILLER                            1316257   00032070
+PCEOLNG  EQU   *-PCESTART  *ONE PCE OCCURRENCE LENGTH         1226081   00032080
+         SPACE 1                                              1226081   00032090
+************************************************************  1226081   00032100
+*                 END OF PROCESSING CONTROL AREA (PCE)     *  1226081   00032110
+************************************************************  1226081   00032120
+         SPACE 1                                              1226081   00032130
+************************************************************* 1226081   00032140
+*                                                             1226081   00032150
+*                         KEY DATA AREA (KDA)                         * 00032200
+*                                                                     * 00032300
+*********************************************************************** 00032400
+         SPACE                                                          00032500
+*********************************************************************** 00032600
+*  NOTE:                                                              * 00032700
+*   ... THE RECORD KEYS ARE VARIABLE LENGTH, SO THE NUMBER OF ENTRIES * 00032800
+*       THAT WILL FIT IN THIS AREA WILL BE DETERMINED BY THE LENGTH   * 00032900
+*       OF THE KEYS.  FIFTY KEYS OF MAXIMUM LENGTH WILL FIT THIS AREA.* 00033000
+*********************************************************************** 00033100
+         SPACE                                                          00033200
+KDA      DS    0CL6008  *KEY DATA AREA LENGTH                           00033300
+*                       VARIABLE KEYS (MAX 200 BYTES) PLUS 70 1115989   00033400
+*                       BYTES PER OCCURRENCE FOR TOTAL NUMBER 1115989   00033410
+*                       OF OCCURENCES WHICH FIT IN 6000 BYTES 1115989   00033420
+*                       PLUS AN 8 BYTE STEM (EYECATCHER)      1115989   00033500
+         SPACE                                                          00033600
+*********************************************************************** 00033700
+*                 DESCRIPTION OF KDA STEM IN LINKAGE                  * 00033800
+*********************************************************************** 00033900
+         SPACE                                                          00034000
+KDASTEM  DSECT                                                          00034100
+KDASSTRT EQU   *        *START OF KDA STEM DESCRIPTION                  00034200
+KDAECATC DS    CL8      *KDA EYE CATCHER                                00034300
+*                           VALUE: ** KDA**                             00034400
+KDASLNG  EQU   *-KDASSTRT *KDA STEM LENGTH                              00034500
+         SPACE 2                                                        00034600
+*********************************************************************** 00034700
+*          DESCRIPTION OF PRIMARY KDA OCCURRENCE IN LINKAGE           * 00034800
+*********************************************************************** 00034900
+         SPACE                                                          00035000
+KDAOCCUR DSECT                                                          00035100
+KDASTART EQU   *        *START OF PRIMARY KDA OCCURRENCE DESCRIPTION    00035200
+KDAAR    DS    XL4      *ADDRESS OF RECORD                              00035300
+KDAAFDR  DS    XL4      *ADDRESS OF FILE DESCRIPTION RECORD (FDR)       00035500
+KDAATGA  DS    XL4      *ASSOCIATED TRAN GRID ADDRESS                   00035600
+KDALRA   DS    XL4      *LENGTH OF RECORD ADDRESSED                     00035700
+KDARKL   DS    XL2      *RECORD KEY LENGTH                              00035800
+KDACTLSL DS    XL2      *LENGTH OF CONTROLS                             00035900
+KDAACRBA DS    XL8      *ACCOUNT CHAIN RBA                    1035850   00036000
+KDAACNDF DS    CL1      *ACCOUNT CHAIN NEXT DAY FLAG                    00036100
+KDAACFGN DS    CL2      *ACCOUNT CHAIN FILE GROUP NUMBER                00036200
+KDAPA    DS    CL1      *PRIMARY ACCOUNT INDICATOR                      00036300
+KDASN    DS    CL8      *SDR NAME                                       00036400
+KDAWBF   DS    CL5      *WRITE BEFORE FILE NAME                         00036500
+KDAFN    DS    0CL8     *FILE NAME                                      00036600
+KDAAI    DS    CL2          APPLICATION ID                              00036700
+KDAFI    DS    CL3          FILE ID                                     00036800
+KDAGN    DS    CL2          GROUP NUMBER                                00036900
+* NOTE: GROUP NUMBER WILL BE INSERTED BY LOOKING AT THE FDR ENTRY TO    00037000
+*       SEE IF FILE IS GROUPED. IF FILE IS GROUPED, MOVE GROUP NUMBER   00037100
+*       FROM LINKAGE INTO POSITION 6 & 7 OF FILE NAME.                  00037200
+         DS    CL1          FILE FILLER                                 00037300
+KDARSN   DS    PL2      *RECORD SEQUENCE NUMBER                         00037400
+KDARKC   DS    PL2      *RECORD KEY COUNTER                             00037500
+KDARUF   DS    CL1      *RECORD UPDATE FLAG                             00037600
+*                           1 - INCORE                                  00037700
+*                           2 - READ                                    00037800
+*                           3 - READ FOR UPDATE                         00037900
+*                           4 - USER GETMAIN                            00038000
+*                           5 - FILE GETMAIN                            00038100
+*                           6 - UPDATED                                 00038200
+*                           7 - DELETED BY TSTSCTL1                     00038300
+*                           8 - DELETED BY TSTSRDB1                     00038400
+KDAREF   DS    CL1      *RECORD EXPAND FLAG                             00038500
+*                           0 - RECORD NOT EXPANDED                     00038600
+*                           1 - RECORD EXPANDED                         00038700
+KDARPIO  DS    CL2      *RECORD PENDING I/O INDICATOR                   00038800
+* NOTE: INITIALIZED TO ZEROS, WRITE OR REWRITE TCR STEP REPLACES VALUES 00038900
+KDARAF   DS    CL1      *REPORTING ACCOUNT FLAG                         00039000
+*                           0 - THIS IS NOT A REPORTING ACCOUNT         00039100
+*                           1 - THIS IS A REPORTING ACCOUNT             00039200
+*                               KEY LENGTH MUST BE <= 50      1115989   00039210
+KDASAF   DS    CL1      *SAME ACCOUNT FLAG                              00039300
+*                           0 - THIS IS NOT SAME ACCOUNT                00039400
+*                           1 - THIS IS SAME ACCOUNT                    00039500
+         DS    CL7      *FILLER                               1035850   00039600
+KDAOLNG  EQU   *-KDASTART  *PRIMARY KDA FIXED PORTION OCCURRENCE LENGTH 00039700
+KDARK    DS    CL200    *RECORD KEY (VAR LENGTH OF 1-200)     1115989   00039800
+         SPACE                                                          00039900
+*********************************************************************** 00040000
+*        DESCRIPTION OF SECONDARY KDA OCCURRENCE IN LINKAGE           * 00040100
+*---------------------------------------------------------------------* 00040200
+*                (THIS DSECT USED BY DASD ROUTINE WHEN                * 00040300
+*              COMPARING TWO KEYS FOR SAME ACCOUNT LOGIC)             * 00040400
+*********************************************************************** 00040500
+         SPACE                                                          00040600
+KD2OCCUR DSECT                                                          00040700
+KD2START EQU   *        *START OF SECONDARY KDA OCCURRENCE DESCRIPTION  00040800
+KD2AR    DS    XL4      *ADDRESS OF RECORD                              00040900
+KD2AFDR  DS    XL4      *ADDRESS OF FILE DESCRIPTION RECORD (FDR)       00041100
+KD2ATGA  DS    XL4      *ASSOCIATED TRAN GRID ADDRESS                   00041200
+KD2LRA   DS    XL4      *LENGTH OF RECORD ADDRESSED                     00041300
+KD2RKL   DS    XL2      *RECORD KEY LENGTH                              00041400
+KD2CTLSL DS    XL2      *LENGTH OF CONTROLS                             00041500
+KD2ACRBA DS    XL8      *ACCOUNT CHAIN RBA                    1035850   00041600
+KD2ACNDF DS    CL1      *ACCOUNT CHAIN NEXT DAY FLAG                    00041700
+KD2ACFGN DS    CL2      *ACCOUNT CHAIN FILE GROUP NUMBER                00041800
+KD2PA    DS    CL1      *PRIMARY ACCOUNT INDICATOR                      00041900
+KD2SN    DS    CL8      *SDR NAME                                       00042000
+KD2WBF   DS    CL5      *WRITE BEFORE FILE NAME                         00042100
+KD2FN    DS    0CL8     *FILE NAME                                      00042200
+KD2AI    DS    CL2          APPLICATION ID                              00042300
+KD2FI    DS    CL3          FILE ID                                     00042400
+KD2GN    DS    CL2          GROUP NUMBER                                00042500
+* NOTE: GROUP NUMBER WILL BE INSERTED BY LOOKING AT THE FDR ENTRY TO    00042600
+*       SEE IF FILE IS GROUPED. IF FILE IS GROUPED, MOVE GROUP NUMBER   00042700
+*       FROM LINKAGE INTO POSITION 6 & 7 OF FILE NAME.                  00042800
+         DS    CL1          FILE FILLER                                 00042900
+KD2RSN   DS    PL2      *RECORD SEQUENCE NUMBER                         00043000
+KD2RKC   DS    PL2      *RECORD KEY COUNTER                             00043100
+KD2RUF   DS    CL1      *RECORD UPDATE FLAG                             00043200
+*                           1 - INCORE                                  00043300
+*                           2 - READ                                    00043400
+*                           3 - READ FOR UPDATE                         00043500
+*                           4 - USER GETMAIN                            00043600
+*                           5 - FILE GETMAIN                            00043700
+*                           6 - UPDATED                                 00043800
+*                           7 - DELETED BY TSTSCTL1                     00043900
+*                           8 - DELETED BY TSTSRDB1                     00044000
+KD2REF   DS    CL1      *RECORD EXPAND FLAG                             00044100
+*                           0 - RECORD NOT EXPANDED                     00044200
+*                           1 - RECORD EXPANDED                         00044300
+KD2RPIO  DS    CL2      *RECORD PENDING I/O INDICATOR                   00044400
+* NOTE: INITIALIZED TO ZEROS, WRITE OR REWRITE TCR STEP REPLACES VALUES 00044500
+KD2RAF   DS    CL1      *REPORTING ACCOUNT FLAG                         00044600
+*                           0 - THIS IS NOT A REPORTING ACCOUNT         00044700
+*                           1 - THIS IS A REPORTING ACCOUNT             00044800
+KD2SAF   DS    CL1      *SAME ACCOUNT FLAG                              00044900
+*                           0 - THIS IS NOT SAME ACCOUNT                00045000
+*                           1 - THIS IS SAME ACCOUNT                    00045100
+         DS    CL7      *FILLER                                         00045200
+KD2OLNG  EQU   *-KD2START  *SECONDARY KDA FIXED PORTION OCCURRENCE LENG 00045300
+KD2RK    DS    0C       *RECORD KEY (VAR LENGTH OF 1-200)     1115989   00045400
+         SPACE                                                          00045500
+*********************************************************************** 00045600
+*                      END OF KEY DATA AREA (KDA)                     * 00045700
+*********************************************************************** 00045800
+         EJECT                                                          00045900
+*********************************************************************** 00046000
+*                                                                     * 00046100
+*                       TOTALLING DATA AREA (TDA)                     * 00046200
+*                                                                     * 00046300
+*********************************************************************** 00046400
+         SPACE                                                          00046500
+*********************************************************************** 00046600
+*  NOTE:                                                              * 00046700
+*   ... THE MAXIMUM OCCURRENCES THAT WILL FIT IN THIS AREA IS 100.    * 00046800
+*********************************************************************** 00046900
+         SPACE                                                          00047000
+TDA      DS    0CL3210  *TOTALLING DATA AREA LENGTH                     00047100
+*                           32 BYTE ENTRIES TIMES 100 OCCURRENCES       00047200
+*                           PLUS A 10 BYTE STEM                         00047300
+         SPACE                                                          00047400
+*********************************************************************** 00047500
+*                 DESCRIPTION OF TDA STEM IN LINKAGE                  * 00047600
+*********************************************************************** 00047700
+         SPACE                                                          00047800
+TDASTEM  DSECT                                                          00047900
+TDASSTRT EQU   *        *START OF TDA STEM DESCRIPTION                  00048000
+TDAECATC DS    CL8      *TDA EYE CATCHER                                00048100
+*                           VALUE: ** TDA**                             00048200
+TDAOUSED DS    XL2      *TDA OCCURRENCES USED                           00048300
+TDASLNG  EQU   *-TDASSTRT *TDA STEM LENGTH                              00048400
+         SPACE                                                          00048500
+*********************************************************************** 00048600
+*             DESCRIPTION OF ONE TDA OCCURRENCE IN LINKAGE            * 00048700
+*********************************************************************** 00048800
+         SPACE                                                          00048900
+TDAOCCUR DSECT                                                          00049000
+TDASTART EQU   *        *START OF TDA OCCURRENCE DESCRIPTION            00049100
+TDAFTF   DS    CL1      *FORMAT TOTAL FLAG                              00049200
+*                       VALUES 0 - TOTAL AMOUNT NOT FORMATTED           00049300
+*                              1 - TOTAL AMOUNT FORMATTED               00049400
+TDATBI   DS    0CL20    *TOTAL BUCKET INFORMATION                       00049500
+TDATB    DS    XL2          TOTAL BUCKET                                00049600
+TDATT    DS    CL1          TOTAL TYPE                                  00049700
+*                              S - SUM                                  00049800
+*                              C - COUNT                                00049900
+*                              B - BOTH                                 00050000
+TDATP    DS    CL1          TOTAL PROCESS                               00050100
+*                              S - SUBTRACT                             00050200
+*                              A - ADD                                  00050300
+*                              E - ESTABLISH                            00050400
+TDABLNG  EQU   *-TDATBI   *ONE TDA TOTAL BUCKET OCCURENCE LENGTH        00050500
+         DS    CL16         OCCURRENCES 2-5 OF TOTAL BUCKET INFORMATION 00050600
+*********************************************************************** 00050700
+* NOTE FOR TDATV:                                                     * 00050800
+*      TDATVPOS, TDATVLNG AND TDATVFM ARE LOADED BY TSTSIFL1.  THESE  * 00050900
+*      FIELDS ARE USED BY THE LOGGING ROUTINE OF TSTSCTL1 TO LOCATE   * 00051000
+*      THE TOTAL VALUE AND PLACE IT IN TDATV. THESE FIELDS ARE ALSO   * 00051100
+*      USED BY TSTSISE1 TO DO FLOOR LIMIT SECURITY.                   * 00051200
+*                                                                     * 00051300
+TDATV    DS    PL9      *TOTAL VALUE                                    00051400
+         ORG   TDATV                                                    00051500
+TDATVPOS DS    XL2      *TOTAL VALUE POSITION IN PDA                    00051600
+TDATVLNG DS    XL2      *TOTAL VALUE LENGTH IN PDA                      00051700
+TDATVFM  DS    CL1      *TOTAL VALUE FORMAT IN PDA                      00051800
+         DS    CL4      *FILLER                                         00051900
+*********************************************************************** 00052000
+TDARTF   DS    CL1      *REPORTING TOTAL FLAG                           00052100
+*                              0 - NOT REPORTING TOTALS                 00052200
+*                              1 - REPORTING TOTALS                     00052300
+TDADCF   DS    CL1      *DEBIT/CREDIT FLAG                              00052400
+*                          BLANK - COUNT                                00052500
+*                              1 - CREDIT                               00052600
+*                              2 - DEBIT                                00052700
+         SPACE                                                          00052800
+TDAOLNG  EQU   *-TDASTART *ONE TDA OCCURRENCE LENGTH                    00052900
+         SPACE                                                          00053000
+*********************************************************************** 00053100
+*                   END OF TOTALLING DATA AREA (TDA)                  * 00053200
+*********************************************************************** 00053300
+         EJECT                                                          00053400
+*********************************************************************** 00053500
+*                                                                     * 00053600
+*                      PROCESSING DATA AREA (PDA)                     * 00053700
+*                                                                     * 00053800
+*********************************************************************** 00053900
+         SPACE                                                          00054000
+*********************************************************************** 00054100
+*  NOTE:                                                              * 00054200
+*   ... THE NUMBER OF INPUT MESSAGES THAT WILL FIT IN THE PDA         * 00054300
+*       IS DETERMINED BY THE DATA LENGTH RECORDED IN THE ICR          * 00054400
+*       TIMES THE NUMBER OF INTERNAL TRANSACTIONS.                    * 00054500
+*********************************************************************** 00054600
+         SPACE                                                          00054700
+PDA      DS    CL8008   *PROCESSING DATA AREA LENGTH                    00054800
+*                           VARIABLE LENGTH INPUT PLUS AN 8 BYTE STEM   00054900
+         SPACE                                                          00055000
+*********************************************************************** 00055100
+*                 DESCRIPTION OF PDA STEM IN LINKAGE                  * 00055200
+*********************************************************************** 00055300
+         SPACE                                                          00055400
+PDASTEM  DSECT                                                          00055500
+PDASSTRT EQU   *        *START OF PDA STEM DESCRIPTION                  00055600
+PDAECATC DS    CL8      *PDA EYE CATCHER                                00055700
+*                           VALUE: ** PDA**                             00055800
+PDASLNG  EQU   *-PDASSTRT *PDA STEM LENGTH                              00055900
+         SPACE                                                          00056000
+PDADIF   DSECT            *DESCRIPTIONS OF INPUT FORMS                  00056100
+PDASTART EQU   *                                                        00056200
+PDAIDR   DS    0C         *INPUT DATA RECORD                            00056300
+PDAOLNG  EQU   *-PDASTART *ONE INPUT RECORD OCCURRENCE LENGTH           00056400
+         SPACE                                                          00056500
+*********************************************************************** 00056600
+*                  END OF PROCESSING DATA AREA (PDA)                  * 00056700
+*********************************************************************** 00056800
+         SPACE 2                                                        00056900
+*********************************************************************** 00057000
+* ******************************************************************* * 00057100
+* *                                                                 * * 00057200
+* *          END OF TRANSACTION SYSTEM CONTROL BLOCK (TSCB)         * * 00057300
+* *                                                                 * * 00057400
+* ******************************************************************* * 00057500
+*********************************************************************** 00057600

@@ -1,0 +1,280 @@
+         MACRO                                                          00010000
+         CZFMAWRD                                                      X00020000
+               &TYPE=,                                                 X00030000
+               &NAME=,                                                 X00040000
+               &TEXT=,                                                 X00050000
+               &HELP=            HELP FUNCTION                          00060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00070000
+.*********                   P R O L O G                       ******** 00080000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00090000
+.*                                                                    * 00100000
+.*   MACRO NAME : CZFMAWRD                                            * 00110000
+.*                                                                    * 00120000
+.*   DESCRIPTIVE NAME : WORD TABLE CREATION                           * 00130000
+.*                                                                    * 00140000
+.*   STATUS : VERSION 1                                               * 00150000
+.*            RELEASE LEVEL = 1                                       * 00160000
+.*            MODIFICATION LEVEL = 0                                  * 00170000
+.*                                                                    * 00180000
+.*   COPYRIGHT:                                                       * 00190000
+.*                                                                    * 00200000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00210000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00220000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00230000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00240000
+.*                                                                    * 00250000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00260000
+.*                                                                    * 00270000
+.*   FUNCTION:  TO GENERATE THE WORD TABLE. THIS TABLE WILL BE        * 00280000
+.*              TRANSMITTED TO THE AP.                                * 00290000
+.*                                                                    * 00300000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00310000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00320000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00330000
+.*             THE PREFIX OF THE TABLE.                               * 00340000
+.*          2) THE MACRO TYPE=ENTRY PROCESS -  CHECKS THE VALIDITY    * 00350000
+.*             OF THE PARAMETER NAME. BASED ON THIS PARAMETER, ONE    * 00360000
+.*             ENTRY IS BUILT.                                        * 00370000
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00380000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT UPDATES THE* 00390000
+.*             PREFIX INFORMATION WITH THE NUMBER OF ENTRIES IN THIS  * 00400000
+.*             TABLE.                                                 * 00410000
+.*                                                                    * 00420000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00430000
+.*                                                                    * 00440000
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00450000
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00460000
+.*                                                                    * 00470000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00480000
+.*                                                                    * 00490000
+.*   CHARACTERISTICS :                                                * 00500000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00510000
+.*                                                                    * 00520000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00530000
+.*                                                                    * 00540000
+.*   RESTRICTIONS: NONE                                               * 00550000
+.*                                                                    * 00560000
+.*   PARAMETERS RECEIVED:                                             * 00570000
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00580000
+.*             NAME=              *FIELD NAME (STARTING WITH A 'W')   * 00590000
+.*             TEXT=              *WORD TEXT (FROM 1 TO 8 CHARACTERS) * 00600000
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00610000
+.*                                                                    * 00620000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00630000
+.*                                                                    * 00640000
+.*            WORD TABLE PREFIX                                       * 00650000
+.*                                                                    * 00660000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00670000
+.* DEC  HEX                                                           * 00680000
+.*                                                                    * 00690000
+.*  0    0        2       NUMBER OF ENTRIES                           * 00700000
+.*  2    2        2       LENGTH OF ENTRY                             * 00710000
+.*                                                                    * 00720000
+.*            WORD TABLE ELEMENT                                      * 00730000
+.*                                                                    * 00740000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00750000
+.* DEC  HEX                                                           * 00760000
+.*                                                                    * 00770000
+.*  0    0        1       WORD LENGTH                                 * 00780000
+.*  1    1        8       WORD TEXT                                   * 00790000
+.*                                                                    * 00800000
+.*   GENERATED CODE :                                                 * 00810000
+.*                                                                    * 00820000
+.*                                     *WORD TABLE PREFIX             * 00830000
+.*         DC    AL2(NUM OF ENTRIES)   *NUMBER OF ENTRIES             * 00840000
+.*         DC    AL2(09)               *LENGTH OF ENTRIES             * 00850000
+.*                                     *FIELD DESCRIPTOR ELEMENT      * 00860000
+.*         DC    AL1(LENGTH)           *WORD LENGTH                   * 00870000
+.*         DC    CL8'WORD TEXT'        *WORD TEXT                     * 00880000
+.*                                                                    * 00890000
+.*   NOTES:                                                           * 00900000
+.*                                                                    * 00910000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00920000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00930000
+.*                                                                    * 00940000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00950000
+.*                                                                    * 00960000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00970000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00980000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00990000
+         GBLA  &MAWRD             *MACRO CZFMAWRD INDICATOR             01000000
+         GBLA  &MAWRD1            *TYPE=ENTRY INDICATOR                 01010000
+         GBLA  &WCOUNT            *COUNTER FOR NUMBER OF ENTRIES        01020000
+         GBLA  &NAMGEN            *GENERATE A NUMBER FOR EACH NAME      01030000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         01040000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01050000
+.*                                                                    * 01060000
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 01070000
+.*                                                                    * 01080000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01090000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 01100000
+         LCLA  &LENGTH            *WORK FIELD (LENGTH)                  01110000
+         LCLB  &ERRIND            *ERROR INDICATOR                      01120000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    01130000
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     01140000
+&LENGTH  SETA  0                  *INITIAL VALUE OF WORK FIELD LENGTH   01150000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01160000
+.*                                                                    * 01170000
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 01180000
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 01190000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 01200000
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 01210000
+.*   PERFORMED.                                                       * 01220000
+.*                                                                    * 01230000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01240000
+         CZFMHELP HELP=&HELP                                            01250000
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       01260000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01270000
+.*                                                                    * 01280000
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 01290000
+.*                                                                    * 01300000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01310000
+.P1VAL   ANOP                                                           01320000
+         AIF   (&MAWRD EQ 2).PCOMP   *PREVIOUS SET COMPLETE             01330000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01340000
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                01350000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01360000
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 01370000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01380000
+.*                                                                    * 01390000
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 01400000
+.*                                                                    * 01410000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01420000
+.P1V1    ANOP                                                           01430000
+         AIF (&MAWRD NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   01440000
+&MAWRD   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    01450000
+         AIF (&MFINAL GT 0).NOFINAL                                     01460000
+.SETMAC  ANOP                                                           01470000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            01480000
+&MACREC  SETC  'CZFMAWRD'         *NAME OF CURRENT MACRO                01490000
+         TITLE 'WORD TABLE'                                             01500000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01510000
+*                                                                    *  01520000
+*   MACRO NAME : CZFMAWRD                                            *  01530000
+*                                                                    *  01540000
+*   DESCRIPTIVE NAME : WORD TABLE CREATION                           *  01550000
+*                                                                    *  01560000
+*   STATUS : VERSION 1                                               *  01570000
+*            RELEASE LEVEL = 0                                       *  01580000
+*            MODIFICATION LEVEL = 0                                  *  01590000
+*                                                                    *  01600000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01610000
+.P1V2    ANOP                                                           01620000
+CZFACTMS CSECT                                                          01630000
+LABWRD   EQU   *                                                        01640000
+         DC    AL2(&WCOUNT)       *NUMBER OF ENTRIES                    01650000
+         DC    AL2(9)             *LENGTH OF ENTRY                      01660000
+         AIF   (&ERRIND).END      *EXIT FROM THE MACRO                  01670000
+         AGO   .END               *EXIT FROM THE MACRO                  01680000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01690000
+.*                                                                    * 01700000
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 01710000
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 01720000
+.*                                                                    * 01730000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01740000
+.P2V1    ANOP                                                           01750000
+         AIF (&MAWRD NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 01760000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01770000
+.*                                                                    * 01780000
+.*   VALIDATE PARAMETER NAME IN MACRO TYPE=ENTRY:                     * 01790000
+.*          - NAME MUST BE FROM 2 TO 8 CHARACTERS STARTING WITH A 'W' * 01800000
+.*                                                                    * 01810000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01820000
+.P2V2    ANOP                                                           01830000
+         AIF    (K'&NAME LT 2 OR K'&NAME GT 8).P2E2                     01840000
+         AIF    ('&NAME'(1,1) NE 'W').P2E2                              01850000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01860000
+.*                                                                    * 01870000
+.*   VALIDATE PARAMETER TEXT IN MACRO TYPE=ENTRY:                     * 01880000
+.*          - TEXT MUST BE FROM 1 TO 8 CHARACTERS ENCLOSED BY QUOTES  * 01890000
+.*                                                                    * 01900000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01910000
+.P2V3    ANOP                                                           01920000
+&LENGTH  SETA   K'&TEXT           *SAVE TEXT LENGTH                     01930000
+         AIF    (K'&TEXT LT 3 OR K'&TEXT GT 10).P2E3                    01940000
+.*                                *TEST FIRST QUOTE                     01950000
+         AIF    ('&TEXT'(1,1) NE '''').P2E3                             01960000
+.*                                *TEST SECOND QUOTE                    01970000
+         AIF    ('&TEXT'(&LENGTH,1) NE '''').P2E3                       01980000
+&LENGTH  SETA   &LENGTH-2         *SAVE TEXT LENGTH WITHOUT QUOTES      01990000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02000000
+.*                                                                    * 02010000
+.*   IF NOT ERROR FOUND, GENERATE THE APPLICATION BLOCK ELEMENT       * 02020000
+.*                                                                    * 02030000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02040000
+.P2V4    ANOP                                                           02050000
+         AIF   (&ERRIND).END                                            02060000
+&MAWRD1  SETA  1                  *GOOD ENTRY INPUT                     02070000
+&WCOUNT  SETA  &WCOUNT+1          *COUNTER FOR NUMBER OF ENTRIES ADD 1  02080000
+&NAMGEN  SETA  &NAMGEN+1          *CREATE A NUMBER FOR EACH NAME        02090000
+&NAME    EQU   &NAMGEN            *NUMBER ASSOCIATED TO THIS NAME       02100000
+         DC    AL1(&LENGTH)       *WORD LENGTH                          02110000
+         DC    CL8&TEXT           *WORD TEXT                            02120000
+         AGO   .END                                                     02130000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02140000
+.*                                                                    * 02150000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 02160000
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 02170000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 02180000
+.*            MACROS TYPE ENTRY                                       * 02190000
+.*                                                                    * 02200000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02210000
+.P3V1    ANOP                                                           02220000
+         AIF (&MAWRD NE 1).P3E1                                         02230000
+         AIF (&MAWRD1 NE 1).P3E1  *ENTRY CARD PROCESSED?                02240000
+         AIF   (&ERRIND).END                                            02250000
+&MAWRD   SETA  2                                                        02260000
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              02270000
+         ORG   LABWRD             *GO TO THE PREFIX TO UPDATE           02280000
+         DC    AL2(&WCOUNT)       *NUMBER OF ENTRIES                    02290000
+         ORG   ,                  *RESET THE LOCATION COUNTER           02300000
+         AGO   .END                                                     02310000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02320000
+.*                                                                    * 02330000
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 02340000
+.*    MESSAGES REQUIRED.                                              * 02350000
+.*                                                                    * 02360000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02370000
+.HELP    ANOP                                                           02380000
+         CZFMHIMS MSGNUM=998                                            02390000
+         CZFMHIMS MSGNUM=1                                              02400000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMAWRD                            02410000
+         CZFMHIMS MSGNUM=2                                              02420000
+         CZFMHIMS MSGNUM=3,MSGPARM=ENTRY                                02430000
+         CZFMHIMS MSGNUM=93                                             02440000
+         CZFMHIMS MSGNUM=26                                             02450000
+         CZFMHIMS MSGNUM=27                                             02460000
+       AGO   .END                                                       02470000
+.NOFINAL ANOP                                                           02480000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            02490000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   02500000
+.PCOMP   ANOP                                                           02510000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMAWRD                            02520000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02530000
+         AGO   .END                                                     02540000
+.PUE1    ANOP                                                           02550000
+         CZFMHIMS MSGNUM=1                                              02560000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02570000
+         AGO   .END                                                     02580000
+.P1E1    ANOP                                                           02590000
+         CZFMHIMS MSGNUM=2                                              02600000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02610000
+         AGO   .P1V2                                                    02620000
+.P2E1    ANOP                                                           02630000
+         CZFMHIMS MSGNUM=3,MSGPARM=&TYPE                                02640000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02650000
+         AGO   .END                                                     02660000
+.P2E2    ANOP                                                           02670000
+         CZFMHIMS MSGNUM=26                                             02680000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02690000
+         AGO   .P2V3                                                    02700000
+.P2E3    ANOP                                                           02710000
+         CZFMHIMS MSGNUM=27                                             02720000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02730000
+         AGO   .P2V4                                                    02740000
+.P3E1    ANOP                                                           02750000
+         CZFMHIMS MSGNUM=93                                             02760000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02770000
+         AGO   .END                                                     02780000
+.END     ANOP                                                           02790000
+         MEND                                                           02800000

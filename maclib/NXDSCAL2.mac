@@ -1,0 +1,18 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+*---------------------------------------------------------------------* 00000100
+*   NXDSCAL2 - MASS EXCHANGE TABLE FOR NXXRTM                         * 00000200
+*---------------------------------------------------------------------* 00000400
+*                  ** HISTORY OF REVISIONS **                         * 00000500
+* DESCRIPTION                                                 CHNGID  * 00000600
+* __________________________________________________________  _______ * 00000700
+* 09/04/96 FLOATING DECIMAL                                   DECI040 * 00000800
+*---------------------------------------------------------------------* 00000900
+SIDSMSEX DSECT                                                          00001000
+         DS     0F                                                      00001100
+XMMEXEYE DS     CL12                EYECATCHER '**NXDSCAL2**'           00001200
+SIDSMSOC DSECT                                                          00001300
+XMSEXOCC EQU    *                                                       00001400
+XMSEXIAM DS     PL9                 INPUT AMOUNT                        00001500
+XMSEXOAM DS     PL9                 OUTPUT AMOUNT                       00001600
+XMSEXOLN EQU    *-XMSEXOCC          LENGTH OF OCCURENCE                 00001700
+         DS     16X'FF'             END OF AREA DELIMITER               00001800

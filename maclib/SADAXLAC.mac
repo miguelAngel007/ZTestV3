@@ -1,0 +1,217 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+.********************************************************************** 00002000
+.* SADAXLAC.  AUXILIARY LOOKASIDE PROCESSING.                         * 00003000
+.*                                                                    * 00004000
+.* PROTOTYPE:  SADAXLAC  <SADSCSG=NNNNNNNN>                           * 00005000
+.*                        .                                           * 00006000
+.*                        ..RETURN AREA FOR A(SAD9ASCA SEGMT) (OPTION)* 00007000
+.*                                                                    * 00008000
+.* SADAXLAC ASSUMES THAT IT HAS ADDRESSABILITY TO THE SAD9ASCA        * 00009000
+.* AND THE SAD9AXCA CONTROL BLOCKS.                                   * 00010000
+.*                                                                    * 00011000
+.* SADSCSG MAY BE USED TO SPECIFY A FULLWORD WORKING STORAGE AREA     * 00012000
+.* WHERE THE CALLER WISHES RETURNED THE ADDRESS OF THE SAD9ASCA       * 00013000
+.* CONTROL SEGMENT FOR THE SPECIFIED REQUEST ID.  OPTIONAL.           * 00014000
+.*                                                                    * 00015000
+.* SADAXLAC USES REGISTERS 14, 15, 0, AND 1.  IT ASSUMES THAT         * 00016000
+.* R14, R15, R0, AND R1 EQUATE TO 14, 15, 0, AND 1, RESPECTIVELY.     * 00017000
+.* NO PROVISION TO SAVE CONTENTS OF REGISTERS ON ENTRY TO MACRO.      * 00018000
+.* REGISTERS ON RETURN AS FOLLOWS:                                    * 00019000
+.*   R14 =                                                            * 00020000
+.*   R15 = RETURN CODE: KEY FOUND (0), OR KEY NOT FOUND (16)          * 00021000
+.*   R00 =                                                            * 00022000
+.*   R01 = ADDRESS OF SPECIFIED SAD9ASCA CONTROL SEGMENT              * 00023000
+.*                                                                    * 00024000
+.* LOGIC AS FOLLOWS:                                                  * 00025000
+.*   01. IF SAD9AXCA REQUEST KEY MATCHES KEY OF DATA ADDRESSED BY     * 00026000
+.*       SADSCAFW (ADDRESS OF CICS FILE WORK AREA OR TABLE MANAGER    * 00027000
+.*       QUEUE DATA AREA) DO ONE OF THE FOLLOWING:   (ELSE, CONTINUE) * 00028000
+.*       A) IF MOVE MODE, MOVE DATA FROM AREA/LENGTH SPECIFIED IN     * 00029000
+.*          SADSCAFW/SADSCLFW TO AREA SPECIFIED IN SADPRADR, MOVE     * 00030000
+.*          AUDIT DATA TO SADPRAXA, SET RETURN CODE IN R15 TO 00,     * 00031000
+.*          AND EXIT MACRO.                                           * 00032000
+.*       B) IF LOCATE MODE, SET SADPRADR/SADPRLEN TO ADDRESS/LENGTH   * 00033000
+.*          SPECIFIED IN SADSCAFW/SADSCLFW, MOVE AUDIT DATA TO        * 00034000
+.*          SADPRAXA, SET RETURN CODE IN R15 TO 00, AND EXIT MACRO.   * 00035000
+.*   02. IF SAD9AXCA CONTROL BLOCK REQUEST ID DOES NOT MATCH ANY      * 00036000
+.*       SAD9ASCA REQUEST ID, SET RETURN CODE IN R15 = 0329,          * 00037000
+.*       AND EXIT MACRO.  (ELSE, CONTINUE.)                           * 00038000
+.*   03. IF NOT 01 (OR 02) ABOVE AND SAD9ASCA CONTROL SEGMENT FOUND,  * 00039000
+.*       R1 SHOULD EQUAL A(SAD9ASCA CONTROL SEGMENT) ON EXIT.         * 00040000
+.*   04. IF SAD9ASCA CONTROL SEGMENT CONTAINS ZERO ADDRESS/LENGTH     * 00041000
+.*       (SADSCAAS/SADSCLAS) OF SADAUXIC ACQUIRED STORAGE, DO THE     * 00042000
+.*       FOLLOWING:   (ELSE, CONTINUE)                                * 00043000
+.*          SET RETURN CODE IN R15 = 16                               * 00044000
+.*          IF REQUEST IS LOCATE MODE,                                * 00045000
+.*              CLEAR SADPRADR/SADPRGML TO ZERO                       * 00046000
+.*              TURN OFF SAD9AXCA ACQD STG FLAG(SADPRFM = SADPRFMF)   * 00047000
+.*          EXIT MACRO.                                               * 00048000
+.*   05. IF SAD9AXCA REQUEST KEY MATCHES KEY OF DATA ADDRESSED BY     * 00049000
+.*       SADSCAAS (ADDRESS OF SADAUXIC ACQUIRED STORAGE), DO ONE OF   * 00050000
+.*       THE FOLLOWING:   (ELSE, CONTINUE.)                           * 00051000
+.*       A) IF MOVE MODE, MOVE DATA FROM AREA/LENGTH SPECIFIED BY     * 00052000
+.*          SADSCAAS/SADSCLUS TO AREA SPECIFIED IN SADPRADR, SET      * 00053000
+.*          SADPRLEN EQUAL TO SADSCLUS, MOVE AUDIT DATA TO SADPRAXA,  * 00054000
+.*          SET RETURN CODE IN R15 TO 00 AND EXIT MACRO.              * 00055000
+.*       B) IF LOCATE MODE, SET SADPRADR/SADPRLEN TO ADDRESS/LENGTH   * 00056000
+.*          SPECIFIED IN SADSCAAS/SADSCLUS, MOVE AUDIT DATA TO          00057000
+.*          SADPRAXA,  SET SADPRGML TO SADSCLAS, TURN ON SAD9AXCA     * 00058000
+.*          STORAGE ACQUIRED FLAG (SADPRFM=SADPRFMF), SET RETURN CODE * 00059000
+.*          IN R15 TO 00 AND EXIT MACRO.                              * 00060000
+.*   06. SET RETURN CODE IN R15 TO 16 (KEY NOT FOUND).  IF LOCATE     * 00061000
+.*       MODE, SET SADPRADR/SADPRGML TO SADSCAAS/SADSCLAS AND TURN ON * 00062000
+.*       SAD9AXCA STORAGE ACQUIRED FLAG (SADPRFM=SADPRFMF).           * 00063000
+.*                                                            2020218 * 00063100
+.*   THIS MACRO HAS BEEN MODIFIED TO MANIPULATE THE COMMON    2020218 * 00063120
+.*   RID (00).  THE COMMON REQUEST ID WILL BE CHANGED TO      2020218 * 00063140
+.*   INTERNAL REQUEST IDS.  THESE ARE IDENTIFIED IN THE       2020218 * 00063160
+.*   SAD9AXCA COPYBOOK.   CURRENT CODING REQUIRES THAT ALL    2020218 * 00063180
+.*   EXTERNAL TRAN CODES BE A LOWER NUMBER THAN THE INTERNAL  2020218 * 00063200
+.*   TRAN CODES.  THE MAXIMUM NUMBER OF RIDS ALLOWED IS       2020218 * 00063220
+.*   IN THE SAD9ASCA COPYBOOK.  IF ALL INTERNAL RIDS ARE USED 2020218 * 00063240
+.*   THE MACRO WILL REVERT BACK TO RID 00.  USING INTERNAL    2020218 * 00063260
+.*   REQUEST IDS WILL REQUIRE MORE STORAGE BUT FEWER READS    2020218 * 00063280
+.*   TO SAAUX BECAUSE THE INFORMATION ONCE READ WILL REMAIN   2020218 * 00063300
+.*   IN STORAGE FOR THE LIFE OF THE TRANSACTION.              2020218 * 00063320
+.*                                                                    * 00064000
+.********************************************************************** 00065000
+.*                    ** HISTORY OF REVISIONS **                      * 00066000
+.* DESCRIPTION                                                CHNGID  * 00067000
+.* --------------------------------------------------------- -------- * 00068000
+.* 08/15/01 REDUCE SADAUXIC LINKS                             2020218 * 00068994
+.* 11/04/97 SUPPORT BIG-DAGS (LARGER THAN 64K)                9913569 * 00068996
+.* 06/06/96 BYPASS LOGIC FOR USE OF CICS FILE WORK AREA (FWA) 2600590 * 00068998
+.* 04/15/94 ORIGINAL DISTRIBUTION                             2600590 * 00069000
+.*                                                                    * 00070000
+.********************************************************************** 00071000
+&NAME    SADAXLAC &SADSCSG=                                             00072000
+         LCLC  &N                                                       00073000
+.* IF &SYSNDX LENGTH GREATER THAN 4, US FOLLOWING W/ WITH HILVL ASM     00074000
+.* &N       SETC  '&SYSNDX'(((K'&SYSNDX)-1),2)                          00075000
+&N       SETC  '&SYSNDX'(3,2)                                           00076000
+.NAME    ANOP                                                           00077000
+&NAME    DS   0H                                                        00078000
+         AIF   ('&SADSCSG' EQ '').SADL10                                00079000
+         XC    &SADSCSG,&SADSCSG   CLEAR A(SAD9ASCA CTL SEG /REQ ID)    00080000
+.SADL10  ANOP                                                           00081000
+         AGO   .SADL20 (PENDING FUTURE DEVELOPMENT, BYPASS FWA LOGIC)   00081102
+.*   NOTE: USE OF CICS FILE WORK AREA WILL BE UNRELIABLE AS LONG      * 00081200
+.*   AS IT IS POSSIBLE THAT OF MULTIPLE REQUESTS WITHIN A TASK TO     * 00081300
+.*   SADAUXIC, SOME MAY PASS THE GCA/SACB ADDRESS AND OTHERS MAY NOT. * 00081400
+.*   THEREFORE, THE MACRO LOGIC WHICH REFERENCES CICS FWA WILL BE     * 00081500
+.*   BYPASSED UNTIL IT CAN BE ASSURED THAT THE GCA/SACB WILL ALWAYS   * 00081600
+.*   BE PRESENT OR INTEGRITY OF FWA DATA CAN OTHERWISE BE ASSURED.    * 00081702
+SADL10&N DS   0H               *** CHECK FILE WORK AREA FOR REQ DATA    00082000
+         TM    SADPRFM,SADPRFMG    DOES CURR REQUEST WANT STG ACQUIRED  00083000
+         BO    SADL20&N              Y. CAN'T USE CICS FILE WORK AREA   00084000
+         ICM   R14,B'1111',SADSCAFW R14 = A(LAST VALID FILE WORK AREA)  00085000
+         BZ    SADL20&N            SKIP FWA CK IF NO VALID ADDRESS      00086000
+         LA    R1,0                R01 = CLEARED                        00087000
+         ICM   R1,B'0001',SADPRKLN R01 = GENERIC KEY LENGTH             00088000
+         BNZ   *+4+4               USE SPECIFIED LENGTH UNLESS ZERO     00089000
+         LA    R1,21               R01 = GENERIC KEY LENGTH = 21 (DFLT) 00090000
+         BCTR  R1,0                R01 = GENERIC KEY LENGTH CODE        00091000
+         EX    R1,SADLX5&N         IS REQUESTED DATA IN FILE WORK AREA  00094000
+         BNE   SADL20&N              N. SKIP TO VALIDATE REQ ID         00095000
+         MVC   SADPRLEN,=A(0)            CLR SAD9AXCA L'DATA  9913569   00096000
+         MVC   SADPRLEN+2(2),SADSCLFW    RTN L'REQD USER DATA 9913569   00096100
+         MVC   SADPRAXA,25(R14)    RETURN AUDIT DATA                    00097000
+         TM    SADPRFUN,SADPRLOC   IS THIS REQUEST LOCATE MODE          00098000
+         BO    SADL14&N              Y. SKIP TO PROC LOCATE IN FWA      00099000
+SADL12&N DS   0H               *** DATA IN FWA - MOVE MODE              00100000
+         ICM   R0,B'1111',SADPRADR R00 = A(USER DATA RETURN AREA)       00101000
+         ICM   R1,B'1111',SADPRLEN R01 = L'REQUESTED USER DATA9913569   00103000
+         LR    R15,R1              R15 = L'REQUESTED USER DATA          00104000
+         MVCL  R0,R14              MOVE REQ DATA TO USER RETURN AREA    00105000
+         LA    R15,0               R15 = 0 = RETURN CODE (DATA FOUND)   00106000
+         B     SADL99&N            EXIT MACRO                           00107000
+SADL14&N DS   0H               *** DATA IN FWA - LOCATE MODE            00108000
+         MVC   SADPRADR,SADSCAFW   RETURN A(DATA IN TM Q / CICS FWA)    00109000
+         LA    R15,0               R15 = 0 = RETURN CODE (DATA FOUND)   00110000
+         B     SADL99&N            EXIT MACRO                           00111000
+.SADL20  ANOP                                                           00111100
+SADL20&N DS   0H               *** VALIDATE REQUEST ID                  00112000
+         LA    R15,SADSC#SG        R15 = # SAD9ASCA CTL SEGS            00113000
+         LA    R1,0                R01 = CLEARED                        00114000
+         ICM   R1,B'0001',SADPRRID R01 = SAD9AXCA REQUEST ID            00115000
+         CR    R1,R15              IS SAD9AXDA REQ ID (INDEX) VALID     00116000
+         BL    SADL24&N              Y. LOC SAD9ASCA CTL SEG  2020218   00117000
+         LA    R15,329             R15 =0329 RTN CODE (INVALID REQ ID)  00118000
+         B     SADL99&N            EXIT MACRO                           00119000
+SADL24&N DS   0H               *** INTERNAL REQ ID SEARCH     2020218   00119100
+         LTR   R1,R1               IS REQUEST ID ZERO?        2020218   00119130
+         BNZ   SADL30&N            N. LOCATE EXISTING REQ ID  2020218   00119160
+         LA    R1,SADPRR03         INIT TO 1ST INTERNAL RID   2020218   00119190
+         STCM  R1,B'0001',SADPRRID SAVE SAD9AXCA REQUEST ID   2020218   00119220
+         OI    SADPRFM,SADPRFMG    INIT FLG: GETMAIN ALWAYS   2020218   00119240
+         B     SADL30&N            GO LOCATE CONTROL SEGMENT  2020218   00119250
+SADL27&N DS   0H               *** INCREMENT REQ ID           2020218   00119280
+         LA    R14,0               R14 = CLEARED              2020218   00119290
+         ICM   R14,B'0001',SADPRRID  R14=SAD9AXCA REQUEST ID  2020218   00119300
+         LA    R15,SADPRR03        R15 = 1ST INTERNAL RID     2020218   00119310
+         CR    R14,R15             IS SAD9AXDA REQ ID EXTERN? 2020218   00119340
+         BL    SADL60&N              Y. END LOCATE            2020218   00119370
+         LR    R1,R14              LOAD CURRENT RID           2020218   00119380
+         LA    R1,1(R1)            BUMP TO NEXT RID           2020218   00119400
+         STCM  R1,B'0001',SADPRRID SAVE SAD9AXCA REQUEST ID   2020218   00119430
+         LA    R15,SADSC#SG        R15 = # SAD9ASCA CTL SEGS  2020218   00119460
+         CR    R1,R15              IS SAD9AXDA REQ ID VALID   2020218   00119490
+         BL    SADL30&N              Y. LOC SAD9ASCA CTL SEG  2020218   00119520
+         LA    R1,SADPRR00         SET BACK TO COMMON RID     2020218   00119550
+         STCM  R1,B'0001',SADPRRID SAVE SAD9AXCA REQUEST ID   2020218   00119580
+         B     SADL30&N            GO LOCATE CONTROL SEGMENT  2020218   00119610
+SADL30&N DS   0H               *** LOCATE SAD9ASCA CONTROL SEGMENT      00120000
+         LA    R0,0                R00 = CLEARED                        00121000
+         LA    R14,SADSCLSG        R14 = L'SAD9ASCA CTL SEG             00122000
+         MR    R0,R14              R01 = INDEX TO CTLSEG/REQID          00123000
+         LA    R1,SADSCSTM+L'SADSCSTM(R1) R1 = A(CTL SEG/REQ ID)        00124000
+         AIF   ('&SADSCSG' EQ '').SADL40                                00125000
+         STCM  R1,B'1111',&SADSCSG RETURN A(SAD9ASCA CTL SEG /REQ ID)   00126000
+.SADL40  ANOP                                                           00127000
+SADL40&N DS   0H               *** VALIDATE ACQUIRED STORAGE ADDRESS    00128000
+         ICM   R14,B'1111',(SADSCAAS-SADSCSEG)(R1) A(ACQ STG/REQ) ?     00129000
+         BNZ   SADL50&N              Y. SKIP TO CK FOR KEY MATCH        00130000
+         LA    R15,16              R15 = 16  RTN CODE (NO ACQUIRED STG) 00131000
+         TM    SADPRFUN,SADPRLOC   IS THIS REQUEST LOCATE MODE          00132000
+         BZ    SADL99&N              N. EXIT MACRO                      00133000
+         MVC   SADPRADR,=A(0)        Y. CLEAR SAD9AXCA A(ACQUIRED STG)  00134000
+         MVC   SADPRLEN,=A(0)           CLEAR SAD9AXCA L'DATA           00135000
+         MVC   SADPRGML,=A(0)           CLEAR SAD9AXCA L'ACQUIRED STG   00136000
+         NI    SADPRFM,X'FF'-SADPRFMF   CLEAR SAD9AXCA FLAG: ACQD STG   00137000
+         B     SADL99&N                 EXIT MACRO                      00138000
+SADL50&N DS   0H               *** CK ACQD STG AREA FOR REQ DATA        00139000
+         LA    R15,0               R15 = CLEARED                        00140000
+         ICM   R15,B'0001',SADPRKLN R15 = GENERIC KEY LENGTH            00141000
+         BNZ   *+4+4               USE SPECIFIED LENGTH UNLESS ZERO     00142000
+         LA    R15,21              R15 = GENERIC KEY LENGTH = 21 (DFLT) 00143000
+         BCTR  R15,0               R15 = GENERIC KEY LENGTH CODE        00144000
+         B     *+4+6               BRANCH AROUND EXECUTE INST           00144100
+SADLX5&N CLC   SADPRKEY(0),0(R14)  EXEC INST: IS REQ DATA IN FWA        00144200
+         EX    R15,SADLX5&N        IS REQUESTED DATA IN ACQUIRED STG    00145000
+         BNE   SADL27&N              N. SKIP TO SET NOT FOUND 2020218   00146000
+         MVC   SADPRLEN,(SADSCLUS-SADSCSEG)(R1) RTN L'USER DATA/ACQSTG  00147000
+         MVC   SADPRAXA,25(R14)    RETURN AUDIT DATA                    00148000
+         TM    SADPRFUN,SADPRLOC   IS THIS REQUEST LOCATE MODE          00149000
+         BO    SADL54&N              Y. SKIP TO PROC LOCATE IN ACQ STG  00150000
+SADL52&N DS   0H               *** REQD DATA IN ACQD STG-MOVE MODE      00151000
+         ICM   R0,B'1111',SADPRADR R00 = A(USER DATA RETURN AREA)       00152000
+         ICM   R1,B'1111',SADPRLEN R01 = L'REQUESTED USER DATA9913569   00154000
+         LR    R15,R1              R15 = L'REQUESTED USER DATA          00155000
+         MVCL  R0,R14              MOVE REQ DATA TO USER RETURN AREA    00156000
+         LA    R15,0               R15 = 0 = RETURN CODE (DATA FOUND)   00157000
+         B     SADL99&N            EXIT MACRO                           00158000
+SADL54&N DS   0H               *** REQD DATA IN ACQD STG-LOCATE MODE    00159000
+         LA    R15,0               R15 = 0 = RETURN CODE (DATA FOUND)   00160000
+         B     SADL90&N            EXIT MACRO                           00161000
+SADL60&N DS   0H               *** REQD DATA IN ACQD STG-LOCATE MODE    00162000
+         LA    R15,16              R15 = 0 = RTN CODE (DATA NOT FOUND)  00163000
+         TM    SADPRFUN,SADPRLOC   IS THIS REQUEST LOCATE MODE          00164000
+         BZ    SADL99&N              N. EXIT MACRO                      00165000
+SADL90&N DS   0H               *** SADAUXIC ACQD STG AVAIL-LOCATE MODE  00166000
+         MVC   SADPRADR,(SADSCAAS-SADSCSEG)(R1) RETURN A(DATA/ACQSTG)   00167000
+         MVC   SADPRGML,(SADSCLAS-SADSCSEG)(R1) RETURN L'ACQSTG         00168000
+         OI    SADPRFM,SADPRFMF    SET FLAG: SADAUXIC STORAGE ACQUIRED  00169000
+SADL99&N DS   0H               *** MACRO EXIT                           00170000
+         LTR   R15,R15             SET CONDITION CODE                   00171000
+         MEND                                                           00172000

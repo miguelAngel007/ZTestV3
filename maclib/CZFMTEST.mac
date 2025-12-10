@@ -1,0 +1,348 @@
+         MACRO                                                          00010000
+         CZFMTEST                                                      X00020000
+               &TESTNUM=,                                              X00030000
+               &DESCRIP=,                                              X00040000
+               &TRCODE=,                                               X00050000
+               &CNTLID=,                                               X00060000
+               &WSID=,                                                 X00070000
+               &TRID=,                                                 X00080000
+               &USERNUM=,                                              X00090000
+               &USERAUT=,                                              X00100000
+               &AUTHLEV=,                                              X00110000
+               &TRINDIC=,                                              X00120000
+               &FLD1=,                                                 X00130000
+               &FLD2=,                                                 X00140000
+               &FLD3=,                                                 X00150000
+               &FLD4=,                                                 X00160000
+               &FLD5=,                                                 X00170000
+               &FLD6=,                                                 X00180000
+               &FLD7=,                                                 X00190000
+               &FLD8=,                                                 X00200000
+               &FLD9=,                                                 X00210000
+               &FLD10=                                                  00220000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00230000
+.*********                   P R O L O G                       ******** 00240000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00250000
+.*                                                                    * 00260000
+.*   MACRO NAME : CZFMTEST                                            * 00270000
+.*                                                                    * 00280000
+.*   DESCRIPTIVE NAME : TEST CASES TABLE CREATION                     * 00290000
+.*                                                                    * 00300000
+.*   STATUS : VERSION 1                                               * 00310000
+.*            RELEASE LEVEL = 1                                       * 00320000
+.*            MODIFICATION LEVEL = 0                                  * 00330000
+.*                                                                    * 00340000
+.*   COPYRIGHT:                                                       * 00350000
+.*                                                                    * 00360000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00370000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00380000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00390000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00400000
+.*                                                                    * 00410000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00420000
+.*                                                                    * 00430000
+.*   FUNCTION:  TO GENERATE THE TEST CASAES TABLE.                    * 00440000
+.*                                                                    * 00450000
+.*   LOGIC:  THIS MACRO PERFORMS NO VALIDATION. IF A PARAMETER IS     * 00460000
+.*           OMITTED, ZEROS WILL BE PLACED AS A VALUE.                * 00470000
+.*                                                                    * 00480000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00490000
+.*                                                                    * 00500000
+.*   EXTERNAL MODULE(S) CALL :  NONE                                  * 00510000
+.*                                                                    * 00520000
+.*   MESSAGES ISSUED :  NO MESSAGES ARE ISSUED                        * 00530000
+.*                                                                    * 00540000
+.*   CHARACTERISTICS :                                                * 00550000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00560000
+.*                                                                    * 00570000
+.*   DEVIATIONS PROM PROGRAMMING STANDARDS :  NONE                    * 00580000
+.*                                                                    * 00590000
+.*   RESTRICTIONS: NONE                                               * 00600000
+.*                                                                    * 00610000
+.*   PARAMETERS RECEIVED:                                             * 00620000
+.*             TESTNUM=           *TEST CASE NUMBER (1 TO 4 DIGITS)   * 00630000
+.*             DESCRIP=           *TEST CASE DESCRIPTION (1 TO 25     * 00640000
+.*                                *   CHARACTERS ENCLOSED IN QUOTES)  * 00650000
+.*             TRCODE=            *TRANSACTION CODE (1 TO 4 DIGITS)   * 00660000
+.*             CNTLID=            *CONTROLLER ID    (1 TO 4 DIGITS)   * 00670000
+.*             WSID=              *WORKSTATION ID   (1 TO 4 DIGITS)   * 00680000
+.*             TRID=              *TRANSACTION ID   (1 TO 8 DIGITS)   * 00690000
+.*             USERNUM=           *USER NUMBER      (1 TO 4 DIGITS)   * 00700000
+.*             USERAUT=           *USER NUMBER THAT AUTHORIZED        * 00710000
+.*                                *   TRANSACTION   (1 TO 4 DIGITS)   * 00720000
+.*             AUTHLEV=           *AUTHORIZATION LEVEL REQUIRED       * 00730000
+.*                                *   (1 TO 2 DIGITS)                 * 00740000
+.*             TRINDIC=           *TRANSACTION INDICATORS (2 DIGITS)  * 00750000
+.*             FLD1=              *TRANSAC FIELD  1 (1 TO 15 DIGITS)  * 00760000
+.*             FLD2=              *TRANSAC FIELD  2 (1 TO 15 DIGITS)  * 00770000
+.*             FLD3=              *TRANSAC FIELD  3 (1 TO 15 DIGITS)  * 00780000
+.*             FLD4=              *TRANSAC FIELD  4 (1 TO 15 DIGITS)  * 00790000
+.*             FLD5=              *TRANSAC FIELD  5 (1 TO 15 DIGITS)  * 00800000
+.*             FLD6=              *TRANSAC FIELD  6 (1 TO 15 DIGITS)  * 00810000
+.*             FLD7=              *TRANSAC FIELD  7 (1 TO 15 DIGITS)  * 00820000
+.*             FLD8=              *TRANSAC FIELD  8 (1 TO 15 DIGITS)  * 00830000
+.*             FLD9=              *TRANSAC FIELD  9 (1 TO 15 DIGITS)  * 00840000
+.*             FLD10=             *TRANSAC FIELD 10 (1 TO 15 DIGITS)  * 00850000
+.*                                                                    * 00860000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00870000
+.*                                                                    * 00880000
+.*            TEST CASE TABLE ELEMENT                                 * 00890000
+.*                                                                    * 00900000
+.*   GENERATED CODE :                                                 * 00910000
+.*                                                                    * 00920000
+.*         DC    XL2'&TESTNUM'         *TEST CASE NUMBER              * 00930000
+.*         DC    CL25&DESCRIP          *TEST CASE DESCRIPTION         * 00940000
+.*         DC    PL3'&TRCODE'          *TRANSACTION CODE              * 00950000
+.*         DC    XL2'&CNTLID'          *CONTROLLER ID                 * 00960000
+.*         DC    XL2'&WSID'            *WORKSTATION ID                * 00970000
+.*         DC    XL4'&TRID'            *TRANSACTION ID                * 00980000
+.*         DC    PL3'&USERNUM'         *USER NUMBER                   * 00990000
+.*         DC    PL3'&USERAUT'         *USER NUMBER THAT AUTHORIZED   * 01000000
+.*                                     *   TRANSACTION                * 01010000
+.*         DC    XL1'&AUTHLEV'         *AUTHORIZATION LEVEL REQUIRED  * 01020000
+.*         DC    XL1'&TRINDIC'         *TRANSACTION INDICATOR         * 01030000
+.*         DC    PL8'&FLD1'            *TRANSACTION FIELD  1          * 01040000
+.*         DC    PL8'&FLD2'            *TRANSACTION FIELD  2          * 01050000
+.*         DC    PL8'&FLD3'            *TRANSACTION FIELD  3          * 01060000
+.*         DC    PL8'&FLD4'            *TRANSACTION FIELD  4          * 01070000
+.*         DC    PL8'&FLD5'            *TRANSACTION FIELD  5          * 01080000
+.*         DC    PL8'&FLD6'            *TRANSACTION FIELD  6          * 01090000
+.*         DC    PL8'&FLD7'            *TRANSACTION FIELD  7          * 01100000
+.*         DC    PL8'&FLD8'            *TRANSACTION FIELD  8          * 01110000
+.*         DC    PL8'&FLD9'            *TRANSACTION FIELD  9          * 01120000
+.*         DC    PL8'&FLD10'           *TRANSACTION FIELD  10         * 01130000
+.*                                                                    * 01140000
+.*   NOTES:                                                           * 01150000
+.*                                                                    * 01160000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01170000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01180000
+.*                                                                    * 01190000
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 01200000
+.*                                                                    * 01210000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01220000
+         LCLA  &ZEROS             *ZEROS USED AS CONSTANT               01230000
+         LCLC  &BLANKS            *BLANKS USED AS CONSTANT              01240000
+&ZEROS   SETA  0                                                        01250000
+&BLANKS  SETC  ' '                                                      01260000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01270000
+.*                                                                    * 01280000
+.*   PARAMETER TESTNUM                                                * 01290000
+.*                                                                    * 01300000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01310000
+.P1V1    ANOP                                                           01320000
+         AIF   (T'&TESTNUM EQ 'O').P1V2     *IF PARAMETER WAS OMITTED   01330000
+         DC    XL2'&TESTNUM'                *TEST NUMBER                01340000
+         AGO   .P1V3                        *CHECK NEXT PARAMETER       01350000
+.P1V2    ANOP                                                           01360000
+         DC    XL2'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 01370000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01380000
+.*                                                                    * 01390000
+.*   PARAMETER DESCRIP                                                * 01400000
+.*                                                                    * 01410000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01420000
+.P1V3    ANOP                                                           01430000
+         AIF   (T'&DESCRIP EQ 'O').P1V4     *IF PARAMETER WAS OMITTED   01440000
+         DC    CL25&DESCRIP                 *TEST DESCRIPTION           01450000
+         AGO   .P1V5                        *CHECK NEXT PARAMETER       01460000
+.P1V4    ANOP                                                           01470000
+         DC    25CL1'&BLANKS'               *MOVE BLANK IF PARM OMITTED 01480000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01490000
+.*                                                                    * 01500000
+.*   PARAMETER TRCODE                                                 * 01510000
+.*                                                                    * 01520000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01530000
+.P1V5    ANOP                                                           01540000
+         AIF   (T'&TRCODE  EQ 'O').P1V6     *IF PARAMETER WAS OMITTED   01550000
+         DC    PL3'&TRCODE'                 *TRANSACTION CODE           01560000
+         AGO   .P1V7                        *CHECK NEXT PARAMETER       01570000
+.P1V6    ANOP                                                           01580000
+         DC    XL2'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 01590000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01600000
+.*                                                                    * 01610000
+.*   PARAMETER CNTLID                                                 * 01620000
+.*                                                                    * 01630000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01640000
+.P1V7    ANOP                                                           01650000
+         AIF   (T'&CNTLID  EQ 'O').P1V8     *IF PARAMETER WAS OMITTED   01660000
+         DC    XL2'&CNTLID'                 *CONTROLLER ID              01670000
+         AGO   .P1V9                        *CHECK NEXT PARAMETER       01680000
+.P1V8    ANOP                                                           01690000
+         DC    XL2'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 01700000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01710000
+.*                                                                    * 01720000
+.*   PARAMETER WSID                                                   * 01730000
+.*                                                                    * 01740000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01750000
+.P1V9    ANOP                                                           01760000
+         AIF   (T'&WSID    EQ 'O').P1V10    *IF PARAMETER WAS OMITTED   01770000
+         DC    XL2'&WSID'                   *WORKSTATION ID             01780000
+         AGO   .P1V11                       *CHECK NEXT PARAMETER       01790000
+.P1V10   ANOP                                                           01800000
+         DC    XL2'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 01810000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01820000
+.*                                                                    * 01830000
+.*   PARAMETER TRID                                                   * 01840000
+.*                                                                    * 01850000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01860000
+.P1V11   ANOP                                                           01870000
+         AIF   (T'&TRID    EQ 'O').P1V12    *IF PARAMETER WAS OMITTED   01880000
+         DC    XL4'&TRID'                   *TRANSACTION ID             01890000
+         AGO   .P1V13                       *CHECK NEXT PARAMETER       01900000
+.P1V12   ANOP                                                           01910000
+         DC    XL4'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 01920000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01930000
+.*                                                                    * 01940000
+.*   PARAMETER USERNUM                                                * 01950000
+.*                                                                    * 01960000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01970000
+.P1V13   ANOP                                                           01980000
+         AIF   (T'&USERNUM EQ 'O').P1V14    *IF PARAMETER WAS OMITTED   01990000
+         DC    PL3'&USERNUM'                *USER NUMBER                02000000
+         AGO   .P1V15                       *CHECK NEXT PARAMETER       02010000
+.P1V14   ANOP                                                           02020000
+         DC    PL3'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02030000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02040000
+.*                                                                    * 02050000
+.*   PARAMETER USERAUT                                                * 02060000
+.*                                                                    * 02070000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02080000
+.P1V15   ANOP                                                           02090000
+         AIF   (T'&USERAUT EQ 'O').P1V16    *IF PARAMETER WAS OMITTED   02100000
+         DC    PL3'&USERAUT'                *USER NUMBER THAT AUTHORIZ  02110000
+         AGO   .P1V17                       *CHECK NEXT PARAMETER       02120000
+.P1V16   ANOP                                                           02130000
+         DC    PL3'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02140000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02150000
+.*                                                                    * 02160000
+.*   PARAMETER AUTHLEV                                                * 02170000
+.*                                                                    * 02180000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02190000
+.P1V17   ANOP                                                           02200000
+         AIF   (T'&AUTHLEV EQ 'O').P1V18    *IF PARAMETER WAS OMITTED   02210000
+         DC    XL1'&AUTHLEV'                *AUTHORIZATION LEVEL        02220000
+         AGO   .P1V19                       *CHECK NEXT PARAMETER       02230000
+.P1V18   ANOP                                                           02240000
+         DC    XL1'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02250000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02260000
+.*                                                                    * 02270000
+.*   PARAMETER TRINDIC                                                * 02280000
+.*                                                                    * 02290000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02300000
+.P1V19   ANOP                                                           02310000
+         AIF   (T'&TRINDIC EQ 'O').P1V20    *IF PARAMETER WAS OMITTED   02320000
+         DC    XL1'&TRINDIC'                *TRANSACTION INDICATOR      02330000
+         AGO   .P1V21                       *CHECK NEXT PARAMETER       02340000
+.P1V20   ANOP                                                           02350000
+         DC    XL1'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02360000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02370000
+.*                                                                    * 02380000
+.*   PARAMETER FLD1                                                   * 02390000
+.*                                                                    * 02400000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02410000
+.P1V21   ANOP                                                           02420000
+         AIF   (T'&FLD1  EQ 'O').P1V22      *IF PARAMETER WAS OMITTED   02430000
+         DC    PL8'&FLD1'                   *TRANSACTION FIELD 1        02440000
+         AGO   .P1V23                       *CHECK NEXT PARAMETER       02450000
+.P1V22   ANOP                                                           02460000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02470000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02480000
+.*                                                                    * 02490000
+.*   PARAMETER FLD2                                                   * 02500000
+.*                                                                    * 02510000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02520000
+.P1V23   ANOP                                                           02530000
+         AIF   (T'&FLD2  EQ 'O').P1V24      *IF PARAMETER WAS OMITTED   02540000
+         DC    PL8'&FLD2'                   *TRANSACTION FIELD 2        02550000
+         AGO   .P1V25                       *CHECK NEXT PARAMETER       02560000
+.P1V24   ANOP                                                           02570000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02580000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02590000
+.*                                                                    * 02600000
+.*   PARAMETER FLD3                                                   * 02610000
+.*                                                                    * 02620000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02630000
+.P1V25   ANOP                                                           02640000
+         AIF   (T'&FLD3  EQ 'O').P1V26      *IF PARAMETER WAS OMITTED   02650000
+         DC    PL8'&FLD3'                   *TRANSACTION FIELD 3        02660000
+         AGO   .P1V27                       *CHECK NEXT PARAMETER       02670000
+.P1V26   ANOP                                                           02680000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02690000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02700000
+.*                                                                    * 02710000
+.*   PARAMETER FLD4                                                   * 02720000
+.*                                                                    * 02730000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02740000
+.P1V27   ANOP                                                           02750000
+         AIF   (T'&FLD4  EQ 'O').P1V28      *IF PARAMETER WAS OMITTED   02760000
+         DC    PL8'&FLD4'                   *TRANSACTION FIELD 4        02770000
+         AGO   .P1V29                       *CHECK NEXT PARAMETER       02780000
+.P1V28   ANOP                                                           02790000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02800000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02810000
+.*                                                                    * 02820000
+.*   PARAMETER FLD5                                                   * 02830000
+.*                                                                    * 02840000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02850000
+.P1V29   ANOP                                                           02860000
+         AIF   (T'&FLD5  EQ 'O').P1V30      *IF PARAMETER WAS OMITTED   02870000
+         DC    PL8'&FLD5'                   *TRANSACTION FIELD 5        02880000
+         AGO   .P1V31                       *CHECK NEXT PARAMETER       02890000
+.P1V30   ANOP                                                           02900000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 02910000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02920000
+.*                                                                    * 02930000
+.*   PARAMETER FLD6                                                   * 02940000
+.*                                                                    * 02950000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02960000
+.P1V31   ANOP                                                           02970000
+         AIF   (T'&FLD6  EQ 'O').P1V32      *IF PARAMETER WAS OMITTED   02980000
+         DC    PL8'&FLD6'                   *TRANSACTION FIELD 6        02990000
+         AGO   .P1V33                       *CHECK NEXT PARAMETER       03000000
+.P1V32   ANOP                                                           03010000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 03020000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03030000
+.*                                                                    * 03040000
+.*   PARAMETER FLD7                                                   * 03050000
+.*                                                                    * 03060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03070000
+.P1V33   ANOP                                                           03080000
+         AIF   (T'&FLD7  EQ 'O').P1V34      *IF PARAMETER WAS OMITTED   03090000
+         DC    PL8'&FLD7'                   *TRANSACTION FIELD 7        03100000
+         AGO   .P1V35                       *CHECK NEXT PARAMETER       03110000
+.P1V34   ANOP                                                           03120000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 03130000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03140000
+.*                                                                    * 03150000
+.*   PARAMETER FLD8                                                   * 03160000
+.*                                                                    * 03170000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03180000
+.P1V35   ANOP                                                           03190000
+         AIF   (T'&FLD8  EQ 'O').P1V36      *IF PARAMETER WAS OMITTED   03200000
+         DC    PL8'&FLD8'                   *TRANSACTION FIELD 8        03210000
+         AGO   .P1V37                       *CHECK NEXT PARAMETER       03220000
+.P1V36   ANOP                                                           03230000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 03240000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03250000
+.*                                                                    * 03260000
+.*   PARAMETER FLD9                                                   * 03270000
+.*                                                                    * 03280000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03290000
+.P1V37   ANOP                                                           03300000
+         AIF   (T'&FLD9  EQ 'O').P1V38      *IF PARAMETER WAS OMITTED   03310000
+         DC    PL8'&FLD9'                   *TRANSACTION FIELD 9        03320000
+         AGO   .P1V39                       *CHECK NEXT PARAMETER       03330000
+.P1V38   ANOP                                                           03340000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 03350000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03360000
+.*                                                                    * 03370000
+.*   PARAMETER FLD10                                                  * 03380000
+.*                                                                    * 03390000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 03400000
+.P1V39   ANOP                                                           03410000
+         AIF   (T'&FLD10 EQ 'O').P1V40      *IF PARAMETER WAS OMITTED   03420000
+         DC    PL8'&FLD10'                  *TRANSACTION FIELD 10       03430000
+         AGO   .P1V41                       *CHECK NEXT PARAMETER       03440000
+.P1V40   ANOP                                                           03450000
+         DC    PL8'&ZEROS'                  *MOVE ZEROS IF PARM OMITTED 03460000
+.P1V41   ANOP                                                           03470000
+         MEND                                                           03480000

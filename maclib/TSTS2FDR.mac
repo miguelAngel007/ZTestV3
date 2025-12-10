@@ -1,0 +1,102 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TSTS2FDR - FILE DEFINITION RECORD                     * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 02/10/14 ADDED SENSTIVE DATA FILE TYPE                      1436560 * 00000685
+* 04/26/12 CHANGES FOR DB2                                    1336326   00000686
+* 12/22/09 ADDED RBA LENGTH FIELD                             1035872   00000687
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             FDCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             FDCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             FDRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             FDCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL2         FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSFDR  DSECT                                                          00000700
+FDR      DS    0X                                                       00000800
+FDRLNG   DS    XL2                   FDR RECORD LENGTH                  00000900
+*                                    MAX. VALUE = +180                  00001000
+         DS    XL2                   FILLER                             00001100
+FDRKEY   DS    0CL18                 KEY                                00001200
+FDRCLASS DS    CL10                  CLASS                              00001300
+FDRFNAM  DS    0CL8                  FILE NAME                          00001400
+FDRFAPP  DS    CL2                   APPLICATION CODE                   00001500
+FDRFID   DS    CL3                   FILE ID                            00001600
+         DS    CL3                   FILLER                             00001700
+FDCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001710
+FDCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001720
+FDRLMNT  DS    0CL28                 LAST MAINT INFO            2602105 00001730
+FDRLMDAT DS    CL6                   LAST MAINT DATE                    00001800
+FDRLMTIM DS    CL6                   LAST MAINT TIME                    00001900
+FDRLMEMP DS    CL8                   LAST MAINT EMPLOYEE ID             00002000
+FDCACHID DS    CL8                     CA CHANGE ID             2602105 00002100
+         DS    CL2                   FILLER                     2602105 00002200
+FDRFTYP  DS    CL1                   FILE (TYPE) STRUCTURE              00002300
+*                       VALUES: S - SYSTEMATICS FILE                    00002400
+*                               T - TRANSACTION SYSTEM FILE             00002500
+*                               U - USER FILE                           00002600
+FDRFLORG DS    CL1                   FILE ORGANIZATION        0733154   00002700
+*                       VALUES: K - KSDS                                00002800
+*                               E - ESDS                                00002900
+*                               D - DB2                       1336326   00002910
+FDRMAXRL DS    CL5                   MAXIMUM RECORD LENGTH              00003000
+FDRFKEYL DS    XL2                   FULL KEY LENGTH                    00003100
+FDRGKEYL DS    XL2                   GENERIC KEY LENGTH                 00003200
+FDRRBEFR DS    CL8                   REQUIRED READ BEFORE               00003300
+FDRWBEFR DS    CL8                   REQUIRED WRITE BEFORE              00003400
+FDRFLGRP DS    CL1                   FILE GROUPING INDICATOR  2501276   00003500
+*                       VALUES: 0 - NO FILE GROUPING          2501276   00003600
+*                               1 - FILE IS GRPED BY CONTROLS 2501276   00003700
+*                                   ONLY                      2501276   00003710
+*                               2 - FILE IS GRPED BY CTLS PLUS2501276   00003720
+*                                   ACCT NO                   2501276   00003730
+*                               3 - FILE IS GRPED BY OPEN KEY 2501276   00003740
+*                                   FORMAT DEFINED BY THE APPL2501276   00003750
+FDRUPDFL DS    CL1                   UPDATE FLAG                        00003800
+*                       VALUES: 0 - FILE CANNOT BE UPDATED              00003900
+*                               1 - FILE CAN BE UPDATED (DEFAULT)       00004000
+FDRSECPG DS    CL8                   SECURITY PROGRAM                   00004100
+FDRCONL  DS    XL2                   LENGTH OF CONTROLS                 00004200
+FDREXPPG DS    CL8                   EXPAND PHASE NAME                  00004300
+FDRCMPPG DS    CL8                   COMPRESS PHASE NAME                00004400
+FDRMIRFG DS    CL1                   MIRROR FLAG                        00004500
+*                       VALUES: 0 - DON'T MIRROR FILE (DEFAULT)         00004600
+*                               1 - MIRROR FILE                         00004700
+FDRMIRRF DS    CL8                   MIRROR RBA FILE NAME               00004800
+FDRMIRRP DS    XL2                   MIRROR RBA POSITION                00004900
+FDRACFLG DS    CL1                   ACCOUNT CHAIN FLAG                 00005000
+*                       VALUES: 0 - NO ACCOUNT CHAINING (DEFAULT)       00005100
+*                               1 - ACCOUNT CHAINING FOR FILE           00005200
+FDRACRBA DS    XL2                   ACCOUNT CHAIN RBA POSITION         00005300
+FDRACLGR DS    XL2                   ACCOUNT CHAIN LOG GROUP POSITION   00005400
+FDRACNDF DS    XL2                   ACCOUNT CHAIN NEXT DAY POSITION    00005500
+FDRCVFLG DS    CL1                   CONTROL VALIDATION FLAG            00005600
+*                       VALUES: 0 - DON'T VALIDATE CONTROLS             00005700
+*                               1 - VALIDATE CONTROLS (DEFAULT)         00005800
+FDRDBFLG DS    CL1                   DATA BACKOUT FLAG                  00005900
+*                       VALUES: 0 - TS RECOVERY/BACKOUT (DEFAULT)       00006000
+*                               1 - CICS DYNAMIC TRANSACTION BACKOUT    00006100
+FDRFLRP  DS    XL2                   FI LOG RBA POSITION                00006200
+FDRRECTY DS    CL1                   SSR FILE TYPE            2501276   00006210
+*                       VALUES: M - MASTER RECORD             2501276   00006220
+*                               C - CONTROL RECORD            2501276   00006230
+*                               A - ALPHA RECORD              2501276   00006240
+*                               N - NON SSR FILE TYPE         2501276   00006250
+FDRACXRB DS    CL1                  ACCT CHAIN XRBA LENGTH    1035872   00006260
+*                       VALUES: Y - XRBA (8-BYTE RBA)         1035872   00006270
+*                               N - NOT XRBA (4-BYTE RBA)     1035872   00006280
+FDRSENSD DS    CL1                  SENSITIVE DATA (Y/N)      1436560   00006290
+         DS    CL46                 FILLER                    1436560   00006300

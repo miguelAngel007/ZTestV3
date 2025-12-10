@@ -1,0 +1,41 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000000
+* * * * * *              S  A  -  L  O  G                   * * * * * * 00001000
+*                                                                     * 00002000
+*   SALOG, A CICS ESDS LOG FILE, HEADER AND LOG DATA AREA SEGMENT     * 00003000
+*   DEFINITION.  NOTE -- EACH RECORD BEGINS WITH A "XL2" RECORD       * 00004000
+*   LENGTH.  THE DSECT BELOW REPRESENTS ANY AND ALL RECORD SEGMENTS   * 00005000
+*   WHICH OCCUR BEGINNING IMMEDIATELY AFTER THAT.                     * 00006000
+*   SAS9LOGD COPYA                                                    * 00007000
+*********************************************************************** 00008000
+         SPACE                                                          00009000
+SALOGREC DSECT          POS.                                            00010000
+SALGLGTH DS    XL2      1-2        LENGTH OF THIS SEGMENT               00011000
+SALGIDNT DS    CL8      3-10       SEGMENT IDENTIFIER                   00012000
+*                                   IDENTIFIERS USED BY SASERVO ARE:    00013000
+*                                    'SALOGHDR' LOG HEADER(STEM)        00014000
+*                                    'SALOGEND' LAST SEG FOR THIS LOG   00015000
+*                                      HAS BEEN REACHED.                00016000
+*                                    'SALOGMOR' MORE SEGMENTS OCCUR     00017000
+*                                      IN ANOTHER ESDS LOG RECORD.      00018000
+SALGTCOD DS    0CL8    11-18       C.I.C.S. TRANCODE (IF LOG HEADER)    00019000
+SALGDAGN DS    XL8     11-18       DAG NAME AS SENT VIA THE LOG REQUEST 00020000
+*                                   (IF NOT LOG HEADER SEGMENT)         00021000
+SALGDATA DS    0X      19-...      DATA PORTION OF LOG SEGMENT          00022000
+*                                   (IF NOT LOG HEADER SEGMENT)         00023000
+SALGTDAT DS    PL5     19-23       SYSTEM DATE (0C CY YM MD DF)         00024000
+SALGTTIM DS    PL4     24-27       SYSTEM TIME (0H HM MS SF)            00025000
+SALGLUW  DS    XL2     28-29       LOGICAL UNIT OF WORK, RELATIVE TO    00026000
+*                                   ZERO, AND INCREMENTED WITH EACH     00027000
+*                                   COMMIT.                             00028000
+SALGSEQN DS    XL2     30-31       SEQUENCE NUMBER OF THIS ESDS RECORD  00029000
+*                                   WITHIN THE SET FOR THIS L.U.W.,     00030000
+*                                   RELATIVE TO ZERO.                   00031000
+SALGDLET DS    X       32-32       ANY NON-LOW VALUES WILL INDICATE     00032000
+*                                   LOG RECORD HAS BEEN LOGICALLY       00033000
+*                                   DELETED.                            00034000
+SALGHEND EQU   *                                                        00035000
+         SPACE                                                          00036000
+* * * * * *              S  A  -  L  O  G                   * * * * * * 00037000
+*********************************************************************** 00038000
+         SPACE 3                                                        00039000

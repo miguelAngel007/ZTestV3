@@ -1,0 +1,68 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TRANSACTION SYSTEM                                    * 00000004
+*               DEFAULT CONTROLS RECORD                               * 00000005
+*                                                                     * 00000006
+*---------------------------------------------------------------------* 00000007
+*                  ** HISTORY OF REVISIONS **                         * 00000008
+*                                                                     * 00000009
+* DESCRIPTION                                                 CHNGID  * 00000010
+* __________________________________________________________  _______ * 00000011
+*                                                                     * 00000012
+* 05/20/96 ADDED REPORT LEVELS TO TEMPORARY DCR KEY           9712061 * 00000687
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000689
+*             DCCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000690
+*             DCCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             DCCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          MOVED DCRTCTLS AND CHANGED FILLER LENGTH           2602105 * 00000694
+*                      DS    CL18        FILLER               2602105 * 00000695
+*             DCRTCTLS DS    CL1         DCR IS ...           2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+         SPACE 2                                                        00000700
+TSTSDCR  DSECT                                                          00000800
+DCR      DS    0X                                                       00000900
+DCRLNG   DS    XL2                   DCR RECORD LEN. MAX 4160 2501474   00001000
+         DS    XL2                   FILLER                             00001100
+DCRKEY   DS    0CL23                 KEY                                00001200
+DCRRECID DS    CL3                   RECORD ID  'DCR'                   00001300
+DCRCLASS DS    CL10                  CLASS                              00001400
+DCRRPLVL DS    CL5                   REPORT LEVELS (TEMP ONLY) 2702061  00001450
+         DS    CL5                   FILLER                    2702061  00001500
+DCCAFCL  DS    XL1                     FILE CONVERSION LEVEL   2602105  00001510
+DCCARCL  DS    XL1                     REC CONVERSION LEVEL    2602105  00001520
+DCRLMNT  DS    0CL28                 LAST MAINT INFO           2602105  00001530
+DCRLMDAT DS    CL6                   LAST MAINT DATE                    00001600
+DCRLMTIM DS    CL6                   LAST MAINT TIME                    00001700
+DCRLMEMP DS    CL8                   LAST MAINT EMPLOYEE ID             00001800
+DCCACHID DS    CL8                     CA CHANGE ID            2602105  00001900
+         DS    CL18                  FILLER                    2602105  00001910
+DCRTCTLS DS    CL1                   DCR IS ...               2501474   00002000
+*                                    0 - A DEFAULT RECORD     2501474   00002010
+*                                    1 - A TEMPORARY RECORD   2501474   00002020
+DCRCTLMX DS    PL2                   MAXIMUM APPL CONTROLS              00002100
+*                                    VALUE = +120             2501474   00002200
+DCRCTLUS DS    PL2                   APPL CONTROLS USED                 00002300
+*                                    MAINTAINED BY PROGRAM              00002400
+DCRAPCTL DS    0CL4080               APPLICATION DFLT CONTR.  2501474   00002500
+DCRACTL1 DS    0CL34                 1ST OCCURRENCE OF APPL   2501474   00002600
+DCRAPPID DS    CL2                   APPL ID                            00002700
+DCRACTLS DS    CL14                  REGULAR DEFAULT CONTROLS           00002800
+         ORG   DCRACTLS              FMS REG DEFAULT CONTROLS           00002900
+DCRFMDC1 DS    CL4                   FMS REG DEFAULT CUSTOMER NUMBER    00003000
+DCRFMDC2 DS    CL10                  FMS REG DEFAULT RESPONSIBILITY CTR 00003100
+         DS    CL2                   FILLER                   2501276   00003200
+*                                                                       00003300
+DCRAPTCS DS    CL14                  TRAINING DEFAULT CONTROLS          00003400
+         ORG   DCRAPTCS              FMS TRAINING DEFAULT CONTROLS      00003500
+DCRFMTC1 DS    CL4                   FMS TRAINING DEFAULT CUST NO.      00003600
+DCRFMTC2 DS    CL10                  FMS TRAINING DEFAULT RESP CTR      00003700
+         DS    CL2                   FILLER                   2501474   00003900
+DCRACTL2 DS    CL4046                2ND-120 OCCUR OF APPL    2501474   00004000
+*                                                                       00004100
+DCREND   EQU   *                     SYMBOLIC END OF DCR                00004200
+DCRLEN   EQU   *-DCR                 SYMBOLIC LENGTH OF DCR             00004300

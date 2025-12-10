@@ -1,0 +1,239 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+*---------------------------------------------------------------------* 00010000
+*   NXX4STUP - COPYBOOK WITH CODE IN MAINLINE SECTION OF              * 00020000
+*              FINXXRTM (ONLINE) AND NXXRTM (BATCH) PROGRAMS          * 00030000
+*---------------------------------------------------------------------* 00040000
+*                  ** HISTORY OF REVISIONS **                         * 00050000
+* DESCRIPTION                                                 CHNGID  * 00060000
+* __________________________________________________________  _______ * 00070000
+* 08/08/97 FLOATING DECIMAL INITIAL RELEASE                   9910004 * 00080000
+* 08/10/98 CORRECT SOURCE TARGET RATE PROCESSING 41515        9910017 * 00081001
+*---------------------------------------------------------------------* 00090000
+MAINL050 EQU    *                                                       00100000
+         CLI    XRTBOPT,C'T'           Q. BASE OPT TARGET?              00110000
+         BE     MAINL060               A. YES, DON'T DEFAULT            00120000
+         MVI    XRTBOPT,C'S'           DEFAULT TO SOURCE OPTION         00130000
+MAINL060 EQU    *                                                       00140000
+         MVI    WKTBFLG,C'0'           TARG<-BASE FLAG OFF              00150000
+         MVI    WKTSFLG,C'0'           SRCE-PRESENT FLAG OFF            00160000
+         MVI    WKTTFLG,C'0'           TARG-PRESENT FLAG OFF            00170000
+         CLC    XRTSAPP,SPACES         Q. SRC APPL SUPPLIED?            00180000
+         BNE    MAINL070               A. NO, SEND ERROR.               00190000
+         CLC    XRTSCTX,SPACES         Q. SRC CTLS SPACES?              00200000
+         BE     MAINL080               A. NO, SEND ERROR.               00210000
+         CLC    XRTSCTX,K12ZRO         Q. SRC CTLS ZEROS?               00220000
+         BE     MAINL080               A. NO, SEND ERROR.               00230000
+MAINL070 EQU    *                                                       00240000
+         MVC    XRTBNK0,=C'00'                                          00250000
+         MVC    XRTBNK1,XRTSCT1        DEFAULT BANK TO CTL1             00260000
+         MVI    WKTSFLG,C'1'           SRCE-PRESENT FLAG ON             00270000
+         B      MAINL100               SKIP SRCE CURR CHECK             00280000
+MAINL080 EQU    *                                                       00290000
+         CLC    XRTSOUR,SPACES         Q. SOURCE SUPPLIED?              00300000
+         BNE    MAINL100               A. NO, GO CHK TARGET             00310000
+         MVI    XRTRC,C'M'             NO SOURCE OR APPL+CTLS           00320000
+         B      RETURN                 END WITH 'M' ERROR.              00330000
+MAINL100 EQU    *                                                       00340000
+         CLC    XRTTAPP,SPACES         Q. TGT APPL SUPPLIED?            00350000
+         BNE    MAINL110               A. NO, GO SET T-PRES FLAG        00360000
+         CLC    XRTTCTX,SPACES         Q. TGT CTLS SPACES?              00370000
+         BE     MAINL120               A. YES, CHK FOR TAR CURR         00380000
+         CLC    XRTTCTX,K12ZRO         Q. TGT CTLS ZEROS?               00390000
+         BE     MAINL120               A. YES, CHK FOR TAR CURR         00400000
+MAINL110 EQU    *                                                       00410000
+         MVI    WKTTFLG,C'1'           TARG-PRESENT FLAG ON             00420000
+         B      MAINL140               A. SKIP TARG CURR CHECK          00430000
+MAINL120 EQU    *                                                       00440000
+         CLC    XRTTARG,SPACES         Q. TARGET SUPPLIED?              00450000
+         BNE    MAINL140               A. NO, CHK APPL+CTLS.            00460000
+         CLI    XRTBOPT,C'T'           Q. BASE OPT TARGET?              00470000
+         BNE    MAINL130               NO, SET FLG TARG<-BASE           00480000
+         MVI    XRTRC,C'L'             T B-OPT WITH NOT T DTLS          00490000
+         B      RETURN                 END WITH 'L' ERROR.              00500000
+MAINL130 EQU    *                                                       00510000
+         MVI    WKTBFLG,C'1'           TARGET<-BASE LATER               00520000
+MAINL140 EQU    *                                                       00530000
+         CLI    XRTBOPT,C'S'           Q. BASE OPT SOURCE?              00540000
+         BNE    MAINL150               A. NO, CONTINUE.                 00550000
+         CLI    WKTSFLG,C'1'           Q. SRCE APPL+CTLS PRES?          00560000
+         BE     MAINL160               A. NO, SKIP THIS.                00570000
+         CLC    XRTBASE,SPACES         Q. IS BASE SUPPLIED?             00580000
+         BNE    MAINL160               A. NO, SKIP THIS.                00590000
+         MVC    HCAPP,XRTSAPP          BASE APPL<-SRCE APPL             00600000
+         MVC    HCCTX,XRTSCTX          BASE CTLS<-SRCE CTLS             00610000
+         MVC    HCKEY2,HCKEY           BASE HOLD KEY<-KEY               00620000
+         MVC    XRTBASE,XRTSOUR        BASE<-SOURCE                     00630000
+         B      MAINL160                                                00640000
+MAINL150 EQU    *                                                       00650000
+         CLI    WKTTFLG,C'1'           Q. TARG APPL+CTL PRES            00660000
+         BE     MAINL160               A. NO, SKIP THIS.                00670000
+         CLI    WKTBFLG,C'1'           Q. ANY TARGET DTLS PRES          00680000
+         BE     MAINL160               A. NO, SKIP THIS.                00690000
+         CLC    XRTBASE,SPACES         Q. IS BASE SUPPLIED?             00700000
+         BNE    MAINL160               A. NO, SKIP THIS.                00710000
+         MVC    HCAPP,XRTTAPP          BASE APPL<-TARG APPL             00720000
+         MVC    HCCTX,XRTTCTX          BASE CTLS<-TARG CTLS             00730000
+         MVC    HCKEY2,HCKEY           BASE HOLD KEY<-KEY               00740000
+         MVC    XRTBASE,XRTTARG        BASE<-TARGET                     00750000
+         B      MAINL160                                                00760000
+MAINL160 EQU    *                                                       00770000
+         CLI    XRTACT,C'E'            Q. CHECK FOR VALID DT            00780000
+         BNE    MAINL170               A. YES, GO VERIFY AMT            00790000
+         BAL    R7,VERDATE             VERIFY DATE                      00800000
+MAINL170 EQU    *                                                       00810000
+         BAL    R7,VERIAMT             VERIFY INPUT AMOUNT              00820000
+         LA     R1,XRTQUAL             QUALIFIER ADDRESS                00830000
+         BAL    R7,VERFQUAL            VERIFY QUALIFIER                 00840000
+MAINL180 EQU    *                                                       00850000
+         CLI    WKTSFLG,C'1'           Q. IS SRCE APPL+CTL PRES?        00860000
+         BNE    MAINL190               A. NO, SKIP XRC LK/UP            00870000
+         BAL    R7,XRCSOUR             READ SOURCE XRC REC              00880000
+MAINL190 EQU    *                                                       00890000
+         CLI    WKTTFLG,C'1'           Q. IS TARG APPL+CTL PRES?        00900000
+         BNE    MAINL200               A. NO, SKIP XRC LK/UP            00910000
+         BAL    R7,XRCTARG             READ TARGET XRC REC              00920000
+MAINL200 EQU    *                                                       00930000
+         CLC    XRTBASE,SPACES         Q. IS BASE SUPPLIED?             00940000
+         BNE    MAINL210               A. SKIP XRCFILE READ             00950000
+         BAL    R7,XRCBASE             READ TARGET XRC REC              00960000
+MAINL210 EQU    *                                                       00970000
+         CLI    WKTBFLG,C'1'           Q. WANT TARGET<-BASE?            00980000
+         BNE    MAINL220               A. NO, CHECK FOR TARG            00990000
+         MVC    XRTTAPP,XRCAPPL        TARG APPL<-BASE APPL             01000000
+         MVC    XRTTCT1,XRCCTL1        TARG CTLS<-BASE CTLS             01010000
+         MVC    XRTTCT2,XRCCTL2                                         01020000
+         MVC    XRTTCT3,XRCCTL3                                         01030000
+         MVC    XRTTCT4,XRCCTL4                                         01040000
+         MVC    XRTTARG,XRTBASE        TARGET<-BASE                     01050000
+MAINL220 EQU    *                                                       01060000
+         AIF   (&CICS).CONT1                                            01070000
+         BAL    R7,SEARTBL             CHK IF RATE IS IN TBL            01080000
+         CLI    SEARSWT,C'Y'           Q. FOUND RATE IN TBL?            01090000
+         BNE    MAINL230               A. NO, GO LK/UP RATE.            01100000
+         AP     TRATECNT,=PL1'1'       INCREASE LK/UP COUNT             01110000
+         BAL    R7,CALCULAT            GO CALL NXXRCALC PROG            01120000
+         CLI    TRRTNCD,C'0'           Q. ANY NXXRCALC ERROR?           01130000
+         BE     RETURN                 A. NO, SKIP TO RETURN,           01140000
+         BAL    R7,CALCERR                ELSE, WRITE ERROR             01150000
+         B      RETURN                 SKIP TO RETURN.                  01160000
+         AGO    .CONT2                                                  01170000
+.CONT1   ANOP                                                           01180000
+*-----------------------------------------------------------*           01190000
+* NOTE: CODE FROM THIS SECTION WAS BYPASSED IN ASSEMBLY AS  *           01200000
+*       IT WAS INTENDED FOR THE BATCH VERSION NXXRTM ONLY.  *           01210000
+*-----------------------------------------------------------*           01220000
+.CONT2   ANOP                                                           01230000
+MAINL230 EQU    *                                                       01240000
+         MVC    HRCURR,XRTSOUR         MOVE CURRENCY TO KEY             01250000
+         MVI    HOLDFLAG,C'S'          SET FLAG FOR SOURCE              01260000
+         BAL    R7,VERSOUR             VERIFY SOURCE                    01270000
+         MVI    HOLDFLAG,C'B'          SET FLAG FOR BASE                01280000
+         BAL    R7,VERBASE             VERIFY BASE                      01290000
+         MVI    HOLDFLAG,C'T'          SET FLAG FOR TARGET              01300000
+         BAL    R7,VERTARG             VERIFY TARGET                    01310000
+         MVI    HOLDFLAG,C' '          CLEAR FLAG                       01320000
+         BAL    R7,SAMECUR             CONVERSION TO SAME CURRENCY?     01330000
+         LTR    R1,R1                  Q. YES, GOTO RETURN              01340000
+         BNZ    RETURN                 GO TO RETURN                     01350000
+         MVC    HRBASE,XRTBASE         MOVE BASE TO KEY                 01360000
+         MVC    HRCURR,XRTSOUR         MOVE SOURCE TO KEY               01370000
+         CLC    HRBASE,HRCURR          Q. BASE == SOURCE?               01380000
+         BNE    MAINL240               A. NO, GOTO MAINRD2              01390000
+         AIF   (&CICS).CONT3                                            01400000
+         ZAP    XRBRATE,=PL6'1000000'  SRC BUY RATE IS 1.0              01410000
+         ZAP    XRSRATE,=PL6'1000000'  SRC SELL RATE IS 1.0             01420000
+         MVI    XRMULT,C'M'            'M' TO MULT/DIV SWITCH           01430000
+         MVI    XRFACT,C'0'            '0' TO FACTOR                    01440000
+         BAL    R7,ADDTBL              ADD TO SEARCH TABLE              01450000
+         AGO    .CONT4                                                  01460000
+.CONT3   ANOP                                                           01470000
+         ZAP    TRBUYRT1,=PL6'1000000' SRC BUY RATE IS 1.0              01480000
+         ZAP    TRSELRT1,=PL6'1000000' SRC SELL RATE IS 1.0             01490000
+         MVI    TRMULT1,C'M'           'M' TO MULT/DIV SWITCH           01500000
+         MVI    TRFACT1,C'0'           '0' TO FACTOR                    01510000
+.CONT4   ANOP                                                           01520000
+         B      MAINL290               BRANCH AROUND THE READ           01530000
+MAINL240 EQU    *                                                       01540000
+         BAL    R7,READFILE            READ THE FIRST XCHG              01550000
+         CLI    XRTACT,C'E'            Q. EXACT MATCH ON DATE?          01560000
+         BNE    MAINL250               A. NO, GO TO MAINL240            01570000
+         CLC    HRDATE,XRDATE          Q. SAME DATES?                   01580000
+         BNE    RECNF3                 A. NO, GO TO RECNF3              01590000
+MAINL250 EQU    *                                                       01600000
+         AIF   (&CICS).CONT5                                            01610000
+         BAL    R7,ADDTBL              ADD TO SEARCH TABLE              01620000
+.CONT5   ANOP                                                           01630000
+         CLC    XRTSRAT,PCKD6Z         Q. SOURCE RATE ZERO?             01640000
+         BE     MAINL260               A. YES,GO TO MIDRATE             01650000
+         CLC    XRTSRAT,PCKD69S        Q. SOURCE RATE BYPASS? 9910017   01651001
+         BE     MAINL260               A. YES,GO TO MIDRATE   9910017   01652001
+         ZAP    TRBUYRT1,XRTSRAT       MOVE BUY RATE                    01660000
+         ZAP    TRSELRT1,XRTSRAT       SELL RATE                        01670000
+         B      MAINL280               A. NO, GO X/SWITCH               01680000
+MAINL260 EQU    *                                                       01690000
+         CLI    HOLDMOPT,C'M'          Q. MID-RATE OPTION?              01700000
+         BE     MAINL270               A. NO, GO TO MIDRATE             01710000
+         ZAP    TRBUYRT1,XRBRATE       MOVE BUY RATE                    01720000
+         ZAP    TRSELRT1,XRSRATE       SELL RATE                        01730000
+         B      MAINL280               A. NO, GO X/SWITCH               01740000
+MAINL270 EQU    *                                                       01750000
+         ZAP    TRBUYRT1,XRMRATE       MOVE MID RATE TO BUY             01760000
+         ZAP    TRSELRT1,XRMRATE       MOVE MID RATE TO SELL            01770000
+MAINL280 EQU    *                                                       01780000
+         MVC    TRMULT1,XRMULT         MOVE MULT / DIV SWT              01790000
+         MVC    TRFACT1,XRFACT         MOVE FACTOR                      01800000
+MAINL290 EQU    *                                                       01810000
+         MVC    HRBASE,XRTBASE         MOVE BASE TO KEY                 01820000
+         MVC    HRCURR,XRTTARG         MOVE TARGET TO KEY               01830000
+         CLC    HRBASE,HRCURR          Q. BASE == TARGET?               01840000
+         BNE    MAINL300               A. NO, GOTO MAINRD2              01850000
+         ZAP    TRBUYRT2,=PL6'1000000'  MOVE 1.000000 TO TARGET BUY RT  01860000
+         ZAP    TRSELRT2,=PL6'1000000'  MOVE 1.000000 TO TARGET SELL RT 01870000
+         MVI    TRMULT2,C'M'           MOVE MULTIPLY TO SECOND FLAG     01880000
+         MVI    TRFACT2,C'0'           MOVE ZERO TO FACTOR              01890000
+         B      MAINL350               BRANCH AROUND THE READ           01900000
+MAINL300 EQU    *                                                       01910000
+         BAL    R7,READFILE            READ THE 2ND XCHG REC            01920000
+         MVC    HRCURR,XRTTARG         MOVE CURRENCY TO KEY             01930000
+         CLI    XRTACT,C'E'            Q. EXACT MATCH ON DATE?          01940000
+         BNE    MAINL310               A. NO, GO TO MAINRD4C            01950000
+         CLC    HRDATE,XRDATE          Q. SAME DATES?                   01960000
+         BNE    RECNF3                 A. NO, GO TO RECNF3              01970000
+MAINL310 EQU    *                                                       01980000
+         CLC    XRTTRAT,PCKD6Z         Q. TARGET RATE ZERO?             01990000
+         BE     MAINL320               A. NO, GO TO MIDRATE             02000000
+         CLC    XRTTRAT,PCKD69S        Q. TARGET RATE BYPASS? 9910017   02001001
+         BE     MAINL320               A. YES,GO TO MIDRATE   9910017   02002001
+         ZAP    TRBUYRT2,XRTTRAT       MOVE BUY RATE                    02010000
+         ZAP    TRSELRT2,XRTTRAT       SELL RATE                        02020000
+         B      MAINL340               A. NO, GO X/SWITCH               02030000
+MAINL320 EQU    *                                                       02040000
+         CLI    HOLDMOPT,C'M'          Q. IS THIS MID-RATE?             02050000
+         BE     MAINL330               A. YES,GO TO MIDRATE             02060000
+         ZAP    TRBUYRT2,XRBRATE       SAVE BUY RATE                    02070000
+         ZAP    TRSELRT2,XRSRATE       SAVE SELL RATE                   02080000
+         B      MAINL340               A. NO, GO TO X/SWITCH            02090000
+MAINL330 EQU    *                                                       02100000
+         ZAP    TRBUYRT2,XRMRATE       MOVE MID RATE TO BUY             02110000
+         ZAP    TRSELRT2,XRMRATE       MOVE MID RATE TO SELL            02120000
+MAINL340 EQU    *                                                       02130000
+         MVC    TRMULT2,XRMULT         MOVE MULT / DIV SWT              02140000
+         MVC    TRFACT2,XRFACT         MOVE FACTOR                      02150000
+MAINL350 EQU    *                                                       02160000
+         MVC    TRSCURR,XRTSOUR        MOVE SOURCE CURRENCY             02170000
+         MVC    TRSDEC,XRTSDEC         MOVE SOURCE DECIMAL              02180000
+         MVC    TRTCURR,XRTTARG        MOVE TARGET CURRENCY             02190000
+         MVC    TRTDEC,XRTTDEC         MOVE TARGET DECIMAL              02200000
+         MVC    TRBCURR,XRTBASE        MOVE BASE CURRENCY               02210000
+         MVC    TRBDEC,XRTBDEC         MOVE BASE DECIMAL                02220000
+         AIF   (&CICS).CONT6                                            02230000
+         ST     R10,TRAREAPT           STORE TRTABLE ADDR               02240000
+         AP     DRATECNT,=PL1'1'       INCR. DISK LK/UP CNTR            02250000
+.CONT6   ANOP                                                           02260000
+         BAL    R7,VERROPT             VERIFY RETURN OPTION             02270000
+         BAL    R7,CALCULAT            DO THE CALCULATION               02280000
+*                                                                       02290000
+*---------------------------------------------------------------------* 02300000
+*   END OF COPYBOOK NXX4STUP                                          * 02310000
+*---------------------------------------------------------------------* 02320000
+*                                                                       02330000

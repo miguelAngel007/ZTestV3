@@ -1,0 +1,88 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*** BEGINNING OF SIDSXBLD COPYBOOK ***                                  00001000
+*                                                                   *   00002000
+*  THIS IS THE ASSEMBLER VERSION OF COBOL COPYBOOK SIWSSBLD             00003000
+*                                                                       00004000
+*-------------------------------------------------------------------*   00005000
+*                  ** HISTORY OF REVISIONS **                       *   00006000
+*                                                                   *   00007000
+* DESCRIPTION                                                CHNGID *   00008000
+* _________________________________________________          _______*   00009000
+* 11/6/12  INITIAL RELEASE                                    ~~~6243   00010001
+*-------------------------------------------------------------------*   00011000
+*        -----------------------------------                            00012000
+*        CALLING PARAMETERS FOR INCORE BUILD (SISSBLDXINPUT)            00013000
+*        -----------------------------------                            00014000
+         SPACE 3                                                        00015000
+SIBLDPA  DSECT                     1ST PARM PASSED TO BUILD             00016000
+SIBLDAPP DS    CL2                 APPL ID BEING EXECUTED               00017000
+SIBLDFIL DS    CL7                 FILENAME OF SSR TO READ              00018000
+SIBLDRET DS    CL1                 RETURN CODE FROM RTN                 00019000
+SIBNRMRT EQU   C'0'                NORMAL RET-SSBLD SUCCESS             00020000
+SIBNRCRT EQU   C'1'                NO SSR REC FOUND FOR APPL            00021000
+SIBMSRRT EQU   C'2'                OVERFLOW ERR-SSR TBL SMALL           00022000
+SIBMSTRT EQU   C'3'                TOO MANY UNIQUE GROUP ID'S           00023000
+SIBINSRT EQU   C'4'                INVALID SEG NO FND IN SSR            00024000
+SIBMPTRT EQU   C'5'                EMPTY STACK RET(NO GROUPS)           00025000
+SIBOPNRT EQU   C'5'                OPEN ERROR ON SSR FILE               00026000
+SIBIOERT EQU   C'9'                I/O ERROR ON SSR FILE                00027000
+SISSRFIL DS    CL3                 FILE ON SSR RECORD                   00028000
+SIBLDKAP DS    CL2                 FILE APPL KEY                        00029000
+*********************************************************************** 00030000
+* THIS IS THE ASSEMBLER DSECTS FOR THE INCORE TABLE OF THE SSR.  IT   * 00031000
+* IS BUILT BY THE SISSBLD PROGRAM AND ACCESSED BY THE SISSLKP PROGRAM.* 00032000
+* THIS TABLE IS REQUIRED FOR BATCH PROGRAMS REQUIRING SPECIFIC INFO   * 00033000
+* ABOUT THE SEGMENT/GROUP BREAKOUT OF FILES.                          * 00034000
+*********************************************************************** 00035000
+         SPACE 3                                                        00036000
+SIBLTBL  DSECT                     TABLE TO BUILD  SSR'S INTO           00037000
+SIBLTSU  DS    0CL50               BEGINNING OF SUMMARY RCD             00038000
+SIBLSNOE DS    PL2                 NUMBER ENTRIES IN TABLE              00039000
+SIBLSLN  DS    PL2                 TABLE LENGTH                         00040000
+SIBLSSCT DS    PL2                 SEGMENT COUNT                        00041000
+SIBLSMCT DS    PL2                 NUMBER OF DISTINCT MASTER GROUP IDS  00042000
+SIBLSCCT DS    PL2                 NUMBER OF DISTINCT CONTROL GROUP IDS 00043000
+SIBLSACT DS    PL2                 NUMBER OF DISTINCT ALPHA GROUP IDS   00044000
+         DS    CL18                FILLER                               00045000
+SIBLSMPT DS    0CL20                                                    00046000
+SIBLSMP1 DS    H                   MIDPOINT 1                           00047000
+SIBLSMP2 DS    H                   MIDPOINT 2                           00048000
+SIBLSMP3 DS    H                   MIDPOINT 3                           00049000
+SIBLSMP4 DS    H                   MIDPOINT 4                           00050000
+SIBLSMP5 DS    H                   MIDPOINT 5                           00051000
+SIBLSMP6 DS    H                   MIDPOINT 6                           00052000
+SIBLSMP7 DS    H                   MIDPOINT 7                           00053000
+SIBLSMP8 DS    H                   MIDPOINT 8                           00054000
+SIBLSMP9 DS    H                   MIDPOINT 9                           00055000
+SIBLSMPA DS    H                   MIDPOINT A                           00056000
+SIBLSLEN EQU   *-SIBLTSU           SUMMARY RECORD LENGTH                00057000
+         SPACE 3                                                        00058000
+*---------------------------------------------------------------------  00059000
+* THIS AREA IS THE IN-CORE TABLE OF SSR ENTRIES, THE LAYOUT IS THE      00060000
+* APPL ID, CTLS, AND SEGMENT NOS FROM THE SSR RECORD, NOT THE WHOLE     00061000
+* SSR RECORD.                                                           00062000
+*---------------------------------------------------------------------  00063000
+SIBLTBDE DS    299CL50             AREA FOR THE DETAIL RECORDS          00064000
+         SPACE 3                                                        00065000
+SIBLDET  DSECT                     DETAIL RECORD LAYOUT IN TABLE        00066000
+SIBLDEAP DS    CL2                 APPLCIATION ID                       00067000
+SIBLDALL DS   0CL28                CONTROLS AND ACCOUNT NUMBER          00068000
+SIBLDCTL DS    CL14                CONTROLS (ALL 4 LEVEL'S)             00069000
+SIBLDACC DS    CL14                ACCOUNT                              00070000
+SIBLDSEG DS    CL2                 BATCH SEGMENT NUMBER                 00071000
+SIBLDMGR DS    CL2                 ONLINE MASTER GROUP NUMBER           00072000
+SIBLDCGR DS    CL2                 ONLINE CONTROL GROUP NUMBER          00073000
+SIBLDAGR DS    CL2                 ONLINE ALPHA GROUP NUMBER            00074000
+SIBLDGRL EQU   *-SIBLDSEG          LENGTH OF GROUP AREA                 00075000
+SIBLDFNM DS    CL3                 FILE NAME                            00076000
+         DS    CL9                 REST OF ENTRY                        00077000
+SIBLDLEN EQU   *-SIBLDET           LENGTH OF DETAIL RECORD              00078000
+*                                                                     * 00079000
+*        -----------------                                              00080000
+*        STACK TABLE DSECT  - BUILT BY SISSBLD AND SISSLKP              00081000
+*        -----------------                                              00082000
+SIBLSTKT DSECT                     LAYOUT OF STACK TABLE                00083000
+SIBLSTNT DS    201CL2              AN ENTRY IS ONLY 2 CHARS             00084000
+SIBLSTLN EQU   *-SIBLSTKT          LENGTH OF STACK                      00085000
+         SPACE 3                                                        00086000
+*** END OF SIDSXBLD COPYBOOK ***                                        00087000

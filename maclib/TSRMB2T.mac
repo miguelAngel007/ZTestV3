@@ -1,0 +1,508 @@
+       01  TSRMB2SI.
+           02  FILLER PIC X(12).
+           02  TSTRANTL    COMP  PIC  S9(4).
+           02  TSTRANTF    PICTURE X.
+           02  FILLER REDEFINES TSTRANTF.
+             03 TSTRANTA    PICTURE X.
+           02  TSTRANTI  PIC X(3).
+           02  TSDATETL    COMP  PIC  S9(4).
+           02  TSDATETF    PICTURE X.
+           02  FILLER REDEFINES TSDATETF.
+             03 TSDATETA    PICTURE X.
+           02  TSDATETI  PIC X(8).
+           02  TSTIMETL    COMP  PIC  S9(4).
+           02  TSTIMETF    PICTURE X.
+           02  FILLER REDEFINES TSTIMETF.
+             03 TSTIMETA    PICTURE X.
+           02  TSTIMETI  PIC X(8).
+           02  TSDELMTL    COMP  PIC  S9(4).
+           02  TSDELMTF    PICTURE X.
+           02  FILLER REDEFINES TSDELMTF.
+             03 TSDELMTA    PICTURE X.
+           02  TSDELMTI  PIC X(23).
+           02  TSDELATL    COMP  PIC  S9(4).
+           02  TSDELATF    PICTURE X.
+           02  FILLER REDEFINES TSDELATF.
+             03 TSDELATA    PICTURE X.
+           02  TSDELATI  PIC X(5).
+           02  TSDELRTL    COMP  PIC  S9(4).
+           02  TSDELRTF    PICTURE X.
+           02  FILLER REDEFINES TSDELRTF.
+             03 TSDELRTA    PICTURE X.
+           02  TSDELRTI  PIC X(1).
+           02  TSCLASTL    COMP  PIC  S9(4).
+           02  TSCLASTF    PICTURE X.
+           02  FILLER REDEFINES TSCLASTF.
+             03 TSCLASTA    PICTURE X.
+           02  TSCLASTI  PIC X(10).
+           02  TSAPIDTL    COMP  PIC  S9(4).
+           02  TSAPIDTF    PICTURE X.
+           02  FILLER REDEFINES TSAPIDTF.
+             03 TSAPIDTA    PICTURE X.
+           02  TSAPIDTI  PIC X(2).
+           02  TSPRIDTL    COMP  PIC  S9(4).
+           02  TSPRIDTF    PICTURE X.
+           02  FILLER REDEFINES TSPRIDTF.
+             03 TSPRIDTA    PICTURE X.
+           02  TSPRIDTI  PIC X(2).
+           02  TSSTIBL    COMP  PIC  S9(4).
+           02  TSSTIBF    PICTURE X.
+           02  FILLER REDEFINES TSSTIBF.
+             03 TSSTIBA    PICTURE X.
+           02  TSSTIBI  PIC X(1).
+           02  TSSTMBL    COMP  PIC  S9(4).
+           02  TSSTMBF    PICTURE X.
+           02  FILLER REDEFINES TSSTMBF.
+             03 TSSTMBA    PICTURE X.
+           02  TSSTMBI  PIC X(1).
+           02  TSS1IBL    COMP  PIC  S9(4).
+           02  TSS1IBF    PICTURE X.
+           02  FILLER REDEFINES TSS1IBF.
+             03 TSS1IBA    PICTURE X.
+           02  TSS1IBI  PIC X(1).
+           02  TSS1MBL    COMP  PIC  S9(4).
+           02  TSS1MBF    PICTURE X.
+           02  FILLER REDEFINES TSS1MBF.
+             03 TSS1MBA    PICTURE X.
+           02  TSS1MBI  PIC X(1).
+           02  TSC1IBL    COMP  PIC  S9(4).
+           02  TSC1IBF    PICTURE X.
+           02  FILLER REDEFINES TSC1IBF.
+             03 TSC1IBA    PICTURE X.
+           02  TSC1IBI  PIC X(1).
+           02  TSC1MBL    COMP  PIC  S9(4).
+           02  TSC1MBF    PICTURE X.
+           02  FILLER REDEFINES TSC1MBF.
+             03 TSC1MBA    PICTURE X.
+           02  TSC1MBI  PIC X(1).
+           02  TSS2IBL    COMP  PIC  S9(4).
+           02  TSS2IBF    PICTURE X.
+           02  FILLER REDEFINES TSS2IBF.
+             03 TSS2IBA    PICTURE X.
+           02  TSS2IBI  PIC X(1).
+           02  TSS2MBL    COMP  PIC  S9(4).
+           02  TSS2MBF    PICTURE X.
+           02  FILLER REDEFINES TSS2MBF.
+             03 TSS2MBA    PICTURE X.
+           02  TSS2MBI  PIC X(1).
+           02  TSC2IBL    COMP  PIC  S9(4).
+           02  TSC2IBF    PICTURE X.
+           02  FILLER REDEFINES TSC2IBF.
+             03 TSC2IBA    PICTURE X.
+           02  TSC2IBI  PIC X(1).
+           02  TSC2MBL    COMP  PIC  S9(4).
+           02  TSC2MBF    PICTURE X.
+           02  FILLER REDEFINES TSC2MBF.
+             03 TSC2MBA    PICTURE X.
+           02  TSC2MBI  PIC X(1).
+           02  TSS3IBL    COMP  PIC  S9(4).
+           02  TSS3IBF    PICTURE X.
+           02  FILLER REDEFINES TSS3IBF.
+             03 TSS3IBA    PICTURE X.
+           02  TSS3IBI  PIC X(1).
+           02  TSS3MBL    COMP  PIC  S9(4).
+           02  TSS3MBF    PICTURE X.
+           02  FILLER REDEFINES TSS3MBF.
+             03 TSS3MBA    PICTURE X.
+           02  TSS3MBI  PIC X(1).
+           02  TSS4IBL    COMP  PIC  S9(4).
+           02  TSS4IBF    PICTURE X.
+           02  FILLER REDEFINES TSS4IBF.
+             03 TSS4IBA    PICTURE X.
+           02  TSS4IBI  PIC X(1).
+           02  TSS4MBL    COMP  PIC  S9(4).
+           02  TSS4MBF    PICTURE X.
+           02  FILLER REDEFINES TSS4MBF.
+             03 TSS4MBA    PICTURE X.
+           02  TSS4MBI  PIC X(1).
+           02  TSS5IBL    COMP  PIC  S9(4).
+           02  TSS5IBF    PICTURE X.
+           02  FILLER REDEFINES TSS5IBF.
+             03 TSS5IBA    PICTURE X.
+           02  TSS5IBI  PIC X(1).
+           02  TSS5MBL    COMP  PIC  S9(4).
+           02  TSS5MBF    PICTURE X.
+           02  FILLER REDEFINES TSS5MBF.
+             03 TSS5MBA    PICTURE X.
+           02  TSS5MBI  PIC X(1).
+           02  TSC3IBL    COMP  PIC  S9(4).
+           02  TSC3IBF    PICTURE X.
+           02  FILLER REDEFINES TSC3IBF.
+             03 TSC3IBA    PICTURE X.
+           02  TSC3IBI  PIC X(1).
+           02  TSC3MBL    COMP  PIC  S9(4).
+           02  TSC3MBF    PICTURE X.
+           02  FILLER REDEFINES TSC3MBF.
+             03 TSC3MBA    PICTURE X.
+           02  TSC3MBI  PIC X(1).
+           02  TSC6IBL    COMP  PIC  S9(4).
+           02  TSC6IBF    PICTURE X.
+           02  FILLER REDEFINES TSC6IBF.
+             03 TSC6IBA    PICTURE X.
+           02  TSC6IBI  PIC X(1).
+           02  TSC6MBL    COMP  PIC  S9(4).
+           02  TSC6MBF    PICTURE X.
+           02  FILLER REDEFINES TSC6MBF.
+             03 TSC6MBA    PICTURE X.
+           02  TSC6MBI  PIC X(1).
+           02  TSS6IBL    COMP  PIC  S9(4).
+           02  TSS6IBF    PICTURE X.
+           02  FILLER REDEFINES TSS6IBF.
+             03 TSS6IBA    PICTURE X.
+           02  TSS6IBI  PIC X(1).
+           02  TSS6MBL    COMP  PIC  S9(4).
+           02  TSS6MBF    PICTURE X.
+           02  FILLER REDEFINES TSS6MBF.
+             03 TSS6MBA    PICTURE X.
+           02  TSS6MBI  PIC X(1).
+           02  TSC4IBL    COMP  PIC  S9(4).
+           02  TSC4IBF    PICTURE X.
+           02  FILLER REDEFINES TSC4IBF.
+             03 TSC4IBA    PICTURE X.
+           02  TSC4IBI  PIC X(1).
+           02  TSC4MBL    COMP  PIC  S9(4).
+           02  TSC4MBF    PICTURE X.
+           02  FILLER REDEFINES TSC4MBF.
+             03 TSC4MBA    PICTURE X.
+           02  TSC4MBI  PIC X(1).
+           02  TSC7IBL    COMP  PIC  S9(4).
+           02  TSC7IBF    PICTURE X.
+           02  FILLER REDEFINES TSC7IBF.
+             03 TSC7IBA    PICTURE X.
+           02  TSC7IBI  PIC X(1).
+           02  TSC7MBL    COMP  PIC  S9(4).
+           02  TSC7MBF    PICTURE X.
+           02  FILLER REDEFINES TSC7MBF.
+             03 TSC7MBA    PICTURE X.
+           02  TSC7MBI  PIC X(1).
+           02  TSS7IBL    COMP  PIC  S9(4).
+           02  TSS7IBF    PICTURE X.
+           02  FILLER REDEFINES TSS7IBF.
+             03 TSS7IBA    PICTURE X.
+           02  TSS7IBI  PIC X(1).
+           02  TSS7MBL    COMP  PIC  S9(4).
+           02  TSS7MBF    PICTURE X.
+           02  FILLER REDEFINES TSS7MBF.
+             03 TSS7MBA    PICTURE X.
+           02  TSS7MBI  PIC X(1).
+           02  TSC5IBL    COMP  PIC  S9(4).
+           02  TSC5IBF    PICTURE X.
+           02  FILLER REDEFINES TSC5IBF.
+             03 TSC5IBA    PICTURE X.
+           02  TSC5IBI  PIC X(1).
+           02  TSC5MBL    COMP  PIC  S9(4).
+           02  TSC5MBF    PICTURE X.
+           02  FILLER REDEFINES TSC5MBF.
+             03 TSC5MBA    PICTURE X.
+           02  TSC5MBI  PIC X(1).
+           02  TSC8IBL    COMP  PIC  S9(4).
+           02  TSC8IBF    PICTURE X.
+           02  FILLER REDEFINES TSC8IBF.
+             03 TSC8IBA    PICTURE X.
+           02  TSC8IBI  PIC X(1).
+           02  TSC8MBL    COMP  PIC  S9(4).
+           02  TSC8MBF    PICTURE X.
+           02  FILLER REDEFINES TSC8MBF.
+             03 TSC8MBA    PICTURE X.
+           02  TSC8MBI  PIC X(1).
+           02  TSE1IBL    COMP  PIC  S9(4).
+           02  TSE1IBF    PICTURE X.
+           02  FILLER REDEFINES TSE1IBF.
+             03 TSE1IBA    PICTURE X.
+           02  TSE1IBI  PIC X(1).
+           02  TSE1MBL    COMP  PIC  S9(4).
+           02  TSE1MBF    PICTURE X.
+           02  FILLER REDEFINES TSE1MBF.
+             03 TSE1MBA    PICTURE X.
+           02  TSE1MBI  PIC X(1).
+           02  TSV1IBL    COMP  PIC  S9(4).
+           02  TSV1IBF    PICTURE X.
+           02  FILLER REDEFINES TSV1IBF.
+             03 TSV1IBA    PICTURE X.
+           02  TSV1IBI  PIC X(1).
+           02  TSV1MBL    COMP  PIC  S9(4).
+           02  TSV1MBF    PICTURE X.
+           02  FILLER REDEFINES TSV1MBF.
+             03 TSV1MBA    PICTURE X.
+           02  TSV1MBI  PIC X(1).
+           02  TSV6IBL    COMP  PIC  S9(4).
+           02  TSV6IBF    PICTURE X.
+           02  FILLER REDEFINES TSV6IBF.
+             03 TSV6IBA    PICTURE X.
+           02  TSV6IBI  PIC X(1).
+           02  TSV6MBL    COMP  PIC  S9(4).
+           02  TSV6MBF    PICTURE X.
+           02  FILLER REDEFINES TSV6MBF.
+             03 TSV6MBA    PICTURE X.
+           02  TSV6MBI  PIC X(1).
+           02  TSE2IBL    COMP  PIC  S9(4).
+           02  TSE2IBF    PICTURE X.
+           02  FILLER REDEFINES TSE2IBF.
+             03 TSE2IBA    PICTURE X.
+           02  TSE2IBI  PIC X(1).
+           02  TSE2MBL    COMP  PIC  S9(4).
+           02  TSE2MBF    PICTURE X.
+           02  FILLER REDEFINES TSE2MBF.
+             03 TSE2MBA    PICTURE X.
+           02  TSE2MBI  PIC X(1).
+           02  TSV2IBL    COMP  PIC  S9(4).
+           02  TSV2IBF    PICTURE X.
+           02  FILLER REDEFINES TSV2IBF.
+             03 TSV2IBA    PICTURE X.
+           02  TSV2IBI  PIC X(1).
+           02  TSV2MBL    COMP  PIC  S9(4).
+           02  TSV2MBF    PICTURE X.
+           02  FILLER REDEFINES TSV2MBF.
+             03 TSV2MBA    PICTURE X.
+           02  TSV2MBI  PIC X(1).
+           02  TSV7IBL    COMP  PIC  S9(4).
+           02  TSV7IBF    PICTURE X.
+           02  FILLER REDEFINES TSV7IBF.
+             03 TSV7IBA    PICTURE X.
+           02  TSV7IBI  PIC X(1).
+           02  TSV7MBL    COMP  PIC  S9(4).
+           02  TSV7MBF    PICTURE X.
+           02  FILLER REDEFINES TSV7MBF.
+             03 TSV7MBA    PICTURE X.
+           02  TSV7MBI  PIC X(1).
+           02  TSE3IBL    COMP  PIC  S9(4).
+           02  TSE3IBF    PICTURE X.
+           02  FILLER REDEFINES TSE3IBF.
+             03 TSE3IBA    PICTURE X.
+           02  TSE3IBI  PIC X(1).
+           02  TSE3MBL    COMP  PIC  S9(4).
+           02  TSE3MBF    PICTURE X.
+           02  FILLER REDEFINES TSE3MBF.
+             03 TSE3MBA    PICTURE X.
+           02  TSE3MBI  PIC X(1).
+           02  TSV3IBL    COMP  PIC  S9(4).
+           02  TSV3IBF    PICTURE X.
+           02  FILLER REDEFINES TSV3IBF.
+             03 TSV3IBA    PICTURE X.
+           02  TSV3IBI  PIC X(1).
+           02  TSV3MBL    COMP  PIC  S9(4).
+           02  TSV3MBF    PICTURE X.
+           02  FILLER REDEFINES TSV3MBF.
+             03 TSV3MBA    PICTURE X.
+           02  TSV3MBI  PIC X(1).
+           02  TSV8IBL    COMP  PIC  S9(4).
+           02  TSV8IBF    PICTURE X.
+           02  FILLER REDEFINES TSV8IBF.
+             03 TSV8IBA    PICTURE X.
+           02  TSV8IBI  PIC X(1).
+           02  TSV8MBL    COMP  PIC  S9(4).
+           02  TSV8MBF    PICTURE X.
+           02  FILLER REDEFINES TSV8MBF.
+             03 TSV8MBA    PICTURE X.
+           02  TSV8MBI  PIC X(1).
+           02  TSV4IBL    COMP  PIC  S9(4).
+           02  TSV4IBF    PICTURE X.
+           02  FILLER REDEFINES TSV4IBF.
+             03 TSV4IBA    PICTURE X.
+           02  TSV4IBI  PIC X(1).
+           02  TSV4MBL    COMP  PIC  S9(4).
+           02  TSV4MBF    PICTURE X.
+           02  FILLER REDEFINES TSV4MBF.
+             03 TSV4MBA    PICTURE X.
+           02  TSV4MBI  PIC X(1).
+           02  TSV9IBL    COMP  PIC  S9(4).
+           02  TSV9IBF    PICTURE X.
+           02  FILLER REDEFINES TSV9IBF.
+             03 TSV9IBA    PICTURE X.
+           02  TSV9IBI  PIC X(1).
+           02  TSV9MBL    COMP  PIC  S9(4).
+           02  TSV9MBF    PICTURE X.
+           02  FILLER REDEFINES TSV9MBF.
+             03 TSV9MBA    PICTURE X.
+           02  TSV9MBI  PIC X(1).
+           02  TSV5IBL    COMP  PIC  S9(4).
+           02  TSV5IBF    PICTURE X.
+           02  FILLER REDEFINES TSV5IBF.
+             03 TSV5IBA    PICTURE X.
+           02  TSV5IBI  PIC X(1).
+           02  TSV5MBL    COMP  PIC  S9(4).
+           02  TSV5MBF    PICTURE X.
+           02  FILLER REDEFINES TSV5MBF.
+             03 TSV5MBA    PICTURE X.
+           02  TSV5MBI  PIC X(1).
+           02  TSPA2TL    COMP  PIC  S9(4).
+           02  TSPA2TF    PICTURE X.
+           02  FILLER REDEFINES TSPA2TF.
+             03 TSPA2TA    PICTURE X.
+           02  TSPA2TI  PIC X(21).
+           02  TSPF1TL    COMP  PIC  S9(4).
+           02  TSPF1TF    PICTURE X.
+           02  FILLER REDEFINES TSPF1TF.
+             03 TSPF1TA    PICTURE X.
+           02  TSPF1TI  PIC X(15).
+           02  TSPF2TL    COMP  PIC  S9(4).
+           02  TSPF2TF    PICTURE X.
+           02  FILLER REDEFINES TSPF2TF.
+             03 TSPF2TA    PICTURE X.
+           02  TSPF2TI  PIC X(15).
+           02  TSLITMTL    COMP  PIC  S9(4).
+           02  TSLITMTF    PICTURE X.
+           02  FILLER REDEFINES TSLITMTF.
+             03 TSLITMTA    PICTURE X.
+           02  TSLITMTI  PIC X(9).
+           02  TSNXAPTL    COMP  PIC  S9(4).
+           02  TSNXAPTF    PICTURE X.
+           02  FILLER REDEFINES TSNXAPTF.
+             03 TSNXAPTA    PICTURE X.
+           02  TSNXAPTI  PIC X(2).
+           02  TSNXPRTL    COMP  PIC  S9(4).
+           02  TSNXPRTF    PICTURE X.
+           02  FILLER REDEFINES TSNXPRTF.
+             03 TSNXPRTA    PICTURE X.
+           02  TSNXPRTI  PIC X(2).
+           02  TSERRTL    COMP  PIC  S9(4).
+           02  TSERRTF    PICTURE X.
+           02  FILLER REDEFINES TSERRTF.
+             03 TSERRTA    PICTURE X.
+           02  TSERRTI  PIC X(79).
+       01  TSRMB2SO REDEFINES TSRMB2SI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  TSTRANTO  PIC X(3).
+           02  FILLER PICTURE X(3).
+           02  TSDATETO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  TSTIMETO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  TSDELMTO  PIC X(23).
+           02  FILLER PICTURE X(3).
+           02  TSDELATO  PIC X(5).
+           02  FILLER PICTURE X(3).
+           02  TSDELRTO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSCLASTO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  TSAPIDTO  PIC X(2).
+           02  FILLER PICTURE X(3).
+           02  TSPRIDTO  PIC X(2).
+           02  FILLER PICTURE X(3).
+           02  TSSTIBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSSTMBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS1IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS1MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC1IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC1MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS2IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS2MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC2IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC2MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS3IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS3MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS4IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS4MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS5IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS5MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC3IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC3MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC6IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC6MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS6IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS6MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC4IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC4MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC7IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC7MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS7IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSS7MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC5IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC5MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC8IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSC8MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE1IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE1MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV1IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV1MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV6IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV6MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE2IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE2MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV2IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV2MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV7IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV7MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE3IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSE3MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV3IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV3MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV8IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV8MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV4IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV4MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV9IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV9MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV5IBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSV5MBO  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  TSPA2TO  PIC X(21).
+           02  FILLER PICTURE X(3).
+           02  TSPF1TO  PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  TSPF2TO  PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  TSLITMTO  PIC X(9).
+           02  FILLER PICTURE X(3).
+           02  TSNXAPTO  PIC X(2).
+           02  FILLER PICTURE X(3).
+           02  TSNXPRTO  PIC X(2).
+           02  FILLER PICTURE X(3).
+           02  TSERRTO  PIC X(79).

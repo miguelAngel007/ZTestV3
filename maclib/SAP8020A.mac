@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                   ** COPYBOOK DESCRIPTION **                        * 00000002
+*                                                                     * 00000003
+* LAYOUT OF PARMS USER DATA GROUP CONTROL AREA                        * 00000004
+*---------------------------------------------------------------------* 00000005
+*                  ** HISTORY OF REVISIONS **                         * 00000006
+*                                                                     * 00000007
+* DESCRIPTION                                                 CHNGID  * 00000008
+* __________________________________________________________  _______ * 00000009
+*                                                                     * 00000010
+*  12/94  THE FOLLOWING CHANGES WERE MADE:                    2602105 * 00000990
+*        ADD AFTER:  00005000                                 2602105 * 00000991
+*           00005100  P20FCLV  DS  XL1  FILE CONTROL LEVEL    2602105 * 00000992
+*           00005200  P20RCLV  DS  XL1  RECORD CONTROL LEVEL  2602105 * 00000993
+*        CHANGE:                                              2602105 * 00000994
+*           00011000  P20LMRC  DS  CL8  CHANGE ID             2602105 * 00000995
+*                                                                     * 00000996
+*---------------------------------------------------------------------* 00000997
+         EJECT                                                          00000998
+P20AREA  DSECT             USER DATA GROUP CNTL AREA                    00000999
+**********************************************************************  00001000
+*        LAYOUT OF USER DATA GROUP CNTL AREA                         *  00002000
+**********************************************************************  00003000
+P20LEFDT DS    PL5                     EFFECTIVE DATE COMPLEMENT        00004000
+P20LEXDT DS    PL5                     EXPIRATION DATE                  00005000
+P20FCLV  DS    XL1                     FILE CONTROL LEVEL       2602105 00005100
+P20RCLV  DS    XL1                     RECORD CONTROL LEVEL     2602105 00005200
+P20OWN   DS    CL3         OWNERSHIP                                    00006000
+P20HIUS  DS    CL1         HIGH USE INDICATOR                           00007000
+P20DEACT DS    CL1         DEACTIVED INDICATOR                          00008000
+P20LMDT  DS    PL5         LAST MAINT: DATE                             00009000
+P20LMTM  DS    PL5                     TIME                             00010000
+P20LMRC  DS    CL8                     CHANGE ID                2602105 00011000
+P20LMOP  DS    CL8                     OPERATOR                         00012000
+P20LMSR  DS    CL8                     SOURCE                           00013000
+P20EXP   DS    CL1         EXPORTED:   INDICATOR                        00014000
+P20EXDT  DS    PL5                     DATE                             00015000
+P20EXTM  DS    PL5                     TIME                             00016000
+P20EXOP  DS    CL8                     OPERATOR                         00017000
+P20EXSR  DS    CL8                     SOURCE                           00018000
+P20SKFLD DS    CL256       SEARCH KEY FIELDS                            00019000
+P20LGTH  EQU   *-P20AREA                                                00020000
+*                                                                       00021000

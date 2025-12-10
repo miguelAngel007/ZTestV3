@@ -1,0 +1,252 @@
+         MACRO                                                          00000100
+         ISDSSFT &DSECT=YES                                             00000200
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00000300
+         SPACE                                                          00000400
+*********************************************************************** 00000500
+*                                                                     * 00000600
+*                  ISDSSFT   -   SECURITY FILE TABLE                  * 00000700
+*                                                                     * 00000800
+*********************************************************************** 00000900
+         SPACE                                                          00001000
+ISSFTBEG EQU   *                                                        00001100
+         SPACE                                                          00001200
+SFTADDR  DS    XL4                   ADDRESS OF SFT                     00001300
+VCTADDR  DS    XL4                   ADDRESS OF VCT                     00001400
+SIAADDR  DS    XL4                   ADDRESS OF SIA                     00001500
+         SPACE                                                          00001600
+SFT      DC    CL8'ISDSSFT '                         ** TABLE NAME      00001700
+         SPACE                                                          00001800
+SFTBEG   EQU   *                     BEGIN SECURITY FILE TABLE          00001900
+SFTAPID  DS    CL2                   APPLICATION ID                     00002000
+SFTFN    DS    0CL8                  FILE NAME                          00002100
+SFTFAPP  DS    CL2                    FILE APPLICATION ID               00002200
+SFTFID   DS    CL3                    FILE ID                           00002300
+SFTSEG   DS    CL2                    FILE SEGMENT/GROUP ID             00002400
+         DS    CL1                    SPACE                             00002500
+SFTREAD  DS    CL8                   FILE READ ROUTINE                  00002600
+SFTEXPD  DS    CL8                   FILE EXPAND ROUTINE                00002700
+SFTVNDX  DS    XL2                   VALID CONTROLS TABLE INDEX         00002800
+SFTVCNT  DS    XL2                   VALID CONTROLS TABLE COUNT         00002900
+         SPACE                                                          00003000
+SFTARCH  DS    CL1                   AOR FLAG INDICATES IF FILE IS SDMS 00003100
+*                                      VALUES: 0 = NO                   00003200
+*                                              1 = YES                  00003300
+SFTAFGP  DS    CL1                   AOR FLAG INDICATES IF ANY FILE     00003400
+*                                     WITHIN THE APPLICATION IS GROUPED 00003500
+*                                     OR SEGMENTED AND WHAT TYPE (IF    00003600
+*                                     JUST ONE FILE IS SEGMENTED OR     00003700
+*                                     GROUPED THE FLAG WILL NOT BE 'N') 00003800
+*                                    IF THIS FLAG IS NOT 'N' AN ENTRY   00003900
+*                                    IS REQUIRED IN THE FDR FOR EACH    00004000
+*                                    APPLICATION FILE QUERIED           00004100
+*                                      VALUES: N - NONE                 00004200
+*                                              C - CONTROL              00004300
+*                                              A - ACCOUNT              00004400
+*                                              O - OTHER                00004500
+         SPACE                                                          00004600
+SFTCLEN  DS    XL2                   THE LENGTH OF CONTROLS; MOVED FROM 00004700
+*                                     AOR; OVERLAID BY FDR IF AVAILABLE 00004800
+*                                     IF NO VCR EXIST THIS FIELD WILL   00004900
+*                                     BE SET TO '2' OR '4' DEPENDING    00005000
+*                                     ON THE APPLICATION ID             00005100
+         SPACE                                                          00005200
+SFTFKYL  DS    XL2                   FDR FULL KEY LNGTH OF APP FILE REC 00005300
+SFTFSTP  DS    CL1                   FDR SSR FILE TYPE                  00005400
+*                                      VALUES: M - MASTER               00005500
+*                                              C - CONTROL              00005600
+*                                              A - ALPHA (ONLINE ONLY)  00005700
+*                                              N - NON SSR FILE TYPE    00005800
+SFTFFGP  DS    CL1                   FDR FILE GROUP INDICATES HOW FILE  00005900
+*                                     IS SEGMENETED OR GROUPED          00006000
+*                                      VALUES: 0 - NO FILE GROUPING     00006100
+*                                              1 - BY CONTROL           00006200
+*                                              2 - BY CONTROLS & ACCT   00006300
+*                                              3 - BY OTHER             00006400
+         SPACE                                                          00006500
+SFTFSEC  DS    CL1                   INDICATES IF FILE HAS SECURITY ON: 00006600
+*                                     THIS FIELD SET TO 'N' IF EITHER   00006700
+*                                     THE SECURITY ROUTINE NAME OR THE  00006800
+*                                     DISPLACEMENT FIELD FOR THE FILE   00006900
+*                                     BEING PROCESSED IS SPACES ON THE  00007000
+*                                     PCR                               00007100
+*                                      VALUES: N = NO                   00007200
+*                                              Y = YES                  00007300
+SFTC1OS  DS    XL2                   OFFSET OF CTL1 IN THE RECORD'S KEY 00007400
+*                                      VALUES: - IF THIS FIELD ON THE   00007500
+*                                        PCR IS SPACES OR ZEROS THEN    00007600
+*                                        THIS FIELD WILL BE SET TO      00007700
+*                                        ZEROS, ELSE THIS FIELD WILL BE 00007800
+*                                        SET TO THE VALUE ON THE PCR    00007900
+SFTFM    DS    CL1                   PCR FLAG THAT INDICATES WHETHER    00008000
+*                                     OR NOT THE APPLICATION EXPAND     00008100
+*                                     ROUTINE DOES A FREEMAIN           00008200
+*                                      VALUES: N = NO                   00008300
+*                                              Y = YES                  00008400
+SFTFOPN  DS    C     * BATCH ONLY *  INDICATES IF FILE HAS BEEN OPENED  00008500
+SFTKOFS  DS    XL2   * BATCH ONLY *  OFFSET OF KEY IN THE RECORD        00008600
+SFTENLEN EQU   *-SFTBEG              ENTRY LENGTH                       00008700
+         DS    CL675                 SECURITY FILE ENTRIES 2 THRU 16    00008800
+*                                     NOTE: LAST ENTRY MUST BE SPACES   00008900
+SFTTBLEN EQU   *-SFTBEG              TABLE LENGTH                       00009000
+         SPACE 3                                                        00009100
+VCT      DC    CL8'ISDSVCT '                         ** TABLE NAME      00009200
+VCTTLGTH DC    AL4(VCTTBEND-VCTTBBEG)                ** TABLE LENGTH    00009300
+VCTELGTH DC    AL2(VCTENEND-VCTENBEG)                ** ENTRY LENGTH    00009400
+VCTMAXEN DC    AL2((VCTTBEND-VCTTBBEG)/(VCTENEND-VCTENBEG)) **NBR ENT   00009500
+         SPACE                                                          00009600
+VCTTBBEG EQU   *                     VALID CONTROLS TABLE -TABLE BEGIN  00009700
+VCTENBEG EQU   *                     VALID CONTROLS TABLE -FIRST ENTRY  00009800
+VCTAPID  DS    CL2                   APPLICATION ID                     00009900
+VCTFN    DS    0CL8                  FILE NAME                          00010000
+VCTFAPP  DS    CL2                    FILE APPLICATION ID               00010100
+VCTFID   DS    CL3                    FILE ID                           00010200
+VCTSEG   DS    CL2                    FILE SEGMENT/GROUP ID             00010300
+         DS    CL1                    SPACE                             00010400
+VCTVCTL  DS    CL14                  VALID CONTROLS                     00010500
+VCTIOM   DS    CL8                   I/O MODULE NAME                    00010600
+VCTFOPN  DS    C     * BATCH ONLY *  INDICATES IF FILE HAS BEEN OPENED  00010700
+VCTENEND EQU   *                                                        00010800
+VCTENLEN EQU   *-VCTENBEG            ENTRY LENGTH                       00010900
+         DS    CL1452                VALID CONTROLS ENTRIES 2 THRU 45   00011000
+VCTTBEND EQU   *                     VALID CONTROLS TABLE -TABLE END    00011100
+VCTTBLEN EQU   *-VCTTBBEG            TABLE LENGTH                       00011200
+         SPACE 3                                                        00011300
+SIA      DC    CL8'ISDSSIA '                         ** TABLE NAME      00011400
+         SPACE                                                          00011500
+SIAPADR  DS    XL4                   PCR ADDRESS                        00011600
+SIACADR  DS    XL4                   COMMUNICATION ADDRESS              00011700
+SIAENBR  DS    CL4                   ERROR NUMBER - 0 IF NO ERROR       00011800
+SIAEDS   DS    CL8                   SYSTEM DATASET ID IN ERROR         00011900
+         ORG   SIAEDS                                                   00012000
+SIAEPGM  DS    CL8                   PGMIDERR PROGRAM NAME              00012100
+SIAETYP  DS    CL3                   CONTROL FILE TYPE, EG. AOR         00012200
+SIAECLS  DS    0CL10                 CONTROL FILE RECORD CLASS          00012300
+SIAELVL  DS    CL5                   CONTROL FILE EOR LEVELS 1 & 2      00012400
+SIAEFGP  DS    CL2                   CONTROL FILE EOR FILE GROUP NBR    00012500
+         DS    CL3                   FILLER FOR EOR LEVELS 1 & 2        00012600
+SIAEMP   DS    CL8                   EMPLOYEE ID                        00012700
+         ORG   SIAEMP                                                   00012800
+SIAICMD  DS    CL8                   I/O COMMAND WHEN ERROR OCCURRED    00012900
+SIAEMSG  DS    CL38                  ERROR MESSAGE                      00013000
+         SPACE                                                          00013100
+         DS    CL232                 FILLER                             00013200
+         SPACE                                                          00013300
+ISSFTEND EQU   *-ISSFTBEG            FULL LENGTH                        00013400
+         SPACE                                                          00013500
+         AGO   .END                                                     00013600
+.DSECT   ANOP                                                           00013700
+ISDSADDR DSECT                       ADDRESSES OF SFT, VCT AND SIA      00013800
+SFTADDRD DS    XL4                   ADDRESS OF SFT                     00013900
+VCTADDRD DS    XL4                   ADDRESS OF VCT                     00014000
+SIAADDRD DS    XL4                   ADDRESS OF SIA                     00014100
+         SPACE                                                          00014200
+ISDSSFT  DSECT                       SECURITY FILE TABLE                00014300
+SFTD     DS    CL8                   SFT TABLE NAME CONSTANT            00014400
+         SPACE                                                          00014500
+SFTEBEGD EQU   *                     SFT ENTRY BEGIN                    00014600
+SFTAPIDD DS    CL2                   APPLICATION ID                     00014700
+SFTFND   DS    0CL8                  FILE NAME                          00014800
+SFTFAPPD DS    CL2                    FILE APPLICATION ID               00014900
+SFTFIDD  DS    CL3                    FILE ID                           00015000
+SFTSEGD  DS    CL2                    FILE SEGMENT/GROUP ID             00015100
+         DS    CL1                    SPACE                             00015200
+SFTREADD DS    CL8                   FILE READ ROUTINE                  00015300
+SFTEXPDD DS    CL8                   FILE EXPAND ROUTINE                00015400
+SFTVNDXD DS    XL2                   VALID CONTROLS TABLE INDEX         00015500
+SFTVCNTD DS    XL2                   VALID CONTROLS TABLE COUNT         00015600
+SFTARCHD DS    CL1                   AOR FLAG INDICATES IF FILE IS SDMS 00015700
+*                                      VALUES: 0 = NO                   00015800
+*                                              1 = YES                  00015900
+SFTAFGPD DS    CL1                   AOR FLAG INDICATES IF ANY FILE     00016000
+*                                     WITHIN THE APPLICATION IS GROUPED 00016100
+*                                     OR SEGMENTED AND WHAT TYPE (IF    00016200
+*                                     JUST ONE FILE IS SEGMENTED OR     00016300
+*                                     GROUPED THE FLAG WILL NOT BE 'N') 00016400
+*                                    IF THIS FLAG IS NOT 'N' AN ENTRY   00016500
+*                                    IS REQUIRED IN THE FDR FOR EACH    00016600
+*                                    APPLICATION FILE QUERIED           00016700
+*                                      VALUES: N - NONE                 00016800
+*                                              C - CONTROL              00016900
+*                                              A - ACCOUNT              00017000
+*                                              O - OTHER                00017100
+SFTCLEND DS    XL2                   THE LENGTH OF CONTROLS; MOVED FROM 00017200
+*                                     AOR; OVERLAID BY FDR IF AVAILABLE 00017300
+*                                     IF NO VCR EXIST THIS FIELD WILL   00017400
+*                                     BE SET TO '2' OR '4' DEPENDING    00017500
+*                                     ON THE APPLICATION ID             00017600
+SFTFKYLD DS    XL2                   FDR FULL KEY LNGTH OF APP FILE REC 00017700
+SFTFSTPD DS    CL1                   FDR SSR FILE TYPE                  00017800
+*                                      VALUES: M - MASTER               00017900
+*                                              C - CONTROL              00018000
+*                                              A - ALPHA (ONLINE ONLY)  00018100
+*                                              N - NON SSR FILETYPE     00018200
+SFTFFGPD DS    CL1                   FDR FILE GROUP INDICATES HOW FILE  00018300
+*                                     IS SEGMENETED OR GROUPED          00018400
+*                                      VALUES: 0 - NO FILE GROUPING     00018500
+*                                              1 - BY CONTROL           00018600
+*                                              2 - BY CONTROLS & ACCT   00018700
+*                                              3 - BY OTHER             00018800
+SFTFSECD DS    CL1                   INDICATES IF FILE HAS SECURITY ON: 00018900
+*                                     THIS FIELD SET TO 'N' IF EITHER   00019000
+*                                     THE SECURITY ROUTINE NAME OR THE  00019100
+*                                     DISPLACEMENT FIELD FOR THE FILE   00019200
+*                                     BEING PROCESSED IS SPACES ON THE  00019300
+*                                     PCR                               00019400
+*                                      VALUES: N = NO                   00019500
+*                                              Y = YES                  00019600
+SFTC1OSD DS    XL2                   OFFSET OF CTL1 IN THE RECORD'S KEY 00019700
+*                                      VALUES: - IF THIS FIELD ON THE   00019800
+*                                        PCR IS SPACES OR ZEROS THEN    00019900
+*                                        THIS FIELD WILL BE SET TO      00020000
+*                                        ZEROS, ELSE THIS FIELD WILL BE 00020100
+*                                        SET TO THE VALUE ON THE PCR    00020200
+SFTFMD   DS    CL1                   PCR FLAG THAT INDICATES WHETHER    00020300
+*                                     OR NOT THE APPLICATION EXPAND     00020400
+*                                     ROUTINE DOES A FREEMAIN           00020500
+*                                      VALUES: N = NO                   00020600
+*                                              Y = YES                  00020700
+SFTFOPND DS    C     * BATCH ONLY *  INDICATES IF FILE HAS BEEN OPENED  00020800
+SFTKOFSD DS    XL2   * BATCH ONLY *  OFFSET OF KEY IN THE RECORD        00020900
+SFTENDD  EQU   *-SFTEBEGD            DSECT LENGTH LESS TABLE NAME       00021000
+         SPACE 3                                                        00021100
+ISDSVCT  DSECT                       VALID CONTROLS TABLE               00021200
+VCTD     DS    0CL16                                                    00021300
+         DS    CL8                   VCT TABLE NAME CONSTANT            00021400
+VCTTLGTD DS    XL4                   VCT TABLE LENGTH                   00021500
+VCTELGTD DS    XL2                   VCT ENTRY LENGTH                   00021600
+VCTMAXED DS    XL2                   VCT MAX NBR OF ENTRIES             00021700
+         SPACE                                                          00021800
+VCTEBEGD EQU   *                     VCT ENTRY BEGIN                    00021900
+VCTENTD  DS    0CL33                 VCT ENTRY                          00022000
+VCTAPIDD DS    CL2                   APPLICATION ID                     00022100
+VCTFND   DS    0CL8                  FILE NAME                          00022200
+VCTFAPPD DS    CL2                    FILE APPLICATION ID               00022300
+VCTFIDD  DS    CL3                    FILE ID                           00022400
+VCTSEGD  DS    CL2                    FILE SEGMENT/GROUP ID             00022500
+         DS    CL1                    SPACE                             00022600
+VCTVCTLD DS    CL14                  VALID CONTROLS                     00022700
+VCTIOMD  DS    CL8                   I/O MODULE NAME                    00022800
+VCTFOPND DS    C     * BATCH ONLY *  INDICATES IF FILE HAS BEEN OPENED  00022900
+VCTENDD  EQU   *-VCTEBEGD            DSECT LENGTH LESS CONSTANTS        00023000
+         SPACE 3                                                        00023100
+ISDSSIA  DSECT                       SECURITY INFORMATION AREA          00023200
+SIAD     DS    CL8                   SIA TABLE NAME CONSTANT            00023300
+         SPACE                                                          00023400
+SIAEBEGD EQU   *                     SIA BEGIN                          00023500
+SIAPADRD DS    XL4                   PCR ADDRESS                        00023600
+SIACADRD DS    XL4                   COMMUNICATION ADDRESS              00023700
+SIAENBRD DS    CL4                   ERROR NUMBER - 0 IF NO ERROR       00023800
+SIAEDSD  DS    CL8                   SYSTEM DATASET ID IN ERROR         00023900
+         ORG   SIAEDSD                                                  00024000
+SIAEPGMD DS    CL8                   PGMIDERR PROGRAM NAME              00024100
+SIAETYPD DS    CL3                   CONTROL FILE TYPE, EG. AOR         00024200
+SIAECLSD DS    0CL10                 CONTROL FILE RECORD CLASS          00024300
+SIAELVLD DS    CL5                   CONTROL FILE EOR LEVELS 1 & 2      00024400
+SIAEFGPD DS    CL2                   CONTROL FILE EOR FILE GROUP NBR    00024500
+         DS    CL3                   FILLER FOR EOR LEVELS 1 & 2        00024600
+SIAEMPD  DS    CL8                   EMPLOYEE ID                        00024700
+         ORG   SIAEMPD                                                  00024800
+SIAICMDD DS    CL8                   I/O COMMAND WHEN ERROR OCCURRED    00024900
+SIAEMSGD DS    CL38                  ERROR MESSAGE                      00025000
+SIAENDD  EQU   *-SIAEBEGD            DSECT LENGTH LESS CONSTANTS        00025100
+.END     MEND                                                           00025200

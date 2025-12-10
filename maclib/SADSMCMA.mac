@@ -1,0 +1,102 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000000
+&LABEL   SADSMCMA &DSECT=NO,&PFX=SADSM                                  00001000
+*********************************************************************** 00002000
+*                                                                     * 00003000
+*    SADSMCXB COMMUNICATION AREA.                                     * 00004000
+*                                                                     * 00005000
+*    LAST UPDATE: 03/14/89                                            * 00006000
+*                                                                     * 00007000
+*    DATA FORMAT VARIES, BASED ON COMMAND:                            * 00008000
+*                                                                     * 00009000
+*      EXPAND/COMPRESS                                                * 00010000
+*        BATCH - RETURNS DATA THRU SADSMSDI (STRING OF BINARY SEARCH  * 00011000
+*          DISPLACEMENTS, IN SEQUENCE RELATIVE TO DSM SEGMENTS.       * 00012000
+*        ONLINE- RETURNS DATA THRU SADSMPRC (PROGRAM RETURN CODE)     * 00013000
+*                                                                     * 00014000
+*      SEARCH - DATA PERTAINING TO ONE SEGMENT                        * 00015000
+*        LOCATE MODE - RETURNS DATA THRU SADSMADD (SEGMENT ADDRESS)   * 00016000
+*        MOVE   MODE - RETURNS DATA THRU SADSMSCH (SEG SEARCH CHAIN)  * 00017000
+*                                                                     * 00018000
+*       -IF INDEX IS ZERO AND ELEMENT-ID IS NOT LOW-VALUES,           * 00019000
+*        SADXMCXB WILL RETURN DATA FOR SPECIFIED ELEMENT-ID.          * 00020000
+*                                                                     * 00021000
+*       -IF INDEX IS ZERO AND ELEMENT-ID IS LOW-VALUES,               * 00022000
+*        SADXMCXB WILL RETURN DATA FOR 1ST SEGMENT IN DSM             * 00023000
+*        HAVING VALID ELEMENT-ID.                                     * 00024000
+*                                                                     * 00025000
+*       -IF INDEX IS NOT ZERO,                                        * 00026000
+*        SADXMCXB WILL RETURN DATA FOR NEXT SEQUENTIAL SEGMENT        * 00027000
+*        HAVING VALID ELEMENT-ID.                                     * 00028000
+*                                                                     * 00029000
+*       -INDEX OF HIGHEST SEGMENT EXAMINED WILL BE RETURNED IN        * 00030000
+*        HIGH INDEX FIELD.  SEARCH WILL FAIL WHEN HINDEX EQUALS       * 00031000
+*        HIGHEST INDEX IN DSM & SEGMENT HAS NO VALID ELEMENT ID.      * 00032000
+*                                                                     * 00033000
+*       -NUMBER OF NODES/ELEMENT-ID WILL BE RETURNED IN NODES.        * 00034000
+*        THIS TELLS YOU HOW MANY COMPARES WERE MADE TO FIND           * 00035000
+*        THE SEGMENT.                                                 * 00036000
+*                                                                     * 00037000
+*       -RETURN CODE 00 INDICATES SEGMENT WAS FOUND.                  * 00038000
+*        RETURN CODE 08 INDICATES SEGMENT WAS NOT FOUND.              * 00039000
+*                                                                     * 00040000
+*********************************************************************** 00040100
+*                    ** HISTORY OF REVISIONS **                       * 00040200
+* DESCRIPTION                                                 CHNG ID * 00040300
+* ___________________________________________________________ _______ * 00040400
+* 05/01/97 SUPPORT BIG DAGS (MORE THAN 1721 ITEMS)            9913569 * 00040998
+*********************************************************************** 00041000
+.CKDUM   ANOP                                                           00042000
+         AIF   ('&DSECT' EQ 'YES').DUMMY                                00043000
+&LABEL   DS    0F                                                       00044000
+         AGO   .LAYOUT                                                  00045000
+.DUMMY   ANOP                                                           00046000
+&LABEL   DSECT                                                          00047000
+.LAYOUT  ANOP                                                           00048000
+&PFX.BEG EQU   *                                                        00049000
+&PFX.HDR DS   0CL16                                                     00050000
+&PFX.COM DS    CL6                 FUNCTION REQUESTED                   00051000
+*                                    COMPRS (COMPRESS DSM)              00052000
+*                                    EXPAND (EXPAND DSM)                00053000
+*                                    SEARCH (RETURN SPEC ELEMENT & MAP) 00054000
+*                                    LOCATE (RETURN SPEC ELEMENT ADDR)  00055000
+&PFX.PNM DS    CL8                 PROGRAM NAME FOR HIGHEST RTN CODE    00056000
+&PFX.PRC DS    HL2                 PROGRAM RETURN CODE                  00057000
+*                                    00 - NORMAL                        00058000
+*                                    08 - ELEMENT ID NOT FOUND IN SRCH  00059000
+*                                    12 - COMPRESS/EXPAND FAILURE       00060000
+&PFX.VAR EQU   *                                                        00061000
+&PFX.SDA DS   0CL20000             SEARCH FUNC DATA RTN AREA  9913569   00062000
+&PFX.MAP DS   0CL10                MAPPING CONTROL AREA                 00063000
+&PFX.IND DS    FL4                 INDEX OF SEGMENT REQUESTED           00064000
+&PFX.HIN DS    FL4                 INDEX OF HIGHEST SEG EXAMINED        00065000
+&PFX.NOD DS    HL2                 NUMBER NODES SEARCHED IN BINARY TREE 00066000
+&PFX.SEG EQU   *                   DSM SEGMENT RETURNED                 00067000
+&PFX.ADD DS   0AL4                 SEGMENT ADDRESS (IF LOCATE MODE REQ) 00068000
+&PFX.LOW DS    HL2                 DISPLACEMENT TO LOWER KEY SEGMENT    00069000
+&PFX.HIG DS    HL2                 DISPLACEMENT TO HIGHER KEY SEGMENT   00070000
+&PFX.ELE DS    CL8                 ELE-ID OF SEGMT REQUESTED/RETURNED   00071000
+&PFX.MLL EQU   *-&PFX.BEG          ONLINE MIN LENGTH - LOCATE MODE      00072000
+&PFX.LEV DS    HL1                 COBOL LEVEL NUMBER                   00073000
+&PFX.STY DS    CL1                 COBOL STORAGE TYPE                   00074000
+&PFX.EDT DS    XL1                 SA EDIT FLAG                         00075000
+&PFX.LEN DS    HL2                 FIELD LENGTH                         00076000
+&PFX.DSP DS    HL2                 FIELD DISPLACEMENT                   00077000
+&PFX.FRM DS    XL1                 SA FORMAT CODE                       00078000
+&PFX.DEC DS    HL1                 NUMBER DECIMAL PLACES                00079000
+&PFX.INQ DS    HL1                 SECURITY CODE - INQUIRY              00080000
+&PFX.UPD DS    HL1                 SECURITY CODE - UPDATE               00081000
+&PFX.OCR DS    HL1                 NUMBER COBOL OCCURS DATA SEGMENTS    00082000
+         DS    CL2                 RESERVED                             00083000
+&PFX.OCD DS   3CL4                 OCCURS DATA                          00084000
+&PFX.MLM EQU   *-&PFX.BEG          ONLINE MIN LENGTH - MOVE MODE        00085000
+&PFX.SCH DS    CL(100*10)          SEGMENT SEARCH CHAIN       9913569   00086000
+         ORG   &PFX.SCH                                                 00087000
+&PFX.NID DS    CL8                 ELEMENT ID FOR NODE SEARCHED         00088000
+&PFX.NDI DS    HL2                 DISPLACEMENT FOR NODE SEARCHED       00089000
+         ORG                                                            00090000
+         DS    CL18952                                        9913569   00091000
+         ORG   &PFX.VAR                                                 00092000
+&PFX.SDI DS    10000HL2            SEGMENT DISPLACEMENTS (1-N)9913569   00093000
+         ORG                                                            00094000
+         MEND                                                           00095000

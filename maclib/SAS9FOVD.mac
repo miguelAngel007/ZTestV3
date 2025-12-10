@@ -1,0 +1,105 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000999
+* * * * * *              F  O  V  T  A  B  E                * * * * * * 00001000
+*                                                                     * 00002000
+*   FILE OVERRIDES TABLE                                              * 00003000
+*   SAS9FOVD COPYA                                                    * 00004000
+*   MAINT: 05/09/94 SSR COLUMN CONTROL FLAGS                  2522090 * 00005000
+*********************************************************************** 00005010
+*                    ** HISTORY OF REVISIONS **                       * 00005020
+* DESCRIPTION                                                 CHNG ID * 00005030
+* ___________________________________________________________ _______ * 00005040
+* 01/23/14 ADD DB2 VALUES                                     1436560   00005994
+* 02/15/06 ADD NEW INTENT DEFINITIONS                         0635339   00005995
+* 03/15/05 MOD FOR XLEN PROCESSING SUPT TO INCLUDE SEQMASTER  0545143 * 00005996
+* 05/22/02 MOD FOR XLEN PROCESSING SUPPORT                    2024355 * 00005998
+*********************************************************************** 00006000
+         SPACE                                                          00007000
+FOVTABE  DSECT                                                          00008000
+         SPACE                                                          00009000
+FOVNAME  DS    CL8                 DD OR FILE NAME                      00010000
+         SPACE                                                          00011000
+FOVNDSET DS    CL8                 DSET NAME (OPTIONAL)                 00012000
+         SPACE                                                          00013000
+*                                  OVERRIDES FOR TYPE BYTE OF DSET      00014000
+FOVTYPEI DS    X                   IF INPUT, TYPE IS:                   00015000
+FOVTSEQ  EQU   B'10000000'         SEQUENTIAL                           00016000
+FOVTVSAM EQU   B'01000000'         VSAM                                 00017000
+FOVTDLI  EQU   B'00100000'         DL/I                                 00018000
+FOVTDB2  EQU   B'00010000'         DB2                                  00019000
+FOVTVIRT EQU   B'00001000'         VIRTUAL                              00020000
+FOVTNPFX EQU   B'00000100'         FLAT                                 00021000
+FOVTDB2E EQU   B'00000010'         DB2 ONLINE FILE            1436560   00022000
+FOVTXLEN EQU   B'00000001'         XLEN DATA FORMAT           0545143   00023000
+*-------------------------------------------------------------0545143-* 00023010
+* GN5143 REDESIGNED THE SASETUP XLEN SPECIFICATION TO BE      0545143 * 00023100
+* INCLUDED AS A TYPE VALUE FOR INPUT/OUTPUT/UPDATE FILE       0545143 * 00023200
+* ATTRIBUTES SPECIFICATION RATHER THAN AN 'OPTIONAL OPERAND'  0545143 * 00023300
+* ON THE FILE ATTRIBUTES STATEMENT.  THE FOVTXLEN (X'01') BIT 0545143 * 00023400
+* WILL COMMUNICATE TO SASERVB THAT THE INDICATED FILE IS      0545143 * 00023500
+* XLEN FORMAT.  HOWEVER, SASERVB MUST NOT APPLY THE FOVTXLEN  0545143 * 00023600
+* BIT TO OVERRIDE (SET) THE SAIDSETM/SDMSDUMY (X'01) BIT.     0545143 * 00023700
+* THE SAIDSETM/SDMSDUMY (X'01') BIT IS USED BY SASDMSB TO     0545143 * 00023800
+* FLAG A DUMMY FILE.                                          0545143 * 00023900
+*-------------------------------------------------------------0545143-* 00023990
+         SPACE                                                          00024000
+FOVTYPEO DS    X                   IF OUTPUT, TYPE IS: (SEE ABOVE)      00025000
+         SPACE                                                          00026000
+FOVTYPEU DS    X                   IF UPDATE, TYPE IS: (SEE ABOVE)      00027000
+         SPACE                                                          00028000
+FOVFLAG  DS    X                   OVERRIDES FOR FLAG BYTE OF DSET      00029000
+FOVFNO0  EQU   B'10000000'         NOT OVERRIDDEN                       00030000
+FOVFNO1  EQU   B'01000000'         NOT OVERRIDDEN                       00031000
+FOVFNO2  EQU   B'00100000'         NOT OVERRIDDEN                       00032000
+FOVFNO3  EQU   B'00010000'         NOT OVERRIDDEN                       00033000
+FOVFNO4  EQU   B'00001000'         NOT OVERRIDDEN                       00034000
+FOVFSUPM EQU   B'00000100'         SEQUENTIAL UPDATE MASTER             00035000
+FOVFCOMT EQU   B'00000010'         DB2 COMMITTMENT TABLES     1436560   00036000
+FOVFNO7  EQU   B'00000001'         NOT OVERRIDDEN                       00037000
+         SPACE                                                          00038000
+FOVITNT  DS    X                   OVERRIDES FOR INTENT BYTE OF DSET    00039000
+FOVIREAD EQU   B'10000000'         READ-ONLY (INPUT)                    00040000
+FOVIUPDT EQU   B'01000000'         UPDATE (IN PLACE)                    00041000
+FOVILOAD EQU   B'00100000'         LOAD (OUTPUT) FILE MUST BE EMPTY     00042000
+*                                   IF KSDS)                            00043000
+FOVIDB2C EQU   B'00010000'         DB2 USE CURSORS            1436560   00044000
+FOVIDIR  EQU   B'00001000'         KSDS DIRECT ACCESS INTENT  0635339   00045000
+FOVISEQ  EQU   B'00000100'         KSDS SEQUENTIAL INTENT     0635339   00046000
+FOVIUA6  EQU   B'00000010'         ** NOT ASSIGNED                      00047000
+FOVIRCVR EQU   B'00000001'         RECOVERABLE RESOURCE                 00048000
+         SPACE                                                          00049000
+FOVOPNDS DS    X                   INDICATES OPTIONAL OPERANDS ENTERED  00050000
+FOVORCVR EQU   B'10000000'         RECOV OR NON-RECOV WAS ENTERED.      00051000
+FOVOCREA EQU   B'01000000'         CREATE (FORCEOPEN) WAS ENTERED.      00052000
+FOVONO1  EQU   B'00100000'         *** UNASSIGNED             0545143   00053000
+FOVOSSRM EQU   B'00010000'         USE ONLINE MASTER SEGS COL.2522090   00054000
+FOVOSSRC EQU   B'00001000'         USE ONLINE CONTROL ''  ''  2522090   00055000
+FOVOSSRA EQU   B'00000100'         USE ONLINE ALPHA   ''  ''  2522090   00056000
+FOVOSEGC EQU   B'00000010'         SEGMENTATION W/CLOSE IND'D 2522090   00057000
+FOVOSEGF EQU   B'00000001'         SEGMENTATION WAS INDICATATE2522090   00058000
+         SPACE                                                          00059000
+FOVBLKSI DS    XL4                 (VSE) INPUT BLOCKSIZE                00060000
+FOVRCFMI DS    CL2                 (VSE) INPUT RECORD FORMAT            00061000
+         DS    CL1                       FILLER FOR ALIGNMENT W/OUTPUT  00062000
+FOVMEDII DS    CL1                 (VSE) INPUT MEDIUM                   00063000
+FOVTILBI DS    CL1                 (VSE) INPUT TAPE LABEL OPTION        00064000
+FOVTIRUI DS    CL1                 (VSE) INPUT TAPE REWIND OPTION       00065000
+FOVSYSI  DS    XL1                 (VSE) INPUT P.L.U. (SYSNNN)          00066000
+         SPACE                                                          00067000
+FOVBLKSO DS    XL4                 (VSE) OUTPUT BLOCKSIZE               00068000
+FOVRCFMO DS    CL2                 (VSE) OUTPUT RECORD FORMAT           00069000
+FOVPCTLO DS    CL1                 (VSE) OUTPUT PRINT CTLCHAR TYPE      00070000
+FOVMEDIO DS    CL1                 (VSE) OUTPUT MEDIUM                  00071000
+FOVTOLBO DS    CL1                 (VSE) OUTPUT TAPE LABEL OPTION       00072000
+FOVTORUO DS    CL1                 (VSE) OUTPUT TAPE REWIND OPTION      00073000
+FOVSYSO  DS    XL1                 (VSE) OUTPUT P.L.U. (SYSNNN)         00074000
+FOVBXPN  DS    CL8                 APPL EXPAND ROUTINE NAME   2500610   00074010
+FOVBCPR  DS    CL8                 APPL COMPRESS ROUTINE NAME 2500610   00074020
+FOVRSEGM DS    CL2                 DB2 SEGMENTATION CODE      1436560   00074030
+FOVDB2MD DS    CL3                 (MVS) DB2 MODULE SUFFIX    1436560   00074040
+         DS    0F                                                       00075000
+FOVELEN  EQU   *-FOVTABE           LENGTH OF ONE TABLE ENTRY            00076000
+         SPACE                                                          00077000
+* * * * * *              F  O  V  T  A  B  E                * * * * * * 00078000
+*********************************************************************** 00079000
+         SPACE 3                                                        00080000

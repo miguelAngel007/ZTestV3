@@ -1,0 +1,32 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                  ** COPYBOOK DESCRIPTION **                         * 00000110
+*                                                                     * 00000200
+*        TSTS2SDC --- SAME DAY CORRECTIONS COMMUNICATION AREA         * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+*                  ** HISTORY OF REVISIONS **                         * 00000502
+*                                                                     * 00000504
+* DESCRIPTION                                                 CHNGID  * 00000506
+* __________________________________________________________  _______ * 00000508
+*                                                                     * 00000510
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000590
+*                                                                     * 00000592
+*---------------------------------------------------------------------* 00000594
+         DS    0F                                                       00000600
+TSSDC    DS    0CL28                 START OF COMMAREA        1035850   00000700
+SDCEYEC  DS    CL8                   EYE CATCHER                        00000800
+SDCNCADR DS    XL4                   ADDR OF NATIVE COMMAREA            00000900
+SDCLGRBA DS    XL8                   LAST LOG RBA             1035850   00001000
+SDCLGGRP DS    CL2                   LAST LOG GROUP                     00001100
+SDCLGNDF DS    CL1                   LAST LOG NEXT DAY FLAG             00001200
+SDCSAH   DS    CL1                   SAME ACCOUNT HIT                   00001300
+*                                       0 - NO HIT ON SAME ACCOUNT      00001400
+*                                       1 - HIT ON SAME ACCOUNT         00001500
+SDCFET   DS    CL1                   FIRST EXTERNAL TRANS WRITTEN       00001600
+*                                       1 - HAS BEEN WRITTEN            00001700
+SDCLGWF  DS    CL1                   LOGWRITE FLAG            2601182   00001710
+*                                     0 - CORR LOG NOT WRITTEN2601182   00001720
+*                                     1 - CORR LOG WRITTEN    2601182   00001730
+         DS    XL2                   FILLER                   2601182   00001800
+SDCLNG   EQU   *-TSSDC               SYMBOLIC LENGTH OF COMMAREA        00001900

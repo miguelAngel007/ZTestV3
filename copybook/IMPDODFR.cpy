@@ -1,0 +1,127 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+000100*
+000200*--------------------------------------------------------------*
+000300*      COPYBOOK FOR THE ROLLING OF FUTURE OVERDRAFT RATES      *
+000400*--------------------------------------------------------------*
+000500*
+000600     IF  WMS-OD-ACCRUAL-TRLR EQUAL '0'
+000700         GO TO FUTURE-RATE-EXIT.
+000800*
+000900     IF  WMS-OD-INT-PTR1 GREATER THAN +0 AND LESS THAN +6
+001000         IF  OD-TRLR-FUT (1) EQUAL ZERO
+001100             NEXT SENTENCE
+001200         ELSE
+001300             MOVE OD-TRLR-FUT (1)    TO V
+001400             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+001500                 MOVE WMS-OD-CUR-DATA (1)
+001600                                     TO WMS-OD-PREV-DATA (1)
+001700                 MOVE WS-RWF-OD-DATA (V)
+001800                                     TO WMS-OD-CUR-DATA (1).
+001900*
+002000     IF  WMS-OD-INT-PTR2 GREATER THAN +0 AND LESS THAN +6
+002100         IF  OD-TRLR-FUT (2) EQUAL ZERO
+002200             NEXT SENTENCE
+002300         ELSE
+002400             MOVE OD-TRLR-FUT (2)    TO V
+002500             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+002600                 MOVE WMS-OD-CUR-DATA (2)
+002700                                     TO WMS-OD-PREV-DATA (2)
+002800                 MOVE WS-RWF-OD-DATA (V)
+002900                                     TO WMS-OD-CUR-DATA (2).
+003000*
+003100     IF  WMS-OD-INT-PTR3 GREATER THAN +0 AND LESS THAN +6
+003200         IF  OD-TRLR-FUT (3) EQUAL ZERO
+003300             NEXT SENTENCE
+003400         ELSE
+003500             MOVE OD-TRLR-FUT (3)    TO V
+003600             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+003700                 MOVE WMS-OD-CUR-DATA (3)
+003800                                     TO WMS-OD-PREV-DATA (3)
+003900                 MOVE WS-RWF-OD-DATA (V)
+004000                                     TO WMS-OD-CUR-DATA (3).
+004100*
+004200     IF  WMS-OD-INT-PTR4 GREATER THAN +0 AND LESS THAN +6
+004300         IF  OD-TRLR-FUT (4) EQUAL ZERO
+004400             NEXT SENTENCE
+004500         ELSE
+004600             MOVE OD-TRLR-FUT (4)    TO V
+004700             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+004800                 MOVE WMS-OD-CUR-DATA (4)
+004900                                     TO WMS-OD-PREV-DATA (4)
+005000                 MOVE WS-RWF-OD-DATA (V)
+005100                                     TO WMS-OD-CUR-DATA (4).
+005200*
+005300     IF  WMS-OD-INT-PTR5 GREATER THAN +0 AND LESS THAN +6
+005400         IF  OD-TRLR-FUT (5) EQUAL ZERO
+005500             NEXT SENTENCE
+005600         ELSE
+005700             MOVE OD-TRLR-FUT (5)    TO V
+005800             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+005900                 MOVE WMS-OD-CUR-DATA (5)
+006000                                     TO WMS-OD-PREV-DATA (5)
+006100                 MOVE WS-RWF-OD-DATA (V)
+006200                                     TO WMS-OD-CUR-DATA (5).
+006300*
+006400     IF  WMS-OD-INT-PTR6 GREATER THAN +0 AND LESS THAN +6
+006500         IF  OD-TRLR-FUT (6) EQUAL ZERO
+006600             NEXT SENTENCE
+006700         ELSE
+006800             MOVE OD-TRLR-FUT (6)    TO V
+006900             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+007000                 MOVE WMS-OD-CUR-DATA (6)
+007100                                     TO WMS-OD-PREV-DATA (6)
+007200                 MOVE WS-RWF-OD-DATA (V)
+007300                                     TO WMS-OD-CUR-DATA (6).
+007400*
+007500     IF  WMS-OD-INT-PTR7 GREATER THAN +0 AND LESS THAN +6
+007600         IF  OD-TRLR-FUT (7) EQUAL ZERO
+007700             NEXT SENTENCE
+007800         ELSE
+007900             MOVE OD-TRLR-FUT (7)    TO V
+008000             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+008100                 MOVE WMS-OD-CUR-DATA (7)
+008200                                     TO WMS-OD-PREV-DATA (7)
+008300                 MOVE WS-RWF-OD-DATA (V)
+008400                                     TO WMS-OD-CUR-DATA (7).
+008500*
+008600     IF  WMS-OD-INT-PTR8 GREATER THAN +0 AND LESS THAN +6
+008700         IF  OD-TRLR-FUT (8) EQUAL ZERO
+008800             NEXT SENTENCE
+008900         ELSE
+009000             MOVE OD-TRLR-FUT (8)    TO V
+009100             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+009200                 MOVE WMS-OD-CUR-DATA (8)
+009300                                     TO WMS-OD-PREV-DATA (8)
+009400                 MOVE WS-RWF-OD-DATA (V)
+009500                                     TO WMS-OD-CUR-DATA (8).
+009600*
+009700     IF  WMS-OD-INT-PTR9 GREATER THAN +0 AND LESS THAN +6
+009800         IF  OD-TRLR-FUT (9) EQUAL ZERO
+009900             NEXT SENTENCE
+010000         ELSE
+010100             MOVE OD-TRLR-FUT (9)    TO V
+010200             IF  ACCRUAL-DATE EQUAL WS-RWF-OD-DATE (V)
+010300                 MOVE WMS-OD-CUR-DATA (9)
+010400                                     TO WMS-OD-PREV-DATA (9)
+010500                 MOVE WS-RWF-OD-DATA (V)
+010600                                     TO WMS-OD-CUR-DATA (9).
+010700*
+010800     IF  WMS-OD-INT-PTR1 EQUAL +6
+010900     OR  WMS-OD-INT-PTR2 EQUAL +6
+011000     OR  WMS-OD-INT-PTR3 EQUAL +6
+011100     OR  WMS-OD-INT-PTR4 EQUAL +6
+011200     OR  WMS-OD-INT-PTR5 EQUAL +6
+011300     OR  WMS-OD-INT-PTR6 EQUAL +6
+011400     OR  WMS-OD-INT-PTR7 EQUAL +6
+011500     OR  WMS-OD-INT-PTR8 EQUAL +6
+011600     OR  WMS-OD-INT-PTR9 EQUAL +6
+011700         IF  PRIME-FUT EQUAL ZERO
+011800             GO TO FUTURE-RATE-EXIT
+011900         ELSE
+012000             IF  ACCRUAL-DATE EQUAL WS-RWF-PRM-DATE (PRIME-FUT)
+012100                 MOVE WMS-OD-PRM-CUR-DATA TO WMS-OD-PRM-PREV-DATA
+012200                 MOVE WS-RWF-PRM-ANN (PRIME-FUT)
+012300                   TO WMS-OD-PRM-CUR-ANN
+012400                 MOVE WS-RWF-PRM-DAF (PRIME-FUT)
+012500                   TO WMS-OD-PRM-CUR-DAF.
+012600*

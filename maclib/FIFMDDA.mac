@@ -1,0 +1,606 @@
+       01  FIFMDDAI.
+           02  FILLER PIC X(12).
+           02  FMTRIDL    COMP  PIC  S9(4).
+           02  FMTRIDF    PICTURE X.
+           02  FILLER REDEFINES FMTRIDF.
+             03 FMTRIDA    PICTURE X.
+           02  FMTRIDI  PIC X(4).
+           02  FMDATEL    COMP  PIC  S9(4).
+           02  FMDATEF    PICTURE X.
+           02  FILLER REDEFINES FMDATEF.
+             03 FMDATEA    PICTURE X.
+           02  FMDATEI  PIC X(8).
+           02  FMTIMEL    COMP  PIC  S9(4).
+           02  FMTIMEF    PICTURE X.
+           02  FILLER REDEFINES FMTIMEF.
+             03 FMTIMEA    PICTURE X.
+           02  FMTIMEI  PIC X(8).
+           02  FMCUSTL    COMP  PIC  S9(4).
+           02  FMCUSTF    PICTURE X.
+           02  FILLER REDEFINES FMCUSTF.
+             03 FMCUSTA    PICTURE X.
+           02  FMCUSTI  PIC X(4).
+           02  FMNUMNL    COMP  PIC  S9(4).
+           02  FMNUMNF    PICTURE X.
+           02  FILLER REDEFINES FMNUMNF.
+             03 FMNUMNA    PICTURE X.
+           02  FMNUMNI  PIC X(4).
+           02  FMACT1L    COMP  PIC  S9(4).
+           02  FMACT1F    PICTURE X.
+           02  FILLER REDEFINES FMACT1F.
+             03 FMACT1A    PICTURE X.
+           02  FMACT1I  PIC X(1).
+           02  FMDST1L    COMP  PIC  S9(4).
+           02  FMDST1F    PICTURE X.
+           02  FILLER REDEFINES FMDST1F.
+             03 FMDST1A    PICTURE X.
+           02  FMDST1I  PIC X(4).
+           02  FMAMT1L    COMP  PIC  S9(4).
+           02  FMAMT1F    PICTURE X.
+           02  FILLER REDEFINES FMAMT1F.
+             03 FMAMT1A    PICTURE X.
+           02  FMAMT1I  PIC X(18).
+           02  FMACT2L    COMP  PIC  S9(4).
+           02  FMACT2F    PICTURE X.
+           02  FILLER REDEFINES FMACT2F.
+             03 FMACT2A    PICTURE X.
+           02  FMACT2I  PIC X(1).
+           02  FMDST2L    COMP  PIC  S9(4).
+           02  FMDST2F    PICTURE X.
+           02  FILLER REDEFINES FMDST2F.
+             03 FMDST2A    PICTURE X.
+           02  FMDST2I  PIC X(4).
+           02  FMAMT2L    COMP  PIC  S9(4).
+           02  FMAMT2F    PICTURE X.
+           02  FILLER REDEFINES FMAMT2F.
+             03 FMAMT2A    PICTURE X.
+           02  FMAMT2I  PIC X(18).
+           02  FMACT3L    COMP  PIC  S9(4).
+           02  FMACT3F    PICTURE X.
+           02  FILLER REDEFINES FMACT3F.
+             03 FMACT3A    PICTURE X.
+           02  FMACT3I  PIC X(1).
+           02  FMDST3L    COMP  PIC  S9(4).
+           02  FMDST3F    PICTURE X.
+           02  FILLER REDEFINES FMDST3F.
+             03 FMDST3A    PICTURE X.
+           02  FMDST3I  PIC X(4).
+           02  FMAMT3L    COMP  PIC  S9(4).
+           02  FMAMT3F    PICTURE X.
+           02  FILLER REDEFINES FMAMT3F.
+             03 FMAMT3A    PICTURE X.
+           02  FMAMT3I  PIC X(18).
+           02  FMACT4L    COMP  PIC  S9(4).
+           02  FMACT4F    PICTURE X.
+           02  FILLER REDEFINES FMACT4F.
+             03 FMACT4A    PICTURE X.
+           02  FMACT4I  PIC X(1).
+           02  FMDST4L    COMP  PIC  S9(4).
+           02  FMDST4F    PICTURE X.
+           02  FILLER REDEFINES FMDST4F.
+             03 FMDST4A    PICTURE X.
+           02  FMDST4I  PIC X(4).
+           02  FMAMT4L    COMP  PIC  S9(4).
+           02  FMAMT4F    PICTURE X.
+           02  FILLER REDEFINES FMAMT4F.
+             03 FMAMT4A    PICTURE X.
+           02  FMAMT4I  PIC X(18).
+           02  FMACT5L    COMP  PIC  S9(4).
+           02  FMACT5F    PICTURE X.
+           02  FILLER REDEFINES FMACT5F.
+             03 FMACT5A    PICTURE X.
+           02  FMACT5I  PIC X(1).
+           02  FMDST5L    COMP  PIC  S9(4).
+           02  FMDST5F    PICTURE X.
+           02  FILLER REDEFINES FMDST5F.
+             03 FMDST5A    PICTURE X.
+           02  FMDST5I  PIC X(4).
+           02  FMAMT5L    COMP  PIC  S9(4).
+           02  FMAMT5F    PICTURE X.
+           02  FILLER REDEFINES FMAMT5F.
+             03 FMAMT5A    PICTURE X.
+           02  FMAMT5I  PIC X(18).
+           02  FMACT6L    COMP  PIC  S9(4).
+           02  FMACT6F    PICTURE X.
+           02  FILLER REDEFINES FMACT6F.
+             03 FMACT6A    PICTURE X.
+           02  FMACT6I  PIC X(1).
+           02  FMDST6L    COMP  PIC  S9(4).
+           02  FMDST6F    PICTURE X.
+           02  FILLER REDEFINES FMDST6F.
+             03 FMDST6A    PICTURE X.
+           02  FMDST6I  PIC X(4).
+           02  FMAMT6L    COMP  PIC  S9(4).
+           02  FMAMT6F    PICTURE X.
+           02  FILLER REDEFINES FMAMT6F.
+             03 FMAMT6A    PICTURE X.
+           02  FMAMT6I  PIC X(18).
+           02  FMACT7L    COMP  PIC  S9(4).
+           02  FMACT7F    PICTURE X.
+           02  FILLER REDEFINES FMACT7F.
+             03 FMACT7A    PICTURE X.
+           02  FMACT7I  PIC X(1).
+           02  FMDST7L    COMP  PIC  S9(4).
+           02  FMDST7F    PICTURE X.
+           02  FILLER REDEFINES FMDST7F.
+             03 FMDST7A    PICTURE X.
+           02  FMDST7I  PIC X(4).
+           02  FMAMT7L    COMP  PIC  S9(4).
+           02  FMAMT7F    PICTURE X.
+           02  FILLER REDEFINES FMAMT7F.
+             03 FMAMT7A    PICTURE X.
+           02  FMAMT7I  PIC X(18).
+           02  FMACT8L    COMP  PIC  S9(4).
+           02  FMACT8F    PICTURE X.
+           02  FILLER REDEFINES FMACT8F.
+             03 FMACT8A    PICTURE X.
+           02  FMACT8I  PIC X(1).
+           02  FMDST8L    COMP  PIC  S9(4).
+           02  FMDST8F    PICTURE X.
+           02  FILLER REDEFINES FMDST8F.
+             03 FMDST8A    PICTURE X.
+           02  FMDST8I  PIC X(4).
+           02  FMAMT8L    COMP  PIC  S9(4).
+           02  FMAMT8F    PICTURE X.
+           02  FILLER REDEFINES FMAMT8F.
+             03 FMAMT8A    PICTURE X.
+           02  FMAMT8I  PIC X(18).
+           02  FMACT9L    COMP  PIC  S9(4).
+           02  FMACT9F    PICTURE X.
+           02  FILLER REDEFINES FMACT9F.
+             03 FMACT9A    PICTURE X.
+           02  FMACT9I  PIC X(1).
+           02  FMDST9L    COMP  PIC  S9(4).
+           02  FMDST9F    PICTURE X.
+           02  FILLER REDEFINES FMDST9F.
+             03 FMDST9A    PICTURE X.
+           02  FMDST9I  PIC X(4).
+           02  FMAMT9L    COMP  PIC  S9(4).
+           02  FMAMT9F    PICTURE X.
+           02  FILLER REDEFINES FMAMT9F.
+             03 FMAMT9A    PICTURE X.
+           02  FMAMT9I  PIC X(18).
+           02  FMACT10L    COMP  PIC  S9(4).
+           02  FMACT10F    PICTURE X.
+           02  FILLER REDEFINES FMACT10F.
+             03 FMACT10A    PICTURE X.
+           02  FMACT10I  PIC X(1).
+           02  FMDST10L    COMP  PIC  S9(4).
+           02  FMDST10F    PICTURE X.
+           02  FILLER REDEFINES FMDST10F.
+             03 FMDST10A    PICTURE X.
+           02  FMDST10I  PIC X(4).
+           02  FMAMT10L    COMP  PIC  S9(4).
+           02  FMAMT10F    PICTURE X.
+           02  FILLER REDEFINES FMAMT10F.
+             03 FMAMT10A    PICTURE X.
+           02  FMAMT10I  PIC X(18).
+           02  FMACT11L    COMP  PIC  S9(4).
+           02  FMACT11F    PICTURE X.
+           02  FILLER REDEFINES FMACT11F.
+             03 FMACT11A    PICTURE X.
+           02  FMACT11I  PIC X(1).
+           02  FMDST11L    COMP  PIC  S9(4).
+           02  FMDST11F    PICTURE X.
+           02  FILLER REDEFINES FMDST11F.
+             03 FMDST11A    PICTURE X.
+           02  FMDST11I  PIC X(4).
+           02  FMAMT11L    COMP  PIC  S9(4).
+           02  FMAMT11F    PICTURE X.
+           02  FILLER REDEFINES FMAMT11F.
+             03 FMAMT11A    PICTURE X.
+           02  FMAMT11I  PIC X(18).
+           02  FMACT12L    COMP  PIC  S9(4).
+           02  FMACT12F    PICTURE X.
+           02  FILLER REDEFINES FMACT12F.
+             03 FMACT12A    PICTURE X.
+           02  FMACT12I  PIC X(1).
+           02  FMDST12L    COMP  PIC  S9(4).
+           02  FMDST12F    PICTURE X.
+           02  FILLER REDEFINES FMDST12F.
+             03 FMDST12A    PICTURE X.
+           02  FMDST12I  PIC X(4).
+           02  FMAMT12L    COMP  PIC  S9(4).
+           02  FMAMT12F    PICTURE X.
+           02  FILLER REDEFINES FMAMT12F.
+             03 FMAMT12A    PICTURE X.
+           02  FMAMT12I  PIC X(18).
+           02  FMACT13L    COMP  PIC  S9(4).
+           02  FMACT13F    PICTURE X.
+           02  FILLER REDEFINES FMACT13F.
+             03 FMACT13A    PICTURE X.
+           02  FMACT13I  PIC X(1).
+           02  FMDST13L    COMP  PIC  S9(4).
+           02  FMDST13F    PICTURE X.
+           02  FILLER REDEFINES FMDST13F.
+             03 FMDST13A    PICTURE X.
+           02  FMDST13I  PIC X(4).
+           02  FMAMT13L    COMP  PIC  S9(4).
+           02  FMAMT13F    PICTURE X.
+           02  FILLER REDEFINES FMAMT13F.
+             03 FMAMT13A    PICTURE X.
+           02  FMAMT13I  PIC X(18).
+           02  FMACT14L    COMP  PIC  S9(4).
+           02  FMACT14F    PICTURE X.
+           02  FILLER REDEFINES FMACT14F.
+             03 FMACT14A    PICTURE X.
+           02  FMACT14I  PIC X(1).
+           02  FMDST14L    COMP  PIC  S9(4).
+           02  FMDST14F    PICTURE X.
+           02  FILLER REDEFINES FMDST14F.
+             03 FMDST14A    PICTURE X.
+           02  FMDST14I  PIC X(4).
+           02  FMAMT14L    COMP  PIC  S9(4).
+           02  FMAMT14F    PICTURE X.
+           02  FILLER REDEFINES FMAMT14F.
+             03 FMAMT14A    PICTURE X.
+           02  FMAMT14I  PIC X(18).
+           02  FMACT15L    COMP  PIC  S9(4).
+           02  FMACT15F    PICTURE X.
+           02  FILLER REDEFINES FMACT15F.
+             03 FMACT15A    PICTURE X.
+           02  FMACT15I  PIC X(1).
+           02  FMDST15L    COMP  PIC  S9(4).
+           02  FMDST15F    PICTURE X.
+           02  FILLER REDEFINES FMDST15F.
+             03 FMDST15A    PICTURE X.
+           02  FMDST15I  PIC X(4).
+           02  FMAMT15L    COMP  PIC  S9(4).
+           02  FMAMT15F    PICTURE X.
+           02  FILLER REDEFINES FMAMT15F.
+             03 FMAMT15A    PICTURE X.
+           02  FMAMT15I  PIC X(18).
+           02  FMACT16L    COMP  PIC  S9(4).
+           02  FMACT16F    PICTURE X.
+           02  FILLER REDEFINES FMACT16F.
+             03 FMACT16A    PICTURE X.
+           02  FMACT16I  PIC X(1).
+           02  FMDST16L    COMP  PIC  S9(4).
+           02  FMDST16F    PICTURE X.
+           02  FILLER REDEFINES FMDST16F.
+             03 FMDST16A    PICTURE X.
+           02  FMDST16I  PIC X(4).
+           02  FMAMT16L    COMP  PIC  S9(4).
+           02  FMAMT16F    PICTURE X.
+           02  FILLER REDEFINES FMAMT16F.
+             03 FMAMT16A    PICTURE X.
+           02  FMAMT16I  PIC X(18).
+           02  FMACT17L    COMP  PIC  S9(4).
+           02  FMACT17F    PICTURE X.
+           02  FILLER REDEFINES FMACT17F.
+             03 FMACT17A    PICTURE X.
+           02  FMACT17I  PIC X(1).
+           02  FMDST17L    COMP  PIC  S9(4).
+           02  FMDST17F    PICTURE X.
+           02  FILLER REDEFINES FMDST17F.
+             03 FMDST17A    PICTURE X.
+           02  FMDST17I  PIC X(4).
+           02  FMAMT17L    COMP  PIC  S9(4).
+           02  FMAMT17F    PICTURE X.
+           02  FILLER REDEFINES FMAMT17F.
+             03 FMAMT17A    PICTURE X.
+           02  FMAMT17I  PIC X(18).
+           02  FMACT18L    COMP  PIC  S9(4).
+           02  FMACT18F    PICTURE X.
+           02  FILLER REDEFINES FMACT18F.
+             03 FMACT18A    PICTURE X.
+           02  FMACT18I  PIC X(1).
+           02  FMDST18L    COMP  PIC  S9(4).
+           02  FMDST18F    PICTURE X.
+           02  FILLER REDEFINES FMDST18F.
+             03 FMDST18A    PICTURE X.
+           02  FMDST18I  PIC X(4).
+           02  FMAMT18L    COMP  PIC  S9(4).
+           02  FMAMT18F    PICTURE X.
+           02  FILLER REDEFINES FMAMT18F.
+             03 FMAMT18A    PICTURE X.
+           02  FMAMT18I  PIC X(18).
+           02  FMACT19L    COMP  PIC  S9(4).
+           02  FMACT19F    PICTURE X.
+           02  FILLER REDEFINES FMACT19F.
+             03 FMACT19A    PICTURE X.
+           02  FMACT19I  PIC X(1).
+           02  FMDST19L    COMP  PIC  S9(4).
+           02  FMDST19F    PICTURE X.
+           02  FILLER REDEFINES FMDST19F.
+             03 FMDST19A    PICTURE X.
+           02  FMDST19I  PIC X(4).
+           02  FMAMT19L    COMP  PIC  S9(4).
+           02  FMAMT19F    PICTURE X.
+           02  FILLER REDEFINES FMAMT19F.
+             03 FMAMT19A    PICTURE X.
+           02  FMAMT19I  PIC X(18).
+           02  FMACT20L    COMP  PIC  S9(4).
+           02  FMACT20F    PICTURE X.
+           02  FILLER REDEFINES FMACT20F.
+             03 FMACT20A    PICTURE X.
+           02  FMACT20I  PIC X(1).
+           02  FMDST20L    COMP  PIC  S9(4).
+           02  FMDST20F    PICTURE X.
+           02  FILLER REDEFINES FMDST20F.
+             03 FMDST20A    PICTURE X.
+           02  FMDST20I  PIC X(4).
+           02  FMAMT20L    COMP  PIC  S9(4).
+           02  FMAMT20F    PICTURE X.
+           02  FILLER REDEFINES FMAMT20F.
+             03 FMAMT20A    PICTURE X.
+           02  FMAMT20I  PIC X(18).
+           02  FMACT21L    COMP  PIC  S9(4).
+           02  FMACT21F    PICTURE X.
+           02  FILLER REDEFINES FMACT21F.
+             03 FMACT21A    PICTURE X.
+           02  FMACT21I  PIC X(1).
+           02  FMDST21L    COMP  PIC  S9(4).
+           02  FMDST21F    PICTURE X.
+           02  FILLER REDEFINES FMDST21F.
+             03 FMDST21A    PICTURE X.
+           02  FMDST21I  PIC X(4).
+           02  FMAMT21L    COMP  PIC  S9(4).
+           02  FMAMT21F    PICTURE X.
+           02  FILLER REDEFINES FMAMT21F.
+             03 FMAMT21A    PICTURE X.
+           02  FMAMT21I  PIC X(18).
+           02  FMACT22L    COMP  PIC  S9(4).
+           02  FMACT22F    PICTURE X.
+           02  FILLER REDEFINES FMACT22F.
+             03 FMACT22A    PICTURE X.
+           02  FMACT22I  PIC X(1).
+           02  FMDST22L    COMP  PIC  S9(4).
+           02  FMDST22F    PICTURE X.
+           02  FILLER REDEFINES FMDST22F.
+             03 FMDST22A    PICTURE X.
+           02  FMDST22I  PIC X(4).
+           02  FMAMT22L    COMP  PIC  S9(4).
+           02  FMAMT22F    PICTURE X.
+           02  FILLER REDEFINES FMAMT22F.
+             03 FMAMT22A    PICTURE X.
+           02  FMAMT22I  PIC X(18).
+           02  FMACT23L    COMP  PIC  S9(4).
+           02  FMACT23F    PICTURE X.
+           02  FILLER REDEFINES FMACT23F.
+             03 FMACT23A    PICTURE X.
+           02  FMACT23I  PIC X(1).
+           02  FMDST23L    COMP  PIC  S9(4).
+           02  FMDST23F    PICTURE X.
+           02  FILLER REDEFINES FMDST23F.
+             03 FMDST23A    PICTURE X.
+           02  FMDST23I  PIC X(4).
+           02  FMAMT23L    COMP  PIC  S9(4).
+           02  FMAMT23F    PICTURE X.
+           02  FILLER REDEFINES FMAMT23F.
+             03 FMAMT23A    PICTURE X.
+           02  FMAMT23I  PIC X(18).
+           02  FMACT24L    COMP  PIC  S9(4).
+           02  FMACT24F    PICTURE X.
+           02  FILLER REDEFINES FMACT24F.
+             03 FMACT24A    PICTURE X.
+           02  FMACT24I  PIC X(1).
+           02  FMDST24L    COMP  PIC  S9(4).
+           02  FMDST24F    PICTURE X.
+           02  FILLER REDEFINES FMDST24F.
+             03 FMDST24A    PICTURE X.
+           02  FMDST24I  PIC X(4).
+           02  FMAMT24L    COMP  PIC  S9(4).
+           02  FMAMT24F    PICTURE X.
+           02  FILLER REDEFINES FMAMT24F.
+             03 FMAMT24A    PICTURE X.
+           02  FMAMT24I  PIC X(18).
+           02  FMACT25L    COMP  PIC  S9(4).
+           02  FMACT25F    PICTURE X.
+           02  FILLER REDEFINES FMACT25F.
+             03 FMACT25A    PICTURE X.
+           02  FMACT25I  PIC X(1).
+           02  FMDST25L    COMP  PIC  S9(4).
+           02  FMDST25F    PICTURE X.
+           02  FILLER REDEFINES FMDST25F.
+             03 FMDST25A    PICTURE X.
+           02  FMDST25I  PIC X(4).
+           02  FMAMT25L    COMP  PIC  S9(4).
+           02  FMAMT25F    PICTURE X.
+           02  FILLER REDEFINES FMAMT25F.
+             03 FMAMT25A    PICTURE X.
+           02  FMAMT25I  PIC X(18).
+           02  FMACT26L    COMP  PIC  S9(4).
+           02  FMACT26F    PICTURE X.
+           02  FILLER REDEFINES FMACT26F.
+             03 FMACT26A    PICTURE X.
+           02  FMACT26I  PIC X(1).
+           02  FMDST26L    COMP  PIC  S9(4).
+           02  FMDST26F    PICTURE X.
+           02  FILLER REDEFINES FMDST26F.
+             03 FMDST26A    PICTURE X.
+           02  FMDST26I  PIC X(4).
+           02  FMAMT26L    COMP  PIC  S9(4).
+           02  FMAMT26F    PICTURE X.
+           02  FILLER REDEFINES FMAMT26F.
+             03 FMAMT26A    PICTURE X.
+           02  FMAMT26I  PIC X(18).
+           02  FMPGFWDL    COMP  PIC  S9(4).
+           02  FMPGFWDF    PICTURE X.
+           02  FILLER REDEFINES FMPGFWDF.
+             03 FMPGFWDA    PICTURE X.
+           02  FMPGFWDI  PIC X(18).
+           02  FMPGBKDL    COMP  PIC  S9(4).
+           02  FMPGBKDF    PICTURE X.
+           02  FILLER REDEFINES FMPGBKDF.
+             03 FMPGBKDA    PICTURE X.
+           02  FMPGBKDI  PIC X(19).
+           02  FMERRORL    COMP  PIC  S9(4).
+           02  FMERRORF    PICTURE X.
+           02  FILLER REDEFINES FMERRORF.
+             03 FMERRORA    PICTURE X.
+           02  FMERRORI  PIC X(79).
+       01  FIFMDDAO REDEFINES FIFMDDAI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  FMTRIDO  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMDATEO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  FMTIMEO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  FMCUSTO  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMNUMNO  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMACT1O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST1O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT1O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT2O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST2O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT2O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT3O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST3O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT3O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT4O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST4O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT4O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT5O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST5O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT5O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT6O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST6O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT6O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT7O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST7O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT7O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT8O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST8O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT8O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT9O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST9O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT9O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT10O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST10O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT10O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT11O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST11O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT11O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT12O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST12O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT12O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT13O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST13O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT13O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT14O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST14O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT14O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT15O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST15O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT15O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT16O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST16O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT16O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT17O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST17O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT17O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT18O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST18O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT18O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT19O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST19O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT19O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT20O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST20O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT20O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT21O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST21O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT21O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT22O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST22O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT22O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT23O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST23O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT23O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT24O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST24O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT24O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT25O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST25O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT25O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMACT26O  PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  FMDST26O  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  FMAMT26O  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMPGFWDO  PIC X(18).
+           02  FILLER PICTURE X(3).
+           02  FMPGBKDO  PIC X(19).
+           02  FILLER PICTURE X(3).
+           02  FMERRORO  PIC X(79).

@@ -1,0 +1,82 @@
+***************************  CZTS2FL1  ******************************** 00001000
+*    TRANSACTION'S FIELD FOR CONVERSION NETWORK'S TRANSACTION TO TS   * 00000900
+*********************************************************************** 00001000
+FL1DSECT DSECT                                                          00000700
+FL1      DS   0H                                                        00001700
+FL1SIZE  DS    XL1           TRAILER LENGTH                             00001700
+FL1IDENT DS    XL1           TRAILER IDENTIFICATION                     00001700
+FL1DETDE EQU   C'1'          - DELIMITER TO DELIMITER                   00001700
+FL1DETLC EQU   C'2'          - DELIMITER TO LOCATION                    00001700
+FL1LCTDE EQU   C'3'          - LOCATION  TO DELIMITER                   00001700
+FL1LCTLC EQU   C'4'          - LOCATION  TO LOCATION                    00001700
+*     -----------------------------------------------------             00001700
+*     -  FIELDS EQUIVALENTS WITHIN SYSTEMATICS  ( TARGET )-             00001700
+*     -----------------------------------------------------             00001700
+FL1TGFID DS    CL8           SOURCE FIELD ID                            00001600
+         ORG   FL1TGFID                                                 00001600
+FL1TGLOC DS    PL3           LOCATION INTO INPUT AREA                   00001500
+         DS    XL5           FILLER                                     00001500
+FL1TGDLM DS    CL1           FIELD TYPE DELIMITER                       00000230
+FL1TGTYP DS    CL1           FIELD TYPE                                 00000230
+*                            - 'N' NUMERIC                              00000240
+*                            - 'C' CHARACTER                            00000250
+*                            - 'L' LITERAL                              00000260
+*                            - 'P' PACKED                               00001700
+*                            - 'U' PACKED UNSIGNED                      00001700
+*                            - 'B' BINARY                               00001700
+*                            - 'H' HEXADECIMAL
+*                            - 'E' EIBDATE                              00000270
+*                            - 'T' EIBTIME                              00000280
+*                            - 'S' SENSE                                00000290
+*                            - 'X' TRAN ID                              00000300
+FL1TGLNG DS    PL2           FIELD'S LENGTH ( IN BYTES )                00001600
+FL1TGFRM DS    CL1           DATE FORMAT FLAG                           00000310
+*                            - ' ' NOT A DATE - SPACES
+*                            - '1' JULIAN    - DDDYY
+*                            - '2' JULIAN    - YYDDD
+*                            - '3' GREGORIAN - YYMMDD
+*                            - '4' GREGORIAN - YYYYMMDD
+*                            - '5' GREGORIAN - MMDDYY
+*                            - '6' GREGORIAN - MMDDYYYY
+*                            - '7' GREGORIAN - DDMMYY
+*                            - '8' GREGORIAN - DDMMYYYY
+*                            - 'A' TIME ZONED JULIAN - DDDYY
+*                            - 'B' TIME ZONED JULIAN - YYDDD
+*                            - 'C' TIME ZONED GREG - YYMMDD
+*                            - 'D' TIME ZONED GREG - YYYYMMDD
+*                            - 'E' TIME ZONED GREG - MMDDYY
+*                            - 'F' TIME ZONED GREG - MMDDYYYY
+*                            - 'G' TIME ZONED GREG - DDMMYY
+*                            - 'H' TIME ZONED GREG - DDMMYYYY
+*                            - 'T' TIME ZONED EIBTIME - HHMMSS
+*     -----------------------------------------------------             00001700
+*     -  CHARACTERISTICS OF FILLED OF THE TARGET FIELD    -             00001700
+*     -----------------------------------------------------             00001700
+FL1TGROP DS    CL1           REQUIRED OR OPTIONAL FIELD                 00000310
+*                            - 'R' REQUIRED
+*                            - 'O' OPTIONAL
+FL1TGVOC DS    CL1           VARIABLE OR CONSTANT                       00000310
+*                            - 'V' VARIABLE
+*                            - 'C' CONSTANT
+FL1TGLOR DS    CL1           LEFT OR RIGTH JUSTIFY                      00000310
+*                            - 'L' LEFT
+*                            - 'R' RIGTH
+FL1TGZOB DS    CL1           ZEROS OR BLANKS FILL                       00000310
+*                            - 'Z' ZEROS
+*                            - 'B' BLANKS
+*     -----------------------------------------------------             00001700
+*     -  NETWORK TRANSACTION'S FIELD DEFINITION ( SOURCE )-             00001700
+*     -----------------------------------------------------             00001700
+FL1SCFID DS    CL8           TARGET FIELD ID                            00001600
+         ORG   FL1SCFID                                                 00001600
+FL1SCLOC DS    PL3           LOCATION INTO INPUT AREA                   00001500
+         DS    XL5           FILLER                                     00001500
+FL1SCDLM DS    CL1           FIELD TYPE DELIMITER                       00000230
+FL1SCTYP DS    CL1           FIELD TYPE                                 00000230
+FL1SCLNG DS    PL2           FIELD'S LENGTH ( IN BYTES )                00001600
+FL1SCFRM DS    CL1           DATE FORMAT FLAG                           00000310
+*
+FL1SCFIL DS    CL4           FILLER                                     00000310
+         ORG   FL1SCFID                                                 00001600
+FL1SCCON DS    CL17          CONSTANT VALUE                             00000310
+FL1LENG  EQU   *-FL1         LENGTH OF INPUT HEADER                     00002500

@@ -1,0 +1,73 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+*                               GN2TSLOG                              * 00002000
+*                      TSLOGDB COMM AREA FOR TSLOGDB/TSLOGDBX         * 00003000
+*---------------------------------------------------------------------* 00004000
+*                  ** HISTORY OF REVISIONS **                         * 00005000
+*                                                                     * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* __________________________________________________________  _______ * 00008000
+* 10/31/16 SUPPORT ALWAYS ON                                  1727046 * 00008997
+* 01/21/14 MODIFY FOR ACCOUNT PROCESSING                      1436560   00008998
+* 06/01/12 INITIAL DISTRIBUTION                               1336326   00009000
+*                                                                     * 00010000
+*---------------------------------------------------------------------* 00011000
+PLOLIST  DS    0CL176                LOG DB2 IO PARM LIST     1727046   00012000
+PLOFUNC  DS    CL2                   FUNCTION CODE                      00013000
+*              VALUE 'AE'            GET ACCOUNT EQUAL        1436560   00013010
+*              VALUE 'BA'            GET BY ACCOUNT           1436560   00013020
+*              VALUE 'BE'            GET BY EMPLOYEE          1436560   00013030
+*              VALUE 'CT'            COUNT                              00014000
+*              VALUE 'DE'            DELETE                             00015000
+*              VALUE 'EE'            GET EMPLOYEE EQUAL       1436560   00015010
+*              VALUE 'EQ'            GET EQUAL                          00016000
+*              VALUE 'GE'            GET GREATER THAN OR EQUAL          00017000
+*              VALUE 'GT'            GET GREATER THAN                   00018000
+*              VALUE 'GU'            GET FOR UPDATE                     00019000
+*              VALUE 'IN'            INSERT                             00020000
+*              VALUE 'LT'            GET LESS THAN                      00021000
+*              VALUE 'PA'            GET PREVIOUS ACCOUNT     1727046   00021010
+*              VALUE 'PA'            POSTING COMPLETE CHECK   1727046   00021020
+*              VALUE 'PE'            GET PREVIOUS EMPLOYEE    1727046   00021030
+*              VALUE 'UP'            UPDATE                             00022000
+*              VALUE 'HI'            HI RBA                   1436560   00022100
+PLOCURSR DS    CL1                   CURSOR SET FLAG          1727046   00022110
+*              VALUE Y               CURSOR SET YES           1727046   00022120
+*              VALUE N               CURSOR SET NO (DEFAULT)  1727046   00022130
+PLOFILGP DS    CL2                   FILE GROUP                         00023000
+PLOBDFLG DS    CL1                   BUSINESS DATE FLAG                 00024000
+*              VALUE C               CURRENT DAY                        00025000
+*              VALUE N               NEXT DAY                           00026000
+*              VALUE SPACE           ALL DATES                          00027000
+PLOPOSTD DS    CL1                   POSTED FLAG SELECTION    1727046   00027010
+*              VALUE 'U'             UNPOSTED ONLY            1727046   00027020
+*              VALUE ' '             ALL                      1727046   00027030
+PLOACTGR DS    CL1                   ACCOUNT GROUP FLAG       1727046   00027040
+*              VALUE Y               YES - QUERY BY APPL GRP  1727046   00027050
+*              VALUE ' '             GET ALL APPL GROUPS      1727046   00027060
+PLOAPLID DS    CL2                   APPLICATION ID           1727046   00027070
+PLOAPLGR DS    CL2                   APPLICATION GROUP        1727046   00027080
+PLOACTNO DS    CL50                  ACCT NUMBER              1727046   00027090
+PLORECAD DS    XL4                   LOG AREA ADDR                      00028000
+PLOXRBA  DS    CL8                   IDENTITY KEY             1727046   00029000
+PLORTCDE DS    XL2                   RETURN CODE                        00030000
+*              VALUE 0               OK                                 00031000
+*              VALUE 16              BAD REQUEST                        00032000
+*              VALUE 100             NOT FOUND                          00033000
+*              VALUE 100             OR END OF FILE                     00034000
+*              VALUE -305            NULLS                              00035000
+*              VALUE -803            DUPLICATE RECORD                   00036000
+*              VALUE -911            DEADLOCK WITH ROLLBACK             00037000
+*              VALUE -913            DEADLOCK WITHOUT ROLLBACK          00038000
+PLORTXTE DS    0CL98                 MSG TEXT                 1436560   00039000
+PLOSERPD DS    CL6                   SER PROCESSING DATE      1436560   00039010
+PLOEMPKY DS    0CL13                 EMPLOYEE KEY             1436560   00039030
+PLORPTL1 DS    CL2                   REPORT LEVEL 1           1436560   00039040
+PLORPTL2 DS    CL3                   REPORT LEVEL 2           1436560   00039050
+PLOEMPID DS    CL8                   EMPLOYEE ID              1436560   00039060
+PLOOPTEA DS    XL4                   SASIOPTE ADDRESS         1436560   00039070
+PLOBYENC DS    CL1                   BYPASS ENCRYPTION        1436560   00039080
+PLOSETKY DS    CL2                   TSSETDB KEY              1727046   00039085
+         DS    CL72                  FILLER                   1727046   00039090
+PLORECLN DS    CL2                   RECORD LENGTH                      00040000
+PLOLEN   EQU   *-PLOLIST             PARM LIST LENGTH                   00041000

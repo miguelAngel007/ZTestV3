@@ -1,0 +1,28 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                2500610   00001000
+&LABEL   SAS9TOPM &DSECT=NO                                   2500610   00002000
+*                                                            *2500610   00003000
+**************************************************************2500610   00004000
+*                                                            *2500610   00005000
+* * * * * * *          S  A  S  9  T  O  P  M          * * * *2500610   00006000
+*                                                            *2500610   00007000
+*        ONLINE TESTING AND TRACING OPTIONS                  *2500610   00008000
+*02/24/93 (NEW)                                              *2500610   00009000
+**************************************************************2500610   00010000
+         SPACE 3                                              2500610   00011000
+         AIF   ('&DSECT' EQ 'YES').SAS9010                    2500610   00012000
+SAS9TOPT DS    0F                                             2500610   00013000
+         AGO   .SAS9050                                       2500610   00014000
+.SAS9010 ANOP                                                 2500610   00015000
+SAS9TOPT DSECT                                                2500610   00016000
+.SAS9050 ANOP                                                 2500610   00017000
+         SPACE 1                                              2500610   00018000
+SAOPTKEY DS    0CL8          TEMP STOR KEY.                   2500610   00019000
+SAOPTKLT DS    CL4           'SAAB'                           2500610   00020000
+SAOPTKTI DS    CL4           TERMINAL I.D.                    2500610   00021000
+SAOPTGUV DS    XL4           BIN. GOVERNOR THRESHOLD VRB COUNT2500610   00022000
+SAOPTMGR DS    CL1           TRACE TABLE MANAGER? Y/N         2500610   00023000
+SAOPTLNK DS    XL1           LINK TO SASERVO? 2=YES, 1=BALR   2500610   00024000
+         DS    CL2           ------------ FILLER -------------2500610   00025000
+**************************************************************2500610   00026000
+         MEND                                                 2500610   00027000

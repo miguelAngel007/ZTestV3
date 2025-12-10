@@ -1,0 +1,1649 @@
+         MACRO                                                          00000010
+         CZFMHIMS                                                      X00000020
+               &MSGNUM=,                                               X00000030
+               &MSGPARM=                                                00000040
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000050
+.*********                   P R O L O G                       ******** 00000060
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000070
+.*                                                                    * 00000080
+.*   MACRO NAME : CZFMHIMS                                            * 00000090
+.*                                                                    * 00000100
+.*   DESCRIPTIVE NAME : INTERNAL MESSAGES GENERATION                  * 00000110
+.*                                                                    * 00000120
+.*   STATUS : VERSION 1                                               * 00000130
+.*            RELEASE LEVEL = 1                                       * 00000140
+.*            MODIFICATION LEVEL = 0                                  * 00000150
+.*                                                                    * 00000160
+.*   COPYRIGHT -                                                      * 00000170
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00000180
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00000190
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00000200
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00000210
+.*                                                                    * 00000220
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00000230
+.*                                                                    * 00000240
+.*   FUNCTION:                                                        * 00000250
+.*            TO MANAGE THE MESSAGES CAUSED BY ERRORS FOUND           * 00000260
+.*            DURING THE PROCESSING OF THE CUSTOMIZATION MACROS.      * 00000270
+.*            AN ADDITIONAL FUNCTION IS TO GENERATE INFORMATION       * 00000280
+.*            AS RESPONSE TO A HELP REQUEST ASSOCIATED WITH A         * 00000290
+.*            MACRO.                                                  * 00000300
+.*   LOGIC:                                                           * 00000310
+.*            BASED ON THE PARAMETER MSGNUM RECEIVED, A BRANCH IS     * 00000320
+.*            MADE TO THE ROUTINE THAT PRODUCES THE REQUESTED         * 00000330
+.*            MESSAGES. THE FIRST MESSAGE IN EVERY ROUTINE IS THE     * 00000340
+.*            ERROR MESSAGE AND THE REST OF THE MESSAGES ARE THE      * 00000350
+.*            INFORMATIVE MESSAGES. IN A NORMAL SITUATION, ALL THE    * 00000360
+.*            MESSAGES ARE PRODUCED. IN THE CASE WHERE THE HELP       * 00000370
+.*            INDICATOR IS ON, THE ERROR MESSAGE IS IGNORED           * 00000380
+.*            AND ONLY THE INFORMATIVE MESSAGES ARE PRODUCED.         * 00000390
+.*                                                                    * 00000400
+.*   ENTRY POINT : AT THE BEGINNING OF THE MACRO                      * 00000410
+.*                                                                    * 00000420
+.*   EXTERNAL MODULE(S) CALL : NONE                                   * 00000430
+.*                                                                    * 00000440
+.*   MESSAGES ISSUED : THE REQUESTED                                  * 00000450
+.*                                                                    * 00000460
+.*   CHARACTERISTICS :                                                * 00000470
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00000480
+.*                                                                    * 00000490
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00000500
+.*                                                                    * 00000510
+.*   PARAMETERS RECEIVED:                                             * 00000520
+.*            MSGNUM    TO IDENTIFY THE REQUIRED MESSAGE SET          * 00000530
+.*                                                                    * 00000540
+.*            MSGPARM   TO USE A VARIABLE AS PART OF THE MESSAGES     * 00000550
+.*                                                                    * 00000560
+.*   CONTROL BLOCK(S) BUILT :  NONE                                   * 00000570
+.*                                                                    * 00000580
+.*   GENERATED CODE : THE REQUESTED MESSAGES                          * 00000590
+.*                                                                    * 00000600
+.*   NOTES:  NONE                                                     * 00000610
+.*                                                                    * 00000620
+.*   CHANGE ACTIVITY:                                                 * 00000630
+.*           PROGRAM FIX @A000203 APPLIED DECEMBER, 1983              * 00000640
+.*                                                                    * 00000650
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000660
+         GBLB  &HELPARM                    *HELP INDICATOR              00000670
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000680
+.*                                                                    * 00000690
+.*             PARAMETERS VALIDATION.                                 * 00000700
+.*                                                                    * 00000710
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000720
+         AIF   (&MSGNUM EQ 1).MSG001                                    00000730
+         AIF   (&MSGNUM EQ 2).MSG002                                    00000740
+         AIF   (&MSGNUM EQ 3).MSG003                                    00000750
+         AIF   (&MSGNUM EQ 4).MSG004                                    00000760
+         AIF   (&MSGNUM EQ 5).MSG005                                    00000770
+         AIF   (&MSGNUM EQ 6).MSG006                                    00000780
+         AIF   (&MSGNUM EQ 7).MSG007                                    00000790
+         AIF   (&MSGNUM EQ 8).MSG008                                    00000800
+         AIF   (&MSGNUM EQ 9).MSG009                                    00000810
+         AIF   (&MSGNUM EQ 10).MSG010                                   00000820
+         AIF   (&MSGNUM EQ 11).MSG011      *  STRL                      00000830
+         AIF   (&MSGNUM EQ 12).MSG012      *  STRL                      00000840
+         AIF   (&MSGNUM EQ 13).MSG013      *  SAPL                      00000850
+         AIF   (&MSGNUM EQ 14).MSG014      *  SAPL                      00000860
+         AIF   (&MSGNUM EQ 15).MSG015      *  SAPL                      00000870
+         AIF   (&MSGNUM EQ 16).MSG016      *  HMSG                      00000880
+         AIF   (&MSGNUM EQ 17).MSG017      *  SAPL                      00000890
+         AIF   (&MSGNUM EQ 18).MSG018      *  SAPL                      00000900
+         AIF   (&MSGNUM EQ 19).MSG019      *  STRL                      00000910
+         AIF   (&MSGNUM EQ 20).MSG020      *  STRL                      00000920
+         AIF   (&MSGNUM EQ 21).MSG021      *  AFLD                      00000930
+         AIF   (&MSGNUM EQ 22).MSG022      *  AFLD                      00000940
+         AIF   (&MSGNUM EQ 23).MSG023      *  AFLD                      00000950
+         AIF   (&MSGNUM EQ 24).MSG024      *  AFLD                      00000960
+         AIF   (&MSGNUM EQ 25).MSG025      *  AFLD NOT IN USE           00000970
+         AIF   (&MSGNUM EQ 26).MSG026      *  AWRD                      00000980
+         AIF   (&MSGNUM EQ 27).MSG027      *  AWRD                      00000990
+         AIF   (&MSGNUM EQ 28).MSG028      *                            00001000
+         AIF   (&MSGNUM EQ 29).MSG029      *                            00001010
+         AIF   (&MSGNUM EQ 30).MSG030      *  AOUT AINP                 00001020
+         AIF   (&MSGNUM EQ 31).MSG031      *  AOUT AINP                 00001030
+         AIF   (&MSGNUM EQ 32).MSG032      *  AOUT AINP                 00001040
+         AIF   (&MSGNUM EQ 33).MSG033      *  AOUT AINP                 00001050
+         AIF   (&MSGNUM EQ 34).MSG034      *  AOUT                      00001060
+         AIF   (&MSGNUM EQ 35).MSG035      *  AOUT AINP                 00001070
+         AIF   (&MSGNUM EQ 36).MSG036      *  AOUT                      00001080
+         AIF   (&MSGNUM EQ 37).MSG037      *  AOUT                      00001090
+         AIF   (&MSGNUM EQ 38).MSG038      *  AOUT                      00001100
+         AIF   (&MSGNUM EQ 39).MSG039      *  AINP                      00001110
+         AIF   (&MSGNUM EQ 40).MSG040      *  AOUT AINP                 00001120
+         AIF   (&MSGNUM EQ 41).MSG041      *  AOUT AINP                 00001130
+         AIF   (&MSGNUM EQ 42).MSG042      *  AOUT AINP                 00001140
+         AIF   (&MSGNUM EQ 43).MSG043      *  STOT                      00001150
+         AIF   (&MSGNUM EQ 44).MSG044      *  STOT                      00001160
+         AIF   (&MSGNUM EQ 45).MSG045      *  STOT                      00001170
+         AIF   (&MSGNUM EQ 46).MSG046      *  STOT                      00001180
+         AIF   (&MSGNUM EQ 47).MSG047      *  AINP                      00001190
+         AIF   (&MSGNUM EQ 48).MSG048      *  AINP                      00001200
+         AIF   (&MSGNUM EQ 49).MSG049      *  AINP                      00001210
+         AIF   (&MSGNUM EQ 50).MSG050      *  AINP                      00001220
+         AIF   (&MSGNUM EQ 51).MSG051      *  APBP                      00001230
+         AIF   (&MSGNUM EQ 52).MSG052      *  APBP                      00001240
+         AIF   (&MSGNUM EQ 53).MSG053      *  APBP                      00001250
+         AIF   (&MSGNUM EQ 54).MSG054      *  APBP                      00001260
+         AIF   (&MSGNUM EQ 55).MSG055      *  APBP                      00001270
+         AIF   (&MSGNUM EQ 56).MSG056      *  HSTP                      00001280
+         AIF   (&MSGNUM EQ 57).MSG057      *  HSTP                      00001290
+         AIF   (&MSGNUM EQ 58).MSG058      *  HSTP                      00001300
+         AIF   (&MSGNUM EQ 59).MSG059      *  HSTP                      00001310
+         AIF   (&MSGNUM EQ 61).MSG061      *  HSTP                      00001320
+         AIF   (&MSGNUM EQ 62).MSG062      *  SAPL                      00001330
+         AIF   (&MSGNUM EQ 63).MSG063      *  SAPL                      00001340
+         AIF   (&MSGNUM EQ 64).MSG064      *  STXT                      00001350
+         AIF   (&MSGNUM EQ 65).MSG065      *  HSTP                      00001360
+         AIF   (&MSGNUM EQ 66).MSG066      *  HSTP                      00001370
+         AIF   (&MSGNUM EQ 67).MSG067      *  SUSE                      00001380
+         AIF   (&MSGNUM EQ 68).MSG068      *  SUSE                      00001390
+         AIF   (&MSGNUM EQ 69).MSG069      *  AOUT                      00001400
+         AIF   (&MSGNUM EQ 70).MSG070      *  AOUT                      00001410
+         AIF   (&MSGNUM EQ 71).MSG071      *  ATOT                      00001420
+         AIF   (&MSGNUM EQ 72).MSG072      *  ATOT                      00001430
+         AIF   (&MSGNUM EQ 73).MSG073      *  ATOT                      00001440
+         AIF   (&MSGNUM EQ 74).MSG074      *  ACTS ACTE ACTB ACTO       00001450
+         AIF   (&MSGNUM EQ 75).MSG075      *  ACTS ACTE ACTB ACTO       00001460
+         AIF   (&MSGNUM EQ 76).MSG076      *  SCTL                      00001470
+         AIF   (&MSGNUM EQ 77).MSG077      *  SCTL                      00001480
+         AIF   (&MSGNUM EQ 78).MSG078      *  SCTL                      00001490
+         AIF   (&MSGNUM EQ 79).MSG079      *  ATOT                      00001500
+         AIF   (&MSGNUM EQ 80).MSG080      *  SAPL                      00001510
+         AIF   (&MSGNUM EQ 81).MSG081      *  SUSE                      00001520
+         AIF   (&MSGNUM EQ 82).MSG082      *  STRP                      00001530
+         AIF   (&MSGNUM EQ 83).MSG083      *  STRP                      00001540
+         AIF   (&MSGNUM EQ 84).MSG084      *  ACTS                      00001550
+         AIF   (&MSGNUM EQ 85).MSG085      *  ACTS ACTE ACTB ACTO       00001560
+         AIF   (&MSGNUM EQ 86).MSG086      *  ACTS ACTE ACTB ACTO       00001570
+         AIF   (&MSGNUM EQ 87).MSG087      *  ACTS ACTE ACTB ACTO       00001580
+         AIF   (&MSGNUM EQ 88).MSG088      *  AINP AOUT ATOT            00001590
+         AIF   (&MSGNUM EQ 89).MSG089      *  ATOT                      00001600
+         AIF   (&MSGNUM EQ 90).MSG090      *  ATOT                      00001610
+         AIF   (&MSGNUM EQ 91).MSG091      *  ATOT                      00001620
+         AIF   (&MSGNUM EQ 92).MSG092      *  ATOT                      00001630
+         AIF   (&MSGNUM EQ 93).MSG093      *  GENERAL USE               00001640
+         AIF   (&MSGNUM EQ 94).MSG094      *  GENERAL USE               00001650
+         AIF   (&MSGNUM EQ 95).MSG095      *  SAPL                      00001660
+         AIF   (&MSGNUM EQ 96).MSG096      *  SAPL                      00001670
+         AIF   (&MSGNUM EQ 98).MSG098      *  SAPL                      00001680
+         AIF   (&MSGNUM EQ 99).MSG099      *  ACTS                      00001690
+         AIF   (&MSGNUM EQ 100).MSG100     *  SAPL                      00001700
+         AIF   (&MSGNUM EQ 101).MSG101     *  APBP                      00001710
+         AIF   (&MSGNUM EQ 102).MSG102     *  APBP                      00001720
+         AIF   (&MSGNUM EQ 103).MSG103     *  APBP                      00001730
+         AIF   (&MSGNUM EQ 104).MSG104     *  APBP                      00001740
+         AIF   (&MSGNUM EQ 105).MSG105     *  APBP                      00001750
+         AIF   (&MSGNUM EQ 106).MSG106     *  APBP                      00001760
+         AIF   (&MSGNUM EQ 107).MSG107     *  APBP                      00001770
+         AIF   (&MSGNUM EQ 108).MSG108     *  APBP                      00001780
+         AIF   (&MSGNUM EQ 109).MSG109     *  APBP                      00001790
+         AIF   (&MSGNUM EQ 110).MSG110     *  APBP                      00001800
+         AIF   (&MSGNUM EQ 111).MSG111     *  APBP                      00001810
+         AIF   (&MSGNUM EQ 112).MSG112     *  APBP                      00001820
+         AIF   (&MSGNUM EQ 113).MSG113     *  APBP                      00001830
+         AIF   (&MSGNUM EQ 114).MSG114     *  HSTP                      00001840
+         AIF   (&MSGNUM EQ 115).MSG115     *  HSTP                      00001850
+         AIF   (&MSGNUM EQ 116).MSG116     *  HSTP                      00001860
+         AIF   (&MSGNUM EQ 117).MSG117     *  STOT                      00001870
+         AIF   (&MSGNUM EQ 118).MSG118     *  SAPL                      00001880
+         AIF   (&MSGNUM EQ 119).MSG119     *  AOUT                      00001890
+         AIF   (&MSGNUM EQ 120).MSG120     *  ACTS                      00001900
+         AIF   (&MSGNUM EQ 121).MSG121     *  APBP                      00001910
+         AIF   (&MSGNUM EQ 122).MSG122     *  APBP                      00001920
+         AIF   (&MSGNUM EQ 123).MSG123     *  APBP                      00001930
+         AIF   (&MSGNUM EQ 124).MSG124     *  APBP                      00001940
+         AIF   (&MSGNUM EQ 125).MSG125     *  APBP                      00001940
+         AIF   (&MSGNUM EQ 996).MSG996     *UNBALANCED TYPE STATEMENTS  00001950
+         AIF   (&MSGNUM EQ 997).MSG997     *HELP ERROR MESSAGES         00001960
+         AIF   (&MSGNUM EQ 998).MSG998     *HELP MESSAGES HEADER        00001970
+         AGO   .MSG999                     *ERROR MESSAGES              00001980
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001990
+.*                                                                    * 00002000
+.*             ERROR AND HELP MESSAGES GENERATION                     * 00002010
+.*                                                                    * 00002020
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002030
+.MSG001 ANOP                                                            00002040
+         AIF    (&HELPARM).LBL001                                       00002050
+         MNOTE  8,'TYPE IS INVALID OR OMITTED.'                         00002060
+.LBL001  ANOP                                                           00002070
+         MNOTE  *,'                                                   ' 00002080
+         MNOTE  *,'TYPE MUST BE ONE OF FOLLOWING:'                      00002090
+         MNOTE  *,'  INITIAL - DEFINES START OF A TABLE (1 PER TABLE)'  00002100
+         MNOTE  *,'  ENTRY   - DEFINES USER-SPECIFIED DATA (1 TO N PER *00002110
+               TABLE)'                                                  00002120
+         MNOTE  *,'  FINAL   - DEFINES END OF A TABLE (1 PER TABLE)'    00002130
+         MNOTE  *,'                                                   ' 00002140
+        MEXIT                                                           00002150
+.MSG002 ANOP                                                            00002160
+         AIF    (&HELPARM).LBL002                                       00002170
+         MNOTE  8,'TYPE=INITIAL MACRO IS DUPLICATED.'                   00002180
+.LBL002  ANOP                                                           00002190
+         MNOTE  *,'                                                   ' 00002200
+         MNOTE  *,'ONLY ONE MACRO TYPE=INITIAL IS ALLOWED.'             00002210
+         MNOTE  *,'MACRO TYPE=INITIAL MUST BE THE FIRST MACRO CODED FOR*00002220
+                A TABLE.'                                               00002230
+         MNOTE  *,'                                                   ' 00002240
+        MEXIT                                                           00002250
+.MSG003 ANOP                                                            00002260
+         AIF    (&HELPARM).LBL003                                       00002270
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00002280
+.LBL003  ANOP                                                           00002290
+         MNOTE  *,'                                                   ' 00002300
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00002310
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, OR'                       00002320
+         MNOTE  *,'  2) MACRO(S) TYPE=ENTRY.'                           00002330
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00002340
+               ORS BEFORE'                                              00002350
+         MNOTE  *,'  THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSEMB*00002360
+               LED.'                                                    00002370
+         MNOTE  *,'                                                   ' 00002380
+        MEXIT                                                           00002390
+.MSG004 ANOP                                                            00002400
+         AIF    (&HELPARM).LBL004                                       00002410
+         MNOTE  8,'&MSGPARM IS OUT OF RANGE, OMITTED, OR INVALID.'      00002420
+.LBL004  ANOP                                                           00002430
+         MNOTE  *,'                                                   ' 00002440
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00002450
+         MNOTE  *,'  NUMERIC,'                                          00002460
+         MNOTE  *,'  4 DIGITS IN RANGE 0001 TO 9999.'                   00002470
+         MNOTE  *,'                                                   ' 00002480
+        MEXIT                                                           00002490
+.MSG005 ANOP                                                            00002500
+         AIF    (&HELPARM).LBL005                                       00002510
+         MNOTE  8,'MODE IS INVALID OR OMITTED.'                         00002520
+.LBL005  ANOP                                                           00002530
+         MNOTE  *,'                                                   ' 00002540
+         MNOTE  *,'MODE MUST BE ONE OF FOLLOWING:'                      00002550
+         MNOTE  *,'  NORMAL  - REGULAR SYSTEM USERS (DEFAULT),'         00002560
+         MNOTE  *,'  TRAIN   - USERS ACCESING ONLY TRAINING ACCOUNTS,'  00002570
+         MNOTE  *,'  BTERM   - BATCH TERMINAL FUNCTIONS.'               00002580
+         MNOTE  *,'                                                   ' 00002590
+        MEXIT                                                           00002600
+.MSG006 ANOP                                                            00002610
+         AIF    (&HELPARM).LBL006                                       00002620
+         MNOTE  8,'&MSGPARM IS OUT OF RANGE OR INVALID.'                00002630
+.LBL006  ANOP                                                           00002640
+         MNOTE  *,'                                                   ' 00002650
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00002660
+         MNOTE  *,'  NUMERIC,'                                          00002670
+         MNOTE  *,'  1 DIGIT IN RANGE 1 TO 8.'                          00002680
+         MNOTE  *,'                                                   ' 00002690
+        MEXIT                                                           00002700
+.MSG007 ANOP                                                            00002710
+         AIF    (&HELPARM).LBL007                                       00002720
+         MNOTE  8,'USERNUM IS NOT IN CONSECUTIVE ASCENDING SEQUENCE.'   00002730
+.LBL007  ANOP                                                           00002740
+         MNOTE  *,'                                                   ' 00002750
+         MNOTE  *,'USERNUM MUST BE 0001 FOR THE FIRST ENTRY.'           00002760
+         MNOTE  *,'  SUBSEQUENT USER NUMBERS MUST BE INCREMENTED BY 1'  00002770
+         MNOTE  *,'     FOR EVERY USER DEFINED.'                        00002780
+         MNOTE  *,'  MISSING NUMBERS ARE NOT ALLOWED.'                  00002790
+         MNOTE  *,'                                                   ' 00002800
+        MEXIT                                                           00002810
+.MSG008 ANOP                                                            00002820
+         AIF    (&HELPARM).LBL008                                       00002830
+         MNOTE  8,'LEVEL IS OUT OF RANGE OR OMITTED.'                   00002840
+.LBL008  ANOP                                                           00002850
+         MNOTE  *,'                                                   ' 00002860
+         MNOTE  *,'LEVEL MUST BE:'                                      00002870
+         MNOTE  *,'  NUMERIC,'                                          00002880
+         MNOTE  *,'  FROM 0 TO 9, OR 15:'                               00002890
+         MNOTE  *,'    0   - INFORMATIONAL MESSAGE (NO ERROR),'         00002900
+         MNOTE  *,'    1-8 - INDICATES THE USER AUTHORIZATION LEVEL'    00002910
+         MNOTE  *,'             REQUIRED TO OVERRIDE THIS MESSAGE,'     00002920
+         MNOTE  *,'    9   - INDICATES AN ACCEPTED TRANSACTION MESSAGE,*00002930
+               '                                                        00002940
+         MNOTE  *,'    15  - SERIOUS ERROR (NO OVERRIDE POSSIBLE).'     00002950
+         MNOTE  *,'                                                   ' 00002960
+        MEXIT                                                           00002970
+.MSG009 ANOP                                                            00002980
+         AIF    (&HELPARM).LBL009                                       00002990
+         MNOTE  8,'TERM IS INVALID OR OMITTED.'                         00003000
+.LBL009  ANOP                                                           00003010
+         MNOTE  *,'                                                   ' 00003020
+         MNOTE  *,'TERM MUST BE FROM 1 TO 4 ALPHANUMERIC CHARACTERS:'   00003030
+         MNOTE  *,'  SAME           - RESPONSE GOES TO SAME TERMINAL,'  00003040
+         MNOTE  *,'  ANY OTHER NAME - MUST CORRESPOND TO AN ENTRY IN TH*00003050
+               E'                                                       00003060
+         MNOTE  *,'                   CICS DESTINATION CONTROL TABLE (D*00003070
+               CT).'                                                    00003080
+         MNOTE  *,'  DEFAULT IS SAME.'                                  00003090
+         MNOTE  *,'                                                   ' 00003100
+        MEXIT                                                           00003110
+.MSG010 ANOP                                                            00003120
+         AIF    (&HELPARM).LBL010                                       00003130
+         MNOTE  8,'TEXT HAS INCORRECT LENGTH, HAS BEEN OMITTED, OR'     00003140
+         MNOTE  *,'          IS NOT ENCLOSED IN SINGLE QUOTES.'         00003150
+.LBL010  ANOP                                                           00003160
+         MNOTE  *,'                                                   ' 00003170
+         MNOTE  *,'FOR MODULE=CZFHSD OR MODULE=CZFHAA, TEXT MUST BE:'   00003180
+         MNOTE  *,'  FROM 1 TO 31 CHARACTERS (INCLUDING ANY IMBEDDED BL*00003190
+               ANKS),'                                                  00003200
+         MNOTE  *,'  ENCLOSED IN SINGLE QUOTES. '                       00003210
+         MNOTE  *,'                                                   ' 00003220
+        MEXIT                                                           00003230
+.MSG011 ANOP                                                            00003240
+         AIF    (&HELPARM).LBL011                                       00003250
+         MNOTE  8,'APPLICATION NAME SUBPARAMETER OF TRANSAC IS INVALID *00003260
+               OR OMITTED.'                                             00003270
+.LBL011  ANOP                                                           00003280
+         MNOTE  *,'                                                   ' 00003290
+         MNOTE  *,'APPLICATION NAME SUBPARAMETER OF TRANSAC MUST BE:'   00003300
+         MNOTE  *,'  FROM 1 TO 8 ALPHANUMERIC CHARACTERS,'              00003310
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC.'               00003320
+         MNOTE  *,'                                                   ' 00003330
+        MEXIT                                                           00003340
+.MSG012 ANOP                                                            00003350
+         AGO    .MSG999                                                 00003360
+        MEXIT                                                           00003370
+.MSG013 ANOP                                                            00003380
+         AIF    (&HELPARM).LBL013                                       00003390
+         MNOTE  8,'APPLPRG IS INVALID OR OMITTED.'                      00003400
+.LBL013  ANOP                                                           00003410
+         MNOTE  *,'                                                   ' 00003420
+         MNOTE  *,'APPLPRG MUST:'                                       00003430
+         MNOTE  *,'  BE 5 OR 6 ALPHANUMERIC CHARACTERS,'                00003440
+         MNOTE  *,'  START WITH CZFH.'                                  00003450
+         MNOTE  *,'                                                   ' 00003460
+        MEXIT                                                           00003470
+.MSG014 ANOP                                                            00003480
+         AIF    (&HELPARM).LBL014                                       00003490
+         MNOTE  8,'BTNUM IS INVALID OR OUT OF RANGE.'                   00003500
+.LBL014  ANOP                                                           00003510
+         MNOTE  *,'                                                   ' 00003520
+         MNOTE  *,'BTNUM MUST BE: '                                     00003530
+         MNOTE  *,'  NUMERIC,     '                                     00003540
+         MNOTE  *,'  1 DIGIT IN RANGE  1  TO  9.'                       00003550
+         MNOTE  *,'                                                   ' 00003560
+        MEXIT                                                           00003570
+.MSG015 ANOP                                                            00003580
+         AIF    (&HELPARM).LBL015                                       00003590
+         MNOTE  8,'DINTPRG IS INVALID OR OMITTED.'                      00003600
+.LBL015  ANOP                                                           00003610
+         MNOTE  *,'                                                   ' 00003620
+         MNOTE  *,'DINTPRG MUST:'                                       00003630
+         MNOTE  *,'  BE 5 OR 6 ALPHANUMERIC CHARACTERS,'                00003640
+         MNOTE  *,'  START WITH CZFH.'                                  00003650
+         MNOTE  *,'                                                   ' 00003660
+        MEXIT                                                           00003670
+.MSG016 ANOP                                                            00003680
+         AIF    (&HELPARM).LBL016                                       00003690
+         MNOTE  8,'GENMSG IS INVALID OR OMITTED.'                       00003700
+.LBL016  ANOP                                                           00003710
+         MNOTE  *,'                                                   ' 00003720
+         MNOTE  *,'GENMSG MUST BE YES OR NO.'                           00003730
+         MNOTE  *,'  DEFAULT IS NO.'                                    00003740
+         MNOTE  *,'                                                   ' 00003750
+        MEXIT                                                           00003760
+.MSG017 ANOP                                                            00003770
+         AIF    (&HELPARM).LBL017                                       00003780
+         MNOTE  8,'APPLICATION PROGRAM MUST START WITH CZFH.'           00003790
+.LBL017  ANOP                                                           00003800
+         MNOTE  *,'                                                   ' 00003810
+         MNOTE  *,'APPLICATION PROGRAM MUST:'                           00003820
+         MNOTE  *,'  BE 5 OR 6 ALPHANUMERIC CHARACTERS,'                00003830
+         MNOTE  *,'  START WITH CZFH.'                                  00003840
+         MNOTE  *,'                                                   ' 00003850
+        MEXIT                                                           00003860
+.MSG018 ANOP                                                            00003870
+         AIF    (&HELPARM).LBL018                                       00003880
+         MNOTE  8,'&MSGPARM APPLICATION HAS BEEN PREVIOUSLY DEFINED.'   00003890
+.LBL018  ANOP                                                           00003900
+         MNOTE  *,'                                                   ' 00003910
+         MNOTE  *,'APPLICATION NAME MUST BE DEFINED ONLY ONCE.'         00003920
+         MNOTE  *,'                                                   ' 00003930
+        MEXIT                                                           00003940
+.MSG019 ANOP                                                            00003950
+         AIF    (&HELPARM).LBL019                                       00003960
+         MNOTE  8,'TRANSAC IS INVALID OR OMITTED.'                      00003970
+.LBL019 ANOP                                                            00003980
+         MNOTE  *,'                                                   ' 00003990
+         MNOTE  *,'TRANSAC MUST HAVE TWO SUBPARAMETERS (TRANUM,APPLNAM)*00004000
+               .'                                                       00004010
+         MNOTE  *,'TRANSACTION NUMBER SUBPARAMETER (TRANUM) OF TRANSAC *00004020
+               MUST BE:'                                                00004030
+         MNOTE  *,'  NUMERIC,'                                          00004040
+         MNOTE  *,'  4 DIGITS IN RANGE 0001 TO 9999.'                   00004050
+         MNOTE  *,'APPLICATION NAME SUBPARAMETER (APPLNAM)  OF TRANSAC *00004060
+               MUST BE:'                                                00004070
+         MNOTE  *,'  FROM 1 TO 8 ALPHANUMERIC CHARACTERS,'              00004080
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC.'               00004090
+         MNOTE  *,'                                                   ' 00004100
+        MEXIT                                                           00004110
+.MSG020 ANOP                                                            00004120
+         AIF    (&HELPARM).LBL020                                       00004130
+         MNOTE  8,'TRANSACTION NUMBER SUBPARAMETER OF TRANSAC IS INVALI*00004140
+               D OR OMITTED.'                                           00004150
+.LBL020  ANOP                                                           00004160
+         MNOTE  *,'                                                   ' 00004170
+         MNOTE  *,'TRANSACTION NUMBER SUBPARAMETER OF TRANSAC MUST BE:' 00004180
+         MNOTE  *,'  NUMERIC,'                                          00004190
+         MNOTE  *,'  4 DIGITS IN RANGE 0001 TO 9999.'                   00004200
+         MNOTE  *,'                                                   ' 00004210
+        MEXIT                                                           00004220
+.MSG021 ANOP                                                            00004230
+         AIF    (&HELPARM).LBL021                                       00004240
+         MNOTE  8,'NAME IS INVALID OR OMITTED.'                         00004250
+.LBL021  ANOP                                                           00004260
+         MNOTE  *,'                                                   ' 00004270
+         MNOTE  *,'NAME MUST BE ONE OF THE FOLLOWING:'                  00004280
+         MNOTE  *,'  ACCT    - ACCOUNT NUMBER                 '         00004290
+         MNOTE  *,'  ACCT2   - SECONDARY ACCOUNT NUMBER       '         00004300
+         MNOTE  *,'  AMT     - AMOUNT                         '         00004310
+         MNOTE  *,'  BAL     - BALANCE                        '         00004320
+         MNOTE  *,'  CASH    - CASH                           '         00004330
+         MNOTE  *,'  LINE    - LINE NUMBER FOR PASSBOOK       '         00004340
+         MNOTE  *,'  SER     - SERIAL NUMBER                  '         00004350
+         MNOTE  *,'  OTHERNN - OTHER FIELD (NN IS A TWO-DIGIT NUMBER  ' 00004360
+         MNOTE  *,'                           IN THE RANGE 01 TO 30   ' 00004370
+         MNOTE  *,'                           UNIQUELY IDENTIFYING AN ' 00004380
+         MNOTE  *,'                           INPUT OR OUTPUT FIELD)  ' 00004390
+         MNOTE  *,'  COMPN   - COMPUTED FIELD (N VALUE IS FROM 1 TO 9)' 00004400
+         MNOTE  *,'                                                   ' 00004410
+        MEXIT                                                           00004420
+.MSG022 ANOP                                                            00004430
+         AIF    (&HELPARM).LBL022                                       00004440
+         MNOTE  8,'DATATYP IS INVALID OR OMITTED.'                      00004450
+.LBL022  ANOP                                                           00004460
+         MNOTE  *,'                                                   ' 00004470
+         MNOTE  *,'DATATYP MUST BE ONE OF THE FOLLOWING:'               00004480
+         MNOTE  *,'  ANY     - ANY DATA    (DEFAULT)'                   00004490
+         MNOTE  *,'  NUM     - NUMERIC              '                   00004500
+         MNOTE  *,'  NZN     - NON-ZERO NUMERIC     '                   00004510
+         MNOTE  *,'                                                   ' 00004520
+        MEXIT                                                           00004530
+.MSG023 ANOP                                                            00004540
+         AIF    (&HELPARM).LBL023                                       00004550
+         MNOTE  8,'LENGTH IS INVALID OR OMITTED.'                       00004560
+.LBL023  ANOP                                                           00004570
+         MNOTE  *,'                                                   ' 00004580
+         MNOTE  *,'LENGTH MUST BE'                                      00004590
+         MNOTE  *,'  NUMERIC IN RANGE 0 TO 99,'                         00004600
+         MNOTE  *,'  MINIMUM LENGTH MUST BE EQUAL OR LOWER THAN'        00004610
+         MNOTE  *,'     MAXIMUM LENGTH  (MIN,MAX),'                     00004620
+         MNOTE  *,'  MAXIMUM LENGTH MUST BE GREATER THAN ZERO, '        00004630
+         MNOTE  *,'  PARAMETERS MUST BE ENCLOSED IN BRACKETS.         ' 00004640
+         MNOTE  *,'                                                   ' 00004650
+        MEXIT                                                           00004660
+.MSG024 ANOP                                                            00004670
+         AIF    (&HELPARM).LBL024                                       00004680
+         MNOTE  8,'EDIT IS INVALID OR OMITTED.'                         00004690
+.LBL024  ANOP                                                           00004700
+         MNOTE  *,'                                                   ' 00004710
+         MNOTE  *,'EDIT MUST BE'                                        00004720
+         MNOTE  *,'  NUMERIC'                                           00004730
+         MNOTE  *,'  0       :  MOVE FIELD WITHOUT EDITING'             00004740
+         MNOTE  *,'  1 - 254 :  INDICATES MASK NUMBER '                 00004750
+         MNOTE  *,'  CZFMAINP:  USE FIELD SPECIFIED BY CZFMAINP'        00004760
+        MEXIT                                                           00004770
+.MSG025 ANOP                                                            00004780
+         AIF    (&HELPARM).LBL025                                       00004790
+         MNOTE  8,'NAME IS INVALID OR OMITTED.'                         00004800
+.LBL025  ANOP                                                           00004810
+         MNOTE  *,'                                                   ' 00004820
+         MNOTE  *,'NAME MUST BE'                                        00004830
+         MNOTE  *,'  FROM 2 TO 8 ALPHANUMERIC CHARACTERS,'              00004840
+         MNOTE  *,'  FIRST CHARACTER MUST BE F.'                        00004850
+         MNOTE  *,'                                                   ' 00004860
+        MEXIT                                                           00004870
+.MSG026 ANOP                                                            00004880
+         AIF    (&HELPARM).LBL026                                       00004890
+         MNOTE  8,'NAME IS INVALID OR OMITTED.'                         00004900
+.LBL026  ANOP                                                           00004910
+         MNOTE  *,'                                                   ' 00004920
+         MNOTE  *,'NAME MUST BE'                                        00004930
+         MNOTE  *,'  FROM 2 TO 8 ALPHANUMERIC CHARACTERS,'              00004940
+         MNOTE  *,'  FIRST CHARACTER MUST BE W.'                        00004950
+         MNOTE  *,'                                                   ' 00004960
+        MEXIT                                                           00004970
+.MSG027 ANOP                                                            00004980
+         AIF    (&HELPARM).LBL027                                       00004990
+         MNOTE  8,'TEXT IS INVALID OR OMITTED.'                         00005000
+.LBL027  ANOP                                                           00005010
+         MNOTE  *,'                                                   ' 00005020
+         MNOTE  *,'TEXT MUST BE:'                                       00005030
+         MNOTE  *,'  FROM 1 TO 8 CHARACTERS (INCLUDING ANY IMBEDDED BLA*00005040
+               NKS),'                                                   00005050
+         MNOTE  *,'  ENCLOSED IN SINGLE QUOTES.'                        00005060
+         MNOTE  *,'                                                   ' 00005070
+        MEXIT                                                           00005080
+.MSG028 ANOP                                                            00005090
+         AGO    .MSG999                                                 00005100
+.MSG029 ANOP                                                            00005110
+         AGO    .MSG999                                                 00005120
+.MSG030 ANOP                                                            00005130
+         AIF    (&HELPARM).LBL030                                       00005140
+         MNOTE  8,'TYPE IS INVALID OR OMITTED.'                         00005150
+.LBL030  ANOP                                                           00005160
+         MNOTE  *,'                                                   ' 00005170
+         MNOTE  *,'TYPE MUST BE ONE OF THE FOLLOWING:'                  00005180
+         MNOTE  *,'  INITIAL - DEFINES START OF THE TABLE (1 PER TABLE)*00005190
+               '                                                        00005200
+         MNOTE  *,'  FORMAT  - DEFINES INPUT/OUTPUT FORMAT (1 TO N PER *00005210
+               TABLE)'                                                  00005220
+         MNOTE  *,'  FIELD   - DEFINES INPUT/OUTPUT FIELD  (1 TO N PER *00005230
+               TABLE)'                                                  00005240
+         MNOTE  *,'  FINAL   - DEFINES END OF THE TABLE (1 PER TABLE)'  00005250
+         MNOTE  *,'                                                   ' 00005260
+        MEXIT                                                           00005270
+.MSG031 ANOP                                                            00005280
+         AIF    (&HELPARM).LBL031                                       00005290
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00005300
+.LBL031  ANOP                                                           00005310
+         MNOTE  *,'                                                   ' 00005320
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00005330
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, OR'                       00005340
+         MNOTE  *,'  2) MACRO(S) TYPE=FIELD.'                           00005350
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00005360
+               ORS BEFORE'                                              00005370
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00005380
+               MBLED.'                                                  00005390
+         MNOTE  *,'  THERE MUST BE AT LEAST ONE MACRO TYPE=FIELD '      00005400
+         MNOTE  *,'    FOLLOWING A MACRO TYPE=FORMAT.'                  00005410
+         MNOTE  *,'  THE LAST FORMAT/FIELD GROUP FOR A PARTICULAR     ' 00005420
+         MNOTE  *,'    FORMAT NUMBER MUST HAVE DEVICE=GENERAL.'         00005430
+         MNOTE  *,'                                                   ' 00005440
+        MEXIT                                                           00005450
+.MSG032 ANOP                                                            00005460
+         AIF    (&HELPARM).LBL032                                       00005470
+         MNOTE  8,'NUMBER IS INVALID OR OMITTED.'                       00005480
+.LBL032  ANOP                                                           00005490
+         MNOTE  *,'                                                   ' 00005500
+         MNOTE  *,'NUMBER MUST BE:'                                     00005510
+         MNOTE  *,'  NUMERIC,'                                          00005520
+         MNOTE  *,'  3 DIGITS IN RANGE 001 TO 254.'                     00005530
+         MNOTE  *,'                                                   ' 00005540
+        MEXIT                                                           00005550
+.MSG033 ANOP                                                            00005560
+         AIF    (&HELPARM).LBL033                                       00005570
+         MNOTE  8,'NUMBER IS INVALID.'                                  00005580
+.LBL033  ANOP                                                           00005590
+         MNOTE  *,'                                                   ' 00005600
+         MNOTE  *,'NUMBER MUST BE GREATER THAN OR EQUAL TO THE NUMBER A*00005610
+               SSOCIATED WITH'                                          00005620
+         MNOTE  *,'  THE PREVIOUS TYPE=FORMAT.'                         00005630
+         MNOTE  *,'                                                   ' 00005640
+        MEXIT                                                           00005650
+.MSG034 ANOP                                                            00005660
+         AIF    (&HELPARM).LBL034                                       00005670
+         MNOTE  8,'DEVICE IS INVALID OR OMITTED.'                       00005680
+.LBL034  ANOP                                                           00005690
+         MNOTE  *,'                                                   ' 00005700
+         MNOTE  *,'DEVICE MUST BE ONE OF THE FOLLOWING:'                00005710
+         MNOTE  *,'  3604D   - KEYBOARD/DISPLAY               '         00005720
+         MNOTE  *,'  36042   - 480 CHARACTER DISPLAY         '          00005730
+         MNOTE  *,'  36044   - 1024 CHARACTER DISPLAY        '          00005740
+         MNOTE  *,'  36048   - 1920 CHARACTER DISPLAY        '          00005750
+         MNOTE  *,'  3604M   - 3604 MAGSTRIPE READER/ENCODER  '         00005760
+         MNOTE  *,'  3612J   - 3610/12 JOURNAL PRINTER        '         00005770
+         MNOTE  *,'  3612P   - 3611/12 PASSBOOK PRINTER       '         00005780
+         MNOTE  *,'  3615    - 3615/19 ADMINISTRATIVE PRINTER '         00005790
+         MNOTE  *,'  3616J   - 3616 JOURNAL PRINT STATION     '         00005800
+         MNOTE  *,'  3616D   - 3616 DOCUMENT PRINT STATION    '         00005810
+         MNOTE  *,'  3618    - 3618 ADMINISTRATIVE PRINTER    '         00005820
+         MNOTE  *,'  3620J   - 3620 JOURNAL PRINT STATION     '         00005830
+         MNOTE  *,'  3620P   - 3620 PASSBOOK PRINT STATION    '         00005840
+         MNOTE  *,'  4704    - 480 CHARACTER DISPLAY         '          00005850
+         MNOTE  *,'  4710    - 4710 JOURNAL PRINTER           '         00005860
+         MNOTE  *,'  4720    - 4720 PRINTER                   '         00005870
+         MNOTE  *,'  GENERAL - GENERAL FORMAT. NO DEVICE ASSOCIATED'    00005880
+         MNOTE  *,'                                                   ' 00005890
+        MEXIT                                                           00005900
+.MSG035 ANOP                                                            00005910
+         AIF    (&HELPARM).LBL035                                       00005920
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00005930
+.LBL035  ANOP                                                           00005940
+         MNOTE  *,'                                                   ' 00005950
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00005960
+         MNOTE  *,'  1) MACRO TYPE=FORMAT, OR'                          00005970
+         MNOTE  *,'  2) MACRO(S) TYPE=FIELD'                            00005980
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00005990
+               ORS BEFORE'                                              00006000
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00006010
+               MBLED.'                                                  00006020
+         MNOTE  *,'  THERE MUST BE AT LEAST ONE MACRO TYPE=FIELD '      00006030
+         MNOTE  *,'    FOLLOWING A MACRO TYPE=FORMAT.'                  00006040
+         MNOTE  *,'  MACRO TYPE=INITIAL MUST BE THE FIRST MACRO CODED F*00006050
+               OR A TABLE.'                                             00006060
+         MNOTE  *,'  THE LAST FORMAT/FIELD GROUP FOR A PARTICULAR     ' 00006070
+         MNOTE  *,'    FORMAT NUMBER MUST HAVE DEVICE=GENERAL.'         00006080
+         MNOTE  *,'                                                   ' 00006090
+        MEXIT                                                           00006100
+.MSG036 ANOP                                                            00006110
+         AIF    (&HELPARM).LBL036                                       00006120
+         MNOTE  8,'FLDNAME IS INVALID OR OMITTED.'                      00006130
+.LBL036  ANOP                                                           00006140
+         MNOTE  *,'                                                   ' 00006150
+         MNOTE  *,'FLDNAME MUST BE ONE OF THE FOLLOWING:'               00006160
+         MNOTE  *,'  ACCT    - ACCOUNT NUMBER                 '         00006170
+         MNOTE  *,'  ACCT2   - SECONDARY ACCOUNT NUMBER       '         00006180
+         MNOTE  *,'  AMT     - AMOUNT                         '         00006190
+         MNOTE  *,'  BAL     - BALANCE                        '         00006200
+         MNOTE  *,'  CASH    - CASH                           '         00006210
+         MNOTE  *,'  LINE    - LINE NUMBER FOR PASSBOOK       '         00006220
+         MNOTE  *,'  SER     - SERIAL NUMBER                  '         00006230
+         MNOTE  *,'  OTHERNN - OTHER FIELD (NN IS A TWO-DIGIT NUMBER  ' 00006240
+         MNOTE  *,'                           IN THE RANGE 01 TO 30   ' 00006250
+         MNOTE  *,'                           UNIQUELY IDENTIFYING AN ' 00006260
+         MNOTE  *,'                           INPUT OR OUTPUT FIELD)  ' 00006270
+         MNOTE  *,'  COMPN   - COMPUTED FIELD (N VALUE IS FROM 1 TO 9)' 00006280
+         MNOTE  *,'  SPECIAL - NO RELATED FIELD, SPECIAL OUTPUT'        00006290
+         MNOTE  *,'                                                   ' 00006300
+        MEXIT                                                           00006310
+.MSG037 ANOP                                                            00006320
+         AIF    (&HELPARM).LBL037                                       00006330
+         MNOTE  8,'COLUMN IS INVALID OR OMITTED.'                       00006340
+.LBL037  ANOP                                                           00006350
+         MNOTE  *,'                                                   ' 00006360
+         MNOTE  *,'COLUMN MUST BE:'                                     00006370
+         MNOTE  *,'  NUMERIC,'                                          00006380
+         MNOTE  *,'  IN RANGE 0 TO 80.'                                 00006390
+         MNOTE  *,'                                                   ' 00006400
+        MEXIT                                                           00006410
+.MSG038 ANOP                                                            00006420
+         AIF    (&HELPARM).LBL038                                       00006430
+         MNOTE  8,'ROUTINE IS INVALID OR OMITTED.'                      00006440
+.LBL038  ANOP                                                           00006450
+         MNOTE  *,'                                                   ' 00006460
+         MNOTE  *,'ROUTINE MUST BE'                                     00006470
+         MNOTE  *,'  NUMERIC,'                                          00006480
+         MNOTE  *,'  IN RANGE  0  TO 255,'                              00006490
+         MNOTE  *,'  0 INDICATES NO EDITING (DEFAULT),'                 00006500
+         MNOTE  *,'  NON-ZERO IF FLDNAME=SPECIAL.'                      00006510
+         MNOTE  *,'                                                   ' 00006520
+        MEXIT                                                           00006530
+.MSG039 ANOP                                                            00006540
+         AIF    (&HELPARM).LBL039                                       00006550
+         MNOTE  8,'LINE IS INVALID OR OMITTED.'                         00006560
+.LBL039  ANOP                                                           00006570
+         MNOTE  *,'                                                   ' 00006580
+         MNOTE  *,'LINE MUST BE:'                                       00006590
+         MNOTE  *,'  NUMERIC,'                                          00006600
+         MNOTE  *,'  IN RANGE 0 TO 63.'                                 00006610
+         MNOTE  *,'                                                   ' 00006620
+        MEXIT                                                           00006630
+.MSG040 ANOP                                                            00006640
+         AIF    (&HELPARM).LBL040                                       00006650
+         MNOTE  8,'NO MORE DEVICES ALLOWED FOR THIS FORMAT. A DEVICE=GE*00006660
+               NERAL HAS BEEN PREVIOUS PROCESSED.'                      00006670
+.LBL040  ANOP                                                           00006680
+         MNOTE  *,'                                                   ' 00006690
+         MNOTE  *,'DEVICE=GENERAL MUST BE THE LAST DEVICE CODED'        00006700
+         MNOTE  *,'  WITHIN THE SAME FORMAT NUMBER.              '      00006710
+         MNOTE  *,'                                                   ' 00006720
+        MEXIT                                                           00006730
+.MSG041 ANOP                                                            00006740
+         AIF    (&HELPARM).LBL041                                       00006750
+         MNOTE  8,'WRDNAME IS INVALID OR OMITTED.'                      00006760
+.LBL041  ANOP                                                           00006770
+         MNOTE  *,'                                                   ' 00006780
+         MNOTE  *,'WRDNAME MUST BE:'                                    00006790
+         MNOTE  *,'  2 TO 8 ALPHANUMERIC CHARACTERS,'                   00006800
+         MNOTE  *,'  FIRST CHARACTER MUST BE W.'                        00006810
+         MNOTE  *,'                                                   ' 00006820
+        MEXIT                                                           00006830
+.MSG042 ANOP                                                            00006840
+         AIF    (&HELPARM).LBL042                                       00006850
+         MNOTE  8,'PREVIOUS GROUP OF MACRO(S) TYPE=FORMAT DO NOT INCLUD*00006860
+               E A DEVICE=GENERAL.'                                     00006870
+.LBL042  ANOP                                                           00006880
+         MNOTE  *,'                                                   ' 00006890
+         MNOTE  *,'DEVICE=GENERAL MUST BE CODED FOR THE LAST'           00006900
+         MNOTE  *,'  FORMAT WITH A GIVEN FORMAT NUMBER.    '            00006910
+         MNOTE  *,'                                                   ' 00006920
+        MEXIT                                                           00006930
+.MSG043 ANOP                                                            00006940
+         AIF    (&HELPARM).LBL043                                       00006950
+         MNOTE  8,'MODULE IS INVALID OR OMITTED.'                       00006960
+.LBL043  ANOP                                                           00006970
+         MNOTE  *,'                                                   ' 00006980
+         MNOTE  *,'MODULE MUST BE ONE OF THE FOLLOWING:'                00006990
+         MNOTE  *,'  CZFHSD  - DEFINES SYSTEM DATA MODULE ASSEMBLY'     00007000
+         MNOTE  *,'  CZFACT  - DEFINES CONTROLLER ASSEMBLY'             00007010
+         MNOTE  *,'  STORAGE - DEFINES STORAGE ALLOCATION'              00007020
+         MNOTE  *,'                                                   ' 00007030
+        MEXIT                                                           00007040
+.MSG044 ANOP                                                            00007050
+         AIF    (&HELPARM).LBL044                                       00007060
+         MNOTE  8,'NUMBER IS INVALID OR OMITTED.'                       00007070
+.LBL044  ANOP                                                           00007080
+         MNOTE  *,'                                                   ' 00007090
+         MNOTE  *,'NUMBER MUST BE:'                                     00007100
+         MNOTE  *,'  NUMERIC,'                                          00007110
+         MNOTE  *,'  CONSECUTIVE AND ASCENDING,'                        00007120
+         MNOTE  *,'  FIRST NUMBER MUST BE 1.'                           00007130
+         MNOTE  *,'  IF MODULE=CZFHSD,  THE RANGE IS FROM 1 TO 999.'    00007140
+         MNOTE  *,'  IF MODULE=STORAGE, THE RANGE IS FROM 1 TO 999.'    00007150
+         MNOTE  *,'  IF MODULE=CZFACT,  THE RANGE IS FROM 1 TO 20.'     00007160
+         MNOTE  *,'                                                   ' 00007170
+        MEXIT                                                           00007180
+.MSG045 ANOP                                                            00007190
+         AGO    .MSG999                                                 00007200
+.MSG046 ANOP                                                            00007210
+         AIF    (&HELPARM).LBL046                                       00007220
+         MNOTE  8,'OPER IS INVALID OR OMITTED.'                         00007230
+.LBL046  ANOP                                                           00007240
+         MNOTE  *,'                                                   ' 00007250
+         MNOTE  *,'OPER MUST BE ONE OF THE FOLLOWING:'                  00007260
+         MNOTE  *,'  CREDIT  - TOTAL COUNTER FOR CREDIT OPERATIONS  '   00007270
+         MNOTE  *,'  DEBIT   - TOTAL COUNTER FOR DEBIT OPERATIONS  '    00007280
+         MNOTE  *,'  CASHIN  - TOTAL COUNTER FOR CASH RECEIVED'         00007290
+         MNOTE  *,'  CASHOUT - TOTAL COUNTER FOR CASH ISSUED'           00007300
+         MNOTE  *,'                                                   ' 00007310
+        MEXIT                                                           00007320
+.MSG047 ANOP                                                            00007330
+         AIF    (&HELPARM).LBL047                                       00007340
+         MNOTE  8,'DEVICE IS INVALID OR OMITTED.'                       00007350
+.LBL047  ANOP                                                           00007360
+         MNOTE  *,'                                                   ' 00007370
+         MNOTE  *,'DEVICE MUST BE ONE OF THE FOLLOWING:'                00007380
+         MNOTE  *,'  3604D   - KEYBOARD/DISPLAY               '         00007390
+         MNOTE  *,'  36042   - 480 CHARACTER DISPLAY         '          00007400
+         MNOTE  *,'  36044   - 1024 CHARACTER DISPLAY        '          00007410
+         MNOTE  *,'  36048   - 1920 CHARACTER DISPLAY        '          00007420
+         MNOTE  *,'  4704    - 480 CHARACTER DISPLAY         '          00007430
+         MNOTE  *,'  GENERAL - GENERAL FORMAT. NO DEVICE ASSOCIATED'    00007440
+         MNOTE  *,'                                                   ' 00007450
+        MEXIT                                                           00007460
+.MSG048 ANOP                                                            00007470
+         AIF    (&HELPARM).LBL048                                       00007480
+         MNOTE  8,'FLDNAME IS INVALID OR OMITTED.'                      00007490
+.LBL048  ANOP                                                           00007500
+         MNOTE  *,'                                                   ' 00007510
+         MNOTE  *,'FLDNAME MUST BE ONE OF THE FOLLOWING:'               00007520
+         MNOTE  *,'  ACCT    - ACCOUNT NUMBER                 '         00007530
+         MNOTE  *,'  ACCT2   - SECONDARY ACCOUNT NUMBER       '         00007540
+         MNOTE  *,'  AMT     - AMOUNT                         '         00007550
+         MNOTE  *,'  BAL     - BALANCE                        '         00007560
+         MNOTE  *,'  CASH    - CASH                           '         00007570
+         MNOTE  *,'  LINE    - LINE NUMBER FOR PASSBOOK       '         00007580
+         MNOTE  *,'  SER     - SERIAL NUMBER                  '         00007590
+         MNOTE  *,'  OTHERNN - OTHER FIELD (NN IS A TWO-DIGIT NUMBER  ' 00007600
+         MNOTE  *,'                           IN THE RANGE 01 TO 30   ' 00007610
+         MNOTE  *,'                           UNIQUELY IDENTIFYING AN ' 00007620
+         MNOTE  *,'                           INPUT OR OUTPUT FIELD)  ' 00007630
+         MNOTE  *,'                                                   ' 00007640
+        MEXIT                                                           00007650
+.MSG049 ANOP                                                            00007660
+         AIF    (&HELPARM).LBL049                                       00007670
+         MNOTE  8,'ROUTINE IS INVALID OR OMITTED.'                      00007680
+.LBL049  ANOP                                                           00007690
+         MNOTE  *,'                                                   ' 00007700
+         MNOTE  *,'ROUTINE MUST BE:'                                    00007710
+         MNOTE  *,'  NUMERIC,'                                          00007720
+         MNOTE  *,'  IN RANGE 0 TO 255.'                                00007730
+         MNOTE  *,'  0 INDICATES NO EDITING (DEFAULT).'                 00007740
+         MNOTE  *,'                                                   ' 00007750
+        MEXIT                                                           00007760
+.MSG050 ANOP                                                            00007770
+         AIF    (&HELPARM).LBL050                                       00007780
+         MNOTE  8,'FCOLUMN AND/OR WCOLUMN ARE INVALID OR OMITTED.'      00007790
+.LBL050  ANOP                                                           00007800
+         MNOTE  *,'                                                   ' 00007810
+         MNOTE  *,'WCOLUMN MUST BE:'                                    00007820
+         MNOTE  *,'  NUMERIC,'                                          00007830
+         MNOTE  *,'  IN RANGE 1 TO 79.'                                 00007840
+         MNOTE  *,'FCOLUMN MUST BE:'                                    00007850
+         MNOTE  *,'  NUMERIC,'                                          00007860
+         MNOTE  *,'  IN RANGE 2 TO 80.'                                 00007870
+         MNOTE  *,'FCOLUMN MUST BE GREATER THAN WCOLUMN.'               00007880
+         MNOTE  *,'                                                   ' 00007890
+        MEXIT                                                           00007900
+.MSG051 ANOP                                                            00007910
+         AIF    (&HELPARM).LBL051                                       00007920
+         MNOTE  8,'MODE IS INVALID OR OMITTED.'                         00007930
+.LBL051  ANOP                                                           00007940
+         MNOTE  *,'                                                   ' 00007950
+         MNOTE  *,'MODE MUST BE ONE OF THE FOLLOWING:'                  00007960
+         MNOTE  *,'  NORMAL  - REGULAR TELLER TRANSACTIONS'             00007970
+         MNOTE  *,'  REVSAL  - REVERSAL TRANSACTIONS'                   00007980
+         MNOTE  *,'            FOR REVERSAL TRANSACTIONS A SECOND PARAM*00007990
+               ETER IS REQUIRED'                                        00008000
+         MNOTE  *,'            TO IDENTIFY THE TRANSACTION BEING REVERS*00008010
+               ED.'                                                     00008020
+         MNOTE  *,'            THIS PARAMETER MUST BE A VALID 4 DIGIT T*00008030
+               RANSACTION'                                              00008040
+         MNOTE  *,'            NUMBER IN THE RANGE 0001 TO 9999.'       00008050
+         MNOTE  *,'                                                   ' 00008060
+        MEXIT                                                           00008070
+.MSG052 ANOP                                                            00008080
+         AIF    (&HELPARM).LBL052                                       00008090
+         MNOTE  8,'TRANTYP IS INVALID OR OMITTED.'                      00008100
+.LBL052  ANOP                                                           00008110
+         MNOTE  *,'                                                   ' 00008120
+         MNOTE  *,'TRANTYP MUST BE ONE OF THE FOLLOWING:'               00008130
+         MNOTE  *,'  NOFINAN  - INQUIRY TRANSACTIONS'                   00008140
+         MNOTE  *,'  CREDIT   - CREDIT TRANSACTIONS'                    00008150
+         MNOTE  *,'  DEBIT    - DEBIT TRANSACTIONS'                     00008160
+         MNOTE  *,'  TRANSFER - TRANSFER TRANSACTIONS'                  00008170
+         MNOTE  *,'                                                   ' 00008180
+        MEXIT                                                           00008190
+.MSG053 ANOP                                                            00008200
+         AGO    .MSG999                                                 00008210
+.MSG054 ANOP                                                            00008220
+         AIF    (&HELPARM).LBL054                                       00008230
+         MNOTE  8,'MNEMO IS INVALID.'                                   00008240
+.LBL054  ANOP                                                           00008250
+         MNOTE  *,'                                                   ' 00008260
+         MNOTE  *,'MNEMO MUST BE 1 TO 3 CHARACTERS.'                    00008270
+         MNOTE  *,'  THE DEFAULT IS 3 BLANK CHARACTERS.'                00008280
+         MNOTE  *,'                                                   ' 00008290
+        MEXIT                                                           00008300
+.MSG055 ANOP                                                            00008310
+         AIF    (&HELPARM).LBL055                                       00008320
+         MNOTE  8,'TRANUM IS INVALID, OMITTED OR NOT EQUAL TO THE TRANU*00008330
+               M CODED'                                                 00008340
+         MNOTE  *,'    IN THE PRECEDING MACRO CZFMAPBP.'                00008350
+.LBL055  ANOP                                                           00008360
+         MNOTE  *,'                                                   ' 00008370
+         MNOTE  *,'TRANUM MUST BE:'                                     00008380
+         MNOTE  *,'  FOUR DIGITS IN RANGE 0001 TO 9999,              '  00008390
+         MNOTE  *,'  THE SAME ON THE MACROS CZFMAPBP AND CZFMHSTP'      00008400
+         MNOTE  *,'    DEFINING A TRANSACTION PROCEDURE.'               00008410
+         MNOTE  *,'                                                   ' 00008420
+        MEXIT                                                           00008430
+.MSG056 ANOP                                                            00008440
+         AIF    (&HELPARM).LBL056                                       00008450
+         MNOTE  8,'&MSGPARM IS OUT OF RANGE OR INVALID.'                00008460
+.LBL056  ANOP                                                           00008470
+         MNOTE  *,'                                                   ' 00008480
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00008490
+         MNOTE  *,'  NUMERIC,'                                          00008500
+         MNOTE  *,'  IN RANGE  1 TO 16.'                                00008510
+         MNOTE  *,'                                                   ' 00008520
+        MEXIT                                                           00008530
+.MSG057 ANOP                                                            00008540
+         AIF    (&HELPARM).LBL057                                       00008550
+         MNOTE  8,'&MSGPARM IS OUT OF RANGE OR INVALID.'                00008560
+.LBL057  ANOP                                                           00008570
+         MNOTE  *,'                                                   ' 00008580
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00008590
+         MNOTE  *,'  NUMERIC,'                                          00008600
+         MNOTE  *,'  IN RANGE 17 TO 40.'                                00008610
+         MNOTE  *,'                                                   ' 00008620
+        MEXIT                                                           00008630
+.MSG058 ANOP                                                            00008640
+         AIF    (&HELPARM).LBL058                                       00008650
+         MNOTE  8,'REQTLR1=NO, BUT &MSGPARM HAS BEEN CODED.'            00008660
+.LBL058  ANOP                                                           00008670
+         MNOTE  *,'                                                   ' 00008680
+         MNOTE  *,'IF TRAILER PROCESSING IS NOT REQUIRED, DO NOT CODE &*00008690
+               MSGPARM..'                                               00008700
+         MNOTE  *,'IF TRAILER PROCESSING IS REQUIRED, CODE REQTLR1=YES.*00008710
+               '                                                        00008720
+         MNOTE  *,'                                                   ' 00008730
+        MEXIT                                                           00008740
+.MSG059 ANOP                                                            00008750
+         AIF    (&HELPARM).LBL059                                       00008760
+         MNOTE  8,'&MSGPARM HAS BEEN CODED FOR A TRANSACTION WHICH'     00008770
+         MNOTE  *,' IS NOT A TRANSFER O SECOND POINTER IS NOT REQUIRED' 00008780
+.LBL059  ANOP                                                           00008790
+         MNOTE  *,'                                                   ' 00008800
+         MNOTE  *,'&MSGPARM CAN ONLY BE CODED IF TRANTYP=TRANSFER     ' 00008810
+         MNOTE  *,'                          OR REQPTR2=YES          '  00008820
+         MNOTE  *,'  HAS BEEN CODED IN THE ASSOCIATED CZFMAPBP MACRO. ' 00008830
+         MNOTE  *,'                                                   ' 00008840
+        MEXIT                                                           00008850
+.MSG060 ANOP                                                            00008860
+         AGO    .MSG999                                                 00008870
+.MSG061 ANOP                                                            00008880
+         AIF    (&HELPARM).LBL061                                       00008890
+         MNOTE  8,'MODULE IS INVALID OR OMITTED.'                       00008900
+.LBL061  ANOP                                                           00008910
+         MNOTE  *,'                                                   ' 00008920
+         MNOTE  *,'MODULE MUST BE ONE OF THE FOLLOWING:'                00008930
+         MNOTE  *,'  CZFHSD  - SYSTEM DATA MODULE'                      00008940
+         MNOTE  *,'  CZFHAA  - APPLICATION MODULES'                     00008950
+         MNOTE  *,'  CZFACT  - CONTROLLER TABLES MODULE'                00008960
+         MNOTE  *,'                                                   ' 00008970
+        MEXIT                                                           00008980
+.MSG062 ANOP                                                            00008990
+         AIF    (&HELPARM).LBL062                                       00009000
+         MNOTE  8,'MODULE IS INVALID OR OMITTED.'                       00009010
+.LBL062  ANOP                                                           00009020
+         MNOTE  *,'                                                   ' 00009030
+         MNOTE  *,'MODULE MUST BE ONE OF THE FOLLOWING:'                00009040
+         MNOTE  *,'  CZFHSD  - SYSTEM DATA MODULE'                      00009050
+         MNOTE  *,'  CZFACI  - CONTROLLER INFORMATION MODULE'           00009060
+         MNOTE  *,'                                                   ' 00009070
+        MEXIT                                                           00009080
+.MSG063 ANOP                                                            00009090
+         AIF    (&HELPARM).LBL063                                       00009100
+         MNOTE  8,'MODULE IS INVALID OR OMITTED.'                       00009110
+.LBL063  ANOP                                                           00009120
+         MNOTE  *,'                                                   ' 00009130
+         MNOTE  *,'MODULE MUST BE ONE OF THE FOLLOWING:'                00009140
+         MNOTE  *,'  CZFHSD  - SYSTEM DATA MODULE'                      00009150
+         MNOTE  *,'  CZFHAA  - APPLICATIONS MODULE'                     00009160
+         MNOTE  *,'  CZFACT  - CONTROLLER MESSAGES MODULE'              00009170
+         MNOTE  *,'                                                   ' 00009180
+        MEXIT                                                           00009190
+.MSG064 ANOP                                                            00009200
+         AIF    (&HELPARM).LBL064                                       00009210
+         MNOTE  8,'TEXT HAS INCORRECT LENGTH, HAS BEEN OMITTED, OR'     00009220
+         MNOTE  *,'          IS NOT ENCLOSED IN SINGLE QUOTES.'         00009230
+.LBL064  ANOP                                                           00009240
+         MNOTE  *,'                                                   ' 00009250
+         MNOTE  *,'FOR MODULE=CZFACT, TEXT MUST BE:'                    00009260
+         MNOTE  *,'  FROM 1 TO 25 CHARACTERS (INCLUDING ANY IMBEDDED BL*00009270
+               ANKS),'                                                  00009280
+         MNOTE  *,'  ENCLOSED IN SINGLE QUOTES. '                       00009290
+         MNOTE  *,'                                                   ' 00009300
+        MEXIT                                                           00009310
+.MSG065 ANOP                                                            00009320
+         AIF    (&HELPARM).LBL065                                       00009330
+         MNOTE  8,'ROUTINE &MSGPARM NAME IS INVALID.'                   00009340
+.LBL065  ANOP                                                           00009350
+         MNOTE  *,'                                                   ' 00009360
+         MNOTE  *,'ROUTINE &MSGPARM NAME MUST BE:'                      00009370
+         MNOTE  *,'  FROM 2 TO 8 ALPHANUMERIC CHARACTERS,'              00009380
+         MNOTE  *,'  FIRST CHARACTER MUST BE X.'                        00009390
+         MNOTE  *,'                                                   ' 00009400
+        MEXIT                                                           00009410
+.MSG066 ANOP                                                            00009420
+         AIF    (&HELPARM).LBL066                                       00009430
+         MNOTE  8,'MODULE IS INVALID OR OMITTED.'                       00009440
+.LBL066  ANOP                                                           00009450
+         MNOTE  *,'                                                   ' 00009460
+         MNOTE  *,'MODULE MUST BE ONE OF THE FOLLOWING:'                00009470
+         MNOTE  *,'  CZFHAA  - APPLICATIONS MODULE'                     00009480
+         MNOTE  *,'  CZFACT  - CONTROLLER TABLES MODULE'                00009490
+         MNOTE  *,'                                                   ' 00009500
+        MEXIT                                                           00009510
+.MSG067 ANOP                                                            00009520
+         AIF    (&HELPARM).LBL067                                       00009530
+         MNOTE  8,'USERINF IS INVALID.'                                 00009540
+.LBL067  ANOP                                                           00009550
+         MNOTE  *,'                                                   ' 00009560
+         MNOTE  *,'USERINF MUST BE:'                                    00009570
+         MNOTE  *,'  1 TO 8 CHARACTERS,'                                00009580
+         MNOTE  *,'  ENCLOSED IN SINGLE QUOTES.'                        00009590
+         MNOTE  *,'  DEFAULT IS 8 BLANK CHARACTERS.'                    00009600
+         MNOTE  *,'                                                   ' 00009610
+        MEXIT                                                           00009620
+.MSG068 ANOP                                                            00009630
+         AIF    (&HELPARM).LBL068                                       00009640
+         MNOTE  8,'PASSWRD IS INVALID OR OMITTED.'                      00009650
+.LBL068  ANOP                                                           00009660
+         MNOTE  *,'                                                   ' 00009670
+         MNOTE  *,'PASSWRD MUST BE:'                                    00009680
+         MNOTE  *,'  CODED IF MODULE=CZFACI,'                           00009690
+         MNOTE  *,'  1 TO 4 ALPHANUMERIC CHARACTERS.'                   00009700
+         MNOTE  *,'                                                   ' 00009710
+        MEXIT                                                           00009720
+.MSG069 ANOP                                                            00009730
+         AIF    (&HELPARM).LBL069                                       00009740
+         MNOTE  8,'EITHER FLDNAME OR WRDNAME MUST BE CODED, BUT NOT BOT*00009750
+               H.'                                                      00009760
+.LBL069  ANOP                                                           00009770
+         MNOTE  *,'                                                   ' 00009780
+         MNOTE  *,'EITHER FLDNAME OR WRDNAME MUST BE CODED.'            00009790
+         MNOTE  *,'DO NOT CODE BOTH FLDNAME AND WRDNAME.'               00009800
+         MNOTE  *,'                                                   ' 00009810
+        MEXIT                                                           00009820
+.MSG070 ANOP                                                            00009830
+         AIF    (&HELPARM).LBL070                                       00009840
+         MNOTE  4,'WRDNAME HAS BEEN CODED, SO ROUTINE WILL BE IGNORED.' 00009850
+         MNOTE  *,'   THIS IS ONLY A WARNING MESSAGE.'                  00009860
+.LBL070  ANOP                                                           00009870
+         MNOTE  *,'                                                   ' 00009880
+         MNOTE  *,'EITHER WRDNAME OR ROUTINE MUST BE CODED.'            00009890
+         MNOTE  *,'DO NOT CODE BOTH WRDNAME AND ROUTINE.'               00009900
+         MNOTE  *,'IF BOTH ARE CODED, ROUTINE IS IGNORED.'              00009910
+         MNOTE  *,'                                                   ' 00009920
+        MEXIT                                                           00009930
+.MSG071 ANOP                                                            00009940
+         AIF    (&HELPARM).LBL071                                       00009950
+         MNOTE  8,'FLDNAME IS INVALID OR OMITTED.'                      00009960
+.LBL071  ANOP                                                           00009970
+         MNOTE  *,'                                                   ' 00009980
+         MNOTE  *,'FLDNAME MUST BE ONE OF THE FOLLOWING:'               00009990
+         MNOTE  *,'  AMT     - AMOUNT                         '         00010000
+         MNOTE  *,'  CASH    - CASH                           '         00010010
+         MNOTE  *,'  COMPN   - COMPUTED FIELD FROM HOST (N IS FROM 1 TO*00010020
+                9)'                                                     00010030
+         MNOTE  *,'                                                   ' 00010040
+        MEXIT                                                           00010050
+.MSG072 ANOP                                                            00010060
+         AIF    (&HELPARM).LBL072                                       00010070
+         MNOTE  8,'TOTNAME IS INVALID OR OMITTED.'                      00010080
+.LBL072  ANOP                                                           00010090
+         MNOTE  *,'                                                   ' 00010100
+         MNOTE  *,'TOTNAME MUST BE:'                                    00010110
+         MNOTE  *,'  FROM 1 TO 7 ALPHANUMERIC CHARACTERS,'              00010120
+         MNOTE  *,'  THE FIRST CHARACTER MUST BE ALPHABETIC.'           00010130
+         MNOTE  *,'                                                   ' 00010140
+        MEXIT                                                           00010150
+.MSG073 ANOP                                                            00010160
+         AIF    (&HELPARM).LBL073                                       00010170
+         MNOTE  8,'OPER IS INVALID OR OMITTED.'                         00010180
+.LBL073  ANOP                                                           00010190
+         MNOTE  *,'                                                   ' 00010200
+         MNOTE  *,'OPER MUST BE ONE OF THE FOLLOWING:'                  00010210
+         MNOTE  *,'  ADD  - ADD          '                              00010220
+         MNOTE  *,'  SUB  - SUBTRACT     '                              00010230
+         MNOTE  *,'  CLR  - CLEAR TO ZERO'                              00010240
+         MNOTE  *,'                                                   ' 00010250
+        MEXIT                                                           00010260
+.MSG074 ANOP                                                            00010270
+         AIF    (&HELPARM).LBL074                                       00010280
+         MNOTE  8,'USERS IS INVALID OR IS OMITTED.'                     00010290
+.LBL074  ANOP                                                           00010300
+         MNOTE  *,'                                                   ' 00010310
+         MNOTE  *,'USERS MUST BE:'                                      00010320
+         MNOTE  *,'  NUMERIC, '                                         00010330
+         MNOTE  *,'  IN RANGE 1 TO 124.'                                00010340
+         MNOTE  *,'                                                   ' 00010350
+        MEXIT                                                           00010360
+.MSG075 ANOP                                                            00010370
+         AIF    (&HELPARM).LBL075                                       00010380
+         MNOTE  8,'MACRO TYPE=ENTRY IS REPEATED.'                       00010390
+.LBL075  ANOP                                                           00010400
+         MNOTE  *,'                                                   ' 00010410
+         MNOTE  *,'THE MACRO TYPE=ENTRY MUST BE CODED ONLY ONCE FOR THI*00010420
+               S MACRO.'                                                00010430
+         MNOTE  *,'                                                   ' 00010440
+        MEXIT                                                           00010450
+.MSG076 ANOP                                                            00010460
+         AIF    (&HELPARM).LBL076                                       00010470
+         MNOTE  8,'CTLRID IS INVALID OR OMITTED.'                       00010480
+.LBL076  ANOP                                                           00010490
+         MNOTE  *,'                                                   ' 00010500
+         MNOTE  *,'CTLRID MUST BE:        '                             00010510
+         MNOTE  *,'  NUMERIC, '                                         00010520
+         MNOTE  *,'  3 DIGITS IN RANGE 001 TO 255.'                     00010530
+         MNOTE  *,'                                                   ' 00010540
+        MEXIT                                                           00010550
+.MSG077 ANOP                                                            00010560
+         AIF    (&HELPARM).LBL077                                       00010570
+         MNOTE  8,'CI IS INVALID OR OMITTED.'                           00010580
+.LBL077  ANOP                                                           00010590
+         MNOTE  *,'                                                   ' 00010600
+         MNOTE  *,'CI MUST BE:        '                                 00010610
+         MNOTE  *,'  8 CHARACTERS LONG,    '                            00010620
+         MNOTE  *,'  FIRST 6 CHARACTERS MUST BE CZFACI,'                00010630
+         MNOTE  *,'  LAST  2 CHARACTERS MUST BE ALPHANUMERIC.   '       00010640
+         MNOTE  *,'                                                   ' 00010650
+        MEXIT                                                           00010660
+.MSG078 ANOP                                                            00010670
+         AIF    (&HELPARM).LBL078                                       00010680
+         MNOTE  8,'CT IS INVALID OR IS OMITTED.'                        00010690
+.LBL078  ANOP                                                           00010700
+         MNOTE  *,'                                                   ' 00010710
+         MNOTE  *,'CT MUST BE:        '                                 00010720
+         MNOTE  *,'  8 CHARACTERS LONG,    '                            00010730
+         MNOTE  *,'  FIRST 6 CHARACTERS MUST BE CZFACT,'                00010740
+         MNOTE  *,'  LAST  2 CHARACTERS MUST BE ALPHANUMERIC.'          00010750
+         MNOTE  *,'                                                   ' 00010760
+        MEXIT                                                           00010770
+.MSG079 ANOP                                                            00010780
+         AIF    (&HELPARM).LBL079                                       00010790
+         MNOTE  8,'NUMBER IS INVALID OR OMITTED.'                       00010800
+.LBL079  ANOP                                                           00010810
+         MNOTE  *,'                                                   ' 00010820
+         MNOTE  *,'NUMBER MUST BE:'                                     00010830
+         MNOTE  *,'  NUMERIC,'                                          00010840
+         MNOTE  *,'  3 DIGITS IN RANGE 001 TO 254.'                     00010850
+         MNOTE  *,'                                                   ' 00010860
+        MEXIT                                                           00010870
+.MSG080 ANOP                                                            00010880
+         AIF    (&HELPARM).LBL080                                       00010890
+         MNOTE  8,'APPLNAM IS INVALID OR OMITTED.'                      00010900
+.LBL080  ANOP                                                           00010910
+         MNOTE  *,'                                                   ' 00010920
+         MNOTE  *,'APPLNAM MUST BE:'                                    00010930
+         MNOTE  *,'  FROM 1 TO 8 CHARACTERS,'                           00010940
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC,'               00010950
+         MNOTE  *,'  THE FIRST 7 CHARACTERS MUST BE UNIQUE.'            00010960
+         MNOTE  *,'                                                   ' 00010970
+        MEXIT                                                           00010980
+.MSG081 ANOP                                                            00010990
+         AIF    (&HELPARM).LBL081                                       00011000
+         MNOTE  8,'&MSGPARM IS INVALID OR OMITTED.'                     00011010
+.LBL081  ANOP                                                           00011020
+         MNOTE  *,'                                                   ' 00011030
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00011040
+         MNOTE  *,'  NUMERIC,'                                          00011050
+         MNOTE  *,'  4 DIGITS IN RANGE 0001 TO 9999,'                   00011060
+         MNOTE  *,'  DEFAULT IS 0001.'                                  00011070
+         MNOTE  *,'                                                   ' 00011080
+        MEXIT                                                           00011090
+.MSG082 ANOP                                                            00011100
+         AIF    (&HELPARM).LBL082                                       00011110
+         MNOTE  8,'TYPE IS INVALID OR OMITTED.'                         00011120
+.LBL082  ANOP                                                           00011130
+         MNOTE  *,'                                                   ' 00011140
+         MNOTE  *,'TYPE MUST BE ONE OF FOLLOWING:'                      00011150
+         MNOTE  *,'  INITIAL - DEFINES START OF A TABLE (1 PER TABLE)'  00011160
+         MNOTE  *,'  FINAL   - DEFINES END OF A TABLE (1 PER TABLE)'    00011170
+         MNOTE  *,'  MACRO DEFINITIONS FOR CZFMAPBP AND CZFMHSTP MUST O*00011180
+               CCUR BETWEEN'                                            00011190
+         MNOTE  *,'  THE TYPE=INITIAL AND TYPE=FINAL STATEMENTS.'       00011200
+         MNOTE  *,'                                                   ' 00011210
+        MEXIT                                                           00011220
+.MSG083 ANOP                                                            00011230
+         AIF    (&HELPARM).LBL083                                       00011240
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00011250
+.LBL083  ANOP                                                           00011260
+         MNOTE  *,'                                                   ' 00011270
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00011280
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, AND'                      00011290
+         MNOTE  *,'  2) CZFMAPBP AND CZFMHSTP MACRO STATEMENTS.'        00011300
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00011310
+               ORS BEFORE'                                              00011320
+         MNOTE  *,'  THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSEMB*00011330
+               LED.'                                                    00011340
+         MNOTE  *,'                                                   ' 00011350
+        MEXIT                                                           00011360
+.MSG084 ANOP                                                            00011370
+         AIF    (&HELPARM).LBL084                                       00011380
+         MNOTE  8,'TYPE INVALID OR OMITTED.'                            00011390
+.LBL084  ANOP                                                           00011400
+         MNOTE  *,'                                                   ' 00011410
+         MNOTE  *,'TYPE MUST BE ONE OF FOLLOWING:'                      00011420
+         MNOTE  *,'  INITIAL - DEFINES START OF A TABLE (1 PER TABLE)'  00011430
+         MNOTE  *,'  ENTRY   - DEFINES USER SPECIFIED DATA (1 PER TABLE*00011440
+               )'                                                       00011450
+         MNOTE  *,'  FINAL   - DEFINES END OF A TABLE (1 PER TABLE)'    00011460
+         MNOTE  *,'                                                   ' 00011470
+        MEXIT                                                           00011480
+.MSG085 ANOP                                                            00011490
+         AIF    (&HELPARM).LBL085                                       00011500
+         MNOTE  8,'MACRO TYPE=ENTRY IS MISPLACED.'                      00011510
+.LBL085  ANOP                                                           00011520
+         MNOTE  *,'                                                   ' 00011530
+         MNOTE  *,'MACRO TYPE=ENTRY MUST BE PRECEDED A MACRO TYPE=INITI*00011540
+               AL.'                                                     00011550
+         MNOTE  *,'  THE PRECEDING MACRO MUST BE ASSEMBLED WITHOUT ERRO*00011560
+               RS BEFORE'                                               00011570
+         MNOTE  *,'  THE MACRO TYPE=ENTRY CAN BE SUCCESSFULLY ASSEMBLED*00011580
+               .'                                                       00011590
+         MNOTE  *,'                                                   ' 00011600
+        MEXIT                                                           00011610
+.MSG086 ANOP                                                            00011620
+         AIF    (&HELPARM).LBL086                                       00011630
+         MNOTE  8,'MACRO TYPE=FINAL IS MISPLACED.'                      00011640
+.LBL086  ANOP                                                           00011650
+         MNOTE  *,'                                                   ' 00011660
+         MNOTE  *,'MACRO TYPE=FINAL MUST BE PRECEDED BY'                00011670
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, AND'                      00011680
+         MNOTE  *,'  2) A MACRO TYPE=ENTRY'                             00011690
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00011700
+               ORS BEFORE'                                              00011710
+         MNOTE  *,'  THE MACRO TYPE=FINAL CAN BE SUCCESSFULLY ASSEMBLED*00011720
+               .'                                                       00011730
+         MNOTE  *,'                                                   ' 00011740
+        MEXIT                                                           00011750
+.MSG087 ANOP                                                            00011760
+         AIF    (&HELPARM).LBL087                                       00011770
+         MNOTE  8,'MACRO TYPE=ENTRY IS OMITTED.'                        00011780
+.LBL087  ANOP                                                           00011790
+         MNOTE  *,'                                                   ' 00011800
+         MNOTE  *,'THE MACRO TYPE=ENTRY MUST BE CODED ONE TIME.'        00011810
+         MNOTE  *,'                                                   ' 00011820
+        MEXIT                                                           00011830
+.MSG088 ANOP                                                            00011840
+         AIF    (&HELPARM).LBL088                                       00011850
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00011860
+.LBL088  ANOP                                                           00011870
+         MNOTE  *,'                                                   ' 00011880
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00011890
+         MNOTE  *,'  1) MACRO TYPE=FORMAT, AND'                         00011900
+         MNOTE  *,'  2) MACRO(S) TYPE=FIELD.'                           00011910
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00011920
+               ORS BEFORE'                                              00011930
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00011940
+               MBLED.'                                                  00011950
+         MNOTE  *,'  THERE MUST BE AT LEAST ONE MACRO TYPE=FIELD '      00011960
+         MNOTE  *,'    FOLLOWING A MACRO TYPE=FORMAT.'                  00011970
+         MNOTE  *,'  MACRO TYPE=INITIAL MUST BE FIRST MACRO PROCESSED.' 00011980
+         MNOTE  *,'  THE LAST FORMAT/FIELD GROUP FOR A PARTICULAR     ' 00011990
+         MNOTE  *,'    FORMAT NUMBER MUST HAVE DEVICE=GENERAL.'         00012000
+         MNOTE  *,'                                                   ' 00012010
+        MEXIT                                                           00012020
+.MSG089 ANOP                                                            00012030
+         AIF    (&HELPARM).LBL089                                       00012040
+         MNOTE  8,'NUMBER IS NOT IN ASCENDING SEQUENCE.'                00012050
+.LBL089  ANOP                                                           00012060
+         MNOTE  *,'                                                   ' 00012070
+         MNOTE  *,'NUMBER MUST BE GREATER THAN THE NUMBER ASSOCIATED WI*00012080
+               TH'                                                      00012090
+         MNOTE  *,'  THE PREVIOUS TYPE=FORMAT.'                         00012100
+         MNOTE  *,'                                                   ' 00012110
+        MEXIT                                                           00012120
+.MSG090 ANOP                                                            00012130
+         AIF    (&HELPARM).LBL090                                       00012140
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00012150
+.LBL090  ANOP                                                           00012160
+         MNOTE  *,'                                                   ' 00012170
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00012180
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, AND'                      00012190
+         MNOTE  *,'  2) MACRO(S) TYPE=FIELD.'                           00012200
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00012210
+               ORS BEFORE'                                              00012220
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00012230
+               MBLED.'                                                  00012240
+         MNOTE  *,'  THERE MUST BE AT LEAST ONE MACRO TYPE=FIELD '      00012250
+         MNOTE  *,'    FOLLOWING A MACRO TYPE=FORMAT.'                  00012260
+         MNOTE  *,'                                                   ' 00012270
+        MEXIT                                                           00012280
+.MSG091 ANOP                                                            00012290
+         AIF    (&HELPARM).LBL091                                       00012300
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00012310
+.LBL091  ANOP                                                           00012320
+         MNOTE  *,'                                                   ' 00012330
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00012340
+         MNOTE  *,'  1) MACRO TYPE=FORMAT, OR'                          00012350
+         MNOTE  *,'  2) MACRO(S) TYPE=FIELD.'                           00012360
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00012370
+               ORS BEFORE'                                              00012380
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00012390
+               MBLED.'                                                  00012400
+         MNOTE  *,'  THERE MUST BE AT LEAST ONE MACRO TYPE=FIELD '      00012410
+         MNOTE  *,'    FOLLOWING A MACRO TYPE=FORMAT.'                  00012420
+         MNOTE  *,'  MACRO TYPE=INITIAL MUST BE FIRST MACRO PROCESSED.' 00012430
+         MNOTE  *,'                                                   ' 00012440
+        MEXIT                                                           00012450
+.MSG092 ANOP                                                            00012460
+         AGO    .MSG999                                                 00012470
+        MEXIT                                                           00012480
+.MSG093 ANOP                                                            00012490
+         AIF    (&HELPARM).LBL093                                       00012500
+         MNOTE  8,'MACRO TYPE=FINAL IS MISPLACED.'                      00012510
+.LBL093  ANOP                                                           00012520
+         MNOTE  *,'                                                   ' 00012530
+         MNOTE  *,'MACRO TYPE=FINAL MUST BE PRECEDED BY'                00012540
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, AND'                      00012550
+         MNOTE  *,'  2) MACRO(S) TYPE=ENTRY.'                           00012560
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00012570
+               ORS BEFORE'                                              00012580
+         MNOTE  *,'  THE MACRO TYPE=FINAL CAN BE SUCCESSFULLY ASSEMBLED*00012590
+               .'                                              @A000203 00012600
+         MNOTE  *,'                                                   ' 00012610
+        MEXIT                                                           00012620
+.MSG094 ANOP                                                            00012630
+         AIF    (&HELPARM).LBL094                                       00012640
+         MNOTE  8,'A COMPLETE SET OF INPUT STATEMENTS FOR MACRO &MSGPAR*00012650
+               M HAS BEEN'                                              00012660
+         MNOTE  *,'    PREVIOUSLY PROCESSED.'                           00012670
+.LBL094  ANOP                                                           00012680
+         MNOTE  *,'                                                   ' 00012690
+         MNOTE  *,'ONLY ONE SET OF INPUT STATEMENTS IS ALLOWED FOR MACR*00012700
+               O &MSGPARM..'                                            00012710
+         MNOTE  *,'                                                   ' 00012720
+        MEXIT                                                           00012730
+.MSG095 ANOP                                                            00012740
+         AIF    (&HELPARM).LBL095                                       00012750
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00012760
+.LBL095  ANOP                                                           00012770
+         MNOTE  *,'                                                   ' 00012780
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00012790
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, OR'                       00012800
+         MNOTE  *,'  2) MACRO(S) TYPE=TELLER, OR'                       00012810
+         MNOTE  *,'  3) A MACRO TYPE=BTERM.'                            00012820
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00012830
+               ORS BEFORE'                                              00012840
+         MNOTE  *,'  THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSEMB*00012850
+               LED.'                                                    00012860
+         MNOTE  *,'                                                   ' 00012870
+        MEXIT                                                           00012880
+.MSG096 ANOP                                                            00012890
+         AIF    (&HELPARM).LBL096                                       00012900
+         MNOTE  8,'MACRO TYPE=&MSGPARM IS MISPLACED.'                   00012910
+.LBL096  ANOP                                                           00012920
+         MNOTE  *,'                                                   ' 00012930
+         MNOTE  *,'MACRO TYPE=&MSGPARM MUST BE PRECEDED BY'             00012940
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL, OR'                       00012950
+         MNOTE  *,'  2) MACRO(S) TYPE=TELLER.   '                       00012960
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00012970
+               ORS BEFORE'                                              00012980
+         MNOTE  *,'    THE MACRO TYPE=&MSGPARM CAN BE SUCCESSFULLY ASSE*00012990
+               MBLED.'                                                  00013000
+         MNOTE  *,'  ONLY ONE MACRO TYPE=BTERM CAN BE CODED.'           00013010
+         MNOTE  *,'                                                   ' 00013020
+        MEXIT                                                           00013030
+.MSG098 ANOP                                                            00013040
+         AIF    (&HELPARM).LBL098                                       00013050
+         MNOTE  8,'TYPE IS INVALID OR OMITTED.'                         00013060
+.LBL098  ANOP                                                           00013070
+         MNOTE  *,'                                                   ' 00013080
+         MNOTE  *,'TYPE MUST BE ONE OF FOLLOWING:'                      00013090
+         MNOTE  *,'  INITIAL - DEFINES START OF A TABLE (1 PER TABLE)'  00013100
+         MNOTE  *,'  TELLER  - DEFINES TELLER APPLICATIONS (1 TO N PER *00013110
+               TABLE)'                                                  00013120
+         MNOTE  *,'  BTERM   - DEFINES BATCH TERMINALS     (0 OR 1 PER *00013130
+               TABLE)'                                                  00013140
+         MNOTE  *,'  FINAL   - DEFINES END OF A TABLE (1 PER TABLE)'    00013150
+         MNOTE  *,'                                                   ' 00013160
+        MEXIT                                                           00013170
+.MSG099 ANOP                                                            00013180
+         AIF    (&HELPARM).LBL099                                       00013190
+         MNOTE  8,'CICS IS INVALID OR OMITTED.'                         00013200
+.LBL099  ANOP                                                           00013210
+         MNOTE  *,'                                                   ' 00013220
+         MNOTE  *,'CICS MUST BE:'                                       00013230
+         MNOTE  *,'  1 TO 8 ALPHANUMERIC CHARACTERS,'                   00013240
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC,'               00013250
+         MNOTE  *,'  THE NAME OF A VALID VTAM NODE,'                    00013260
+         MNOTE  *,'  DEFAULT IS DBDCCICS.'                              00013270
+         MNOTE  *,'                                                   ' 00013280
+        MEXIT                                                           00013290
+.MSG100 ANOP                                                            00013300
+         AIF    (&HELPARM).LBL100                                       00013310
+         MNOTE  8,'MACRO TYPE=FINAL IS MISPLACED.'                      00013320
+.LBL100  ANOP                                                           00013330
+         MNOTE  *,'                                                   ' 00013340
+         MNOTE  *,'MACRO TYPE=FINAL MUST BE PRECEDED BY'                00013350
+         MNOTE  *,'  1) A MACRO TYPE=INITIAL,'                          00013360
+         MNOTE  *,'  2) MACRO(S) TYPE=TELLER, AND'                      00013370
+         MNOTE  *,'  3) AN OPTIONAL MACRO TYPE=BTERM.'                  00013380
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00013390
+               ORS BEFORE'                                              00013400
+         MNOTE  *,'  THE MACRO TYPE=FINAL CAN BE SUCCESSFULLY ASSEMBLED*00013410
+               .'                                                       00013420
+         MNOTE  *,'                                                   ' 00013430
+        MEXIT                                                           00013440
+.MSG101 ANOP                                                            00013450
+         AIF    (&HELPARM).LBL101                                       00013460
+         MNOTE  8,'MACRO CZFMAPBP IS MISPLACED.'                        00013470
+.LBL101  ANOP                                                           00013480
+         MNOTE  *,'                                                   ' 00013490
+         MNOTE  *,'MACRO CZFMAPBP MUST BE PRECEDED BY'                  00013500
+         MNOTE  *,'  1) A CZFMSTRP MACRO TYPE=INITIAL, OR'              00013510
+         MNOTE  *,'  2) A CZFMAPBP MACRO, OR'                           00013520
+         MNOTE  *,'  3) A CZFMHSTP MACRO.'                              00013530
+         MNOTE  *,'  THE PRECEDING MACROS MUST BE ASSEMBLED WITHOUT ERR*00013540
+               ORS BEFORE'                                              00013550
+         MNOTE  *,'  THE MACRO CZFMAPBP CAN BE SUCCESSFULLY ASSEMBLED.' 00013560
+         MNOTE  *,'                                                   ' 00013570
+        MEXIT                                                           00013580
+.MSG102 ANOP                                                            00013590
+         AIF    (&HELPARM).LBL102                                       00013600
+         MNOTE  8,'APPLIC1 IS INVALID OR OMITTED.'                      00013610
+.LBL102  ANOP                                                           00013620
+         MNOTE  *,'                                                   ' 00013630
+         MNOTE  *,'APPLIC1 MUST BE:'                                    00013640
+         MNOTE  *,'  FROM 1 TO 8 ALPHANUMERIC CHARACTERS,'              00013650
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC.'               00013660
+         MNOTE  *,'                                                   ' 00013670
+        MEXIT                                                           00013680
+.MSG103 ANOP                                                            00013690
+         AIF    (&HELPARM).LBL103                                       00013700
+         MNOTE  8,'TRANTYP=TRANSFER IS INVALID WHEN APPLIC2 IS OMITTED.*00013710
+               '                                                        00013720
+.LBL103  ANOP                                                           00013730
+         MNOTE  *,'                                                   ' 00013740
+         MNOTE  *,'WHEN TRANTYP=TRANSFER IS SPECIFIED, APPLIC2 MUST BE *00013750
+               CODED.'                                                  00013760
+         MNOTE  *,'                                                   ' 00013770
+        MEXIT                                                           00013780
+.MSG104 ANOP                                                            00013790
+         AIF    (&HELPARM).LBL104                                       00013800
+         MNOTE  8,'APPLIC2 HAS BEEN SPECIFIED, BUT TRANTYP=TRANSFER HAS*00013810
+                NOT BEEN'                                               00013820
+         MNOTE  *,'    SPECIFIED.'                                      00013830
+.LBL104  ANOP                                                           00013840
+         MNOTE  *,'                                                   ' 00013850
+         MNOTE  *,'WHEN APPLIC2 IS CODED, TRANTYP=TRANSFER MUST BE SPEC*00013860
+               IFIED.'                                                  00013870
+         MNOTE  *,'                                                   ' 00013880
+        MEXIT                                                           00013890
+.MSG105 ANOP                                                            00013900
+         AIF    (&HELPARM).LBL105                                       00013910
+         MNOTE  8,'APPLIC2 IS INVALID.'                                 00013920
+.LBL105  ANOP                                                           00013930
+         MNOTE  *,'                                                   ' 00013940
+         MNOTE  *,'APPLIC2 MUST BE:'                                    00013950
+         MNOTE  *,'  FROM 1 TO 8 ALPHANUMERIC CHARACTERS,'              00013960
+         MNOTE  *,'  FIRST CHARACTER MUST BE ALPHABETIC.'               00013970
+         MNOTE  *,'                                                   ' 00013980
+        MEXIT                                                           00013990
+.MSG106 ANOP                                                            00014000
+         AIF    (&HELPARM).LBL106                                       00014010
+         MNOTE  8,'TITLE IS INVALID OR OMITTED.'                        00014020
+.LBL106  ANOP                                                           00014030
+         MNOTE  *,'                                                   ' 00014040
+         MNOTE  *,'TITLE MUST CONSIST OF 1 TO 3 SUBPARAMETERS, EACH OF *00014050
+               WHICH MUST BE:'                                          00014060
+         MNOTE  *,'  FROM 2 TO 8 ALPHANUMERIC CHARACTERS,'              00014070
+         MNOTE  *,'  FIRST CHARACTER MUST BE W.'                        00014080
+         MNOTE  *,'                                                   ' 00014090
+        MEXIT                                                           00014100
+.MSG107 ANOP                                                            00014110
+         AIF    (&HELPARM).LBL107                                       00014120
+         MNOTE  8,'OFFLINE IS INVALID OR OMITTED.'                      00014130
+.LBL107  ANOP                                                           00014140
+         MNOTE  *,'                                                   ' 00014150
+         MNOTE  *,'OFFLINE MUST BE:'                                    00014160
+         MNOTE  *,'  1) NO, OR'                                         00014170
+         MNOTE  *,'  2) NUMERIC IN RANGE 1 TO 255 (THE NUMBER OF A ROUT*00014180
+               INE TO PROCESS'                                          00014190
+         MNOTE  *,'                                THE TRANSACTION OFFL*00014200
+               INE).'                                                   00014210
+         MNOTE  *,'  NO IS THE DEFAULT.'                                00014220
+         MNOTE  *,'                                                   ' 00014230
+        MEXIT                                                           00014240
+.MSG108 ANOP                                                            00014250
+         AIF    (&HELPARM).LBL108                                       00014260
+         MNOTE  8,'OFFLOAD IS INVALID OR OMITTED.'                      00014270
+.LBL108  ANOP                                                           00014280
+         MNOTE  *,'                                                   ' 00014290
+         MNOTE  *,'OFFLOAD MUST BE YES OR NO.'                          00014300
+         MNOTE  *,'  NO IS THE DEFAULT.'                                00014310
+         MNOTE  *,'                                                   ' 00014320
+        MEXIT                                                           00014330
+.MSG109 ANOP                                                            00014340
+         AIF    (&HELPARM).LBL109                                       00014350
+         MNOTE  8,'&MSGPARM IS INVALID OR OMITTED.'                     00014360
+.LBL109  ANOP                                                           00014370
+         MNOTE  *,'                                                   ' 00014380
+         MNOTE  *,'&MSGPARM MUST BE:'                                   00014390
+         MNOTE  *,'  NUMERIC,'                                          00014400
+         MNOTE  *,'  3 DIGITS IN RANGE 001 TO 254.'                     00014410
+         MNOTE  *,'  REL IS OPTIONAL, AND INDICATES RELATIVE '          00014420
+         MNOTE  *,'         POSITIONING OF THE OUTPUT DEVICE.'          00014430
+         MNOTE  *,'                                                   ' 00014440
+        MEXIT                                                           00014450
+.MSG110 ANOP                                                            00014460
+         AIF    (&HELPARM).LBL110                                       00014470
+         MNOTE  8,'SGONREQ IS INVALID OR OMITTED.'                      00014480
+.LBL110  ANOP                                                           00014490
+         MNOTE  *,'                                                   ' 00014500
+         MNOTE  *,'SGONREQ MUST BE YES OR NO.'                          00014510
+         MNOTE  *,'  YES IS THE DEFAULT.'                               00014520
+         MNOTE  *,'                                                   ' 00014530
+        MEXIT                                                           00014540
+.MSG111 ANOP                                                            00014550
+         AIF    (&HELPARM).LBL111                                       00014560
+         MNOTE  8,'PROCESS IS INVALID OR OMITTED.'                      00014570
+.LBL111  ANOP                                                           00014580
+         MNOTE  *,'                                                   ' 00014590
+         MNOTE  *,'PROCESS HAS TWO FORMATS:'                            00014600
+         MNOTE  *,'  (CPU,N,M)   - CPU INDICATES THAT CPU PROCESSING IS*00014610
+                REQUIRED'                                               00014620
+         MNOTE  *,'                     FOR THIS TRANSACTION.'          00014630
+         MNOTE  *,'              - N IS AN AP PRE-CPU PROCESSING ROUTIN*00014640
+               E NUMBER'                                                00014650
+         MNOTE  *,'                     IN THE RANGE 0 TO 255.'         00014660
+         MNOTE  *,'                     0 INDICATES NO AP PROCESSING RE*00014670
+               QUIRED.'                                                 00014680
+         MNOTE  *,'              - M IS AN AP POST-CPU PROCESSING ROUTI*00014690
+               NE NUMBER'                                               00014700
+         MNOTE  *,'                     IN THE RANGE 0 TO 255.'         00014710
+         MNOTE  *,'                     0 INDICATES NO AP PROCESSING RE*00014720
+               QUIRED.'                                                 00014730
+         MNOTE  *,'                                                   ' 00014740
+         MNOTE  *,'  (SPECIAL,S) - SPECIAL INDICATES THAT THE TRANSACTI*00014750
+               ON IS'                                                   00014760
+         MNOTE  *,'                     PROCESSED USING SPECIAL ROUTINE*00014770
+               S.'                                                      00014780
+         MNOTE  *,'              - S IS AN AP SPECIAL PROCESSING ROUTIN*00014790
+               E NUMBER'                                                00014800
+         MNOTE  *,'                     IN THE RANGE 1 TO 255.'         00014810
+         MNOTE  *,'                                                   ' 00014820
+        MEXIT                                                           00014830
+.MSG112 ANOP                                                            00014840
+         AIF    (&HELPARM).LBL112                                       00014850
+         MNOTE  8,'EJOUTPT IS INVALID OR OMITTED.'                      00014860
+.LBL112  ANOP                                                           00014870
+         MNOTE  *,'                                                   ' 00014880
+         MNOTE  *,'EJOUTPT MUST HAVE TWO SUBPARAMETERS (DDD,PPP):'      00014890
+         MNOTE  *,'  DDD - FORMAT NUMBER FOR DISPLAY,'                  00014900
+         MNOTE  *,'  PPP - FORMAT NUMBER FOR PRINTERS.'                 00014910
+         MNOTE  *,'  THE FORMAT NUMBERS MUST BE:'                       00014920
+         MNOTE  *,'    NUMERIC,'                                        00014930
+         MNOTE  *,'    3 DIGITS IN RANGE 001 TO 254.'                   00014940
+         MNOTE  *,'                                                   ' 00014950
+        MEXIT                                                           00014960
+.MSG113 ANOP                                                            00014970
+         AIF    (&HELPARM).LBL113                                       00014980
+         MNOTE  8,'&MSGPARM IS INVALID OR OMITTED.'                     00014990
+.LBL113  ANOP                                                           00015000
+         MNOTE  *,'                                                   ' 00015010
+         MNOTE  *,'&MSGPARM MUST BE NNN OR (NNN,REL), WHERE:'           00015020
+         MNOTE  *,'  NNN IS NUMERIC,'                                   00015030
+         MNOTE  *,'         3 DIGITS IN RANGE 001 TO 254.'              00015040
+         MNOTE  *,'  REL IS OPTIONAL, AND INDICATES RELATIVE '          00015050
+         MNOTE  *,'         POSITIONING OF THE OUTPUT DEVICE.'          00015060
+         MNOTE  *,'                                                   ' 00015070
+        MEXIT                                                           00015080
+.MSG114 ANOP                                                            00015090
+         AIF    (&HELPARM).LBL114                                       00015100
+         MNOTE  8,'FLOWNAM IS INVALID OR OMITTED.'                      00015110
+.LBL114  ANOP                                                           00015120
+         MNOTE  *,'                                                   ' 00015130
+         MNOTE  *,'FLOWNAM MUST:'                                       00015140
+         MNOTE  *,'  BE 5 TO 8 ALPHANUMERIC CHARACTERS,'                00015150
+         MNOTE  *,'  START WITH CZFW.'                                  00015160
+         MNOTE  *,'                                                   ' 00015170
+        MEXIT                                                           00015180
+.MSG115 ANOP                                                            00015190
+         AIF    (&HELPARM).LBL115                                       00015200
+         MNOTE  8,'REQTLR2=NO, BUT &MSGPARM HAS BEEN CODED.'            00015210
+.LBL115  ANOP                                                           00015220
+         MNOTE  *,'                                                   ' 00015230
+         MNOTE  *,'IF TRAILER PROCESSING IS NOT REQUIRED, DO NOT CODE &*00015240
+               MSGPARM..'                                               00015250
+         MNOTE  *,'IF TRAILER PROCESSING IS REQUIRED, CODE REQTLR2=YES.*00015260
+               '                                                        00015270
+         MNOTE  *,'                                                   ' 00015280
+        MEXIT                                                           00015290
+.MSG116 ANOP                                                            00015300
+         AIF    (&HELPARM).LBL116                                       00015310
+         MNOTE  8,'&MSGPARM IS INVALID OR OMITTED.'                     00015320
+.LBL116  ANOP                                                           00015330
+         MNOTE  *,'                                                   ' 00015340
+         MNOTE  *,'&MSGPARM MUST BE YES OR NO.'                         00015350
+         MNOTE  *,'  THE DEFAULT IS NO.'                                00015360
+         MNOTE  *,'                                                   ' 00015370
+        MEXIT                                                           00015380
+.MSG117 ANOP                                                            00015390
+         AIF    (&HELPARM).LBL117                                       00015400
+         MNOTE  8,'TYPE=INITIAL MACRO IS DUPLICATED.'                   00015410
+.LBL117  ANOP                                                           00015420
+         MNOTE  *,'                                                   ' 00015430
+         MNOTE  *,'ONLY ONE MACRO TYPE=INITIAL IS ALLOWED FOR A TABLE.' 00015440
+         MNOTE  *,'MACRO TYPE=INITIAL MUST BE THE FIRST MACRO CODED FOR*00015450
+                A TABLE.'                                               00015460
+         MNOTE  *,'                                                   ' 00015470
+        MEXIT                                                           00015480
+.MSG118 ANOP                                                            00015490
+         AIF    (&HELPARM).LBL118                                       00015500
+         MNOTE  8,'DBDNAME IS INVALID OR OMITTED.'                      00015510
+.LBL118  ANOP                                                           00015520
+         MNOTE  *,'                                                   ' 00015530
+         MNOTE  *,'DBDNAME MUST:'                                       00015540
+         MNOTE  *,'  EQUAL TO NONAME OR            '                    00015550
+         MNOTE  *,'  FROM 1 TO 8 CHARACTERS LONG   '                    00015560
+         MNOTE  *,'                                                   ' 00015570
+        MEXIT                                                           00015580
+.MSG119 ANOP                                                            00015590
+         AIF    (&HELPARM).LBL119                                       00015600
+         MNOTE  8,'LINE IS INVALID OR OMITTED.'                         00015610
+.LBL119  ANOP                                                           00015620
+         MNOTE  *,'                                                   ' 00015630
+         MNOTE  *,'LINE MUST BE:'                                       00015640
+         MNOTE  *,'  NUMERIC,'                                          00015650
+         MNOTE  *,'  IN RANGE 0 TO 63.'                                 00015660
+         MNOTE  *,'  IF THIS IS THE FIRST LINE WITHIN A FORMAT, THEN'   00015670
+         MNOTE  *,'  IT CANNOT BE 0.'                                   00015680
+         MNOTE  *,'                                                   ' 00015690
+        MEXIT                                                           00015700
+.MSG120 ANOP                                                            00015710
+         AIF    (&HELPARM).LBL120                                       00015720
+         MNOTE  8,'DSKFWRT IS INVALID.'                                 00015730
+.LBL120  ANOP                                                           00015740
+         MNOTE  *,'                                                   ' 00015750
+         MNOTE  *,'DSKFWRT MUST BE EQUAL TO:'                           00015760
+         MNOTE  *,'  Y OR N.'                                           00015770
+         MNOTE  *,'  THE DEFAULT IS N.'                                 00015780
+         MNOTE  *,'                                                   ' 00015790
+        MEXIT                                                           00015800
+.MSG121 ANOP                                                            00015810
+         AIF    (&HELPARM).LBL121                                       00015820
+         MNOTE  8,'COBOL   IS INVALID OR OMITTED.'                      00015830
+.LBL121  ANOP                                                           00015840
+         MNOTE  *,'                                                   ' 00015850
+         MNOTE  *,'COBOL   MUST BE YES OR NO.'                          00015860
+         MNOTE  *,'  NO  IS THE DEFAULT.'                               00015870
+         MNOTE  *,'                                                   ' 00015880
+        MEXIT                                                           00015890
+.MSG122 ANOP                                                            00015900
+         AIF    (&HELPARM).LBL122                                       00015910
+         MNOTE  8,'MRED    IS INVALID OR OMITTED.'                      00015920
+.LBL122  ANOP                                                           00015930
+         MNOTE  *,'                                                   ' 00015940
+         MNOTE  *,'MULTIRED MUST BE YES OR NO.'                         00015950
+         MNOTE  *,'  NO  IS THE DEFAULT.'                               00015960
+         MNOTE  *,'                                                   ' 00015970
+        MEXIT                                                           00015980
+.MSG123 ANOP                                                            00015990
+         AIF    (&HELPARM).LBL123                                       00016000
+         MNOTE  8,'MOEX    IS INVALID OR OMITTED.'                      00016010
+.LBL123  ANOP                                                           00016020
+         MNOTE  *,'                                                   ' 00016030
+         MNOTE  *,' M/E  MUST   BE  YES OR NO.'                         00016040
+         MNOTE  *,'  NO  IS THE DEFAULT.'                               00016050
+         MNOTE  *,'                                                   ' 00016060
+        MEXIT                                                           00016070
+.MSG124 ANOP                                                            00016080
+         AIF    (&HELPARM).LBL124                                       00016090
+         MNOTE  8,'DSPFULL IS INVALID OR OMITTED.'                      00016100
+.LBL124  ANOP                                                           00016110
+         MNOTE  *,'                                                   ' 00016120
+         MNOTE  *,'DSPFULL MUST BE YES OR NO.'                          00016130
+         MNOTE  *,'  NO  IS THE DEFAULT.'                               00016140
+         MNOTE  *,'                                                   ' 00016150
+        MEXIT                                                           00016160
+.MSG125 ANOP                                                            00015990
+         AIF    (&HELPARM).LBL125                                       00016000
+         MNOTE  8,'AUDIT   IS INVALID OR OMITTED.'                      00016010
+.LBL125  ANOP                                                           00016020
+         MNOTE  *,'                                                   ' 00016030
+         MNOTE  *,' AUDIT MUST  BE  YES OR NO.'                         00016040
+         MNOTE  *,'  NO  IS THE DEFAULT.'                               00016050
+         MNOTE  *,'                                                   ' 00016060
+        MEXIT                                                           00016070
+.MSG996 ANOP                                                            00016170
+         MNOTE  8,'LAST MACRO SET &MSGPARM IS NOT TERMINATED BY A TYPE=*00016180
+               FINAL'                                                   00016190
+         MNOTE  *,'    STATEMENT.'                                      00016200
+        MEXIT                                                           00016210
+.MSG997 ANOP                                                            00016220
+         MNOTE  *,'HELP IS INVALID.'                                    00016230
+         MNOTE  *,'                                                   ' 00016240
+         MNOTE  *,'HELP MUST BE YES OR NO.'                             00016250
+         MNOTE  *,'HELP HAS BEEN SET TO YES.'                           00016260
+         MNOTE  *,'                                                   ' 00016270
+        MEXIT                                                           00016280
+.MSG998 ANOP                                                            00016290
+         MNOTE  *,'                                                   ' 00016300
+         MNOTE  *,'HELP REQUESTED - EXPLANATION MESSAGES FOLLOW.'       00016310
+         MNOTE  *,'----------------------------------------------------*00016320
+               -----------------'                                       00016330
+        MEXIT                                                           00016340
+.MSG999 ANOP                                                            00016350
+         MNOTE  8,'REQUESTED MESSAGE &MSGNUM IS NOT SUPPORTED BY CZFMHI*00016360
+               MS.'                                                     00016370
+        MEXIT                                                           00016380
+         MEND                                                           00016390

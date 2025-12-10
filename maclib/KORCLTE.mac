@@ -1,0 +1,74 @@
+      ***************************************************************** 00000010
+      *   KORCLTE      REGISTRO DE CLIENTES INTERBANK PARA KO         * 00000020
+      ***************************************************************** 00000010
+      *   FILE         VSAM                                           * 00000030
+      *   ORGANIZATION KSDS                                           * 00000040
+      *   LONGITUD     400                                            * 00000050
+      *   KEY          CLI-CLAVE                                      * 00000050
+      ***************************************************************** 00000060
+      *                                                                 00000070
+       01  REG-CLIENTES.                                                00000080
+           02  CLI-CLAVE.                                               00000090
+               04  CLI-CODBAP               PIC  9(08).                 00000100
+           02  CLI-CTACLI.                                              00000110
+               04  CLI-OFICIN               PIC  9(03).                 00000120
+               04  CLI-NUMERO               PIC  9(06).                 00000130
+           02  FILLER  REDEFINES  CLI-CTACLI.                           00000140
+               04  CLI-LABEL                PIC  X(01).                 00000150
+               04  CLI-LFECHA               PIC  X(08).                 00000160
+           02  CLI-NOMBRE.                                              00000170
+               04  CLI-1APELL               PIC  X(20).                 00000180
+               04  CLI-2APELL               PIC  X(20).                 00000190
+               04  FILLER  REDEFINES  CLI-2APELL.                       00000200
+                   06  CLI-TABREG           PIC S9(05).                 00000210
+                   06  CLI-ULTCOD           PIC  9(08).                 00000220
+                   06  FILLER               PIC  X(01).                 00000230
+                   06  CLI-ULTFEC.                                      00000240
+                       08  CLI-ULTFEA       PIC  9(02).                 00000250
+                       08  CLI-ULTFEM       PIC  9(02).                 00000260
+                       08  CLI-ULTFED       PIC  9(02).                 00000270
+               04  CLI-1NOMBR               PIC  X(20).                 00000280
+               04  CLI-2NOMBR               PIC  X(20).                 00000290
+           02  CLI-CDOCU1                   PIC  9(01).                 00000300
+           02  CLI-DOCUM1                   PIC  X(10).                 00000310
+           02  CLI-CDOCU2                   PIC  9(01).                 00000320
+           02  CLI-DOCUM2                   PIC  X(10).                 00000330
+           02  CLI-CPROFE                   PIC  9(06).                 00000340
+           02  CLI-FENACI.                                              00000350
+               04  CLI-FNACIA               PIC  9(04).                 00000360
+               04  CLI-FNACIM               PIC  9(02).                 00000370
+               04  CLI-FNACID               PIC  9(02).                 00000380
+           02  CLI-DIREC1                   PIC  X(35).                 00000390
+           02  CLI-CPOST1                   PIC  X(03).                 00000400
+           02  CLI-DISTR1                   PIC  X(25).                 00000410
+           02  CLI-PROVI1                   PIC  X(25).                 00000420
+           02  CLI-DEPAR1                   PIC  9(02).                 00000430
+           02  CLI-DIREC2                   PIC  X(35).                 00000440
+           02  CLI-CPOST2                   PIC  X(03).                 00000450
+           02  CLI-DISTR2                   PIC  X(25).                 00000460
+           02  CLI-PROVI2                   PIC  X(25).                 00000470
+           02  CLI-DEPAR2                   PIC  9(02).                 00000480
+           02  CLI-TELEFONO1.                                           00000490
+               04  CLI-TELEF1               PIC  X(07).                 00000500
+               04  CLI-ANEXO1               PIC  X(04).                 00000510
+           02  CLI-TELEFONO2.                                           00000520
+               04  CLI-TELEF2               PIC  X(07).                 00000530
+               04  CLI-ANEXO2               PIC  X(04).                 00000540
+           02  CLI-IDENTI.                                              00000550
+               04  CLI-IDCLIE               PIC  9(01).                 00000560
+               04  CLI-IDAVAL               PIC  9(01).                 00000570
+           02  CLI-CALCLI.                                              00000580
+               04  CLI-CCMONT               PIC  X(01).                 00000590
+               04  CLI-CCCUMP               PIC  X(01).                 00000600
+               04  FILLER                   PIC  X(01).                 00000610
+           02  CLI-CAUTGE                   PIC  X(16).                 00000620
+           02  CLI-FINGRE.                                              00000630
+               04  CLI-FINGRA               PIC  9(02).                 00000640
+               04  CLI-FINGRM               PIC  9(02).                 00000650
+               04  CLI-FINGRD               PIC  9(02).                 00000660
+           02  CLI-TIPPER                   PIC  X(01).                 00000670
+               88 CLI-NATURAL               VALUE  '1'.                 00000680
+               88 CLI-JURIDICA              VALUE  '2'.                 00000690
+           02  CLI-CODBAPANT                PIC  9(08).                 00000700
+           02  CLI-VERSION                  PIC  X(01).                 00000710
+           02  FILLER                       PIC  X(28).                 00000710

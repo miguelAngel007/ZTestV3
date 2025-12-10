@@ -1,0 +1,45 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&L       SIDTSTEN &TYPE=STATE,&STATE=,&B=,&AB=                          00002000
+         GBLC  &LAST                                                    00003000
+         LCLC  &THIS                                                    00004000
+.*--------------------------------------------------------------------* 00005000
+.*                 ** HISTORY OF REVISIONS **                         * 00006000
+.*                                                                    * 00007000
+.* DESCRIPTION                                                CHNGID  * 00008000
+.*__________________________________________________________  _______ * 00009000
+.* 02/09/11 INITIAL DISTRIBUTION                              ~~~6075   00010021
+.********************************************************************** 00011000
+.*                       STATE TABLE MACRO                            * 00012000
+.*                                                                    * 00013000
+.*  TYPE = STATE                                                        00014000
+.*   STATE = STATE KEY WORD - 13 BYTES                                  00015000
+.*   OPT = 8 0/1 FLAGS                                                  00016000
+.*       OPTION FLAGS                                                   00017000
+.*           TWO WORD STATE        -   10000000                         00018000
+.*               (MAY HAVE TO BACK UP ONE WORD TO                       00019000
+.*                DETERMINE STATE)                                      00020000
+.*           SKIP FIRST STATE WORD -   01000000                         00021000
+.*               (STATE HAS TWO WORDS BUT THIS WORD                     00022000
+.*                DEFINES THE STATE)                                    00023000
+.*    ABBR = STATE ABBREVIATION - CL2                                   00024000
+.*                                                                    * 00025000
+.********************************************************************** 00026000
+         AIF   ('&TYPE' EQ 'INIT').INITST                               00027000
+         AIF   ('&TYPE' EQ 'STATE').STATE                               00028000
+         MNOTE 8,'TYPE INVALID'                                         00029000
+         MEXIT                                                          00030000
+.INITST  ANOP                                                           00031000
+&LAST    SETC '&STATE'                                                  00032000
+STATETBL DS    0D                                                       00033000
+         MEXIT                                                          00034000
+.STATE   ANOP                                                           00035000
+&THIS    SETC '&STATE'                                                  00036000
+         AIF   ('&LAST' LT '&THIS').STATEOK                             00037000
+         MNOTE 8,'MUST BE IN STATE ORDER &LAST,&THIS'                   00038000
+         DC    A(&LAST)                                                 00039000
+         MEXIT                                                          00040000
+.STATEOK ANOP                                                           00041000
+&LAST    SETC '&STATE'                                                  00042000
+         DC    CL13&STATE,B&B,CL2&AB                                    00043000
+         MEND                                                           00044000

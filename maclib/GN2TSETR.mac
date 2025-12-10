@@ -1,0 +1,52 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'GN2TSETR - TSETRDB I/O COMMAREA'                        00001000
+*********************************************************************** 00002000
+* GN2TSETR - THIS COPYBOOK DESCRIBES THE COMMUNICATION AREA TO        * 00003000
+*            THE TSETRDB DB2 I/O MODULES.                             * 00004000
+*            NOTE: PETCURDT IS THE TSSETDB CURRENT PROCESSING DATE.   * 00005000
+*                  PETPRCDT IS THE PROCESSING DATE (CURRENT OR NEXT)  * 00006000
+*                  OF THE ROWS BEING REQUESTED. THE DIFFERENCE        * 00007000
+*                  DETERMINES THE NEXT DAY FLAG SETTING ON SELECTS.   * 00008000
+*---------------------------------------------------------------------* 00009000
+*                     ** HISTORY OF REVISIONS **                      * 00010000
+* DESCRIPTION                                                 CHNGID  * 00011000
+*------------------------------------------------------------ ------- * 00012000
+* 10/31/16 INITIAL RELEASE                                     GN7046 * 00014000
+*********************************************************************** 00015000
+PETLIST  DS    0CL150                DB2 IO PARM LIST                   00016000
+PETFUNC  DS    CL2                   FUNCTION CODE                      00017000
+*              VALUE 'BI'            GET BRANCH INDEX                   00018000
+*              VALUE 'DD'            DELETE BY DATE                     00019000
+*              VALUE 'DE'            DELETE                             00020000
+*              VALUE 'DG'            DELETE FILE GROUP                  00021000
+*              VALUE 'EQ'            GET EQUAL                          00022000
+*              VALUE 'GE'            GET GREATER THAN OR EQUAL          00023000
+*              VALUE 'GT'            GET GREATER THAN                   00024000
+*              VALUE 'GU'            GET FOR UPDATE                     00025000
+*              VALUE 'IN'            INSERT                             00026000
+*              VALUE 'LE'            GET LESS THAN OR EQUAL             00027000
+*              VALUE 'LT'            GET LESS THAN                      00028000
+*              VALUE 'UP'            UPDATE                             00029000
+PETCURSR DS    CL1                   CURSOR SET FLAG                    00030000
+*              VALUE Y               CURSOR SET YES                     00031000
+*              VALUE N               CURSOR SET NO (DEFAULT)            00032000
+PETFILGP DS    CL2                   FILE GROUP                         00033000
+PETBDFLG DS    CL1                   BUSINESS DATE FLAG                 00034000
+*              VALUE C               CURRENT DAY                        00035000
+*              VALUE N               NEXT DAY                           00036000
+*              VALUE SPACE           ALL DATES                          00037000
+PETCURDT DS    CL6                   CURRENT PROCESSING DATE            00038000
+PETPRCDT DS    CL6                   PROCESSING DATE                    00039000
+PETKEYAD DS    XL4                   KEY ADDRESS                        00040000
+PETRECAD DS    XL4                   RECORD ADDRESS                     00041000
+PETRECLN DS    XL2                   RECORD LENGTH                      00042000
+PETRTCDE DS    XL2                   RETURN CODE                        00043000
+*              VALUE 0               OK                                 00044000
+*              VALUE 16              BAD REQUEST                        00045000
+*              VALUE 100             NOT FOUND OR END OF FILE           00046000
+*              VALUE -305            NULLS                              00047000
+*              VALUE -803            DUPLICATE RECORD                   00048000
+*              VALUE -911            DEADLOCK WITH ROLLBACK             00049000
+*              VALUE -913            DEADLOCK WITHOUT ROLLBACK          00050000
+PETRTTXT DS    CL120                 MSG TEXT                           00051000
+PETLEN   EQU   *-PETLIST             PARM LIST LENGTH                   00052000

@@ -1,0 +1,103 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+* **********************************************************  9913970   00000100
+*                   * * * HISTORY OF REVISIONS * * *       *  9913970   00000200
+* DESCRIPTION                                    CHANGE ID *  9913970   00000300
+* ---------------------------------------------  --------- *  9913970   00000400
+* 10/19/98 CORRECTED DATES FOR Y2K               ~~~3970   *  9913970   00000500
+* *********************************************************** 9913970   00000600
+SIWSSTHD DSECT                                                          00001000
+STDHD1   DS    0CL133        SIWS-HDG1                                  00002000
+STD1PCTL DS    CL1           ..SIWS-SH1-PRTCL                           00003000
+STD1DESC DS    CL10          ..SIWS-SH1-CTL1-DESC                       00004000
+         DS    CL1           ..FILLER                                   00005000
+STD1CTL1 DS    CL2           ..SIWS-SH1-CTL1                            00006000
+         DS    CL3           ..FILLER                                   00007000
+STD1LUF1 DS    CL30          ..SIWS-SH1-CTL1-LUF                        00008000
+         DS    CL4           ..FILLER                                   00009000
+STD1SNAM DS    CL32          ..SIWS-SH1-SYS-NAME                        00010000
+         DS    CL14          ..FILLER                                   00011000
+STD1AST1 DS    CL1           ..SIWS-SH1-AST1                            00012000
+STD1PHAS DS    CL8           ..SIWS-SH1-PHASE                           00013000
+STD1AST2 DS    CL4           ..SIWS-SH1-AST2 (FILLER)         9913970   00014000
+         DS    CL18          ..SIWS-SH1-PAGENO-LIT            9913970   00015000
+STD1PGNO DS    CL5           ..SIWS-SH1-PAGENO                          00016000
+         SPACE 1                                                        00017000
+STDHD2   DS    0CL133        SIWS-HDG2                                  00018000
+STD2PCTL DS    CL1           ..SIWS-SH2-PRTCL                           00019000
+STD2DESC DS    CL10          ..SIWS-SH2-CTL2-DESC                       00020000
+         DS    CL1           ..FILLER                                   00021000
+STD2CTL2 DS    CL3           ..SIWS-SH2-CTL2                            00022000
+         DS    CL2           ..FILLER                                   00023000
+STD2LUF2 DS    CL30          ..SIWS-SH2-CTL2-LUF                        00024000
+         DS    CL4           ..FILLER                                   00025000
+STD2BNAM DS    CL40          ..SIWS-SH2-BANK-NAME                       00026000
+         DS    CL6           ..FILLER                                   00027000
+STD2WDAY DS    CL9           ..SIWS-SH2-WEEKDAY                         00028000
+         DS    CL4           ..FILLER                         9913970   00029000
+STD2SDAT DS    CL12          ..SIWS-SH2-PROC-SYS-DATE-LIT               00030000
+         DS    CL1           ..FILLER                                   00031000
+STD2MM   DS    CL2           ..SIWS-SH2-PROC-SYS-MO                     00032000
+STD2PER1 DS    CL1           ..SIWS-SH2-SL1-PER1                        00033000
+STD2DD   DS    CL2           ..SIWS-SH2-PROC-SYS-DA                     00034000
+STD2PER2 DS    CL1           ..SIWS-SH2-SL2-PER2                        00035000
+STD2YR   DS    CL4           ..SIWS-SH2-PROC-SYS-YR           9913970   00036000
+         ORG   STD2YR                                         9913970   00036100
+STD2CC   DS    CL2           ..SIWS-SH2-PROC-SYS-CC           9913970   00036200
+STD2YY   DS    CL2           ..SIWS-SH2-PROC-SYS-YY           9913970   00036300
+         SPACE 1                                                        00037000
+STDHD3   DS    0CL133        SIWS-HDG3                                  00038000
+STD3PCTL DS    CL1           ..SIWS-SH3-PRTCL                           00039000
+STD3DESC DS    CL10          ..SIWS-SH3-CTL3-DESC                       00040000
+         DS    CL1           ..FILLER                                   00041000
+STD3CTL3 DS    CL3           ..SIWS-SH3-CTL3                            00042000
+         DS    CL2           ..FILLER                                   00043000
+STD3LUF3 DS    CL30          ..SIWS-SH3-CTL3-LUF                        00044000
+         DS    CL4           ..FILLER                                   00045000
+STD3RNAM DS    CL40          ..SIWS-SH2-RPT-NAME                        00046000
+         DS    CL2           ..FILLER                                   00047000
+STD3APPL DS    0CL16         ..SIWS-SH3-APPL-NAME                       00048000
+         DS    CL4           ....FILLER                                 00049000
+STD3AST1 DS    CL1           ....SIWS-SH3-AST1                          00050000
+STD3RPT  DS    CL8           ....SIWS-SH3-RPT-ID                        00051000
+STD3AST2 DS    CL1           ....SIWS-SH3-AST2                          00052000
+         DS    CL2           ....FILLER                                 00053000
+         DS    CL1           ..FILLER                         9913970   00054000
+STD3DTL  DS    CL12          ..SIWS-SH3-DATE-TIME-LIT                   00055000
+         DS    CL1           ..FILLER                                   00056000
+STD3MMHH DS    CL2           ..SIWS-SH3-MO-HR                           00057000
+         DS    CL1           ..SIWS-SH3-SL1-PER1                        00058000
+STD3DDMM DS    CL2           ..SIWS-SH3-DA-MIN                          00059000
+         DS    CL1           ..SIWS-SH3-SL2-PER2                        00060000
+STD3YYSS DS    CL4           ..SIWS-SH3-YR-SEC                9913970   00061000
+         ORG   STD3YYSS                                       9913970   00061100
+STD3CC   DS    CL2           ..SIWS-SH3-YR-SEC-CC             9913970   00061200
+STD3YY   DS    CL2           ..SIWS-SH3-YR-SEC-YY             9913970   00061300
+         SPACE 1                                                        00062000
+STDHD4   DS    0CL133        SIWS-HDG4                                  00063000
+STD4PCTL DS    CL1           ..SIWS-SH4-PRTCL                           00064000
+STD4DESC DS    CL10          ..SIWS-SH4-CTL4-DESC                       00065000
+         DS    CL1           ..FILLER                                   00066000
+STD4CTL4 DS    CL4           ..SIWS-SH4-CTL4                            00067000
+         DS    CL1           ..FILLER                                   00068000
+STD4LUF4 DS    CL30          ..SIWS-SH4-CTL4-LUF                        00069000
+         DS    CL63          ..FILLER                         9913970   00070000
+STD4DTL  DS    CL12          ..SIWS-SH4-DATE-TIME-LIT                   00071000
+         DS    CL1           ..FILLER                                   00072000
+STD4MMHH DS    CL2           ..SIWS-SH4-MO-HR                           00073000
+         DS    CL1           ..SIWS-SH4-SL1-PER1                        00074000
+STD4DDMM DS    CL2           ..SIWS-SH4-DA-MIN                          00075000
+         DS    CL1           ..SIWS-SH4-SL2-PER2                        00076000
+STD4YYSS DS    CL4           ..SIWS-SH4-YR-SEC                9913970   00077000
+         ORG   STD4YYSS                                       9913970   00077100
+STD4CC   DS    CL2           ..SIWS-SH4-YR-SEC-CC             9913970   00077200
+STD4YY   DS    CL2           ..SIWS-SH4-YR-SEC-YY             9913970   00077300
+         SPACE 1                                                        00078000
+STDFULPG DS    PL2           SIWS-BCR-FULL-PAGE                         00079000
+STDPGCTR DS    PL3           SIWS-SPL-PAGE-CNTR                         00080000
+STDLNCTR DS    PL4           SIWS-SPL-LINE-CNTR                         00081000
+STDHDBRK DS    CL1           SIWS-SPL-HDR-BREAK                         00082000
+STDSCBRK DS    CL1           SIWS-SPL-FORCE-2NDARY                      00083000
+STDSCSTR DS    PL2           SIWS-START-2NDARY-HD                       00084000
+STDSCNO  DS    PL2           SIWS-NO-2NDARY-HD                          00085000
+         DS    CL10          FILLER                                     00086000
+STDSCHD  DS    10CL133       SIWS-2NDARY-HEAD                           00087000

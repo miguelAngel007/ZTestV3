@@ -1,0 +1,60 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'TSTS2XRS - XML RESPONSE HEADER'                         00001000
+*********************************************************************** 00001100
+*             TSTS2XRS--XML RESPONSE HEADER                           * 00001200
+*                                                                     * 00001300
+* THIS COPYBOOK DESCRIBES THE XML RESPONSE HEADER AND TRAN STATUS     * 00001400
+* AREA OF AN OUTBOUND MESSAGE. IT INCLUDES THE MESSAGE COUNT FOR A    * 00001500
+* VARIABLE NUMBER OF TRAN STATUS MESSAGES. IT IS USED IN TSTSOXM1     * 00001600
+* WHEN BUILDING A FIXED MESSAGE RESPONSE TO BE PARSED IN THE          * 00001700
+* PIPELINE BY THE IBM PARSER.                                         * 00001800
+*                                                                     * 00001900
+*                        HISTORY OF REVISIONS                         * 00002000
+* DATE      DESCRIPTION                                       CHNGID  * 00002100
+*------------------------------------------------------------ ------- * 00002200
+* 09/16/15  SUPPORT REST SERVICES / JSON MESSAGE FORMAT       1626902 * 00002298
+* 03/12/13  SUPPORT THE FIS STANDARD RESPONSE HEADER          1336381 * 00002299
+* 06/17/11  INITIAL RELEASE                                   1226081 * 00002300
+*********************************************************************** 00002400
+TSXRSHDR DSECT                         RESPONSE HEADER                  00002500
+TSXRMXSV DS    CL1                     MAX SEVERITY FROM MDA            00002600
+TSXRPMSG DS    CL50                    PROCESS MESSAGE FROM TTR         00002700
+TSXRNXDY DS    CL1                     NEXT DAY FLAG                    00002800
+TSXRMSG# DS    F                       NUMBER OF MESSAGES               00002900
+TSXRMSGS DS    14CL93                  MESSAGES               1336381   00003000
+TSXRRSP# DS    F                       RESPONSE MESSAGE COUNT (0/1)     00003200
+TSXRMSG  DS    0CL1                    RESPONSE MESSAGE                 00003300
+TSXRHDRL EQU   *-TSXRMXSV              RESPONSE HEADER LENGTH 1336381   00003400
+         ORG   TSXRMXSV                                       1626902   00003410
+TSXRJMSV DS    CL1                                            1626902   00003420
+TSXRJPMG DS    CL50                    PROCESS MSG FROM TTR   1626902   00003430
+TSXRJNDY DS    CL1                     NEXT DAY FLAG          1626902   00003440
+TSXRJMS# DS    F                       MESSAGE CONTAINER CNT  1626902   00003450
+TSXRJMCO DS    CL16                    MESSAGE CONTAINER      1626902   00003460
+TSXRJRS# DS    F                       RESPONSE MSG CNT (0/1) 1626902   00003470
+TSXRJRCO DS    CL16                    RESPONSE CONTAINER     1626902   00003480
+TSXRJMSG DS    0CL1                    RESPONSE MESSAGE       1626902   00003490
+TSXRJHDL EQU   *-TSXRJMSV              RESPONSE HEADER LENGTH 1626902   00003495
+TSXRMSGD DSECT                         STATUS MESSAGE DEFINITION        00003500
+TSXRCODE DS    CL6                     MESSAGE CODE                     00003600
+TSXRSEV  DS    CL1                     MESSAGE SEVERITY                 00003700
+TSXRACCT DS    CL50                    MESSAGE ACCOUNT                  00003900
+TSXRPGM  DS    CL8                     MESSAGE PROGRAM                  00004000
+TSXRDAG  DS    CL8                     MESSAGE DAG                      00004100
+TSXRFLD  DS    CL8                     MESSAGE FIELD                    00004200
+TSXRDIM1 DS    CL4                     MESSAGE DIMENSION 1              00004300
+TSXRDIM2 DS    CL4                     MESSAGE DIMENSION 2              00004400
+TSXRDIM3 DS    CL4                     MESSAGE DIMENSION 3              00004500
+TSXRMSGL EQU   *-TSXRCODE              MESSAGE LENGTH         1336381   00004600
+TSXRJMSD DSECT                         JSON MESSAGE DEF       1626902   00004700
+TSXRJCOD DS    CL6                     MESSAGE CODE           1626902   00004800
+TSXRJSEV DS    CL1                     MESSAGE SEVERITY       1626902   00004900
+TSXRJTXT DS    CL50                    MESSAGE TEXT           1626902   00005000
+TSXRJACT DS    CL50                    MESSAGE ACCOUNT        1626902   00005100
+TSXRJPGM DS    CL8                     MESSAGE PROGRAM        1626902   00005200
+TSXRJDAG DS    CL8                     MESSAGE DAG            1626902   00005300
+TSXRJFLD DS    CL8                     MESSAGE FIELD          1626902   00005400
+TSXRJDM1 DS    CL4                     MESSAGE DIMENSION 1    1626902   00005500
+TSXRJDM2 DS    CL4                     MESSAGE DIMENSION 2    1626902   00005600
+TSXRJDM3 DS    CL4                     MESSAGE DIMENSION 3    1626902   00005700
+TSXRJMSL EQU   *-TSXRJCOD              MESSAGE LENGTH         1626902   00005800

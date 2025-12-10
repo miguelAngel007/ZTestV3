@@ -1,0 +1,39 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                            TSTS2UPW                                 * 00000300
+*               COPYBOOK OF UNAUTHORIZED PASSWORDS                    * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+*-----------------------------------------------------------* 0334714   00000610
+*                  ** HISTORY OF REVISIONS **               * 0334714   00000612
+*                                                           * 0334714   00000614
+* DESCRIPTION                                       CHNGID  * 0334714   00000616
+* ________________________________________________  _______ * 0334714   00000618
+* 01/12/04 ADDED SAMPLE UNAUTHORIZED PASSWORDS       GN4946 * 0364946   00000692
+* 04/01/03 ADD REPORT LEVEL 1 TO ENTRIES             GN4714 * 0334714   00000694
+*                                                           * 0334714   00000696
+*-----------------------------------------------------------* 0334714   00000698
+         SPACE 2                                                        00000700
+UPW      DS    0CL13             START UNAUTHORIZED PASSWORDS 0334714   00000802
+         DC    CL13'*************' 1ST ENTRY--ASTERISKS INVLD 0334714   00000902
+UPWELNG  EQU   *-UPW                   LENGTH OF ENTRIES IN TABLE       00001000
+*-----------------------------------------------------------* 0334714   00001102
+* TO ADD ENTRIES TO UNAUTHORIZED PASSWORD LIST, ADD A 13    * 0334714   00001202
+* BYTE VALUE EQUAL TO THE REPORT LEVEL ONE AND THE PASSWORD * 0334714   00001302
+* THAT IS INVALID/UNAUTHORIZED.  THE FIRST 2 CHARACTERS ARE * 0334714   00001402
+* THE REPORT LEVEL ONE AND THE REMAINING CHARACTERS ARE THE * 0334714   00001404
+* INVALID/UNAUTHORIZED PASSWORD                             * 0334714   00001406
+*           EXAMPLES:                                       * 0334714   00001502
+*        DC    CL13'99DUMMY      '                          * 0334714   00001602
+*        DC    CL13'99123456789  '                          * 0334714   00001702
+*-----------------------------------------------------------* 0334714   00001802
+* ADD UNAUTHORIZED PASSWORDS HERE                                       00001900
+         DC    CL13'14CAPITALS   '                            0364946   00001910
+         DC    CL13'14DECEMBER   '                            0364946   00001920
+         DC    CL13'14NOVEMBER   '                            0364946   00001930
+         DC    CL13'14REDSKINS   '                            0364946   00001940
+         DC    CL13'14SATURDAY   '                            0364946   00001950
+         DC    CL13'14THURSDAY   '                            0364946   00001960
+         DC    CL13'1412345678   '                            0364946   00001970
+UPWCNT   EQU   (*-UPW)/UPWELNG         NUMBER OF ENTRIES IN TABLE       00002000

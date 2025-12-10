@@ -1,0 +1,63 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*=*------------------------------------------------------------*=*      00000100
+*                   ** COPYBOOK DESCRIPTION **                        * 00000110
+*=*                                                            *=*      00000200
+*=*                   TCR STEP TYPE TABLE                      *=*      00000300
+*=*                                                            *=*      00000400
+*=*------------------------------------------------------------*=*      00000500
+*                  ** HISTORY OF REVISIONS **                         * 00000505
+*                                                                     * 00000510
+* DESCRIPTION                                                 CHNGID  * 00000515
+* __________________________________________________________  _______ * 00000520
+* 07/06/01 MODIFIED TO USE TSTS9TST MACRO                     2021627   00000583
+*                                                                     * 00000585
+*---------------------------------------------------------------------* 00000590
+         EJECT                                                2021627   00000595
+         SPACE                                                          00000600
+***** TCR STEP TYPE TABLE *****                                         00000700
+         SPACE                                                          00000800
+TCRTBL   DS  0F                                                         00000900
+         SPACE                                                          00001000
+         DC  C'01'                     TCR STEP TYPE   READ   2021627   00001100
+         DC  X'02'                     NUMBER OF ROUTINES     2021627   00001200
+         DC  C' '                                                       00001300
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2021627   00001399
+         DC  A(IOREQ000)               REVERSAL ROUTINE ADDRESS         00001400
+         DC  A(IOREQ000)               ROUTINE 1 ADDRESS      2021627   00001500
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2021627   00001699
+         DC  A(IORDR000)               ROUTINE 2 ADDRESS (IF PRESENT)   00001700
+ DC  C'02',X'02',C' ',A(IOREQ000),A(IOREQ000),A(IORDU000)  READ FOR UPD 00001800
+ DC  C'03',X'02',C' ',A(IOREQ000),A(IOREQ000),A(IORWR000)  REWRITE      00001900
+ DC  C'04',X'02',C' ',A(LKSDC000),A(IOREQ000),A(IOWRT000)  ADD NEW REC  00002000
+ DC  C'05',X'02',C' ',A(LKSDC000),A(IOREQ000),A(IODEL000)  DELETE       00002100
+ DC  C'10',X'02',C' ',A(DUMMY000),A(IOREQ000),A(IOFGM000)  FILE GETMAIN 00002200
+ DC  C'15',X'01',C' ',A(DUMMY000),A(IOUGM000)              USER GETMAIN 00002300
+ DC  C'17',X'01',C' ',A(DUMMY000),A(IOUFM000)              FREEMAIN     00002400
+ DC  C'19',X'02',C' ',A(DUMMY000),A(IOREQ000),A(IORTN000)     0712557   00002500
+****************    END OF DASD STEPS  ********************             00002600
+ DC  C'31',X'01',C' ',A(LKSDC000),A(LKMOD000)              PROCESS MOD  00002700
+ DC  C'32',X'01',C' ',A(LKSDC000),A(LKMOD000)              USER EDIT    00002800
+ DC  C'33',X'01',C' ',A(LKSDC000),A(LKMOD000)              USER EDIT    00002900
+ DC  C'34',X'01',C' ',A(DUMMY000),A(LKMOD000)              LINK W/SCRIP 00003000
+ DC  C'39',X'01',C' ',A(LKMOD000),A(DUMMY000)              LINK FOR SDC 00003100
+ DC  C'40',X'01',C' ',A(DUMMY000),A(LOADP000)              LOAD PHASE   00003200
+ DC  C'41',X'01',C' ',A(DUMMY000),A(RELSE000)              RELEASE PH   00003300
+ DC  C'51',X'01',C' ',A(DUMMY000),A(START000)              START XTN    00003400
+ DC  C'52',X'01',C' ',A(DUMMY000),A(START000)              START XTN    00003500
+ DC  C'55',X'01',C' ',A(DUMMY000),A(WRITD000)              WRITEQ TD    00003600
+ DC  C'56',X'01',C' ',A(DUMMY000),A(WRITD000)              WRITEQ TD    00003700
+****************    END OF TCR LOOP STEPS  ********************         00003800
+ DC  C'72',X'01',C' ',A(LGREQ000),A(LGREQ000)              XTN LOG      00003900
+ DC  C'73',X'01',C' ',A(LGREQ000),A(LGREQ000)              USER LOG     00004000
+****************    END OF LOGGING STEPS  ********************          00004100
+ DC  X'FF'                                                              00004200
+         SPACE                                                          00004300
+TCRTBLD  DSECT                                                          00004400
+TCRFRTYP DS  CL2                       TCR STEP TYPE   READ   2021627   00004500
+TCR#RTN  DS  X                         NUMBER OF ROUTINES     2021627   00004600
+         DS  C                                                          00004700
+TCRRVADR DS  A                         REVERSAL ROUTINE ADDRESS         00004800
+TCRBADR1 DS  A                         ROUTINE 1 ADDRESS      2021627   00004900
+TCRNTRYL EQU *-TCRTBLD                 ENTRY LENGTH           2021627   00005000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2021627   00005099
+TCRBADR2 DS  A                         ROUTINE 2 ADDRESS (IF PRESENT)   00005100

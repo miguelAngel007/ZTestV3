@@ -1,0 +1,154 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                          TSTS1TCR                                   * 00000004
+*                     TRANSACTION SYSTEM                              * 00000005
+*                 TRANSACTION CONTROL RECORD                          * 00000006
+*                   VARIABLE LENGTH RECORD                            * 00000007
+*                 FROM  147   TO   1553   BYTES                       * 00000008
+*                                                                     * 00000009
+*---------------------------------------------------------------------* 00000010
+*                  ** HISTORY OF REVISIONS **                         * 00000011
+*                                                                     * 00000012
+* DESCRIPTION                                                 CHNGID  * 00000013
+* __________________________________________________________  _______ * 00000014
+*                                                                     * 00000015
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000888
+*             TCCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000889
+*             TCCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000890
+*             TCRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000891
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000892
+*             TCCACHID DS    CL8         CA CHANGE ID         2602105 * 00000893
+*          CHANGED FILLER LENGTH                              2602105 * 00000894
+*                      DS    CL21        FILLER               2602105 * 00000895
+*                                                             2602105 * 00000896
+*                                                                     * 00000897
+*---------------------------------------------------------------------* 00000898
+*                                                                       00000899
+TSTSTCR  DSECT                                                          00000900
+TCRLENG  DS    XL2                      TCR LENGTH                      00001000
+*                                     MAX LENGTH  +1553                 00001100
+         DS    XL2                      FILLER                          00001200
+TCR      DS    0X                                                       00001300
+TCRKY    DS    0CL16                    TCR KEY                         00001400
+TCRCLAS  DS    CL10                       CLASS                         00001500
+TCRTRAN  DS    0CL6                       TRANS-ID KEY                  00001600
+TCRAPPL  DS    CL2                          APPLICATION CODE            00001700
+*                                       VALUE: IM - IMPACS II 00701571  00001800
+*                                              IM - IMPACS II           00001900
+*                                              ST - SAVINGS/TIME        00002000
+*                                              IC - INSTALLMENT CRDT    00002100
+*                                              XL - COMMERCIAL LOAN     00002200
+*                                              RE - REAL ESTATE         00002300
+*                                              FM - FINANCIAL MGMNT     00002400
+*                                              TS - TS SYSTEM 00701571  00002500
+TCRTRCD  DS    CL2                          BATCH TRAN CODE             00002600
+TCRSBCD  DS    CL2                          USER SUB CODE               00002700
+TCCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00002710
+TCCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00002720
+TCRLMNT  DS    0CL28                    LAST MAINT INFO         2602105 00002730
+TCRLMDTE DS    0CL6                     TCR LAST MAINT DATE             00002800
+TCRLMMO  DS    CL2                         LAST MAINT MONTH             00002900
+TCRLMDA  DS    CL2                         LAST MAINT DAY               00003000
+TCRLMYR  DS    CL2                         LAST MAINT YEAR              00003100
+TCRLMTME DS    0CL6                     TCR LAST MAINT TIME             00003200
+TCRLMHR  DS    CL2                         LAST MAINT HOUR              00003300
+TCRLMMN  DS    CL2                         LAST MAINT MINUTE            00003400
+TCRLMSC  DS    CL2                         LAST MAINT SECOND            00003500
+TCRLMEMP DS    CL8                      TCR LAST MAINT EMP-ID           00003600
+TCCACHID DS    CL8                     CA CHANGE ID             2602105 00003700
+         DS    CL21                     FILLER                  2602105 00003800
+TCRSTPNO DS    CL2                       TCR-PROC-STEP-NUM              00003900
+TCRPSTEP DS    XL1480                    20 OCCURRS OF TCR PROC STEPS   00004000
+*                                        PROCESS STEPS - DESCRIBED BY   00004100
+*                                        TCRSTEP DSECT                  00004200
+TCREND   EQU   *                         SYMBOLIC END OF TCR            00004300
+TCRLEN   EQU   *-TCR                     SYMBOLIC LENGTH OF TCR         00004400
+         SPACE                                                          00004500
+**********************************************************************  00004600
+**  DESCRIPTION OF ONE TCR PROCESSING STEP OCCURRENCE               **  00004700
+**********************************************************************  00004800
+         SPACE                                                          00004900
+TCRSTP   DSECT                       TCR PROCESSING STEP OPTIONS        00005000
+TCRTYPE  DS    CL2                   TCR PROC TYPE                      00005100
+*****************************************************************       00005200
+*                                                               *       00005300
+*            VALID VALUES FOR TCR-PROC-TYPE:                    *       00005400
+*                                                               *       00005500
+*            TYPE OF PROCESSING                                 *       00005600
+*             ******************                                 *      00005700
+*            RANGES 01 THRU 30 = FILE ACCESS                    *       00005800
+*                   31 THRU 50 = PROCESS MODULES                *       00005900
+*                   51 THRU 55 = START TRANS                    *       00006000
+*                   56 THRU 60 = WRITEQ TD                      *       00006100
+*                   70 THRU 74 = WRITE LOG                      *       00006200
+*                                                               *       00006300
+*            FILE READ                  VALUE '01'              *       00006400
+*            FILE READ FOR UPDATE       VALUE '02'              *       00006500
+*            FILE REWRITE               VALUE '03'              *       00006600
+*            FILE WRITE FOR NEW REC     VALUE '04'              *       00006700
+*            DELETE                     VALUE '05'              *       00006800
+*            FILE GETMAIN               VALUE '10'              *       00006900
+*            USER GETMAIN               VALUE '15'              *       00007000
+*            USER FREEMAIN              VALUE '17'              *       00007100
+*            GENERIC BROWSE             VALUE '19'              *       00007200
+*            PROCESS MODULE             VALUE '31'              *       00007300
+*            USER EDIT                  VALUE '32'              *       00007400
+*            USER EDIT                  VALUE '33'              *       00007500
+*            LINK WITH SCRIPT NAME      VALUE '34'              *       00007600
+*            LINK FOR SAME DAY CORRECTION                       *       00007700
+*                                       VALUE '39'              *       00007800
+*            LOAD PHASE                 VALUE '40'              *       00007900
+*            RELEASE PHASE              VALUE '41'              *       00008000
+*            START TRANSACTION          VALUE '51'.             *       00008100
+*            START TRANSACTION          VALUE '52'.             *       00008200
+*            WRITEQ TD                  VALUE '55'.             *       00008300
+*            WRITEQ TD                  VALUE '56'.             *       00008400
+*            TRANSACTION LOG            VALUE '72'.             *       00008500
+*            USER LOG                   VALUE '73'.             *       00008600
+*                                                               *       00008700
+*****************************************************************       00008800
+TCRTOPT  DS    CL72                  TCR PROC TYPE OPTIONS              00008900
+         ORG   TCRTOPT                                                  00009000
+TCRFANME DS    0CL8                     FILE ACCESS FILENAME            00009100
+TCRFAPPL DS    CL2                      FILE ACCESS FILE APPL           00009200
+TCRFAID  DS    CL3                      FILE ACCESS FILE ID             00009300
+         DS    CL3                      FILE FILLER                     00009400
+*****************************************************************       00009500
+*            FIRST TWO BYTES ARE APPLICATION.                   *       00009600
+*            LAST THREE BYTES ARE:                              *       00009700
+*            VALUE: BCR = BANK CONTROL RECORD                   *       00009800
+*                   LOG = LOG (ONLY VALID WITH 72 TYPE)         *       00009900
+*                   MEM = MEMO                                  *       00010000
+*                   MST = MASTER                                *       00010100
+*                   RTB = RATE BROADCAST RECORD                 *       00010200
+*                   SDR = SCREEN DEFINITION RECORD              *       00010300
+*            ALL EIGHT BYTES CAN BE USER FILENAME               *       00010400
+*****************************************************************       00010500
+TCRTRAIN DS    CL2                   TCR PROC TRAINING/STEP             00010600
+*****************************************************************       00010700
+*    VALUE: LOW-VALUES   -  DO NOT PROCESS THIS STEP IN TRAINING*       00010800
+*           HIGH-VALUES  -  PROCESS THIS STEP IN TRAINING       *       00010900
+*           PROCESS STEP -  PROCESS ALTERNATE STEP IN TRAINING  *       00011000
+*****************************************************************       00011100
+TCRFAEXP DS    C                        FILE ACCESS EXP FLAG            00011200
+*****************************************************************       00011300
+*            VALUE: 0 - DO NOT EXPAND FILE FOR THIS STEP        *       00011400
+*                   1 - EXPAND FILE FOR THIS STEP               *       00011500
+*                   2 - COMPRESS FILE FOR THIS STEP             *       00011600
+*****************************************************************       00011700
+TCRSTMR  DS    CL6                      START TRANS TIMERD              00011800
+TCRPMMOD DS    CL8                      PROCESS MODULE NAME             00011900
+TCRSTID  DS    CL8                      START TRANS TRANID              00012000
+TCRFAGML DS    XL2                      FILE ACCESS GETMAIN LENGTH      00012100
+TCRWQUE  DS    CL4                      WRITEQ TD QUEUEID               00012200
+TCRPMUSR DS    CL15                     PROCESS MODULE USERDATA         00012300
+TCRSCRPT DS    CL8                      SCRIPT NAME                     00012400
+TCRSDCF  DS    CL1                      SAME DAY CORRECTION FLAG        00012500
+*****************************************************************       00012600
+*            VALUE: 0 - DO NOT REPLACE STEP IN SDC              *       00012700
+*                   1 - REPLACE STEP IN SDC                     *       00012800
+*****************************************************************       00012900
+         DS    CL9                      FILLER                          00013000
+TCROCCR  EQU   *-TCRTYPE             SYMBOLIC LENGTH OF TCR             00013100

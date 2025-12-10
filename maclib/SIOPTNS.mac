@@ -1,0 +1,147 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00000100
+***                                                                 *** 00000200
+***         SYSTEMATICS STANDARD SUBROUTINE SYSTEM                  *** 00000300
+***                                                                 *** 00000400
+***         INSTALLATION OPTIONS                                    *** 00000500
+***                                                                 *** 00000600
+*********************************************************************** 00000700
+* 08/11/10 CHANGED &ESAMODE TO 0;&STEPC TO 0                  GNUP001 * 00000757
+* 02/01/17 MODIFIED TO ADD ATM ADMIN EXIT PROCESS             1727145   00000758
+* 12/06/16 ADD &SUPRPUB FOR SUPPRESS PUB EVT MSGS             1726479   00000760
+* 09/23/14 ADD &SSRRECS FOR SAS9TSSR AND SASENVB              1526648   00000762
+* 03/28/11 ADD &ENQSUSP FOR TSTSSBLD EOR ENQ SUSPEND FLAG     1216092   00000763
+* 10/25/10 ADD QSI TIME TO FORCE LOAD                         1115866   00000764
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000765
+* 10/15/08 CHANGED CICSLVL TO 64                              0915765 * 00000767
+* 01/30/03 ADD SIFICHE COMPRESS FICHE FILE FLAG (CMPFCH)      0334692 * 00000769
+* 10/07/02 ADD SIPRINT LINE LENGTH FLAG (PRLINE)              0324587 * 00000771
+* 03/25/02 ADD ENQ/DEQ FLAG                                   2024457 * 00000773
+* 03/03/00 REMOVED COBVSE,XAMODE FLAGS                        2024183 * 00000775
+* 06/04/98 ADDED SMS FLAG TO BYPASS VSE BLKSZ ON DST          9912991 * 00000777
+* 11/10/97 REMOVED &DATEFMT,&DATESEP,&DECIMAL,&DIVIDER,       9913483 * 00000778
+*          &VERSION,&LANG,&MLTLANG,&FLOATDC,&RSYSDTE          9913483 * 00000780
+*          MOVED TO A PARMS FILE                              9913483 * 00000782
+* 01/08/98 ADDED &COBVSE                                      9913437 * 00000784
+* 08/02/97 ADDED &FLOATDC                                     9913481 * 00000786
+* 08/01/97 MODIFIED &NQR, &XMIT, &FICHE, &PRINT               9913165 * 00000788
+* 03/19/97 ADDED &RSYSDTE FOR 24X7 PROCESSING                 9910919 * 00000790
+* 01/29/97 ADDED &Q1MAXDL FOR 24X7 PROCESSING                 9910919 * 00000792
+* 05/03/96 ADDED &COB370                                      9913165 * 00000793
+* 07/25/95 ADDED &STEPC                                       2602755 * 00000794
+* 03/29/95 ADDED &CICSLVL                                     2601721 * 00000795
+* 04/25/95 ADDED &DECIMAL, &DIVIDER                           2601861 * 00000796
+* 04/25/95 ADDED &VERSION                                     2602420 * 00000797
+* 04/25/95 ADDED &LANG, REMOVED &PRTXLT, ADDED &MLTLANG       2602409 * 00000798
+*********************************************************************** 00000799
+         GBLA  &MVSLNCT                                                 00000800
+         GBLA  &Q1MAXDL                                       9910919   00000810
+         GBLB  &NQR,&XMIT,&FICHE,&PRINT,&BLSTAT,&REPRCP                 00000900
+         GBLB  &VSE,&ESAMODE,&STEPC                           2024183   00001000
+         GBLB  &DYNPRT,&DYNASA,&ALLASA                        2602409   00001100
+         GBLB  &SMS                                           9912991   00001200
+         GBLB  &PRLINE                                        0324587   00001250
+         GBLB  &CMPFCH                                        0334692   00001260
+         GBLB  &ENQSUSP                                       1216092   00001270
+         GBLB  &SUPRPUB                                       1726479   00001280
+         GBLB  &ATMXFLG                                       1727145   00001290
+         GBLC  &ATMXTSQ,&ATMXNAM                              1727145   00001298
+         GBLC  &OPSYS                                                   00001300
+         GBLC  &VSAMEMT                                                 00001400
+         GBLC  &PRTCLAS                                                 00001500
+         GBLC  &CICSLVL                                       2601721   00001510
+         GBLA  &Q1MAXTL                                       1115866   00001520
+         SPACE                                                          00001600
+*        GN UPDATE 026.00                                               00001700
+         SPACE                                                          00001800
+*        A CHANGE TO ANY OPTION REQUIRES REASSEMBLY OF THE MODULE(S)    00001900
+*        AFFECTED.                                                      00002000
+         SPACE                                                          00002100
+&OPSYS   SETC  'MVS'                                                    00002200
+*&ESAMODE SETB  1                                             GNUP001   00002400
+&ESAMODE SETB  0                                              GNUP001   00002401
+&VSE     SETB  0              NOT VSE                                   00002500
+         SPACE                                                          00002600
+*CICSLVL 69 = CICS TS 5.2                                     GNUP001   00002602
+*&CICSLVL SETC  '65'           INSTALLED CICS LEVEL           GNUP001   00002610
+&CICSLVL SETC  '69'           INSTALLED CICS LEVEL            GNUP001   00002611
+         SPACE                                                2601721   00002620
+*        &SSRRECS - MAXIMUM SSR RECORDS                       1526648   00002622
+&SSRRECS SETA  999            MAXIMUM SSR RECORDS             1526648   00002623
+*        &Q1MAXDL - MAXIMUM DELAY WAITING FOR LOAD IN CORE    9910919   00002630
+&Q1MAXDL SETA  10             THIS CANNOT BE LESS THAN 01     9910919   00002640
+*        &Q1MAXTL - MAX MINUTES TO WAIT-FORCE LOAD IN CORE    1115866   00002650
+&Q1MAXTL SETA   10            THIS CANNOT BE LESS THAN 01     1115866   00002660
+*        &MVSLNCT - STANDARD PAGE LINE COUNT FOR SIGETLNE               00002700
+&MVSLNCT SETA  60             DEFAULT BLOCKSIZE IS 60 LINES             00002800
+         SPACE                                                          00002900
+&SMS     SETB 0                                               9912991   00002910
+*        MVS DFP SYSTEM MANAGED STORAGE                       9912991   00002920
+*        0 - NO MVS SMS                                       9912991   00002930
+*        1 - MVS SMS (BLOCKSIZE = O OR OMITTED)               9912991   00002940
+*        THE FOLLOWING FLAGS INDICATE IF A NULL FILE IS TO BE CREATED   00003000
+*        IF NOTHING IS WRITTEN TO THE FILE.                             00003100
+*        0 - DO NOT CREATE A NULL FILE                                  00003200
+*        1 - CREATE A NULL FILE                                         00003300
+&NQR     SETB  1              SINQR - REPORT INQUIRY FILE     9913165   00003400
+&XMIT    SETB  1              SIXMIT - REPORT TRANSMIT FILE   9913165   00003500
+&FICHE   SETB  1              SIFICHE - REPORT MICROFICHE FIL 9913165   00003600
+&PRINT   SETB  1              SIPRINT - PRINT FILE            9913165   00003700
+&BLSTAT  SETB  0              SIBLSTAT - BILLING STATISTICS FILE        00003800
+&REPRCP  SETB  0              SIREPRCP - REPORT RECAP FILE              00003900
+         SPACE                                                          00004000
+*        &VSAMEMT - VSAM EMPTY FILE CODE FOR SIIORTN                    00004100
+&VSAMEMT SETC  'A0'           MVS VSAM EMPTY FILE CODE                  00004200
+         SPACE                                                          00004300
+*                                                                       00004800
+*       THE FOLLOWING PARAMETERS (&DYNPRT, &PRTCLAS, &DYNASA, 0324587   00004910
+*       &ALLASA, &PRLINE) ARE USED IN SIPRINT.                0324587   00004920
+*                                                                       00005100
+*        &DYNPRT  - USE DYNAMIC ALLOCATION FOR PRINT FILES IF THERE     00005200
+*                   IS NO DD STATEMENT                                  00005300
+*DYNPRT  SETB  0    NO DYNAMIC DD STATMENT ALLOCATION                   00005400
+&DYNPRT  SETB  1    DO DYNAMIC DD STATMENT ALLOCATION                   00005500
+*        &PRTCLAS - SYSOUT CLASS TO USE IN SIPRINT WHEN GENERATING      00005600
+*                   DEFAULT DD INFO FROM INTERNAL DATA.                 00005700
+&PRTCLAS SETC  'A'                                                      00005800
+*        &DYNASA  - USE ASA CONTROL CHARACTERS IN SIPRINT WHEN          00005900
+*                   GENERATING DEFAULT DD INFO                          00006000
+&DYNASA  SETB  0    NO ASA                                              00006100
+*DYNASA  SETB  1    USE ASA                                             00006200
+*        &ALLASA  - ALWAYS USE ASA CONTROL CHARACTERS IN SIPRINT        00006300
+&ALLASA  SETB  0    USE ASA ONLY IF SPECIFIED IN DD STATEMENT           00006400
+*ALLASA  SETB  1    ALWAYS USE ASA                                      00006500
+*                                                             0324587   00006510
+*        &PRLINE  - USE A PRINT LINE OF 151 CHARACTERS        0324587   00006512
+&PRLINE  SETB  0    DO NOT USE EXTENDED PRINT LINE            0324587   00006514
+*PRLINE  SETB  1    USE EXTENDED PRINT LINE                   0324587   00006516
+*                                                             2602755   00006600
+*        THE FOLLOWING PARAMETERS (&STEPC)                    2602755   00006700
+*        ARE USED IN PROGRAMS USING THE GCA                   2602755   00006800
+*                                                             2602755   00006900
+*&STEPC   SETB  1                                             2602755   00007000
+&STEPC   SETB  0                                              GNUP001   00007001
+*                 1 =  RETURN STEP CODES                      2602755   00007100
+*                 0    DON'T RETURN STEP CODES                2602755   00007200
+&ENQ     SETB  0                                              2024457   00007300
+*                 1 =  USE TSENQ FILE                         2024457   00007400
+*                 0    USE CICS ENQ/DEQ COMMANDS (DEFAULT)    2024457   00007500
+*  PARAMETER &CMPFCH IS USED IN PROGRAM SIFICHE. IF CMPFCH    0334692   00007600
+*  IS SET TO 1 THE SIFICHE FILE WILL BE COMPRESSED            0334692   00007700
+&CMPFCH  SETB  0  0 =  DO NOT COMPRESS SIFICHE FILE           0334692   00007800
+*CMPFCH  SETB  1  1 =  COMPRESS THE SIFICHE FILE              0334692   00007900
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1216092   00007999
+&ENQSUSP SETB 0                                                         00008000
+*        TSTSSBLD EOR ENQ SUSPEND FLAG                        1216092   00008100
+*        0 - NOSUSPEND ON ENQ BUSY                            1216092   00008200
+*        1 - SUSPEND ON ENQ BUSY                              1216092   00008300
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1726479   00008399
+&SUPRPUB SETB 1                                                         00008400
+*        0 - DON'T SUPPRESS PUB EVENT MSG                     1726479   00008440
+*        1 - SUPPRESS PUB EVENT MSG                           1726479   00008480
+&ATMXFLG SETB  0            NO ATM ADMIN EXIT                 1727145   00008520
+*        0 - NO ATM                                           1727145   00008522
+*        1 - ATM                                              1727145   00008524
+&ATMXTSQ SETC  'XTSQ'       ATM ADMIN EXIT TS QUEUE NAME      1727145   00008560
+&ATMXNAM SETC  'TSATMXIT'   ATM ADMIN USER EXIT NAME          1727145   00008600

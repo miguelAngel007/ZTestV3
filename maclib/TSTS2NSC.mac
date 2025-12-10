@@ -1,0 +1,59 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                            TSTS2NSC                                 * 00000200
+*                       TRANSACTION SYSTEM                            * 00000300
+*                    NATIVE SECURITY COMMAREA                         * 00000400
+*********************************************************************** 00000500
+         SPACE 2                                                        00000600
+TSTSNSC  DSECT                                                          00000700
+NSCEYEC  DS    CL8                   EYE CATCHER '** NSC**'             00000800
+*********************************************************************** 00000900
+*        VALID CONTROLS SECURITY                                      * 00001000
+*********************************************************************** 00001100
+NSCVCREQ DS    0CL50                                                    00001200
+NSCVCRQ  DS    CL1                     TRANSACTION SECURITY REQUESTED   00001300
+*                                          VALUE: 0 - NOT REQUESTED     00001400
+*                                                 1 - PROCESS REQUEST   00001500
+NSCVCFLG DS    CL2                   MASTER FILE GROUP NUMBER 2501276   00001600
+NSCVCCTL DS    CL14                  CONTROLS TO BE VALIDATED           00001700
+NSCVCCGP DS    CL2                   CONTROL FILE GROUP NUMBER2501276   00001710
+NSCVCAGP DS    CL2                   ALPHA FILE GROUP NUMBER  2501276   00001720
+NSCVCAPL DS    CL2                   APPLICATION ID           2511663   00001730
+NSCVCFIL DS    CL3                   FILE ID - TSTS9VC        2521966   00001740
+NSCVCKEY DS    CL14                  ADDITIONAL KEY - TSTS9VC 2521966   00001750
+         DS    CL10                                           2521966   00001800
+*********************************************************************** 00001900
+*        TRANSACTION SECURITY                                         * 00002000
+*********************************************************************** 00002100
+NSCTSREQ DS    0CL150                                                   00002200
+NSCTSRQ  DS    CL1                     TRANSACTION SECURITY REQUESTED   00002300
+*                                          VALUE: 0 - NOT REQUESTED     00002400
+*                                                 1 - PROCESS REQUEST   00002500
+NSCTSTAB DS    0CL128                  TRANSACTION SECURITY TABLE       00002600
+NSCTSTSC DS    0CL16                       TRANS SECURITY CODE          00002700
+NSCTSTCD DS    CL8                           TRANSACTION CODE           00002800
+NSCTSUCD DS    CL8                           USER CODE                  00002900
+         DS    CL112                     2ND-8TH OCCUR                  00003000
+         DS    CL21                  FILLER                             00003100
+*********************************************************************** 00003200
+*        AUTHORIZED FUNCTION SECURITY                                 * 00003300
+*********************************************************************** 00003400
+NSCAFREQ DS    0CL25                                                    00003500
+NSCAFRQ  DS    CL1                     TRANSACTION SECURITY REQUESTED   00003600
+*                                          VALUE: 0 - NOT REQUESTED     00003700
+*                                                 1 - PROCESS REQUEST   00003800
+NSCAFFNC DS    CL5                     FUNCTIONS REQUIRED               00003900
+         DS    CL19                    FILLER                           00004000
+NSCDMREQ DS    0CL30                   SDMS REQUEST DATA      2511663   00004010
+NSCDMFLG DS    CL1                     SDMS REQUEST FLAG      2511663   00004020
+NSCDMSCN EQU   C'N'                      SECURITY NOT REQD    2511663   00004030
+NSCDMSCY EQU   C'Y'                      SECURITY EXIT REQD   2511663   00004040
+NSCDMRAD DS    AL4                     A(REC) FOR SECURITY CK 2511663   00004050
+NSCDMSAD DS    AL4                     A(SOR) FOR SECURITY CK 2511663   00004060
+NSCDMGAD DS    AL4                     A(GCA) FOR SECURITY CK 2511663   00004070
+NSCDAGNM DS    CL8                     DAG NAME               2602895   00004080
+         DS    CL9                     FILLER                 2602895   00004085
+*********************************************************************** 00004100
+*        FILLER                                                       * 00004200
+*********************************************************************** 00004300
+         DS    CL37                    FILLER                 2511663   00004400

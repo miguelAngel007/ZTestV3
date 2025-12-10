@@ -1,0 +1,104 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*  04/06/88, 22:00:00                                                 * 00000200
+*                            TSTS2ACA                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*    DSECT OF TSBMS FIXED PORTION OF APPLICATION COMMUNICATION AREA   * 00000500
+*---------------------------------------------------------------------* 00000600
+         SPACE 2                                                        00000700
+*---------------------------------------------------------------------* 00000710
+*                       *** HISTORY REVISION ***              9913918 * 00000720
+*       *05/06/99 - USE EOR LANGCD FOR EOR PREF LANGUAGE      9913918 * 00000780
+*---------------------------------------------------------------------* 00000790
+TSACA    DSECT                                                          00000800
+ACA      DS    0X                                                       00000900
+*                                                                       00001000
+*        REQUEST AREA                                                   00001100
+ACAMAPNM DS    0CL7                  MAP NAME                           00001200
+ACAMPNTC DS    CL4                       CICS TRAN ID                   00001300
+         DS    CL1                       M                              00001400
+ACAMPNSC DS    CL2                       SCREEN NUMBER                  00001500
+ACATCODE DS    0CL8                  TRAN CODE ENTERED SAVE AREA        00001600
+ACATCID  DS    CL4                       CICS TRAN ID                   00001700
+ACATCAPP DS    CL4                       APPENDED DATA                  00001800
+ACALSCER DS    CL1                   LAST SCREEN ERROR FLAG             00001900
+*                                    VALUE: 0 - NO                      00002000
+*                                           1 - YES,LAST ERROR FOR SCRN 00002100
+ACAMAPDS DS    CL7                   MAP DISPLAYED                      00002200
+ACAXCTL  DS    CL1                   XCTL FLAG                          00002300
+*                                    VALUE: 0 - XCTL NOT IN PROCESS     00002400
+*                                           1 - XCTL IN PROCESS         00002500
+ACALANG  DS    XL2                   LANGUAGE CODE FROM EOR   9913918   00002510
+         DS    XL2                   FILLER                   9913918   00002520
+ACAMSGMX DS    XL2                   MAXIMUM NUMBER OF MESSAGES         00002700
+*                                    VALUE: 10                          00002800
+ACAOVFMX DS    XL2                   MAXIMUM NUMBER OF OVERFLOW ENTRIES 00002900
+*                                    VALUE: 20                          00003000
+ACATBSRT DS    CL1                   TABLE SORTED FLAG                  00003100
+*                                    VALUE: 0 - TABLE NEEDS SORTING     00003200
+*                                           1 - TABLE SORTED            00003300
+ACAMSGPR DS    XL2                   LAST MESSAGE PROCESSED             00003400
+ACAMSGSN DS    XL2                   LAST MESSAGE SENT                  00003500
+ACAHISEV DS    CL2                   HIGHEST ERROR SEVERITY             00003600
+*                                                                       00003700
+ACAMSGTB DS    10XL120               MESSAGE OCCURRENCES                00003800
+*                                    DESCRIBED BY ACAMSGDS DSECT        00003900
+ACAMSGLG EQU   *-ACAMSGTB            SYMBOLIC LNGTH OF MESSAGE TABLE    00004000
+*                                                                       00004100
+ACAOVFPR DS    XL2                   LAST OVERFLOW FIELD PROCESSED      00004200
+         DS    XL4                   FILLER                             00004300
+ACAOVFTB DS    20XL30                MESSAGE OVERFLOW TABLE             00004400
+*                                    DESCRIBED BY ACAOVFDS DSECT        00004500
+ACAOVFLG EQU   *-ACAOVFTB            SYMBOLIC LNGTH OF OVERFLOW TABLE   00004600
+*                                                                       00004700
+ACASPRPR DS    XL2                   LAST SCREEN PROCESSED              00004800
+         DS    XL12                  FILLER                             00004900
+*                                                                       00005000
+ACAEND   EQU   *                     END OF TSBMS FIXED AREA            00005100
+*                                    OF APPL COMMUNICATION AREA         00005200
+ACALEN   EQU   *-ACA                 SYMBOLIC LNGTH OF TSBMS FIXED AREA 00005300
+*                                                                       00005400
+ACAMSGDS DSECT                       MESSAGE INFO OCCURS 10 TIMES       00005500
+ACASRTKY DS    0CL6                  ERROR MESSAGE SORT KEY             00005600
+ACASCRPR DS    XL2                   SCREEN PROCESS ORDER               00005700
+ACASVRTY DS    CL2                   SEVERITY                           00005800
+ACAFLDRW DS    XL1                   FIELD ROW                          00005900
+ACAFLDCO DS    XL1                   FIELD COLUMN                       00006000
+ACASRTLN EQU   *-ACASRTKY            LENGTH OF SORT KEY                 00006100
+ACAFLDLO DS    0XL22                 FIELD LOCATION INFORMATION         00006200
+ACAFLDAG DS    CL8                     FIELD DAG                        00006300
+ACAFLDID DS    CL8                     FIELD I.D.                       00006400
+ACAFLDM1 DS    XL2                     FIELD DIMEN 1                    00006500
+ACAFLDM2 DS    XL2                     FIELD DIMEN 2                    00006600
+ACAFLDM3 DS    XL2                     FIELD DIMEN 3                    00006700
+ACAPRCFL DS    CL1                   PROCESSED FLAG                     00006800
+*                                    VALUE: 0 - MESSAGE NOT PROCESSED   00006900
+*                                           1 - MESSAGE TEXT FORMATTED  00007000
+*                                           2 - CURSOR AND ATTR SET     00007100
+ACACURSR DS    XL2                   CURSER POSITION                    00007200
+ACARTEFL DS    CL1                   ROUTE FLAG                         00007300
+*                                    VALUE: 0 - DO NOT ROUTE MESSAGE    00007400
+*                                           1 - ROUTE TO CONSOLE        00007500
+*                                           2 - ROUTE TO DESTINATIONS   00007600
+*                                           3 - ROUTE TO BOTH           00007700
+ACASECFL DS    CL1                   SECURITY ERROR FLAG                00007800
+*                                    VALUE: 0 - DO NOT LOG SEC ERROR    00007900
+*                                           1 - LOG SECURITY ERROR      00008000
+ACAPGMID DS    CL8                   PROGRAM I.D.                       00008100
+ACACODE  DS    CL6                   MESSAGE CODE                       00008200
+ACAMSG   DS    0CL62                 MESSAGE TEXT                       00008300
+ACAVAR1  DS    CL37                  VARIABLE DATA FIELD 1              00008400
+ACAVAR2  DS    CL25                  VARIABLE DATA FIELD 2              00008500
+         DS    CL11                  FILLER                             00008600
+ACAMSGLN EQU   *-ACAMSGDS            LENGTH OF ONE MESSAGE OCCURRENCE   00008700
+*                                                                       00008800
+ACAOVFDS DSECT                       OVERFLOW FIELD INFO OCCURS 20X     00008900
+ACAOVFSP DS    XL2                   FIELD SCREEN PROCESS ORDER         00009000
+ACAOVFDG DS    CL8                   FIELD DAG                          00009100
+ACAOVFID DS    CL8                   FIELD ID                           00009200
+ACAOVFD1 DS    XL2                   FIELD DIMENSION 1                  00009300
+ACAOVFD2 DS    XL2                   FIELD DIMENSION 2                  00009400
+ACAOVFD3 DS    XL2                   FIELD DIMENSION 3                  00009500
+         DS    XL6                   FILLER                             00009600
+ACAOVFLN EQU   *-ACAOVFDS            LENGTH OF ONE OVERFLOW OCCURRENCE  00009700
+*                                                                       00009800

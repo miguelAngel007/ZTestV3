@@ -1,0 +1,58 @@
+**********************************************************************
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+**********************************************************************
+******************************* CZTS2RLG *****************************  00000010
+* COPY BOOK : DEFINICION DE LA PDA - PARA NOMBRES Y DIRECCION DE     *  00000020
+*             CLIENTES NATUALES Y COMRECIALES                        *  00000020
+**********************************************************************  00000060
+LGAREA   DS    0F            * INICIO DE COMMAREA                       00000070
+*                                                                       00000080
+LGNEXPDA DS    F             * DIRECION DE LA PDA                       00000090
+LGEYECAT DS    CL8           * EYE CATCHER '** LDA**'                   00000120
+LGLNGPDA DS    XL2           * LONGITUD DE LA PDA                       00000120
+LGLNGFIL DS    XL2           * LOW VALUE                                00000120
+LGNAMDAG DS    CL16          * LONGITUD DE LA PDA                       00000120
+*                                                                       00000080
+LGLNGFIJ DS    XL2           * LONGITUD FIJA DE LA PDA                  00000120
+*                                                                       00000080
+LGCDMOD  DS    CL1           *                                          00000120
+LGCDSCR  DS    CL2           *                                          00000100
+LGCDACT  DS    CL1           *                                          00000110
+*                                                                       00000080
+LGCONTRL DS   0CL30          * CONTROLES DE LA CUENTA Y CODIGO UNICO    00000120
+LGCTRL1  DS    CL4           * CONTROL 1                                00000120
+LGCTRL2  DS    CL4           * CONTROL 2                                00000120
+LGCTRL3  DS    CL4           * CONTROL 3                                00000120
+LGCTRL4  DS    CL4           * CONTROL 4                                00000120
+*                                                                       00000080
+LGCUSNBR DS    CL14          *                                          00000120
+*                                                                       00000080
+LGNAMEL1 DS    CL40          * NOMBRE                                   00000120
+LGBANK6  DS    CL03          *                                          00000120
+*LGBINA3  DS    XL03         *                                          00000120
+LGCUSIND DS    CL1           * VALOR CONSTANTE 'N'                      00000120
+LGEMPCT1 DS    CL2           *                                          00000120
+LGEMPCT2 DS    CL3           *                                          00000120
+*
+LGLSTDT  DS    CL8           *                                          00000120
+LGLSTIME DS    CL6           *                                          00000120
+LGADDDT  DS    CL8           *                                          00000120
+LGLOGKEY DS    CL75          *                                          00000120
+*                                                                       00000760
+LGDAGNAM DS    CL8           *                                          00000120
+*                                                                       00000760
+LGKEYNAM DS   0CL26          *                                          00000120
+LGNAME13 DS    CL13          *                                          00000120
+LGNAME08 DS    CL8           *                                          00000120
+LGNAME01 DS    CL1           *                                          00000120
+LGLSTNAM DS    CL2           *                                          00000120
+LGXRFNAM DS    CL2           *                                          00000120
+*                                                                       00000760
+LGFILLER DS    CL6           *                                          00000120
+*                                                                       00000760
+LGLNGVAR DS    XL2           *                                          00000120
+LGNUMVAR DS    XL2           *                                          00000120
+*                                                                       00000760
+LGDATVAR DS    CL3000        *                                          00000120
+*                                                                       00000760
+LGAREAL  EQU   *-LGAREA      * COMMAREA LENGTH                          00000770

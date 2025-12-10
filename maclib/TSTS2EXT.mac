@@ -1,0 +1,16 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+EXT      DSECT                                                          00000100
+EXTMXOC  DS    XL2                     NUMBER OF OCCURRENCES            00000200
+EXTINDC  DS    XL1                     INDICATOR FLAG                   00000300
+*             VALUES:  'B' - USE EXCL TBLE FOR UPDATE AND SAVE LOG REQS 00000400
+*                      'U' - USE EXCL TBLE FOR UPDATE REQUEST ONLY      00000500
+*                      'S' - USE EXCL TBLE FOR SAVE LOG REQUEST ONLY    00000600
+EXTSTLN  EQU   *-EXT                   LENGTH OF FIXED AREA             00000700
+EXTOCCR  DSECT                                                          00000800
+EXTDSM   DS    CL8                     DSM NAME                         00000900
+EXTFLDID DS    CL8                     FIELD ID                         00001000
+EXTDIMIN DS    0CL6                    DIMENSION INFORMATION            00001100
+EXTDIM1  DS    XL2                     DIMENSION 1                      00001200
+EXTDIM2  DS    XL2                     DIMENSION 2                      00001300
+EXTDIM3  DS    XL2                     DIMENSION 3                      00001400
+EXTOCLN  EQU   *-EXTOCCR               LENGTH OF 1 OCCURRENCE           00001500

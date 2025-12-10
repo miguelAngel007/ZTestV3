@@ -1,0 +1,58 @@
+***********************************************************************
+***   * FO0628 06/11/03 JAVP MIGRACION SAFE A TOLD II                 *
+***********************************************************************
+         MACRO
+         CZFMSUSE                                                      X
+               &USERNUM=,                                              X
+               &PASSWRD=,                                              X
+               &BRANCH=,                                               X
+               &BANK=,                                                 X
+               &MODE=,                                                 X
+               &CLASS=,                                                X
+               &LEVEL=,                                                X
+               &TRANLST=,                                              X
+               &MODULE=,                                               X
+               &USERINF=,                                              X
+               &TYPE=
+         LCLA  &MOD
+         LCLC  &USE,&BRA,&BAN,&LST,&REG
+         AIF   ('&TYPE' NE 'ENTRY').FIN
+.O0      AIF   ('&MODE' NE 'NORMAL').O1
+&MOD     SETA  0
+         AGO   .SALE
+.O1      AIF   ('&MODE' NE 'BTERM').O2
+&MOD     SETA  1
+         AGO   .SALE
+.O2      AIF   ('&MODE' NE 'TRAIN').O3
+&MOD     SETA  2
+         AGO   .SALE
+.O3      AIF   ('&MODE' NE 'OTRCNL').SALE
+&MOD     SETA  3
+         AGO   .SALE
+.SALE    ANOP
+         AIF   ('&USERINF'(2,1) EQ 'G').GAO
+&USE     SETC  '&USERNUM    '
+         AGO   .USERLOD
+.GAO     ANOP
+&USE     SETC  '&USERNUM'.'B   '
+.USERLOD ANOP
+&BRA     SETC  '&BRANCH'
+&BAN     SETC  '&BANK'
+&LST     SETC  '&TRANLST'
+&REG     SETC  '&USE'
+&REG     SETC  '&REG'.'  '
+&REG     SETC  '&REG'.'A'
+&REG     SETC  '&REG'.'20030801'
+&REG     SETC  '&REG'.'USUARIO SAFE NUMERO '.'&USE  '
+&REG     SETC  '&REG'.'000'
+&REG     SETC  '&REG'.'000'
+&REG     SETC  '&REG'.'N'
+&REG     SETC  '&REG'.'000'
+&REG     SETC  '&REG'.'    '
+&REG     SETC  '&REG'.'&BAN'
+&REG     SETC  '&REG'.'&BRA'
+&REG     SETC  '&REG'.'&LST'
+&REG     SETC  '&REG'.'&MOD'
+&REG     SETC  '&REG'.'  '
+         PUNCH '&REG'
+.FIN     MEND

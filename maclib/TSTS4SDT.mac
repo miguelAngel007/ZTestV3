@@ -1,0 +1,25 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                            TSTS4SDT                                 * 00020000
+*                       TRANSACTION SYSTEM                            * 00030000
+*                  READ SCF FILE INSIDE MACROS                        * 00040000
+*                                                                     * 00050000
+*---------------------------------------------------------------------* 00060000
+*                  ** HISTORY OF REVISIONS **                         * 00070000
+* DESCRIPTION                                                 CHGID   * 00080000
+* __________________________________________________________  _______ * 00090000
+*                                                                     * 00100000
+* 06/28/01 INITIAL RELEASE                                    2024349 * 00110000
+*---------------------------------------------------------------------* 00120000
+         SPACE                                                          00130000
+*        EXEC  CICS READ DATASET ('TSSCF')                              00140000
+*                        RIDFLD(SVRECKY)                                00150000
+*                        INTO(0(&WR1))                                  00160000
+*                        LENGTH(M023)                                   00170000
+*                        NOHANDLE                                       00180000
+         DFHECALL =X'0602F0002800008000',(CHA8,=CL8'TSSCF'),(______RF,0*
+               (&WR1)),(FB_2__RF,M023),(______RF,SVRECKY)
+         SPACE                                                          00190000
+         MVC   SVEIBRC,EIBRCODE                  SAVE EIBRCODE          00200000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

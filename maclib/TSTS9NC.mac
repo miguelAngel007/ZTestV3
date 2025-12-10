@@ -1,0 +1,99 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LA      TSTS9NC &TYPE=                                                 00000200
+.********************************************************************** 00000300
+.*                                                                    * 00000400
+.* THIS MACRO CREATES A DSECT OR STORAGE FOR THE NON-NATIVE   2603016 * 00000500
+.* COMMUNICATION AREA.  THE NON-NATIVE COMMUNICATIONS AREA IS 2603016 * 00000501
+.* USED FOR PASSING DATA BETWEEN AN ASYNCHRONOUS FRONT END    2603016 * 00000502
+.* AND A TS NATIVE TRANSACTION.  THE INFORMATION PASSED IS    2603016 * 00000503
+.* CRITICAL TO THE COMPLETION OF THE TRANSACTION.             2603016 * 00000600
+.*                                                                    * 00000700
+.********************************************************************** 00000800
+.*                                                                    * 00000900
+*---------------------------------------------------------------------* 00000901
+*                  ** HISTORY OF REVISIONS **                         * 00000902
+*                                                                     * 00000903
+* DESCRIPTION                                                 CHNGID  * 00000904
+* __________________________________________________________  _______ * 00000905
+*08/09/06 INCREASED NNCLEN LENGTH AND ADDED NNCAGLUW,       * 0724911   00000988
+*         NNCSACBA, NNCMQMSG, NNCEIBTR AND NNCITRMD         * 0724911   00000990
+*09/13/04 ADDED COMMENT FOR NNCITRI=X'05'                   * 0525086   00000992
+*11/06/03 ADDED COMMENT FOR NNCITRI=X'04' TCP/IP IP & PORT  * 0424905   00000994
+*09/27/95 ADDED CODE TO SUPPORT INTERLINK TCP/IP            * 2603016   00000996
+*         THE CODE ADDED INCLUDES THE ACM TOKEN ADDRESS     * 2603016   00000997
+*         AND THE ADDRESS OF THE ACTUAL TRANSMISSION        * 2603016   00000998
+*---------------------------------------------------------------------* 00000999
+         AIF   ('&TYPE' EQ 'DSECT').DSCT                                00001000
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00001100
+         MNOTE 8,'TYPE MUST BE "DSECT" OR "STRG"'                       00001200
+         MEXIT                                                          00001300
+.DSCT    ANOP                                                           00001400
+         AIF   ('&LA' EQ '').TSDSCT                                     00001500
+&LA      DSECT                                                          00001600
+         AGO  .FLDS                                                     00001700
+.TSDSCT  ANOP                                                           00001800
+TSNNC    DSECT                                                          00001900
+         AGO  .FLDS                                                     00002000
+**********************************************************************  00002100
+*              TRNSACTION SYSTEM                                     *  00002200
+*         NON-NATIVE COMMUNICATION AREA                              *  00002300
+**********************************************************************  00002400
+.STRG    ANOP                                                           00002500
+         AIF   ('&LA' EQ '').TSSTRG                                     00002600
+&LA      DS    0F                                                       00002700
+         AGO  .FLDS                                                     00002800
+.TSSTRG  ANOP                                                           00002900
+TSNNC    DS   0F                                                        00003000
+**********************************************************************  00003100
+*              TRNSACTION SYSTEM                                     *  00003200
+*         NON-NATIVE COMMUNICATION AREA                              *  00003300
+**********************************************************************  00003400
+.FLDS    ANOP                                                           00003500
+NNCEYEC  DS    CL8                   NON-NATIVE COMMAREA EYE CATCHER    00003600
+NNCEXIT  DS    XL8                   USER EXIT PHASE NAME FOR TSTSIRD1  00003700
+NNCITRI  DS    X                     ITR INDICATOR BYTE                 00003800
+*                             X'00' NO TERMINAL INFORMATION PROVIDED    00003900
+*                             X'01' ITR ADDRESS PROVIDED (1ST 4 BYTES)  00004000
+*                             X'02' TERMINAL ID PROVIDED (1ST 4 BYTES)  00004100
+*                             X'03' LU NAME (8 BYTES)                   00004200
+*                             X'04' PORT FOR TCP/IP(HALFWORD) 0424905   00004250
+*                             X'05' DPL/EXCI PROXY TRAN ID    0525086   00004260
+NNCEORI  DS    X                     EOR INDICATOR BYTE                 00004300
+*                             X'00' NO EMPLOYEE INFORMATION PROVIDED    00004400
+*                             X'01' EOR ADDRESS PROVIDED (1ST 4 BYTES)  00004500
+*                             X'02' EMPLOYEE ID (8 BYTES)               00004600
+NNCTERM  DS    XL8                   TERMINAL INFORMATION               00004700
+         ORG   NNCTERM                                                  00004800
+NNCITRA  DS    XL4                   ITR ADDRESS ( NNCITRI EQU X'01')   00004900
+         DS    XL4                   FILLER                             00005000
+         ORG   NNCTERM                                                  00005100
+NNCTRMID DS    XL4                   TERMINAL ID ( NNCITRI EQU X'02')   00005200
+         DS    XL4                   FILLER                             00005300
+         ORG   NNCTERM                                                  00005400
+NNCLU    DS    XL8                   LU NAME ( NNCITRI EQU X'03')       00005500
+         ORG   NNCTERM                                        0424905   00005550
+NNCIPADR DS    FL4                   IP ADDR NNCITRI = X'04') 0424905   00005552
+NNCPORT  DS    HL2                   PORT(NNCITRI EQU X'04')  0424905   00005555
+         DS    XL2                   FILLER                   0424905   00005560
+NNCEMP   DS    XL8                   EMPLOYEE INFORMATION               00005600
+         ORG   NNCEMP                                                   00005700
+NNCEORA  DS    XL4                   EOR ADDRESS ( NNCEORI EQU X'01')   00005800
+         DS    XL4                   FILLER                             00005900
+         ORG   NNCEMP                                                   00006000
+NNCEMPID DS    XL8                   EMPLOYEE ID ( NNCEORI EQU X'02')   00006100
+NNCRESP  DS    XL4                   RESPONSE CODE                      00006200
+NNCMSGA  DS    XL4                   TCP/IP ACTUAL MSG ADDR   2603016   00006210
+NNCACMA  DS    XL4                   TCP/IP TOKEN ADDRESS     2603016   00006220
+NNCLEN   DS    XL4                   TRANSMISSION LENGTH      0724911   00006300
+NNCAGLUW DS    CL1                   AGGREGATED TRANS LUW     0724911   00006305
+*                                    'I' - INDIVIDUAL LUWS    0724911   00006306
+*                                    'C' - COMBINED LUW       0724911   00006307
+NNCSACBA DS    XL4                   SACB ADDR FOR AGGR MSG   0724911   00006310
+NNCMQMSG DS    XL1                   MSG READ FROM MQ QUEUE   0724911   00006315
+NNCEIBTR DS    XL4                   EIBTRNID                 0724911   00006317
+NNCITRMD DS    XL4                   ITR MODEL                0724911   00006319
+         DS    XL86                  FILLER                   0724911   00006390
+NNCLENG  EQU   *-NNCEYEC             LENGTH OF NNC HEADER               00006400
+NNCTRANS DS    0CL1                  TRANSMISSION AREA                  00006500
+         MEND                                                           00006600

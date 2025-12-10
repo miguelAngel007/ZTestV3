@@ -1,0 +1,26 @@
+*********************************************************************** 00001000
+* COMBINED STATEMENTS    - ON-LINE FILES CICS 1.7  ....FCT ENTRIES....* 00002000
+*********************************************************************** 00003000
+*                                                                       00004000
+SCACT    DFHFCT TYPE=DATASET,                                          X00005000
+               DSNAME=NCI.SC.OL.T01.SCACTM.VREPRO,             040I001 X00006000
+               DATASET=SCACT,                                          X00007000
+               ACCMETH=VSAM,DISP=SHR,                                  X00008000
+               SERVREQ=(READ,UPDATE,ADD,BROWSE,DELETE),                X00009000
+               FILSTAT=(ENABLED,CLOSED),                               X00010000
+               STRNO=2,                                                X00011000
+               BUFND=2,                                                X00012000
+               BUFNI=1,                                                X00013000
+               JID=NO,LSRPOOL=1,RSL=PUBLIC,                            X00014000
+               LOG=YES                                                  00015000
+SCREL    DFHFCT TYPE=DATASET,                                          X00016000
+               DSNAME=NCI.SC.OL.T01.SCRELM.VREPRO,             040I001 X00017000
+               DATASET=SCREL,                                          X00018000
+               ACCMETH=VSAM,DISP=SHR,                                  X00019000
+               SERVREQ=(READ,BROWSE),                                  X00020000
+               FILSTAT=(ENABLED,CLOSED),                               X00021000
+               STRNO=2,                                                X00022000
+               BUFND=2,                                                X00023000
+               BUFNI=1,                                                X00024000
+               JID=NO,LSRPOOL=1,RSL=PUBLIC,                            X00025000
+               LOG=NO                                                   00026000

@@ -1,0 +1,64 @@
+         MACRO                                                          00000100
+         ISINPMSG &DSECT=YES,&ALIGN=NO                                  00000200
+         LCLB  &DST,&ALN                                                00000300
+         AIF   ('&ALIGN' EQ 'YES').SETALN                               00000400
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00000500
+         AIF   ('&DSECT' EQ 'NO').START                                 00000600
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00000700
+         MEXIT                                                          00000800
+.SETALN  ANOP                                                           00000900
+&ALN     SETB  1                                                        00001000
+&DST     SETB  0                                                        00001100
+         AGO   .START                                                   00001200
+.SETYES  ANOP                                                           00001300
+&ALN     SETB  0                                                        00001400
+&DST     SETB  1                                                        00001500
+         AGO   .START                                                   00001600
+.START   ANOP                                                           00001700
+*                                                                       00001800
+*                       SIMS INPUT MESSAGE                              00001900
+*                                                                       00002000
+         AIF   (&DST).DSECT                                             00002100
+         AIF   (NOT &ALN).EQUAT                                         00002200
+SIINPMSG DS    0D                                                       00002300
+         AGO   .CONTIN                                                  00002400
+.EQUAT   ANOP                                                           00002500
+ISINPMSG EQU   *                                                        00002600
+         AGO   .CONTIN                                                  00002700
+.DSECT   ANOP                                                           00002800
+ISINPMSG DSECT                                                          00002900
+         AGO   .CONTIN                                                  00003000
+.CONTIN  ANOP                                                           00003100
+MSGTRAN  DS    CL4                     CICS TRANSACTION                 00003200
+MSGHDR   DS    CL4                     HMP MESSAGE HEADER 'M000'        00003300
+MSGHFLGS DS    CL4                     HMP MESSAGE FLAG SWITCHES        00003400
+         ORG   MSGHFLGS                                                 00003500
+MSGFBUF  DS    CL1                     BUFFER NUMBER TOGGLE (1/2)       00003600
+MSGFRELG DS    CL1                     GATEWAY RELEASE NUMBER           00003700
+MSGFACK  DS    CL1                     ACK / NAK FLAG                   00003800
+MSGFMULT DS    CL1                     MULTI-BUFFER FLAG (1=TRUE)       00003900
+         ORG                                                            00004000
+MSGHLGTH DS    CL4                     HMP MESSAGE LENGTH               00004100
+MSGHTYPE DS    CL4                     HMP MESSAGE TYPE (CS00 / CV00)   00004200
+         DS    CL8                                                      00004300
+MSGCHDR  DS    CL4                     HMP MESSAGE COMMAND (PD00)       00004400
+MSGCFLGS DS    CL4                     HMP MESSAGE FLAG SWITCHES        00004500
+         ORG   MSGCFLGS                                                 00004600
+MSGCBUF  DS    CL1                     BUFFER NUMBER TOGGLE (1/2)       00004700
+MSGCRELG DS    CL1                     SIMS RELEASE NUMBER              00004800
+MSGCACK  DS    CL1                     ACK / NAK FLAG                   00004900
+MSGCMULT DS    CL1                     MULTI-BUFFER FLAG (1=TRUE)       00005000
+         ORG                                                            00005100
+MSGCLGTH DS    CL4                     HMP MESSAGE LENGTH               00005200
+MSGEND   EQU   *                                                        00005300
+         AIF   (NOT &DST).MACEND                                        00005400
+*                                                                       00005500
+*                     SIMS INPUT COMMAND DSECT                          00005600
+*                                                                       00005700
+ISINPCMD DSECT                                                          00005800
+CMDHDR   DS    CL4                     HMP MESSAGE COMMAND              00005900
+         DS    CL4                                                      00006000
+CMDLEN   DS    CL4                     HMP MESSAGE COMMAND LENGTH       00006100
+CMDDATA  EQU   *                                                        00006200
+.MACEND  ANOP                                                           00006300
+         MEND                                                           00006400

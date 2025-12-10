@@ -1,0 +1,87 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&NAME    SAT8QCTM &QUEUE=,&SIZE=,&ENTRY=CHAIN,&MODE=NORM,&PERM=NO,     X00001000
+               &MEMSIZ=65536,&DATAID=NONE,&DSECT=NO                     00002000
+.********************************************************************** 00002100
+.*  SAT8QCTM -  SATQCMOB TABLE ENTRY GENERATOR                        * 00002200
+.********************************************************************** 00002300
+.*                    ** HISTORY OF REVISIONS **                      * 00002400
+.* DESCRIPTION                                                CHNGID  * 00002500
+.* __________________________________________________________ _______ * 00002600
+.* 08/06/94 MOD USE OF &SYSNDX                                2600590 * 00002698
+.* 03/23/93 RECOGNIZE GBLC &TMMODE = OVERRIDE FOR LCLC &MODEL 2500722 * 00002700
+.*                                                                    * 00002800
+.********************************************************************** 00002900
+         GBLA &TMINDX                                         2600590   00002980
+         GBLC &TMMODE                                         2500722   00002990
+         LCLA &CURR,&NEXT                                               00003000
+         LCLC &PIND,&MODEL                                    2500722   00004000
+&MODEL   SETC '&MODE'                                         2500722   00004100
+         AIF  ('&TMMODE' EQ '').SETCURR                       2500722   00004200
+&MODEL   SETC '&TMMODE'                                       2500722   00004300
+.SETCURR ANOP                                                           00004400
+         AIF  ('&DSECT' EQ 'YES').DSCTGEN                               00005000
+         AIF   ('&TMINDX' NE '0').SETUP                       2600590   00005100
+&TMINDX  SETA  &SYSNDX                                        2600590   00005200
+.SETUP   ANOP                                                 2600590   00005300
+&CURR    SETA &TMINDX                                         2600590   00006000
+&TMINDX  SETA &TMINDX+1                                       2600590   00006100
+&NEXT    SETA &TMINDX                                         2600590   00007000
+         AIF ('&PERM' EQ 'YES').PERMQ                                   00008000
+&PIND    SETC '00000000'  INDICATE TEMPORARY QUEUE                      00009000
+         AGO  .TEMPQ                                                    00010000
+.PERMQ   ANOP                                                           00011000
+&PIND    SETC '00000010'  INDICATE PERMANENT QUEUE                      00012000
+         AIF ('&MODEL' NE 'ESA').TEMPQ                        2500722   00013000
+&PIND    SETC '00000110'  INDICATE PERMANENT QUEUE AND MODE ESA         00014000
+.TEMPQ   ANOP                                                           00015000
+         AIF ('&QUEUE' EQ '').QUEIDER                                   00016000
+         AIF ('&SIZE' EQ '').SIZEER                                     00017000
+         AIF ('&ENTRY' EQ '').ENTRYER                                   00018000
+         AIF ('&NAME' EQ '').NONAME                                     00019000
+&NAME    DS    0F            ALIGN QUEUE ENTRY ON FULLWORD BOUNDRY      00020000
+.NONAME  ANOP                                                           00021000
+SAT&CURR DS  0F            ALIGN QUEUE ENTRY ON FULLWORD BOUNDRY        00022000
+         AIF ('&ENTRY' NE 'LAST').ENTRYNX                               00023000
+         DC    A(0)   POINTER TO NEXT ENTRY                             00024000
+         AGO .ENTRYLA                                                   00025000
+.ENTRYNX ANOP                                                           00026000
+         DC    A(SAT&NEXT)   POINTER TO NEXT ENTRY                      00027000
+.ENTRYLA ANOP                                                           00028000
+         DC    CL8'&QUEUE'        QUEUE ID                              00029000
+         DC    A(&SIZE)           SIZE OF QUEUE # ENTRIES               00030000
+         DC    B'&PIND'           PERM QUEUE INDICATOR                  00031000
+         DC    XL3'00'            FILLER                                00032000
+         DC    CL8'&DATAID'       DATA QUEUE ID                         00033000
+         DC    A(&MEMSIZ)         SIZE OF QUEUE # BYTES                 00034000
+         DC    CL4'    '          CICS ENQUEING TASK ID                 00035000
+         AIF   ('&PERM' EQ 'NO').DIDOK                                  00036000
+         AIF   ('&DATAID' EQ 'NONE').DIDER                              00037000
+.DIDOK   ANOP                                                           00038000
+         MEXIT                                                          00039000
+.DIDER   ANOP                                                           00040000
+         MNOTE 8,'DATA QUEUE ID MUST BE SPECIFIED FOR PERM QUEUES'      00041000
+         MEXIT                                                          00042000
+.QUEIDER ANOP                                                           00043000
+         MNOTE 8,'QUEUE ID MUST BE SPECIFIED'                           00044000
+         MEXIT                                                          00045000
+.SIZEER  ANOP                                                           00046000
+         MNOTE 8,'QUEUE SIZE MUST BE SPECIFIED'                         00047000
+         MEXIT                                                          00048000
+.ENTRYER ANOP                                                           00049000
+         MNOTE 8,'QUEUE ENTRY MUST BE (CHAIN OR LAST)'                  00050000
+         MEXIT                                                          00051000
+.DSCTGEN ANOP                                                           00052000
+SAT8QCTM DSECT                                                          00053000
+SATQCTNX DS    A                  POINTER TO NEXT QUEUE ENTRY           00054000
+SATQCTID DS    CL8                QUEUE ID                              00055000
+SATQCTSZ DS    A                  SIZE OF QUEUE                         00056000
+SATQCTIN DS    X                  PERM QUEUE INDICATOR                  00057000
+SATQCTAX EQU   B'00000010'         INDICATES PERM QUEUE                 00058000
+SATQCTES EQU   B'00000100'         INDICATES ESA QUEUE                  00059000
+SATQCTEQ EQU   B'00001000'         INDICATES QUEUE IS BEING REFRESHED   00060000
+         DS    XL3                FILLER                                00061000
+SATQCTDQ DS    CL8                DATA QUEUE ID                         00062000
+SATQCTQZ DS    A                  SIZE OF QUEUE # BYTES                 00063000
+SATQCTTI DC    CL4'    '          CICS ENQUEING TASK ID                 00064000
+         MEND                                                           00065000

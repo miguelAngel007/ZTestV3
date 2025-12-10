@@ -1,0 +1,165 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&N       TSTS9GP &TYPE=,&WR1=,&WR2=,&WR3=,&WR4=,&WR5=,&DATE=,&TIME=,   X00000200
+               &EID=,&ESNM=,&EINIT=,&PL=,&PW=                           00000300
+         AIF   ('&TYPE' EQ 'MACRO').MCRO                                00000400
+.*--------------------------------------------------------------------* 00000405
+.*                  ** MACRO DESCRIPTION **                           * 00000410
+.*                                                                    * 00000415
+.* MACRO TSTS9GP GENERATE PASSWORD                                    * 00000420
+.*                                                                    * 00000425
+.*--------------------------------------------------------------------* 00000430
+         EJECT                                                1115905   00000435
+.*--------------------------------------------------------------------* 00000440
+.*                 ** HISTORY OF REVISIONS **                         * 00000445
+.*                                                                    * 00000450
+.* DESCRIPTION                                                CHNGID  * 00000455
+.* __________________________________________________________ ________* 00000460
+.* 04/30/15 PREVENT DUPLICATES                                1616795   00000482
+.* 04/16/10 CORRECT SPACES LENGTH FOR INITIAL CLEAR           1115905   00000483
+.*                                                                    * 00000485
+.*--------------------------------------------------------------------* 00000490
+         EJECT                                                1115905   00000495
+&N.PKDW  DS    D                                                        00000500
+&N.REG1  DS    F                                                        00000600
+&N.REG2  DS    F                                                        00000700
+&N.REG3  DS    F                                                        00000800
+&N.REG4  DS    F                                                        00000900
+&N.REG5  DS    F                                                        00001000
+&N.ADD1  DS    H                                                        00001100
+&N.ADD2  DS    H                                                        00001200
+&N.TFCT  DS    H                                                        00001300
+&N.SVREG DS    H                                                        00001400
+&N.DATA  DS    CL34                                                     00001500
+&N.KFCT  DS    CL20                                           1115905   00001600
+.MCRO    ANOP                                                           00001700
+         AIF   ('&TYPE' EQ 'STRG').STRG                                 00001800
+         ST    &WR1,&N.REG1                                             00001900
+         ST    &WR2,&N.REG2                                             00002000
+         ST    &WR3,&N.REG3                                             00002100
+         ST    &WR4,&N.REG4                                             00002200
+         ST    &WR5,&N.REG5                                             00002300
+         MVZ   &TIME+1(6),=6X'00'                                       00002400
+         SPACE                                                          00002500
+         SR    &WR1,&WR1                                                00002600
+         SR    &WR2,&WR2                                                00002700
+         IC    &WR1,&TIME+5                                             00002800
+         IC    &WR2,&TIME+6                                             00002900
+         AR    &WR1,&WR2                                                00003000
+         STH   &WR1,&N.ADD1                                             00003100
+         IC    &WR1,&TIME+3                                             00003200
+         IC    &WR2,&TIME+4                                             00003300
+         AR    &WR1,&WR2                                                00003400
+         SLL   &WR1,4                                                   00003500
+         STH   &WR1,&N.ADD2                                             00003600
+         IC    &WR1,&TIME+1                                             00003700
+         IC    &WR2,&TIME+2                                             00003800
+         AR    &WR1,&WR2                                                00003900
+         SLL   &WR1,8                                                   00004000
+         AH    &WR1,&N.ADD2                                             00004100
+         AH    &WR1,&N.ADD1                                             00004200
+         STH   &WR1,&N.TFCT                                             00004300
+         SPACE                                                          00004400
+*                                                                       00004500
+         SPACE                                                          00004600
+         MVC   &N.DATA(20),&ESNM                                        00004700
+         MVC   &N.DATA+20(8),&EID                                       00004800
+         MVC   &N.DATA+28(3),&DATE+1                                    00004900
+         MVC   &N.DATA+31(3),&EINIT                                     00005000
+         LA    &WR1,&N.DATA                                             00005100
+         LA    &WR2,34                                                  00005200
+         LR    &WR3,&WR1                                                00005300
+         LR    &WR5,&WR1                                                00005400
+         AR    &WR5,&WR2                                                00005500
+         SPACE                                                          00005600
+GPDTLP00 EQU   *                                                        00005700
+         CLI   0(&WR1),C' '                                             00005800
+         BNE   GPDTLP10                                                 00005900
+         MVC   0(1,&WR1),0(&WR3)                                        00006000
+         LA    &WR3,1(&WR3)                                             00006100
+         SPACE                                                          00006200
+GPDTLP10 EQU   *                                                        00006300
+         LA    &WR1,1(&WR1)                                             00006400
+         BCT   &WR2,GPDTLP00                                            00006500
+         SPACE                                                          00006600
+         LA    &WR1,&N.DATA-1                                           00006700
+         SPACE                                                          00006800
+         PACK  &N.PKDW,&PL                                              00006900
+         CVB   &WR2,&N.PKDW                                             00007000
+         LR    &WR4,&WR2                                                00007100
+         MVC   &N.KFCT,=CL20' '                               1115905   00007200
+         LA    &WR3,&N.KFCT                                             00007300
+         SPACE                                                          00007400
+GPKYFC00 EQU   *                                                        00007500
+         LA    &WR1,1(&WR2,&WR1)                                        00007600
+         CR    &WR1,&WR5                                                00007700
+         BNH   GPKYFC10                                                 00007800
+         SR    &WR1,&WR5                                                00007900
+         STH   &WR2,&N.SVREG                                            00008000
+         LA    &WR2,&N.DATA-1                                           00008100
+         LA    &WR1,1(&WR2,&WR1)                                        00008200
+         LH    &WR2,&N.SVREG                                            00008300
+GPKYFC10 EQU   *                                                        00008400
+         MVC   0(1,&WR3),0(&WR1)                                        00008500
+         LA    &WR3,1(&WR3)                                             00008600
+         BCT   &WR4,GPKYFC00                                            00008700
+         SPACE                                                          00008800
+*                                                                       00008900
+         SPACE                                                          00009000
+         LA    &WR1,&N.KFCT                                             00009100
+         MVC   &PW,=CL20' '                                   1115905   00009200
+         LA    &WR5,&PW                                                 00009300
+         SPACE                                                          00009400
+GPTMFC00 EQU   *                                                        00009500
+         LH    &WR4,&N.TFCT                                             00009600
+         SR    &WR3,&WR3                                                00009700
+         IC    &WR3,0(&WR1)                                             00009800
+         SR    &WR4,&WR3                                                00009900
+         SR    &WR3,&WR3                                                00010000
+         D     &WR3,=F'20'                                              00010100
+         STC   &WR3,0(&WR5)                                             00010200
+         LA    &WR5,1(&WR5)                                             00010300
+         LA    &WR1,1(&WR1)                                             00010400
+         BCT   &WR2,GPTMFC00                                            00010500
+         SPACE                                                          00010600
+         CVB   &WR2,&N.PKDW                                             00010700
+         SH    &WR2,=H'1'                                               00010800
+         LA    &WR5,&PW                                                 00010900
+         EX    &WR2,GPPWTRAN                                            00011000
+****     STC   &WR2,*+5                                                 00011100
+****     TR    &PW,&N.TRTB                                              00011200
+         LA    &WR5,&PW                                                 00011300
+         LA    &WR2,20                                        1115905   00011400
+         CLI   0(&WR5),C' '                                   1616795   00011410
+         BE    GPPWLP10                                       1616795   00011420
+         OI    0(&WR5),X'C0'                                  1616795   00011430
+         B     GPPWLP10                                       1616795   00011440
+         SPACE                                                          00011500
+GPPWLP00 EQU   *                                                        00011600
+         CLI   0(&WR5),C' '                                             00011700
+         BE    GPPWLP10                                                 00011800
+         OI    0(&WR5),X'C0'                                            00011900
+         BCTR  &WR5,0                                         1616795   00011910
+         CLC   0(1,&WR5),1(&WR5)         DUPLICATE?           1616795   00011920
+         LA    &WR5,1(&WR5)                                   1616795   00011930
+         BNE   GPPWLP10                                       1616795   00011940
+         OI    0(&WR5),X'F0'                                  1616795   00011950
+         SPACE                                                          00012000
+GPPWLP10 EQU   *                                                        00012100
+         LA    &WR5,1(&WR5)                                             00012200
+         BCT   &WR2,GPPWLP00                                            00012300
+         L     &WR1,&N.REG1                                             00012400
+         L     &WR2,&N.REG2                                             00012500
+         L     &WR3,&N.REG3                                             00012600
+         L     &WR4,&N.REG4                                             00012700
+         L     &WR5,&N.REG5                                             00012800
+         B     &N.OUT                                                   00012900
+         SPACE                                                          00013000
+GPPWTRAN TR    0(0,&WR5),&N.TRTB                                        00013100
+         SPACE                                                          00013200
+&N.TRTB  DC    X'02'                                                    00013300
+         DC    X'03040607081112131415171819222325262729'                00013400
+         DS    0H                                                       00013500
+&N.OUT   EQU   *                                                        00013600
+.STRG    ANOP                                                           00013700
+         MEND                                                           00013800

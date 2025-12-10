@@ -1,0 +1,257 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SADSMGET &WKAREA,         MACRO WORK/SCHAIN RETURN AREA       X00002000
+               &ELEID,             REQUESTED ELEMENT ID (ARG)          X00003000
+               &PFX=DSM,           MACRO LABEL PREFIX                  X00004000
+               &DSM=SADDS,         DSM   LABEL PREFIX                  X00005000
+               &SCHAIN=NO          SEARCH CHAIN REQUIRED (YES/NO)       00006000
+.********************************************************************** 00007000
+.*                                                                    * 00008000
+.* SADSMGET MACRO                                                     * 00009000
+.*                                                                    * 00010000
+.* SADSMGET SEARCHES A DSM FOR A GIVEN ELEMENT ID AND RETURNS         * 00013000
+.* THE ADDRESS FOR THE INDICATED DSM ITEM.  SEARCH ARGUMENT   2600590 * 00014000
+.* MAY BE SPECIFIED AS CHARACTER ELEMENT ID OR AS ELEMENT     2600590 * 00014100
+.* ITEM NUMBER.                                               2600590 * 00014200
+.*                                                                    * 00015000
+.* SADSMGET CAN ALSO RETURN ELEMENT ID AND DISPLACEMENT FOR ALL       * 00016000
+.* ITEMS IN THE BINARY SEARCH CHAIN, IF REQUESTED WHEN SEARCH 2600590 * 00017000
+.* ARGUMENT IS CHARACTER ELEMENT ID.  THIS MAY BE USEFUL IN   2600590 * 00017100
+.* VERIFYING BINARY SEARCH TREE DATA.  (INVALID FOR ELE# REQ) 2600590 * 00018000
+.*                                                                    * 00019000
+.* SADSMGET ASSUMES THE FOLLOWING:                                    * 00020000
+.*   1) CSECT ISSUING SADSMGET MACRO WILL ALSO INCLUDE 'SAD9DSMA'     * 00021000
+.*      MACRO FOR THE DSM, PROVIDE ADDRESSABILITY, AND EQUATE REGS    * 00022000
+.*      X TO RX.                                                      * 00023000
+.*                                                                    * 00024000
+.*   2) FORMAT FOR THE MACRO CALL IS:                                 * 00025000
+.*                                                                    * 00026000
+.*      SADSMGET WKAREA,ELEID,PFX=DSM,DSM=SADDS,SCHAIN=NO             * 00027000
+.*                 |     |     |        |         |.....SCHAIN REQD   * 00028000
+.*                 |     |     |        |...............DSM PREFIX    * 00029000
+.*                 |     |     |........................MACRO LBL PFX * 00030000
+.*                 |     |..............................A(ELEMENTID)  * 00031000
+.*                 |....................................A(WORK AREA)  * 00032000
+.*                                                                    * 00033000
+.*     ANY OR ALL OPERANDS MAY BE OMITTED, AS EXPLAINED BELOW.        * 00034000
+.*                                                                    * 00035000
+.*   3) IF WKAREA IS NOT SPECIFIED, IT IS ASSUMED THAT REGISTER 1     * 00036000
+.*      CONTAINS THE ADDRESS OF A WORKAREA SUFFICIENTLY LONG TO       * 00037000
+.*      HOLD THE FOLLOWING:                                           * 00038000
+.*        (BASIC WORKAREA SIZE REQUIREMENT)                           * 00039000
+.*           A) 8-BYTE SEARCH ARGUMENT                                * 00040000
+.*              FORMAT1: CHARACTER ELEMENT ID                 2600590 * 00040100
+.*              FORMAT2: HL2, ELEMENT REQUESTED ITEM NUMBER   2600590 * 00040200
+.*                       HL2, ELEMENT LOCATED ITEM NUMBER     2600590 * 00040300
+.*                       FL2, ELEMENT LOCATED OFFSET          2600590 * 00040400
+.*           B) 4-BYTE RETURN AREA FOR ADDRESS OF REQUESTED DSM ITEM  * 00041000
+.*           C) 4-BYTE COUNTER FOR # NODES SEARCHED                   * 00042000
+.*           D) 4-BYTE A(BINARY TREE BASE/CURRENT DSM SEGMENT)9913569 * 00042100
+.*           E) 4-BYTE A(BINARY SEARCH STARTER ITEM/CUR SEG)  9913569 * 00042200
+.*           F) 4-BYTE COUNTER FOR # DSM ITEMS/SUBSEQUENT SEG 9913569 * 00042300
+.*           G) 20-BYTES - RESERVED                           9913569 * 00042400
+.*        (IF SCHAIN=YES IS SPECIFIED)                                * 00043000
+.*           H) 4-BYTE ADDRESS FOR SCHAIN DATA - NEXT SLOT    9913569 * 00044000
+.*           I) SCHAIN DATA (MAX NUMBER DSM ITEMS * (8+2))    9913569 * 00045000
+.*                                                                    * 00046000
+.*   4) IF ELEMENT ID IS NOT SPECIFIED, SADSMGET ASSUMES THAT         * 00047000
+.*      THE ELEMENT ID SEARCH ARGUMENT IS PLACED AT OFFSET ZERO       * 00048000
+.*      (0) IN THE WORKAREA FOR LENGTH OF 8 (LJ, PADDED WITH  2600590 * 00049000
+.*      BLANKS FOR CHARACTER ELEMENT ID; 1ST CHAR M/B GE 'A').2600590 * 00049100
+.*                                                                    * 00050000
+.*   5) IF SEARCH PATH DATA IS REQUIRED, SPECIFY SCHAIN=YES, IN WHICH * 00051000
+.*      CASE THE WORKAREA MUST BE LARGE ENOUGH TO CONTAIN THE SCHAIN  * 00052000
+.*      DATA IN ADDITION TO BASE WORKAREA SIZE REQUIREMENT.           * 00053000
+.*      SCHAIN=YES IS NOT VALID (AND IS IGNORED) WHEN SEARCH  2600590 * 00053100
+.*      ARGUMENT IS SPECIFIED AS ELEMENT ITEM NUMBER.         2600590 * 00053200
+.*                                                                    * 00054000
+.*   6) LABELS WILL HAVE THE FORMAT &PFX&Z.?, WHERE &PFX DEFAULTS TO  * 00055000
+.*      TO 'DSM', &Z EQUATES TO &SYSNDX, WHICH IS A UNIQUE 4-DIGIT    * 00056000
+.*      NUMBER SET BY THE ASSEMBLER, AND ? IS A UNIQUE QUALIFIER.     * 00057000
+.*      IF THIS DOES NOT CREATE UNIQUE LABELS OR IF OTHERWISE         * 00058000
+.*      DESIRABLE, THE KEYWORD PARAMETER &PFX MAY BE SPECIFIED        * 00059000
+.*      AS REQUIRED.                                                  * 00060000
+.*                                                                    * 00061000
+.*   7) SADSMGET WILL USE ONLY REGISTERS 14, 15, 0, AND 1.            * 00062000
+.*                                                                    * 00063000
+.*   8) ON RETURN,                                                    * 00064000
+.*          REG 15 = RETURN CODE = SUCCESSFUL(00) OR UNSUCCESSFUL(16) * 00065000
+.*          REG  0 = NUMBER NODES SEARCHED                            * 00066000
+.*          REG  1 = A(REQUESTED DSM ITEM)                            * 00067000
+.*                                                                    * 00068000
+.********************************************************************** 00068100
+.*                   ** HISTORY OF REVISIONS **                       * 00068200
+.* DESCRIPTION                                                CHNGID  * 00068300
+.* ---------------------------------------------------------- --------* 00068400
+.* 11/04/97 SUPPORT BIG-DAG DSM SEARCHES (GT 1721 ITEMS)      9913569 * 00068992
+.* 08/03/94 SUPPORT REQUEST BY ELEMENT ITEM NUMBER            2600590 * 00068994
+.* 02/21/92 ORIGINAL DISTRIBUTION                             0030290 * 00068996
+.*                                                                    * 00068998
+.********************************************************************** 00069000
+         LCLC  &Z                                                       00070000
+         LCLA  &BTREBAS,&BSRCH1,&ITEMREM,&SCHSLOT,&SCHDATA    9913569   00070100
+&Z       SETC  '&SYSNDX'                                                00071000
+&BTREBAS SETA  16                                             9913569   00071100
+&BSRCH1  SETA  20                                             9913569   00071200
+&ITEMREM SETA  24                                             9913569   00071300
+&SCHSLOT SETA  48                                             9913569   00071400
+&SCHDATA SETA  52                                             9913569   00071500
+&LABEL   DS    0H                                                       00072000
+         AIF   ('&WKAREA' EQ '').DSM001                                 00073000
+         LA    R1,&WKAREA         R1 = A(MACRO WORK AREA)               00074000
+.DSM001  ANOP                                                           00075000
+         AIF   ('&ELEID' EQ '').DSM002                                  00076000
+         MVC   0(8,R1),&ELEID     SAVE ELEMENT ID                       00077000
+.DSM002  ANOP                                                           00078000
+         CLI   0(R1),C'A'          IS SEARCH ARG ELE ITEM #   2600590   00078200
+         BL    &PFX&Z.N              Y. LOCATE BY ITEM #      2600590   00078300
+         AIF   ('&SCHAIN' NE 'YES').DSM003                              00079000
+         LA    R14,&SCHDATA.(,R1)  R14 = A(SCHAIN RETURN AREA)9913569   00080000
+         STCM  R14,B'1111',&SCHSLOT.(R1) SV A(SCHAIN/NXTSLOT) 9913569   00081000
+.DSM003  ANOP                                                           00082000
+         XC    12(4,R1),12(R1)     INIT NUMBER NODES SEARCHED = 0       00083000
+         LA    R14,&DSM.BST        R14 = A(BTREE BASE)        9913569   00083075
+         STCM  R14,B'1111',&BTREBAS.(R1)  SAVE A(BTREBAS)     9913569   00083150
+         LA    R15,0               R15 = CLEARED              9913569   00083225
+         ICM   R15,B'0011',0(R14)  R15 = OFFSET TO BINSRCH1   9913569   00083300
+         STCM  R15,B'1111',&BSRCH1.(R1) SAVE OFFSET:BINSRCH1  9913569   00083375
+         LA    R0,0                R0 = CLEARED               9913569   00083450
+         STCM  R0,B'1111',&ITEMREM.(R1)  SET #ITEMS REM = 0   9913569   00083525
+         ICM   R0,B'0011',&DSM.NFL R0 = # DSM ITEMS/TOTAL     9913569   00083600
+         LA    R14,(&DSM.DLN/&DSM.ELX) R14 = MAXITEMS/DSM SEG 9913569   00083675
+         SR    R0,R14              R0 = # DSMITEMS/SUBSEQ SEGS9913569   00083750
+         BNP   *+4+4               IF ONLY 1 SEG, LEAVE ASIS  9913569   00083825
+         STCM  R0,B'1111',&ITEMREM.(R1) SV #DSM ITEMS/SUBSEGS 9913569   00083900
+*+4+4    EQU   *                                              9913569   00083975
+         ICM   R14,B'1111',&BSRCH1.(R1) R14=OFFSET:BINSRCHITM19913569   00084050
+         BZ    &PFX&Z.C            GO ERR IF NO VALID START   9913569   00084125
+         B     &PFX&Z.A            SKIP TO BINARY SEARCH SEG1 9913569   00084200
+&PFX&Z.0 DS 0H                 *** PREP SEARCH DSM SEGS 2-N   9913569   00084275
+         LA    R14,(&DSM.DLN/&DSM.ELX) R14 = MAXITEMS/DSM SEG 9913569   00084350
+         SR    R0,R14              R0 = # DSMITEMS/SUBSEQ SEGS9913569   00084425
+         STCM  R0,B'1111',&ITEMREM.(R1) SV #DSM ITEMS/SUBSEGS 9913569   00084500
+         ICM   R14,B'1111',&BTREBAS.(R1) R14=A(PSEUD-SADDSBST)9913569   00084575
+         LA    R14,2(,R14)         R14 = A(CUR DSMSEG ITEM 1) 9913569   00084650
+         LA    R15,0               R15 = CLEARED              9913569   00084725
+&PFX&Z.1 DS 0H                                                9913569   00084800
+         CLC   0(2,R14),=XL2'FFF1' IS CUR ITEM NEXT SEG OFFST 9913569   00084875
+         BNE   &PFX&Z.2              N. GO LOOP TO CK NEXT ITM9913569   00084950
+         ICM   R15,B'0011',2(R14)  R15 = OFFSET: NEXT DSM SEG 9913569   00085025
+         ICM   R14,B'1111',&BTREBAS.(R1) R14=A(CUR BTREE BASE)9913569   00085100
+         LA    R14,0(R15,R14)      R14 = A(NEXT BTREE BASE)   9913569   00085175
+         STCM  R14,B'1111',&BTREBAS.(R1) SV A(NEXT BTREE BASE)9913569   00085250
+         LA    R14,2(,R14)         R14 = A(NEW DSMSEG ITEM 1) 9913569   00085325
+         B     &PFX&Z.3            GO LOOP TO CK NEXT ITM     9913569   00085400
+&PFX&Z.2 DS 0H                                                9913569   00085475
+         ICM   R15,B'1000',(&DSM.NOL-&DSM.ENT)(R14) # OCCURS  9913569   00085550
+         SRL   R15,24              R15 = # OCCURS (RJ)        9913569   00085625
+         SLL   R15,2               R15 = L'OCCURS DATA        9913569   00085700
+         LA    R14,&DSM.ELN(R15,R14) R14 = A(NEXT DSM ITEM)   9913569   00085775
+         B     &PFX&Z.1            LOOP TO CK NEXT ITEM       9913569   00085850
+&PFX&Z.3 DS 0H                                                9913569   00085925
+         CLC   0(2,R14),=XL2'FFF0' IS CUR ITEM BINSRCH 1 OFFST9913569   00086000
+         BNE   &PFX&Z.4              N. GO LOOP TO CK NEXT ITM9913569   00086075
+         ICM   R14,B'1100',2(R14)  R14 = OFST:BINSRCH ITEM1/LJ9913569   00086150
+         SRL   R14,16              R14 = OFST:BINSRCH ITEM1/RJ9913569   00086225
+         STCM  R14,B'1111',&BSRCH1.(R1) SV A(NEW BINSRCH ITM1)9913569   00086375
+         B     &PFX&Z.A            PROCEED TO DO BIN SEARCH   9913569   00086450
+&PFX&Z.4 DS 0H                                                9913569   00086525
+         ICM   R15,B'1000',(&DSM.NOL-&DSM.ENT)(R14) # OCCURS  9913569   00086600
+         SRL   R15,24              R15 = # OCCURS (RJ)        9913569   00086675
+         SLL   R15,2               R15 = L'OCCURS DATA        9913569   00086750
+         LA    R14,&DSM.ELN(R15,R14) R14 = A(NEXT DSM ITEM)   9913569   00086825
+         B     &PFX&Z.3            LOOP TO CK NEXT ITEM       9913569   00086900
+&PFX&Z.A DS 0H                                                          00087000
+         LA    R15,1               R15 = NUMBER NODES SEARCHED INCR (1) 00088000
+         ICM   R0,B'1111',12(R1)   R0  = NUMBER NODES SEARCHED - PREV   00089000
+         AR    R0,R15              R0  = NUMBER NODES SEARCHED - NEW    00090000
+         STCM  R0,B'1111',12(R1)   STORE NUMBER NODES SEARCHED - NEW    00091000
+         ICM   R15,B'1111',&BTREBAS.(R1) R15 = A(BTREE BASE)  9913569   00092000
+         LA    R15,0(R14,R15)      R15 = A(BINSRCH START ITEM)9913569   00092100
+         AIF   ('&SCHAIN' NE 'YES').DSM007                              00093000
+         LR    R0,R14              R0  = DISPLACEMENT / CURRENT NODE    00094000
+         ICM   R14,B'1111',&SCHSLOT.(R1) R14=A(SCHAIN-NXTITEM)9913569   00095000
+         MVC   0(8,R14),(&DSM.EID-&DSM.ENT)(R15) SAVE ELEID/CURNODE     00096000
+         STCM  R0,B'0011',8(R14)   SAVE DISPLACEMENT/CURR NODE (ITEM)   00097000
+         LA    R14,10(,R14)        R14 = A(NEXT ITEM TABLE SLOT)        00098000
+         STCM  R14,B'1111',&SCHSLOT.(R1) SV A(SCHAIN-NXTSLOT) 9913569   00099000
+.DSM007  ANOP                                                           00100000
+         CLC   0(8,R1),(&DSM.EID-&DSM.ENT)(R15) IS THIS REQUESTED ITEM  00101000
+         BE    &PFX&Z.D              Y. RETURN REQUESTED DATA           00102000
+         LA    R14,0                 NL. R14 = INDEX 0 (SEARCH LOWER)   00103000
+         BL    &PFX&Z.B            CHECK FOR SEARCH ARGUMENT LO/HI      00104000
+         LA    R14,2                 NH. R14 = INDEX 2 (SEARCH HIGHER)  00105000
+&PFX&Z.B DS   0H                                                        00106000
+         CLC   0(2,R15),=XL2'FFF0' IS THIS  END-OF-TREE ITEM  9913569   00106100
+         BNL   &PFX&Z.C              Y. SKIP TO NOT-FND LOGIC 9913569   00106200
+         LA    R14,(&DSM.BLO-&DSM.ENT)(R14,R15) R14=A(NX SEG OFFST)     00107000
+         ICM   R14,B'1100',0(R14)  R14 = NEXT ITEM OFFSET (LJ)          00108000
+         SRL   R14,16              R14 = NEXT ITEM OFFSET (RJ)          00109000
+         BNZ   &PFX&Z.A            LOOP TO CK NEXT NODE IF VALID OFFSET 00110000
+&PFX&Z.C DS 0H                  ** ELEMENT ID NOT FOUND                 00111000
+         ICM   R0,B'1111',&ITEMREM.(R1) ARE THERE MORE DSMSEGS9913569   00111100
+         BP    &PFX&Z.0        *** PREP SEARCH DSM SEGS 2-N   9913569   00111200
+         LA    R15,16              R15= RTNCODE = 16 (UNSUCCESSFUL)     00112000
+         XC    8(4,R1),8(R1)       RTNAD = NULL (ITEM NOT FOUND)        00113000
+         B     &PFX&Z.E            SKIP TO COMMON EXIT                  00114000
+&PFX&Z.D DS 0H                  ** ELEMENT ID FOUND                     00115000
+         STCM  R15,B'1111',8(R1)   RTNAD  = A(RESULT ITEM)              00116000
+         LA    R15,0               R15= RTNCODE = 00 (SUCCESSFUL)       00117000
+&PFX&Z.E DS 0H                                                          00118000
+         ICM   R0,B'1111',12(R1)   R0  = NUMBER NODES SEARCHED          00119000
+         ICM   R1,B'1111',8(R1)    R1  = A(REQUESTED DSM ITEM)          00120000
+         B     &PFX&Z.Z            EXIT SADSMGET MACRO        2600590   00121000
+&PFX&Z.N DS 0H                                                2600590   00122000
+         CLC   SADDSNFL,0(R1)      IS REQITEM# GT # DSM ITEMS 2600590   00123000
+         BL    &PFX&Z.X              Y. EXIT - ITEM NOT FOUND 2600590   00124000
+         LA    R0,0                R00 = CLEARED              2600590   00125000
+         ICM   R0,B'0011',2(R1)    R00 = ORIG LOCATED ITEM #  2600590   00126000
+         BZ    &PFX&Z.O            START W/1 IF 1ST TIME      2600590   00127000
+         CLC   0(2,R1),2(R1)       IS REQITEM# GT KNOWN ITEM# 2600590   00128000
+         BE    &PFX&Z.Y              EQ. EXIT - FOUND ASIS    2600590   00129000
+         BH    &PFX&Z.P              HI. SEARCH ON FOR MATCH  2600590   00130000
+&PFX&Z.O DS 0H                                                2600590   00131000
+         LA    R0,0                R00 = ORIG LOC ITM RESET   2600590   00132000
+         LA    R14,1               R14 = LOCATED ITEM # = 1   2600590   00133000
+         STCM  R14,B'0011',2(R1)   RESET LOCATED ITEM # = 1   2600590   00134000
+         LA    R14,L'SADDSBST      R14 = DSM ITEM #1 OFFSET   2600590   00135000
+         STCM  R14,B'1111',4(R1)   RESET LOCATED OFFSET = 2   2600590   00136000
+&PFX&Z.P DS 0H                                                2600590   00137000
+         LA    R14,0               R14 = CLEARED              2600590   00138000
+         ICM   R14,B'0011',0(R1)   R14 = REQUESTED ITEM NBR   2600590   00139000
+         BNZ   *+4+4               IF REQ ITEM#=0, DEFAULT=1  9913569   00139100
+         LA    R14,1               R14 = REQ ITEM# = 1 (DFLT) 9913569   00139200
+*+4+4    EQU   *                                              9913569   00139300
+         LA    R15,0               R15 = CLEARED              9913569   00140000
+         ICM   R15,B'0011',2(R1)   R14 = CURR LOCATED ITEM #  2600590   00141000
+         CR    R14,R15             IS CURR ITEM REQUESTED ITM 2600590   00142000
+         BE    &PFX&Z.Y              Y. EXIT - FOUND ITEM     2600590   00143000
+         LA    R15,1(,R15)         R15 = LOCATED ITEM # NEXT  2600590   00144000
+         STCM  R15,B'0011',2(R1)   STORE LOCATED ITEM # NEXT  2600590   00145000
+         ICM   R14,B'1111',4(R1)   R14 = CURR ITEM OFFSET     2600590   00146000
+         LA    R15,SADDSBST(R14)   R15 = A(LOCATED DSM ITEM)  2600590   00147000
+         ICM   R15,B'1000',(SADDSNOL-SADDSENT)(R15) # OCCURS  2600590   00148000
+         SRL   R15,24              R15 = # OCCURS (RJ)        2600590   00149000
+         SLL   R15,2               R15 = L'OCCURS DATA        2600590   00150000
+         LA    R14,SADDSELN(R15,R14) R14 = NEXT ITM OFFSET    2600590   00151000
+         STCM  R14,B'1111',4(R1)   STORE CURR ITEM OFFSET     2600590   00152000
+         B     &PFX&Z.P            SEARCH ON FOR MATCH        2600590   00153000
+&PFX&Z.X DS 0H                  ** ELEMENT ITEM NOT FOUND     2600590   00154000
+         XC    4(12,R1),4(R1)      CLEAR WORK AREA            2600590   00155000
+         LA    R15,16              R15=RC=16 (UNSUCCESSFUL)   2600590   00156000
+         LA    R0,0                R00 = # SEARCHES (NONE)    2600590   00157000
+         LA    R1,0                R01 = A(DSMITM FOUND=NONE) 2600590   00158000
+         B     &PFX&Z.Z            SKIP TO COMMON EXIT        2600590   00159000
+&PFX&Z.Y DS 0H                  ** ELEMENT ITEM FOUND         2600590   00160000
+         ICM   R14,B'1111',4(R1)   R14 = LOCATED ITEM OFFSET  2600590   00161000
+         LA    R14,SADDSBST(R14)   R14 = A(LOCATED DSM ITEM)  2600590   00162000
+         STCM  R14,B'1111',8(R1)   STORE A(LOCATED DSM ITEM)  2600590   00163000
+         LR    R15,R0              R15 = LOCATED ITEM # /ORIG 2600590   00164000
+         LA    R0,0                R00 = CLEARED              2600590   00165000
+         ICM   R0,B'0011',2(R1)    R00 = LOCATED ITEM # /CURR 2600590   00166000
+         SR    R0,R15              R00 = # SEARCHES           2600590   00167000
+         STCM  R0,B'1111',12(R1)   STORE # SEARCHES           2600590   00168000
+         LR    R1,R14              R01 = A(LOCATED DSM ITEM)  2600590   00169000
+         LA    R15,0               R15 = RC = 00 (SUCCESSFUL) 2600590   00170000
+&PFX&Z.Z DS 0H                  ** SADSMGET MACRO EXIT        2600590   00171000
+         MEND                                                 2600590   00172000

@@ -1,0 +1,1320 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+         MACRO                                                          00000100
+         NXXRTMAC                                                       00000200
+         COPY  SIOPTNS                                        0209013   00000210
+         TITLE 'NXXRTM(NXXRTMAC) - NXXRTM FILE ACCESS'                  00002300
+         AIF   (&XAMODE).XAM0020                              0209013   00002310
+.NXA0020 ANOP                                                 0209013   00002320
+         AGO   .EOM0020                                       0209013   00002330
+.XAM0020 ANOP                                                 0209013   00002340
+         PUNCH ' MODE AMODE(31),RMODE(24) '                   0209013   00002350
+.EOM0020 ANOP                                                 0209013   00002360
+NXXRTM   START 0                                                        00002400
+         AIF   (&XAMODE).XAM0040                              0209013   00002410
+.NXA0040 ANOP                                                 0209013   00002420
+         AGO   .EOM0040                                       0209013   00002430
+.XAM0040 ANOP                                                 0209013   00002440
+NXXRTM   AMODE 31                                             0209013   00002450
+NXXRTM   RMODE 24                                             0209013   00002460
+.EOM0040 ANOP                                                 0209013   00002470
+         EJECT                                                          00002500
+RE       EQU   14                                                       00002600
+RF       EQU   15                                                       00002700
+*        SIBASE BASEREG=(11,12),ID=NXXRTM,RWNUM=0025,RWSUB=0000209013   00002800
+         SIBASE BASEREG=(11,12),ID=NXXRTM,RWNUM=0025,RWSUB=000          00002900
+         AIF   (&XAMODE).XAM0060                              0209013   00002902
+.NXA0060 ANOP                                                 0209013   00002904
+         AGO   .EOM0060                                       0209013   00002906
+.XAM0060 ANOP                                                 0209013   00002908
+         L     R15,4(,R13)        PICK UP PREV RSA            0209013   00002910
+         MVI   EXITMODE,BIT31     PRESET EXIT AMODE TO 31     0209013   00002912
+         MVI   CURRMODE,BIT31     PRESET CURRENT AMODE TO 31  0209013   00002914
+         ICM   R2,15,=X'7FFFFFFF' Q. WHAT ADDR                0209013   00002916
+         LA    R2,0(,R2)          ..MODE ARE                  0209013   00002918
+         C     R2,=X'7FFFFFFF'    ..WE IN                     0209013   00002920
+         BE    SETBITON           A. RUNNING IN AMODE(31)     0209013   00002922
+         NI    12(R15),X'7F'      SET BIT OF R14 IN RSA OFF   0209013   00002924
+         MVI   EXITMODE,BIT24     SET EXIT AMODE TO 24        0209013   00002926
+         SIMODE 31                SET AMODE 31                0209013   00002928
+         B     CONTINUE                                       0209013   00002930
+SETBITON EQU   *                                              0209013   00002932
+         OI    12(R15),X'80'      SET BIT OF R14 IN RSA ON    0209013   00002934
+CONTINUE EQU   *                                              0209013   00002936
+.EOM0060 ANOP                                                 0209013   00002938
+         EJECT                                                          00003000
+*********************************************************************** 00003100
+*      N X X R T M     -     COPYRIGHT SYSTEMATICS, INC.  1991        * 00003200
+*=====================================================================* 00003300
+*             NXXRTM   CURRENCY SEARCH ROUTINE                        * 00003400
+*********************************************************************** 00003500
+*    COMMENTS....                                                     * 00003600
+*********************************************************************** 00003700
+         SPACE 2                                                        00003800
+*********************************************************************** 00003900
+*                R E G I S T E R   U S A G E   T A B L E              * 00004000
+*=====================================================================* 00004100
+*                   R1 = N/A                                          * 00004200
+*                   R2 = N/A                                          * 00004300
+*                   R3 = XR-SINTLXRT-INTERFACE                        * 00004400
+*                   R4 = OPTIONAL FIRST AMOUNT S9(15)V99              * 00004500
+*                   R5 = OPTIONAL SECOND AMOUNT S9(15)V99             * 00004600
+*                   R6 = COUNTER                                      * 00004700
+*                   R7 = N/A                                          * 00004800
+*                   R8 = BRANCH REGISTER                              * 00004900
+*                   R9 = BRANCH REGISTER                              * 00005000
+*                   R10= POINTER INTO THE XCHG ARRAY                  * 00005100
+*                   R11= BASE REGISTER                                * 00005200
+*                   R12= BASE REGISTER                                * 00005300
+*                   R13= N/A                                          * 00005400
+*                   R14= N/A                                          * 00005500
+*                   R15= N/A                                          * 00005600
+*********************************************************************** 00005700
+         SPACE 2                                                        00005800
+         USING  PARMLIST,R1                                             00005900
+         USING  SIDSLXRT,R3            CONTROL AREA DSECT               00006000
+         USING  TRTABLE,R10            GET ADDRESSABILITY               00006100
+         LM     R3,R5,PARMLIST                                          00006200
+         TM     INTADDR@,X'80'         Q. ONLY ONE PARAMETER?           00006300
+         BO     ONEPARM                A. YES, GO TO ONEPARM            00006400
+         TM     INPADDR@,X'80'         Q. INPUT AMOUNT PARAMETER?       00006500
+         BO     TWOPARM                A. YES, GO TO TWOPARM            00006600
+THRPARM  DS     0H                                                      00006700
+         ST     R4,INPAMT              *                                00006800
+         ST     R5,OUTAMT              *                                00006900
+         B      MAINLINE               GO TO MAINLINE                   00007000
+TWOPARM  DS     0H                                                      00007100
+         ST     R4,INPAMT              *                                00007200
+         ST     R4,OUTAMT              *                                00007300
+         B      MAINLINE               GO TO MAINLINE                   00007400
+ONEPARM  DS     0H                                                      00007500
+         LA     R2,XRTIAMT             INPUT AMOUNT ADDRESS             00007600
+         ST     R2,INPAMT              *                                00007700
+         LA     R2,XRTOAMT             OUTPUT AMOUNT ADDRESS            00007800
+         ST     R2,OUTAMT              *                                00007900
+         B      MAINLINE               GO TO MAINLINE                   00008000
+         EJECT                                                          00008100
+*********************************************************************** 00008200
+*   MAINLINE LOGIC                                                    * 00008300
+*********************************************************************** 00008400
+MAINLINE DS     0H                                                      00008500
+         MVI    XRTRC,C'0'             RETURN ZERO RETURN CODE          00008600
+         CLI    XRTACT,X'FF'           Q. CLOSE THE FILE?               00008700
+         BE     CLOSFILE               A. YES, GO TO CLOSFILE           00008800
+         CLI    XRTACT,C'S'            Q. SEARCH THE CURRENCY TABLE?    00008900
+         BE     SCURRTBL               A. YES, GO TO SCURRTBL           00009000
+         CLI    XRTACT,C'T'            Q. COUNT ENTRIES IN CURR TABLE?  00009100
+         BE     TCOUNT                 A. YES, GO TO TABLE COUNT        00009200
+         CLI    XRTACT,C'V'            Q. VERIFY CURRENCY CODE0209009   00009202
+         BE     VERSOUR                A. YES, GO TO VERIFY   0209009   00009204
+*                                                                       00009300
+         CLI    XRTACT,C'Q'            Q. VERIFY QUALIFIER?             00009400
+         BNE    MAINCONT               Q. NO, CONTINUE                  00009500
+         LA     R1,XRTQUAL             QUALIFIER ADDRESS                00009600
+         BAL    R9,VERFQUAL            VERIFY QUALIFIER                 00009700
+         AP     VERIFCNT,=PL1'1'       ADD 1 TO VERIFY COUNT            00009800
+         B      RETURN                 GO TO RETURN                     00009900
+*  ONLY EXCHANGES DROP PAST THIS POINT!                       0209009   00010000
+MAINCONT DS     0H                                                      00010100
+         ZAP    XRTOAMT,=P'0'          SET OUTPUT AMT IN CASE OF ERROR  00010200
+         BAL    R9,SEARTBL             SEARCH THE XCHG TABLE? 0209009   00010205
+         CLI    SEARSWT,C'Y'           Q. FOUND ENTRY (R10->EN0209009   00010210
+         BNE    MAINRD1                A. NO, GO READ FIRST RE0209009   00010215
+         AP     TRATECNT,=PL1'1'       RATE LOOKUPS FROM TABLE0209009   00010220
+         BAL    R8,CALCULAT            DO THE CALCULATION     0209009   00010225
+         CLI    TRRTNCD,C'0'           CHECK RETURN CODE FOR N0209009   00010230
+         BE     RETURN                 ERROR                  0209009   00010235
+         BAL    R8,CALCERR             PUT OUT ERROR MSG ON SI0209009   00010240
+         B      RETURN                 GO TO RETURN           0209009   00010245
+MAINRD1  BAL    R8,VERSOUR             VERIFY SOURCE          0209009   00010300
+         LA     R1,XRTQUAL             QUALIFIER ADDRESS                00010400
+         BAL    R9,VERFQUAL            VERIFY QUALIFIER                 00010500
+         BAL    R8,VERBASE             VERIFY BASE                      00010600
+         BAL    R8,VERTARG             VERIFY TARGET                    00010700
+         BAL    R8,VERDATE             VERIFY DATE                      00010800
+         BAL    R8,VERIAMT             VERIFY INPUT AMOUNT              00010900
+         BAL    R8,SAMECUR             CONVERSION TO SAME CURRENCY?     00011000
+         LTR    R1,R1                  Q. YES, GOTO RETURN              00011100
+         BNZ    RETURN                 GO TO RETURN                     00011200
+*                                                                       00011300
+         BAL    R8,OPENFILE            OPEN RATE FILE                   00011400
+*                                                                       00011500
+         MVC    HRBASE,XRTBASE         MOVE BASE TO KEY       0209009   00012500
+         MVC    HRCURR,XRTSOUR         MOVE SOURCE TO KEY               00012600
+         CLC    HRBASE,HRCURR          Q. BASE == SOURCE?               00012700
+         BNE    MAINRD2                A. NO, GOTO MAINRD2              00012800
+         ZAP    XRBRATE,=PL6'1000000'  MOVE 1.000000 TO SOURCE BUY RTE  00012900
+         ZAP    XRSRATE,=PL6'1000000'  MOVE 1.000000 TO SOURCE SELL RT  00013000
+         MVI    XRMULT,C'M'            MOVE 'M' TO MULT/DIVIDE SWITCH   00013100
+         MVI    XRFACT,C'0'            MOVE '0' TO FACTOR               00013200
+         B      MAINRD3                BRANCH AROUND THE READ           00013300
+MAINRD2  BAL    R8,READFILE            READ THE FIRST XCHG RECORD       00013400
+         CLI    XRTACT,C'E'            Q. EXACT MATCH ON DATE?          00013500
+         BNE    MAINRD3                A. NO, GO TO MAINRD3             00013600
+         CLC    HRDATE,XRDATE          Q. SAME DATES?                   00013700
+         BNE    RECNF3                 A. NO, GO TO RECNF3              00013800
+MAINRD3  BAL    R9,ADDTBL              ADD TO SEARCH TABLE              00013900
+         MVC    HRBASE,XRTBASE         MOVE BASE TO KEY                 00014000
+         MVC    HRCURR,XRTTARG         MOVE TARGET TO KEY               00014100
+         CLC    HRBASE,HRCURR          Q. BASE == SOURCE?               00014200
+         BNE    MAINRD4                A. NO, GOTO MAINRD2              00014300
+         ZAP    XRBRATE,=PL6'1000000'  MOVE 1.000000 TO TARGET BUY RT   00014400
+         ZAP    XRSRATE,=PL6'1000000'  MOVE 1.000000 TO TARGET SELL RT  00014500
+         MVI    XRMULT,C'M'            MOVE 'M' TO MULT/DIVIDE SWITCH   00014600
+         MVI    XRFACT,C'0'            MOVE '0' TO FACTOR               00014700
+         B      MAINRD5                BRANCH AROUND THE READ           00014800
+MAINRD4  BAL    R8,READFILE            READ THE SECOND XCHG RECORD      00014900
+         CLI    XRTACT,C'E'            Q. EXACT MATCH ON DATE?          00015000
+         BNE    MAINRD5                A. NO, GO TO MAINRD5             00015100
+         CLC    HRDATE,XRDATE          Q. SAME DATES?                   00015200
+         BNE    RECNF3                 A. NO, GO TO RECNF3              00015300
+MAINRD5  ZAP    TRBUYRT2,XRBRATE       SAVE BUY RATE                    00015400
+         ZAP    TRSELRT2,XRSRATE       SAVE SELL RATE                   00015500
+         MVC    TRMULT2,XRMULT         SAVE SECOND MULT / DIVIDE SWT    00015600
+         MVC    TRFACT2,XRFACT         SAVE SECOND FACTOR               00015700
+         ST     R10,TRAREAPT           STORE NEW ADDRESS                00015800
+         AP     DRATECNT,=PL1'1'       RATE LOOKUPS FROM DISK           00015900
+         BAL    R8,CALCULAT            DO THE CALCULATION               00016000
+         CLI    TRRTNCD,C'0'           CHECK RETURN CODE FOR NO ERROR   00016100
+         BE     RETURN                                                  00016200
+         BAL    R8,CALCERR             PUT OUT ERROR MSG ON SIMESS      00016300
+RETURN   EQU    *                                                       00016400
+         LH     R15,IORETCOD           SET RETURN CODE                  00016500
+         AIF   (&XAMODE).XAMR120                              0209013   00016502
+.NXAR120 ANOP                                                 0209013   00016504
+         AGO   .EOMR120                                       0209013   00016506
+.XAMR120 ANOP                                                 0209013   00016508
+         CLC   CURRMODE,EXITMODE  Q. CORRECT MODE TO EXIT     0209013   00016510
+         BE    RETN900            A. YES, GO EXIT             0209013   00016512
+         CLI   EXITMODE,BIT31     Q. EXIT AMODE 31            0209013   00016514
+         BE    RETN120            A. YES GO SET AMODE         0209013   00016516
+         SIMODE 24                SET BACK TO AMODE 24        0209013   00016518
+         B     RETN900                                        0209013   00016520
+RETN120  EQU   *                                              0209013   00016522
+         SIMODE 31                SET BACK TO AMODE 31        0209013   00016524
+.EOMR120 ANOP                                                 0209013   00016526
+RETN900  EQU   *                                              0209013   00016528
+*        SIRETRN RC=(15)                                                00016600
+         SIRETRN RC=(15)                                                00016700
+         EJECT                                                          00016800
+*********************************************************************** 00016900
+*   CALCULATION ROUTINE                                               * 00017000
+*********************************************************************** 00017100
+         SPACE 2                                                        00017200
+CALCULAT DS     0H                                                      00017300
+         MVC    TRACTION,XRTACT        PASS ACTION CODE TO CALC RTN     00017400
+         LA     R1,TRMULT1                                              00017500
+         ST     R1,SIPARMS2                                             00017600
+         L      R1,INPAMT                                               00017700
+         ST     R1,SIPARMS2+4                                           00017800
+         L      R1,OUTAMT                                               00017900
+         STCM   R1,7,SIPARMS2+9                                         00018000
+         AIF   (&VSE).D0005                                   0209013   00018100
+         CLC    NXXRCALC,=F'0'                                          00018200
+         BNE    CALCON                                                  00018300
+*        LOAD   EP=NXXRCALC                                             00018400
+         LOAD   EP=NXXRCALC                                             00018500
+         ST     R0,NXXRCALC                                             00018600
+CALCON   EQU    *                                             0209013   00018602
+         AIF   (&XAMODE).XAM0080                              0209013   00018604
+.NXA0080 ANOP                                                 0209013   00018606
+         TM    NXXRCALC,X'7F'                                 0209013   00018608
+         BZ    CALC054                                        0209013   00018610
+         ABEND 995,DUMP,STEP                                  0209013   00018612
+CALC054  EQU   *                                              0209013   00018614
+         AGO   .EOM0080                                       0209013   00018616
+.XAM0080 ANOP                                                 0209013   00018618
+.EOM0080 ANOP                                                 0209013   00018620
+         ICM   R15,15,NXXRCALC    Q. CALLEE AMODE 31          0209013   00018622
+         AIF   (&XAMODE).XAM0100                              0209013   00018624
+.NXA0100 ANOP                                                 0209013   00018626
+         BP    CALC110            A. NO, CONTINUE             0209013   00018628
+         ABEND 194,DUMP,STEP      A. YES, ABEND               0209013   00018630
+         AGO   .EOM0100                                       0209013   00018632
+.XAM0100 ANOP                                                 0209013   00018634
+         BM    CALC110            A. YES                      0209013   00018636
+         SIMODE 24,WORKREG=14     A. NO, SET AMODE 24         0209013   00018638
+         MVI   CURRMODE,BIT24     SET CURRENT AMODE           0209013   00018640
+.EOM0100 ANOP                                                 0209013   00018642
+CALC110  EQU   *                                              0209013   00018644
+         L      R15,NXXRCALC                                  0209013   00018700
+         LA     R1,SIPARMS2                                             00018800
+*        CALL   (15)                                                    00018900
+         CALL   (15)                                                    00019000
+         AIF   (&XAMODE).XAM0120                              0209013   00019002
+.NXA0120 ANOP                                                 0209013   00019004
+         AGO   .EOM0120                                       0209013   00019006
+.XAM0120 ANOP                                                 0209013   00019008
+         CLC   CURRMODE,EXITMODE  Q. CORRECT MODE TO EXIT     0209013   00019010
+         BE    CALC900            A. YES, GO EXIT             0209013   00019012
+         CLI   EXITMODE,BIT31     Q. EXIT AMODE 31            0209013   00019014
+         BE    CALC120            A. YES GO SET AMODE         0209013   00019016
+         SIMODE 24                SET BACK TO AMODE 24        0209013   00019018
+         B     CALC900                                        0209013   00019020
+CALC120  EQU   *                                              0209013   00019022
+         SIMODE 31                SET BACK TO AMODE 31        0209013   00019024
+.EOM0120 ANOP                                                 0209013   00019026
+CALC900  EQU   *                                              0209013   00019028
+         AGO   .C0005                                                   00019100
+.D0005   ANOP                                                           00019200
+         LA     R1,SIPARMS2                                             00019300
+*        CALL   NXXRCALC                                                00019400
+         CALL   NXXRCALC                                                00019500
+         AGO   .C0005                                                   00019600
+.C0005   ANOP                                                           00019700
+         BR     R8                     GO TO RETURN                     00019800
+         EJECT                                                          00019900
+*********************************************************************** 00020000
+*                                                                     * 00020100
+*   FILE HANDLING                                                     * 00020200
+*                                                                     * 00020300
+*********************************************************************** 00020400
+*********************************************************************** 00020500
+*   OPEN FILE                                                         * 00020600
+*********************************************************************** 00020700
+OPENFILE DS     0H                                                      00020800
+         CLI    OPENSWT,C'Y'           Q. FILE OPEN?                    00020900
+         BER    R8                     A. YES, EXIT                     00021000
+         MVC    TRAREAPT,TRAREAAD      RESET POINTER                    00021100
+         MVI    IOOPER,C'O'            OPEN OPERATOR                    00021200
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     00021300
+         BAL    R9,CALLXRTM            CALL I/O ROUTINE                 00021400
+         CLC    IORETCOD,=H'0'         WAS THE OPEN SUCCESSFUL          00021500
+         BNE    RECNF8                 BR NO TO CANCEL                  00021600
+         MVI    OPENSWT,C'Y'           MOVE 'Y' TO OPENSWT              00021700
+         BR     R8                                                      00021800
+         SPACE 2                                                        00021900
+*********************************************************************** 00022000
+*   CLOSE FILE                                                        * 00022100
+*********************************************************************** 00022200
+CLOSFILE DS     0H                                                      00022300
+         UNPK   DRATEEND,DRATECNT      PRINT END-OF-JOB MESSAGE         00022400
+         OI     DRATEEND+L'DRATEEND-1,X'F0' MAKE SIGN POSITIVE          00022500
+         UNPK   TRATEEND,TRATECNT      *                                00022600
+         OI     TRATEEND+L'TRATEEND-1,X'F0' MAKE SIGN POSITIVE          00022700
+         UNPK   TBLREEND,TBLRESET      *                                00022800
+         OI     TBLREEND+L'TBLREEND-1,X'F0' MAKE SIGN POSITIVE          00022900
+         UNPK   VERIFEND,VERIFCNT      *                                00023000
+         OI     VERIFEND+L'VERIFEND-1,X'F0' MAKE SIGN POSITIVE          00023100
+         MVC    MESSOPT,ENDMSG         *                                00023200
+         MVC    MESSNO,=CL4'0000'                                       00023300
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00023400
+         BAL    R8,DUMPRATE            DUMP RATES                       00023500
+         ZAP    DRATECNT,=PL1'0'       ZERO COUNTERS                    00023600
+         ZAP    TRATECNT,DRATECNT      *                                00023700
+         ZAP    TBLRESET,TRATECNT      *                                00023800
+         ZAP    VERIFCNT,TRATECNT      *                                00023900
+         CLI    OPENSWT,C'Y'           Q. FILE OPEN?                    00024000
+         BNE    RETURN                 A. NO, RETURN                    00024100
+         MVI    IOOPER,C'E'            CLOSE THE FILE                   00024200
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     00024300
+         BAL    R9,CALLXRTM            CALL I/O ROUTINE                 00024400
+         MVI    OPENSWT,C'N'           MOVE 'N' TO OPENSWT              00024500
+         B      RETURN                 EXIT ROUTINE                     00024600
+         EJECT                                                          00024700
+*********************************************************************** 00024800
+*   READ THE FIRST XCHG RECORD                                        * 00024900
+*********************************************************************** 00025000
+READFILE DS     0H                                                      00025100
+         MVC    XRTBANK,=C'9999'       ALWAYS MORE 999 TO NX BANK
+         MVC    HRQUAL,XRTQUAL         MOVE QUALIFIER TO KEY            00025200
+         MVC    HRBANK,XRTBANK         MOVE BANK TO KEY                 00025300
+         MVC    HRDATE,XRTDATE         MOVE LOW-VALUES TO XRDATE        00025400
+         MVC    XRKEY,HRKEY            MOVE HOLD KEY TO I/O KEY AREA    00025500
+         CLI    HRDATE,X'00'           Q. LOW-VALUE DATE?               00025600
+         BE     STARTBR                A. YES, USE LOW-VALUES DATE      00025700
+         PACK   DBLWORD,XRTDATE                                         00025800
+         ZAP    DBLWORD2,=PL8'99999999'                                 00025900
+         SP     DBLWORD2,DBLWORD        9'S COMPLEMENT OF PROVIDED DATE 00026000
+         UNPK   HRDATE,DBLWORD2         PUT IN KEY FIELD                00026100
+         OI     HRDATE+L'HRDATE-1,X'F0' MAKE SIGN POSITIVE              00026200
+         MVC    XRDATE,HRDATE          MOVE DATE TO KEY                 00026300
+STARTBR  DS     0H                                                      00026400
+         MVI    IOOPER,C'T'            START BROWSE (GTE)               00026500
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     00026600
+         BAL    R9,CALLXRTM            CALL I/O ROUTINE                 00026700
+         CLC    IORETCOD,=H'0'         Q. ZERO RETURN CODE?             00026800
+         BNE    RECNF2                 A. NO, KEY NOT ON FILE           00026900
+*                   9999 WILL NOT BE ON FILE EITHER SINCE ITS GREATER   00027000
+         MVI    IOOPER,C'R'            READ RECORD                      00027100
+         MVI    IOACCESS,C'I'          INPUT ACCESS                     00027200
+         BAL    R9,CALLXRTM            CALL I/O ROUTINE                 00027300
+         CLC    IORETCOD,=H'0'         Q. ZERO RETURN CODE?             00027400
+         BNE    RECNF4                 A. NO, GOTO RECNF                00027500
+         CLC    XRBANK,HRBANK          Q. SAME BANK RECORD?             00027600
+         BNE    USE9999                A. NO, GO CHECK ON BANK 9999     00027700
+CHKREST  DS     0H                                                      00027800
+         CLC    XRBASE(10),HRBASE      Q. BASE+CURR+QUAL THE SAME?      00027900
+         BER    R8                     A. YES, RECORD FOUND             00028000
+         B      RECNF1                 ERROR - NOT FOUND                00028100
+USE9999  DS     0H                                                      00028200
+         CLC    XRBANK,=CL4'9999'      Q. TRY TO READ DEFAULT RECORD ?  00028300
+         BE     CHKREST                A. YES, RECORD NOT FOUND         00028400
+         MVC    HRBANK,=CL4'9999'      MOVE 9999 TO BANK      0209010   00028410
+         MVC    XRKEY,HRKEY            MOVE HOLD KEY TO I/O KEY AREA    00028500
+         B      STARTBR                GO TO STARTBR                    00028700
+         EJECT                                                          00028800
+*********************************************************************** 00028900
+*        CALL SIMESS ROUTINE                                          * 00029000
+*********************************************************************** 00029100
+         SPACE 2                                                        00029200
+CALLMESS DS     0H                                                      00029300
+         MVC    MESSPGM,=CL8'NXXRTM  '                                  00029400
+         AIF    (&VSE).D0004                                  0209013   00029500
+         CLC    SIMESSWK,=F'0'    Q. SIMESS WAS LOADED   *RG
+         BNE    MESS001           A. NO, CONTINUE        *RG
+         LOAD   EP=SIMESS         A. YES. IT LOAD, AND        0209013   00029502
+         ST     R0,SIMESSWK          STORE THE ADDRESS        0209013   00029504
+MESS001  EQU   *                                         *RG
+         AIF   (&XAMODE).XAMM080                              0209013   00029506
+.NXAM080 ANOP                                                 0209013   00029508
+         TM    SIMESSWK,X'7F'                                 0209013   00029510
+         BZ    MESS054                                        0209013   00029512
+         ABEND 995,DUMP,STEP                                  0209013   00029514
+MESS054  EQU   *                                              0209013   00029516
+         AGO   .EOMM080                                       0209013   00029518
+.XAMM080 ANOP                                                 0209013   00029520
+.EOMM080 ANOP                                                 0209013   00029522
+         ICM   R15,15,SIMESSWK    Q. CALLEE AMODE 31          0209013   00029524
+         AIF   (&XAMODE).XAMM100                              0209013   00029526
+.NXAM100 ANOP                                                 0209013   00029528
+         BP    MESS110            A. NO, CONTINUE             0209013   00029530
+         ABEND 194,DUMP,STEP      A. YES, ABEND               0209013   00029532
+         AGO   .EOMM100                                       0209013   00029534
+.XAMM100 ANOP                                                 0209013   00029536
+         BM    MESS110            A. YES                      0209013   00029538
+         SIMODE 24,WORKREG=14     A. NO, SET AMODE 24         0209013   00029540
+         MVI   CURRMODE,BIT24     SET CURRENT AMODE           0209013   00029542
+.EOMM100 ANOP                                                 0209013   00029544
+MESS110  EQU   *                                              0209013   00029546
+*        LINK   EP=SIMESS,PARAM=(SIDSMESS)                              00029600
+         LINK   EP=SIMESS,PARAM=(SIDSMESS)                              00029700
+         AIF   (&XAMODE).XAMM120                              0209013   00029702
+.NXAM120 ANOP                                                 0209013   00029704
+         AGO   .EOMM120                                       0209013   00029706
+.XAMM120 ANOP                                                 0209013   00029708
+         CLC   CURRMODE,EXITMODE  Q. CORRECT MODE TO EXIT     0209013   00029710
+         BE    MESS900            A. YES, GO EXIT             0209013   00029712
+         CLI   EXITMODE,BIT31     Q. EXIT AMODE 31            0209013   00029714
+         BE    MESS120            A. YES GO SET AMODE         0209013   00029716
+         SIMODE 24                SET BACK TO AMODE 24        0209013   00029718
+         B     MESS900                                        0209013   00029720
+MESS120  EQU   *                                              0209013   00029722
+         SIMODE 31                SET BACK TO AMODE 31        0209013   00029724
+.EOMM120 ANOP                                                 0209013   00029726
+MESS900  EQU   *                                              0209013   00029728
+         AGO    .C0004                                                  00029800
+.D0004   ANOP                                                           00029900
+         L      R15,=V(SIMESS)                                          00030000
+*        CALL   (15),(SIDSMESS),VL                                      00030100
+         CALL   (15),(SIDSMESS),VL                                      00030200
+         AGO    .C0004                                                  00030300
+.C0004   ANOP                                                           00030400
+         BR     R9                                                      00030500
+         EJECT                                                          00030600
+*********************************************************************** 00030700
+*        CALL NXXRTMV I/O ROUTINE                                     * 00030800
+*********************************************************************** 00030900
+         SPACE 2                                                        00031000
+CALLXRTM DS     0H                                                      00031100
+         LA     R1,SIWSXRRT                                             00031200
+         STCM   R1,7,SIPARMS+5                                          00031300
+         AIF   (&VSE).D0001                                   0209013   00031400
+         CLC    SIXRTMV,=F'0'                                           00031600
+         BNE    CALLON                                                  00031700
+*        LOAD   EP=NXXRTMV                                              00031800
+         LOAD   EP=NXXRTMV                                              00031900
+         ST     R0,SIXRTMV                                              00032000
+CALLON   EQU    *                                             0209013   00032002
+         AIF   (&XAMODE).XAM0280                              0209013   00032004
+.NXA0280 ANOP                                                 0209013   00032006
+         TM    SIXRTMV,X'7F'                                  0209013   00032008
+         BZ    CALL054                                        0209013   00032010
+         ABEND 995,DUMP,STEP                                  0209013   00032012
+CALL054  EQU   *                                              0209013   00032014
+         AGO   .EOM0280                                       0209013   00032016
+.XAM0280 ANOP                                                 0209013   00032018
+.EOM0280 ANOP                                                 0209013   00032020
+         ICM   R15,15,SIXRTMV     Q. CALLEE AMODE 31          0209013   00032022
+         AIF   (&XAMODE).XAM0300                              0209013   00032024
+.NXA0300 ANOP                                                 0209013   00032026
+         BP    CALL110            A. NO, CONTINUE             0209013   00032028
+         ABEND 194,DUMP,STEP      A. YES, ABEND               0209013   00032030
+         AGO   .EOM0300                                       0209013   00032032
+.XAM0300 ANOP                                                 0209013   00032034
+         BM    CALL110            A. YES                      0209013   00032036
+         SIMODE 24,WORKREG=14     A. NO, SET AMODE 24         0209013   00032038
+         MVI   CURRMODE,BIT24     SET CURRENT AMODE           0209013   00032040
+.EOM0300 ANOP                                                 0209013   00032042
+CALL110  EQU   *                                              0209013   00032044
+         L      R15,SIXRTMV                                   0209013   00032100
+         LA     R1,SIPARMS                                              00032200
+*        CALL   (15)                                                    00032300
+         CALL   (15)                                                    00032400
+         AIF   (&XAMODE).XAM0320                              0209013   00032402
+.NXA0320 ANOP                                                 0209013   00032404
+         AGO   .EOM0320                                       0209013   00032406
+.XAM0320 ANOP                                                 0209013   00032408
+         CLC   CURRMODE,EXITMODE  Q. CORRECT MODE TO EXIT     0209013   00032410
+         BE    CALL900            A. YES, GO EXIT             0209013   00032412
+         CLI   EXITMODE,BIT31     Q. EXIT AMODE 31            0209013   00032414
+         BE    CALL120            A. YES GO SET AMODE         0209013   00032416
+         SIMODE 24                SET BACK TO AMODE 24        0209013   00032418
+         B     CALL900                                        0209013   00032420
+CALL120  EQU   *                                              0209013   00032422
+         SIMODE 31                SET BACK TO AMODE 31        0209013   00032424
+.EOM0320 ANOP                                                 0209013   00032426
+CALL900  EQU   *                                              0209013   00032428
+         AGO   .C0001                                                   00032500
+.D0001   ANOP                                                           00032600
+         LA     R1,SIPARMS                                              00032700
+*        CALL   NXXRTMV                                                 00032800
+         CALL   NXXRTMV                                                 00032900
+         AGO   .C0001                                                   00033000
+.C0001   ANOP                                                           00033100
+         BR     R9                                                      00033200
+         EJECT                                                          00033300
+*********************************************************************** 00033400
+*                                                                     * 00033500
+*   VERIFY                                                            * 00033600
+*                                                                     * 00033700
+*********************************************************************** 00033800
+*   VERIFY SOURCE CURRENCY IS OK                                      * 00033900
+*********************************************************************** 00034000
+VERSOUR  DS     0H                                                      00034100
+         LA     R1,XRTSOUR             SOURCE CURRENCY ADDRESS          00034200
+         BAL    R9,VERFCURR            VERIFY CURRENCY                  00034300
+         CLI    XRTACT,C'V'            Q. VERIFY CURRENCY?              00034400
+         BNE    VERSOURC               A. NO, GO TO VERSOURC            00034500
+         AP     VERIFCNT,=PL1'1'       ADD 1 TO VERIFY COUNT            00034600
+         MVI    XRTRC,C'0'             VALID CURRENCY CODE              00034700
+         CLI    VERFSWT,C'Y'           Q. VALID CURRENCY?               00034800
+         BE     RETURN                 A. YES, RETURN                   00034900
+         MVI    XRTRC,C'1'             INVALID CURRENCY CODE            00035000
+         MVC    XRTDESC,=CL24'***INVALID CURRENCY***'                   00035100
+         B      RETURN                 GO TO RETURN                     00035200
+VERSOURC CLI    VERFSWT,C'Y'           Q. VALID CURRENCY?               00035300
+         BNE    RECNF0                 A. NO, RECNF0                    00035400
+         BR     R8                                                      00035500
+*********************************************************************** 00035600
+*   VERIFY BASE CURRENCY IS OK                                        * 00035700
+*********************************************************************** 00035800
+VERBASE  DS     0H                                                      00035900
+         MVI    CONVSWT,C'Y'           SOURCE->TARGET                   00036000
+         LA     R1,XRTBASE             BASE CURRENCY ADDRESS            00036100
+         CLI    0(R1),X'00'            Q. LOW-VALUES BASE CURRENCY?     00036200
+         BER    R8                     A. YES, RETURN                   00036300
+         MVI    CONVSWT,C'N'           SOURCE->BASE->TARGET             00036400
+         BAL    R9,VERFCURR            VERIFY CURRENCY                  00036500
+         CLI    VERFSWT,C'Y'           Q. VALID CURRENCY?               00036600
+         BNE    RECNF0                 A. NO, RECNF0                    00036700
+         BR     R8                                                      00036800
+*********************************************************************** 00036900
+*   VERIFY TARGET CURRENCY IS OK                                      * 00037000
+*********************************************************************** 00037100
+VERTARG  DS     0H                                                      00037200
+         LA     R1,XRTTARG         TARGET CURRENCY ADDRESS              00037300
+         BAL    R9,VERFCURR        VERIFY CURRENCY                      00037400
+         CLI    VERFSWT,C'Y'       Q. VALID CURRENCY?                   00037500
+         BNE    RECNF0             A. NO, RECNF0                        00037600
+         BR     R8                                                      00037700
+*********************************************************************** 00037800
+*   VERIFY THE DATE                                                   * 00037900
+*********************************************************************** 00038000
+VERDATE  DS     0H                                                      00038100
+         CLI    XRTDATE,X'00'      Q. LOW-VALUE DATE?                   00038200
+         BER    R8                 A. YES, EXIT                         00038300
+         LA     R7,L'XRTDATE-1     R7 - LENGTH OF DATE FIELD            00038400
+         LA     R6,XRTDATE         R6 - ADDRESS OF DATE FIELD           00038500
+         LA     RF,NTESTZD         RF - @ OF NUMERIC TEST FOR ZD        00038600
+         BALR   RE,RF              GO MAKE NUMERIC TEST AND RETURN      00038700
+         LTR    R1,R1              Q. TEST ERROR INDICATOR FOR STATUS   00038800
+         BZR    R8                 A. NO, EXIT                          00038900
+         MVI    XRTRC,C'6'         INVALID DATE FIELD                   00039000
+         B      RETURN             GOTO RETURN                          00039100
+*********************************************************************** 00039200
+*   VERIFY INPUT AMOUNT                                               * 00039300
+*********************************************************************** 00039400
+VERIAMT  DS     0H                                                      00039500
+         LA     R7,L'XRTIAMT-1     R7 - LENGTH OF PACKED FIELD          00039600
+         L      R6,INPAMT          R6 - ADDRESS OF PACKED FIELD         00039700
+         LA     RF,NTESTPD         RF - @ OF NUMERIC TEST FOR PD        00039800
+         BALR   RE,RF              GO MAKE NUMERIC TEST AND RETURN      00039900
+         LTR    R1,R1              Q. TEST ERROR INDICATOR FOR STATUS   00040000
+         BZR    R8                 A. NO, EXIT                          00040100
+         MVI    XRTRC,C'7'         INVALID AMOUNT FIELD                 00040200
+         B      RETURN             GOTO RETURN                          00040300
+         EJECT                                                          00040400
+*********************************************************************** 00040500
+*        SAME CURRENCY CONVERSION MOVE INPUT TO OUTPUT                * 00040600
+*********************************************************************** 00040700
+         SPACE 2                                                        00040800
+SAMECUR  DS    0H                                                       00040900
+         SR    R1,R1                     CLEAR R1 TO ZEROS              00041000
+         CLC   XRTSOUR,XRTBASE           Q. BASE = SOURCE?              00041100
+         BNER  R8                        A. NO, EXIT                    00041200
+         CLC   XRTBASE,XRTTARG           Q. BASE = TARGET?              00041300
+         BNER  R8                        A. NO, EXIT                    00041400
+         ZAP   XRTOAMT,XRTIAMT           MOVE INPUT TO OUTPUT           00041500
+         AP    TRATECNT,=PL1'1'          ADD 1 TO TABLE COUNT           00041600
+         LA    R1,1                      SET RETURN CODE ON             00041700
+         BR    R8                        RETURN                         00041800
+         EJECT                                                          00041900
+*********************************************************************** 00042000
+*        SEARCH CURRENCY TABLE BASED ON PROVIDED NUMBER               * 00042100
+*    IF A BANK NUMBER IS FURNISHED ONLY LOOK AT THAT BANK NUMBER      * 00042200
+*********************************************************************** 00042300
+         SPACE 2                                                        00042400
+SCURRTBL DS    0H                                                       00042500
+         MVI   VERFSWT,C'N'           NOT VALID CURRENCY                00042600
+         LA    R7,L'XRTNUM-1          R7 - LENGTH OF NUMBER FIELD       00042700
+         LA    R6,XRTNUM              R6 - ADDRESS OF NUMBER FIELD      00042800
+         LA    RF,NTESTZD             RF - @ OF NUMERIC TEST FOR ZD     00042900
+         BALR  RE,RF                  GO MAKE NUMERIC TEST AND RETURN   00043000
+         LTR   R1,R1                  Q. TEST ERROR                     00043100
+         BNZ   SCURRERR               A. NO, GO TO SCURRERR             00043200
+         PACK  DBLWORD,XRTNUM         PACK THE NUMBER                   00043300
+         CVB   R1,DBLWORD             CONVERT TO BINARY NUMBER          00043400
+         LTR   R1,R1                  Q. ZERO SUBSCRIPT?                00043500
+         BZ    SCURRERR               A. YES, GO TO SCURRERR            00043600
+         LA    R2,NXDSXRNM            ADDRESS OF CURRENCY TABLE         00043700
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              00043800
+SCURBK1  DS    0H                                                       00043900
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            00044000
+         BE    SCURBK2                BANK FOUND, LOOK FOR CURRENCY     00044100
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            00044200
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            00044300
+         BNE   SCURBK1                NOT END, LOOP BACK                00044400
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            00044500
+         BE    SCURREOF               YES - ERROR                       00044600
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      00044700
+         LA    R2,NXDSXRNM            START AT 1ST OF TABLE             00044800
+         B     SCURBK1                                                  00044900
+*                                                                       00045000
+*   1ST OF BANK HAS BEEN LOCATED                                        00045100
+*                                                                       00045200
+SCURBK2  DS    0H                                                       00045300
+         CP    DBLWORD,=PL1'1'        Q. ONE ENTRY?                     00045400
+         BE    SCURROK                A. YES, GO TO SCURROK             00045500
+         LA    R14,NXDSLENG           LENGTH OF TABLE ENTRY             00045600
+         SR    R2,R14                 BACK UP ONE ENTRY                 00045700
+SCURRLP  DS    0H                                                       00045800
+         LA    R2,NXDSLENG(R2)        BUMP BY ENTRY LENGTH              00045900
+         CLI   0(R2),X'FF'            Q. END OF TABLE?                  00046000
+         BE    SCURREOF               A. YES, GOTO NOTFOUND             00046100
+         BCT   R1,SCURRLP             SEARCH R1 TIMES                   00046200
+*   FALL THRU WHEN ENTRY NUMBER IS HIT                                  00046300
+         CLC   HOLDBANK,0(R2)         IS THIS ENTRY FOR THIS BANK       00046400
+         BNE   SCURREOF               NO - NOT FOUND                    00046500
+SCURROK  MVC   XRTDESC,8(R2)          RETURN DESCRIPTION                00046600
+         MVC   XRTSOUR,4(R2)          RETURN CURRENCY                   00046700
+         B     RETURN                                                   00046800
+SCURRERR DS    0H                                                       00046900
+         MVI   XRTRC,C'8'             MOVE ERROR CODE TO RETURN CODE    00047000
+         B     RETURN                                                   00047100
+SCURREOF DS    0H                                                       00047200
+         MVI   XRTRC,C'1'             END OF TABLE                      00047300
+         B     RETURN                                                   00047400
+         EJECT                                                          00047500
+*********************************************************************** 00047600
+*        VERIFY CURRENCY                                              * 00047700
+*********************************************************************** 00047800
+         SPACE 2                                                        00047900
+VERFCURR DS    0H                                                       00048000
+         LA    R2,NXDSXRNM             ADDRESS OF CURRENCY TABLE        00048100
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              00048200
+VERFBK1  DS    0H                                                       00048300
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            00048400
+         BE    VERFLOOP               BANK FOUND, LOOK FOR CURRENCY     00048500
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            00048600
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            00048700
+         BNE   VERFBK1                NOT END, LOOP BACK                00048800
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            00048900
+         BE    VERFNF                 YES - ERROR                       00049000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      00049100
+         LA    R2,NXDSXRNM            START AT 1ST OF TABLE             00049200
+         B     VERFBK1                                                  00049300
+*                                                                       00049400
+*   1ST OF BANK HAS BEEN LOCATED                                        00049500
+*                                                                       00049600
+VERFLOOP DS    0H                                                       00049700
+         CLI   0(R2),X'FF'             Q. END OF TABLE?                 00049800
+         BE    VERFNF                  A. YES, GOTO NOTFOUND            00049900
+         CLC   4(3,R2),0(R1)           Q. TABLE MATCH?                  00050000
+         BE    VERFOK                  A. YES, GOTO VERIFY OK           00050100
+         LA    R2,NXDSLENG(R2)         BUMP BY ENTRY LENGTH             00050200
+         B     VERFLOOP                GOTO VERFLOOP                    00050300
+VERFNF   DS    0H                                                       00050400
+         MVI   VERFSWT,C'N'                                             00050500
+         BR    R9                                                       00050600
+VERFOK   DS    0H                                                       00050700
+         CLC   HOLDBANK,0(R2)          CURRENCY FOR THIS BANK           00050800
+         BNE   VERFNF                  NO - ERROR                       00050900
+         MVC   XRTDESC,8(R2)           RETURN DESCRIPTION               00051000
+         MVI   VERFSWT,C'Y'                                             00051100
+         BR    R9                                                       00051200
+         EJECT                                                          00051300
+*********************************************************************** 00051400
+*        VERIFY QUALIFIER                                             * 00051500
+*********************************************************************** 00051600
+         SPACE 2                                                        00051700
+VERFQUAL DS    0H                                                       00051800
+         LA    R2,NXDSQUAL            ADDRESS OF QUALIFIER TABLE        00051900
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              00052000
+VERQBK1  DS    0H                                                       00052100
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            00052200
+         BE    VERQLOOP               BANK FOUND, LOOK FOR QUALIFIER    00052300
+         LA    R2,8(R2)               BUMP TO THE NEXT ENTRY            00052400
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            00052500
+         BNE   VERQBK1                NOT END, LOOP BACK                00052600
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            00052700
+         BE    VERQNF                 YES - ERROR                       00052800
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      00052900
+         LA    R2,NXDSQUAL            START AT 1ST OF TABLE             00053000
+         B     VERQBK1                                                  00053100
+*                                                                       00053200
+*   1ST OF BANK HAS BEEN LOCATED                                        00053300
+*                                                                       00053400
+VERQLOOP DS    0H                                                       00053500
+         CLI   0(R2),X'FF'             Q. END OF TABLE?                 00053600
+         BE    VERQNF                  A. YES, GOTO NOTFOUND            00053700
+         CLC   4(4,R2),0(R1)           Q. TABLE MATCH?                  00053800
+         BE    VERQOK                  A. YES, GOTO VERIFY OK           00053900
+         LA    R2,8(R2)                BUMP BY ENTRY LENGTH             00054000
+         B     VERQLOOP                GOTO VERQLOOP                    00054100
+VERQOK   DS    0H                                                       00054200
+         CLC   HOLDBANK,0(R2)          CURRENCY FOR THIS BANK           00054300
+         BNE   VERQNF                  NO - ERROR                       00054400
+         BR    R9                                                       00054500
+VERQNF   DS    0H                                                       00054600
+         MVI   XRTRC,C'9'             INVALID QUALIFIER                 00054700
+         CLI   XRTACT,C'Q'            Q. VERIFY QUALIFIER?              00054800
+         BER   R9                     A. YES, RETURN                    00054900
+         B     RECNF9                 BR FOR SIMESS ERROR               00055000
+         EJECT                                                          00055100
+*********************************************************************** 00055200
+*    COUNT THE NUMBER OF CURRENCY ENTRIES FOR THE BANK                * 00055300
+*********************************************************************** 00055400
+         SPACE 2                                                        00055500
+TCOUNT   EQU   *                                                        00055600
+         LA    R2,NXDSXRNM            ADDRESS OF CURRENCY TABLE         00055700
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              00055800
+         MVC   XRTNUM,=C'000'         SET NUM OF CURR ENTRIES TO 0      00055900
+TCNT1    DS    0H                                                       00056000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            00056100
+         BE    TCNT2                  BANK FOUND, GO COUNT ENTRIES      00056200
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            00056300
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            00056400
+         BNE   TCNT1                  NOT END, LOOP BACK                00056500
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            00056600
+         BE    RETURN                 YES - NO TABLE ENTRIES            00056700
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      00056800
+         LA    R2,NXDSXRNM            START AT 1ST OF TABLE             00056900
+         B     TCNT1                                                    00057000
+*                                                                       00057100
+*   1ST OF BANK HAS BEEN LOCATED                                        00057200
+*                                                                       00057300
+*   COUNT THE NUMBER OF ENTRIES FOR THIS BANK                           00057400
+TCNT2    EQU   *                                                        00057500
+         PACK  TBLCOUNT,XRTNUM        PACK NUMBER OF ENTRIES            00057600
+         AP    TBLCOUNT,=PL1'1'       COUNT NUMBER OF CURR TABLE ENTR   00057700
+         UNPK  XRTNUM,TBLCOUNT        RETURN COUNT TO LINKAGE AREA      00057800
+         OI    XRTNUM+2,X'F0'         FORCE POSITIVE SIGN               00057900
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            00058000
+         CLC   HOLDBANK,0(R2)         IS THIS ENTRY FOR THE SAME BANK   00058100
+         BNE   RETURN                 NO, COUNT IS COMPLETE, RETURN     00058200
+         B     TCNT1                                                    00058300
+         EJECT                                                          00058400
+*********************************************************************** 00058500
+*                                                                     * 00058600
+*   SEARCH THE EXISTING EXCHANGE TABLE BEFORE ACCESSING FILE          * 00058700
+*                                                                     * 00058800
+*********************************************************************** 00058900
+SEARTBL  DS    0H                                                       00059000
+         MVI   SEARSWT,C'N'            MOVE 'N' TO SEARSWT              00059100
+         L     R10,TRAREAPT            R10 = POINTER INTO TABLE         00059200
+         LTR   R10,R10                 Q. NOT INITIALIZED?              00059300
+         BZR   R9                      A. YES, EXIT                     00059400
+SEARLOOP DS    0H                                                       00059500
+         CLI   TRMULT2,C' '            Q. BLANK MULT/DIV CODE?          00059600
+         BE    SEARNOK                 A. DO NOT USE, NOT VALID         00059700
+         CLC   XRTKEY,TRKEY            Q. KEY MATCH?                    00059800
+         BE    SEAROK                  A. YES, GO TO SEAROK             00059900
+SEARNOK  C     R10,TRAREAAD            Q. AT FIRST ENTRY?               00060000
+         BNHR  R9                      A. YES, EXIT                     00060100
+         SH    R10,TRTBLLNG            BUMP BACK TO PREV TABLE ENTRY    00060200
+         B     SEARLOOP                GO TO SEARLOOP                   00060300
+SEAROK   DS    0H                                                       00060400
+         MVI   SEARSWT,C'Y'            MOVE 'Y' TO SEARSWT              00060500
+         BR    R9                                                       00060600
+         SPACE 2                                                        00060700
+*********************************************************************** 00060800
+*   ADD ENTRY TO TABLE, IF FULL SHIFT TABLE DOWN AND INSERT ENTRY     * 00060900
+*********************************************************************** 00061000
+ADDTBL   DS    0H                                                       00061100
+         L     R10,TRAREAPT            R10 = POINTER INTO TABLE         00061200
+         LTR   R10,R10                 Q. NOT INITIALIZED?              00061300
+         BZR   R9                      A. YES, EXIT                     00061400
+         C     R10,TRAREAAD            Q. SAME AS ORIGIN?               00061500
+         BNE   ADDNEXT                 N. BUMP TO THE NEXT ENTRY        00061600
+         CLI   0(R10),X'00'            IS THE FIRST ENTRY USED          00061700
+         BE    ADDENTRY                NO, BR TO ADD THE ENTRY          00061800
+ADDNEXT  EQU   *                                                        00061900
+         AH    R10,TRTBLLNG            BUMP TO NEXT TABLE ENTRY         00062000
+         CLI   0(R10),X'FF'            Q. END OF TABLE?                 00062100
+         BNE   ADDENTRY                A. NO, ADD THE ENTRY             00062200
+         ST    R9,SAVER9               SAVE THE RETURN REG    0209003   00062250
+         BAL   R8,DUMPRATE             DUMP RATES                       00062300
+         L     R9,SAVER9               RESTORE THE RETURN REG 0209003   00062350
+         L     R10,TRAREAAD            RESET POINTER                    00062400
+         ST    R10,TRAREAPT            RESET TABLE POINTER    0209003   00062450
+         MVI   0(R10),X'00'            FORCE REUSE OF FIRST ENTRY       00062500
+         AP    TBLRESET,=PL1'1'        ADD +1 TO TABLE RESET COUNTER    00062600
+ADDENTRY DS    0H                                                       00062700
+         MVC   TRKEY,XRTKEY            MOVE KEY INTO TABLE              00062800
+         ZAP   TRBUYRT1,XRBRATE        MOVE BUY RATE TO TABLE           00062900
+         ZAP   TRSELRT1,XRSRATE        SELL RATE TO TABLE               00063000
+         MVC   TRMULT1,XRMULT                                           00063100
+         MVC   TRFACT1,XRFACT                                           00063200
+         MVI   TRMULT2,C' '  TABLE ENTRY NOT VALID UNTIL TARGET PROCESD 00063300
+         BR    R9                                                       00063400
+         EJECT                                                          00063500
+*********************************************************************** 00063600
+*                                                                     * 00063700
+*   PRINT THE MEMORY TABLE OF RATES TO SIMESS                         * 00063800
+*                                                                     * 00063900
+*********************************************************************** 00064000
+DUMPRATE DS    0H                                                       00064100
+         CP    DRATECNT,=PL1'1'        Q. DISK LOOKUPS?                 00064200
+         BLR   R8                      A. NO, EXIT                      00064300
+         L     R10,TRAREAPT            R10 = POINTER INTO TABLE         00064400
+         LTR   R10,R10                 Q. NOT INITIALIZED?              00064500
+         BZR   R8                      A. YES, EXIT                     00064600
+         MVC   MESSNO,=CL4'0000'       SET MESSAGE NUMBER               00064700
+         MVC   MESSOPT,DMPHDG1         PRINT HEADINGS                   00064800
+         BAL   R9,CALLMESS             *                                00064900
+         MVC   MESSOPT,DMPHDG2         *                                00065000
+         BAL   R9,CALLMESS             *                                00065100
+DUMPLOOP DS    0H                                                       00065200
+         CLI   TRMULT2,C' '            Q. BLANK MULT/DIV CODE?          00065300
+         BE    DUMPCONT                A. DO NOT USE, NOT VALID         00065400
+         MVC   DMPBANK,TRBANK          MOVE BANK                        00065500
+         MVC   DMPQUAL,TRQUAL          MOVE QUALIFIER                   00065600
+         MVI   DMPDATE,C' '                                             00065700
+         MVC   DMPDATE+1(L'DMPDATE-1),DMPDATE                           00065800
+         CLI   TRDATE,X'00'            Q. LOW-VALUES?                   00065900
+         BE    DUMPSDTE                A. YES, SKIP DATE FORMAT         00066000
+         MVC   DMPDATE(8),TRDATE       MOVE DATE TO DMPDATE             00066100
+         AIF   (&VSE).D0002                                   0209013   00066200
+         CLC   SINTLDWK,=F'0'     Q. SINTLDTE WAS LOADED *RG
+         BNE   DUMPCNT            A. NO, CONTINUE        *RG
+         LOAD   EP=SINTLDTE       A. YES. IT LOAD, AND        0209013   00066202
+         ST     R0,SINTLDWK          STORE THE ADDRESS        0209013   00066204
+DUMPCNT  EQU   *                                         *RG
+         AIF   (&XAMODE).XAMD080                              0209013   00066206
+.NXAD080 ANOP                                                 0209013   00066208
+         TM    SINTLDWK,X'7F'                                 0209013   00066210
+         BZ    SINT054                                        0209013   00066212
+         ABEND 995,DUMP,STEP                                  0209013   00066214
+SINT054  EQU   *                                              0209013   00066216
+         AGO   .EOMD080                                       0209013   00066218
+.XAMD080 ANOP                                                 0209013   00066220
+.EOMD080 ANOP                                                 0209013   00066222
+         ICM   R15,15,SINTLDWK    Q. CALLEE AMODE 31          0209013   00066224
+         AIF   (&XAMODE).XAMD100                              0209013   00066226
+.NXAD100 ANOP                                                 0209013   00066228
+         BP    SINT110            A. NO, CONTINUE             0209013   00066230
+         ABEND 194,DUMP,STEP      A. YES, ABEND               0209013   00066232
+         AGO   .EOMD100                                       0209013   00066234
+.XAMD100 ANOP                                                 0209013   00066236
+         BM    SINT110            A. YES                      0209013   00066238
+         SIMODE 24,WORKREG=14     A. NO, SET AMODE 24         0209013   00066240
+         MVI   CURRMODE,BIT24     SET CURRENT AMODE           0209013   00066242
+.EOMD100 ANOP                                                 0209013   00066244
+SINT110  EQU   *                                              0209013   00066246
+*        LINK  EP=SINTLDTE,PARAM=(SCYMD10S,DMPDATE,DMPDATE)             00066300
+         LINK  EP=SINTLDTE,PARAM=(SCYMD10S,DMPDATE,DMPDATE)             00066400
+         AIF   (&XAMODE).XAMD120                              0209013   00066402
+.NXAD120 ANOP                                                 0209013   00066404
+         AGO   .EOMD120                                       0209013   00066406
+.XAMD120 ANOP                                                 0209013   00066408
+         CLC   CURRMODE,EXITMODE  Q. CORRECT MODE TO EXIT     0209013   00066410
+         BE    SINT900            A. YES, GO EXIT             0209013   00066412
+         CLI   EXITMODE,BIT31     Q. EXIT AMODE 31            0209013   00066414
+         BE    SINT120            A. YES GO SET AMODE         0209013   00066416
+         SIMODE 24                SET BACK TO AMODE 24        0209013   00066418
+         B     SINT900                                        0209013   00066420
+SINT120  EQU   *                                              0209013   00066422
+         SIMODE 31                SET BACK TO AMODE 31        0209013   00066424
+.EOMD120 ANOP                                                 0209013   00066426
+SINT900  EQU   *                                              0209013   00066428
+         AGO   .C0002                                                   00066500
+.D0002   ANOP                                                           00066600
+         L     R15,=V(SINTLDTE)                                         00066700
+*        CALL  (15),(SCYMD10S,DMPDATE,DMPDATE),VL                       00066800
+         CALL  (15),(SCYMD10S,DMPDATE,DMPDATE),VL                       00066900
+         AGO   .C0002                                                   00067000
+.C0002   ANOP                                                           00067100
+DUMPSDTE MVC   DMPSOUR,TRSOUR          MOVE SOURCE                      00067200
+         MVC   DMPBASE,TRBASE          MOVE BASE                        00067300
+         MVC   DMPTARG,TRTARG          MOVE TARGET                      00067400
+         MVC   DMPSMULT,TRMULT1        MOVE MULTI/DIVIDE FLAG (SOURCE)  00067500
+         MVC   DMPSFACT,TRFACT1        MOVE FACTOR FLAG (SOURCE)        00067600
+         OI    DMPSFACT,X'F0'          FIX SIGN                         00067700
+         MVC   DMPSBRTE,=XL12'4020202020214B2020202020'                 00067800
+         ED    DMPSBRTE,TRBUYRT1       MOVE BUY RATE (SOURCE)           00067900
+         MVC   DMPSSRTE,=XL12'4020202020214B2020202020'                 00068000
+         ED    DMPSSRTE,TRSELRT1       MOVE SELL RATE (SOURCE)          00068100
+         MVC   DMPTMULT,TRMULT2        MOVE MULTI/DIVIDE FLAG (TARGET)  00068200
+         MVC   DMPTFACT,TRFACT2        MOVE FACTOR FLAG (TARGET)        00068300
+         OI    DMPTFACT,X'F0'          FIX SIGN                         00068400
+         MVC   DMPTBRTE,=XL12'4020202020214B2020202020'                 00068500
+         ED    DMPTBRTE,TRBUYRT2       MOVE BUY RATE (TARGET)           00068600
+         MVC   DMPTSRTE,=XL12'4020202020214B2020202020'                 00068700
+         ED    DMPTSRTE,TRSELRT2       MOVE SELL RATE (TARGET)          00068800
+         MVC   MESSOPT,DMPRATES        *                                00068900
+         BAL   R9,CALLMESS             *                                00069000
+*                                                                       00069100
+DUMPCONT SH    R10,TRTBLLNG            BUMP BACK TO PREV TABLE ENTRY    00069200
+         C     R10,TRAREAAD            Q. BEFORE FIRST ENTRY?           00069300
+         BNL   DUMPLOOP                A. NO, LOOP                      00069400
+         BR    R8                      RETURN                           00069500
+         EJECT                                                          00069600
+*********************************************************************** 00069700
+*                                                                     * 00069800
+*   ERRORS                                                            * 00069900
+*                                                                     * 00070000
+*********************************************************************** 00070100
+*********************************************************************** 00070200
+*   RECORD NOT FOUND FAILURE                                          * 00070300
+*********************************************************************** 00070400
+RECNF0   DS    0H                                                       00070500
+         MVI    XRTRC,C'1'             BAD CURRENCY RETURN CODE         00070600
+         MVC    XRTDESC,=CL24'***INVALID CURRENCY***'                   00070700
+         MVC    NF1RC,XRTRC                                             00070800
+         MVC    NF1KEY(L'XRTKEY),XRTKEY                                 00070900
+         MVC    NF1MSG(33),=CL33'INVALID CURRENCY SPECIFIED'            00071000
+         MVC    MESSOPT,NF1ERROR                                        00071100
+         MVC    MESSNO,=CL4'0000'                                       00071200
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00071300
+         B      RETURN                 GOTO RETURN                      00071400
+RECNF1   DS    0H                                                       00071500
+         MVI    XRTRC,C'2'             BASE+CURR+QUAL NOT FOUND         00071600
+         MVC    NF1RC,XRTRC                                             00071700
+         MVC    NF1KEY(L'HRKEY),HRKEY                                   00071800
+         MVC    NF1MSG(33),=CL33'BASE + CURR + QUALIFIER NOT FOUND'     00071900
+         MVC    MESSOPT,NF1ERROR                                        00072000
+         MVC    MESSNO,=CL4'0000'                                       00072100
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00072200
+         B      RETURN                 GOTO RETURN                      00072300
+RECNF2   DS    0H                                                       00072400
+         MVI    XRTRC,C'3'             BANK OR 9999 RECORD NOT FOUND    00072500
+         MVC    NF1RC,XRTRC                                             00072600
+         MVC    NF1KEY(L'HRKEY),HRKEY                                   00072700
+         MVC    NF1MSG(33),=CL33'RATE FOR SPECIFIED BANK NOT FOUND'     00072800
+         MVC    MESSOPT,NF1ERROR                                        00072900
+         MVC    MESSNO,=CL4'0000'                                       00073000
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00073100
+         B      RETURN                 GOTO RETURN                      00073200
+RECNF3   DS    0H                                                       00073300
+         MVI    XRTRC,C'4'             SPECIFIED DATE NOT FOUND         00073400
+         MVC    NF1RC,XRTRC                                             00073500
+         MVC    NF1KEY(L'HRKEY),HRKEY                                   00073600
+         MVC    NF1MSG(33),=CL33'RATE FOR SPECIFIED DATE NOT FOUND'     00073700
+         MVC    MESSOPT,NF1ERROR                                        00073800
+         MVC    MESSNO,=CL4'0000'                                       00073900
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00074000
+         B      RETURN                 GOTO RETURN                      00074100
+RECNF4   DS    0H                                                       00074200
+         MVI    XRTRC,C'5'             RECORD AFTER STARTBR NOT FOUND   00074300
+         MVC    NF1RC,XRTRC                                             00074400
+         MVC    NF1KEY(L'HRKEY),HRKEY                                   00074500
+         MVC    NF1MSG(35),=CL35'CRITICAL READ AFTER STARTBR FAILURE'   00074600
+         MVC    MESSOPT,NF1ERROR                                        00074700
+         MVC    MESSNO,=CL4'0501'                                       00074800
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00074900
+         B      RETURN                 GOTO RETURN                      00075000
+RECNF8   DS    0H                                                       00075100
+         MVC    NF1RC,XRTRC                                             00075200
+         MVC    NF1KEY(L'HRKEY),HRKEY                                   00075300
+         MVC    NF1MSG(33),=CL33'OPEN ERROR ON NXXRTM RATE FILE'        00075400
+         MVC    MESSOPT,NF1ERROR                                        00075500
+         MVC    MESSNO,=CL4'0000'                                       00075600
+         MVC    MESSRET,=H'0112'       CANCEL WITHOUT DUMP              00075700
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00075800
+         B      RETURN                 GOTO RETURN                      00075900
+RECNF9   DS    0H                                                       00076000
+         MVC    NF1RC,XRTRC                                             00076100
+         MVC    NF1KEY(L'XRTKEY),XRTKEY                                 00076200
+         MVC    NF1MSG(33),=CL33'INVALID CURRENCY QUALIFIER'            00076300
+         MVC    MESSOPT,NF1ERROR                                        00076400
+         MVC    MESSNO,=CL4'0000'                                       00076500
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00076600
+         B      RETURN                 GOTO RETURN                      00076700
+         SPACE 2                                                        00076800
+*********************************************************************** 00076900
+*   ERROR RETURN CODE RETURNED FROM NXXRCALC - SEND ERR MSG*  0209011   00077000
+*********************************************************************** 00077100
+CALCERR  DS    0H                                                       00077200
+         MVC    XRTRC,TRRTNCD          PUT CALC RTN CODE INTO ERROR CD  00077300
+         MVC    NF1RC,XRTRC                                             00077400
+         MVC    NF1KEY(L'TRKEY),TRKEY                                   00077500
+         MVC    NF1MSG(33),=CL33'NXXRCALC-ERROR IN CURR CALC' 0209011   00077600
+         MVC    MESSOPT,NF1ERROR                                        00077700
+         MVC    MESSNO,=CL4'0000'                                       00077800
+         BAL    R9,CALLMESS            CALL SIMESS ROUTINE              00077900
+         BR     R8                     RETURN                           00078000
+         EJECT                                                          00078100
+*********************************************************************** 00078200
+*                                                                     * 00078300
+*   TEST FOR PACKED OR ZONED DECMAL                                   * 00078400
+*                                                                     * 00078500
+*********************************************************************** 00078600
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00078700
+*        ROUTINE TO TEST A ZONE DECIMAL FIELD FOR NUMERIC             * 00078800
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00078900
+         SPACE 1                                                        00079000
+NTESTZD  EQU   *                                                        00079100
+         L     R2,=A(ILBXETB0)    R2 - ADDRESS OF ZD TRANSLATE TABLE    00079200
+         STC   R7,*+5             ZAP LENGTH INTO NEXT INSTR            00079300
+         TRT   0(1,R6),0(R2)      CHECK INPUT FIELD FOR NUMERIC         00079400
+         BL    *+20               A. NO, GO SET ERROR INDICATOR ON      00079500
+         BE    *+24               A. YES, GO SET ERROR INDICATOR OFF    00079600
+         N     R2,=F'1'           TEST FOR EVEN OR ODD (VALID SIGN)     00079700
+         BNE   *+8                A. NO, GO SET ERROR INDICATOR ON      00079800
+         B     *+12               A. YES, GO SET ERROR INDICATOR OFF    00079900
+         LA    R1,4               SET ERROR INDICATOR ON                00080000
+         B     *+8                GO TEST ERROR INDICATOR               00080100
+         LA    R1,0               SET ERROR INDICATOR OFF               00080200
+         BR    RE                 A. NO, RETURN TO CALLING ROUTINE      00080300
+         SPACE 1                                                        00080400
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00080500
+*        ROUTINE TO TEST A PACK DECIMAL FIELD FOR NUMERIC             * 00080600
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00080700
+         SPACE 1                                                        00080800
+NTESTPD  EQU   *                                                        00080900
+         L     R2,=A(ILBXITB0)    R2 - ADDRESS OF PD TRANSLATE TABLE    00081000
+         STC   R7,*+5             ZAP LENGTH INTO NEXT INTR             00081100
+         TRT   0(1,R6),0(R2)      CHECK INPUT FIELD FOR NUMERIC         00081200
+         BC    12,*+12            A. NO, GO SET ERROR INDICATOR ON      00081300
+         N     R2,=F'1'           Q. TEST FOR EVEN OR ODD (VALID SIGN)  00081400
+         BE    *+12               A. YES, SET ERROR INDICATOR OFF       00081500
+         LA    R1,4               SET ERROR INDICATOR ON                00081600
+         B     *+8                GO TEST ERROR INDICATOR               00081700
+         LA    R1,0               SET ERROR INDICATOR OFF               00081800
+         BR    RE                 A. NO, RETURN TO CALLING ROUTINE      00081900
+         EJECT                                                          00082000
+*********************************************************************** 00082100
+*      L T O R G                                                      * 00082200
+*********************************************************************** 00082300
+         SPACE 2                                                        00082400
+         LTORG                                                          00082500
+         EJECT                                                          00082600
+*********************************************************************** 00082700
+*      W O R K I N G   S T O R A G E   S E C T I O N                  * 00082800
+*********************************************************************** 00082900
+         SPACE 2                                                        00083000
+EXITMODE DC    X'00'                                          0209013   00083010
+CURRMODE DC    X'00'                                          0209013   00083020
+BIT24    EQU   X'00'                                          0209013   00083030
+BIT31    EQU   X'80'                                          0209013   00083040
+         DS     0D                                                      00083100
+DBLWORD  DS     D                                                       00083200
+DBLWORD2 DS     D                                                       00083300
+SAVER9   DS     F                                             0209003   00083350
+*                                                                       00083400
+SIMESSWK DC     F'0'                  ADDRESS OF SIMESS  RTN  0209013   00083410
+SINTLDWK DC     F'0'                  ADDRESS OF SINTLDTE RTN 0209013   00083420
+SIXRTMV  DC     F'0'                  ADDRESS OF NXXRTMV ROUTINE        00083500
+NXXRCALC DC     F'0'                  ADDRESS OF NXXRCALC RTN 0209011   00083600
+INPAMT   DC     F'0'                  ADDRESS OF INPUT AMOUNT           00083700
+OUTAMT   DC     F'0'                  ADDRESS OF OUTPUT AMOUNT          00083800
+TRAREAAD DC     A(TRAREA)             ADDRESS OF EXCHANGE SEARCH TABLE  00083900
+TRAREAPT DC     F'0'                  POINTER INTO SEARCH TABLE         00084000
+TRTBLLNG DC     H'55'                 LENGTH OF EXCH TABLE ENTRY        00084100
+*                                                                       00084200
+SIPARMS  DC     A(SIWSCNTL)                                             00084300
+         DC     B'10000000'                                             00084400
+         DS     AL3(0)                                                  00084500
+*                                                                       00084600
+SIPARMS2 DC     F'0'                  POINTER TO TRMULT1                00084700
+         DC     F'0'                  INPUT AMOUNT                      00084800
+         DC     B'10000000'                                             00084900
+         DS     AL3(0)                OUTPUT AMOUNT                     00085000
+*                                                                       00085100
+SEARSWT  DC     C'N'                  Y=FOUND N=NOT FOUND               00085200
+OPENSWT  DC     C'N'                  Y=OPEN N=CLOSE                    00085300
+VERFSWT  DC     C'N'                  Y=OK   N=NOT IN TABLE             00085400
+CONVSWT  DC     C'N'                  Y=SOURCE->TARGET                  00085500
+*                                     N=SOURCE->BASE->TARGET            00085600
+HOLDBANK DS     CL4                   HOLD AREA FOR CURR TABLE LOOKUP   00085700
+         EJECT                                                          00085800
+*                                                                       00085900
+*********************************************************************** 00086000
+*               MESSAGES                                              * 00086100
+*********************************************************************** 00086200
+*                                                                       00086300
+*   BANK QUAL   DATE     CURRENCY           SOURCE BUY/SELL             00086400
+*   ---- ---- -------- ------------- -----------------------------      00086500
+*   XXXX XXXX XX/XX/XX XXX->XXX->XXX X X 99999.999999 99999.999999      00086600
+*                                                                       00086700
+DMPHDG1  DS     0CL100                                                  00086800
+         DC     CL38'   BANK QUAL    DATE       CURRENCY   '            00086900
+         DC     CL30'        SOURCE BUY/SELL       '                    00087000
+         DC     CL30'        TARGET BUY/SELL       '                    00087100
+         DC     CL2'  '                                                 00087200
+*                                                                       00087300
+DMPHDG2  DS     0CL100                                                  00087400
+         DC     CL38'   ---- ---- ---------- ------------- '            00087500
+         DC     CL30'----------------------------- '                    00087600
+         DC     CL30'----------------------------- '                    00087700
+         DC     CL2'  '                                                 00087800
+*                                                                       00087900
+DMPRATES DS     0CL100                                                  00088000
+         DC     CL3'   '                                                00088100
+DMPBANK  DS     CL4                    BANK                             00088200
+         DC     CL1' '                                                  00088300
+DMPQUAL  DS     CL4                    QUALIFIER                        00088400
+         DC     CL1' '                                                  00088500
+DMPDATE  DS     CL10                   DATE                             00088600
+         DC     CL1' '                                                  00088700
+DMPSOUR  DS     CL3                    SOURCE CURRENCY                  00088800
+         DC     CL2'->'                                                 00088900
+DMPBASE  DS     CL3                    BASE CURRENCY                    00089000
+         DC     CL2'->'                                                 00089100
+DMPTARG  DS     CL3                    TARGET CURRENCY                  00089200
+         DC     CL1' '                                                  00089300
+DMPSMULT DS     CL1                    SOURCE MULT/DIVIDE               00089400
+         DC     CL1' '                                                  00089500
+DMPSFACT DS     CL1                    SOURCE FACTOR                    00089600
+         DC     CL1' '                                                  00089700
+DMPSBRTE DS     CL12                   SOURCE BUY RATE 99999.999999     00089800
+         DC     CL1' '                                                  00089900
+DMPSSRTE DS     CL12                   SOURCE SELL RATE 99999.999999    00090000
+         DC     CL1' '                                                  00090100
+DMPTMULT DS     CL1                    TARGET MULT/DIVIDE               00090200
+         DC     CL1' '                                                  00090300
+DMPTFACT DS     CL1                    TARGET FACTOR                    00090400
+         DC     CL1' '                                                  00090500
+DMPTBRTE DS     CL12                   TARGET BUY RATE 99999.999999     00090600
+         DC     CL1' '                                                  00090700
+DMPTSRTE DS     CL12                   TARGET SELL RATE 99999.999999    00090800
+         DC     CL3'   '                                                00090900
+*                                                                       00091000
+NF1ERROR DS     0CL100                                                  00091100
+         DC     CL3'RC='                                                00091200
+NF1RC    DC     CL1'?'                                                  00091300
+         DC     CL5' KEY='                                              00091400
+NF1KEY   DS     CL25                                                    00091500
+         DC     CL1' '                                                  00091600
+NF1MSG   DC     CL65' '                                                 00091700
+*                                                                       00091800
+ENDMSG   DS     0CL100                                                  00091900
+         DC     CL18'DISK RATE LOOKUPS='                                00092000
+DRATEEND DC     CL8'00000000'                                           00092100
+         DC     CL20' TABLE RATE LOOKUPS='                              00092200
+TRATEEND DC     CL8'00000000'                                           00092300
+         DC     CL14' TABLE RESETS='                                    00092400
+TBLREEND DC     CL3'000'                                                00092500
+         DC     CL10' VERIFIES='                                        00092600
+VERIFEND DC     CL8'00000000'                                           00092700
+         DC     11C' '                                                  00092800
+         EJECT                                                          00092900
+*                                                                       00093000
+*********************************************************************** 00093100
+*               COUNTS                                                * 00093200
+*********************************************************************** 00093300
+*                                                                       00093400
+         DS     0F                                                      00093500
+VERIFCNT DC     PL8'0'                VERIFY COUNT                      00093600
+DRATECNT DC     PL8'0'                RATE LOOKUPS TO DISK              00093700
+TRATECNT DC     PL8'0'                RATE TABLE LOOKUPS                00093800
+TBLRESET DC     PL3'0'                TABLE RESETS                      00093900
+TBLCOUNT DC     PL3'0'                COUNT NUMBER OF CURR TBL ENTRIES  00094000
+*                                                                       00094100
+*********************************************************************** 00094200
+*               SAVE RECORD KEY USED BEFORE STARTBR                   * 00094300
+*********************************************************************** 00094400
+*                                                                       00094500
+HRKEY    DS     0CL22                  KEY OF FILE                      00094600
+HRBANK   DS     CL4                      BANK NUMBER                    00094700
+HRBASE   DS     CL3                      BASE CURRENCY                  00094800
+HRCURR   DS     CL3                      CURRENCY                       00094900
+HRQUAL   DS     CL4                      QUALIFIER                      00095000
+HRDATE   DS     CL8                      9S COMPLEMENT DATE(CCYYMMDD)   00095100
+         EJECT                                                          00095200
+         DS    0D                                                       00095300
+*********************************************************************** 00095400
+*               EXTERNAL DECIMAL TRANSLATE TABLE (ZD)                 * 00095500
+*********************************************************************** 00095600
+*                                                                       00095700
+ILBXETB0 DC    16X'01010101010101010101010101010101'                    00095800
+*                                                                       00095900
+*       OVERLAY AREAS OF TABLE CORRESPONDING TO EBCDIC NUMBERS WITH     00096000
+*          SIGN OVERPUNCH WITH 80.                                      00096100
+*                                                                       00096200
+         ORG   ILBXETB0+240            OVERLAY                          00096300
+         DC    10X'00'          0 THRU 9                                00096400
+*                                                                       00096500
+*       OVERLAY AREAS OF TABLE CORRESPONDING TO EBCDIC NUMBERS WITH 0.  00096600
+*                                                                       00096700
+         ORG   ILBXETB0+192            OVERLAY                          00096800
+         DC    10X'80'         +0 THRU +9                               00096900
+         ORG   ILBXETB0+208            OVERLAY                          00097000
+         DC    10X'80'                                                  00097100
+         ORG                                                            00097200
+ETBLEND  EQU   *                                                        00097300
+         EJECT                                                          00097400
+*********************************************************************** 00097500
+*               INTERNAL DECIMAL TRANSLATE TABLE (PD)                 * 00097600
+*********************************************************************** 00097700
+*                                                                       00097800
+ILBXITB0 DC    16X'01010101010101010101010101010101'                    00097900
+*                                                                       00098000
+*       OVERLAY AREAS OF TABLE CORRESPONDING TO VALID BYTES OF PACKED   00098100
+*          DECIMAL WITH 00.                                             00098200
+*                                                                       00098300
+         ORG   ILBXITB0                                                 00098400
+         DC    10X'00'         00 THRU 09                               00098500
+         ORG   ILBXITB0+016                                             00098600
+         DC    10X'00'         10 THRU 19                               00098700
+         ORG   ILBXITB0+032                                             00098800
+         DC    10X'00'         20 THRU 29                               00098900
+         ORG   ILBXITB0+048                                             00099000
+         DC    10X'00'         30 THRU 39                               00099100
+         ORG   ILBXITB0+064                                             00099200
+         DC    10X'00'         40 THRU 49                               00099300
+         ORG   ILBXITB0+080                                             00099400
+         DC    10X'00'         50 THRU 59                               00099500
+         ORG   ILBXITB0+096                                             00099600
+         DC    10X'00'         60 THRU 69                               00099700
+         ORG   ILBXITB0+112                                             00099800
+         DC    10X'00'         70 THRU 79                               00099900
+         ORG   ILBXITB0+128                                             00100000
+         DC    10X'00'         80 THRU 89                               00100100
+         ORG   ILBXITB0+144                                             00100200
+         DC    10X'00'         90 THRU 99                               00100300
+*                                                                       00100400
+*       OVERLAY AREAS OF TABLE CORRESPONDING TO VALID BYTES OF SIGNED   00100500
+*           PACKED DECIMAL WITH 80.                                     00100600
+*                                                                       00100700
+         ORG   ILBXITB0+X'0C'  0C 0D                                    00100800
+         DC    X'80800180'      CONSTANT                                00100900
+         ORG   ILBXITB0+X'1C'  1C 1D                                    00101000
+         DC    X'80800180'      CONSTANT                                00101100
+         ORG   ILBXITB0+X'2C'  2C 2D                                    00101200
+         DC    X'80800180'      CONSTANT                                00101300
+         ORG   ILBXITB0+X'3C'  3C 3D                                    00101400
+         DC    X'80800180'      CONSTANT                                00101500
+         ORG   ILBXITB0+X'4C'  4C 4D                                    00101600
+         DC    X'80800180'      CONSTANT                                00101700
+         ORG   ILBXITB0+X'5C'  5C 5D                                    00101800
+         DC    X'80800180'      CONSTANT                                00101900
+         ORG   ILBXITB0+X'6C'  6C 6D                                    00102000
+         DC    X'80800180'      CONSTANT                                00102100
+         ORG   ILBXITB0+X'7C'  7C 7D                                    00102200
+         DC    X'80800180'      CONSTANT                                00102300
+         ORG   ILBXITB0+X'8C'  8C 8D                                    00102400
+         DC    X'80800180'      CONSTANT                                00102500
+         ORG   ILBXITB0+X'9C'  9C 9D                                    00102600
+         DC    X'80800180'      CONSTANT                                00102700
+         ORG                                                            00102800
+ITBLEND  EQU   *                                                        00102900
+         EJECT                                                          00103000
+*********************************************************************** 00103100
+*      SIMESS AND IO ROUTINE AREAS                                    * 00103200
+*********************************************************************** 00103300
+         SPACE 2                                                        00103400
+         COPY   SIDSMESS                                                00103500
+         SPACE 2                                                        00103600
+         COPY   SIDTINTL                                      0209011   00103700
+         SPACE 2                                                        00103800
+SIWSCNTL DS    0F                                                       00103900
+IOOPER   DS    CL1                     OPERATOR                         00104000
+IOACCESS DS    CL1                     ACCESS MODE                      00104100
+IORETCOD DS    H                       RETURN CODE                      00104200
+IORBA    DS    F                       RBA                              00104300
+         EJECT                                                          00104400
+*********************************************************************** 00104500
+*      IO AREAS                                                       * 00104600
+*********************************************************************** 00104700
+         SPACE 2                                                        00104800
+SIWSXRRT DS     0F                                                      00104900
+XRKEY    DS     0CL22                  KEY OF FILE                      00105000
+XRBANK   DS     CL4                      BANK NUMBER                    00105100
+XRBASE   DS     CL3                      BASE CURRENCY                  00105200
+XRCURR   DS     CL3                      CURRENCY                       00105300
+XRQUAL   DS     CL4                      QUALIFIER                      00105400
+XRDATE   DS     CL8                      9S COMPLEMENT DATE(CCYYMMDD)   00105500
+XREDATE  DS     CL8                    EFFECTIVE DATE (CCYYMMDD)        00105600
+XRMRATE  DS     PL6                    MID RATE S9(5)V9(6)              00105700
+XRBRATE  DS     PL6                    BUY RATE S9(5)V9(6)              00105800
+XRSRATE  DS     PL6                    SELL RATE S9(5)V9(6)             00105900
+XRSPREAD DS     PL6                    SPREAD S9(5)V9(6)                00106000
+XRFACT   DS     CL1                    FACTOR                           00106100
+XRMULT   DS     CL1                    MULTI OR DIVIDE (M OR D)         00106200
+XROVRVAR DS     CL2                    OVERALL VARIANCE                 00106300
+XRMNTVAR DS     CL2                    MAINTENANCE VARIANCE             00106400
+XRMDATE  DS     CL6                    MAINT. DATE YYMMDD               00106500
+XRMTIME  DS     CL6                    MAINT. TIME HHMMSS               00106600
+XROPERID DS     CL8                    OPERATOR ID                      00106700
+XRTERMID DS     CL4                    TERMINAL ID                      00106800
+         DS     CL16                   *                                00106900
+         EJECT                                                          00107000
+         COPY NXDSXRNM                                                  00107100
+         EJECT                                                          00107200
+*********************************************************************** 00107300
+*      D S E C T S                                                    * 00107400
+*********************************************************************** 00107500
+         SPACE 2                                                        00107600
+PARMLIST DSECT                                                          00107700
+INTADDR@ DS     F                                                       00107800
+INPADDR@ DS     F                                                       00107900
+OUTADDR@ DS     F                                                       00108000
+         SPACE 2                                                        00108100
+SIDSLXRT DSECT                                                          00108200
+XRTACT   DS     CL1                    ACTION                           00108300
+XRTRC    DS     CL1                    RETURN CODE                      00108400
+XRTNUM   DS     CL3                    CURRENCY NUMBER                  00108500
+XRTKEY   DS     0CL25                  KEY                              00108600
+XRTSOUR  DS     CL3                      SOURCE RATE                    00108700
+XRTBASE  DS     CL3                      BASE RATE                      00108800
+XRTTARG  DS     CL3                      TARGET RATE                    00108900
+XRTBANK  DS     CL4                      BANK NUMBER                    00109000
+XRTQUAL  DS     CL4                      QUALIFIER                      00109100
+XRTDATE  DS     CL8                      DATE(CCYYMMDD)                 00109200
+XRTIAMT  DS     PL9                    INPUT AMOUNT                     00109300
+XRTOAMT  DS     PL9                    OUTPUT AMOUNT                    00109400
+XRTDESC  DS     CL24                   DESCRIPTION OF CURRENCY          00109500
+         SPACE 2                                                        00109600
+TRTABLE  DSECT                                                          00109700
+*                                      55 BYTES LONG                    00109800
+TRKEY    DS     0CL25                  KEY OF FILE                      00109900
+TRSOUR   DS     CL3                      SOURCE                         00110000
+TRBASE   DS     CL3                      BASE                           00110100
+TRTARG   DS     CL3                      TARGET                         00110200
+TRBANK   DS     CL4                      BANK NUMBER                    00110300
+TRQUAL   DS     CL4                      QUALIFIER                      00110400
+TRDATE   DS     CL8                      9S COMPLEMENT DATE(CCYYMMDD)   00110500
+*  THIS PART OF TABLE IS PASSED TO THE NXXRCALC ROUTINE                 00110600
+TRMULT1  DS     CL1                    M = MULT  D=DIVIDE               00110700
+TRFACT1  DS     CL1                    FACTOR                           00110800
+TRBUYRT1 DS     PL6                    BUY RATE - SOURCE CURRENCY       00110900
+TRSELRT1 DS     PL6                    SELL RATE - SOURCE CURRENCY      00111000
+TRMULT2  DS     CL1                    M = MULT  D=DIVIDE               00111100
+TRFACT2  DS     CL1                    FACTOR                           00111200
+TRBUYRT2 DS     PL6                    BUY RATE - TARGET CURRENCY       00111300
+TRSELRT2 DS     PL6                    SELL RATE - TARGET CURRENCY      00111400
+TRACTION DS     CL1                    ACTION CODE FROM CALLING PROGRAM 00111500
+TRRTNCD  DS     CL1                    RETURN CODE FROM CALC ROUTINE    00111600
+         EJECT                                                          00111700
+*********************************************************************** 00111800
+*      C S E C T S                                                    * 00111900
+*********************************************************************** 00112000
+         SPACE 2                                                        00112100
+NXXRTM   CSECT                                                          00112200
+         DROP   12                                                      00112300
+*     TABLE AREA OF 100 X 55 = 5500 (100 ENTRIES) + TERMINATING ENTRY   00112400
+         DS     0D                                                      00112500
+TRAREA   DC     100XL55'00'                                             00112600
+         DC     55X'FF'                                                 00112700
+         MEND                                                           00112800

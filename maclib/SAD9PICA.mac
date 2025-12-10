@@ -1,0 +1,53 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+* SAD9PICA - DATA AREAS USED BY SAD9PICM MACRO                        * 00002000
+* --------------------------------------------                        * 00003000
+*                                                                     * 00004000
+* HISTORY OF REVISIONS:                                               * 00005000
+* ---------------------                                               * 00006000
+* 05/11/15 MODIFY FOR COMP-5                                  1726914 * 00006089
+* 03/09/15 CHANGE TO ALLOW NATIONAL DEFINITION                1616798 * 00006090
+* 11/04/14 CHANGE TO ALLOW PIC N FOR UNICODE                  1526736 * 00006095
+* SA0290  SA0004  ORIGINAL DIST TO SUPPORT SADAUXIB AUX GEN           * 00007000
+*-------------------------------------------------------------------- * 00008000
+SADPEDWD DC    D'0'                DOUBLEWORD WORK AREA                 00009000
+SADPESAV DC   8F'0'                SAVEAREA FOR CALLERS REGISTERS 1-6   00010000
+SADPEPIC DC    CL60' '             PICTURE TO BE EDITTED                00011000
+SADPEWKA DC    CL60' '             MACRO WORKAREA                       00012000
+SADPEFLG DC    XL1'00'             FLAGBYTE                             00013000
+SADPESYN EQU   X'80'               FLAGBIT (EQU): SYNCHRONIZED ALIGNMT  00014000
+SADPESGN EQU   X'40'               FLAGBIT (EQU): PICTURE SIGNED        00015000
+SADPEFMS EQU   X'20'               FLAGBIT (EQU): MULTIPLIER STARTED    00016000
+SADPEFIP EQU   X'10'               FLAGBIT (EQU): INVALID PICTURE       00017000
+SADPEGRP EQU   X'08'               FLAGBIT (EQU): GROUP ITEM            00018000
+SADPEGUS EQU   X'07'               FLAGBIT (EQU): GROUP USAGE SPECIFIED 00019000
+SADPEGU1 EQU   X'01'               FLAGBIT (EQU): GROUP USAGE/COMP-1    00020000
+SADPEGU2 EQU   X'02'               FLAGBIT (EQU): GROUP USAGE/COMP-2    00021000
+SADPEGU3 EQU   X'03'               FLAGBIT (EQU): GROUP USAGE/COMP-3    00022000
+SADPEGU4 EQU   X'04'               FLAGBIT (EQU): GROUP USAGE/COMP-4    00023000
+SADPEGU5 EQU   X'05'               FLAGBIT (EQU): GRP/COMP-5  1726914   00023010
+SADPEGUD EQU   X'07'               FLAGBIT (EQU): GRP/DISPLAY 1726914   00024000
+SADPECMP DC    CL1' '              COMPUTATIONAL TYPE                   00025000
+SADPECNT DC    HL2'0'              #COUNTABLE CHARACTERS                00026000
+SADPESCL DC    HL2'0'              #COUNTABLE SCALING CHARACTERS        00027000
+SADPEMLT DC    CL5'00001'          #COUNTABLE CHARACTERS IN MULTIPLIER  00028000
+SADPEATT DC    CL1' '              RETURN AREA FOR DERIVED ATTRIBUTE    00029000
+SADPELEN DC    HL2'0'              RETURN AREA FOR DERIVED LENGTH       00030000
+SADPEDEC DC    HL2'0'              RETURN AREA FOR DERIVED # DECIMALS   00031000
+SADPEVAL DS   0XL75'FF'            SYMBOLS USED IN PICTURE CLAUSE       00032000
+         DC    X'00',74X'FF'               1ST BYTE = 00 (FLAG TO INIT) 00033000
+         DC    X'00FFFF00',12X'FF'         . +                          00034000
+         DC    X'0000FFFFFF0000'           $ * - /                      00035000
+         DC    9X'FF',X'00',85X'FF'        ,                            00036000
+         DC    XL4'0',16X'FF'              A B C (CR) D (DB)  1526736   00037000
+         DC    X'00FF00FF00',8X'FF'        N P R (OF CR)      1526736   00038000
+         DC    X'00FFFF00FF00FF00',6X'FF'  S V X Z                      00039000
+         DC    X'00',8X'FF',X'00',6X'FF'   0 9                          00040000
+SADPEALF DC    (C'A')X'FF',XL2'0',(256-C'C')X'FF' A OR B ONLY = ALPHA   00041000
+         ORG   SADPEALF+C'B'+1                    P,S,V, OR 9 = NUMERIC 00042000
+SADPENUM DC    215X'FF',X'00',10X'FF',X'00FFFF00',19X'FF',X'00',6X'FF'  00043000
+SADPENAT DC    CL1' '              NATIONAL FLAG              1526736   00044000
+SADPEFL1 DC    XL1'00'             FLAGBYTE FOR SIGN          1616798   00045000
+SADPESEP EQU   X'01'               FLAGBIT (EQU): SEPARATE    1616798   00046000
+SADPESLD EQU   X'02'               FLAGBIT (EQU): LEADING     1616798   00047000
+SADPESTR EQU   X'03'               FLAGBIT (EQU): TRAILING    1616798   00048000

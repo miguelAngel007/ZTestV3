@@ -1,0 +1,145 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                          TSTS1RPT                                   * 00000004
+*                     TRANSACTION SYSTEM                              * 00000005
+*                    REPORT CONTROL RECORD                            * 00000006
+*                                                                     * 00000007
+*---------------------------------------------------------------------* 00000008
+*                  ** HISTORY OF REVISIONS **                         * 00000009
+*                                                                     * 00000010
+* DESCRIPTION                                                 CHNGID  * 00000011
+* __________________________________________________________  _______ * 00000012
+*                                                                     * 00000013
+* 02/23/07 ADD MASKING FLAG                                   0735608 * 00000687
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             RPCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             RPCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             RPRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             RPCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL17        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+RPTREC   DSECT                                                          00000700
+RPTRECL  DS    0CL5820                 REPORT RECORD                    00000800
+*                                                                       00000900
+RPTKEY   DS    0CL5                    REPORT RECORD KEY                00001000
+RPTKLV1  DS    CL2                       REPORT LEVEL 1                 00001100
+RPTKLV2  DS    CL3                       REPORT LEVEL 2                 00001200
+*                                                               2602105 00001210
+RPCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001300
+RPCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001310
+*                                                                       00001400
+RPTLMNT  DS    0CL28                   LAST MAINTENANCE         2602105 00001500
+RPTLMD   DS    0CL6                      LAST MAINT DATE                00001600
+RPTLMDM  DS    CL2                         LAST MAINT MONTH             00001700
+RPTLMDD  DS    CL2                         LAST MAINT DAY               00001800
+RPTLMDY  DS    CL2                         LAST MAINT YEAR              00001900
+*                                                                       00002000
+RPTLMT   DS    0CL6                      LAST MAINT TIME                00002100
+RPTLMTH  DS    CL2                         LAST MAINT HOUR              00002200
+RPTLMTM  DS    CL2                         LAST MAINT MINUTES           00002300
+RPTLMTS  DS    CL2                         LAST MAINT SECONDS           00002400
+*                                                                       00002500
+RPTLMEM  DS    CL8                       LAST MAINT EMPLOYEE            00002600
+*                                                                       00002700
+RPCACHID DS    CL8                     CA CHANGE ID             2602105 00002800
+*                                                                       00002900
+         DS    CL17                    FILLER                   2602105 00002910
+*                                                               2602105 00002920
+RPTCDTE  DS    0CL6                    CURRENT PROCESS DATE             00003000
+RPTCDM   DS    CL2                       MONTH                          00003100
+RPTCDD   DS    CL2                       DAY                            00003200
+RPTCDY   DS    CL2                       YEAR                           00003300
+*                                                                       00003400
+RPTLOC   DS    CL1                     PHYSICAL LOCATION FLAG           00003500
+*                                        0 - LOCATION NOT IN RPT LVLS   00003600
+*                                        2 - PUT LOCATION IN RPT LVL2   00003700
+*                                        3 - PUT LOCATION IN RPT LVL3   00003800
+*                                        4 - PUT LOCATION IN RPT LVL4   00003900
+*                                        2 - PUT LOCATION IN RPT LVL2   00004000
+*                                                                       00004200
+RPTDSA   DS    0CL40                   REPORT DESC AREA                 00004300
+RPTINM   DS    CL40                      INSTITUTION NAME               00004400
+*                                                                       00004500
+         DS    CL20                    FILLER                           00004600
+*                                                                       00004700
+RPTSYSA  DS    0CL27                   SYSTEM AREA                      00004800
+RPTFRCP  DS    CL1                       PRINT FORCE POST               00004900
+*                                          0 - NO                       00005000
+*                                          1 - YES                      00005100
+         DS    CL3                       FILLER                         00005200
+*                                                                       00005300
+RPTBYBK  DS    CL1                       REPORT BY BANK                 00005400
+*                                          0 - NO                       00005500
+*                                          1 - YES                      00005600
+RPTBYTR  DS    CL1                       BYPASS TRAINING RECORDS        00005700
+*                                          0 - NO                       00005800
+*                                          1 - YES                      00005900
+RPTTPP   DS    CL1                       PRINT TRAN POSTED / NON-POST   00006000
+*                                          0 - NEITHER                  00006100
+*                                          1 - POSTED ONLY              00006200
+*                                          2 - NOT-POSTED ONLY          00006300
+*                                          3 - BOTH                     00006400
+RPTTOVP  DS    CL1                       TRAN OVERRIDE PRINT            00006500
+*                                          0 - NEITHER                  00006600
+*                                          1 - SUPV OVR ONLY            00006700
+*                                          2 - TELLER OVR ONLY          00006800
+*                                          3 - BOTH                     00006900
+RPTANYM  DS    CL1                       MONTHLY TRAN ANALYSIS          00007000
+*                                          0 - NO                       00007100
+*                                          1 - YES                      00007200
+         DS    CL10                      FILLER                         00007300
+*                                                                       00007400
+RPTLAMT  DS    PL8                       LARGE ITEM AMOUNT              00007500
+*                                                                       00007600
+RPTRPTA  DS    0CL54                   REPORT AREA                      00007700
+RPTLV1L  DS    CL8                       REPORT LEVEL 1 LITERAL         00007800
+RPTLV2L  DS    CL8                       REPORT LEVEL 1 LITERAL         00007900
+RPTLV3L  DS    CL8                       REPORT LEVEL 1 LITERAL         00008000
+RPTLV4L  DS    CL8                       REPORT LEVEL 1 LITERAL         00008100
+RPTUSPH  DS    CL8                       REPORT USER PHASE              00008200
+RPTMXRP  DS    PL2                       MAX NUM OF REPORTS             00008300
+*                                          VALUE:  100                  00008400
+RPTUXRP  DS    PL2                       USED NUM OF REPORTS            00008500
+RPTAORCL DS    CL10                      AOR CLASS                      00008600
+*                                                                       00009700
+         DS    CL20                  FILLER                             00009800
+*                                                                       00009900
+RPTENTS  DS    CL5600                  REPORT TABLE AREA                00010000
+*                                                                       00010100
+         SPACE                                                          00010200
+RPTENT   DSECT                         REPORT TABLE ENTRY               00010300
+RPTENTL  DS    0CL56                   REPORT TABLE ENTRY               00010400
+RPTEPR   DS    CL1                       PROCESS CODE                   00010500
+RPTSPL   DS    CL1                       SPOOLER CODE                   00010600
+RPTFCHG  DS    CL1                       FORMS CHANGE CODE              00010700
+RPTBOPT  DS    XL1                       BREAK OPTION BYTE              00010800
+*                                          BIT   MEANING                00010900
+*                                          0 - UNUSED                   00011000
+*                                          1 - PRINT DETAIL             00011100
+*                                          2 - LEVEL 1 TOTALS           00011200
+*                                          3 - LEVEL 2 TOTALS           00011300
+*                                          4 - LEVEL 3 TOTALS           00011400
+*                                          5 - LEVEL 4 TOTALS           00011500
+*                                          6 - PHY LOC (BRCH) TOTALS    00011600
+*                                          7 - TELLER TOTALS            00011700
+         DS    CL4                       FILLER                         00011800
+RPTSOPTS DS    CL15                      SORT OPTIONS (15 OCCURS)       00011900
+RPTECDES DS    CL20                      EXCEPTION CODES (10 OCCURS)    00012000
+RPTPHNM  DS    CL8                       REPORT PHASE NAME              00012100
+RPTMASK  DS    CL1                       MASKING FLAG         0735608   00012110
+         DS    CL4                       FILLER               0735608   00012200
+*                                                                       00012300
+         SPACE                                                          00012400
+RPTSOPT  DSECT                         SORT OPTION                      00012500
+RPTSOPT1 DS    CL1                       ONE SORT OPTION                00012600
+*                                                                       00012700
+         SPACE                                                          00012800
+RPTSCDE  DSECT                         EXCEPTION CODES                  00012900
+RPTSCDE1 DS    CL2                       ONE EXCEPTION CODE             00013000

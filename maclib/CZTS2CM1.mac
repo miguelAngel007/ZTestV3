@@ -1,0 +1,49 @@
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+***************************  CZTS2CM1  ******************************** 00000010
+*    COMMUNICATION AREA BETWEEN SAFE II HOST / TS NATIVE              * 00000020
+*********************************************************************** 00000030
+CZTS2CM1 DSECT               COMMUNICATION AREA                         00000040
+*                                                                       00000050
+*  INPUT / OUTPUT   PARAMETERS                                          00000060
+*                                                                       00000070
+CM1CATCH DS    CL8           EYE CATCHER = C'*SAF/TS*'                  00000080
+*                                                                       00000090
+CM1GTMAD DS    A             POINTER OF GETMAIN AREA FOR INPUT/OUTPUT   00000100
+CM1GTMSZ DS    H             GETMAIN AREA SIZE                          00000110
+CM1GTMRC DS    CL2           GETMAIN RETURN CODE                        00000120
+*                                                                       00000130
+CM1IPRT  DS    A             POINTER TO INPUT AREA                      00000140
+CM1ILEND DS    H             INPUT  LENGTH DATA (COPY: CZTS2IIS)        00000150
+CM1IRTCD DS    CL2           INPUT RETURN CODE                          00000160
+*                                                                       00000170
+CM1OPRT  DS    A             POINTER TO OUTPUT AREA                     00000180
+CM1OLEND DS    H             OUTPUT LENGTH DATA (COPY: CZTS2OIS)        00000190
+CM1ORTCD DS    CL2           OUTPUT RETURN CODE                         00000200
+*                                                                       00000210
+CM1WPRT  DS    A             POINTER TO WORK AREA                       00000220
+CM1WLEND DS    H             WORK LENGTH DATA                           00000230
+CM1WRTCD DS    CL2           WORK RETURN CODE                           00000240
+*                                                                       00000250
+* NCA-SYSTEMATICS            'NC'                                       00000260
+* USER-AREA-GETMAIN          'US'                                       00000270
+*                                                                       00000280
+CM1RETCD DS    CL2           RETURN CODE                                00000290
+*                                                                       00000300
+CM1EIBRC DS    XL3           EIBRCODE                                   00000310
+CM1TYTRM DS    CL1           TYPE FRAME 1=TIBE 2=TWA 3=OTHER COPY       00000320
+CM1CCIID DS    CL8           CICS ID                                    00000330
+CM1CTRID DS    CL4           CICS TERMINAL ID                           00000340
+CM1CTTRN DS    CL7           CICS TASK TRANSACTION NUMBER               00000350
+CM1NOMPR DS    CL8           NAME PROGRAM                               00000360
+CM1TYPEN DS    CL1           TYPE CONNECT 'T' TRANSACC 'B' BATCH TERM   00000370
+CM1IDEOF DS    CL1           INDICATOR END OF FILE                      00000380
+*                                                                       00000390
+CM1NROTR DS    PL2           NUMERO DE TRAMAS A ENVIAR AL CAJERO.       00000400
+CM1LNTRA DS   6XL2           AREA PARA LONGITUD DE TRAMA.               00000410
+CM1CLAMT DS    PL8           MONTO DE CANCELACION                       00000420
+CM1CICRA DS    CL1           CONDICION PARA PROCESAR ICR-A              00000430
+CM1CICRB DS    CL1           CONDICION PARA PROCESAR ICR-B              00000430
+CM1CICRC DS    CL1           CONDICION PARA PROCESAR ICR-C              00000430
+*                                                                       00000440
+         DS   0F             ALIGNMENT TO FULLWORD                      00000450
+CM1AREAL EQU   *-CM1CATCH    COMMUNICATION AREA LENGTH                  00000460

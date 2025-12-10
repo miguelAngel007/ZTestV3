@@ -1,0 +1,268 @@
+         MACRO                                                          00010000
+         CZFMSTRP                                                      X00020000
+               &MODULE=,                                               X00030000
+               &TYPE=,                                                 X00040000
+               &HELP=            HELP FUNCTION                          00050000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00060000
+.***********                 P R O L O G                       ******** 00070000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00080000
+.*                                                                    * 00090000
+.*   MACRO NAME : CZFMSTRP                                            * 00100000
+.*                                                                    * 00110000
+.*   DESCRIPTIVE NAME : SYSTEM USERS TABLE INITIALIZATION/TERMINATION * 00120000
+.*                                                                    * 00130000
+.*   STATUS : VERSION 1                                               * 00140000
+.*            RELEASE LEVEL = 1                                       * 00150000
+.*            MODIFICATION LEVEL = 0                                  * 00160000
+.*   COPYRIGHT:                                                       * 00170000
+.*                                                                    * 00180000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00190000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00200000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00210000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00220000
+.*                                                                    * 00230000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00240000
+.*                                                                    * 00250000
+.*   FUNCTION:  TO DEFINE THE START OF THE TRANSACTION PROCEDURES     * 00260000
+.*              TABLE AS PART OF EVERY APPLICATION MODULE.            * 00270000
+.*              TO GENERATE THE TABLE PREFIX FOR THE TRANSACTION      * 00280000
+.*              PROCEDURES ON THE MASTER TABLE OF THE CONTROLLER      * 00290000
+.*              MODULE CZFACT.                                        * 00300000
+.*                                                                    * 00310000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 2 PARTS:           * 00320000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00330000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. CHECKS THE    * 00340000
+.*             MODULE BEING ASSEMBLED. IN THE ASSEMBLY OF CZFHAA      * 00350000
+.*             A TABLE IDENTIFIER IS CREATED. IN THE MODULE CZFACT    * 00360000
+.*             IT CREATES THE TRANS.PROCEDURE MASTER TABLE PREFIX.    * 00370000
+.*          2) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00380000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT ALSO BUILDS* 00390000
+.*             THE LAST ENTRY IN THE TABLE TO INDICATE THE END OF     * 00400000
+.*             THE TABLE FOR THE MODULE CZFHAA. FOR THE MODULE CZFACT * 00410000
+.*             IT UPDATES THE NUMBER OF TRANSACTION PROCEDURES ON THE * 00420000
+.*             TRANSACTION PROCEDURE MASTER TABLE PREFIX.             * 00430000
+.*                                                                    * 00440000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00450000
+.*                                                                    * 00460000
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00470000
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00480000
+.*                                                                    * 00490000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00500000
+.*                                                                    * 00510000
+.*   CHARACTERISTICS :                                                * 00520000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00530000
+.*                                                                    * 00540000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00550000
+.*                                                                    * 00560000
+.*   RESTRICTIONS:  NONE                                              * 00570000
+.*                                                                    * 00580000
+.*   PARAMETERS RECEIVED:                                             * 00590000
+.*             TYPE=              *MACRO TYPE(INITIAL, FINAL)         * 00600000
+.*             MODULE=            *MODULE USING THIS SET OF MACROS    * 00610000
+.*                                *   CZFHAA     - APPLICATION MODULES* 00620000
+.*                                *   CZFACT     - CONTROLLER TABLES  * 00630000
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00640000
+.*                                                                    * 00650000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00660000
+.*                                                                    * 00670000
+.*     TRANSACTION PROCEDURE MASTER TABLE PREFIX IN MODULE CZFACT.    * 00680000
+.*                                                                    * 00690000
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00700000
+.* DEC  HEX                                                           * 00710000
+.*                                                                    * 00720000
+.*  0    0        2       NUMBER OF ENTRIES                           * 00730000
+.*  2    2        2       LENGTH OF ENTRY (4)                         * 00740000
+.*                                                                    * 00750000
+.*   GENERATED CODE :                                                 * 00760000
+.*                                                                    * 00770000
+.*     TRANSACTION PROCEDURE MASTER TABLE PREFIX IN MODULE CZFACT.    * 00780000
+.*                                                                    * 00790000
+.*         DC    AL2(NUM OF ENTRIES)   *NUMBER OF ENTRIES             * 00800000
+.*         DC    AL2(16)               *LENGTH OF ENTRY               * 00810000
+.*                                                                    * 00820000
+.*   NOTES:                                                           * 00830000
+.*                                                                    * 00840000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00850000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00860000
+.*                                                                    * 00870000
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00880000
+.*                                                                    * 00890000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00900000
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00910000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00920000
+         GBLA  &MSTRP             *MACRO CZFMSTRP INDICATOR             00930000
+         GBLA  &MSTRP1            *TYPE=ENTRY INDICATOR                 00940000
+         GBLA  &TXPNUM            *NUMBER OF TRANSACTION PROCEDURES     00950000
+         GBLA  &TXPIND            *MODULE ASSEMBLED INDICATOR           00960000
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00970000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00980000
+.*                                                                    * 00990000
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 01000000
+.*                                                                    * 01010000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01020000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 01030000
+         LCLB  &ERRIND            *ERROR INDICATOR                      01040000
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    01050000
+&ERRIND  SETB  0                  *INITIAL VALUE FOR ERROR INDICATOR    01060000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01070000
+.*                                                                    * 01080000
+.*             PARAMETERS VALIDATION.                                 * 01090000
+.*                                                                    * 01100000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01110000
+         CZFMHELP HELP=&HELP                                            01120000
+         AIF   (&HELPARM EQ 1).HELP   IS HELP FUNCTION REQUIRED ?       01130000
+.P1VAL   ANOP                     *CHECK TYPE OF MACRO                  01140000
+         AIF   (&MSTRP EQ 2).PCOMP   *PREVIOUS SET COMPLETE             01150000
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              01160000
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                01170000
+         AGO   .PUE1                                                    01180000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01190000
+.*                                                                    * 01200000
+.*             INSTRUCTIONS GENERATION.                               * 01210000
+.*                                                                    * 01220000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01230000
+.P1V1    ANOP                                                           01240000
+         AIF (&MSTRP NE 0).P1E1   *ERROR MACRO INITIAL PROCESSED BEFORE 01250000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01260000
+.*                                                                    * 01270000
+.*   VALIDATE MACRO TYPE=INITIAL PARAMETER MODULE=                    * 01280000
+.*                                                                    * 01290000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01300000
+         AIF   ('&MODULE' EQ 'CZFHAA').P1V1A  *APPLICATION ASSEMBLY     01310000
+         AIF   ('&MODULE' EQ 'CZFACT').P1V1B  &CONTROLLER TABLES ASSEM. 01320000
+         AGO   .P1E2                                                    01330000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01340000
+.*                                                                    * 01350000
+.*   PARAMETER MODULE=CZFHAA. GENERATE START OF TABLE AT THE HOST     * 01360000
+.*                                                                    * 01370000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01380000
+.P1V1A   ANOP                                                           01390000
+         TITLE 'TRANSACTION PROCEDURES'                                 01400000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01410000
+*                                                                    *  01420000
+*   MACRO NAME : CZFMSTRP                                            *  01430000
+*                                                                    *  01440000
+*   DESCRIPTIVE NAME : TRANSACTION PROCEDURES CREATION               *  01450000
+*                                                                    *  01460000
+*   STATUS : VERSION 1                                               *  01470000
+*            RELEASE LEVEL = 0                                       *  01480000
+*            MODIFICATION LEVEL = 0                                  *  01490000
+*                                                                    *  01500000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01510000
+&TXPIND SETA   1                                                        01520000
+         DS    0D                                                       01530000
+         DC    CL8'*TABLE= '           *TABLE HEADER                    01540000
+         DC    CL8'CZFMSTRP'           *TABLE NAME                      01550000
+         DC    CL8'V1 R1 L0'           *VERSION, RELEASE, LEVEL         01560000
+         DC    CL8'NONE    '           *MAINTENANCE LEVEL               01570000
+CZFPROCS DS    0D                * TRANSACTION PROCEDURE TABLE          01580000
+         AGO   .TESTFIN                                                 01590000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01600000
+.*                                                                    * 01610000
+.*   PARAMETER MODULE=CZFACT. GENERATE CONTROLLER TABLE PREFIX        * 01620000
+.*                                                                    * 01630000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01640000
+.P1V1B   ANOP                                                           01650000
+         TITLE 'TRANSACTION PROCEDURES'                                 01660000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01670000
+*                                                                    *  01680000
+*   MACRO NAME : CZFMSTRP                                            *  01690000
+*                                                                    *  01700000
+*   DESCRIPTIVE NAME : TRANSACTION PROCEDURES CREATION               *  01710000
+*                                                                    *  01720000
+*   STATUS : VERSION 1                                               *  01730000
+*            RELEASE LEVEL = 0                                       *  01740000
+*            MODIFICATION LEVEL = 0                                  *  01750000
+*                                                                    *  01760000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01770000
+&TXPNUM  SETA  0                  *INITIAL VALUE FOR TRANS.PROC.COUNT   01780000
+&TXPIND SETA   2                                                        01790000
+CZFACTMS CSECT                    * TRANSACTION IDENTIFICATION TABLE    01800000
+TXPFLD   EQU   *                                                        01810000
+         DC    AL2(&TXPNUM)       * NUMBER OF ENTRIES                   01820000
+         DC    AL2(6)             * LENGTH OF THE ELEMENT               01830000
+         AGO   .TESTFIN           *VALIDATE RECEIPT OF PREV FINAL       01840000
+.TESTFIN ANOP                     *VALIDATE CLOSURE OF PREV MACRO       01850000
+&MSTRP   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    01860000
+         AIF (&MFINAL GT 0).NOFINAL                                     01870000
+.SETMAC  ANOP                                                           01880000
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            01890000
+&MACREC  SETC  'CZFMSTRP'         *NAME OF CURRENT MACRO                01900000
+         AGO   .END                                                     01910000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 01920000
+.*                                                                    * 01930000
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 01940000
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 01950000
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 01960000
+.*            MACROS TYPE ENTRY                                       * 01970000
+.*        -   GENERATES A STRING OF X'FF' VALUES TO MARK THE END      * 01980000
+.*            OF THE TABLE FOR MODULE CZFHAA.                         * 01990000
+.*        -   GENERATES A FIELD WITH THE NUMBER OF ENTRIES FOR        * 02000000
+.*            THE MODULE CZFACT.                                      * 02010000
+.*                                                                    * 02020000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02030000
+.P3V1    ANOP                                                           02040000
+         AIF (&MSTRP NE 1).P3E1      *ERROR NO INITIAL MACRO PROCESSED  02050000
+         AIF (&MSTRP1 NE 1).P3E1  *ENTRY CARD PROCESSED?                02060000
+         AIF   (&ERRIND).END         *IF ERROR, SKIP GENERATION         02070000
+&MSTRP   SETA  2                                                        02080000
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              02090000
+         AIF   (&TXPIND EQ 2).P3GENAP *GO TO GENERATE AP TRAILER        02100000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02110000
+.*                                                                    * 02120000
+.*   GENERATE THE END OF TABLE INDICATOR FOR MODULE CZFHAA            * 02130000
+.*                                                                    * 02140000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02150000
+         DS    0F                 * END OF THE TRANS. PROCEDURE TABLE   02160000
+         DC    40X'FF'            * END-OF-TABLE INDICATOR              02170000
+         AGO   .END                                                     02180000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02190000
+.*                                                                    * 02200000
+.*   GENERATE THE END OF TABLE INDICATOR FOR MODULE CZFACT,           * 02210000
+.*   AND FILL IN THE NUMBER OF ENTRIES.                               * 02220000
+.*                                                                    * 02230000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02240000
+.P3GENAP ANOP                                                           02250000
+CZFACTMS CSECT                    * TRANSACTION IDENTIFICATION TABLE    02260000
+         ORG   TXPFLD                                                   02270000
+         DC    AL2(&TXPNUM)       * NUMBER OF ENTRIES                   02280000
+         ORG   ,                  * END OF THE TRANSACTION IDENT. TABLE 02290000
+         AGO   .END                                                     02300000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02310000
+.*                                                                    * 02320000
+.*             MNOTES FOR ERRORS AND HELP INFORMATION.                * 02330000
+.*                                                                    * 02340000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 02350000
+.HELP    ANOP                                                           02360000
+         CZFMHIMS MSGNUM=998                                            02370000
+         CZFMHIMS MSGNUM=82                                             02380000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTRP                            02390000
+         CZFMHIMS MSGNUM=2                                              02400000
+         CZFMHIMS MSGNUM=66                                             02410000
+         CZFMHIMS MSGNUM=83,MSGPARM=FINAL                               02420000
+       AGO    .END                                                      02430000
+.NOFINAL ANOP                                                           02440000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            02450000
+         AGO   .SETMAC            *RETURN TO SET NEXT                   02460000
+.PCOMP   ANOP                                                           02470000
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTRP                            02480000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02490000
+         AGO   .END                                                     02500000
+.PUE1    ANOP                                                           02510000
+         CZFMHIMS MSGNUM=82                                             02520000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02530000
+         AGO   .END                                                     02540000
+.P1E1    ANOP                                                           02550000
+         CZFMHIMS MSGNUM=2                                              02560000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02570000
+         AGO   .END                                                     02580000
+.P1E2    ANOP                                                           02590000
+         CZFMHIMS MSGNUM=66                                             02600000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02610000
+         AGO   .END                                                     02620000
+.P3E1    ANOP                                                           02630000
+         CZFMHIMS MSGNUM=83,MSGPARM=&TYPE                               02640000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               02650000
+         AGO   .END                                                     02660000
+.END     ANOP                                                           02670000
+         MEND                                                           02680000

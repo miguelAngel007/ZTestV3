@@ -1,0 +1,372 @@
+*     * FO5238 * 06/26/11 PROYECTO REBORN                           *
+*---------------------------------------------------------------------* 00010000
+*   NXX4LKUP - COPYBOOK WITH CODE FOR LOOKUP AND VERIFY PARAMATERS    * 00020000
+*              FOR FINXXRTM (ONLINE) AND NXXRTM (BATCH) PROGRAMS      * 00030000
+*---------------------------------------------------------------------* 00040000
+*                  ** HISTORY OF REVISIONS **                         * 00050000
+* DESCRIPTION                                                 CHNGID  * 00060000
+* __________________________________________________________  _______ * 00070000
+* 06/10/05 MOVE SOURCE NUM TO XRTNUM                          0540051 * 00070080
+* 08/24/01 CHANGES FOR ONLINE REENTRANT                       0220034 * 00070090
+* 09/10/99 ADD PROCESSING FOR ACTION CODE 'N' NUMERIC LOOKUP  0030023 * 00080000
+* 08/10/98 CORRECT SOURCE TARGET RATE PROCESSING 41515        9910017 * 00081000
+* 08/08/97 FLOATING DECIMAL INITIAL RELEASE                   9910004 * 00081005
+*---------------------------------------------------------------------* 00090000
+*********************************************************************** 00100000
+*                                                                     * 00110000
+*   VERIFY                                                            * 00120000
+*                                                                     * 00130000
+*********************************************************************** 00140000
+*   VERIFY SOURCE CURRENCY IS OK                                      * 00150000
+*********************************************************************** 00160000
+VERSOUR  DS     0H                                                      00170000
+         ST     R7,SVBALLV2            STORE BAL REG                    00180000
+         LA     R1,XRTSOUR             SOURCE CURRENCY ADDRESS          00190000
+         BAL    R7,VERFCURR            VERIFY CURRENCY                  00200000
+         CLI    XRTACT,C'V'            Q. VERIFY CURRENCY?              00210000
+         BNE    VERSOURC               A. NO, GO TO VERSOURC            00220000
+         B      VERIFYX                GO TO VERIFYX                    00230000
+VERSOURC CLI    VERFSWT,C'Y'           Q. VALID CURRENCY?               00240000
+         BNE    VERIFYX                A. NO, VERIFYX                   00250000
+         CLI    XRTACT,C'N'            Q. NUMERIC REQ COMP?   0030023   00250010
+         BE     RETURN                 RETURN                 0030023   00250015
+         L      R7,SVBALLV2            RESTORE BAL REG        0030023   00260000
+         BR     R7                                                      00270000
+*********************************************************************** 00280000
+*   VERIFY BASE CURRENCY IS OK                                        * 00290000
+*********************************************************************** 00300000
+VERBASE  DS     0H                                                      00310000
+         ST     R7,SVBALLV2            STORE BAL REG                    00320000
+         MVI    CONVSWT,C'Y'           SOURCE->TARGET                   00330000
+         LA     R1,XRTBASE             BASE CURRENCY ADDRESS            00340000
+         CLI    0(R1),X'00'            Q. LOW-VALUES BASE CURRENCY?     00350000
+         BER    R7                     A. YES, RETURN                   00360000
+         MVI    CONVSWT,C'N'           SOURCE->BASE->TARGET             00370000
+         BAL    R7,VERFCURR            VERIFY CURRENCY                  00380000
+         CLI    VERFSWT,C'Y'           Q. VALID CURRENCY?               00390000
+         BNE    VERIFYX                A. NO, VERIFYX                   00400000
+         L      R7,SVBALLV2            RESTORE BAL REG                  00410000
+         BR     R7                                                      00420000
+*********************************************************************** 00430000
+*   VERIFY TARGET CURRENCY IS OK                                      * 00440000
+*********************************************************************** 00450000
+VERTARG  DS     0H                                                      00460000
+         ST     R7,SVBALLV2        STORE BAL REG                        00470000
+         LA     R1,XRTTARG         TARGET CURRENCY ADDRESS              00480000
+         BAL    R7,VERFCURR        VERIFY CURRENCY                      00490000
+         CLI    VERFSWT,C'Y'       Q. VALID CURRENCY?                   00500000
+         BNE    VERIFYX            A. NO, VERIFYX                       00510000
+         L      R7,SVBALLV2            RESTORE BAL REG                  00520000
+         BR     R7                                                      00530000
+*********************************************************************** 00540000
+*   VERIFY THE DATE                                                   * 00550000
+*********************************************************************** 00560000
+VERDATE  DS     0H                                                      00570000
+         ST     R7,SVBALLV2        STORE BAL REG                        00580000
+         CLI    XRTDATE,X'00'      Q. LOW-VALUE DATE?                   00590000
+         BER    R7                 A. YES, EXIT                         00600000
+         LA     R7,L'XRTDATE-1     R7 - LENGTH OF DATE FIELD            00610000
+         LA     R6,XRTDATE         R6 - ADDRESS OF DATE FIELD           00620000
+         LA     RF,NTESTZD         RF - @ OF NUMERIC TEST FOR ZD        00630000
+         BALR   RE,RF              GO MAKE NUMERIC TEST AND RETURN      00640000
+         L      R7,SVBALLV2        RESTORE BAL REG                      00650000
+         LTR    R1,R1              Q. TEST ERROR INDICATOR FOR STATUS   00660000
+         BZR    R7                 A. NO, EXIT                          00670000
+         MVI    XRTRC,C'6'         INVALID DATE FIELD                   00680000
+         B      RETURN             GOTO RETURN                          00690000
+*********************************************************************** 00700000
+*   VERIFY INPUT AMOUNT                                               * 00710000
+*********************************************************************** 00720000
+VERIAMT  DS     0H                                                      00730000
+         ST     R7,SVBALLV2        STORE BAL REG                        00740000
+         LA     R7,L'XRTIAMT-1     R7 - LENGTH OF PACKED FIELD          00750000
+         L      R6,INPAMT          R6 - ADDRESS OF PACKED FIELD         00760000
+         LA     RF,NTESTPD         RF - @ OF NUMERIC TEST FOR PD        00770000
+         BALR   RE,RF              GO MAKE NUMERIC TEST AND RETURN      00780000
+         L      R7,SVBALLV2        RESTORE BAL REG                      00790000
+         LTR    R1,R1              Q. TEST ERROR INDICATOR FOR STATUS   00800000
+         BZR    R7                 A. NO, EXIT                          00810000
+         MVI    XRTRC,C'7'         INVALID AMOUNT FIELD                 00820000
+         B      RETURN             GOTO RETURN                          00830000
+         EJECT                                                          00840000
+*********************************************************************** 00850000
+*        SAME CURRENCY CONVERSION MOVE INPUT TO OUTPUT                * 00860000
+*********************************************************************** 00870000
+         SPACE 2                                                        00880000
+SAMECUR  DS    0H                                                       00890000
+         ST    R7,SVBALLV2               STORE BAL REG                  00900000
+         SR    R1,R1                     CLEAR R1 TO ZEROS              00910000
+         CLC   XRTSOUR,XRTBASE           Q. BASE = SOURCE?              00920000
+         BNER  R7                        A. NO, EXIT                    00930000
+         CLC   XRTBASE,XRTTARG           Q. BASE = TARGET?              00940000
+         BNER  R7                        A. NO, EXIT                    00950000
+         ZAP   XRTOAMT,XRTIAMT           MOVE INPUT TO OUTPUT           00960000
+         CLC   XRTSRAT,PCKD69S           Q. SOURCE RATE UPD?  9910017   00961002
+         BNE   SAMEBSR                   A. NO,CHK TARGET RATE9910017   00962002
+         ZAP   XRTSRAT,=PL6'1000000'     INIT SOURCE RATE               00970000
+SAMEBSR  DS    0H                                             9910017   00971002
+         CLC   XRTTRAT,PCKD69S           Q. TARGET RATE UPD?  9910017   00972002
+         BNE   SAMETSR                   A. NO BYPASS UPDATE  9910017   00973002
+         ZAP   XRTTRAT,=PL6'1000000'     INIT TARGET RATE               00980000
+SAMETSR  DS    0H                                             9910017   00981002
+         ZAP   XRTERAT,=PL6'1000000'     INIT EFFECTIVE RATE            00990000
+         ZAP   XRTRRAT,=PL8'100000000'   INIT RETURN RATE               01000000
+         MVC   XRTRCUR,XRTSOUR           INIT RETURN CURRENCY           01010000
+         MVC   XRTRDEC,XRTSDEC           INIT RETURN DECIMALS           01020000
+         ZAP   XRTRAMT,XRTIAMT           INIT RETURN AMOUNT             01030000
+         ZAP   XRTBAMT,XRTIAMT           INIT BASE AMOUNT               01040000
+         LA    R1,1                      SET RETURN CODE ON             01050000
+         L     R7,SVBALLV2               RESTORE BAL REG                01060000
+         BR    R7                        RETURN                         01070000
+         EJECT                                                          01080000
+*********************************************************************** 01090000
+*        SEARCH CURRENCY TABLE BASED ON PROVIDED NUMBER               * 01100000
+*    IF A BANK NUMBER IS FURNISHED ONLY LOOK AT THAT BANK NUMBER      * 01110000
+*********************************************************************** 01120000
+         SPACE 2                                                        01130000
+SCURRTBL DS    0H                                                       01140000
+         MVI    VERFSWT,C'N'           NOT VALID CURRENCY               01150000
+         LA     R7,L'XRTNUM-1          R7 - LENGTH OF NUMBER FIELD      01160000
+         LA     R6,XRTNUM              R6 - ADDRESS OF NUMBER FIELD     01170000
+         LA     RF,NTESTZD             RF - @ OF NUMERIC TEST FOR ZD    01180000
+         BALR   RE,RF                  GO MAKE NUMERIC TEST AND RETURN  01190000
+         LTR    R1,R1                  Q. TEST ERROR                    01200000
+         BNZ    SCURRERR               A. NO, GO TO SCURRERR            01210000
+         PACK   DBLWORD,XRTNUM         PACK THE NUMBER                  01220000
+         CVB    R1,DBLWORD             CONVERT TO BINARY NUMBER         01230000
+         LTR    R1,R1                  Q. ZERO SUBSCRIPT?               01240000
+         BZ     SCURRERR               A. YES, GO TO SCURRERR           01250000
+         LA     R2,SINXDSCT            ADDRESS OF CURRENCY TABLE        01260000
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              01270000
+SCURBK1  DS    0H                                                       01280000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            01290000
+         BE    SCURBK2                BANK FOUND, LOOK FOR CURRENCY     01300000
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            01310000
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            01320000
+         BNE   SCURBK1                NOT END, LOOP BACK                01330000
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            01340000
+         BE    SCURRERR               YES - ERROR                       01350000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      01360000
+         LA    R2,SINXDSCT            START AT 1ST OF TABLE             01370000
+         B     SCURBK1                                                  01380000
+*                                                                       01390000
+*   1ST OF BANK HAS BEEN LOCATED                                        01400000
+*                                                                       01410000
+SCURBK2  DS    0H                                                       01420000
+         CP    DBLWORD,=PL1'1'        Q. ONE ENTRY?                     01430000
+         BE    SCURROK                A. YES, GO TO SCURROK             01440000
+         LA    R14,NXDSLENG           LENGTH OF TABLE ENTRY             01450000
+         SR    R2,R14                 BACK UP ONE ENTRY                 01460000
+SCURRLP  DS    0H                                                       01470000
+         LA    R2,NXDSLENG(R2)        BUMP BY ENTRY LENGTH              01480000
+         CLI   0(R2),X'FF'            Q. END OF TABLE?                  01490000
+         BE    VERIFYX                A. YES, GOTO NOTFOUND             01500000
+         BCT   R1,SCURRLP             SEARCH R1 TIMES                   01510000
+*   FALL THRU WHEN ENTRY NUMBER IS HIT                                  01520000
+         CLC   HOLDBANK,0(R2)         IS THIS ENTRY FOR THIS BANK       01530000
+         BNE   VERIFYX                NO - NOT FOUND                    01540000
+SCURROK  MVC   XRTDESC,10(R2)         RETURN DESCRIPTION                01550000
+         MVC   SVDEC,12(R2)           SAVE NMBR DEC           0220034   01551000
+         CLI   SVDEC,C' '             IS NMBR DEC BLANK?      0220034   01560000
+         BNE   MOVCDEC                BRANCH IF NOT BLANK               01570000
+         MVI   SVDEC,C'2'             MOVE 2 TO NMBR DEC      0220034   01580000
+MOVCDEC  MVC   XRTSDEC,SVDEC          RETURN SOURCE DECIMAL   0220034   01590000
+         MVC   XRTSOUR,4(R2)          RETURN CURRENCY         0220034   01600000
+         B     RETURN                                                   01610000
+SCURRERR DS    0H                                                       01620000
+         MVI   XRTRC,C'1'             MOVE NXDSNXRM ERR CODE            01630000
+         B     RETURN                                                   01640000
+         EJECT                                                          01650000
+*********************************************************************** 01660000
+*        VERIFY CURRENCY                                              * 01670000
+*********************************************************************** 01680000
+         SPACE 2                                                        01690000
+VERFCURR DS    0H                                                       01700000
+         ST    R7,SVBALLV3            STORE BAL REG                     01710000
+         LA    R2,SINXDSCT            ADDRESS OF CURRENCY TBL           01720000
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              01730000
+VERFBK1  DS    0H                                                       01740000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            01750000
+         BE    VERFLOOP               BANK FOUND, LOOK FOR CURRENCY     01760000
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            01770000
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            01780000
+         BNE   VERFBK1                NOT END, LOOP BACK                01790000
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            01800000
+         BE    VERFNF                 YES - ERROR                       01810000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      01820000
+         LA    R2,SINXDSCT            START AT 1ST OF TABLE             01830000
+         B     VERFBK1                                                  01840000
+*                                                                       01850000
+*   1ST OF BANK HAS BEEN LOCATED                                        01860000
+*                                                                       01870000
+VERFLOOP DS    0H                                                       01880000
+         CLI   0(R2),X'FF'             Q. END OF TABLE?                 01890000
+         BE    VERFNF                  A. YES, GOTO NOTFOUND            01900000
+         CLI   XRTACT,C'N'             IS THE ACTION 'N'      0030023   01900100
+         BNE   VERLOOP1                NO BRANCH TO VERFOK    0030023   01900200
+         CLC   4(3,R2),0(R1)           Q. TABLE MATCH CHAR?   0030023   01900300
+         BE    MOVENUM                 A. YES, USE CHAR CUR   0030023   01900400
+         LA    R1,XRTNUM               SOURCE NUM CURR ADDR   0030023   01900500
+         CLC   7(3,R2),0(R1)           Q. TABLE MATCH NUM?    0030023   01900600
+         BE    MOVECHAR                A. YES, USE CHAR CUR   0030023   01900700
+         LA    R1,XRTSOUR              SOURCE CHAR CURR ADDR  0030023   01900800
+         LA    R2,NXDSLENG(R2)         BUMP BY ENTRY LENGTH   0030023   01900900
+         B     VERFLOOP                GOTO VERFLOOP          0030023   01901000
+VERLOOP1 DS    0H                                             0030023   01901100
+         CLC   4(3,R2),0(R1)           Q. TABLE MATCH?                  01910000
+         BE    VERFLANG                A. YES, VERIFY LANG              01920000
+         LA    R2,NXDSLENG(R2)         BUMP BY ENTRY LENGTH             01930000
+         B     VERFLOOP                GOTO VERFLOOP                    01940000
+VERFNF   DS    0H                                                       01950000
+         MVI   VERFSWT,C'N'                                             01960000
+         L     R7,SVBALLV3             RESTORE BAL REG                  01970000
+         BR    R7                                                       01980000
+VERFLANG DS    0H                                                       01990000
+         CLI   XRTACT,C'V'             IS THE 'V' ACTION                02000000
+         BE    VERFOK                  BRANCH TO VERFOK                 02010000
+         CLI   XRTACT,C'N'             IS THE 'N' ACTION      0030023   02010100
+         BE    VERFOK                  BRANCH TO VERFOK       0030023   02010200
+         CLI   0(R2),X'FF'             Q. END OF TABLE?                 02020000
+         BE    VERFNF                  A. YES, GOTO NOTFOUND            02030000
+         CLC   4(3,R2),0(R1)           Q. STILL TABLE MATCH?            02040000
+         BNE   VERFNF                  A. NO, GOTO NOTFOUND             02050000
+         CLC   10(2,R2),XRTLANG        Q. LANGUAGE MATCH?     0030023   02060000
+         BE    VERFOK                  A. YES, GOTO VERIFY OK           02070000
+         LA    R2,NXDSLENG(R2)         BUMP BY ENTRY LENGTH             02080000
+         B     VERFLANG                GOTO VERFLOOP                    02090000
+MOVENUM  DS    0H                                             0030023   02090005
+         MVC   XRTNUM,7(R2)            RETURN SOURCE NBR      0030023   02090010
+         B     VERFOK                  GOTO VERFOK            0030023   02090015
+MOVECHAR DS    0H                                             0030023   02090020
+         MVC   XRTSOUR,4(R2)           RETURN SOURCE CURR     0030023   02090025
+VERFOK   DS    0H                                                       02100000
+         CLC   HOLDBANK,0(R2)          CURRENCY FOR THIS BANK           02110000
+         BNE   VERFNF                  NO - ERROR                       02120000
+         MVC   SVDEC,12(R2)            SAVE OFF DECIMALS      0220034   02121000
+         CLI   SVDEC,C' '              IS NMBR DEC BLANK?     0220034   02130000
+         BNE   MOVVDEC                 BRANCH IF NOT BLANK              02140000
+         MVI   SVDEC,C'2'              MOVE 2 TO NMBR DEC     0220034   02150000
+MOVVDEC  CLI   HOLDFLAG,C'S'           IS THIS FOR SOURCE     0220034   02160000
+         BE    VERFOKS                 YES, GO TO SRC INFO              02170000
+         CLI   XRTACT,C'V'             IS THIS 'V' ACTION               02180000
+         BNE   VERFOK1                 NO, GO TO TARGET TEST            02190000
+VERFOKS  MVC   XRTDESC,13(R2)          RETURN DESCRIPTION     0030023   02200000
+         MVC   XRTSDEC,SVDEC           RETURN SOURCE DEC      0220034   02210000
+         MVC   XRTNUM,7(R2)            RETURN SOURCE NUM      0540051   02211000
+         MVC   XRTLANG,10(R2)          RETURN SOURCE LANG     0030023   02220000
+         B     VERFOK3                 BRANCH TO TARGET                 02230000
+VERFOK1  CLI   HOLDFLAG,C'T'           FOR RETURN DESCRIPT              02240000
+         BNE   VERFOK2                 BRANCH TO TARGET                 02250000
+         MVC   XRTTDEC,SVDEC           RETURN TARGET DEC      0220034   02260000
+         B     VERFOK3                 BRANCH TO TARGET                 02270000
+VERFOK2  MVC   XRTBDES,13(R2)          RETURN DESCRIPTION     0030023   02280000
+         MVC   XRTBDEC,SVDEC           RETURN BASE   DEC      0220034   02290000
+VERFOK3  MVI   VERFSWT,C'Y'                                             02300000
+         L     R7,SVBALLV3             RESTORE BAL REG                  02310000
+         BR    R7                                                       02320000
+         EJECT                                                          02330000
+*********************************************************************** 02340000
+*        VERIFY QUALIFIER                                             * 02350000
+*********************************************************************** 02360000
+         SPACE 2                                                        02370000
+VERFQUAL DS    0H                                                       02380000
+         ST    R7,SVBALLV3            RESTORE BAL REG                   02390000
+         LA    R2,NXDSQUAL            ADDRESS OF CURRENCY TABLE         02400000
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              02410000
+VERQBK1  DS    0H                                                       02420000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            02430000
+         BE    VERQLOOP               BANK FOUND, LOOK FOR QUALIFIER    02440000
+         LA    R2,10(R2)              BUMP TO THE NEXT ENTRY            02450000
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            02460000
+         BNE   VERQBK1                NOT END, LOOP BACK                02470000
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            02480000
+         BE    VERQNF                 YES - ERROR                       02490000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      02500000
+         LA    R2,NXDSQUAL            START AT 1ST OF TABLE             02510000
+         B     VERQBK1                                                  02520000
+*                                                                       02530000
+*   1ST OF BANK HAS BEEN LOCATED                                        02540000
+*                                                                       02550000
+VERQLOOP DS    0H                                                       02560000
+         CLI   0(R2),X'FF'             Q. END OF TABLE?                 02570000
+         BE    VERQNF                  A. YES, GOTO NOTFOUND            02580000
+         CLC   4(4,R2),0(R1)           Q. TABLE MATCH?                  02590000
+         BE    VERQOK                  A. YES, VERIFY BANK              02600000
+         LA    R2,10(R2)               BUMP BY ENTRY LENGTH             02610000
+         B     VERQLOOP                GOTO VERQLOOP                    02620000
+VERQOK   DS    0H                                                       02630000
+         CLC   HOLDBANK,0(R2)          CURRENCY FOR THIS BANK           02640000
+         BNE   VERQNF                  NO - ERROR                       02650000
+         CLC   4(3,R2),0(R1)           Q. TABLE MATCH?                  02660000
+         BNE   VERQNF                  NO - ERROR                       02670000
+         MVC   HOLDMOPT,9(R2)          MOVE FOR MIDRATE OPT             02680000
+         L     R7,SVBALLV3             RESTORE BAL REG                  02690000
+         BR    R7                                                       02700000
+VERQNF   DS    0H                                                       02710000
+         MVI   XRTRC,C'J'              INVALID QUALIFIER                02720000
+         B     RETURN                  GO TO RETURN                     02730000
+         EJECT                                                          02740000
+*********************************************************************** 02750000
+*        DETERMINE THE RETURN OPTION FROM THE NXDSROPT TABLE          * 02760000
+*********************************************************************** 02770000
+         SPACE 2                                                        02780000
+VERROPT  DS    0H                                                       02790000
+         ST    R7,SVBALLV2            STORE BAL REG                     02800000
+         LA    R2,NXDSROPT            ADDRESS OF RET OPTN TBL           02810000
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              02820000
+VERRBK1  DS    0H                                                       02830000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            02840000
+         BE    VERROK                 MATCH, EXIT TABLE                 02850000
+         LA    R2,6(R2)               BUMP TO THE NEXT ENTRY            02860000
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            02870000
+         BNE   VERRBK1                NOT END, LOOP BACK                02880000
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            02890000
+         BE    VERRNF                 YES - ERROR                       02900000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR SPACES              02910000
+         LA    R2,NXDSROPT            START AT 1ST OF TABLE             02920000
+         B     VERRBK1                                                  02930000
+VERROK   DS    0H                                                       02940000
+         MVC   TRRTOPT,5(R2)          MOVE FOR RET OPTION               02950000
+         L     R7,SVBALLV2            RESTORE BAL REG                   02960000
+         BR    R7                                                       02970000
+VERRNF   DS    0H                                                       02980000
+         MVI   XRTRC,C'K'             RETURN OPTION NOT FND             02990000
+         B     RETURN                 GO TO RETURN                      03000000
+         EJECT                                                          03010000
+*********************************************************************** 03020000
+*    COUNT THE NUMBER OF CURRENCY ENTRIES FOR THE BANK                * 03030000
+*********************************************************************** 03040000
+         SPACE 2                                                        03050000
+TCOUNT   EQU   *                                                        03060000
+         LA    R2,SINXDSCT            ADDRESS OF CURRENCY TABLE         03070000
+         MVC   HOLDBANK,XRTBANK       SAVE THE BANK NUMBER              03080000
+         MVC   XRTNUM,=C'000'         SET NUM OF CURR ENTRIES TO 0      03090000
+TCNT1    DS    0H                                                       03100000
+         CLC   HOLDBANK,0(R2)         LOOK FOR BANK IN TABLE            03110000
+         BE    TCNT2                  BANK FOUND, GO COUNT ENTRIES      03120000
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            03130000
+         CLI   0(R2),X'FF'            CHECK FOR END OF TABLE            03140000
+         BNE   TCNT1                  NOT END, LOOP BACK                03150000
+         CLC   HOLDBANK,=C'    '      IS HOLD BANK EQ SPACES            03160000
+         BE    RETURN                 YES - NO TABLE ENTRIES            03170000
+         MVC   HOLDBANK,=C'    '      NO - LOOK FOR BANK OF SPACES      03180000
+         LA    R2,SINXDSCT            START AT 1ST OF TABLE             03190000
+         B     TCNT1                                                    03200000
+*                                                                       03210000
+*        1ST OF BANK HAS BEEN LOCATED                                   03220000
+*        COUNT THE NUMBER OF ENTRIES FOR THIS BANK                      03230000
+*                                                                       03240000
+TCNT2    EQU   *                                                        03250000
+         PACK  TBLCOUNT,XRTNUM        PACK NUMBER OF ENTRIES            03260000
+         AP    TBLCOUNT,=PL1'1'       COUNT NUMBER OF CURR TABLE ENTR   03270000
+         UNPK  XRTNUM,TBLCOUNT        RETURN COUNT TO LINKAGE AREA      03280000
+         OI    XRTNUM+2,X'F0'         FORCE POSITIVE SIGN               03290000
+         LA    R2,NXDSLENG(R2)        BUMP TO THE NEXT ENTRY            03300000
+         CLC   HOLDBANK,0(R2)         IS THIS ENTRY FOR THE SAME BANK   03310000
+         BNE   RETURN                 NO, COUNT IS COMPLETE, RETURN     03320000
+         B     TCNT1                                                    03330000
+*                                                                       03340000
+*---------------------------------------------------------------------* 03350000
+*   END OF COPYBOOK NXX4LKUP                                          * 03360000
+*---------------------------------------------------------------------* 03370000
+*                                                                       03380000

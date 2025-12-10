@@ -1,0 +1,114 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                            TSTS4SDV                                 * 00020000
+*                       TRANSACTION SYSTEM                            * 00030000
+*                  BROWSE SCF FILE INSIDE MACROS                      * 00040000
+*                                                                     * 00050000
+*---------------------------------------------------------------------* 00060000
+*                  ** HISTORY OF REVISIONS **                         * 00070000
+* DESCRIPTION                                                 CHGID   * 00080000
+* __________________________________________________________  _______ * 00090000
+*                                                                     * 00100000
+* 06/28/01 INITIAL RELEASE                                    2024349 * 00110000
+*---------------------------------------------------------------------* 00120000
+         SPACE                                                          00130000
+         CLI   STARTBR,C'1'          STARTBR DONE?                      00140000
+         BE    VCREADN                YES GO READNEXT                   00150000
+         MVI   STARTBR,C'1'           INDICATE STARTBR DONE             00160000
+         MVC   HWRD,=X'076A'         SET BASE LENGTH FOR READ           00170000
+         MVI   WSVRECKY,C' '          INITIALIZE KEY AREA               00180000
+         MVC   WSVRECKY+1(L'WSVRECKY-1),WSVRECKY                        00190000
+         MVC   WSVRECKY(3),=C'VCR'       MOVE REC TYPE TO KEY AREA      00200000
+         MVC   WSVRECKY+3(10),&CA.VCRCL  MOVE VCR CLASS TO KEY AREA     00210000
+         MVC   WSVRECKY+21(2),=X'0001'  MOVE SEQ NO 2 TO KEY AREA       00220000
+*                                       SEQ 1 WAS READ BY TSTS9AD       00230000
+         SPACE                                                          00240000
+VCSTRTB  EQU *                                                          00250000
+         AIF   ('&EIB' EQ 'YES').VCEIB1                                 00260000
+         DROP  &WR4                  AND DROP ADDRESS                   00270000
+         ST    &WR4,WSVREG           SAVE WR4                           00280000
+         L     &WR4,DFHEIBP          GET EIB ADDRESS                    00290000
+         USING DFHEIBLK,&WR4                                            00300000
+.VCEIB1  ANOP                                                           00310000
+         STM   R14,R1,WSVR141        SAVE REGS 14-1                     00320000
+*        EXEC  CICS STARTBR  DATASET ('TSSCF')                          00330000
+*                           RIDFLD  (WSVRECKY)                          00340000
+*                           KEYLENGTH (23)                              00350000
+*                           GTEQ                                        00360000
+*                           NOHANDLE                                    00370000
+         DFHECALL =X'060CB800280020A000',(CHA8,=CL8'TSSCF'),,(FB_2,=A(0*
+               )),(______RF,WSVRECKY),(FB_2,=Y(23))
+         LM    R14,R1,WSVR141        LOAD REGS 14-1                     00380000
+         MVC   WSVEIBRC,EIBRCODE     SAVE EIBRCODE                      00390000
+         AIF   ('&EIB' EQ 'YES').VCEIB2                                 00400000
+         L     &WR4,WSVREG           RESTORE REG                        00410000
+         DROP  &WR4                  AND DROP ADDRESS                   00420000
+         USING QIRENT,&WR4           RESTORE QIRENT USING               00430000
+.VCEIB2  ANOP                                                           00440000
+         CLI   WSVEIBRC,X'00'        TEST FOR ERROR                     00450000
+         BNE   VCFIND35              YES - SET ERROR AND EXIT           00460000
+         SPACE                                                          00470000
+VCREADN  EQU *                                                          00480000
+         MVC   HWRD,=X'076A'         SET BASE LENGTH FOR READ           00490000
+         AIF   ('&EIB' EQ 'YES').VCEIB3                                 00500000
+         ST    &WR4,WSVREG           SAVE WR4                           00510000
+         L     &WR4,DFHEIBP          GET EIB ADDRESS                    00520000
+         USING DFHEIBLK,&WR4                                            00530000
+.VCEIB3  ANOP                                                           00540000
+         STM   R14,R1,WSVR141        SAVE REGS 14-1                     00550000
+         ICM   R14,15,WVCRALAP       LOAD VALID CTLS ADDR               00560000
+         BZ    VCREADN3              NO ADDRESS - READ                  00570000
+         MVC   WVCTL,0(14)           SAVE VCR OCCURRENCE                00580000
+         XC    WVCRALAP,WVCRALAP     CLEAR MATCH ADDR SAVE AREA         00590000
+VCREADN3 EQU *                                                          00600000
+*        EXEC  CICS READNEXT DATASET ('TSSCF')                          00610000
+*                           RIDFLD  (WSVRECKY)                          00620000
+*                           KEYLENGTH (23)                              00630000
+*                           INTO (0(&WR3))                              00640000
+*                           LENGTH (HWRD)                               00650000
+*                           NOHANDLE                                    00660000
+         DFHECALL =X'060EFC00280000B000',(CHA8,=CL8'TSSCF'),(______RF,0*
+               (&WR3)),(FB_2__RF,HWRD),(______RF,WSVRECKY),(FB_2,=Y(23)*
+               ),(FB_2,=A(0))
+         LM    R14,R1,WSVR141        LOAD REGS 14-1                     00670000
+         SPACE                                                          00680000
+         MVC   WSVEIBRC,EIBRCODE     SAVE EIBRCODE                      00690000
+         AIF   ('&EIB' EQ 'YES').VCEIB4                                 00700000
+         L     &WR4,WSVREG           RESTORE REG                        00710000
+         DROP  &WR4                  AND DROP ADDRESS                   00720000
+         USING QIRENT,&WR4           RESTORE QIRENT USING               00730000
+.VCEIB4  ANOP                                                           00740000
+         CLI   WSVEIBRC,X'00'        TEST FOR ERROR                     00750000
+         BNE   VCENDBR               YES - ENDBR AND EXIT               00760000
+         CLC   WSVRECKY(3),=C'VCR'   IS THIS A VCR RECORD?              00770000
+         BNE   VCENDBR               NO  - ENDBR AND EXIT               00780000
+         CLC   WSVRECKY+3(10),&CA.VCRCL      MATCH FOUND?               00790000
+         BE    VCPROC02              YES - GO PROCESS IT                00800000
+*                                    NO - END BROWSE AND EXIT           00810000
+                                                                        00820000
+VCENDBR  EQU *                                                          00830000
+                                                                        00840000
+         AIF   ('&EIB' EQ 'YES').VCEIB5                                 00850000
+         ST    &WR4,WSVREG           SAVE WR4                           00860000
+         L     &WR4,DFHEIBP          GET EIB ADDRESS                    00870000
+         USING DFHEIBLK,&WR4                                            00880000
+.VCEIB5  ANOP                                                           00890000
+         STM   R14,R1,WSVR141        SAVE REGS 14-1                     00900000
+*        EXEC  CICS ENDBR    DATASET ('TSSCF')                          00910000
+*                           NOHANDLE                                    00920000
+         DFHECALL =X'0612A0002800001100',(CHA8,=CL8'TSSCF'),,(FB_2,=A(0*
+               ))
+         ICM   R14,15,WVCTL          VCR OCCURRENCE FOUND?              00930000
+         BZ    VCENDBR3              NO -                               00940000
+         LA    R14,WVCTL             VCR OCCURRENCE SV AREA             00950000
+         ST    R14,WVCRALAP          SET MATCH ADDR TO SV AREA          00960000
+VCENDBR3 EQU *                                                          00970000
+         LM    R14,R1,WSVR141        LOAD REGS 14-1                     00980000
+         AIF   ('&EIB' EQ 'YES').VCEIB6                                 00990000
+         L     &WR4,WSVREG           RESTORE REG                        01000000
+         DROP  &WR4                  AND DROP ADDRESS                   01010000
+         USING QIRENT,&WR4           RESTORE QIRENT USING               01020000
+.VCEIB6  ANOP                                                           01030000
+         MVI   STARTBR,C'0'           INDICATE NO STARTBR DONE          01040000
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

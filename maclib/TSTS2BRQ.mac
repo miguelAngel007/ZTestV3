@@ -1,0 +1,273 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* TSTS2BRQ:  TRANSACTION SYSTEM / BMS REQUEST BLOCK                   * 00002000
+*********************************************************************** 00003000
+*                      HISTORY OF REVISIONS                           * 00004000
+* DESCRIPTION                                                 CHNGID  * 00005000
+* ----------------------------------------------------------  ------- * 00006000
+* 02/10/17 ALWAYS ON - ADDED TSSET ADDRESS                    1727046 * 00006982
+* 12/30/15 ADD COMMENT FOR IMMEDIATE ERROR 2                  1626591   00006983
+* 01/27/14 MODIFY FOR DB2                                     1436560   00006985
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00006986
+* 05/18/04 ADD ADDRESS OF LOG AREA (GETSTOR AREA)             0445028   00006988
+* 08/31/01 USE EOR DATE VIEW PREF IN CALL TO FINTLDTE         2024347 * 00006990
+* 03/23/00 ADD SER SWITCH                                     2021255   00006992
+* 05/09/97 ADD SDR MONETARY XLT TAB ADDR                      9913481 * 00006994
+* 02/18/97 ADD NEW FIELDS FOR 24 X 7                          9910919 * 00006996
+* 10/25/96 ADD PREVIOUS LOG NEXT DAY FLAG                     9713231   00006997
+* 01/15/95 MOD TO ADD CHANGE-ID-REQD FLAG & EMPLOYEE CHNG-ID  2602105 * 00006998
+*********************************************************************** 00006999
+         SPACE 2                                                        00007000
+TSBRQ    DSECT                                                          00008000
+BRQ      DS    0X                                                       00009000
+*                                                                       00010000
+*        REQUEST AREA                                                   00011000
+BRQREQOC DS    XL1                   OVERALL REQUEST COMPLETED FLAG     00012000
+*                                    VALUE:' ' -REQUEST NOT PROCESSED   00013000
+*                                           0  -COMPLETE SUCCESSFUL     00014000
+*                                           1  -COMPLETE NOT SUCCESSFUL 00015000
+BRQREQMX DS    XL2                   MAXIMUM NUMBER OF REQUESTS '10'    00016000
+BRQREQUS DS    XL2                   NUMBER OF REQUESTS TO PROCESS      00017000
+BRQREQTB DS    0CL30                 REQUEST TABLE                      00018000
+BRQREQ1  DS    0CL3                  1ST OCCURRENCE OF REQ TBL ENTRY    00019000
+BRQREQ   DS    XL2                   REQUEST                            00020000
+BRQREQC  DS    CL1                   REQUEST COMPLETION                 00021000
+*                                    VALUES: SAME AS OVERALL COMPLETION 00022000
+BRQREQ2  DS    CL27                  2ND-10TH OCCURRENCE                00023000
+         DS    XL26                  FILLER                   1727046   00024000
+BRQTSSET DS    XL4                   TSSET ADDRESS            1727046   00024010
+*                                                                       00025000
+*        COMMON REQUEST INFORMATION                                     00026000
+BRQREQER DS    CL1                   ERROR IMMEDIATE FLAG               00027000
+*                                    VALUE: 0 - NOT AN IMMED ERROR      00028000
+*                                           1 - IMMED ERROR             00029000
+*                                           2 - IMMED ERR APL 1626591   00029005
+BRQREQCP DS    XL2                   DEFAULT CURSOR POS. FOR SCREEN     00030000
+BRQREQMS DS    CL80                  FORMATTED ERROR MESSAGE            00031000
+BRQREQMA DS    XL4                   MAP ADDR FOR REQUEST               00032000
+BRQTRDTE DS    CL6                   TRANSACTION DATE                   00033000
+BRQTRTIM DS    CL6                   TRANSACTION TIME                   00034000
+BRQFTDTE DS    CL6                   FACTORED TRANSACTION DATE          00035000
+BRQFTTIM DS    CL6                   FACTORED TRANSACTION TIME          00036000
+BRQAPCTL DS    CL14                  APPLICATION PROCESSING CONTROLS    00037000
+BRQAPGNO DS    CL2                   APPLICATION GROUP NUMBER           00038000
+BRQREQCE DS    XL2                   CURSOR POSITION FOR THIS ERROR     00039000
+BRQMSTGN DS    CL2                   APPLICATION MASTER GROUP 2501276   00039010
+BRQALPGN DS    CL2                   APPLICATION ALPHA  GROUP 2501276   00039020
+         DS    XL6                   FILLER                   2501276   00040000
+*                                                                       00041000
+*        COMMON TRANSACTION INFORMATION                                 00042000
+BRQREQTR DS    0X                    APPLICATION TRANSACTION DATA       00043000
+BRQACTKY DS    CL50                    APPL ACCOUNT KEY                 00044000
+BRQTRDES DS    CL15                    APPL TRANSACTION DESCRIPTION     00045000
+BRQTRPRC DS    CL1                     APPL TRANSACTION PROCESS CODE    00046000
+BRQTRDCF DS    CL1                     APPL TRANSACTION DR/CR FLAG      00047000
+*                                      VALUE: 0 - OTHER                 00048000
+*                                             1 - CREDIT                00049000
+*                                             2 - DEBIT                 00050000
+*                                             4 - FILE MAINTENANCE      00051000
+BRQTRIEF DS    CL1                     APPL TRANSACTION INQ/ENTRY FLAG  00052000
+*                                      VALUE: 0 - NEITHER               00053000
+*                                             1 - INQUIRY               00054000
+*                                             2 - DATA ENTRY            00055000
+*                                             3 - D/E WITH INQUIRY      00056000
+BRQTRCLF DS    CL1                     APPL TRANSACTION CLOSE FLAG      00057000
+BRQTRAMT DS    PL9                     APPL TRANSACTION AMOUNT          00058000
+BRQTRPEN DS    PL7                     APPL TRANSACTION PENALTY AMOUNT  00059000
+BRQTREFD DS    CL6                     APPL TRANSACTION EFFECTIVE DATE  00060000
+BRQTREXC DS    CL2                     APPL TRANSACTION EXCEPTION CODE  00061000
+BRQTRPTD DS    CL10                    APPL TRANSACTION REPORT DESCRIPT 00062000
+BRQTRCOF DS    CL1                     APPL TRANSACTION CREATE OFFLINE  00063000
+BRQTRRTF DS    CL1                     APPL TRANSACTION REAL TIME FLAG  00064000
+BRQTRNDF DS    CL1                     APPL TRANSACTION NEXT DAY  FLAG  00065000
+BRQBATTR DS    CL4                     APPL BATCH TRAN CODE             00066000
+BRQBATUC DS    CL8                     APPL BATCH USER CODE             00067000
+BRQTDAG  DS    CL8                     APPL TRANSACTION DAG             00068000
+BRQFFDAG DS    CL8                     APPL FFORMAT TRANS DAG           00069000
+BRQTFDAG DS    CL8                     APPL TFORMAT TRANS DAG           00070000
+BRQSORAP DS    XL4                     SOR APPLICATION RECORD ADDRESS   00071000
+BRQSORFC DS    CL5                     SOR FUNCTION CODES               00072000
+         DS    XL3                     FILLER                           00073000
+*                                                                       00074000
+*        INITIAL REQUEST                                                00075000
+BRQIREMP DS    0X                    EMPLOYEE INFORMATION               00076000
+BRQIRTRF DS    CL1                   EMPLOYEE IN TRAINING FLAG          00077000
+BRQIRUTF DS    CL1                   UPDATE IN TRAINING FLAG            00078000
+BRQIRLTF DS    CL1                   LOG IN TRAINING FLAG               00079000
+         DS    XL8                   FILLER                             00080000
+BRQIRSCR DS    0X                    SCREEN INFORMATION                 00081000
+BRQIRMAD DS    XL4                   TRANSMISSION ADDRESS               00082000
+BRQIRMLG DS    XL2                   TRANSMISSION LENGTH                00083000
+BRQIRPKF DS    CL1                   PROGRAM KEY FUNCTION               00084000
+BRQIRKDL DS    XL2                   PROGRAM KEY DATA LENGTH            00085000
+BRQIRKDA DS    CL10                  PROGRAM KEY DATA                   00086000
+BRQIRUXS DS    0CL40                 USER PHASES                        00087000
+BRQIRUX1 DS    CL8                   USER EXIT 1                        00088000
+BRQIRUX2 DS    CL8                   USER EXIT 2                        00089000
+BRQIRUX3 DS    CL8                   USER EXIT 3                        00090000
+BRQIRUX4 DS    CL8                   USER EXIT 4                        00091000
+BRQIRUX5 DS    CL8                   USER EXIT 5                        00092000
+BRQIRPCF DS    CL1                   PROCESS COMPLETE FLAG              00093000
+BRQIRXMF DS    CL1                   TRANSMISSION FLAG                  00094000
+*                                    VALUE: 0 -NOT FIRST TIME THRU      00095000
+*                                           1 -FIRST TIME THRU; NO DATA 00096000
+*                                           2 -FIRST TIME THRU W/DATA   00097000
+BRQIRACL DS    XL2                   ACA LENGTH                         00098000
+BRQIRCEN DS    CL2                   CENTURY                            00099000
+BRQIRACB DS    XL4                   ACB ADDRESS FOR DATA DICTIONARY    00100000
+BRQIRDCB DS    XL4                   DUMMY ACB ADDRESS FOR DATA DICT    00101000
+         DS    XL14                  FILLER                             00102000
+BRQIRXCT DS    0X                    TRANSFER CONTROL INFORMATION       00103000
+BRQIRXTF DS    CL1                   TRANSFER CONTROL FLAG              00104000
+*                                    VALUE: 0 - DO NOT TRANSFER CONTROL 00105000
+*                                           1 - XCTL IMMEDIATELY        00106000
+*                                           2 - XCTL                    00107000
+BRQIRXTI DS    CL4                   TRANSFER CONTROL TRAN ID           00108000
+BRQIRXPN DS    CL8                   TRANSFER CONTROL PROGRAM NAME      00109000
+         DS    XL7                   FILLER                   2021255   00110000
+BRQSSWT  DS    CL1                   TRANSACTION SER SWITCH   2021255   00110100
+BRQSSWP  DS    CL4                   TRAN SER SWITCH PROG     2021255   00110200
+*                                                                       00111000
+*        TRANSACTION SECURITY REQUEST                                   00112000
+BRQTSUS  DS    XL2                   NUMBER OF REQUESTS TO PROCESS      00113000
+BRQTSTAB DS    0XL72                 TRANSACTION SECURITY TABLE         00114000
+BRQTS1   DS    0XL9                  1ST OCCUR OF TRANS SECURITY TABLE  00115000
+BRQTSCD1 DS    0XL8                  TRANS SECURITY CODE                00116000
+BRQTSTCD DS    CL4                   TRANSACTION CODE                   00117000
+BRQTSUCD DS    CL4                   USER CODE                          00118000
+BRQTSVTF DS    CL1                   VALID TRANSACTION FLAG             00119000
+*                                    VALUE: 0 - VALID TRANS             00120000
+*                                           1 - NOT A VALID TRANS       00121000
+BRQTS2   DS    XL63                  2ND-8TH OCCUR                      00122000
+BRQTSFIL DS    CL3                   FILE ID - TSTS9VC        2521966   00122100
+BRQTSKEY DS    CL14                  ADDITIONAL KEY - TSTS9VC 2521966   00122200
+BRQCIDRQ DS    CL1                   CHANGE-ID REQUIRED FLAG  2602105   00122300
+BRQCHGID DS    CL8                   CHANGE-ID / EMPLOYEE     2602105   00122400
+         DS    XL14                  FILLER                   2602105   00123000
+*                                                                       00124000
+*                                                                       00125000
+*        PROTECT ALL FIELDS REQUEST                                     00126000
+BRQPFLG  DS    CL1                   PROTECT ALL FIELDS FLAG            00127000
+*                                    VALUE: 0 - PROT ALL FIELDS         00128000
+*                                           1 - PROT ALL BUT KEY FIELDS 00129000
+         DS    XL4                   FILLER                             00130000
+*                                                                       00131000
+*        ACCOUNT SECURITY REQUEST                                       00132000
+BRQACCAD DS    XL4                   ACCOUNT RECORD ADDRESS             00133000
+BRQAPPAR DS    XL40                  APPLICATION AREA                   00134000
+BRQACFNM DS    CL8                   FILE NAME                          00135000
+BRQUAPHS DS    CL8                   USER ACCOUNT SECURITY PHASE        00136000
+         DS    XL12                  FILLER                             00137000
+*                                                                       00138000
+*        EDIT REQUEST                                                   00139000
+BRQEDBCF DS    CL1                   EDITED A TSBCR FIELD FLAG          00140000
+*                                    VALUE: 0 - DID NOT EDIT TSBCR FLD  00141000
+*                                           1 - EDITED TSBCR FIELD      00142000
+         DS    XL4                   FILLER                             00143000
+*                                                                       00144000
+*        ERROR PROCESSING REQUEST                                       00145000
+BRQERMNM DS    0CL7                  MAP NAME FOR NEXT ERROR MSG DISP   00146000
+BRQERTC  DS    CL4                       TRAN CODE                      00147000
+         DS    CL1                       FILLER                         00148000
+BRQERSN  DS    CL2                       SCREEN NUMBER                  00149000
+         DS    XL10                  FILLER                             00150000
+*                                                                       00151000
+*        TSBCR UPDATE REQUEST                                           00152000
+BRQBCRAD DS    XL4                   BCR RECORD ADDRESS                 00153000
+         DS    XL9                   FILLER                             00154000
+*                                                                       00155000
+*        LOGGING AND TOTALLING REQUEST                                  00156000
+BRQLGNWA DS    CL1                   NEW ARCHITECTURE FLAG              00156010
+BRQLGSTL DS    CL1                   BYPASS SCREEN TOTALING FLAG        00157000
+*                                    VALUE: 0 - PROCESS TOTALS          00158000
+*                                           1 - DO NOT PROCESS TOTALS   00159000
+BRQLGLOG DS    CL1                   WRITE LOG FLAG                     00160000
+*                                    VALUE: 0 - WRITE LOG               00161000
+*                                           1 - DO NOT WRITE LOG        00162000
+BRQLGPAD DS    XL4                   PHANTOM FIELD TABLE ADDRESS        00163000
+BRQLGDAD DS    XL4                   DATA OCCURRENCE ADDRESS            00164000
+BRQLOGA  DS    XL4                   ADDRESS OF LOG AREA      0445028   00165000
+         DS    XL4                   FILLER (WAS BRQLGNRB)    00701893  00166000
+BRQLGNSD DS    XL4                   TOTAL ADDRESS FOR NONSDR PROCSS    00167000
+BRQLGCAP DS    XL1                   CAPTURED ITEM LOG FLAG             00168000
+BRQLGBKO DS    CL1                   LOG RECORD BACKOUT IN PROCESS      00169000
+BRQNCAAD DS    XL4                   NCA ADDRESS FROM BACKOUT PROCESS   00170000
+BRQDTACT DS    XL02                  NUMBER OF DATA AREAS FOR LOGGING   00171000
+*                                                                       00172000
+*        INQUIRY/UPDATE REQUEST                                         00173000
+BRQIQPCF DS    CL1                   PROCESSING COMPLETE INQUIRY FLAG   00174000
+*                                    VALUE: 0 - NOT PROCESS COMPLETE    00175000
+*                                           1 - PROCESS COMPLETE INQ    00176000
+BRQIQFPR DS    XL2                   NUMBER OF FILES IN TABLE           00177000
+BRQIQTAB DS    0XL120                FILE POINTER TABLE                 00178000
+BRQIQFP1 DS    0XL12                 1ST OCCUR OF FILE POINTER TABLE    00179000
+BRQINQFI DS    CL8                   FILE ID / DAG NAME                 00180000
+BRQINQAD DS    XL4                   FILE ADDRESS                       00181000
+BRQIQFP2 DS    XL108                 2ND-10TH OCCUR                     00182000
+BRQIINA  DS    XL4                   UPDATE REQ - INCLUSION TBL ADDR    00183000
+BRQIEXA  DS    XL4                   UPDATE REQ - EXCLUSION TBL ADDR    00184000
+BRQIQRDS DS    CL1                   REDISPLAY FIELDS ONLY REQUEST      00185000
+*                                    VALUE: 0 - NO, DISPLAY ALL FIELDS  00186000
+*                                           1 - YES, DO REDISPLAY ONLY  00187000
+BRQMFI   DS    CL1                   MASTER FILE INDICATOR    9910919   00187010
+BRQIQFT1 DS    CL1                   FDR FILE TYPE OCCUR 1    1436560   00187020
+BRQIQFT2 DS    XL9                   2ND-10TH OCCUR           1436560   00188000
+*                                                                       00189000
+*        FINAL REQUEST                                                  00190000
+BRQFRPC  DS    CL1                   PROCESSING HAS COMPLETED FLAG      00191000
+*                                    VALUE: 0 - PROCESS NOT COMPLETE    00192000
+*                                           1 - PROCESSING COMPLETE     00193000
+         DS    XL12                  FILLER                   1727046   00194000
+*        SAVE LOG REQUEST                                               00195000
+BRQSLDMS DS    CL8                   DSM NAME                           00196000
+BRQSLORA DS    XL4                   OLD RECORD ADDRESS                 00197000
+BRQSLNRA DS    XL4                   NEW RECORD ADDRESS                 00198000
+BRQLANG  DS    XL2                   LANGUAGE CODE FROM EOR   9913481   00198010
+BRQDTFMT DS    0XL2                  DATE FMT CODE FROM EOR   2024347   00198020
+BRQDTTYP DS    XL1                   DATE TYPE (M,D, OR Y)    2024347   00198030
+BRQDTSEP DS    XL1                   DATE SEP  (/,-,:)        2024347   00198040
+BRQSDADD DS    XL4                   SDR/DICTIONARY TABLE     1035850   00198045
+BRQXLTAD DS    XL4                 SDR DECIMAL TRANSLATE TAB  1035850   00198050
+*                                                                       00200000
+*        SAVE DATA                                                      00201000
+BRQITRAD DS    XL4                   ITR ADDRESS                        00202000
+BRQEORAD DS    XL4                   EOR ADDRESS                        00203000
+BRQQSIAD DS    XL4                   QSI ADDRESS                        00204000
+BRQSDRAD DS    XL4                   SDR ADDRESS                        00205000
+BRQPFKAD DS    XL4                   PF KEY SEGMENT ADDRESS             00206000
+BRQPFKLN DS    XL2                   PF KEY SEGMENT LENGTH              00207000
+BRQREQPF DS    CL1                   DISPLAY PREV/NEXT MSG FLAG         00208000
+*                                    VALUE: 6 - DISPLAY NEXT            00209000
+*                                           7 - DISPLAY PREVIOUS        00210000
+BRQMAPDS DS    XL2                   MAP DSECT LENGTH                   00211000
+BRQAORSB DS    XL2                   AOR APPLICATION SUBSCRIPT          00212000
+BRQSDRKY DS    0CL20                 SDR KEY                            00213000
+BRQSDRCL DS    CL10                   SDR CLASS                         00214000
+BRQSDRTN DS    CL8                    TRAN ID                           00215000
+BRQSDRSN DS    CL2                    SCREEN NUMBER                     00216000
+BRQEMPID DS    CL8                   EMPLOYEE ID                        00217000
+BRQUPEOR DS    CL1                   UPDATE EOR FLAG                    00218000
+*                                    VALUE: 0 - DO NOT REWRITE EOR      00219000
+*                                           1 - REWRITE EOR             00220000
+BRQLATTR DS    CL1                   LOAD ATTRIBUTE FLAG                00221000
+*                                    VALUE: 0 - LOAD ATTRIB NOT DONE    00222000
+*                                           1 - LOAD ATTRIB PROCESSED   00223000
+BRQREQCD DS    XL2                   REQUEST CODE BEING PROCESSED       00224000
+BRQMDTFL DS    CL1                   SET MDT ON FLD'S ENTERED IN LA REQ 00225000
+*                                    VALUE: 0 - SET MDT ON FLDS ENTERED 00226000
+*                                           1 - MDT ALREADY PROCESSED-- 00227000
+*                                                 DO NOT PROCESS AGAIN  00228000
+*                                           2 - NEW SDR READ, PROCESS   00229000
+*                                                 LOAD ATTRIBUTES ONLY  00230000
+BRQPLAS  DS    CL1                   PLUS/ASTERISK SPACE PROCESSING     00231000
+BRQLGPRB DS    XL8                   PREVIOUS LOG RBA         1035850   00231300
+BRQLGPGP DS    CL2                   PREVIOUS LOG GROUP       00701893  00231400
+*                                                             00701893  00231500
+BRQLGNRB DS    XL8                   NEW LOG RBA              1035850   00231600
+BRQLGNGP DS    CL2                   NEW LOG GROUP            00701893  00231700
+*                                                             00701893  00231800
+BRQLGPND DS    XL1                   PREVIOUS LOG NXT DAY FLG 9713231   00231810
+         DS    XL1                   FILLER                   9913481   00232000
+*                                                                       00233000
+BRQEND   EQU   *                     SYMBOLIC END OF REQUEST BLOCK      00234000
+BRQLEN   EQU   *-BRQ                 SYMBOLIC LENGTH OF REQUEST BLOCK   00235000

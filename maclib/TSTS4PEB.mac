@@ -1,0 +1,226 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*  04/01/88, 09:30                                                    * 00000200
+*                            TSTS2PEB                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*        ROUTINE TO MOVE MESSAGE TO TABLE IN APPLICATION C.A.         * 00000500
+*---------------------------------------------------------------------* 00000600
+         SPACE                                                          00000700
+*********************************************************************   00000800
+*                                                                   *   00000900
+*        THE MESSAGE COMING IN IS MOVED INTO THE NEXT AVAILABLE     *   00001000
+*        SLOT IN THE MAIN TABLE.  IF THE MAIN TABLE IS FULL, THEN   *   00001100
+*        IF IT IS NON-FATAL AND IT HAS A FIELD ID, IT IS INSERTED   *   00001200
+*        IN THE OVERFLOW TABLE.  IF IT IS NON-FATAL AND HAS NO      *   00001300
+*        FIELD ID, IT IS IGNORED.                                   *   00001400
+*                                                                   *   00001500
+*        IF THE MAIN TABLE IS FULL AND THE INCOMING MSG IS FATAL    *   00001600
+*        THEN A PASS IS MADE THROUGH THE MAIN MESSAGE TABLE AND THE *   00001700
+*        ADDRESSES OF THE FOLLOWING TYPES OF MESSAGES ARE SAVED:    *   00001800
+*                                                                   *   00001900
+*              FATAL ERROR WITH FIELD ID                            *   00002000
+*              NON-FATAL ERROR WITH FIELD ID                        *   00002100
+*              NON-FATAL ERROR WITHOUT FIELD ID                     *   00002200
+*                                                                   *   00002300
+*        IF THERE IS A FATAL ERROR IN THE TABLE THE FATAL           *   00002400
+*        SWITCH IS SET.                                             *   00002500
+*                                                                   *   00002600
+*        IF THE INCOMING (FATAL) MESSAGE HAS A FIELD ID:            *   00002700
+*                                                                   *   00002800
+*              1. IF THERE IS AT LEAST ONE FATAL ERROR IN THE MAIN  *   00002900
+*                 TABLE (I.E. FATAL SWITCH IS ON), THE MESSAGE IS   *   00003000
+*                 PUT INTO THE OVERFLOW TABLE.                      *   00003100
+*                                                                   *   00003200
+*              2. IF THERE IS A NON-FATAL ERROR WITH A FIELD ID IN  *   00003300
+*                 THE MAIN TABLE, MOVE IT INTO THE OVERFLOW TABLE   *   00003400
+*                 AND PUT THE NEW MESSAGE INTO THE MAIN TABLE.      *   00003500
+*                                                                   *   00003600
+*              3. OTHERWISE OVERLAY A NON-FATAL MESSAGE WITHOUT A   *   00003700
+*                 FIELD ID.                                         *   00003800
+*                                                                   *   00003900
+*        IF THE MAIN TABLE IS FULL AND THE MESSAGE COMING IN IS     *   00004000
+*        FATAL AND HAS NO FIELD ID:                                 *   00004100
+*                                                                   *   00004200
+*              1. IF THERE IS A NON-FATAL ERROR WITH A FIELD ID IN  *   00004300
+*                 THE MAIN TABLE, MOVE IT INTO THE OVERFLOW TABLE   *   00004400
+*                 AND PUT THE NEW MESSAGE INTO THE MAIN TABLE.      *   00004500
+*                                                                   *   00004600
+*              2. IF THERE IS A FATAL ERROR WITH A FIELD ID IN      *   00004700
+*                 THE MAIN TABLE, MOVE IT INTO THE OVERFLOW TABLE   *   00004800
+*                 AND PUT THE NEW MESSAGE INTO THE MAIN TABLE.      *   00004900
+*                                                                   *   00005000
+*              3. IF THERE IS A NON-FATAL ERROR WITHOUT A FIELD ID  *   00005100
+*                 THE MAIN TABLE, OVERLAY IT.                       *   00005200
+*                                                                   *   00005300
+*              4. IF ALL THE ERRORS IN THE MAIN TABLE WERE FATAL    *   00005400
+*                 WITH NO FIELD ID, IGNORE THE INCOMING MESSAGE.    *   00005500
+*                                                                   *   00005600
+*        REGISTER USAGE:                                            *   00005700
+*              R1 - WORK REGISTER                                   *   00005800
+*              R6 - COUNT, BASE REG FOR OVERFLOW OCCURRENCE         *   00005900
+*              R7 - BASE REGISTER FOR MESSAGE OCCURRENCE            *   00006000
+*              R8 - BASE REGISTER FOR MSG TBL IN APPL COMM AREA     *   00006100
+*                                                                   *   00006200
+*        SWAP SWITCH:                                               *   00006300
+*               0 - NORMAL OVERFLOW PROCESSING                      *   00006400
+*               1 - MOVE A MAIN TABLE MSG INTO OVERFLOW AND CURRENT *   00006500
+*                   MSG INTO MAIN TABLE                             *   00006600
+*               2 - OVERLAY MAIN TABLE MSG WITH CURRENT MSG         *   00006700
+*                                                                   *   00006800
+*********************************************************************   00006900
+ERRTN000 EQU   *                                                        00007000
+         STM   R14,R12,WEBREGS       STORE REGS                         00007100
+         MVI   WEBFTLSW,C'0'         INITIALIZE FATAL SWITCH            00007200
+         MVI   WEBSWPSW,C'0'         INITIALIZE SWAP SWITCH             00007300
+*********************************************************************   00007400
+*        IN THE FUTURE, THE FATALITY LEVEL WILL BE ON A CONTROL     *   00007500
+*        FILE.  FOR THE PRESENT IT IS HARD-CODED HERE.              *   00007600
+*********************************************************************   00007700
+         MVC   WEBFTLVL,=C'12'       SET FATALITY LEVEL AT 12           00007800
+*********************************************************************   00007900
+         MVC   WEBFTLID,HEXZEROS     INITIALIZE WORK ADDRESSES          00008000
+         MVC   WEBNFTID,HEXZEROS                                        00008100
+         MVC   WEBNFNID,HEXZEROS                                        00008200
+         L     R8,SVBMSADR           LOAD BMS ADDRESS                   00008300
+         USING TSBMS,R8              ADDRESS BMS                        00008400
+         ICM   R8,15,BMSAPLAD        LOAD APPL C.A. ADDRESS             00008500
+         DROP  R8                                                       00008600
+         USING TSACA,R8              ESTAB ADDRESSABILITY TO MSG TABLE  00008700
+         LA    R7,ACAMSGTB           LOAD ADDRESS OF MAIN MSG TABLE     00008800
+         USING ACAMSGDS,R7           ESTAB ADDRESSABILITY TO MSG OCCUR  00008900
+         XR    R6,R6                 CLEAR REG FOR INSERT               00009000
+         ICM   R6,3,ACAMSGPR         INSERT # MSGS IN TABLE FOR COUNT   00009100
+         LTR   R6,R6                 ANY MSGS IN TABLE YET?             00009200
+         BZ    ERRTN060              NO - SKIP PASS THROUGH THE TABLE   00009300
+         CH    R6,=H'10'             TABLE FULL?                        00009400
+         BL    ERRTN060              NO - SKIP PASS THROUGH THE TABLE   00009500
+         CLI   WEBRETCD,C'1'         YES - IS THIS A FATAL MESSAGE?     00009600
+         BE    ERRTN010              YES - MAKE PASS THRU MAIN TABLE    00009700
+         CLC   WEBMGFID,SPACES       NO - IS A FLD ID ASSOC W/MSG       00009800
+         BE    ERRTN900              NO - DON'T BOTHER WITH IT THEN     00009900
+         MVC   WEBSVFID,WEBMGFID     YES - MOVE FIELD ID INTO SV AREA   00010000
+         BE    ERRTN130              GO INSERT INTO OVERFLOW TABLE      00010100
+         EJECT                                                          00010200
+*********************************************************************   00010300
+*        MAKE PASS THROUGH MAIN MSG TABLE AND SAVE ADDRESSES        *   00010400
+*********************************************************************   00010500
+ERRTN010 EQU   *                                                        00010600
+         CLC   ACASVRTY,WEBFTLVL     IS THIS A FATAL ERROR?             00010700
+         BL    ERRTN020              NO - PROCESS NON-FATAL             00010800
+         MVI   WEBFTLSW,C'1'         YES - SET FATAL SWITCH             00010900
+         CLC   ACAFLDID,SPACES       IS THERE A FIELD ID?               00011000
+         BE    ERRTN040              NO - GO PROCESS NEXT MESSAGE       00011100
+         ST    R7,WEBFTLID           YES - STORE ADDR OF FATAL/FID      00011200
+         B     ERRTN040              GO PROCESS NEXT MSG                00011300
+ERRTN020 EQU   *                                                        00011400
+         CLC   ACAFLDID,SPACES       IS THERE A FIELD ID?               00011500
+         BE    ERRTN030              NO - GO PROCESS NON FIELD ID       00011600
+         ST    R7,WEBNFTID           YES - STORE NON-FATAL/FID          00011700
+         B     ERRTN040              GO PROCESS NEXT MSG                00011800
+ERRTN030 EQU   *                                                        00011900
+         ST    R7,WEBNFNID           STORE NON-FATAL/NO FID             00012000
+ERRTN040 EQU   *                                                        00012100
+         LA    R7,ACAMSGLN(R7)       BUMP TO NEXT MSG                   00012200
+         BCT   R6,ERRTN010           PROCESS NEXT MSG                   00012300
+         B     ERRTN070              GO PROCESS FATAL ERRORS            00012400
+         EJECT                                                          00012500
+ERRTN060 EQU   *                                                        00012600
+         MVC   HWORD,ACAMSGPR        ALIGN # OF MSGS                    00012700
+         LA    R7,ACAMSGLN           LOAD LENGTH OF MSG OCCUR           00012800
+         MH    R7,HWORD              OFFSET = MSG OCCUR LNG X #MSGS     00012900
+         LA    R7,ACAMSGTB(R7)       POINT TO CORRECT MSG OCCUR         00013000
+         B     ERRTN120              GO MOVE MESSAGE                    00013100
+*********************************************************************   00013200
+*        INCOMING MSG IS FATAL AND HAS A FIELD ID                   *   00013300
+*********************************************************************   00013400
+ERRTN070 EQU   *                                                        00013500
+         CLC   WEBMGFID,SPACES       IS THERE A FLD ID ASSOC W/MSG?     00013600
+         BE    ERRTN090              NO - GO PROCESS FATAL/NO FIELD ID  00013700
+         MVC   WEBSVFID,WEBMGFID     YES - MOVE FIELD ID TO SAVE AREA   00013800
+         CLI   WEBFTLSW,C'1'         ARE THERE ANY FATALS IN MAIN TBL?  00013900
+         BE    ERRTN130              YES - PUT MSG INTO OVERFLOW        00014000
+         CLC   WEBNFTID,HEXZEROS     IS THERE A NON-FATAL WITH FLD ID?  00014100
+         BE    ERRTN080              NO - GO ON                         00014200
+         L     R7,WEBNFTID           LOAD ADDRESS OF MSG IN MAIN TABLE  00014300
+         MVI   WEBSWPSW,C'1'         SET SWAP SWITCH FOR SWAP           00014400
+         MVC   WEBSVFID,ACAFLDID     SAVE FIELD ID FROM MAIN TABLE      00014500
+         B     ERRTN120              GO DO SWAP                         00014600
+ERRTN080 EQU   *                                                        00014700
+         CLC   WEBNFNID,HEXZEROS     THIS SHOULDN'T BE ABLE TO HAPPEN   00014800
+         BE    ERRTN900                                                 00014900
+         L     R7,WEBNFNID           LOAD ADDRESS OF NON-FTL, NO FID    00015000
+         MVI   WEBSWPSW,C'2'         SET SWAP SWITCH FOR OVERLAY        00015100
+         B     ERRTN120              GO DO OVERLAY                      00015200
+*********************************************************************   00015300
+*        INCOMING MSG IS FATAL AND HAS NO FIELD ID                  *   00015400
+*********************************************************************   00015500
+ERRTN090 EQU   *                                                        00015600
+         CLC   WEBNFTID,HEXZEROS     IS THERE A NON-FATAL W/FIELD ID?   00015700
+         BE    ERRTN100              NO - GO ON                         00015800
+         L     R7,WEBNFTID           LOAD ADDRESS OF MSG IN MAIN TABLE  00015900
+         MVI   WEBSWPSW,C'1'         SET SWAP SWITCH FOR SWAP           00016000
+         MVC   WEBSVFID,ACAFLDID     SAVE FIELD ID FROM MAIN TABLE      00016100
+         B     ERRTN120              GO DO SWAP                         00016200
+ERRTN100 EQU   *                                                        00016300
+         CLC   WEBFTLID,HEXZEROS     IS THERE A FATAL WITH FIELD ID?    00016400
+         BE    ERRTN110              NO - GO ON                         00016500
+         L     R7,WEBFTLID           LOAD ADDRESS OF MSG IN MAIN TABLE  00016600
+         MVI   WEBSWPSW,C'1'         SET SWAP SWITCH FOR SWAP           00016700
+         MVC   WEBSVFID,ACAFLDID     SAVE FIELD ID FROM MAIN TABLE      00016800
+         B     ERRTN120              GO DO SWAP                         00016900
+ERRTN110 EQU   *                                                        00017000
+         CLC   WEBNFNID,HEXZEROS     IS THERE A NON-FATAL W/O FLD ID?   00017100
+         BE    ERRTN900              NO - ALL FATAL NO FLD ID - IGNORE  00017200
+         L     R7,WEBNFNID           LOAD ADDRESS OF NON-FTL, NO FID    00017300
+         MVI   WEBSWPSW,C'2'         SET SWAP SWITCH FOR OVERLAY        00017400
+         B     ERRTN120              GO DO OVERLAY                      00017500
+*********************************************************************   00017600
+*        MOVE INCOMING MESSAGE INTO MAIN MESSAGE TABLE              *   00017700
+*********************************************************************   00017800
+ERRTN120 EQU   *                                                        00017900
+         MVC   ACAFLDID,WEBMGFID     MOVE IN FIELD ID                   00018000
+         MVC   ACACODE(2),WEBAPPL    MOVE IN MESSAGE CODE               00018100
+         MVC   ACACODE+2(L'WEBMGCOD),WEBMGCOD                           00018200
+         MVI   ACAPRCFL,C'0'         SET PROCESS FLAG                   00018300
+         MVC   ACAPGMID,WEBMGPID     MOVE IN PROGRAM ID                 00018400
+         MVC   ACAVAR1,WEBMGVA1      MOVE IN VARIABLE DATA              00018500
+         MVC   ACAVAR2,WEBMGVA2      MOVE IN VARIABLE DATA              00018600
+********************                                                    00018700
+         MVC   ACASVRTY,WEBFTLVL     MOVE IN FATAL SEVERITY             00018800
+********************                                                    00018900
+         CLI   WEBSWPSW,C'1'         WAS THIS A SWAP?                   00019000
+         BE    ERRTN130              YES - INCREMENT AND DO OVERFLOW    00019100
+         CLI   WEBSWPSW,C'2'         WAS THIS AN OVERLAY?               00019200
+         BE    ERRTN900              YES - DON'T INCREMENT BEFORE RET   00019300
+         XR    R1,R1                 CLEAR WORK REGISTER                00019400
+         ICM   R1,3,ACAMSGPR         LOAD # MSGS PROCESSED              00019500
+         LA    R1,1(R1)              ADD 1 TO # MSGS PROCESSED          00019600
+         STCM  R1,3,ACAMSGPR         SAVE # MSGS PROCESSED              00019700
+         DROP  R7                                                       00019800
+         B     ERRTN900              RETURN                             00019900
+*********************************************************************   00020000
+*        MOVE INCOMING MESSAGE INTO OVERFLOW TABLE                  *   00020100
+*********************************************************************   00020200
+ERRTN130 EQU   *                                                        00020300
+         LA    R6,ACAOVFTB           ADDRESS OVERFLOW TABLE             00020400
+         USING ACAOVFDS,R6           ESTAB ADDRESSABILITY TO OVFL MSGS  00020500
+         CLC   ACAOVFPR,=H'20'       IS OVERFLOW TABLE FULL?            00020600
+         BNL   ERRTN900              YES, CANNOT ADD TO TABLE           00020700
+         MVC   HWORD,ACAOVFPR        ALIGN # OF MSGS PROCESSED          00020800
+         LA    R6,ACAOVFLN           LOAD LENGTH OF MSG OCCUR           00020900
+         MH    R6,HWORD              OFFSET = MSG OCCUR LNG X #MSGS     00021000
+         LA    R6,ACAOVFTB(R6)       POINT TO CORRECT MSG OCCUR         00021100
+         MVC   ACAOVFID,WEBSVFID     MOVE IN FIELD ID                   00021200
+         XR    R1,R1                 CLEAR WORK REGISTER                00021300
+         ICM   R1,3,ACAOVFPR         LOAD # MSGS PROCESSED              00021400
+         LA    R1,1(R1)              ADD 1 TO #OVERFLOW FLDS PROCESSED  00021500
+         STCM  R1,3,ACAOVFPR         SAVE # OVERFLOW FLDS               00021600
+ERRTN900 EQU   *                                                        00021700
+         MVI   WEBMGWK,C' '          RE-INITIALIZE MESSAGE WORK FIELDS  00021800
+         MVC   WEBMGWK+1(WEBMGWLN-1),WEBMGWK    * TO SPACES             00021900
+         MVC   WEBAPPL,=C'TS'        RE-INITIALIZE APPLICATION TO 'TS'  00022000
+         DROP  R6,R8                                                    00022100
+         LM    R14,R12,WEBREGS       RESTORE REGS                       00022200
+         BR    R15                                                      00022300
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

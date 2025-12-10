@@ -1,0 +1,130 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*        DEMAND DEPOSIT BALANCE FILE WORK AREA                        * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+MUMASTER DS    0CL141   POS     FORMAT DESCRIPTION                      00000600
+MUBK#    DS    CL1       1-1       B   BANK NUMBER                      00000700
+MUCTL#   DS    CL1       2-2       B   CONTROL GROUP                    00000800
+MUACCT#  DS    CL4       3-6       B   ACCOUNT NUMBER                   00000900
+MUBR#    DS    CL1       7-7       B   BRANCH                           00001000
+MUDIV    DS    CL1       8-8       Z   DIVISION                         00001100
+MUOFFIC  DS    CL3       9-11      Z   OFFICER                          00001200
+MUTYPE   DS    CL1      12-12      Z   ACCOUNT TYPE                     00001300
+MUSIC    DS    CL2      13-14      N   SIC CODE                         00001400
+MUSNAME  DS    CL13     15-27      Z   SHORT NAME                       00001500
+MUAFFIL# DS    CL4      28-31      B   AFFILIATE ACCOUNT                00001600
+MUDTOPEN DS    CL2      32-33      N   DATE OPEN MO-YR                  00001700
+MUTIMEOD DS    CL1      34-34      B   TIMES OD THIS SC PERIOD          00001800
+MUDATEOD DS    CL2      35-36      B   ORIGIN OD STATUS Y-DAY X-XXX     00001900
+MUCKSRET DS    CL1      37-37      B   CHECKS RETURNED THIS SC PERIOD   00002000
+MUDLASTA DS    CL2      38-39      B   DATE LAST ACTIVE Y-DAY X-XXX     00002100
+MUDLASTM DS    CL2      40-41      B   DATE LAST MAINT  Y-DAY X-XXX     00002200
+MUDLASTD DS    CL2      42-43      B   DATE LAST DEPOSIT Y-DAY X-XXX    00002300
+MU$LASTD DS    CL3      44-46      N   AMOUNT LAST DEPOSIT IN DOLLARS   00002400
+MUGCBITS DS    CL1      47-47      B   GENERAL CODING BIT ON=YES        00002500
+MUBSTOP  EQU   MUGCBITS                STOP/S ON FILE  RESET DAILY      00002600
+MUBHOLD  EQU   MUGCBITS                HOLD/S ON FILE  RESET DAILY      00002700
+MUBSNAP  EQU   MUGCBITS                SNAP STATEMENT  RESET DAILY      00002800
+MUBRESET EQU   MUGCBITS                RESET STATEMENT RESET DAILY      00002900
+MUBMAILD EQU   MUGCBITS                MAIL DEPOSIT SUMMARY             00003000
+MUBCLOVR EQU   MUGCBITS                CLOSED OVERRIDE                  00003100
+MUBSPINT EQU   MUGCBITS                SPECIAL INSTRUCTIONS             00003200
+MUBSUMST EQU   MUGCBITS                SUMMARY STATEMENT                00003300
+MUSTATUS DS    CL1      48-48      Z   OPEN=1,PURGE=2,NO CHECK=3        00003400
+*                                      CLOSED=4,DORMANT=5,NEW ACCT=6    00003500
+MUSCBITS DS    CL1      49-49      B   BIT/S  0   1=CHARGE  0=WAIVE     00003600
+*                                             1             1=REFER     00003700
+*                                             2    1=PASS ANALYSIS      00003800
+*                                           3-7   SC CYCLE 01-31        00003900
+MUSCSIGB DS    CL1      50-50      B   BITS 0-4  IF 0-2 =111 BITS 3-4   00004000
+*                                                 REFER USER SC ROUTINE 00004100
+*                                                 IF 0-2 NOT 111 BITS   00004200
+*                                                 0-2 POINT TO GENERAL  00004300
+*                                                 SC MASK BITS 3-4 TO   00004400
+*                                                 GENERAL SC FACTORS    00004500
+*                                      BITS 5-7   POINT TO SIGNIFICANT  00004600
+*                                                 BALANCE FACTOR        00004700
+MUODBITS DS    CL1      51-51      B   BITS 0-1  TABLE ENTRY=00         00004800
+*                                                 PAY NONE=11           00004900
+*                                                 PAY ALL =10 OR 01     00005000
+*                                      BITS 4-7   POINT TO TABLE OD     00005100
+*                                                 LIMIT IF BITS 0-1=00  00005200
+MUSTBITS DS    CL1      52-52      B   BITS 0-1   DEFINE FREQUENCY      00005300
+*                                                 00=CYCLE,01=WEEKLY    00005400
+*                                                 10=DATES,11=DAILY     00005500
+*                                      BITS 2-7   IF 0-1=WEEKLY 2=MON,  00005600
+*                                                 3=TUES,4=WED,5=THUR,  00005700
+*                                                 6=FRI,7=SAT           00005800
+*                                                 IF 0-1=CYCLE 2-7=CYCL 00005900
+*                                                 01-63                 00006000
+MUSDATES DS    4CL1     53-56      N   IF BITS 0-1 OF MUSTBITS=DATES    00006100
+*                                      THEN UP TO FOUR DATES VALUES     00006200
+*                                      01-31 LEFT ADJUSTED CAN BE USED  00006300
+MUFLOT1  DS    CL3      57-59      N   FLOAT 1 IN DOLLARS               00006400
+MUFLOT2  DS    CL3      60-62      N   FLOAT 2 IN DOLLARS               00006500
+MUFLOT3  DS    CL3      63-65      N   FLOAT 3 IN DOLLARS               00006600
+MUHOLD$  DS    CL3      66-68      N   HOLDS IN DOLLARS RESET DAILY     00006700
+MUDPREVS DS    CL2      69-70      B   PREV STAT DATE  Y-DAY  X-XXX     00006800
+MU$PREVS DS    CL6      71-76      P   PREV STATEMENT BALANCE           00006900
+MU#CRS   DS    CL2      77-78      P   NUMBER CREDITS    RESET STAT     00007000
+MU$CRS   DS    CL6      79-84      P   DOLLARS CREDITS   RESET STAT     00007100
+MU#DRS   DS    CL3      85-87      P   NUMBER DEBITS     RESET STAT     00007200
+MU$DRS   DS    CL6      88-93      P   DOLLARS DEBITS    RESET STAT     00007300
+MU$CUBAL DS    CL6      94-99      P   CURRENT BALANCE                  00007400
+MU#SCCRS DS    CL2     100-101     P   SERVICE CHARGE CRS      RESET SC 00007500
+MU#SCDRS DS    CL3     102-104     P   SERVICE CHARGE DRS      RESET SC 00007600
+MU#LOCAL DS    CL3     105-107     P   DEPOSIT LOCAL ITEMS     RESET SC 00007700
+MU#FORGN DS    CL3     108-110     P   DEPOSIT FOREIGN ITEMS   RESET SC 00007800
+MU$CASHD DS    CL3     111-113     N   CASH DEP IN DOLLARS     RESET SC 00007900
+MUAGDAYS DS    CL2     114-115     P   # DAYS LAST SC          RESET SC 00008000
+MUAG$CUB DS    CL5     116-120     P   AGG CUR BAL 10$         RESET SC 00008100
+MUAG$CLB DS    CL5     121-125     P   AGG COL BAL 10$         RESET SC 00008200
+MUMINBAL DS    CL4     126-129     N   MINIMUM BAL 10$         RESET SC 00008300
+MUMISC$  DS    CL3     130-132     P   MISC. COSTS             RESET SC 00008400
+MUDATESC DS    CL2     133-134     B   DATE LAST SC BIN MO-DAY          00008500
+MU$SC    DS    CL3     135-137     P   ACUM SERVICE CHARGE  RESET STAT  00008600
+MU#SLINE DS    CL3     138-140     P   ACUM STATEMENT LINES RESET STAT  00008700
+MUOLDSC  DS    CL1     141-141         HOLD FOR BYTE 49 WHEN ACCT       00008800
+*                             CHG FROM ANALYSIS BY BAL UPDATE RUN 11    00008900
+*********************************************************************** 00009000
+         SPACE                                                          00009100
+*********************************************************************** 00009200
+*        MASTER BALANCE CONTROL RECORD.  118 OF 141 BYTES ARE USED.   * 00009300
+*        BANK# AND CTL# ARE IDENTICAL TO MASTER. ACCT# WILL BE        * 00009400
+*        7FFFFFFF, BR# WILL BE HEX FF. FOLLOWING ARE FIELDS IN BYTES  * 00009500
+*        8 THRU 118.                                                  * 00009600
+*********************************************************************** 00009700
+         SPACE                                                          00009800
+         ORG   MUDIV                                                    00009900
+MU#NACCT DS    CL3       8-10      P   # NEW ACCTS TODAY UPDATED RUN11  00010000
+MU#DACCT DS    CL3      11-13      P   # DELETED ACCTS   UPDATED RUN11  00010100
+* THE REMAINING FIELDS ARE UPDATED BY THE POSTING RUN12                 00010200
+MU#ACCTS DS    CL3      14-16      P   # ACCTS IN CTL TODAY             00010300
+MU#ACCAC DS    CL3      17-19      P   # ACCTS ACTIVE SW WAS ON         00010400
+MU#OD    DS    CL3      20-22      P   # ACCTS OD CUR BAL TODAY         00010500
+MU#UNCOL DS    CL3      23-25      P   # ACCTS NEG COL BAL TODAY        00010600
+MU#DRAWH DS    CL3      26-28      P   # ACCTS NEG AVAIL BAL (COL-HDS)  00010700
+MU#DRP   DS    CL3      29-31      P   # DEBITS POSTED      TODAY       00010800
+MU#DRUP  DS    CL3      32-34      P   # DEBITS UNPOSTED    TODAY       00010900
+MU#CRP   DS    CL3      35-37      P   # CREDITS POSTED     TODAY       00011000
+MU#CRUP  DS    CL3      38-40      P   # CREDITS UNPOSTED   TODAY       00011100
+MU#ACSC  DS    CL3      41-43      P   # ACCTS SVC CHG CALCULATED       00011200
+MU#ACSCC DS    CL3      44-46      P   # ACCTS SVC CHARGED              00011300
+MU#ACSCW DS    CL3      47-49      P   # ACCTS SC WAIVED INCLUDES CLOS  00011400
+MU#ACSCA DS    CL3      50-52      P   # ACCTS SC PASSED ANALYSIS       00011500
+MU$BAL   DS    CL6      53-58      P   $ CUR BAL IN CTL TODAY           00011600
+MU$COLL  DS    CL6      59-64      P   $ COL BAL IN CTL TODAY           00011700
+MU$OD    DS    CL6      65-70      P   $ OD      IN CTL TODAY           00011800
+MU$DRP   DS    CL6      71-76      P   $ DEBITS POSTED  TODAY           00011900
+MU$DRUP  DS    CL6      77-82      P   $ DEBITS UNPOSTED TODAY          00012000
+MU$CRP   DS    CL6      83-88      P   $ CREDITS POSTED TODAY           00012100
+MU$CRUP  DS    CL6      89-94      P   $ CREDITS UNPOSTED TODAY         00012200
+MU$ACSC  DS    CL6      96-100     P   $ SERVICE CHARGES CALCULATED     00012300
+MU$ACSCC DS    CL6     101-106     P   $ SVC CHG CHARGED                00012400
+MU$ACSCW DS    CL6     107-112     P   $ SC WAIVED INCLUDES CLOSED ACCT 00012500
+MU$ACSCA DS    CL6     113-118     P   $ SC PASSED TO ANALYSIS          00012600
+         DS    CL23    119-141         BLANK IN LEDGER RECORD           00012700
+*                                                                     * 00012800
+         SPACE                                                          00012900

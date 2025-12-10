@@ -1,0 +1,321 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                               TSTS2LOG                              * 00000200
+*                      TS TRANSACTION SYSTEM LOG RECORD       0802890 * 00000300
+*---------------------------------------------------------------------* 00000310
+*                  ** HISTORY OF REVISIONS **                         * 00000311
+* DESCRIPTION                                                 CHNGID  * 00000312
+* __________________________________________________________  _______ * 00000313
+* 10/16/12 ADD EIBDATE TO LOG RECORD                          1326275   00000501
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000502
+* 01/11/10 ADDED XRBA FIELDS TO TSLOG RECORD                  1035872   00000504
+* 09/06/05 ADDED NEXT DAY EXIT FLAG TO TSLOG RECORD           0615280   00000505
+* 08/20/03 ADDED EOR CONTROL BLOCK PROCESSING FLAG            0414797 * 00000506
+* 05/27/03 ADDED MQ INFO REDUCED OVR ERR CODE                 0364780 * 00000507
+* 11/10/99 ADDED NEW FIELD FOR TRN SOURCE CODE                2021071 * 00000508
+* 04/30/98 ADDED NEW FIELD VALUES FOR DYNAMIC EORS            9913482 * 00000510
+* 08/18/97 ADDED TTR CLASS AND ITR PROCESS TYPE               9910846 * 00000511
+* 05/08/97 FLOATING DECIMAL ENHANCEMENT                       9913481 * 00000512
+* 02/15/97 ADDED NEW FIELDS FOR 24X7 PROCESSING               9910919 * 00000513
+* 03/13/95 EXPAND LOG RECORD                                  2600361 * 00000514
+* 08/30/94 ADD REAL TIME APPLICATION FLAG                     2602019 * 00000515
+*---------------------------------------------------------------------* 00000516
+         SPACE                                                          00000600
+*********************************************************************** 00000700
+*                                                                     * 00000800
+*   LOG STRUCTURE :                                                   * 00000900
+*                                                                     * 00001000
+*     I.  STEM                                                        * 00001100
+*                                                                     * 00001200
+*    II.  KDA (KEY DATA AREA)                                         * 00001300
+*         ...  VARIABLE NUMBER OF 50 BYTE FIXED OCCURRENCES           * 00001400
+*         ...  ONLY CONTAINS REPORTING ACCOUNT KEYS                   * 00001500
+*                                                                     * 00001600
+*   III.  TDA (TOTALLING DATA AREA)                                   * 00001700
+*         ...  VARIABLE NUMBER OF 31 BYTE FIXED OCCURRENCES           * 00001800
+*                                                                     * 00001900
+*    IV.  PDA (PROCESSING DATA AREA)                                  * 00002000
+*         ...  VARIABLE AREA                                          * 00002100
+*         ...  APPLICATION WRITE PROGRAM WILL HAVE TO ACCESS TO       * 00002200
+*              THIS AREA, SO THEY SHOULD BE IN ASSEMBLER              * 00002300
+*                                                                     * 00002400
+*     V.  XMT (TRANSMISSION DATA AREA)                                * 00002500
+*         ...  VARIABLE AREA                                          * 00002600
+*         ...  ONLY LOGGED FOR 1ST PCA FOR EXTERNAL TRANSACTION       * 00002700
+*                                                                     * 00002800
+*    VI.  ALA (APPLICATION LOG AREA)                                  * 00002900
+*         ...  VARIABLE AREA                                          * 00003000
+*                                                                     * 00003100
+*   VII.  RDA (RECOVERY DATA AREA)                                    * 00003200
+*         ...  VARIABLE AREA                                          * 00003300
+*                                                                     * 00003400
+*---------------------------------------------------------------------* 00003500
+*                                                                     * 00003600
+*   LOG LOGIC :                                                       * 00003700
+*                                                                     * 00003800
+*   ...  IF A BLOCK OF DATA WON'T ALL FIT ON THE LOG, START A NEW     * 00003900
+*        LOG RECORD.                                                  * 00004000
+*                                                                     * 00004100
+*   ...  AFTER LOGGING THE ALA AND RDA, THE AMOUNT USED IN THESE      * 00004200
+*        RECORDS WILL BE CLEARED.                                     * 00004300
+*                                                                     * 00004400
+*   ...  IF THE ALA AND RDA ARE CHAINED MORE THAN ORIGINAL AREA,      * 00004500
+*        FREEMAIN STORAGE UP TO 1ST AREA.                             * 00004600
+*                                                                     * 00004700
+*   ...  KDA FOR LOGGING WILL ONLY LOG REPORTING ACCOUNTS, I.E.,      * 00004800
+*        ACCOUNTS THAT HAVE A '1' IN THE REPORTING FLAG.   THE        * 00004900
+*        RECOVERY DATA AREA (RDA) WILL CONTAIN ALL ACCOUNTS FOR       * 00005000
+*        THE TRANSACTION.   (LOG FILENAME AND RECORD KEY).            * 00005100
+*                                                                     * 00005200
+*********************************************************************** 00005300
+         SPACE                                                          00005400
+TSTSLOG  DSECT                                                          00005500
+LOG      DS    0X           TRANSACTION APPLICATION LOG RECORD          00005600
+LGRECLEN DS    XL2          LENGTH OF THIS ENTIRE LOG RECORD            00005700
+         DS    XL2                                                      00005800
+LGECATC  DS    CL8          LOG EYE CATCHER                             00005900
+*                           VALUE: **TSLOG*                             00006000
+LGSTMLEN DS    XL2          LENGTH OF LOG RECORD STEM ONLY              00006100
+*                                                                       00006200
+LGCMPNLN DS    0CL12        LOG COMPONENT LENGTH INFO                   00006300
+*                             IF THE COMPONENT IS NOT PRESENT IN THIS   00006400
+*                             LOG THE FIELD WILL CONTAIN HEX ZEROS.     00006500
+LGKDALEN DS    XL2          LENGTH OF KDA IN THIS LOG.                  00006600
+LGTDALEN DS    XL2          LENGTH OF TDA IN THIS LOG.                  00006700
+LGPDALEN DS    XL2          LENGTH OF PDA IN THIS LOG.                  00006800
+LGXMTLEN DS    XL2          LENGTH OF XMT MESSAGE IN THIS LOG.          00006900
+LGALALEN DS    XL2          LENGTH OF ALA IN THIS LOG.                  00007000
+LGRDALEN DS    XL2          LENGTH OF RDA IN THIS LOG.                  00007100
+*                                                                       00007200
+LGRBAINF DS    0CL26        LOG RBA/CHAIN INFO                0802341   00007300
+LGRBAPAX DS    0XL8         RBA PREVIOUS ACCOUNT EXPANDED     1035850   00007390
+         DS    XL4                                            1035850   00007395
+LGRBAPRA DS    XL4          LOG RBA PREVIOUS ACCOUNT                    00007400
+LGRBAPEX DS    0XL8         RBA PREVIOUS EMPL EXPANDED        1035850   00007490
+         DS    XL4                                            1035850   00007495
+LGRBAPRE DS    XL4          LOG RBA PREVIOUS EMPLOYEE                   00007500
+LGRBAMIR DS    XL4          LOG RBA MIRROR LOG                          00007600
+LGGPNACC DS    XL2          LOG GROUP NO PREVIOUS ACCOUNT               00007700
+LGGPNEMP DS    XL2          LOG GROUP NO PREVIOUS EMPLOYEE              00007800
+LGNXDACC DS    XL1          LOG NEXT DAY INDICATOR PREVIOUS ACCOUNT     00007900
+LGNXDEMP DS    XL1          LOG NEXT DAY INDICATOR PREVIOUS EMPLOYEE    00008000
+LGRBAPNX DS    0XL8         RBA PREVIOUS NEXT DAY EXPANDED    1035850   00008005
+         DS    XL4                                            1035850   00008008
+LGRBAPEN DS    XL4          LOG RBA - PREVIOUS EMPL NEXTDAY   9910919   00008010
+LGGPPEN  DS    CL2          LOG GROUP - PREVIOUS EMPL NEXTDAY 9910919   00008020
+LGNDEXIT DS    CL1          LOG NEXT DAY EXIT                 0615280   00008030
+*                                                                       00008200
+LGPCAOIP DS    XL2          LOG PCA OCCURRENCE IN PROCESS               00008300
+*                                                                       00008400
+LGLOGINF DS    0CL25        LOG INFO                                    00008500
+LGFETLF  DS    CL1          LOG FIRST EXTERNAL TRANSACTION LOG FLAG     00008600
+*                           VALUE:  0 - NOT FIRST EXTERNAL TRANS LOG    00008700
+*                                   1 - FIRST EXTERNAL TRANSACTION LOG  00008800
+LGICONFL DS    CL1          LOG INTERNAL TRANS CONTINUATION LOG FLAG    00008900
+*                           VALUE:  0 - LAST INTERNAL TRANS THIS PCA    00009000
+*                                   1 - INTERNAL TRANS CONTINUES LOG    00009100
+LGINTSEQ DS    CL2          LOG SEQUENCE USED BY TS/BMS                 00009200
+         ORG   LGINTSEQ                                                 00009300
+LGSEQNUM DS    CL2          LOG SEQUENCE WITHIN INTERNAL TRANSACTION    00009400
+*                           VALUE:  01-99                               00009500
+LGTOTLGS DS    CL2          LOG TOTAL NUMBER OF LOGS FOR TRANSACTION    00009600
+LGSTRPFL DS    CL1          LOG STRIP FLAG                              00009700
+*                           VALUE:  0 - HAS NOT BEEN THRU LOG STRIP     00009800
+*                                   1 - ALREADY BEEN THRU LOG STRIP     00009900
+LGDELTFL DS    CL1          LOG DELETE FLAG                             00010000
+*                           VALUE:  0 - NOT DELETED                     00010100
+*                                   1 - DELETED VIA TRAN REDISPLAY      00010200
+*                                   2 - DELETED VIA CICS DTB            00010300
+*                                   3 - DELETED VIA REVERSAL TRANS      00010400
+*                                   4 - DELETED VIA CICS EMGNCY RESTART 00010500
+LGSHSEQN DS    CL4          LOG STOP/HOLD SEQUENCE NUMBER               00010600
+LGMIRLGF DS    CL1          LOG MIRROR LOG FLAG                         00010700
+LGINTXTN DS    CL2          LOG INTERNAL TRANS WITHIN EXT TRANS SEQ#    00010800
+LGDATCP  DS    CL1          LOG DATA CAPTURE FLAG                       00010900
+LGBMSNAT DS    CL1          LOG BUILT BY TS/BMS OR TS NATIVE  TS006.00  00010910
+*                           VALUE:  0 - TS NATIVE             TS006.00  00010920
+*                                   1 - TS/BMS                TS006.00  00010930
+LGTRNSCR DS    CL8          LOG SCRIPT NAME                   TS006.00  00011000
+*                                                                       00011100
+LGREPLVS DS    CL12         LOG REPORT LEVELS                           00011200
+         DS    CL04         FOR FUTURE EXPANSION OF RPT LEVELS          00011300
+*                                                                       00011400
+LGEMPINF DS    0CL31        LOG EMPLOYEE INFO                 0803201   00011500
+LGEMPID  DS    CL8          LOG EMPLOYEE IDENTIFICATION                 00011600
+LGEMPINT DS    CL3          LOG EMPLOYEE INITIALS                       00011700
+LGEMPSHT DS    CL20         LOG EMPLOYEE SHORT NAME                     00011800
+*                                                             0803201   00011810
+LGNCAMIS DS    0CL12        LOG MISC NCA SAVE FIELDS FOR REV  0803201   00011820
+LGNCASCR DS    CL2          LOG NCA SCREEN NUMBER FOR REV     0803201   00011830
+LGNCAFKD DS    CL10         LOG NCA FUNCTION KEY DATA FOR REV 0803201   00011840
+*                                                                       00012000
+LGAPLINF DS    0CL47        LOG APPLICATION INTERNAL INFO               00012100
+LGBTCHCD DS    0CL4         LOG APPLICATION COMPLETE BATCH TRAN CODE    00012200
+LGAPPLID DS    CL2            LOG APPLICATION IDENTIFICATION            00012300
+LGBTCHTR DS    CL2            LOG APPLICATION BATCH TRAN CODE           00012400
+LGUSERTR DS    CL8          LOG APPLICATION USER TRAN CODE              00012500
+LGAPLITC DS    CL8          LOG APPLICATION INTERNAL TRAN CODE          00012600
+LGAPLDES DS    CL10         LOG APPLICATION INTERNAL DESCRIPTION        00012700
+LGAPLIRF DS    CL1          LOG APPL INTERNAL REVERSAL FLAG   0802653   00012800
+*                           VALUE:  0 - HAS NOT BEEN REVERSED 0802653   00012810
+*                                   1 - HAS BEEN REVERSED     0802653   00012820
+LGAPLDCF DS    CL1          LOG APPLICATION DEBIT/CREDIT FLAG           00012900
+*                           VALUE:  0 - OTHER                           00013000
+*                                   1 - CREDIT                          00013100
+*                                   2 - DEBIT                           00013200
+*                                   4 - FILE MAINTENANCE                00013300
+LGAPLPRC DS    CL1          LOG APPLICATION PROCESSING CODE             00013500
+LGAPLMPF DS    CL1          LOG APPLICATION MEMO POST FLAG              00013600
+*                           VALUE:  0 - NO MEMO POST                    00013700
+*                                   1 - MEMO POST                       00013800
+LGAPLEXC DS    CL2          LOG APPLICATION EXCEPTION CODE              00013900
+LGAPARCH DS    CL1          LOG APPLICATION ARCHITECTURE FLAG           00014000
+*                           VALUE:  0 - SINGLE SOURCE ARCHITECTURE      00014100
+*                                   1 - NEW ARCHITECTURE                00014200
+LGAPLFGP DS    CL2          LOG APPL MASTER FILE GROUP NUMBER 2501276   00014300
+LGAPLDFC DS    CL14         LOG APPL PROCESSING CONTROLS      2501276   00014400
+LGCTLGP  DS    CL2          APPL CONTROL RECORD GROUP NUMBER  2501276   00014410
+LGALPGP  DS    CL2          APPL ALPHA RECORD GROUP NUMBER    2501276   00014420
+LGAPLRTF DS    CL1          APPL REAL TIME FLAG               2602019   00014500
+*                                                                       00014600
+LGTRNINF DS    0CL125       LOG TRANSACTION INFO                        00014700
+LGTRNCOD DS    CL8          LOG TRANSACTION CODE                        00014800
+LGTRNSER DS    CL8          LOG TRANSACTION SERIAL NUMBER               00014900
+LGTRNBRN DS    CL4          LOG TRANSACTION PROCESSING PHYSICAL LOC     00015000
+LGTRNCEN DS    CL2          LOG TRANSACTION CENTURY                     00015100
+LGTRNDAT DS    CL6          LOG TRANSACTION DATE                        00015200
+LGTRNTIM DS    CL6          LOG TRANSACTION TIME                        00015300
+LGTRNUSR DS    CL1          LOG TRANSACTION USER CODE                   00015400
+LGTRNBD  DS    CL6          LOG TRANSACTION BUSINESS DATE               00015500
+LGTRNNDY DS    CL1          LOG TRANSACTION NEXT DAY FLAG               00015600
+LGTRNPRF DS    CL1          LOG TRANSACTION PROCESSED FLAG              00015700
+*                           VALUE:  0 - NOT PROCESSED                   00015800
+*                                   1 - PROCESSED                       00015900
+*                                   2 - FORCE POST                      00016000
+*                                   3 - LOG ONLY                        00016100
+LGIGNDF  DS    CL1          IGNORE NEXT DAY FLAG                        00016200
+*                           VALUE:  0 - PROCESS NEXT DAY IF INDICATED   00016300
+*                                   1 - IGNORE NEXT DAY INDICATOR       00016400
+LGTRNTRN DS    CL1          LOG TRANSACTION TRAINING FLAG               00016500
+LGTRNREN DS    CL1          LOG TRANSACTION REENTRY FLAG                00016600
+LGTRNCOF DS    CL1          LOG TRANSACTION CREATE OFFLINE FLAG         00016700
+LGLKF    DS    CL1          LOG TRANSACTION LIST KEY FLAG               00016800
+LGTRNREV DS    CL1          LOG TRANSACTION REVERSAL FLAG               00016900
+*                           VALUE:  0 - NOT REVERSED                    00017000
+*                                   1 - DELETED BY A REVERSAL           00017100
+*                                   2 - REVERSED TRANSACTION            00017200
+*                                   3 - PARTIALLY REVERSED    0802653   00017210
+LGTRNRVS DS    CL8          LOG TRANSACTION REVERSAL SEQUENCE NUMBER    00017300
+LGTRNRVP DS    CL8          LOG TRANSACTION REVERSAL PHASE              00017400
+LGTRNDG  DS    CL8          LOG TRANSACTION DATA GROUP                  00017500
+LGTRNFDG DS    CL8          LOG TRANSACTION FFORMAT DATA GROUP          00017600
+LGTRNTDG DS    CL8          LOG TRANSACTION TFORMAT DATA GROUP          00017700
+LGTRNORL DS    CL2          LOG TRANSACTION OVERRIDE LEVEL              00017800
+LGTRNDES DS    CL15         LOG TRANSACTION DESCRIPTION                 00017900
+LGTRNSUB DS    CL2          LOG TRANSACTION SUB-CODE                    00018000
+LGTRNTCR DS    CL3          LOG TRANSACTION TOTAL CURRENCY    0722348   00018010
+LGTRNTDP DS    CL3          LOG TRANSACTION TOTAL DEPARTMENT  0722348   00018020
+LGTRNTBT DS    CL5          LOG TRANSACTION TOTAL BATCH       0722348   00018100
+LGTRNTSB DS    CL5          LOG TRANSACTION TOTAL SUB BATCH   0722348   00018200
+LGTRNBAL DS    CL1          LOG TRANSACTION BALANCE FLAG                00018300
+*                           VALUE:  0 - TRANSACTION SHOULD NOT BALANCE  00018400
+*                                   1 - TRANSACTION SHOULD BALANCE      00018500
+LGTRNPMU DS    CL15         LOG TRANSACTION PROC MOD USER DTA TS006.00  00018510
+LGTRNPRV DS    CL1          LOG TRAN PARTIAL REVERSAL FLAG    0802653   00018600
+*                           (FROM THE TBR STEM)               0802653   00018610
+*                           VALUE:  0 - PART REV NOT ALLOWED  0802653   00018620
+*                                   1 - PART REV ALLOWED      0802653   00018630
+*                                   2 - PART REV REQUIRED     0802653   00018640
+*                                                                       00018700
+LGGLRINF DS    0CL23        LOG GENERAL LEDGER INFO                     00018800
+LGGLRGP  DS    CL2          LOG GENERAL LEDGER FILE GROUP               00018900
+LGGLRCL  DS    CL10         LOG GENERAL LEDGER CLASS                    00019000
+LGGLRPLU DS    CL1          LOG GENERAL LEDGER PHYSICAL LOC USE FLAG    00019100
+*                           VALUE:  0 - GLR PHYS LOC NOT IN GLR KEY     00019200
+*                                   1 - GLR PHYS LOC PART OF GLR KEY    00019300
+*                                                             9913481   00019410
+LGNXINFO DS    0CL5         LOG NX INFO SUPPLIED BY TSTSCTL1  9913481   00019420
+*                           - ALSO SUPPLIES CURR (LGTRNTCR)   9913481   00019430
+LGNXCUST DS    CL4          LOG NX CUSTOMER NUMBER            9913481   00019440
+LGNXDEC  DS    CL1          LOG NX NUMBER OF DECIMALS         9913481   00019450
+*                                                                       00019500
+LGTPFCL  DS    CL10         LOG TDR/BDR CLASS                           00019600
+LGFDRCL  DS    CL10         LOG FILE DEFINITION RECORD CLASS            00019700
+LGTPFGP  DS    CL2          LOG TOTAL PROCESSING FILE GROUP NUMBER      00019800
+LGEORGP  DS    CL2          LOG EMPLOYEE OPTIONS FILE GROUP NUMBER      00019900
+LGLOGGP  DS    CL2          LOG TSLOG FILE GROUP NUMBER       2021071   00019910
+         DS    CL2          LOG FILLER                        2021071   00020004
+*                                                             0803201   00020010
+LGNCAFKF DS    CL1          LOG NCA FUNCTION KEY FLAG FOR REV 0803201   00020020
+*                                                                       00020100
+LGOVRINF DS    0CL45        LOG OVERRIDE INFO                 0364780   00020200
+LGOVRLEV DS    CL1          LOG OVERRIDE LEVEL                          00020300
+*                           VALUE:  O - EMPLOYEE OVERRIDE               00020400
+*                                   S - SUPERVISOR OVERRIDE.            00020500
+LGOVREMP DS    CL8          LOG OVERRIDE EMPLOYEE IDENTIFICATION        00020600
+LGOVRERR DS    0CL36        LOG OVERRIDE ERROR CODES 6 X 6    0364780   00020700
+LGOVRERC DS    0CL6         LOG OVERRIDE ERROR CODE 1ST OCCUR           00020800
+LGOVRAPP DS    CL2                       ERROR APPLICATION              00020900
+LGOVRCDE DS    CL4                       ERROR CODE                     00021000
+LGOVRERS DS    CL30         LOG OVR ERR CODES OCCURS 2-6      0364780   00021100
+*                                                             0364780   00021110
+         DS    CL2          LOG FILLER                                  00021200
+LGQMSGID DS    CL24         LOG MSG ID FROM REQUEST MESSAGE   0364780   00021210
+*                                                                       00021300
+LGTRMIF  DS    0CL18        LOG TERMINAL INFO                           00021400
+LGTRMTYP DS    CL2          LOG TERMINAL TYPE                           00021500
+*                           VALUES:  TL - TELLER TERMINAL               00021600
+*                                    AD - ADMINISTRATIVE-3270 TYPE      00021700
+*                                    PL - PLATFORM TERMINAL             00021800
+LGTRMID  DS    CL4          LOG TERMINAL IDENTIFICATION                 00021900
+LGTTRCL  DS    CL10         LOG TTR CLASS                     9910846   00022000
+LGPRTYP  DS    CL1          LOG ITR/EOR PROCESS FLAG          9913482   00022010
+*                           VALUE:  0 - ORIGINAL ITR/ORIG EOR 9913482   00022020
+*                                   1 - DYNAMIC ITR/ORIG EOR  9913482   00022030
+*                                   2 - ITRCB / ORIG EOR      9913482   00022040
+*                                   3 - DYNAMIC ITR/DYN EOR   9913482   00022042
+*                                   4 - ITRCB / DYNAMIC EOR   9913482   00022044
+LGEORCB  DS    CL1          LOG EOR CB PROCESS FLAG           0414797   00022050
+*                                                                       00022100
+LGTRMINF DS    CL36         LOG TERMINAL TYPE INFO                      00022200
+         ORG   LGTRMINF                                                 00022300
+LGTLPBKT DS    CL1          LOG TTYPE CONTROLLER PASSBOOK TRANS         00022400
+         DS    CL33         LOG FILLER                        2021071   00022500
+LGRSOUR  DS    CL2          LOG SOURCE FROM INPUT MESSAGE     2021071   00022510
+         ORG   LGTRMINF                                                 00022600
+LGADLMEM DS    CL8          LOG TTYPE ADMIN LAST MAINT EMPLOYEE         00022700
+LGADLMTR DS    CL4          LOG TTYPE ADMIN LAST MAINT TERMINAL         00022800
+LGADLMDT DS    CL6          LOG TTYPE ADMIN LAST MAINT DATE             00022900
+LGADLMTM DS    CL6          LOG TTYPE ADMIN LAST MAINT TIME             00023000
+LGADFUPD DS    CL1          LOG TTYPE ADMIN SYS FILE UPDATE FUNCTION    00023100
+         DS    CL11         LOG FILLER                                  00023200
+*                                                                       00023300
+LGUSRINF DS    CL100        LOG USER INFO                               00023400
+LGSAAREA DS    0CL20        LOG SYSTEMS ARCHITECTURE FIELDS             00023500
+LGSAPDF  DS    XL4          LOG LENGTH OF FIXED PORTION OF PDA          00023600
+LGSAPDV  DS    XL4          LOG LENGTH OF VARIABLE PORTION OF PDA       00023700
+LGEIBDAT DS    CL4          LOG EIB DATE                      1326275   00023710
+         DS    CL4          LOG FILLER                        1326275   00023800
+*                                                             2600361   00023810
+LGCMPFLG DS    XL1          LOG COMPONENT SEG WITHIN LOG SET  2600361   00023820
+LG$KDA   EQU   X'80'                 ..KDA COMPONENT AVAIL    2600361   00023821
+LG$TDA   EQU   X'40'                 ..TDA COMPONENT AVAIL    2600361   00023822
+LG$PDA   EQU   X'20'                 ..PDA COMPONENT AVAIL    2600361   00023823
+LG$XMT   EQU   X'10'                 ..XMT COMPONENT AVAIL    2600361   00023824
+LG$ALA   EQU   X'08'                 ..ALA COMPONENT AVAIL    2600361   00023825
+LG$RDA   EQU   X'04'                 ..RDA COMPONENT AVAIL    2600361   00023826
+LGLOGLEN DS    XL2          EST ACCUM LENGTH OF LOG SET       2600361   00023830
+*                                                                       00023900
+LGSTMLNG EQU   *-TSTSLOG    SYMBOLIC LENGTH OF LOG RECORD STEM          00024000
+*                                                                       00024100
+LGIPAREA DS    CL31600      LOG INPUT AREA                    2600361   00024200
+LGDATLNG EQU   *-LGIPAREA   SYMBOLIC LENGTH OF MAX DATA AREA OF LOG REC 00024300
+LGRECLNG EQU   *-TSTSLOG    SYMBOLIC LENGTH OF MAX LOG RECORD           00024400
+*                                                                       00024500
+LGKDA    DSECT              DESCRIPTION OF ONE KDA OCCURRENCE IN LOG    00024600
+LGKECATC DS    CL8          LOG KDA EYE CATCHER                         00024700
+*                           VALUE: ** KDA**                             00024800
+LGKDASTR EQU   *            START OF KDA OCCURRENCE                     00024900
+LGKDAFN  DS    CL8          LOG KDA FILENAME                            00025000
+LGKDARK  DS    CL50         LOG KDA RECORD KEY                          00025100
+LGKDALNG EQU   *-LGKDASTR   SYMBOLIC LENGTH OF KDA OCCURRENCE           00025200

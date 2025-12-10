@@ -1,0 +1,76 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*                                                                     * 00002000
+*             TSTS2AIQ--AINQ MESSAGE FORMAT                           * 00003000
+*                                                                     * 00004000
+*                                                                     * 00005000
+*********************************************************************** 00006000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00006999
+*---------------------------------------------------------------------* 00007000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00007999
+*                   ** HISTORY OF REVISIONS **                        * 00008000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00008999
+*                                                                     * 00009000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00009999
+*  DESCRIPTION                                                 CHNGID * 00010000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00010999
+* ----------------------------------------------------------- ------- * 00011000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00011999
+* 08/22/15 NEW COPYBOOK.                                      1626747 * 00012000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00012999
+*********************************************************************** 00013000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00013999
+*                      AINQ INPUT MESSAGE INPUT AREA          1626747 * 00014000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00014999
+*********************************************************************** 00015000
+AINQREC  DSECT                     TSSUB DSECT                1626747   00016000
+AINQ1REC DS    0C                                             1626747   00017000
+AINQ1STM DS    0CL1688                                        1626747   00018000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00018999
+AINQLEN  DS    PL3                     AINQ LENGTH USED IN COBOL CPYBK  00019000
+APPLDB2  DS    CL1                     APPL DB2 1/0 TOGGLE    1626747   00020000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00020999
+AINQCALL DS    CL4                     AINQ/ALPH FOR CALLING PROGRAM    00021000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00021999
+TRANCD   DS    0CL4                    FOUR DIGIT TRANSACTION CODE      00022000
+APPLID   DS    CL2                     APPLICATION IDENTIFIER 1626747   00023000
+         DS    CL2                                            1626747   00024000
+AINQFILE DS    0CL8                    FILE NAME/GROUP INFO   1626747   00025000
+FILENAME DS    CL5                             FILE NAME      1626747   00026000
+FILGROUP DS    CL2                             FILE GROUP     1626747   00027000
+         DS    CL1                     FILLER                 1626747   00028000
+FILETYPE DS    CL1                     FILE TYPE              1626747   00029000
+AINQNAME DS    CL32                                           1626747   00030000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00030999
+AINQLANG DS    CL2                     TWO CHARACTER LANGUAGE TYPE      00031000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00031999
+AINQCTL1 DS    CL2                     TWO DIGIT CONTROL 1 VALUE        00032000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00032999
+AINQCTL2 DS    CL3                     THREE DIGIT CONTROL 2 VALUE      00033000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00033999
+RECSREQ  DS    CL3                     NUMBER OF RECORDS REQUESTED      00034000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00034999
+AINQMORE DS    CL1        (M/N) 1 CHARACTER MORE TO DISPLAY TOGGLE      00035000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00035999
+MOREKEY  DS    CL40                    KEY VALUE FOR RE-REQUEST         00036000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00036999
+MORESEQ  DS    CL3                     SEQUENCE NUMBER IN FILE          00037000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00037999
+PRVKEY   DS    CL40                    PREVIOUS FIRST KEY USED          00038000
+AINQERR  DS    0CL81                                          1626747   00039000
+ERROCCR  DS    CL1                     Y/N ERROR OCCURED      1626747   00040000
+ERRMSG   DS    CL80                    ERROR MESSAGE          1626747   00041000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00041999
+AINQLIST DS    20CL73                  TABLE CONTAINING LIST ENTRIES    00042000
+LISTARAY EQU   ((*-AINQLIST)/L'AINQLIST)  NUMBER OF LISTS     1626747   00043000
+STMLEN   EQU (*-AINQ1STM)              LENGTH OF WHOLE STEM   1626747   00044000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00044999
+AINQTBL  DSECT                                                          00045000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00045999
+SELECTED DS    CL1                    TOGGLE INDICATING RECORD SELECTED 00046000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1626747   00046999
+LISTNAME DS    CL20                    IDENTIFIER FOR RECORD DISPLAYED  00047000
+LISTADDR DS    CL20                    RECORD ADDRESS         1626747   00048000
+LISTACCT DS    CL32                    ACCOUNT NUMBER         1626747   00049000
+*                                                             1626747   00050000
+LISTNTRY EQU (*-AINQTBL)               LENGTH OF ONE AINQLIST 1626747   00051000

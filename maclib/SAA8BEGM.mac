@@ -1,0 +1,912 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAA8BEGM &BASE=R4,                                   2024183  +00002000
+               &RWNUM=,                                                +00003000
+               &RWSUB=,                                                +00004000
+               &OPTIONS=(CSECT,EQU,ID,MAIN,RENT,NORSA,PROLOG),         +00005000
+               &ENTRY=,                                                +00006000
+               &LOCAL=,                                                +00007000
+               &GLOBAL=,                                               +00008000
+               &ALFA=                                                   00009000
+.********************************************************************** 00010000
+.* MACRO ID: SAA8BEGM                                                 * 00011000
+.*    TITLE: SETUP ENVIRONMENT                                        * 00012000
+.*     DATE: 08/22/89                                                 * 00013000
+.*                                                                    * 00014000
+.*     DESC: THIS MACRO IS USED TO SETUP THE PROGRAM                  * 00015000
+.*           ENVIRONMENT.                                             * 00016000
+.*                                                                    * 00017000
+.*  OPTIONS:                                                          * 00018000
+.*                                                                    * 00019000
+.*       SAA8BEGM BASE=(R4,...),                                      * 00020000
+.*             RWNUM=                                                 * 00021000
+.*             RWSUB=                                                 * 00022000
+.*             OPTIONS=(CSECT|NOCSECT                                 * 00023000
+.*                     ,PROLOG|NOPROLOG                               * 00024000
+.*                     ,EQU|NOEQU                                     * 00025000
+.*                     ,ID|NOID                                       * 00026000
+.*                     ,MAIN|SUBORD                                   * 00027000
+.*                     ,RENT|NORENT                                   * 00028000
+.*                     ,RSA|NORSA|(RSA,XXXXXXXX)                      * 00029000
+.*                     )                                              * 00030000
+.*             ENTRY=(XXXXXXXX,...)                                   * 00031000
+.*             LOCAL=((NNNN,XX,RD)                                    * 00032000
+.*                   ,RSA|NORSA                                       * 00033000
+.*                   ,RESA|NORESA|(RESA,NNNN)                         * 00034000
+.*                   ,TRACE|NOTRACE|(TRACE,NNNN)                      * 00035000
+.*                   )                                                * 00036000
+.*             GLOBAL=((NNNN,XX,RC)                                   * 00037000
+.*                    ,RSA|NORSA                                      * 00038000
+.*                    ,RESA|NORESA|(RESA,NNNN)                        * 00039000
+.*                    ,TRACE|NOTRACE|(TRACE,NNNN)                     * 00040000
+.*                    )                                               * 00041000
+.*             ALFA=((XXXXXXXX,XX,NNNN)                               * 00042000
+.*                  ,(XXXXXXXX,XX,NNNN)                               * 00043000
+.*                  .                                                 * 00044000
+.*                  .                                                 * 00045000
+.*                  )                                                 * 00046000
+.*                                                                    * 00047000
+.********************************************************************** 00048000
+.*                    ** HISTORY OF REVISIONS **                      * 00049000
+.* DESCRIPTION                                                CHNGID  * 00049010
+.* ---------------------------------------------------------- --------* 00049020
+.* 02/29/00 FORCE AMODE 31                                    2024183 * 00050992
+.* 07/10/94 AMODE 31 SUPPORT                                  2600590 * 00050994
+.*                                                                    * 00050996
+.********************************************************************** 00050998
+         GBLB  &LSTGFLG,&GSTGFLG,&TSTGFLG,&ASTGFLG,&MAINFLG,&VSE        00051000
+         GBLC  &LBAR,&GBAR,&GMODNME,&TRCECDE                            00052000
+         GBLA  &OPER#(90),&PARM#                                        00053000
+         GBLC  &OPER$(90)                                               00054000
+         LCLB  &GVERFLG,&GRELFLG                                        00055000
+         LCLC  &MACNME,&MACVER,&MACREL,&MACDATE                         00056000
+         LCLA  &RWMIN,&RWMAX                                            00057000
+         LCLC  &MODNME,&MODVER,&MODREL,&MODDATE,&MODTIME                00058000
+         LCLA  &CTR,&POS,&PTR                                           00059000
+         LCLA  &ADAGCNT                                                 00060000
+         LCLB  &OCSECT,&OEQU,&OID,&OMAIN,&ORENT,&ORSA,&OPROLOG          00061000
+         LCLB  &LRSA,&LRESA,&LTRACE                                     00062000
+         LCLB  &GRSA,&GRESA,&GTRACE                                     00063000
+         LCLC  &ORSANME                                                 00064000
+         LCLC  &LRESA#,&LTRC#,&LSTG#                                    00065000
+         LCLC  &GRESA#,&GTRC#,&GSTG#                                    00066000
+         LCLC  &LINIT,&GINIT                                            00067000
+         LCLC  &ADAGNME(30),&ADISP(30),&ADAGLEN(30)                     00068000
+         LCLC  &BAR(5),&UBAR                                            00069000
+         LCLC  &EP,&COMMA                                               00070000
+&MACNME  SETC  'SAA8BEGM'                                               00071000
+&MACVER  SETC  '0026'                                                   00072000
+&MACREL  SETC  '.000'                                                   00073000
+&MACDATE SETC  '08/18/95'                                               00074000
+         MNOTE '* SYSTEMATICS  MACRO=&MACNME  R/W LEVEL=&MACVER&MACREL +00075000
+               - &MACDATE'                                              00076000
+&LRESA#  SETC  '05'                                                     00077000
+&LTRC#   SETC  '99'                                                     00078000
+&LSTG#   SETC  '0'                                                      00079000
+&GRESA#  SETC  '05'                                                     00080000
+&GTRC#   SETC  '99'                                                     00081000
+&GSTG#   SETC  '0'                                                      00082000
+&LINIT   SETC  '00'                                                     00083000
+&LBAR    SETC  'RD'                                                     00084000
+&GINIT   SETC  '00'                                                     00085000
+&GBAR    SETC  'RC'                                                     00086000
+.*       *---------------------------------------------------*          00087000
+.*       * SET MODULE NAME                                   *          00088000
+.*       *---------------------------------------------------*          00089000
+         AIF   (T'&LABEL EQ 'O').BEG0109                                00090000
+&MODNME  SETC  '&LABEL'                                                 00091000
+&GMODNME SETC  '&MODNME'                                                00091010
+.BEG0109 ANOP                                                           00092000
+.*       *---------------------------------------------------*          00093000
+.*       * CHECK RED AND WHITE NUMBER                        *          00094000
+.*       *---------------------------------------------------*          00095000
+.BEG0110 ANOP                                                           00096000
+&RWMIN   SETA  0000                                                     00097000
+&RWMAX   SETA  9999                                                     00098000
+         AIF   (T'&RWNUM EQ 'O').BEG0119                                00099000
+         AIF   ((&RWNUM GE &RWMIN) AND                                 +00100000
+               (&RWNUM LE &RWMAX)).BEG0112                              00101000
+         MNOTE 8,'&MACNME - RWNUM IS INVALID'                           00102000
+         MEXIT                                                          00103000
+.BEG0112 ANOP                                                           00104000
+         AIF   (NOT &GVERFLG).BEG0114                                   00105000
+         MNOTE 8,'&MACNME - RWNUM PREVIOUSLY SPECIFIED'                 00106000
+         MEXIT                                                          00107000
+.BEG0114 ANOP                                                           00108000
+&GVERFLG SETB  1                                                        00109000
+&PTR     SETA  K'&RWNUM+1                                               00110000
+&MODVER  SETC  '00000000'(1,4)                                          00111000
+&MODVER  SETC  '&MODVER&RWNUM'(&PTR,4)                                  00112000
+.BEG0119 ANOP                                                           00113000
+.*       *---------------------------------------------------*          00114000
+.*       * CHECK RED AND WHITE SUB NUMBER                    *          00115000
+.*       *---------------------------------------------------*          00116000
+.BEG0120 ANOP                                                           00117000
+&RWMIN   SETA  000                                                      00118000
+&RWMAX   SETA  999                                                      00119000
+         AIF   (T'&RWSUB EQ 'O').BEG0126                                00120000
+         AIF   ((&RWSUB GE &RWMIN) AND                                 +00121000
+               (&RWSUB LE &RWMAX)).BEG0122                              00122000
+         MNOTE 8,'&MACNME - RWSUB IS INVALID'                           00123000
+         MEXIT                                                          00124000
+.BEG0122 ANOP                                                           00125000
+         AIF   (NOT &GRELFLG).BEG0124                                   00126000
+         MNOTE 8,'&MACNME - RWSUB PREVIOUSLY SPECIFIED'                 00127000
+         MEXIT                                                          00128000
+.BEG0124 ANOP                                                           00129000
+&GRELFLG SETB  1                                                        00130000
+&PTR     SETA  K'&RWSUB+1                                               00131000
+&MODREL  SETC  '00000000'(1,3)                                          00132000
+&MODREL  SETC  '&MODREL&RWSUB'(&PTR,3)                                  00133000
+.BEG0126 ANOP                                                           00134000
+         AIF   (&GVERFLG EQ &GRELFLG).BEG0129                           00135000
+         MNOTE 8,'&MACNME - RWNUM AND RWSUB MUST BOTH BE SPECIFIED'     00136000
+         MEXIT                                                          00137000
+.BEG0129 ANOP                                                           00138000
+.*       *---------------------------------------------------*          00139000
+.*       * PROCESS SYSTEM DATE AND TIME                      *          00140000
+.*       *---------------------------------------------------*          00141000
+.BEG0140 ANOP                                                           00142000
+         AIF   (&VSE).BEG0142                                           00143000
+&MODDATE SETC  '&SYSDATE'                                               00144000
+&MODTIME SETC  '&SYSTIME'                                               00145000
+         AGO   .BEG0149                                                 00146000
+.BEG0142 ANOP                                                           00147000
+&MODDATE SETC  'MM/DD/YY'                                               00148000
+&MODTIME SETC  'HH:MM'                                                  00149000
+.BEG0149 ANOP                                                           00150000
+.*       *---------------------------------------------------*          00151000
+.*       * PROCESS OPTIONS= PARAMETER                        *          00152000
+.*       *---------------------------------------------------*          00153000
+.BEG0200 ANOP                                                           00154000
+         AIF   (T'&OPTIONS NE 'O').BEG0202                              00155000
+         MNOTE 8,'&MACNME - OPTIONS PARAMETER HAS BEEN OMITED'          00156000
+         MEXIT                                                          00157000
+.BEG0202 ANOP                                                           00158000
+         AIF   (K'&OPTIONS GT 0).BEG0204                                00159000
+         MNOTE 8,'&MACNME - OPTIONS PARAMETER HAS NO OPERANDS'          00160000
+         MEXIT                                                          00161000
+.BEG0204 ANOP                                                           00162000
+         SAA8LEXM &OPTIONS                                              00163000
+&PTR     SETA  1                                                        00164000
+&POS     SETA  1                                                        00165000
+.BEG0206 ANOP                                                           00166000
+         AIF   ('&OPER$(&POS)' EQ 'CSECT').BEG0210                      00167000
+         AIF   ('&OPER$(&POS)' EQ 'NOCSECT').BEG0211                    00168000
+         AIF   ('&OPER$(&POS)' EQ 'EQU').BEG0212                        00169000
+         AIF   ('&OPER$(&POS)' EQ 'NOEQU').BEG0213                      00170000
+         AIF   ('&OPER$(&POS)' EQ 'ID').BEG0214                         00171000
+         AIF   ('&OPER$(&POS)' EQ 'NOID').BEG0215                       00172000
+         AIF   ('&OPER$(&POS)' EQ 'MAIN').BEG0216                       00173000
+         AIF   ('&OPER$(&POS)' EQ 'SUBORD').BEG0217                     00174000
+         AIF   ('&OPER$(&POS)' EQ 'RENT').BEG0218                       00175000
+         AIF   ('&OPER$(&POS)' EQ 'NORENT').BEG0219                     00176000
+         AIF   ('&OPER$(&POS)' EQ 'RSA').BEG0220                        00177000
+         AIF   ('&OPER$(&POS)' EQ 'NORSA').BEG0221                      00178000
+         AIF   ('&OPER$(&POS)' EQ 'PROLOG').BEG0222                     00179000
+         AIF   ('&OPER$(&POS)' EQ 'NOPROLOG').BEG0223                   00180000
+         MNOTE 4,'&MACNME - OPTIONS=&OPER$(&POS) IS INVALID'            00181000
+&POS     SETA  &POS+&OPER#(&PTR)-1                                      00182000
+         AGO   .BEG0298                                                 00183000
+.BEG0210 ANOP                                                           00184000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00185000
+&OCSECT  SETB  1                                                        00186000
+         AGO   .BEG0298                                                 00187000
+.BEG0211 ANOP                                                           00188000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00189000
+&OCSECT  SETB  0                                                        00190000
+         AGO   .BEG0298                                                 00191000
+.BEG0212 ANOP                                                           00192000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00193000
+&OEQU    SETB  1                                                        00194000
+         AGO   .BEG0298                                                 00195000
+.BEG0213 ANOP                                                           00196000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00197000
+&OEQU    SETB  0                                                        00198000
+         AGO   .BEG0298                                                 00199000
+.BEG0214 ANOP                                                           00200000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00201000
+&OID     SETB  1                                                        00202000
+         AGO   .BEG0298                                                 00203000
+.BEG0215 ANOP                                                           00204000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00205000
+&OID     SETB  0                                                        00206000
+         AGO   .BEG0298                                                 00207000
+.BEG0216 ANOP                                                           00208000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00209000
+&MAINFLG SETB  1                                                        00210000
+&OMAIN   SETB  1                                                        00211000
+         AGO   .BEG0298                                                 00212000
+.BEG0217 ANOP                                                           00213000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00214000
+&MAINFLG SETB  0                                                        00215000
+&OMAIN   SETB  0                                                        00216000
+         AGO   .BEG0298                                                 00217000
+.BEG0218 ANOP                                                           00218000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00219000
+&ORENT   SETB  1                                                        00220000
+         AGO   .BEG0298                                                 00221000
+.BEG0219 ANOP                                                           00222000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00223000
+&ORENT   SETB  0                                                        00224000
+         AGO   .BEG0298                                                 00225000
+.BEG0220 ANOP                                                           00226000
+&ORSA    SETB  1                                                        00227000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0298                              00228000
+         AIF   (&OPER#(&PTR) GT 2).BEG0280                              00229000
+&POS     SETA  &POS+1                                                   00230000
+&ORSANME SETC  '&OPER$(&POS)'                                           00231000
+         AGO   .BEG0298                                                 00232000
+.BEG0221 ANOP                                                           00233000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00234000
+&ORSA    SETB  0                                                        00235000
+         AGO   .BEG0298                                                 00236000
+.BEG0222 ANOP                                                           00237000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00238000
+&OPROLOG SETB  1                                                        00239000
+         AGO   .BEG0298                                                 00240000
+.BEG0223 ANOP                                                           00241000
+         AIF   (&OPER#(&PTR) GT 1).BEG0280                              00242000
+&OPROLOG SETB  0                                                        00243000
+         AGO   .BEG0298                                                 00244000
+.BEG0280 ANOP                                                           00245000
+         MNOTE 4,'&MACNME - OPTIONS=&OPTIONS(&PTR) HAS TOO MANY SUB-OPE+00246000
+               RANDS'                                                   00247000
+&POS     SETA  &POS+&OPER#(&PTR)-1                                      00248000
+         AGO   .BEG0298                                                 00249000
+.BEG0298 ANOP                                                           00250000
+&PTR     SETA  &PTR+1                                                   00251000
+&POS     SETA  &POS+1                                                   00252000
+         AIF   (&PTR LE &PARM#).BEG0206                                 00253000
+.BEG0299 ANOP                                                           00254000
+.*       *---------------------------------------------------*          00255000
+.*       * CROSS CHECK OPTIONS= WITH OTHER PARAMETERS        *          00256000
+.*       *---------------------------------------------------*          00257000
+.BEG0300 ANOP                                                           00258000
+         AIF   (&OMAIN AND T'&GLOBAL NE 'O' AND T'&LOCAL EQ 'O'        +00259000
+               ).ERR0100                                                00260000
+         AIF   (&ORENT AND T'&LOCAL EQ 'O').ERR0110                     00261000
+         AIF   (&ORENT AND &ORSA AND '&ORSANME' EQ '').ERR0120          00262000
+         AIF   (&ORENT AND T'&ALFA NE 'O').ERR0130                      00263000
+         AIF   (NOT &OPROLOG AND T'&BASE NE 'O').ERR0140                00264000
+         AIF   (NOT &OPROLOG AND T'&LOCAL NE 'O').ERR0140               00265000
+         AIF   (NOT &OPROLOG AND T'&GLOBAL NE 'O').ERR0140              00266000
+         AIF   (NOT &OPROLOG AND T'&ALFA NE 'O').ERR0140                00267000
+         AGO   .BEG0399                                                 00268000
+.ERR0100 ANOP                                                           00269000
+         MNOTE 8,'&MACNME - LOCAL= PARAMETER WAS OMITTED'               00270000
+         MEXIT                                                          00271000
+.ERR0110 ANOP                                                           00272000
+         MNOTE 8,'&MACNME - OPTIONS=RENT REQUIRES LOCAL= PARAMETER'     00273000
+         MEXIT                                                          00274000
+.ERR0120 ANOP                                                           00275000
+         MNOTE 8,'&MACNME - OPTIONS=RENT AND OPTIONS=RSA ARE MUTUALLY E+00276000
+               XCLUSIVE'                                                00277000
+         MEXIT                                                          00278000
+.ERR0130 ANOP                                                           00279000
+         MNOTE 8,'&MACNME - OPTIONS=RENT AND ALFA= ARE MUTUALLY EXCLUSI+00280000
+               VE'                                                      00281000
+         MEXIT                                                          00282000
+.ERR0140 ANOP                                                           00283000
+         MNOTE 8,'&MACNME - CONFLICTING PARAMETERS EXIST WITH OPTIONS=N+00284000
+               OPROLOG'                                                 00285000
+         MEXIT                                                          00286000
+.BEG0399 ANOP                                                           00287000
+.*       *---------------------------------------------------*          00288000
+.*       * PROCESS LOCAL= PARAMETER                          *          00289000
+.*       *---------------------------------------------------*          00290000
+.BEG0400 ANOP                                                           00291000
+         AIF   (T'&LOCAL EQ 'O').BEG0499                                00292000
+         AIF   (K'&LOCAL EQ 0).BEG0499                                  00293000
+         SAA8LEXM &LOCAL                                                00294000
+&PTR     SETA  1                                                        00295000
+&POS     SETA  1                                                        00296000
+&CTR     SETA  0                                                        00297000
+.BEG0406 ANOP                                                           00298000
+         AIF   ('&OPER$(&POS)' EQ 'RSA').BEG0410                        00299000
+         AIF   ('&OPER$(&POS)' EQ 'NORSA').BEG0411                      00300000
+         AIF   ('&OPER$(&POS)' EQ 'RESA').BEG0412                       00301000
+         AIF   ('&OPER$(&POS)' EQ 'NORESA').BEG0413                     00302000
+         AIF   ('&OPER$(&POS)' EQ 'TRACE').BEG0414                      00303000
+         AIF   ('&OPER$(&POS)' EQ 'NOTRACE').BEG0415                    00304000
+&CTR     SETA  &CTR+1                                                   00305000
+         AIF   (&CTR LE 1).BEG0416                                      00306000
+         MNOTE 8,'&MACNME - LOCAL=&OPER$(&POS) IS INVALID'              00307000
+         MEXIT                                                          00308000
+.BEG0410 ANOP                                                           00309000
+         AIF   (&OPER#(&PTR) GT 1).BEG0480                              00310000
+&LRSA    SETB  1                                                        00311000
+         AGO   .BEG0498                                                 00312000
+.BEG0411 ANOP                                                           00313000
+         AIF   (&OPER#(&PTR) GT 1).BEG0480                              00314000
+&LRSA    SETB  0                                                        00315000
+         AGO   .BEG0498                                                 00316000
+.BEG0412 ANOP                                                           00317000
+&LRESA   SETB  1                                                        00318000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0498                              00319000
+&POS     SETA  &POS+1                                                   00320000
+&LRESA#  SETC  '&OPER$(&POS)'                                           00321000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0498                              00322000
+         AGO   .BEG0480                                                 00323000
+.BEG0413 ANOP                                                           00324000
+         AIF   (&OPER#(&PTR) GT 1).BEG0480                              00325000
+&LRESA   SETB  0                                                        00326000
+         AGO   .BEG0498                                                 00327000
+.BEG0414 ANOP                                                           00328000
+&LTRACE  SETB  1                                                        00329000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0498                              00330000
+&POS     SETA  &POS+1                                                   00331000
+&LTRC#   SETC  '&OPER$(&POS)'                                           00332000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0498                              00333000
+         AGO   .BEG0480                                                 00334000
+.BEG0415 ANOP                                                           00335000
+         AIF   (&OPER#(&PTR) GT 1).BEG0480                              00336000
+&LTRACE  SETB  0                                                        00337000
+         AGO   .BEG0498                                                 00338000
+.BEG0416 ANOP                                                           00339000
+&LSTG#   SETC  '&OPER$(&POS)'                                           00340000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0498                              00341000
+&POS     SETA  &POS+1                                                   00342000
+&LINIT   SETC  '&OPER$(&POS)'                                           00343000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0498                              00344000
+&POS     SETA  &POS+1                                                   00345000
+&LBAR    SETC  '&OPER$(&POS)'                                           00346000
+         AIF   (&OPER#(&PTR) EQ 3).BEG0498                              00347000
+         AGO   .BEG0480                                                 00348000
+.BEG0480 ANOP                                                           00349000
+         MNOTE 4,'&MACNME - LOCAL=&LOCAL(&PTR) HAS TOO MANY SUB-OPERAND+00350000
+               S'                                                       00351000
+&POS     SETA  &POS+&OPER#(&PTR)-1                                      00352000
+         AGO   .BEG0498                                                 00353000
+.BEG0498 ANOP                                                           00354000
+&PTR     SETA  &PTR+1                                                   00355000
+&POS     SETA  &POS+1                                                   00356000
+         AIF   (&PTR LE &PARM#).BEG0406                                 00357000
+.BEG0499 ANOP                                                           00358000
+.*       *---------------------------------------------------*          00359000
+.*       * PROCESS GLOBAL= PARAMETER                         *          00360000
+.*       *---------------------------------------------------*          00361000
+.BEG0500 ANOP                                                           00362000
+         AIF   (T'&GLOBAL EQ 'O').BEG0599                               00363000
+         AIF   (K'&GLOBAL EQ 0).BEG0599                                 00364000
+         SAA8LEXM &GLOBAL                                               00365000
+&PTR     SETA  1                                                        00366000
+&POS     SETA  1                                                        00367000
+&CTR     SETA  0                                                        00368000
+.BEG0506 ANOP                                                           00369000
+         AIF   ('&OPER$(&POS)' EQ 'RSA').BEG0510                        00370000
+         AIF   ('&OPER$(&POS)' EQ 'NORSA').BEG0511                      00371000
+         AIF   ('&OPER$(&POS)' EQ 'RESA').BEG0512                       00372000
+         AIF   ('&OPER$(&POS)' EQ 'NORESA').BEG0513                     00373000
+         AIF   ('&OPER$(&POS)' EQ 'TRACE').BEG0514                      00374000
+         AIF   ('&OPER$(&POS)' EQ 'NOTRACE').BEG0515                    00375000
+&CTR     SETA  &CTR+1                                                   00376000
+         AIF   (&CTR LE 1).BEG0516                                      00377000
+         MNOTE 8,'&MACNME - GLOBAL=&OPER$(&POS) IS INVALID'             00378000
+         MEXIT                                                          00379000
+.BEG0510 ANOP                                                           00380000
+         AIF   (&OPER#(&PTR) GT 1).BEG0580                              00381000
+&GRSA    SETB  1                                                        00382000
+         AGO   .BEG0598                                                 00383000
+.BEG0511 ANOP                                                           00384000
+         AIF   (&OPER#(&PTR) GT 1).BEG0580                              00385000
+&GRSA    SETB  0                                                        00386000
+         AGO   .BEG0598                                                 00387000
+.BEG0512 ANOP                                                           00388000
+&GRESA   SETB  1                                                        00389000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0598                              00390000
+&POS     SETA  &POS+1                                                   00391000
+&GRESA#  SETC  '&OPER$(&POS)'                                           00392000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0598                              00393000
+         AGO   .BEG0580                                                 00394000
+.BEG0513 ANOP                                                           00395000
+         AIF   (&OPER#(&PTR) GT 1).BEG0580                              00396000
+&GRESA   SETB  0                                                        00397000
+         AGO   .BEG0598                                                 00398000
+.BEG0514 ANOP                                                           00399000
+&GTRACE  SETB  1                                                        00400000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0598                              00401000
+&POS     SETA  &POS+1                                                   00402000
+&GTRC#   SETC  '&OPER$(&POS)'                                           00403000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0598                              00404000
+         AGO   .BEG0580                                                 00405000
+.BEG0515 ANOP                                                           00406000
+         AIF   (&OPER#(&PTR) GT 1).BEG0580                              00407000
+&GTRACE  SETB  0                                                        00408000
+         AGO   .BEG0598                                                 00409000
+.BEG0516 ANOP                                                           00410000
+&GSTG#   SETC  '&OPER$(&POS)'                                           00411000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0598                              00412000
+&POS     SETA  &POS+1                                                   00413000
+&GINIT   SETC  '&OPER$(&POS)'                                           00414000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0598                              00415000
+&POS     SETA  &POS+1                                                   00416000
+&GBAR    SETC  '&OPER$(&POS)'                                           00417000
+         AIF   (&OPER#(&PTR) EQ 3).BEG0598                              00418000
+         AGO   .BEG0580                                                 00419000
+.BEG0580 ANOP                                                           00420000
+         MNOTE 4,'&MACNME - GLOBAL=&GLOBAL(&PTR) HAS TOO MANY SUB-OPERA+00421000
+               NDS'                                                     00422000
+&POS     SETA  &POS+&OPER#(&PTR)-1                                      00423000
+         MEXIT                                                          00424000
+         AGO   .BEG0598                                                 00425000
+.BEG0598 ANOP                                                           00426000
+&PTR     SETA  &PTR+1                                                   00427000
+&POS     SETA  &POS+1                                                   00428000
+         AIF   (&PTR LE &PARM#).BEG0506                                 00429000
+.BEG0599 ANOP                                                           00430000
+.*       *---------------------------------------------------*          00431000
+.*       * CROSS CHECK OPERANDS WITH OTHER OPERANDS          *          00432000
+.*       *---------------------------------------------------*          00433000
+.BEG0600 ANOP                                                           00434000
+         AIF   (&ORSA AND &LRSA).ERR0200                                00435000
+         AIF   (&ORSA AND &GRSA).ERR0202                                00436000
+         AIF   (&LRSA AND &GRSA).ERR0204                                00437000
+         AIF   (&ORSA OR &LRSA OR &GRSA).BEG0602                        00438000
+         MNOTE 0,'&MACNME - NO REGISTER SAVE AREA SPECIFIED'            00439000
+.BEG0602 ANOP                                                           00440000
+         AIF   (&LRESA AND &GRESA).ERR0210                              00441000
+         AIF   (&LTRACE AND &GTRACE).ERR0220                            00442000
+         AGO   .BEG0699                                                 00443000
+.ERR0200 ANOP                                                           00444000
+         MNOTE 8,'&MACNME - OPTIONS=RSA AND LOCAL=RSA ARE MUTUALLY EXCL+00445000
+               USIVE'                                                   00446000
+         MEXIT                                                          00447000
+.ERR0202 ANOP                                                           00448000
+         MNOTE 8,'&MACNME - OPTIONS=RSA AND GLOBAL=RSA ARE MUTUALLY EXC+00449000
+               LUSIVE'                                                  00450000
+         MEXIT                                                          00451000
+.ERR0204 ANOP                                                           00452000
+         MNOTE 8,'&MACNME - LOCAL=RSA AND GLOBAL=RSA ARE MUTUALLY EXCLU+00453000
+               SIVE'                                                    00454000
+         MEXIT                                                          00455000
+.ERR0210 ANOP                                                           00456000
+         MNOTE 8,'&MACNME - LOCAL=RESA AND GLOBAL=RESA ARE MUTUALLY EXC+00457000
+               LUSIVE'                                                  00458000
+         MEXIT                                                          00459000
+.ERR0220 ANOP                                                           00460000
+         MNOTE 8,'&MACNME - LOCAL=TRACE AND GLOBAL=TRACE ARE MUTUALLY E+00461000
+               XCLUSIVE'                                                00462000
+         MEXIT                                                          00463000
+.BEG0699 ANOP                                                           00464000
+.*       *---------------------------------------------------*          00465000
+.*       * PROCESS ALFA= PARAMETER                           *          00466000
+.*       *---------------------------------------------------*          00467000
+.BEG0700 ANOP                                                           00468000
+         AIF   (T'&ALFA EQ 'O').BEG0799                                 00469000
+         AIF   (K'&ALFA EQ 0).BEG0799                                   00470000
+         SAA8LEXM &ALFA                                                 00471000
+&PTR     SETA  1                                                        00472000
+&POS     SETA  1                                                        00473000
+&ADAGCNT SETA  0                                                        00474000
+.BEG0702 ANOP                                                           00475000
+         AIF   ('&OPER$(&POS)' NE '').BEG0706                           00476000
+         MNOTE 8,'&MACNME - DAG NAME IS MISSING IN ALFA ENTRY'          00477000
+         MEXIT                                                          00478000
+.BEG0706 ANOP                                                           00479000
+&ADAGCNT SETA  &ADAGCNT+1                                               00480000
+&ADAGNME(&ADAGCNT) SETC  '&OPER$(&POS)'                                 00481000
+         AIF   (&OPER#(&PTR) EQ 1).BEG0782                              00482000
+&POS     SETA  &POS+1                                                   00483000
+         AIF   ('&OPER$(&POS)' NE '').BEG0712                           00484000
+&ADISP(&ADAGCNT) SETC  'MK'                                             00485000
+         AGO   .BEG0713                                                 00486000
+.BEG0712 ANOP                                                           00487000
+&ADISP(&ADAGCNT) SETC  '&OPER$(&POS)'                                   00488000
+.BEG0713 ANOP                                                           00489000
+         AIF   (&OPER#(&PTR) EQ 2).BEG0784                              00490000
+&POS     SETA  &POS+1                                                   00491000
+         AIF   ('&OPER$(&POS)' NE '').BEG0714                           00492000
+&ADAGLEN(&ADAGCNT) SETC  '0000'                                         00493000
+         AGO   .BEG0715                                                 00494000
+.BEG0714 ANOP                                                           00495000
+&ADAGLEN(&ADAGCNT) SETC  '&OPER$(&POS)'                                 00496000
+.BEG0715 ANOP                                                           00497000
+         AIF   (&OPER#(&PTR) EQ 3).BEG0798                              00498000
+.BEG0780 ANOP                                                           00499000
+         MNOTE 4,'&MACNME - ALFA=&ALFA(&PTR) HAS TOO MANY SUB-OPERANDS' 00500000
+&POS     SETA  &POS+&OPER#(&PTR)-1                                      00501000
+         AGO   .BEG0798                                                 00502000
+.BEG0782 ANOP                                                           00503000
+&ADISP(&ADAGCNT) SETC  'MK'                                             00504000
+.BEG0784 ANOP                                                           00505000
+&ADAGLEN(&ADAGCNT) SETC  '0000'                                         00506000
+.BEG0798 ANOP                                                           00507000
+&PTR     SETA  &PTR+1                                                   00508000
+&POS     SETA  &POS+1                                                   00509000
+         AIF   (&PTR LE &PARM#).BEG0706                                 00510000
+.BEG0799 ANOP                                                           00511000
+.*       *---------------------------------------------------*          00512000
+.*       * PROCESS BASE= PARAMETER                           *          00513000
+.*       *---------------------------------------------------*          00514000
+.BEG0800 ANOP                                                           00515000
+         AIF   (T'&BASE EQ 'O').BEG0899                                 00516000
+         AIF   (K'&BASE EQ 0).BEG0899                                   00517000
+&PTR     SETA  N'&BASE                                                  00518000
+         AIF   (&PTR GT 5).ERR0320                                      00519000
+.BEG0810 ANOP                                                           00520000
+         AIF   ('&BASE(&PTR)' EQ '0' OR '&BASE(&PTR)' EQ 'R0' OR       +00521000
+               '&BASE(&PTR)' EQ 'R00').ERR0300                          00522000
+         AIF   ('&BASE(&PTR)' EQ '1' OR '&BASE(&PTR)' EQ 'R1' OR       +00523000
+               '&BASE(&PTR)' EQ 'R01').ERR0300                          00524000
+         AIF   ('&BASE(&PTR)' EQ '2' OR '&BASE(&PTR)' EQ 'R2' OR       +00525000
+               '&BASE(&PTR)' EQ 'R02').ERR0300                          00526000
+         AIF   ('&BASE(&PTR)' EQ '3' OR '&BASE(&PTR)' EQ 'R3' OR       +00527000
+               '&BASE(&PTR)' EQ 'R03').ERR0300                          00528000
+         AIF   ('&BASE(&PTR)' EQ '13' OR '&BASE(&PTR)' EQ 'RD' OR      +00529000
+               '&BASE(&PTR)' EQ 'R13').ERR0300                          00530000
+         AIF   ('&BASE(&PTR)' EQ '14' OR '&BASE(&PTR)' EQ 'RE' OR      +00531000
+               '&BASE(&PTR)' EQ 'R14').ERR0300                          00532000
+         AIF   ('&BASE(&PTR)' EQ '15' OR '&BASE(&PTR)' EQ 'RF' OR      +00533000
+               '&BASE(&PTR)' EQ 'R15').ERR0300                          00534000
+&PTR     SETA  &PTR-1                                                   00535000
+         AIF   (&PTR GT 0).BEG0810                                      00536000
+&PTR     SETA  0                                                        00537000
+&CTR     SETA  N'&BASE                                                  00538000
+         AGO   .BEG0816                                                 00539000
+.BEG0812 ANOP                                                           00540000
+&POS     SETA  &PTR+1                                                   00541000
+.BEG0814 ANOP                                                           00542000
+         AIF   ('&BASE(&PTR)' EQ '&BASE(&POS)').ERR0310                 00543000
+&POS     SETA  &POS+1                                                   00544000
+         AIF   (&POS LE &CTR).BEG0814                                   00545000
+.BEG0816 ANOP                                                           00546000
+&PTR     SETA  &PTR+1                                                   00547000
+         AIF   (&PTR LT &CTR).BEG0812                                   00548000
+&PTR     SETA  0                                                        00549000
+&CTR     SETA  N'&BASE                                                  00550000
+         AGO   .BEG0822                                                 00551000
+.BEG0820 ANOP                                                           00552000
+&BAR(&PTR) SETC  '&BASE(&PTR)'                                          00553000
+&UBAR    SETC  '&UBAR,&BAR(&PTR)'                                       00554000
+.BEG0822 ANOP                                                           00555000
+&PTR     SETA  &PTR+1                                                   00556000
+         AIF   (&PTR LE &CTR).BEG0820                                   00557000
+         AGO  .BEG0899                                                  00558000
+.ERR0300 ANOP                                                           00559000
+         MNOTE 8,'&MACNME - BASE REGISTER CAN NOT BE 0,1,2,3,13,14 OR 1+00560000
+               5'                                                       00561000
+         MEXIT                                                          00562000
+.ERR0310 ANOP                                                           00563000
+         MNOTE 8,'&MACNME - MULTIPLE USE OF REGISTER FOR BASE REGISTER' 00564000
+         MEXIT                                                          00565000
+.ERR0320 ANOP                                                           00566000
+         MNOTE 8,'&MACNME - MAXIMUM NUMBER OF BASE REGISTERS ALLOWED IS+00567000
+                5'                                                      00568000
+         MEXIT                                                          00569000
+.BEG0899 ANOP                                                           00570000
+.*       *---------------------------------------------------*          00571000
+.*       * PROCESS ENTRY= PARAMETER                          *          00572000
+.*       *---------------------------------------------------*          00573000
+.BEG0900 ANOP                                                           00574000
+         AIF   ('&MODNME' EQ '').BEG0902                                00575000
+&EP      SETC  '&MODNME'                                                00576000
+&COMMA   SETC  ','                                                      00577000
+.BEG0902 ANOP                                                           00578000
+         AIF   (&OCSECT AND '&MODNME' EQ '').ERR0410                    00579000
+.BEG0910 ANOP                                                           00580000
+         AIF   (T'&ENTRY EQ 'O').BEG0999                                00581000
+         AIF   (K'&ENTRY EQ 0).BEG0999                                  00582000
+&PTR     SETA  1                                                        00583000
+&CTR     SETA  N'&ENTRY                                                 00584000
+         AIF   (&CTR GT 30).ERR0400                                     00585000
+.BEG0920 ANOP                                                           00586000
+&EP      SETC  '&EP&COMMA&ENTRY(&PTR)'                                  00587000
+&COMMA   SETC  ','                                                      00588000
+.BEG0922 ANOP                                                           00589000
+&PTR     SETA  &PTR+1                                                   00590000
+         AIF   (&PTR LE &CTR).BEG0920                                   00591000
+         AGO   .BEG0999                                                 00592000
+.ERR0400 ANOP                                                           00593000
+         MNOTE 8,'&MACNME - ENTRY= CAN NOT HAVE MORE THAN 30 VARIABLES' 00594000
+         MEXIT                                                          00595000
+.ERR0410 ANOP                                                           00596000
+         MNOTE 8,'&MACNME - OPTIONS=CSECT AND MISSING LABEL ON MACRO DE+00597000
+               CLARATION'                                               00598000
+         MEXIT                                                          00599000
+.BEG0999 ANOP                                                           00600000
+.*       *---------------------------------------------------*          00601000
+.*       * GENERATE CODE                                     *          00602000
+.*       *---------------------------------------------------*          00603000
+.BEG1000 ANOP                                                           00604000
+         AIF   (T'&GLOBAL EQ 'O').BEG1299                               00605000
+&GSTGFLG SETB  1                                                        00606000
+         EJECT                                                          00607000
+*        *---------------------------------------------------*          00608000
+*        * DYNAMIC GLOBAL STORAGE AREA                       *          00609000
+*        *---------------------------------------------------*          00610000
+         SPACE 1                                                        00611000
+SAGBLSTG DSECT                                                          00612000
+         SPACE 2                                                        00613000
+.BEG1010 ANOP                                                           00614000
+         SAADMAPM DAG=GRSA,DSECT=NO,EJECT=NO                            00615000
+.BEG1019 ANOP                                                           00616000
+.BEG1020 ANOP                REQUIRED GLOBAL STORAGE GOES HERE          00617000
+         SPACE 1                                                        00618000
+GPARM@   DS    F             CALLER'S PARM ADDR                         00619000
+.BEG1029 ANOP                                                           00620000
+         AIF   (&GRESA).BEG1110                                         00621000
+         AGO   .BEG1119                                                 00622000
+.BEG1110 ANOP                                                           00623000
+         SPACE 2                                                        00624000
+         SAADMAPM DAG=RESA,DSECT=NO,EJECT=NO,PARM=&GRESA#               00625000
+.BEG1119 ANOP                                                           00632000
+         AIF   (&GTRACE).BEG1210                                        00633000
+         AGO   .BEG1219                                                 00634000
+.BEG1210 ANOP                                                           00635000
+&TSTGFLG SETB  1                                                        00636000
+&TRCECDE SETC  'G'                                                      00636010
+         SPACE 2                                                        00637000
+         SAADMAPM DAG=SAATRCED,DSECT=NO,EJECT=NO,PARM=&GTRC#            00638000
+.BEG1219 ANOP                                                           00650000
+         SPACE 2                                                        00651000
+*        *---------------------------------------------------*          00652000
+*        * USER DEFINED GLOBAL STORAGE                       *          00653000
+*        *---------------------------------------------------*          00654000
+         SPACE 1                                                        00655000
+SAGBLUSR DS    0D            USER DEFINED GLOBAL STORAGE FOLLOWS        00656000
+.BEG1299 ANOP                                                           00657000
+.BEG1300 ANOP                                                           00658000
+         AIF   (T'&LOCAL EQ 'O').BEG1599                                00659000
+&LSTGFLG SETB  1                                                        00660000
+         EJECT                                                          00661000
+*        *---------------------------------------------------*          00662000
+*        * DYNAMIC LOCAL STORAGE AREA                        *          00663000
+*        *---------------------------------------------------*          00664000
+SALCLSTG DSECT                                                          00665000
+         SPACE 2                                                        00666000
+.BEG1310 ANOP                                                           00667000
+         SAADMAPM DAG=LRSA,DSECT=NO,EJECT=NO                            00668000
+.BEG1319 ANOP                                                           00669000
+.BEG1320 ANOP                REQUIRED LOCAL STORAGE GOES HERE           00670000
+         SPACE 1                                                        00671000
+LPARM@   DS    F             CALLER'S PARM ADDR                         00672000
+SAGBL@   DS    F             GLOBAL STORAGE ADDR                        00673000
+.BEG1329 ANOP                                                           00674000
+         AIF   (&LRESA).BEG1410                                         00675000
+         AGO   .BEG1419                                                 00676000
+.BEG1410 ANOP                                                           00677000
+         SPACE 2                                                        00678000
+         SAADMAPM DAG=RESA,DSECT=NO,EJECT=NO,PARM=&LRESA#               00679000
+.BEG1419 ANOP                                                           00686000
+         AIF   (&LTRACE).BEG1510                                        00687000
+         AGO   .BEG1519                                                 00688000
+.BEG1510 ANOP                                                           00689000
+&TSTGFLG SETB  1                                                        00690000
+&TRCECDE SETC  'L'                                                      00690010
+         SPACE 2                                                        00691000
+         SAADMAPM DAG=SAATRCED,DSECT=NO,EJECT=NO,PARM=&LTRC#            00692000
+.BEG1519 ANOP                                                           00704000
+         SPACE 2                                                        00705000
+*        *---------------------------------------------------*          00706000
+*        * USER DEFINED LOCAL STORAGE                        *          00707000
+*        *---------------------------------------------------*          00708000
+         SPACE 1                                                        00709000
+SALCLUSR DS    0D            USER DEFINED LOCAL STORAGE FOLLOWS         00710000
+.BEG1599 ANOP                                                           00711000
+.BEG1600 ANOP                                                           00712000
+         AIF   (&OEQU).BEG1610                                          00713000
+         AGO   .BEG1619                                                 00714000
+.BEG1610 ANOP                                                           00715000
+         SPACE 2                                                        00716000
+         SAADMAPM DAG=CRSA,DSECT=YES,EJECT=YES                          00717000
+         EJECT                                                          00718000
+*        *---------------------------------------------------*          00719000
+*        * STANDARD REGISTER EQUATES                         *          00720000
+*        *---------------------------------------------------*          00721000
+         SPACE 1                                                        00722000
+R0       EQU   00            PARAMETER VALUE                            00723000
+R1       EQU   01            PARAMETER ADDRESS REGISTER                 00724000
+R2       EQU   02                                                       00725000
+R3       EQU   03                                                       00726000
+R4       EQU   04            STANDARD BASE ADDRESS REGISTER (BAR)       00727000
+R5       EQU   05                                                       00728000
+R6       EQU   06                                                       00729000
+R7       EQU   07                                                       00730000
+R8       EQU   08                                                       00731000
+R9       EQU   09                                                       00732000
+RA       EQU   10                                                       00733000
+RB       EQU   11                                                       00734000
+RC       EQU   12                                                       00735000
+RD       EQU   13            POINTS TO REGISTER SAVE AREA (RSA)         00736000
+RE       EQU   14            RETURN LINKAGE REGISTER                    00737000
+RF       EQU   15            LINK TO REGISTER                           00738000
+         SPACE 2                                                        00739000
+R00      EQU   00            PARAMETER VALUE                            00740000
+R01      EQU   01            PARAMETER ADDRESS REGISTER                 00741000
+R02      EQU   02                                                       00742000
+R03      EQU   03                                                       00743000
+R04      EQU   04            STANDARD BASE ADDRESS REGISTER (BAR)       00744000
+R05      EQU   05                                                       00745000
+R06      EQU   06                                                       00746000
+R07      EQU   07                                                       00747000
+R08      EQU   08                                                       00748000
+R09      EQU   09                                                       00749000
+R10      EQU   10                                                       00750000
+R11      EQU   11                                                       00751000
+R12      EQU   12                                                       00752000
+R13      EQU   13            POINTS TO REGISTER SAVE AREA (RSA)         00753000
+R14      EQU   14            RETURN LINKAGE REGISTER                    00754000
+R15      EQU   15            LINK TO REGISTER                           00755000
+.BEG1619 ANOP                                                           00756000
+         AIF   (NOT &OCSECT).BEG1709                                    00757000
+.BEG1700 ANOP                                                           00758000
+         EJECT                                                          00759000
+*        *---------------------------------------------------*          00760000
+*        * INITIALIZATION ROUTINE                            *          00761000
+*        *---------------------------------------------------*          00762000
+         SPACE 1                                                        00763000
+&MODNME  CSECT                                                          00764000
+         AIF   (T'&ENTRY EQ 'O').BEG1709                                00765000
+         ENTRY &EP                                                      00766000
+.BEG1709 ANOP                                                           00767000
+         AIF   (&OPROLOG).BEG1720                                       00768000
+         AGO   .BEG1999                                                 00769000
+.BEG1720 ANOP                                                           00770000
+         USING &MODNME,RF                                               00771000
+         USING CRSA,RD                      EST ADDR TO CALLER'S RSA    00772000
+         STM   RE,RC,CRSACRE                SAVE CALLER'S REGS          00773000
+         DROP  RD                                                       00774000
+         AIF   (&OID).BEG1722                                           00775000
+         AGO   .BEG1724                                                 00776000
+.BEG1722 ANOP                                                           00777000
+         B     NTRY&SYSNDX                                              00778000
+         DC    CL30'PROPERTY OF SYSTEMATICS INC., '                     00779000
+         DC    CL09'&MODNME'                MODULE NAME                 00780000
+         DC    CL11' R/W LEVEL '                                        00781000
+         DC    CL04'&MODVER',CL04'.&MODREL' RED AND WHITE LEVEL         00782000
+         DC    CL06' DATE ',CL08'&MODDATE'  SYSTEM DATE MM/DD/YY        00783000
+         DC    CL06' TIME ',CL05'&MODTIME'  SYSTEM TIME HH.MM           00784000
+         DS    0D                                                       00785000
+.BEG1724 ANOP                                                           00786000
+NTRY&SYSNDX EQU   *                                                     00787000
+&CTR     SETA  N'&BASE                                                  00788000
+&PTR     SETA  1                                                        00789000
+         LR    &BAR(&PTR),RF           INITIALIZE PROGRAM BAR           00790000
+.BEG1760 ANOP                                                           00791000
+&PTR     SETA  &PTR+1                                                   00792000
+&POS     SETA  &PTR-1                                                   00793000
+         AIF   (&PTR GT &CTR).BEG1762                                   00794000
+         LR    &BAR(&PTR),&BAR(&POS)                                    00795000
+         A     &BAR(&PTR),INCR&SYSNDX                                   00796000
+         AGO   .BEG1760                                                 00797000
+.BEG1762 ANOP                                                           00798000
+         B     INIT&SYSNDX                                              00799000
+         AIF   (T'&ALFA EQ 'O').BEG1770                                 00800000
+         AIF   (&ADAGCNT LT 1).BEG1770                                  00801000
+&ASTGFLG SETB  1                                                        00802000
+         ORG   &MODNME+160                                              00803000
+ALFA&SYSNDX DC    C'**ALFA**'                                           00804000
+         DC    CL8'SAS9GCAD',CL2'OK',AL4(0000),X'00'                    00805000
+&POS     SETA  1                                                        00806000
+.BEG1764 ANOP                                                           00807000
+         DC    CL8'&ADAGNME(&POS)',CL2'&ADISP(&POS)',AL4(&ADAGLEN(&POS)+00808000
+               ),X'00'                                                  00809000
+&POS     SETA  &POS+1                                                   00810000
+         AIF   (&POS LE &ADAGCNT).BEG1764                               00811000
+         DC    XL2'FFFF'                                                00812000
+.BEG1770 ANOP                                                           00813000
+         AIF   (NOT &ORSA).BEG1772                                      00814000
+         AIF   ('&ORSANME' NE '').BEG1772                               00815000
+SRSA&SYSNDX DC    18F'0'                                                00816000
+.BEG1772 ANOP                                                           00817000
+INCR&SYSNDX DC    F'4096'                                               00818000
+INIT&SYSNDX EQU   *                                                     00819000
+         DROP  RF                                                       00820000
+         USING &MODNME&UBAR                                             00821000
+         AIF   (NOT &ORSA).BEG1799                                      00822000
+         LR    RF,RD                   SAVE CALLER'S RSA ADDR           00823000
+         AIF   ('&ORSANME' NE '').BEG1774                               00824000
+         LA    RD,SRSA&SYSNDX          GET ADDR OF OUR RSA              00825000
+         AGO   .BEG1776                                                 00826000
+.BEG1774 ANOP                                                           00827000
+         LA    RD,&ORSANME             GET ADDR OF OUR RSA              00828000
+.BEG1776 ANOP                                                           00829000
+         ST    RD,8(,RF)               SAVE FWD IN CALLER'S RSA         00830000
+         ST    RF,4(,RD)               SAVE BWD IN OUR RSA              00831000
+.BEG1799 ANOP                                                           00832000
+.BEG1800 ANOP                                                           00833000
+         AIF   (T'&LOCAL EQ 'O').BEG1899                                00834000
+         L     R0,=A(&LSTG#)           GET AMOUNT OF STG NEEDED         00835000
+         AIF   (&VSE).VSE9010                                           00836000
+.MVS9010 ANOP                                                           00837000
+         GETMAIN R,LV=(0),LOC=ANY      GET LOCAL STORAGE      2024183   00838000
+         AGO   .NOP9010                                                 00839000
+.VSE9010 ANOP                                                           00840000
+         GETVIS ADDRESS=(1),LENGTH=(0),LOC=ANY GET STORAGE    2024183   00841000
+.NOP9010 ANOP                                                           00842000
+         USING SALCLSTG,R1                                              00843000
+         ST    R0,LCLLEN               SAVE LGTH OF LOCAL STG           00844000
+         AIF   (NOT &LRSA).BEG1810                                      00845000
+         ST    &LBAR,LRSABWD           SAVE BWD IN OUR RSA              00846000
+         DROP  R1                                                       00847000
+         USING CRSA,&LBAR                                               00848000
+         ST    R1,CRSAFWD              SAVE FWD IN CALLER'S RSA         00849000
+         DROP  &LBAR                                                    00850000
+.BEG1810 ANOP                                                           00851000
+         LR    &LBAR,R1                POINT TO LOCAL STORAGE           00852000
+         USING SALCLSTG,&LBAR                                           00853000
+         LR    R2,R1                   CLEAR OUT LOCAL STORAGE          00854000
+         A     R2,=F'12'               ..BUMP OVER PREFIX AREA          00855000
+         LR    R1,R0                   ..SAVE LGTH OF LOCAL             00856000
+         SLL   R1,8                    ..CLEAR OUT                      00857000
+         SRL   R1,8                    ..HIGH ORDER BYTE                00858000
+         S     R1,=F'12'               ..                               00859000
+         LR    R0,R2                   ..GET ADDR OF LOCAL              00860000
+         IC    R3,=X'&LINIT'           ..GET PAD CHAR                   00861000
+         SLL   R3,24                   ..SHIFT PAD TO HIGH ORDER BYTE   00862000
+         MVCL  R0,R2                   ..CLEAR STORAGE                  00863000
+         AIF   (NOT &ORSA).BEG1830                                      00864000
+         AIF   ('&ORSANME' NE '').BEG1820                               00865000
+         L     RF,SRSA&SYSNDX+4        POINT TO CALLER'S RSA            00866000
+         AGO   .BEG1840                                                 00867000
+.BEG1820 ANOP                                                           00868000
+         L     RF,&ORSANME+4           POINT TO CALLER'S RSA            00869000
+.BEG1830 ANOP                                                           00870000
+         AIF   (NOT &LRSA).BEG1840                                      00871000
+         L     RF,LRSABWD              POINT TO CALLER'S RSA            00872000
+.BEG1840 ANOP                                                           00873000
+         USING CRSA,RF                                                  00874000
+         AIF   (&OMAIN).BEG1850                                         00875000
+         MVC   SAGBL@,SAGBL@-SALCLSTG(RF)  SAVE GLOBAL STORAGE ADDR     00876000
+.BEG1850 ANOP                                                           00877000
+         LM    R0,R3,CRSACR0           RESTORE CALLER'S VALUES          00878000
+         ST    R1,LPARM@               SAVE CALLER'S PARM ADDR          00879000
+         DROP  RF                                                       00880000
+.BEG1899 ANOP                                                           00881000
+.BEG1900 ANOP                                                           00882000
+         AIF   (T'&GLOBAL EQ 'O').BEG1999                               00883000
+         AIF   (NOT &OMAIN).BEG1920                                     00884000
+         L     R0,=A(&GSTG#)           GET AMOUNT OF STG NEEDED         00885000
+         AIF   (&VSE).VSE9020                                           00886000
+.MVS9020 ANOP                                                           00887000
+         GETMAIN R,LV=(0),LOC=ANY      GET GLOBAL STORAGE     2024183   00888000
+         AGO   .NOP9020                                                 00889000
+.VSE9020 ANOP                                                           00890000
+         GETVIS ADDRESS=(1),LENGTH=(0),LOC=ANY GET STORAGE    2024183   00891000
+.NOP9020 ANOP                                                           00892000
+         USING SAGBLSTG,R1                                              00893000
+         ST    R0,GBLLEN               SAVE LGTH OF GLOBAL STG          00894000
+         ST    R1,SAGBL@               SAVE ADDR OF GLOBAL STG          00895000
+         AIF   (NOT &GRSA).BEG1910                                      00896000
+         ST    &GBAR,GRSABWD           SAVE BWD IN OUR RSA              00897000
+         DROP  R1                                                       00898000
+         USING CRSA,&GBAR                                               00899000
+         ST    R1,CRSAFWD              SAVE FWD IN CALLER'S RSA         00900000
+         DROP  &GBAR                                                    00901000
+.BEG1910 ANOP                                                           00902000
+         LR    &GBAR,R1                POINT TO GLOBAL STORAGE          00903000
+         USING SAGBLSTG,&GBAR                                           00904000
+         LR    R2,R1                   CLEAR OUT GLOBAL STORAGE         00905000
+         A     R2,=F'12'               ..BUMP OVER PREFIX AREA          00906000
+         LR    R1,R0                   ..SAVE LGTH OF GLOBAL            00907000
+         S     R1,=F'12'               ..                               00908000
+         LR    R0,R2                   ..GET ADDR OF GLOBAL             00909000
+         IC    R3,=X'&GINIT'           ..GET PAD CHAR                   00910000
+         SLL   R3,24                   ..SHIFT PAD TO HIGH ORDER BYTE   00911000
+         MVCL  R0,R2                   ..CLEAR STORAGE                  00912000
+         AIF   (NOT &ORSA).BEG1914                                      00913000
+         AIF   ('&ORSANME' NE '').BEG1912                               00914000
+         L     RF,SRSA&SYSNDX+4        POINT TO CALLER'S RSA            00915000
+         AGO   .BEG1914                                                 00916000
+.BEG1912 ANOP                                                           00917000
+         L     RF,&ORSANME+4           POINT TO CALLER'S RSA            00918000
+.BEG1914 ANOP                                                           00919000
+         AIF   (NOT &LRSA).BEG1916                                      00920000
+         L     RF,LRSABWD              POINT TO CALLER'S RSA            00921000
+.BEG1916 ANOP                                                           00922000
+         USING CRSA,RF                                                  00923000
+         LM    R0,R3,CRSACR0           RESTORE CALLER'S VALUES          00924000
+         ST    R1,GPARM@               SAVE CALLER'S PARM ADDR          00925000
+         DROP  RF                                                       00926000
+         AGO   .BEG1999                                                 00927000
+.BEG1920 ANOP                                                           00928000
+         L     &GBAR,SAGBL@            POINT TO GLOBAL STORAGE          00929000
+         USING SAGBLSTG,&GBAR                                           00930000
+.BEG1999 ANOP                                                           00931000
+&MODNME  AMODE 31                                             2600590   00931030
+         SIMODE 31                                            2600590   00931040
+         B     INIX&SYSNDX                                    2600590   00931050
+         LTORG                                                2600590   00931060
+INIX&SYSNDX DS  0H                                            2600590   00931070
+         MEND                                                           00932000

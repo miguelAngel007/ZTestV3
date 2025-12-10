@@ -1,0 +1,269 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&NAME    SIFCB                                                         X00000200
+               &LINE=,                                                 X00000300
+               &CC=,                                                   X00000400
+               &LPI=,                                                  X00000500
+               &TYPE=,                                                 X00000600
+               &PHASE=,                                                X00000700
+               &MSG=,                                                  X00000800
+               &DEFFCB=,                                               X00000900
+               &FOLD=,                                                 X00001000
+               &PRTINDX=,                                              X00001100
+               &PRTR=PRT1                                               00001200
+.*                                                                      00001300
+.*     PHASE=, MSG=, AND PRTR= PARAMETERS ARE NOT USED.  THEY ARE       00001400
+.*     INCLUDED FOR COMPATABILITY WITH THE VSE VERSION OF THIS          00001500
+.*     MACRO.                                                           00001600
+.*                                                                      00001700
+.*     GLOBAL A                                                         00001800
+.*        GA01 - ARRAY TABLE                                            00001900
+.*        GA02 - SAVE LPI VALUE                                         00002000
+.*        GA03 - WORK                                                   00002100
+.*        GA04 - LINE NO WHERE EOF WAS SPECIFIED                        00002200
+.*        GA05 - SAVE PRINT POSITION INDEX VALUE                        00002300
+.*     GLOBAL B                                                         00002400
+.*        GB01 - INDICATES NAME WAS SPECIFIED                           00002500
+.*        GB02 - INDICATES LPI WAS SPECIFIED                            00002600
+.*        GB03 - INDICATES EOF WAS SPECIFIED                            00002700
+.*        GB04 - INDICATES DEFAULT FCB SPECIFIED                        00002800
+.*        GB05 - INDICATES ERROR HAS OCCURRED                           00002900
+.*        GB06 - INDICATES FOLD SPECIFIED                               00003000
+.*        GB07 - INDICATES TYPE=FINAL SPECIFIED                         00003100
+.*        GB08 - FIRST TIME MACRO CALL SWITCH                           00003200
+.*        GB09 - INDICATES PRTINDX WAS SPECIFIED                        00003300
+.*     GLOBAL C                                                         00003400
+.*        GC01 - SAVE CC FROM LINE 1 IF SPECIFIED                       00003500
+.*        GC03 - NOT USED                                               00003600
+.*        GC04 - NOT USED                                               00003700
+.*        GC05 - VERSION LEVEL NUMBER                                   00003800
+.*        GC06 - MODFICATION LEVEL NUMBER                               00003900
+.*        GC07 - DATE OF THIS LEVEL AND MODIFICATION                    00004000
+.*    **************************                                        00004100
+.*                                                                      00004200
+ GBLA &GA01(256),&GA02,&GA03,&GA04,&GA05                                00004300
+ GBLB &GB01,&GB02,&GB03,&GB04,&GB05,&GB06,&GB07,&GB08,&GB09             00004400
+ GBLC &GC01,&GC03,&GC04,&GC05,&GC06,&GC07                               00004500
+         AIF   (&GB08 EQ 1).FCB0005                                     00004600
+&GB08    SETB  (1)                                                      00004700
+&GC05    SETC  '01.00'                                                  00004800
+&GC06    SETC  '01.00'                                                  00004900
+&GC07    SETC  '06/01/90'                                               00005000
+         MNOTE 'SIFCB - SYSTEMATICS - VER &GC05 MOD &GC06 &GC07'        00005100
+.FCB0005 ANOP                                                           00005200
+         AIF   ('&TYPE' EQ 'DOC').FCBDOC                                00005300
+         AIF   ('&GB07' NE '1').FCB0010                                 00005400
+         MNOTE 8,'TYPE=FINAL WAS SPECIFIED'                             00005500
+         MNOTE 8,'NO MORE OCCURRANCES OF THIS MACRO MAY OCCUR'          00005600
+         AGO   .ABORT                                                   00005700
+.FCB0010 ANOP                                                           00005800
+         AIF   ('&NAME' EQ '').FCB0040                                  00005900
+         AIF   (&GB01 NE 1).FCB0035                                     00006000
+         MNOTE 8,'NAME PARAMETER ALREADY SPECIFIED'                     00006100
+&GB01    SETB  (1)                                                      00006200
+         AGO   .FCB0040                                                 00006300
+.FCB0035 ANOP                                                           00006400
+&GB01    SETB  (1)                                                      00006500
+&GC03    SETC  '&NAME'                                                  00006600
+.FCB0040 ANOP                                                           00006700
+         AIF   ('&LPI' NE '').FCB0090                                   00006800
+         AIF   ('&TYPE' EQ 'FINAL').FCB0090                             00006900
+         AIF   ('&LINE' GT '0').FCB0060                                 00007000
+         MNOTE 8,'LINE NUMBER IS NOT GREATER THAN ZERO'                 00007100
+&GB05    SETB  (1)                                                      00007200
+.FCB0060 ANOP                                                           00007300
+         AIF   ('&LINE' LT '257').FCB0080                               00007400
+         MNOTE 8,'LINE NUMBER GREATER THAN 256'                         00007500
+&GB05    SETB  (1)                                                      00007600
+.FCB0080 ANOP                                                           00007700
+         AIF   ('&LINE' EQ '').FCB0090                                  00007800
+         AIF   (&GA01(&LINE) EQ 0).FCB0090                              00007900
+         MNOTE 8,'LINE NO &LINE PREVIOUSLY SPECIFIED'                   00008000
+&GB05    SETB  (1)                                                      00008100
+.FCB0090 ANOP                                                           00008200
+         AIF   ('&CC' EQ '' AND '&LPI' NE '').FCB0130                   00008300
+         AIF   ('&CC' EQ '' AND '&TYPE' NE '').FCB0130                  00008400
+         AIF   ('&CC' GT '0').FCB0100                                   00008500
+         MNOTE 8,'CARRIAGE CONTROL LESS THAN ZERO'                      00008600
+&GB05    SETB  (1)                                                      00008700
+.FCB0100 ANOP                                                           00008800
+         AIF   ('&CC' LT '13').FCB0120                                  00008900
+         MNOTE 8,'CARRIAGE CONTROL GREATER THAN 12'                     00009000
+&GB05    SETB  (1)                                                      00009100
+.FCB0120 ANOP                                                           00009200
+         AIF   ('&LINE' NE '').FCB0130                                  00009300
+         MNOTE 8,'LINE MUST BE SPECIFIED WITH CC'                       00009400
+&GB05    SETB  (1)                                                      00009500
+.FCB0130 ANOP                                                           00009600
+         AIF   ('&LPI' EQ '').FCB0180                                   00009700
+         AIF   ('&GB02' NE '1').FCB0140                                 00009800
+         MNOTE 8,'LINES PER INCH ALREADY SPECIFIED'                     00009900
+&GB05    SETB  (1)                                                      00010000
+         AGO   .FCB0160                                                 00010100
+.FCB0140 ANOP                                                           00010200
+&GB02    SETB  (1)                                                      00010300
+         AIF   ('&LPI' EQ '6').FCB0180                                  00010400
+         AIF   ('&LPI' EQ '8').FCB0160                                  00010500
+         MNOTE 8,'LINES PER INCH MUST BE EITHER 6 OR 8'                 00010600
+&GB05    SETB  (1)                                                      00010700
+         AGO   .FCB0180                                                 00010800
+.FCB0160 ANOP                                                           00010900
+&GA02    SETA  16                                                       00011000
+.FCB0180 ANOP                                                           00011100
+         AIF   ('&TYPE' EQ '').FCB0220                                  00011200
+         AIF   ('&TYPE' EQ 'LINE').FCB0220                              00011300
+         AIF   ('&TYPE' EQ 'EOF').FCB0200                               00011400
+         AIF   ('&TYPE' EQ 'FINAL').FCB0213                             00011500
+         MNOTE 8,'TYPE MUST BE LINE, EOF, OR FINAL'                     00011600
+&GB05    SETB  (1)                                                      00011700
+         AGO   .FCB0220                                                 00011800
+.FCB0200 ANOP                                                           00011900
+         AIF   ('&GB03' NE '1').FCB0205                                 00012000
+         MNOTE 8,'TYPE=EOF ALREADY SPECIFIED'                           00012100
+&GB05    SETB  (1)                                                      00012200
+         AGO   .FCB0220                                                 00012300
+.FCB0205 ANOP                                                           00012400
+         AIF   ('&LINE' NE '').FCB0210                                  00012500
+         MNOTE 8,'LINE NUMBER MUST BE SPECIFIED WITH TYPE=EOF'          00012600
+&GB05    SETB  (1)                                                      00012700
+         AGO   .FCB0220                                                 00012800
+.FCB0210 ANOP                                                           00012900
+&GA04    SETA  &LINE                                                    00013000
+&GB03    SETB  (1)                                                      00013100
+         AGO   .FCB0220                                                 00013200
+.FCB0213 ANOP                                                           00013300
+&GB07    SETB  (1)                                                      00013400
+.FCB0220 ANOP                                                           00013500
+         AIF   ('&DEFFCB' EQ '').FCB0230                                00013600
+         AIF   ('&DEFFCB' EQ 'NO').FCB0222                              00013700
+         AIF   ('&DEFFCB' EQ 'YES').FCB0224                             00013800
+         MNOTE 8,'INVALID DEFFCB VALUE, MUST BE YES OR NO'              00013900
+&GB05    SETB  (1)                                                      00014000
+         AGO   .FCB0230                                                 00014100
+.FCB0222 ANOP                                                           00014200
+&GB04    SETB  (0)                                                      00014300
+         AGO   .FCB0230                                                 00014400
+.FCB0224 ANOP                                                           00014500
+&GB04    SETB  (1)                                                      00014600
+.FCB0230 ANOP                                                           00014700
+         AIF   ('&FOLD' EQ '').FCB0240                                  00014800
+         AIF   ('&FOLD' EQ 'NO').FCB0232                                00014900
+         AIF   ('&FOLD' EQ 'YES').FCB0234                               00015000
+         MNOTE 8,'INVALID FOLD VALUE, MUST BE YES OR NO'                00015100
+&GB05    SETB  (1)                                                      00015200
+         AGO   .FCB0240                                                 00015300
+.FCB0232 ANOP                                                           00015400
+&GB06    SETB  (0)                                                      00015500
+         AGO   .FCB0240                                                 00015600
+.FCB0234 ANOP                                                           00015700
+&GB06    SETB  (1)                                                      00015800
+.FCB0240 ANOP                                                           00015900
+         AIF   ('&PRTINDX' EQ '').FCB0260                               00016000
+         AIF   ('&GB09' NE '1').FCB0241                                 00016100
+         MNOTE 8,'PRTINDX ALREADY SPECIFIED'                            00016200
+&GB05    SETB  (1)                                                      00016300
+         AGO   .FCB0260                                                 00016400
+.FCB0241 ANOP                                                           00016500
+&GB09    SETB  (1)                                                      00016600
+         AIF   ('&PRTINDX' GE '1' AND '&PRTINDX' LE '32').FCB0242       00016700
+         MNOTE 8,'PRTINDX MUST BE 1 TO 32 - 1 IS THE DEFAULT'           00016800
+&GB05    SETB  (1)                                                      00016900
+         AGO   .FCB0260                                                 00017000
+.FCB0242 ANOP                                                           00017100
+&GA05    SETA  &PRTINDX                                                 00017200
+.FCB0260 ANOP                                                           00017300
+.FCB0300 ANOP                                                           00017400
+         AIF   ('&GB07' EQ '1').FCB0320 CHECK FOR TYPE=FINAL            00017500
+         AIF   ('&LINE' EQ '' OR '&CC' EQ '').FCB0310                   00017600
+&GA01(&LINE) SETA &CC                                                   00017700
+.FCB0310 ANOP                                                           00017800
+         MEXIT                                                          00017900
+.FCB0320 ANOP                                                           00018000
+         AIF   ('&GB05' EQ '1').ABORT                                   00018100
+&GA01(1) SETA  &GA01(1)+&GA02 ADD LPI VALUE TO TYPE 1 OF TABLE          00018200
+&GA01(&GA04) SETA  &GA01(&GA04)+16 ADD END OF FORM VALUE TO LAST LINE   00018300
+&GC03    START 0                                                        00018400
+FCBTABLE EQU   *                                                        00018500
+         DC     B'&GB04.&GB06.000000'                                   00018600
+         DC     AL1(&GA04)                                              00018700
+         AIF    (&GB09 EQ 0).FCB0370                                    00018800
+         DC     AL1(128+&GA05)                                          00018900
+.FCB0370 ANOP                                                           00019000
+&GA03    SETA  1                                                        00019100
+.FCB0380 ANOP                                                           00019200
+FCBL&GA03 DC    AL1(&GA01(&GA03))                                       00019300
+&GA03    SETA  &GA03+1                                                  00019400
+         AIF   (&GA03 LE &GA04).FCB0380                                 00019500
+         MEXIT                                                          00019600
+.ABORT   ANOP                                                           00019700
+         MNOTE 8,'MACRO GENERATION TERMINATED DUE TO ERRORS'            00019800
+         MEXIT                                                          00019900
+.FCBDOC  ANOP                                                           00020000
+         EJECT                                                          00020100
+         MNOTE 'SIFCB - SYSTEMATICS - VER &GC05 MOD &GC06 &GC07'        00020200
+*SIFCB MACRO                                                            00020300
+         SPACE                                                          00020400
+*SIFCB MACRO IS USED TO BUILD AN INDIVIDUAL FORM CONTROL BUFFER FOR FCB 00020500
+*TYPE PRINTERS.                                                         00020600
+         SPACE                                                          00020700
+*LPI=N          LINES PER INCH                                          00020800
+         SPACE                                                          00020900
+*TYPE=XXXXXXXX  ENTRY TYPE (LINE,EOF,DOC OR FINAL)                      00021000
+         SPACE                                                          00021100
+*LINE=NNN       LINE NUMBER                                             00021200
+         SPACE                                                          00021300
+*CC=NN          CARRIAGE CONTROL                                        00021400
+         EJECT                                                          00021500
+*LPI=6:                                                                 00021600
+         SPACE                                                          00021700
+*        THIS OPERAND SPECIFIES THE NUMBER OF LINES PER INCH TO BE      00021800
+*     PRINTED BY A PRINTER CAPABLE OF CHANGING LPI WHEN FCB IS LOADED.  00021900
+*     THE DEFAULT IS 6 LINES PER INCH.  VALID VALUES ARE 6 OR 8.        00022000
+*     LPI MAY BE SPECIFIED BY ITSELF OR IN COMBINATION WITH ANY OTHER   00022100
+*     OCCURRANCE OF THE SIFCB MACRO AND OTHER OPERANDS.                 00022200
+         SPACE                                                          00022300
+*TYPE=LINE:                                                             00022400
+         SPACE                                                          00022500
+*     THIS PARAMETER IS USED TO IDENTIFY THE TYPE OF FCB ENTRY BEING    00022600
+*     GENERATED.  THE DEFAULT IS TYPE=LINE.  SPECIFY TYPE=EOF TO        00022700
+*     INDICATE THE END OF THE FORM IS BEING SPECIFIED.  THE LINE=       00022800
+*     PARAMETER MUST BE SPECIFIED WITH TYPE=EOF.  SPECIFY TYPE=FINAL    00022900
+*     TO SIGNAL THE END OF ALL ENTRIES AND ALLOW THE GENERATION OF THE  00023000
+*     FCB.  ONCE THE TYPE=FINAL HAS BEEN SPECIFIED, NO OTHER            00023100
+*     OCCURRANCES OF THE MACRO ARE ALLOWED.  TYPE=DOC WILL PRINT THIS   00023200
+*     DOCUMENT.                                                         00023300
+         SPACE                                                          00023400
+*LINE=:                                                                 00023500
+         SPACE                                                          00023600
+*     THIS PARAMETER IS USED TO SPECIFY THE LINE NUMBER WHERE CC        00023700
+*     AND/OR EOF ARE TO BE SPECIFIED.  LINE PARAMETER IS REQUIRED WHEN  00023800
+*     EITHER CC AND/OR TYPE=EOF IS SPECIFIED.                           00023900
+         SPACE                                                          00024000
+*CC=:                                                                   00024100
+         SPACE                                                          00024200
+*     THIS PARAMETER IS USED TO SPECIFY THE CARRIAGE CONTROL CHARACTER  00024300
+*     THAT IS TO BE USED FOR A SPECIFIED LINE.  THE VALUES 1 THRU 12    00024400
+*     SHOULD BE USED TO CORRESPOND TO HOLE PUNCHES IN A CARRIAGE        00024500
+*     TAPE FOR A 1403 TYPE PRINTER.  THIS PARAMETER MAY BE USED IN      00024600
+*     CONJUNCTION WITH ANY OR ALL OF THE FOLLOWING:  LINE AND/OR TYPE.  00024700
+         SPACE                                                          00024800
+*DEFFCB=:                                                               00024900
+         SPACE                                                          00025000
+*     THIS PARAMETER IS USED TO SPECIFY THAT THE FCB CAN BE USED AS A   00025100
+*     DEFAULT FCB.                                                      00025200
+         SPACE                                                          00025300
+*FOLD=:                                                                 00025400
+         SPACE                                                          00025500
+*     THIS PARAMETER IS USED TO SPECIFY THAT FOLDING IS TO BE ACTIVATED 00025600
+*     FOR THE PRINTER.  FOLDING IS WHERE THE PRINTER OR'S A X'40' WITH  00025700
+*     EACH PRINT CHARACTER.  THIS IN EFFECT CHANGES LOWER CASE          00025800
+*     CHARACTERS TO UPPER CASE.                                         00025900
+         SPACE                                                          00026000
+*PRTINDX=:                                                              00026100
+         SPACE                                                          00026200
+*     THIS PARAMETER IS USED TO SPECIFY PRINT POSITION INDEXING USED BY 00026300
+*     CERTAIN IMPACT PRINTERS.  REFER TO SYSTEM DATA ADMINISTRATION FOR 00026400
+*     INFORMATION.  THE VALID VALUES ARE 1 TO 32.                       00026500
+         EJECT                                                          00026600
+         MEXIT                                                          00026700
+         MEND                                                           00026800

@@ -1,0 +1,139 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                               TSTS2NDP                              * 00000200
+*                          TRANSACTION SYSTEM                         * 00000300
+*                   NEXT DAY POSTING MESSAGE RECORD                   * 00000400
+*********************************************************************** 00000500
+*---------------------------------------------------------------------* 00000510
+*                  ** HISTORY OF REVISIONS **                         * 00000511
+*                                                                     * 00000512
+* DESCRIPTION                                                 CHNGID  * 00000513
+* __________________________________________________________  _______ * 00000514
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000591
+* 05/08/97 ADD INTERNAL CURRENCY CODE POPULATED FROM TSLOG    9913481 * 00000593
+* 02/15/97 REFORMAT RESTART DATA FOR ADJ FILE                 9910919 * 00000594
+* 08/30/94 ADD RESTART DATA FOR LOGS WITH NO RBA              2602019 * 00000596
+*---------------------------------------------------------------------* 00000598
+         SPACE 2                                                        00000600
+TSTSNDP  DSECT                                                          00000700
+NDP      DS    0X                                                       00000800
+NDPLNG   DS    XL2           NDP RECORD LENGTH                          00000900
+*                            MAXIMUM VALUE:  +3652            9910919   00001000
+         DS    XL2           FILLER                                     00001100
+*                                                                       00001200
+NDPKEY   DS    0CL50         KEY                              0803152   00001300
+NDPRPTS  DS    0CL12           REPORT LEVELS                            00001400
+NDPRPT1  DS    CL2               LEVEL 1                                00001500
+NDPRPT2  DS    CL3               LEVEL 2                                00001600
+NDPRPT3  DS    CL3               LEVEL 3                                00001700
+NDPRPT4  DS    CL4               LEVEL 4                                00001800
+NDPPHYL  DS    CL4             PHYSICAL LOCATION                        00001900
+NDPEMPL  DS    CL8             EMPLOYEE ID                              00002000
+NDPEXTSQ DS    CL8             EXTERNAL SEQUENCE NUMBER (TRAN SERIAL)   00002100
+NDPINTSQ DS    CL2             INTERNAL SEQUENCE NUMBER                 00002200
+NDPTERM  DS    CL4             TERMINAL ID                              00002500
+NDPDATE  DS    CL6             TRANSACTION DATE                         00002600
+NDPTIME  DS    CL6             TRANSACTION TIME                         00002700
+*                                                             0803152   00002720
+NDPEXTRN DS    0CL44         EXTERNAL TRAN DATA               9910919   00002740
+NDPTRNCD DS    CL8             TRANSACTION CODE                         00002800
+NDPTRDSC DS    CL15            TRANSACTION DESCRIPTION                  00002900
+NDPSYST  DS    CL2             TRANSACTION SYSTEM                       00003000
+*                              VALUE: TL - TELLER TERMINAL              00003100
+*                                     AD - ADMINISTRATIVE-3270 TYPE     00003200
+*                                     PL - PLATFORM TERMINAL            00003300
+NDPREV   DS    CL1             REVERSAL FLAG                            00003400
+*                              VALUE:  0 - NOT REVERSED                 00003500
+*                                      1 - DELETED BY A REVERSAL        00003600
+*                                      2 - REVERSED TRANSACTION         00003700
+NDPRENTY DS    CL1             REENTRY FLAG                             00003800
+*                              VALUE:  0 - NOT A REENTRY TRANSACTION    00003900
+*                                      1 - A REENTRY TRANSACTION        00004000
+*                                      2 - PRIOR DAY REENTRY TRANS      00004100
+*                                      3 - REENTRY TRANS CAN REJECT     00004200
+*                                      4 - PRIOR DAY REENTRY CAN REJECT 00004300
+NDPTRAIN DS    CL1             TRAINING FLAG                            00004400
+*                              VALUE:  0 - NOT A TRAINING TRANSACTION   00004500
+*                                      1 - A TRAINING TRANSACTION       00004600
+NDPOVRD  DS    CL1             OVERRIDE FLAG                            00004700
+*                              VALUE: O - EMPLOYEE OVERRIDE             00004800
+*                                     S - SUPERVISOR OVERRIDE           00004900
+         DS    XL15            FILLER                         9910919   00005000
+*                                                                       00005100
+NDPINTRN DS    0CL36         INTERNAL TRANSACTION DATA        9910919   00005200
+NDPAPPL  DS    CL2             APPLICATION                              00005300
+NDPTYPE  DS    CL1             TRANSACTION TYPE                         00005400
+*                              VALUE:  0 - OTHER                        00005500
+*                                      1 - CREDIT                       00005600
+*                                      2 - DEBIT                        00005700
+*                                      4 - FILE MAINTENANCE             00005800
+NDPINTTC DS    CL8             TRANSACTION CODE                         00005900
+NDPINTDS DS    CL10            TRANSACTION DESCRIPTION                  00006000
+NDPINTCU DS    CL3             TRANSACTION CURRENCY CODE      9913481   00006010
+         DS    XL12            FILLER                         9913481   00006100
+*                                                                       00006200
+NDPACCT  DS    CL50          ACCOUNT KEY                                00006300
+         DS    XL2008        FILLER                           9910919   00006302
+*                                                             2602019   00006305
+         ORG   NDPEXTRN                                       2602019   00006310
+NDPRSTRT DS    0CL537        RESTART INFORMATION REDEFINITION 9910919   00006315
+NDPRPGR  DS    CL2           RESTART TSPND GROUP NUMBER       2602019   00006320
+NDPCUGR  DS    CL2           RESTART CURRENT FILE GROUP       9910919   00006325
+NDPRAPL  DS    CL56          RESTART 14 APPL INFO             2602019   00006335
+NDPRREAD DS    PL4           RESTART RECORDS READ             2602019   00006340
+NDPRPOST DS    PL4           RESTART RECORDS POSTED           2602019   00006345
+NDPRSKIP DS    PL4           RESTART RECORDS SKIPPED          9910919   00006348
+NDPADJPR DS    CL200         TSADJ GROUPS ALREADY PROCESSED   9910919   00006350
+NDPLOGPR DS    CL200         TSLOG GROUPS TO BE PROCESSED     9910919   00006352
+NDPDRVF  DS    CL1           DRIVER FLAG                      9910919   00006355
+*                                N = TSNDF IS CONTROL FILE    9910919   00006360
+*                                A = TSADJ IS CONTROL FILE    9910919   00006365
+*                                L = TSLOG IS CONTROL FILE    9910919   00006370
+NDPRSKEY DS    0CL56         NDF RESTART KEY DATA             9910919   00006375
+NDPRKEY  DS    CL4               RESTART TSNDF KEY            9910919   00006380
+NDPROCC  DS    PL2               RESTART TSNDF OCCURRENCE     9910919   00006385
+NDPRFILL DS    CL50              FILLER                       9910919   00006390
+         ORG   NDPRSKEY      REDEFINE NDF RESTART KEY DATA    9910919   00006395
+NDPARSKY DS    0CL56         ADJ RESTART KEY DATA             9910919   00006400
+NDPADKEY DS    0CL54             ADJ KEY                      9910919   00006405
+NDPADAK  DS    CL52                APPLID/MEMO KEY            9910919   00006410
+NDPADKS  DS    XL2                 KEY SEQUENCE NUMBER        9910919   00006415
+NDPADSEQ DS    XL2               ADJ RBA SEQUENCE             9910919   00006420
+         ORG   NDPRSKEY      REDEFINE NDF RESTART KEY DATA    9910919   00006425
+NDPLRSKY DS    0CL56         TSLOG RESTART KEY DATA           9910919   00006430
+NDPLRBA  DS    XL8               LOG RBA                      1035850   00006435
+         DS    CL48              FILLER                       1035850   00006440
+NDPRTID  DS    CL4           SAGCTRID SAVE                    9910919   00006445
+NDPRGUV  DS    XL4           SAGUV SAVE                       9910919   00006450
+NDPRSERT DS    CL1600        SER TABLE SAVE                   9910919   00006455
+         DS    CL1           FILLER                           9910919   00006460
+*                                                             9910919   00006465
+         ORG                                                            00006475
+NDPTOT   DS    0CL16         TOTALLING DATA                   9910919   00006480
+NDPAMT   DS    PL9             AMOUNT                                   00006500
+NDPBKTNO DS    XL2             BUCKET NUMBER                            00006600
+         DS    CL5             FILLER                                   00006700
+*                                                                       00006800
+NDPMXMSG DS    PL2           MAXIMUM # OF MESSAGES                      00006900
+*                            VALUE:  +20                                00007000
+NDPMSGUS DS    PL2           # OF MESSAGES IN USE                       00007100
+*                            VALUE:  MAINTAINED BY POSTING PROGRAMS     00007200
+NDPFXLEN EQU   *-NDP         SYMBOLIC LENGTH OF FIXED AREA              00007300
+NDPMSGS  DS    0C            MESSAGE - DESCRIBED BY NDPERROR DSECT      00007400
+         SPACE                                                          00007500
+****************************************                                00007600
+*   DESCRIPTION OF ONE ERROR MESSAGE   *                                00007700
+****************************************                                00007800
+         SPACE                                                          00007900
+NDPERROR DSECT               ERROR MESSAGE DISPLAY                      00008000
+NDPEPROG DS    CL8           ERROR PROGRAM                              00008100
+NDPESEV  DS    CL1           ERROR SEVERITY                             00008200
+NDPEMSG  DS    0CL63         ERROR MESSAGE                              00008300
+NDPERCON DS    CL26            ERROR CONSTANT                 0802352   00008400
+NDPERDAT DS    CL37            ERROR DATA                     0802352   00008500
+NDPERLNG EQU   *-NDPERROR    SYMBOLIC LENGTH OF NDP                     00008600
+         SPACE 2                                              2602019   00008700
+NDPRSAPL DSECT                                                2602019   00008800
+NDPRSAPP DS    CL2           RESTART APPLICATION 1 OF 14      2602019   00008900
+NDPRSAPG DS    CL2           RESTART APPL GROUP 1 OF 14       2602019   00009000
+NDPRSLNG EQU   *-NDPRSAPL    SYMBOLIC LENGTH OF RESTART APPL  2602019   00009100

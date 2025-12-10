@@ -1,0 +1,157 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* SADSCMAA - DICTIONARY COMMON AREA                                   * 00002000
+*                                                                     * 00003000
+*                     HISTORY OF REVISIONS                            * 00004000
+* DESCRIPTION                                                 CHNGID  * 00005000
+* ----------------------------------------------------------  --------* 00005100
+* 11/01/94 MODIFY AUDIT SAVE AREAS                            2602105 * 00005998
+* 03/22/91 ADD INDEX FLAG, PHYSICAL INDEX, & AUDIT SAVE AREAS 0300291 * 00006000
+*********************************************************************** 00007000
+DSCMAREA DSECT                                                          00008000
+DICMREGS DS    18F                NUCLEUS REGISTER SAVE AREA            00009000
+DICMRREG DS    18F                ROUTINES REGISTER SAVE AREA           00010000
+DICMEREG DS    18F                EXTERNAL FUNCTION REGISTER SAVE       00011000
+DILBSAVE DS    18F                LOCAL BUFFER REGISTER SAVE            00012000
+DILBSAV1 DS    18F                LOCAL BUFFER REGISTER SAVE            00013000
+DIMVSAVE DS    18F                MOVE SAVE AREA                        00014000
+         SPACE 3                                                        00015000
+DICMDDN  DS    CL8                DICTIONARY NAME                       00016000
+DICMAUX  DS    CL8                DICTIONARY NAME - AUXILIARY           00017000
+DICMCMD  DS    CL6                COMMAND SAVE AREA                     00018000
+DICMMORE DS    XL1                MORE RECORDS FLAG (Y/N)               00019000
+DICMDTS  DS    XL1                DICTIONARY STATUS FLAGS               00020000
+DICMDFMT EQU   B'10000000'        DATA IN BUFFER IS FORMATTED           00021000
+DICMDOP  EQU   B'01000000'        DICTIONARY DATASET OPEN               00022000
+DICMDBR  EQU   B'00100000'        DICTIONARY IN BROWSE MODE             00023000
+DICMALL  EQU   B'00010000'        PROCESS ALL FIELD NAMES               00024000
+DICMRWD  EQU   B'00001000'        RE-WRITE DEFINITION RECORD            00025000
+DICMWRD  EQU   B'00000100'        WRITE DEFINITION RECORD               00026000
+DICMILL  EQU   B'00000010'        INITIALIZE LOWER LEVEL                00027000
+DICMAUXO EQU   B'00000001'        DICTIONARY AUXILIARY OPEN             00028000
+DICMEXFL DS    XL1                FLAGS TO EXT                          00029000
+DICMBTAB EQU   B'10000000'        BEGINNING OF PARSE TABLE              00030000
+DICMQSAT DS    XL1                QUERY SATISFIED FLAG                  00031000
+         DS    XL2                FILLER                                00032000
+DICMNACC DS    XL4                NUMBER OF RECORD ACCESSES             00033000
+         SPACE 3                                                        00034000
+DICMKEY  DS    0CL25              DICTIONARY ACCESS KEY: REPOSITORY     00035000
+DICMKAPL DS    CL2                     APPLICATION CODE                 00036000
+DICMKFRM DS    CL3                     DEFINITION TYPE                  00037000
+DICMKNAM DS    CL8                     ENTITY NAME                      00038000
+DICMKFLD DS    CL8                     FORMAT FIELD NAME                00039000
+DICMKNDX DS    XL4                     OCCURENCE INDEX                  00040000
+DICPKEY  DS    0CL25              DICTIONARY ACCESS KEY: AUXILIARY      00041000
+DICPKAPL DS    CL2                     APPLICATION CODE                 00042000
+DICPKFRM DS    CL3                     DEFINITION TYPE                  00043000
+DICPKNAM DS    CL8                     ENTITY NAME                      00044000
+DICPKFLD DS    CL8                     FORMAT FIELD NAME                00045000
+DICPKNDX DS    XL4                     OCCURENCE INDEX                  00046000
+DICMCAPL DS    CL2                CURRENT APPLICATION                   00047000
+DICMCFRM DS    CL3                FORMAT TYPE CURRENTLY IN MEMORY       00048000
+DICMCALI DS    CL20               POSSIBLE ALIAS NAME OR ENTITY NAME    00049000
+DICMCNAM DS    CL20               ENTITY NAME FOR ALIAS                 00050000
+DICMSNID DS    CL4                DICTIONARY SESSION ID                 00051000
+DILOADDR DS    A                  ADDRESS OF LOCAL BUFFER               00052000
+DILBADDR DS    A                  ADDRESS OF LOCAL BUFFER ROUTINES      00053000
+DILBADD1 DS    A                  ADDRESS OF LOCAL BUFFER ROUTINES      00054000
+DIREPACB DS    XL4                ADDRESS OF REPOSITORY ACB             00055000
+DIREPACL DS    XL2                LENGTH  OF REPOSITORY ACB             00056000
+DICMPIND DS   0XL4                PHYSICAL INDEX DATA                   00057000
+DICMIFLF DS    XL1                INDEX FLAG OFF MASK                   00058000
+DICMIFLN DS    XL1                INDEX FLAG ON  MASK                   00059000
+DICMPNDX DS    HL2                PHYSICAL INDEX OF CHILD SEGMENT       00060000
+         DS    CL2                RESERVED (FILLER)                     00061000
+DIRPLTBL DS    0CL60              REPOSITORY RPL BY ENTITY TYPE         00062000
+         DS    XL10                                                     00063000
+         DS    XL10                                                     00064000
+         DS    XL10                                                     00065000
+         DS    XL10                                                     00066000
+         DS    XL10                                                     00067000
+         DS    XL10                                                     00068000
+DIRPLD   DS    XL4                RPL FOR REPOSITORY DELETE             00069000
+DIRPLDL  DS    XL2                   AND LENGTH                         00070000
+DIRPLDD  DS    XL4                RPL FOR REPOSITORY DELETE             00071000
+DIRPLDDL DS    XL2                   AND LENGTH                         00072000
+DIRPLI   DS    XL4                RPL FOR REPOSITORY INDEX              00073000
+DIRPLIL  DS    XL2                   AND LENGTH                         00074000
+DI@AUXIB DS    AL4                SAVEAREA FOR A(SADAUXIB)              00075000
+DI@9AXCA DS    AL4                SAVEAREA FOR A(SAD9AXCA, SADAUXIB RB) 00076000
+DILAWSTG DS    FL4                LENGTH STG ACQUIRED FOR AUX WRITE     00077000
+DIMODPTR DS    XL4                MODCB STORAGE                         00078000
+DIMODPTL DS    XL2                   AND LENGTH                         00079000
+         SPACE 2                                                        00080000
+         DS    0D                 DBL WORD ALIGN                        00081000
+*********************  THIS AREA CLEARED UPON EACH COMMAND ************ 00082000
+DICMCTRL DS    0XL256                                                   00083000
+DICMKEYL DS    XL2                DICTIONARY KEY LENGTH (CURRENT ACCESS 00084000
+DICMKSAV DS    CL25               DICTIONARY KEY SAVE AREA              00085000
+DICMPARS DS    XL1                PARSING ROUTINE FLAGS                 00086000
+DICMDEFS DS    XL1                DEFINITION ROUTINE FLAGS              00087000
+DICMATTR EQU   B'10000000'        INDICATES ATTRIBUTES GIVEN FOR FIELD  00088000
+DICMENT  DS    XL1                ELE/ENT ROUTINE FLAGS                 00089000
+DICMSTRG EQU   B'10000000'        INDICATES STRING PROCESSING           00090000
+DICMEXT  DS    XL1                EXTERNAL I/O ROUTINE BRANCH TBL INDEX 00091000
+DICMBRWS EQU   1*4                  INDEX: REP BROWSE                   00092000
+DICMREAD EQU   2*4                  INDEX: REP READ                     00093000
+DICMWRIT EQU   3*4                  INDEX: REP WRITE                    00094000
+DICMRWRT EQU   4*4                  INDEX: REP REWRITE                  00095000
+DICMDELE EQU   5*4                  INDEX: REP DELETE                   00096000
+DICMUPDT EQU   6*4                  INDEX: REP READ FOR UPDATE          00097000
+DICMCLOS EQU   7*4                  INDEX: REP CLOSE DICTIONARY         00098000
+DICMFLUS EQU   8*4                  INDEX: REP FLUSH LOCAL BUFFERS      00099000
+DICMAREA EQU   9*4                  INDEX: AUX READ                     00100000
+DICMAWRI EQU  10*4                  INDEX: AUX WRITE                    00101000
+DICMADEL EQU  11*4                  INDEX: AUX DELETE                   00102000
+DICMACLO EQU  12*4                  INDEX: AUX CLOSE                    00103000
+DICMABRW EQU  13*4                  INDEX: AUX BROWSE                   00104000
+DICMREAL EQU  14*4                  INDEX: REP READ/LOCATE ($$ DEF)     00105000
+DICMBLD  DS    XL1                BUILD ROUTINE FIRST TIME FLAG         00106000
+DICMBLDF EQU   B'10000000'        INDICATE BUILD HEADER COMPLETE        00107000
+DICMBLDX EQU   B'01000000'        INDICATE HEADER NOT WANTED            00108000
+DICMSELX EQU   B'00100000'        RECORDS HAVE BEEN SELECTED THIS QUERY 00109000
+DICMQRYI EQU   B'00010000'        INDICATES QUERY BY INDEX              00110000
+         SPACE 3                                                        00111000
+DICMSAVE DS    4XL4               WORK AREA                             00112000
+DICMLITA DS    XL4                ADDRESS OF LITERAL POOL               00113000
+DICMRECA DS    XL4                USER BUFFER ADDRESS                   00114000
+DICMAENT DS    XL4                ADDRESS OF ENTITY                     00115000
+DICMAFLD DS    XL4                ADDRESS OF FIELD                      00116000
+* THE NEXT TWO FIELDS MUST BE ADJACENT                                  00117000
+DICMRECL DS    F                  RETURNED RECORD LENGTH                00118000
+DICMSTAT DS    F                  STATUS FEEDBACK AREA                  00119000
+*                                                                       00120000
+DICMMSGT DS    CL40               ERROR MESSAGE TEXT                    00121000
+DICMPLST DS    2F                                                       00122000
+DICMWKAR DS    4F                                                       00123000
+DICMSV10 DS    F                                                        00124000
+DICMSV14 DS    F                                                        00125000
+DICMSV15 DS    F                                                        00126000
+         ORG   DICMCTRL+256                                             00127000
+*********************************************************************** 00128000
+         SPACE 2                                                        00129000
+DIOPERID DS    CL8                CURRENT OPERATOR ID FROM TS SIGNON    00130000
+DICMAUDT DS   0CL(4*24)           AUDIT DATA SAVE AREAS       2602105   00131000
+DICMCAUD DS   0CL24            ** ENTITY CURR MNTE DATA       2602105   00132000
+DICMCLMD DS    PL4                ENTITY CURR MNTE DATE       2602105   00133000
+DICMCLMT DS    PL4                ENTITY CURR MNTE TIME       2602105   00134000
+DICMCOPR DS    CL8                ENTITY CURR MNTE OPERATOR   2602105   00135000
+DICMCCID DS    CL8                ENTITY CURR MNTE CONTROL ID 2602105   00136000
+DICMEAUD DS   0CL24            ** ENTITY LAST MNTE DATA       2602105   00137000
+DICMELMD DS    PL4                ENTITY LAST MNTE DATE       2602105   00138000
+DICMELMT DS    PL4                ENTITY LAST MNTE TIME       2602105   00139000
+DICMEOPR DS    CL8                ENTITY LAST MNTE OPERATOR   2602105   00140000
+DICMECID DS    CL8                ENTITY LAST MNTE CONTROL ID 2602105   00141000
+DICMHAUD DS   0CL24            ** REPOS HDR LAST MNTE DATA    2602105   00142000
+DICMHLMD DS    PL4                REPOS HDR LAST MNTE DATE    2602105   00143000
+DICMHLMT DS    PL4                REPOS HDR LAST MNTE TIME    2602105   00144000
+DICMHOPR DS    CL8                REPOS HDR LAST MNTE OPRATOR 2602105   00145000
+DICMHCID DS    CL8                REPOS HDR LAST MNTE CHG ID  2602105   00146000
+DICMIAUD DS   0CL24            ** REPOS ITM LAST MNTE DATA    2602105   00147000
+DICMILMD DS    PL4                REPOS ITM LAST MNTE DATE    2602105   00148000
+DICMILMT DS    PL4                REPOS ITM LAST MNTE TIME    2602105   00149000
+DICMIOPR DS    CL8                REPOS ITM LAST MNTE OPRATOR 2602105   00150000
+DICMICID DS    CL8                REPOS ITM LAST MNTE CHG ID  2602105   00151000
+DICMWORK DS    (4200-(*-DSCMAREA))C DICTIONARY WORK AREA      2602105   00152000
+DICMEND  EQU   *                                                        00153000
+         SPACE 3                                                        00154000

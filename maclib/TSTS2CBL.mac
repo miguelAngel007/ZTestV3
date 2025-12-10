@@ -1,0 +1,47 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*        TSTS2CBL - TS CONTROL BLOCK AND NCA COMPONENT LENGTHS        * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+         SPACE 2                                                        00000600
+TSTSCBL  DSECT                                                          00000700
+CBLSTART DS    0C                                                       00000800
+CBLNCA   DS    XL2                     LENGTH OF NCA                    00000900
+CBLSTM   DS    XL2                     LENGTH OF TSCB STEM              00001000
+CBLPCAL  DS    0XL4                    PCA LENGTHS                      00001100
+CBLPCAM  DS    XL2                       MAX LENGTH OF PCA              00001200
+CBLPCA   DS    XL2                       LENGTH OF ONE PCA OCCUR        00001300
+CBLKDAL  DS    0XL8                    KDA LENGTHS                      00001400
+CBLKDAM  DS    XL2                       MAX LENGTH OF KDA              00001500
+CBLKDAS  DS    XL2                       LENGTH OF KDA STEM             00001600
+CBLKDAO  DS    XL2                       LENGTH OF ONE KDA OCCUR        00001700
+CBLKDKL  DS    XL2                       MAX KEY LENGTH                 00001800
+CBLTDAL  DS    0XL6                    TDA LENGTHS                      00001900
+CBLTDAM  DS    XL2                       MAX LENGTH OF TDA              00002000
+CBLTDAS  DS    XL2                       LENGTH OF TDA STEM             00002100
+CBLTDAO  DS    XL2                       LENGTH OF ONE TDA OCCUR        00002200
+CBLMDAL  DS    0XL6                    MDA LENGTHS                      00002300
+CBLMDAM  DS    XL2                       MAX LENGTH OF MDA              00002400
+CBLMDAS  DS    XL2                       LENGTH OF MDA STEM             00002500
+CBLMDAO  DS    XL2                       LENGTH OF ONE MDA OCCUR        00002600
+CBLPDAL  DS    0XL6                    PDA LENGTHS                      00002700
+CBLPDAM  DS    XL2                       MAX LENGTH OF PDA              00002800
+CBLPDAS  DS    XL2                       LENGTH OF PDA STEM             00002900
+CBLPDAO  DS    XL2                       LENGTH OF ONE PDA OCCUR        00003000
+CBLMSCL  DS    0XL8                    MISC. LENGTHS/DATA               00003100
+CBLMDAAD DS    XL2                       MAX ADMIN MESSAGES             00003200
+CBLMDAOF DS    XL2                       MAX OVERFLOW MESSAGES          00003300
+CBLMDAIN DS    XL2                       MAX INTELLIGENT TERM MESSAGES  00003400
+CBLWRKAL DS    XL2                       MAX 'WORKAREA' LENGTH          00003500
+CBLTBLL  DS    0XL4                    CBL TABLE ENTRIES DATA           00003600
+CBLFNENT DS    XL2                       NUMBER OF CBL FIELD ENTRIES    00003700
+CBLFTLNG DS    XL2                       SIZE OF FIELD ENTRY TABLE      00003800
+CBLTSLNG EQU   *-CBLSTART                                               00003900
+         SPACE                                                          00004000
+CBLCBNM  DSECT                         TSCB NAMES                       00004100
+CBLFOCC  DS    0CL12                   TSCB FIELD NAMES ENTRY 1         00004200
+CBLFNM   DS    CL8                       FIELD NAME                     00004300
+CBLFLEN  DS    XL2                       FIELD LENGTH                   00004400
+CBLFPOS  DS    XL2                       FIELD POSITION                 00004500
+CBLOLNG  EQU   *-CBLFOCC               LENGTH OF ONE ENTRY              00004600

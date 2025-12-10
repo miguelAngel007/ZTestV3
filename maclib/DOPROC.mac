@@ -1,0 +1,55 @@
+         MACRO                                                          00010000
+&NAME    DOPROC &PROC,&TIMES=                                           00020000
+.* -----------------------------------------------------------------    00030000
+.* 5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983                    00040000
+.* 5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983                    00050000
+.* 5798-CLF COPYRIGHT IBM CORP. 1976                                    00060000
+.* LICENSED MATERIAL - PROGRAM PROPERTY OF IBM                          00070000
+.* REFER TO COPYRIGHT INSTRUCTIONS FROM NO. G120-2083                   00080000
+.* -----------------------------------------------------------------    00090000
+.*                                                                      00100000
+ GBLA &$PMAFO      * AND FOLLOWED BY OR COUNTER                         00110000
+ GBLA &$PMCNO      * CASE NUMBER                                        00120000
+ GBLA &$PMINC      * IF NESTING LEVEL COUNT                             00130000
+ GBLA &$PMPNI      * PROC NESTING INDEX                                 00140000
+ GBLA &$PMPNO      * PROC NUMBER WITHIN CASE                            00150000
+ GBLA &$PMPSC      * CONDITION (PREDICATE SET) COUNTER                  00160000
+ GBLA &$PMNDX      * LABEL SEQUENCE COUNTER                   @JBTR     00170000
+.*                                                                      00180000
+ GBLB &$PMCEM      * CASE ERROR PROC PRESENT INDICATOR                  00190000
+ GBLB &$PMCICS     * CICS OPTION                                        00200000
+ GBLB &$PMCIND     * CASE ACTIVE (WITHIN CASE/ECASE) INDICATOR          00210000
+ GBLB &$PMDCLS     * DCL ACTIVE (WITHIN DCL/EDCL PAIR)                  00220000
+ GBLB &$PMES(20)   * ELSE MACRO PRESENT INDICATOR                       00230000
+ GBLB &$PMOAA      * OR AND AND INDICATOR                               00240000
+ GBLB &$PMOERR     * CASE SEQ ERR INDICATOR                             00250000
+ GBLB &$PMPMS      * PROC MAIN ACTIVE SWITCH                            00260000
+ GBLB &$PMROS      * RENT (REENTRANT) OPTION SW FROM PROC               00270000
+.*                                                                      00280000
+ GBLC &$PMCLBL     * CASE LABEL FOR ECASE                               00290000
+ GBLC &$PMINS(20)  * IF NESTED SYSNDX VALUE                             00300000
+ GBLC &$PMISN(20)  * IF SYMBOLIC NAME                                   00310000
+ GBLC &$PMLKR      * PROC LINK REGISTER (PROC PERFORM EPROC)            00320000
+ GBLC &$PMPMX      * CURRENT SYSNDX VALUE                               00330000
+ GBLC &$PMPNM(20)  * PROC NESTED NAME                                   00340000
+ GBLC &$PMPNS(20)  * PROC NESTING SYMBOL                                00350000
+ GBLC &$PMPTP(20)  * PROC TYPE C=CASE L=CLOSED E=ERROR                  00360000
+ GBLC &$PMWR1      * WORK REGISTER 1 NAME                               00370000
+ GBLC &$PMWR2      * WORK REGISTER 2 NAME                               00380000
+ GBLC &$PMWSN      * WRKAREA SYMBOLIC NAME                              00390000
+.*                                                                      00400000
+.* -----------------------------------------------------------------    00410000
+.*                                                                      00420000
+ LCLC &NULL                                                             00430000
+.*                                                                      00440000
+         AIF  ('&NAME' EQ '&NULL').NONAME                               00450000
+&NAME    DS    0H                                                       00460000
+.NONAME  ANOP                                                           00470000
+         AIF   (T'&TIMES(2) EQ 'O').NOCOUNT                             00480000
+         LA    &TIMES(1),&TIMES(2) SET INITIAL COUNT                    00490000
+.NOCOUNT ANOP                                                           00500000
+         BAL   &$PMLKR,&PROC                                            00510000
+         AIF   (T'&TIMES EQ 'O').NOTIMES                                00520000
+         BCT   &TIMES(1),*-4  LOOP TILL COUNT ZERO                      00530000
+.NOTIMES ANOP                                                           00540000
+         MEND                                                           00550000

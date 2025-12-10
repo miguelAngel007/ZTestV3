@@ -1,0 +1,45 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+******************************************************************      00000100
+*                                             02/03/88  16:00    *      00000200
+*       TSTS2BAI - BMS APPLICATION INFORMATION COPYBOOK          *      00000300
+*                                                                *      00000400
+******************************************************************      00000500
+TSBAI    DSECT                       FILE DEFINITION TABLE ENTRY        00000600
+BAITIND  DS    XL2                   TABLE INDICATOR                    00000700
+*           VALUES: HIGH VALUES INDICATES USE BAICTLS2 DEFINITION       00000800
+*                   ALL OTHERS USE BAICTLS DEFINITION                   00000900
+BAITBLN  DS    XL2                   TABLE LENGTH                       00001000
+*                                                                       00001100
+BAIAPBAS DS    0CL8                  APPLICATION ENTRY - BASE SEGMENT   00001200
+BAIACALG DS    XL2                   APPL COMM AREA LENGTH              00001300
+BAIACSEN DS    XL2                   ACA NUMBER OF SCREEN TABLE ENTRIES 00001400
+BAIFCALG DS    XL2                   APPL FIAS COMMON AREA LENGTH       00001500
+BAINTLG  DS    XL2                   ENTRY LENGTH                       00001600
+*                                                                       00001700
+BAICTL   DS    CL12                                                     00001800
+BAICTLS2 DSECT                       APPL ENTRY - CTL FLD DEF 2511715   00002000
+BAIFLDI2 DS    CL8                   FIELD ID                           00002100
+BAICTLL2 DS    AL1                   LENGTH OF CTL FIELD                00002200
+BAIFLPO2 DS    AL2                   POSITION IN DEF CTL/FIAS COMMAREA  00002300
+BAIDFFL2 DS    CL1                   DEF CTLS/FIAS COMMAREA FLAG        00002400
+*                                       VALUES:  D-DEFAULT CONTROLS     00002500
+*                                                F-FIAS COMM AREA       00002600
+*                                                C-CIF FIAS   0803309   00002610
+*                                       NEXT 2 FURTHER DEFINE 2602130   00002620
+*                                       THE F AND C VALUES AS 2602130   00002630
+*                                       BEING CHARACTER DATA  2602130   00002640
+*                                                A-CIF FIAS CH2602130   00002650
+*                                                B-FIAS CHAR  2602130   00002660
+BAICTLS  DSECT                       APPL ENTRY - CTL FLD DEF 2511715   00002800
+BAIFLDID DS    CL8                   FIELD ID                           00002900
+BAICTLLG DS    AL1                   LENGTH OF CTL FIELD                00003000
+BAIFLPOS DS    AL1                   POSITION IN DEF CTL/FIAS COMMAREA  00003100
+BAIDFFLG DS    CL1                   DEF CTLS/FIAS COMMAREA FLAG        00003200
+*                                       VALUES:  D-DEFAULT CONTROLS     00003300
+*                                                F-FIAS COMM AREA       00003400
+*                                                C-CIF FIAS   0803309   00003410
+*                                       NEXT 2 FURTHER DEFINE 2602130   00003500
+*                                       THE F AND C VALUES AS 2602130   00003600
+*                                       BEING CHARACTER DATA  2602130   00003700
+*                                                A-CIF FIAS CH2602130   00003800
+*                                                B-FIAS CHAR  2602130   00003900

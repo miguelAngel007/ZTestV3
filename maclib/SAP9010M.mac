@@ -1,0 +1,131 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAP9010M &DSECT=YES,&TYPE=P                                    00002000
+         AIF   ('&DSECT' EQ 'YES').M10DSCT                              00003000
+&TYPE.10AREA DS    0F                                                   00004000
+         AGO   .M10CONT                                                 00005000
+.M10DSCT ANOP                                                           00006000
+&TYPE.10AREA DSECT                                                      00007000
+.M10CONT ANOP                                                           00008000
+*---------------------------------------------------------------------* 00008010
+*                  ** HISTORY OF REVISIONS **                         * 00008020
+*                                                                     * 00008030
+* DESCRIPTION                                                 CHNGID  * 00008040
+* __________________________________________________________  _______ * 00008050
+* 07/21/06 ADD 1 SEARCH KEYS: ELEID                           0715441 * 00008983
+* 03/24/03 ADD CHG ID FIELDS FOR DIST APPL, RSEC, DIST CTL    0334673 * 00008984
+* 01/09/03 ADD FIELD ENTRIES FOR AUTO LEASE LENDING           0324623 * 00008985
+* 12/10/98 REDEF LEVEL AS 2 BYTES FOR PARMS CONV DRVR SUPPORT 9913251 * 00008987
+* 05/01/97 MULTI-DECIMAL/DBCS ENABLE                          9913481 * 00008989
+*---------------------------------------------------------------------* 00008990
+**********************************************************************  00009000
+*        LAYOUT OF PARMS COMMUNICATION DATA GROUP                    *  00010000
+**********************************************************************  00011000
+&TYPE.10ACTN  DS    CL6         ACTION                                  00012000
+&TYPE.10OWN   DS    CL3         OWNERSHIP                               00013000
+&TYPE.10RC    DS    0CL8        CHANGE ID                     0334673   00014000
+&TYPE.10RCDAP DS    CL2         DIST APPL                     0334673   00014005
+&TYPE.10RCRSC DS    CL4         DIST RSEC                     0334673   00014010
+&TYPE.10RCDCT DS    CL2         DIST CTL                      0334673   00014015
+&TYPE.10SID   DS    CL8         STRUCTURE ID                            00015000
+&TYPE.10FIID  DS    XL2         FINANCIAL INSTITUTION ID                00016000
+&TYPE.10EFDT  DS    PL5         EFFECTIVE DATE                          00017000
+&TYPE.10HIUS  DS    CL1         HIGH USE INDICATOR                      00018000
+&TYPE.10DEACT DS    CL1         DEACTIVE RETURN INDICATOR               00019000
+&TYPE.10RSLT  DS    XL2         RESULT                                  00020000
+&TYPE.10MSG   DS    CL40        MESSAGE AREA                            00021000
+&TYPE.10SINFO EQU   *           START TM INFO                           00022000
+&TYPE.10LSKNM DS    CL8         LOCATED:    SEARCH KEY NAME             00023000
+&TYPE.10LSKID DS    XL2                     SEARCH KEY ID               00024000
+&TYPE.10LFIID DS    XL2                     FINANCIAL INSTITUTION ID    00025000
+&TYPE.10LEFDT DS    PL5                     EFFECTIVE DATE              00026000
+&TYPE.10LEXDT DS    PL5                     EXPIRATION DATE             00027000
+&TYPE.10LEVEL DS    XL2                     DATA LEVEL        9913251   00027010
+&TYPE.10LMDT  DS    PL5         LAST MAINT: DATE                        00028000
+&TYPE.10LMTM  DS    PL5                     TIME                        00029000
+&TYPE.10LMRC  DS    0CL8                    CHANGE ID         0334673   00030000
+&TYPE.10LMRCA DS    CL2                     DIST APPL         0334673   00030005
+&TYPE.10LMRCR DS    CL4                     DIST RSEC         0334673   00030010
+&TYPE.10LMRCC DS    CL2                     DIST CTL          0334673   00030015
+&TYPE.10LMOP  DS    CL8                     OPERATOR                    00031000
+&TYPE.10LMSR  DS    CL8                     SOURCE                      00032000
+&TYPE.10EXP   DS    CL1         EXPORTED:   INDICATOR                   00033000
+&TYPE.10EXDT  DS    PL5                     DATE                        00034000
+&TYPE.10EXTM  DS    PL5                     TIME                        00035000
+&TYPE.10EXOP  DS    CL8                     OPERATOR                    00036000
+&TYPE.10EXSR  DS    CL8                     SOURCE                      00037000
+&TYPE.10EINFO EQU   *           END TM INFO                             00038000
+              ORG   &TYPE.10SINFO                                       00039000
+&TYPE.10RINFO DS    0CL(&TYPE.10EINFO-&TYPE.10SINFO) FOR TBL MANAGER    00040000
+              ORG                                                       00041000
+&TYPE.10SKFLD EQU   *                                                   00042000
+&TYPE.10USER1 DS    CL4         SEARCH KEY: USER GROUP 1                00043000
+&TYPE.10USER2 DS    CL4                     USER GROUP 2                00044000
+&TYPE.10USER3 DS    CL4                     USER GROUP 3                00045000
+&TYPE.10USER4 DS    CL4                     USER GROUP 4                00046000
+&TYPE.10USER5 DS    CL4                     USER GROUP 5                00047000
+&TYPE.10USER6 DS    CL4                     USER GROUP 6                00048000
+&TYPE.10USER7 DS    CL4                     USER GROUP 7                00049000
+&TYPE.10USER8 DS    CL4                     USER GROUP 8                00050000
+&TYPE.10USER9 DS    CL4                     USER GROUP 9                00051000
+&TYPE.10CODE0 DS    CL3                     CODE 0                      00052000
+&TYPE.10OFFCR DS    CL5                     OFFICER                     00053000
+&TYPE.10TYPE1 DS    CL2                     TYPE 1 - (PROCESS)          00054000
+&TYPE.10IND1  DS    CL1                     IND  1 - (XXXXXXX)          00055000
+&TYPE.10TYPE2 DS    CL3                     TYPE 2 - (ACCOUNT)          00056000
+&TYPE.10TYPE3 DS    CL3                     TYPE 3 - (XXXXXXX)          00057000
+&TYPE.10CODE1 DS    CL5                     CODE 1 - (COUNTRY)          00058000
+&TYPE.10IND2  DS    CL1                     IND  2 - (XXXXXXX)          00059000
+&TYPE.10CODE3 DS    CL3                     CODE 3 - (XXXXXXX)          00060000
+&TYPE.10ST    DS    CL2                     STATE                       00061000
+&TYPE.10STAT  DS    CL2                     STATUS                      00062000
+&TYPE.10SRCE  DS    CL1                     SOURCE                      00063000
+&TYPE.10PROD  DS    CL4                     ACCOUNT PRODUCT             00064000
+&TYPE.10APPL  DS    CL2                     APPLICATION ID              00065000
+&TYPE.10CTL1  DS    CL2                     CONTROL 1                   00066000
+&TYPE.10CTL1X DS    CL2                     FUTURE USE                  00067000
+&TYPE.10CTL2  DS    CL3                     CONTROL 2                   00068000
+&TYPE.10CTL3  DS    CL3                     CONTROL 3                   00069000
+&TYPE.10CTL4  DS    CL4                     CONTROL 4                   00070000
+&TYPE.10ACCT  DS    CL24                    ACCOUNT NUMBER              00071000
+&TYPE.10BR    DS    CL5                     BRANCH                      00072000
+&TYPE.10SBAP  DS    CL2                     SUB APPLICATION ID          00073000
+&TYPE.10ACCR  DS    CL2                     ACCURAL STATUS              00074000
+&TYPE.10PROC  DS    CL2                     PROCESS STATUS              00075000
+&TYPE.10LEGAL DS    CL2                     LEGAL STATUS                00076000
+&TYPE.10OPER  DS    CL8                     OPERATOR                    00077000
+* THE FOLLOWING FOUR FIELDS ARE USED FOR TS HELP SCREENS.               00078000
+&TYPE.10DAGID DS    CL8                     DAG ID                      00079000
+&TYPE.10CLASS DS    CL10                    CLASS                       00080000
+&TYPE.10SCRNM DS    CL8                     SCREEN NAME                 00081000
+&TYPE.10SCRSQ DS    CL2                     SCREEN SEQUENCE NUMBER      00082000
+&TYPE.10TRAN  DS    CL4                     TRANSACTION                 00083000
+&TYPE.10REGN  DS    CL5                     REGION                      00084000
+&TYPE.10LNGCD DS    CL2                     LANGUAGE CODE     9913481   00084100
+&TYPE.10CURR  DS    CL3                     CURRENCY CODE     9913481   00084200
+&TYPE.10COMLI DS    CL1                     COMMERCIAL IND    0324623   00084205
+&TYPE.10SNGLB DS    CL1                     SINGLE/BALLOON CD 0324623   00084210
+&TYPE.10ELEID DS    CL8                     ELEMENT ID        0715441   00084215
+&TYPE.10FILL  DS    CL72                    FILLER            0715441   00085000
+&TYPE.10SKLG  EQU   *-&TYPE.10SKFLD                                     00086000
+&TYPE.10TBMGR DS    CL1                     TABLE MANAGER FLAG          00087000
+*                                           N=NOT IN USE                00088000
+*                                           S=TBL STRUCTURE DEF         00089000
+*                                           B=TBL STRUCTURE DEF & MBRS  00090000
+&TYPE.10LOG   DS    CL1                     LOG UPDATES                 00091000
+*                                           N=NOT IN USE                00092000
+*                                           Y=LOGGING ACTIVE            00093000
+&TYPE.10DGLG  DS    XL2                     DAG LENGTH                  00094000
+* THE FOLLOWING TWO FIELDS ARE USED BY SASERVE TO INVOKE SAP3010C.      00095000
+* MODE: L          = LOCATE MODE - RETURN ADDRESS OF MEMBER             00096000
+*       LOW-VALUES = MOVE MODE   - MOVE MEMBER TO REQUEST ADDRESS       00097000
+* DGAD: MOVE MODE  - CONTAINS DAG ADDR WHICH CONTAINS THE KEY REQUESTED 00098000
+*       LOCATE MODE- CONTAINS THE KEY ADDR (INPUT) AND SAP3010C         00099000
+*                    SETS THIS FIELD TO THE MEMBER ADDRESS (OUTPUT)     00100000
+&TYPE.10MODE  DS    CL1                                                 00101000
+*                                                                       00102000
+&TYPE.10DGAD  DS    XL4                     DAG ADDR USED BY SAP3010C   00103000
+&TYPE.10FG    DS    CL2                     FILE GROUP                  00104000
+&TYPE.10FIL2  DS    CL3                     FILLER              2602105 00105000
+&TYPE.10LGTH  EQU   *-&TYPE.10AREA                                      00106000
+         MEND                                                           00107000

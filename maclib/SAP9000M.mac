@@ -1,0 +1,86 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAP9000M &DSECT=YES,&TYPE=P,&TMTABLE=NO                        00002000
+         AIF   ('&DSECT' EQ 'YES').M00DSCT                              00003000
+&TYPE.00AREA  DS    0F                                                  00004000
+         AGO   .M00CONT                                                 00005000
+.M00DSCT ANOP                                                           00006000
+&TYPE.00AREA  DSECT                                                     00007000
+.M00CONT ANOP                                                           00008000
+**********************************************************************  00009000
+*  SAP9000M -  LAYOUT OF PARMS STRUCTURE DEFINITION                  *  00010000
+**********************************************************************  00011000
+.********************************************************************** 00011100
+.*                    ** HISTORY OF REVISIONS **                      * 00011200
+.* DESCRIPTION                                                 CHNGID * 00011300
+.* ___________________________________________________________ ______ * 00011400
+.* 03/23/93 APPEND VAR LEN TABLE FOR TM APPL REQ (DSECT ONLY)  250747 * 00011994
+.*                                                                    * 00011996
+.********************************************************************** 00011998
+&TYPE.00KSID  DS    CL8                     MEMBER KEY: SID             00012000
+&TYPE.00KFIID DS    XL2                                 FIID            00013000
+&TYPE.00DESC  DS    CL40                    STRUCTURE DEF DESCRIPTION   00014000
+&TYPE.00DBID  DS    CL8                     DATA BASE ID                00015000
+&TYPE.00DGID  DS    CL8                     DATA GROUP ID               00016000
+&TYPE.00MKLG  DS    XL2                     MEMBER KEY LENGTH           00017000
+&TYPE.00DGLG  DS    XL2                     DATA GROUP LENGTH           00018000
+&TYPE.00CNTL  DS    CL1                     CNTL IN USER DG INDICATOR   00019000
+&TYPE.00DSEFF DS    CL1                     DISABLE EFF DATING          00020000
+&TYPE.00TMPQE DS    XL1                     TBL MNGR LOAD FLG 2500722   00021000
+&TYPE.00TMMLF EQU   X'08'                     MBR LD REQ/FIID 2500722   00021100
+&TYPE.00TMMLA EQU   X'04'                     MBR LD REQ/APPL 2500722   00021200
+&TYPE.00TMSDL EQU   X'02'                     SOME DTA LOADED 2500722   00021300
+&TYPE.00TMADL EQU   X'01'                     ALL DATA LOADED 2500722   00021400
+&TYPE.00TBL03 DS    CL1                     TABLE OPTION 03             00022000
+&TYPE.00TBL04 DS    CL1                     TABLE OPTION 04             00023000
+&TYPE.00TBL05 DS    CL1                     TABLE OPTION 05             00024000
+&TYPE.00TBL06 DS    CL1                     TABLE OPTION 06             00025000
+&TYPE.00FGIND DS    CL1                     FILE GROUP IND              00026000
+&TYPE.00DBMXK DS    XL2                     NOT USED AT THIS TIME       00027000
+&TYPE.00VARDG DS    CL1                     VAR LGTH DAG INDICATOR      00028000
+&TYPE.00USR01 DS    CL8                     USER EXIT 01                00029000
+&TYPE.00USR02 DS    CL8                     USER EXIT 02                00030000
+&TYPE.00USR03 DS    CL8                     USER EXIT 03                00031000
+&TYPE.00USR04 DS    CL8                     USER EXIT 04                00032000
+&TYPE.00USR05 DS    CL8                     USER EXIT 05                00033000
+&TYPE.00USR06 DS    CL8                     USER EXIT 06                00034000
+&TYPE.00USR07 DS    CL8                     USER EXIT 07                00035000
+&TYPE.00SDR01 DS    CL8                     SDR 01                      00036000
+&TYPE.00FILL1 DS    CL8                     FILLER 1                    00037000
+&TYPE.00FILL2 DS    CL8                     FILLER 2                    00038000
+&TYPE.00#SKDF DS    XL2                     # SEARCH KEY DEFINTIONS     00039000
+* FOLLOWING FIELDS OCCUR 15 TIMES                                       00040000
+&TYPE.00SKNM  DS    CL8                     SEARCH KEY NAME             00041000
+&TYPE.00SYSLV DS    CL1                     USE DFLT LEVEL FIID IND     00042000
+&TYPE.00#FILL DS    XL4                     FILLER NOT USED             00043000
+         DS    XL182                   THE OTHER 14 OCCUR               00044000
+&TYPE.00LGTH  EQU   *-&TYPE.00AREA                                      00045000
+         AIF   ('&TMTABLE' NE 'YES').M00END                             00045100
+**********************************************************************  00045200
+* THE STRUCTURE DEFINITION COPY STORED BY TABLE MANAGER WILL HAVE    *  00045300
+* A VARIABLE LENGTH TABLE APPENDED IF THERE WERE ANY LOAD REQUESTS   *  00045400
+* FOR THE STRUCTURE-FIID WHICH WERE QUALIFIED BY APPLICATION CODE    *  00045500
+* (1ST 2 BYTES OF MEMBER KEY).  THIS VARIABLE LENGTH TABLE WILL      *  00045600
+* CONTAIN AN APPLICATION CODE AND FLAG BYTE FOR EACH APPLICATION     *  00045700
+* REQUESTED WITHIN THE SID-FIID AND A HALFWORD COUNTER FOR NUMBER    *  00045800
+* OF APPLICATIONS REQUESTED.                                         *  00045900
+*                                                                    *  00046000
+* THE REPOSITORY DICTIONARY DEFINITION OF DAG SAP9000D DOES NOT      *  00046100
+* INCLUDE THIS VARIABLE LENGTH TABLE BECAUSE THIS TABLE DOES NOT     *  00046200
+* EXIST ON THE FILE AND IT WILL NEVER BE SEEN BY A COBOL (API/RPI)   *  00046300
+* PROGRAM.  IF THE PARMS STRUCTURE DEFINITION DEFINITION IS EVER     *  00046400
+* CHANGED, CHANGES TO MACRO SAP9000M AND DAG SAP9000D MUST BE MADE   *  00046500
+* WITH THIS IN MIND--I.E., LEAVE THE TABLE AT THE END OF SAP9000M    *  00046600
+* AND DO NOT INCLUDE IT IN DAG SAP9000D.                             *  00046700
+**********************************************************************  00046800
+&TYPE.00TMRA# DS    HL2                     REQUESTED APPL #  2500722   00046900
+&TYPE.00TMTBL DS 100CL3                     REQ APPL TBL DATA 2500722   00047000
+              ORG   &TYPE.00TMTBL                             2500722   00047100
+&TYPE.00TMRAC DS    CL2                     REQUESTED APPL CD 2500722   00047200
+&TYPE.00TMRAF DS    XL1                     REQ APPL FLAG     2500722   00047300
+&TYPE.00TMRAS EQU   &TYPE.00TMSDL           REQ AP SOMELOADED 2500722   00047400
+&TYPE.00TMRAA EQU   &TYPE.00TMADL           REQ AP ALL LOADED 2500722   00047500
+              ORG                                                       00047600
+&TYPE.00XLEN  EQU   *-&TYPE.00AREA          EXTENDED LENGTH   2500722   00047700
+.M00END  ANOP                                                           00047800
+         MEND                                                           00047900

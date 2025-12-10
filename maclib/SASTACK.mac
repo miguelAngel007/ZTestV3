@@ -1,0 +1,127 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LBL1    SASTACK &STATE,&DSECT,&XCFROM=,&XCTO=,&GROSS=,&RGLOBAL=        00000200
+.********************************************************************** 00000205
+.*                    ** HISTORY OF REVISIONS **                      * 00000210
+.* DESCRIPTION                                                CHNGID  * 00000215
+.* ---------------------------------------------------------- --------* 00000220
+.* 03/12/03 CHANGE GETVIS TO LOC=RES (DEFAULT) FOR VSE        0344701   00000293
+.* 03/02/00 CHANGE GETVIS TO LOC=ANY                          2024183 * 00000294
+.*                                                                    * 00000296
+.********************************************************************** 00000298
+         GBLB  &VSE                                                     00000300
+         GBLC  &C                                                       00000400
+         AIF   ('&STATE' EQ 'MAIN').STA000                              00000500
+         AIF   ('&STATE' EQ 'SUBORD').STA000                            00000600
+         MNOTE 8,'SASTACK - TRASH IN STATE (POSITIONAL) OPERAND'        00000700
+         MEXIT                                                          00000800
+.STA000  ANOP                                                           00000900
+         AIF   ('&DSECT' EQ '').STA100                                  00001000
+         AGO   .DSC000                                                  00001100
+.STA100  ANOP                                                           00001200
+         AIF   ('&STATE' EQ 'MAIN').MAI000                              00001300
+         AIF   ('&STATE' EQ 'SUBORD').SUB000                            00001400
+.MAI000  ANOP                                                           00001500
+         SPACE                                                          00001600
+&LBL1    CSECT                                                          00001700
+         USING *,R10,R11                   ' '                          00001800
+         STM   14,12,12(13)        SAVE CALLER'S REGS         2500295   00001900
+         LR    R10,R15                                        2500295   00002000
+         LA    R11,4095(,R10)                                 2500295   00002100
+         LA    R11,1(,R11)                                    2500295   00002200
+         SPACE                                                          00002300
+         ICM   R0,15,=AL4(&GROSS)  OBTAIN STACK AREA STORAGE            00002400
+         AIF   (&VSE).VSE0010                                           00002500
+.MVS0010 ANOP                                                           00002600
+         GETMAIN R,LV=(0),LOC=ANY                             2024183   00002700
+         AGO   .NOP0010                                                 00002800
+.VSE0010 ANOP                                                           00002900
+         GETVIS LENGTH=(0),ADDRESS=(1),LOC=BELOW              0344701   00003000
+.NOP0010 ANOP                                                           00003100
+         SPACE                                                          00003200
+         ST    R13,4(R1)           CHAIN NEW TO OLD                     00003300
+         ST    R1,8(R13)           CHAIN OLD TO NEW                     00003400
+         LR    R13,R1              SET UP MY SAVE AREA                  00003500
+         USING WGBLDSCT,R13        ADDRESS DYNAMIC STORAGE DEF.         00003600
+         ICM   R3,15,=AL4(&GROSS)  STORE ADDRESS OF                     00003700
+         BCTR  R3,R0                LAST BYTE OF                        00003800
+         LA    R3,0(R13,R3)         STACK.                              00003900
+         STCM  R3,15,W&C.STACKE      ' '                                00004000
+         STCM  R13,15,W&C.GBLADR   SET ADDRESS OF MAIN'S (GLOBAL) AREA  00004100
+         MVC   W&C.WAL,=AL4(WGBLDSCE-WGBLDSCT) SET SIZE OF  ' '         00004200
+         AGO   .ALL000                                                  00004300
+.SUB000  ANOP                                                           00004400
+         SPACE                                                          00004500
+&LBL1    CSECT                                                          00004600
+         USING *,R10,R11                   ' '                          00004700
+         STM   14,12,12(13)        SAVE CALLER'S REGS          2500295  00004800
+         LR    R10,R15                                         2500295  00004900
+         LA    R11,4095(,R10)                                  2500295  00005000
+         LA    R11,1(,R11)                                     2500295  00005100
+         SPACE                                                          00005200
+         LR    R4,R13              COPY CALLER'S DYN STORAGE ADDR       00005300
+         ICM   R3,15,W&C.WAL-WLC&C.DSCT(R13)  GET CALLER'S STG LEN      00005400
+         LA    R13,0(R3,R13)       MOVE UP IN STACK TO NEXT AVAIL       00005500
+         SPACE                                                          00005600
+         USING WLC&C.DSCT,R13      ESTABLISH DYN STORAGE ADDRESSABILITY 00005700
+         SPACE                                                          00005800
+         MVC   W&C.STACKE(8),W&C.STACKE-WLC&C.DSCT(R4) COPY BASE ADDRS  00005900
+         SPACE                                                          00006000
+         ST    R4,4(R13)           CHAIN NEW TO OLD                     00006100
+         ST    R13,8(R4)           CHAIN OLD TO NEW                     00006200
+*              SET SIZE OF THIS CSECT'S REG SAVE AND WORKAREA (LOCALS)  00006300
+         MVC   W&C.WAL,=AL4(WLC&C.DSCE-WLC&C.DSCT)                      00006400
+         AIF   ('&RGLOBAL' EQ '').ALL000                                00006500
+         ICM   &RGLOBAL,15,W&C.GBLADR  GET ADDRESSABILITY TO GLOBALS    00006600
+         USING WGBLDSCT,&RGLOBAL                 ' '                    00006700
+.ALL000  ANOP                                                           00006800
+         AIF   ('&XCFROM' EQ '').REG000                                 00006900
+         LA    R0,&XCFROM          PREPARE TO CLEAR REQUESTED AREA      00007000
+         ICM   R1,15,=AL4(&XCTO-&XCFROM)                                00007100
+         SR    R3,R3               SOURCE DATA LENGTH IS ZERO           00007200
+         MVCL  R0,R2               DO IT.                               00007300
+.REG000  ANOP                                                           00007400
+         ICM   R1,15,4(R13)        RE-ACCESS CALLER'S SAVE AREA         00007500
+         LM    R0,R4,20(R1)        RECOVER REGISTERS DAMAGED BY         00007600
+*                                   INITIALIZATION PROCESS.             00007700
+         AGO   .END000                                                  00007800
+.DSC000  ANOP                                                           00007900
+         AIF   ('&STATE' EQ 'SUBORD').DSCS00                            00008000
+         AIF   ('&DSECT' EQ 'DSECTEND').DSCM10                          00008100
+.DSCM    ANOP                                                           00008200
+         SPACE                                                          00008300
+WGBLDSCT DSECT                                                          00008400
+         DS    18F                 REGISTER SAVE AREA                   00008500
+W&C.STACKE DS  F                   ADDRESS OF LAST BYTE OF STACK        00008600
+W&C.GBLADR DS  F                   ADDRESS OF MAIN (GLOBAL) R13 AREA    00008700
+W&C.WAL    DS  F                   LENGTH OF THIS CSECT'S WORK AREA     00008800
+W&C.USER   DS  0F                  BEGIN USER AREA                      00008900
+         SPACE                                                          00009000
+* *** GLOBAL WORK AREAS FOLLOW...                                       00009100
+         AGO   .END000                                                  00009200
+.DSCM10  ANOP                                                           00009300
+         SPACE                                                          00009400
+         DS    0D                                                       00009500
+WGBLDSCE EQU   *                   END OF GLOBAL WORKAREAS DSECT.       00009600
+         EJECT                                                          00009700
+         AGO   .END000                                                  00009800
+.DSCS00  ANOP                                                           00009900
+         AIF   ('&DSECT' EQ 'DSECTEND').DSCS10                          00010000
+         SPACE                                                          00010100
+WLC&C.DSCT DSECT                                                        00010200
+         SPACE                                                          00010300
+         DS    18F                 STANDARD REG SAVE AREA               00010400
+W&C.STACKE DS  F                   ADDRESS OF LAST BYTE OF STACK        00010500
+W&C.GBLADR DS  F                   ADDRESS OF MAIN (GLOBAL) R13 AREA    00010600
+W&C.WAL    DS  F                   LENGTH OF THIS CSECT'S WORK AREA     00010700
+W&C.USER   DS  0F                  BEGIN USER AREA                      00010800
+         SPACE                                                          00010900
+* LOCALS FOR THIS ROUTINE FOLLOW...                                     00011000
+         AGO   .END000                                                  00011100
+.DSCS10  ANOP                                                           00011200
+         SPACE                                                          00011300
+         DS    0D                                                       00011400
+WLC&C.DSCE EQU *                   END OF LOCAL WORKAREAS DSECT.        00011500
+         EJECT                                                          00011600
+.END000  ANOP                                                           00011700
+         MEND                                                           00011800

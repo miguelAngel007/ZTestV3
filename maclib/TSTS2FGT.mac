@@ -1,0 +1,57 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+***************************************************************         00000100
+*                  TSTS2FGT - FILE GROUP TABLE                *         00000200
+***************************************************************         00000300
+*  THIS TABLE CONTAINS AN ENTRY FOR EACH FILE AFFECTED BY     *         00000400
+*  CALLING MODULE. IF THIS MODULE PERFORMS A READ, READ FOR   *         00000500
+*  UPDATE, BROWSE, OR WRITE WHERE THE FILE GROUP IS NEEDED    *         00000600
+*  AN ENTRY IS REQUIRED.                                      *         00000700
+*                                                             *         00000800
+*  THE NUMBER OF OCCURRENCES WILL VARY ACCORDING TO NEEDS     *         00000900
+*  OF CALLING MODULE (THE MAXIMUM ENTRIES WHICH CAN BE        *         00001000
+*  LOOKED UP AT ONE TIME IS 30, BUT MOST APPLICATIONS WILL    *         00001100
+*  US ONLY 1-10)                                              *         00001110
+***************************************************************         00001200
+*                    ** HISTORY OF REVISIONS **                       * 00001204
+* DESCRIPTION                                                 CHNGID  * 00001206
+* ___________________________________________________________ _______ * 00001208
+* 09/18/12 MODIFY FOR DB2                                     1336326   00001293
+* 05/20/08 ADD FOR XLEN FLAG                                  0825701   00001294
+* 01/31/05 MODIFY TO RECOGNIZE KEY FORMAT                     0525189   00001295
+* 10/30/97 CHANGE QUEUE NAME FROM TSTSQ TO GNTSQ              9913522 * 00001296
+*********************************************************************** 00001298
+         SPACE                                                          00001300
+FGTTABLE DSECT                                                          00001400
+FGTENTUS DS    XL2                   NUMBER OF ENTRIES USED             00001500
+FGTENTPR DS    XL2                   NUMBER OF ENTRIES PROCESSED        00001600
+FGTRTNCD DS    CL1                   RETURN CODE                        00001700
+*                THIS FIELD IS SET BY TSTSRFG1                          00001800
+*                VALUES :   0 - GOOD RETURN                             00001900
+*                           1 - NO FDR FOUND FOR FILE NAME              00002000
+*                           2 - TSFDR RECORDS NOT LOADED IN CORE        00002100
+*                           3 - TSSSR RECORDS NOT LOADED IN CORE        00002200
+*                           4 - SYSTEM RECORDS ARE BEING LOADED         00002300
+*                           5 - CICS ERROR READQ - GNTSQ001   9913522   00002400
+*                           6 - QUEUE ID ERROR - GNTSQ001     9913522   00002500
+*                           7 - ITEM ERROR - GNTSQ001         9913522   00002600
+FGTSTMLG EQU   *-FGTTABLE            LENGTH OF FIXED AREA               00002700
+*                                                                       00002800
+FGTOCCUR DSECT                                                          00002900
+FGTPRFLG DS    CL1                   PROCESS FLAG                       00003000
+*                                      SPACE - NO                       00003100
+*                                      Y     - YES                      00003200
+FGTFILE  DS    0CL8                  FILE IDENTIFIER                    00003300
+FGTNAME  DS    0CL5                     FILE NAME                       00003400
+FGTAPPID DS    CL2                         APPLICATION                  00003500
+FGTFLEID DS    CL3                         FILE ID                      00003600
+FGTFLEGP DS    CL2                      GROUP                           00003700
+         DS    CL1                   FILLER                             00003800
+FGTFILK  DS    0CL28                 SSR FILE KEY                       00003810
+FGTCTLS  DS    CL14                  APPLICATION CONTROLS               00003900
+FGTACCT  DS    CL14                  APPLICATION ACCOUNT NUMBER         00003910
+FGTFKTY  DS    CL1                 KEY TYPE - S=SEPARATE KEYS 0525189   00004000
+FGTXLEN  DS    CL1                 XLEN FLAG                  0825701   00004010
+FGTFLORG DS    CL1                 FILE ORGANIZATION          1336326   00004020
+*                                      D - DB2                1336326   00004030
+FGTOCCLG EQU   *-FGTOCCUR            FIXED LENGTH OF 1 OCCURS           00004100
+*                                                                       00004200

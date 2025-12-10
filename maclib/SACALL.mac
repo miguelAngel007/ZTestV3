@@ -1,0 +1,79 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SACALL &PROG,&PARMS,&TYPE=CALL                                 00002000
+         GBLB  &VSE                                                     00003000
+         LCLA  &PL1,&PL2                                                00004000
+.*--------------------------------------------------------------------* 00004100
+.*                  ** MACRO DESCRIPTION **                           * 00004200
+.*                                                                    * 00005000
+.*        SACALL PROG,(PARM1,PARM2,PARM3, ...)                        * 00006000
+.*                                                                    * 00007000
+.* THIS ROUTINE WILL DYNAMICALLY LOAD A MODULE                        * 00008000
+.* AND CALL IT WITH THE SPECIFIED PARAMETERS.                         * 00009000
+.*                                                                    * 00010000
+.* -------------------------------------------------------------------* 00011000
+.*                 ** HISTORY OF REVISIONS **                         * 00011010
+.*                                                                    * 00011020
+.*DESCRIPTION                                                 CHNGID  * 00011030
+.*__________________________________________________________  _______ * 00011040
+.*07/15/98 MODIFIED FOR CDLOAD FAILURE                        9913845 * 00011958
+.*03/20/98 MODIFIED TO CORRECT PARM ADDRESS FOR 24-BIT AMODE  9913793 * 00011960
+.*03/20/98 CALLING 31-BIT AMODE PROGRAM.                      9913793 * 00011965
+.*10/20/97 MODIFIED TO CORRECT SINGLE PARAMETER IN PAREN      9913437 * 00011970
+.*                                                                    * 00011980
+.*--------------------------------------------------------------------* 00011990
+         AIF ('&TYPE' EQ 'LOAD').SACLOAD                                00012000
+&LABEL   LA    R15,=CL8'&PROG'      GET THE ADDRESS OF THE PROG NAME    00013000
+         AIF (T'&PARMS NE 'O').S1                                       00014000
+         ST    R1,24(R13)           SAVE THE PARAM LIST POINTER         00015000
+.S1      ANOP                                                           00016000
+         AIF   (&VSE).V1                                                00017000
+         LOAD  EPLOC=(15)                                               00018000
+         LR    R15,R0               SAVE THE ENTRY POINT                00019000
+         AGO   .A1                                                      00020000
+.V1      ANOP                                                           00021000
+         CDLOAD  (15),RETPNF=YES                              9913845   00022000
+         LTR   R15,R15              CDLOAD SUCCESSFUL         9913845   00022100
+         BZ    @SACL&SYSNDX         YES, CONTINUE             9913845   00022200
+         LA    R1,=CL8'&PROG'                                 9913845   00022300
+         LA    R0,=CL14'CDLOAD FAILURE'                       9913845   00022400
+         JDUMP                      NO, ABEND                 9913845   00022600
+         CANCEL ALL                                           9913845   00022700
+@SACL&SYSNDX DS   0H                CDLOAD WAS SUCCESSFUL     9913845   00022800
+         LR    R15,R1               SAVE THE ENTRY POINT                00023000
+.A1      ANOP                                                           00024000
+         AIF (T'&PARMS EQ 'O').S2                                       00025000
+         AIF ('&PARMS'(1,1) NE '(').P1                                  00026000
+&PL2     SETA  N'&PARMS                                                 00027000
+&PL1     SETA  1                                                        00028000
+         CNOP  0,4                                                      00029000
+         LA    R1,*+8                                         9913793   00030000
+         B     @SAC&SYSNDX                                    9913793   00030100
+         AIF (&PL2 EQ &PL1).PL2                               9913437   00030500
+.PL1     ANOP                                                           00031000
+         DC    A(&PARMS(&PL1))                                          00032000
+&PL1     SETA  &PL1+1                                                   00033000
+         AIF (&PL2 GT &PL1).PL1                                         00034000
+.PL2     ANOP                                                 9913437   00034500
+         DC    AL4(&PARMS(&PL2)+X'80000000')                  9913793   00036000
+         AGO   .P2                                                      00037000
+.S2      ANOP                                                           00038000
+         L     R1,24(R13)             RESTORE PARAM LIST POINTER        00039000
+         AGO   .P3                                                      00040000
+.P1      ANOP                                                           00041000
+         LA    R1,&PARMS                                                00042000
+.P2      ANOP                                                           00043000
+@SAC&SYSNDX DS   0H                                                     00044000
+.P3      ANOP                                                           00045000
+         BASR  R14,R15                                        9913793   00046000
+         MEXIT                                                          00047000
+.SACLOAD ANOP                                                           00048000
+&LABEL   LA    R1,=CL8'&PROG'      GET THE ADDRESS OF THE PROG NAME     00049000
+         AIF   (&VSE).L1                                                00050000
+         LOAD  EPLOC=(1)                                                00051000
+         LR    R1,R0               SAVE THE ENTRY POINT                 00052000
+         AGO   .L2                                                      00053000
+.L1      ANOP                                                           00054000
+         CDLOAD  (1)                                                    00055000
+.L2      ANOP                                                           00056000
+         MEND                                                           00057000

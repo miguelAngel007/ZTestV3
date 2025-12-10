@@ -1,0 +1,65 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                  ** COPYBOOK DESCRIPTION **                         * 00000020
+*                                                                     * 00000030
+*                               TSTS2QSI                              * 00000040
+*                          TRANSACTION SYSTEM                         * 00000050
+*                          QUEUE STATUS ITEM                          * 00000060
+*                                                                     * 00000070
+*---------------------------------------------------------------------* 00000080
+*                  ** HISTORY OF REVISIONS **                         * 00000090
+*                                                                     * 00000100
+* DESCRIPTION                                                 CHNGID  * 00000110
+* __________________________________________________________  _______ * 00000120
+*                                                                     * 00000140
+* 10/25/10 ADD STARTED DATE AND TIME                          1115866 * 00000591
+* 10/30/97 CHANGE QUEUE NAME FROM TSTSQ TO GNTSQ              9913522 * 00000592
+* 02/15/97 ADDED NEW FIELDS FOR 24X7 PROCESSING               9910919 * 00000594
+*---------------------------------------------------------------------* 00000596
+*                                                                       00000598
+         SPACE                                                          00000600
+QSIREC   DS    0CL100                                         1115866   00000700
+QSIADDR  DS    XL4                   ADDRESS OF THIS ITEM IN STORAGE    00000800
+QSIEDATE DS    PL4                   EIB DATE                           00000900
+         DS    CL2                   FILLER                             00001000
+QSIETIME DS    PL4                   EIB TIME                           00001100
+QSISERL  DS    CL1                   SER LOAD-IN-CORE FLAG    9910919   00001110
+*                                    VALUE 0 = SER NOT LOADED 9910919   00001120
+*                                          1 - SER LOADED IN C9910919   00001130
+         DS    CL1                   FILLER                   9910919   00001200
+QSIPRFLG DS    CL1                   PROCESS FLAG                       00001300
+*                                    VALUE '0' = NORMAL PROCESSING      00001400
+*                                          '1' = LOAD IN PROGRESS       00001500
+QSIXSAL  DS    0XL10                 FIRST SCF FILE IDX LOCATION        00001600
+QSIXSAR  DS    XL4                     ADDR FIRST SCF FILE INDEX REC    00001700
+QSIXSOA  DS    XL4                     OCCURRENCE ADDRESS               00001800
+QSIXSON  DS    XL2                     OCCURRENCE NUMBER                00001900
+*                                                                       00002000
+QSIXLAL  DS    0XL10                 FIRST LDR FILE IDX LOCATION        00002100
+QSIXLAR  DS    XL4                     ADDR FIRST LDR FILE INDEX REC    00002200
+QSIXLOA  DS    XL4                     OCCURRENCE ADDRESS               00002300
+QSIXLON  DS    XL2                     OCCURRENCE NUMBER                00002400
+*                                                                       00002500
+QSIXBAL  DS    0XL10                 FIRST BCR FILE IDX LOCATION        00002600
+QSIXBAR  DS    XL4                     ADDR FIRST BCR FILE INDEX REC    00002700
+QSIXBOA  DS    XL4                     OCCURRENCE ADDRESS               00002800
+QSIXBON  DS    XL2                     OCCURRENCE NUMBER                00002900
+*                                                                       00003000
+QSIXTAL  DS    0XL10                 FIRST TBL FILE IDX LOCATION        00003100
+QSIXTAR  DS    XL4                     ADDR FIRST TGR FILE INDEX REC    00003200
+QSIXTOA  DS    XL4                     OCCURRENCE ADDRESS               00003300
+QSIXTON  DS    XL2                     OCCURRENCE NUMBER                00003400
+*                                                                       00003500
+QSIXOAL  DS    0XL10                 FIRST OTHER FILE IDX LOCATION      00003600
+QSIXOAR  DS    XL4                     ADDR FIRST OTH FILE INDEX REC    00003700
+QSIXOOA  DS    XL4                     OCCURRENCE ADDRESS               00003800
+QSIXOON  DS    XL2                     OCCURRENCE NUMBER                00003900
+*                                                                       00004000
+QSINQS   DS    PL2                   NUMBER OF TEMP STORAGE QUEUES      00004100
+*                                    PREFIXED WITH 'GNTSQ'    9913522   00004200
+         DS    CL1                   FILLER                             00004300
+QSISDATE DS    PL4                   EIB DATE STARTED         1115866   00004310
+         DS    CL2                   FILLER                   1115866   00004320
+QSISTIME DS    PL4                   EIB TIME STARTED         1115866   00004330
+         DS    CL20                  FILLER                   1115866   00004340
+QSILEN   EQU   *-QSIREC                                                 00004400

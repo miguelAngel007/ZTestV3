@@ -1,0 +1,136 @@
+***********************************************************************
+***   * FO0628 07/01/04 WCHM TOLD II                                 **
+***   * FO0836 07/01/04 WCHM ITF - IMPUESTO A LAS TRANSACCIONES FINAN**
+***********************************************************************
+****************************  CZTS2TIB  ******************************  00000010
+* THIS STORAGE LAYOUT DEFINES THE SAFE II TRANSACTION INPUT BLOCK    *  00000020
+* (TIB). THE TIB DEFINES THE FORMAT OF THE DATA RECEIVED FROM        *  00000030
+* SAFE II AP PROGRAMS, AFTER FORMATTING.                             *  00000040
+* THIS FORMAT WAS EXTENDED TO SAFE & TS ( SYSTEMATICS ) INTERFACE.   *  00000050
+**********************************************************************  00000060
+CZTSTIB  DS    0F            TRANSACTION INPUT BLOCK DEFINITION         00000070
+TI2CATCH DS    CL8           EYE CATCHER = C'*ITFTIB*'                  00000080
+TI2TRNID DS    CL4           CICS TRANSACTION ID                        00000090
+*                                                                       00000100
+TI2NETID DS    CL2           APLICATION NETWORD ID                      00000110
+*TI2BCAEL EQU   B'00000000'   - BANCA ELECTRONICA                       00000120
+*TI2MLRED EQU   B'00000001'   - MULTIRED                                00000130
+*TI2AUSRV EQU   B'00000010'   - AUTOSERVICIO                            00000140
+*TI2DISPD EQU   B'00000011'   - DISPENSADORES DE DINERO                 00000150
+*TI2PTVTA EQU   B'00000100'   - PUNTO DE VENTA NACIONAL                 00000160
+*TI2VIATM EQU   B'00000101'   - VISA CAJEROS                            00000170
+*TI2VIPOS EQU   B'00000110'   - VISA PUNTOS DE VENTA                    00000180
+*TI2BCAEM EQU   B'00000111'   - BANCA EMPRESARIAL                       00000190
+*TI2PRGIN EQU   B'00001000'   - INTERFACE PRODUCTOS GINA                00000200
+TI2FILL1 DS    XL2           FILLER 1 ( AVAILABLE )                     00000210
+TI2TRCDX DS   0CL8           EXTENDED TRANSACTION CODE                  00000220
+TI2TRNCD DS    CL4           - SAFE II TRANSACTION CODE                 00000230
+TI2TRCD1 DS    CL4           - LAST FOUR BYTES                          00000240
+*                                                                       00000250
+TI2TRNSQ DS   0CL7           SAFE II TRANSACTION SEQUENCE NUMBER        00000260
+TI2TSQN0 DS    CL3           - FIRST THREE BYTES                        00000270
+TI2TSQN1 DS    CL4           - LAST FOUR BYTES                          00000280
+TI2FILL2 DS    XL1           FILLER 2 ( AVAILABLE )                     00000290
+*                                                                       00000300
+TI2PRDAT DS   0CL8           PROCESS DATE ON THE TELLER (SSYYMMDD)      00000310
+TI2PRDSY DS   0CL4           - CENTURY AND YEAR (SSYY)                  00000320
+TI2PRDSS DS    CL2             . CENTURY (SS)                           00000330
+TI2PRDYY DS    CL2             . YEAR    (YY)                           00000340
+TI2PRDMM DS    CL2           - MONTH   (MM)                             00000350
+TI2PRDDD DS    CL2           - DAY     (DD)                             00000360
+TI2PRTIM DS   0CL8           PROCESS TIME ON THE TELLER (HHMMSSNN)      00000370
+TI2PRTHH DS    CL2           - HOURS   (HH)                             00000380
+TI2PRTMM DS    CL2           - MINUTES (MM)                             00000390
+TI2PRTSS DS    CL2           - SECONDS (SS)                             00000400
+TI2PRTNN DS    CL2           - CENTECIMOUS SECONDS (NN)                 00000410
+TI2LOCAT DS   0CL8           PROCESS LOCATION                           00000420
+TI2PRBRC DS    CL3           - PROCESS OFICCE                           00000430
+TI2LOCA1 DS    CL5           - FILLER                                   00000440
+TI2USERX DS   0CL8           EXTENDED USER ID                           00000450
+TI2USER  DS    CL4           - SAFE II USER NUMBER                      00000460
+TI2USER1 DS    CL4           - FILLER                                   00000470
+TI2USRAX DS   0CL8           EXTENDED USER ID ( FOR OVERRIDE )          00000480
+TI2USERA DS    CL4           - USER NUMBER THAT AUTHORIZED TRANSACTION  00000490
+TI2USRA1 DS    CL4           - FILLER                                   00000500
+*                                                                       00000510
+TI2ALVRQ DS    XL1           AUTHORIZATION LEVEL REQUIRED               00000520
+TI2LEV08 EQU   B'00000001'   - AUTHORIZATION LEVEL 8 RECEIVED           00000530
+TI2LEV07 EQU   B'00000010'   - AUTHORIZATION LEVEL 7 RECEIVED           00000540
+TI2LEV06 EQU   B'00000100'   - AUTHORIZATION LEVEL 6 RECEIVED           00000550
+TI2LEV05 EQU   B'00001000'   - AUTHORIZATION LEVEL 5 RECEIVED           00000560
+TI2LEV04 EQU   B'00010000'   - AUTHORIZATION LEVEL 4 RECEIVED           00000570
+TI2LEV03 EQU   B'00100000'   - AUTHORIZATION LEVEL 3 RECEIVED           00000580
+TI2LEV02 EQU   B'01000000'   - AUTHORIZATION LEVEL 2 RECEIVED           00000590
+TI2LEV01 EQU   B'10000000'   - AUTHORIZATION LEVEL 1 RECEIVED           00000600
+*                                                                       00000610
+TI2RINDS DS    XL1           TRANSACTION INDICATORS                     00000620
+TI2TELLA EQU   B'00000000'   - BYTE 0 AND 1 : 00 - TELLER A             00000630
+TI2TELLB EQU   B'01000000'                    01 - TELLER B             00000640
+TI2TELLC EQU   B'10000000'                    10 - TELLER C             00000650
+TI2TELLD EQU   B'11000000'                    11 - TELLER D             00000660
+TI2INSTR EQU   B'00100000'   - TX WHO INSERT ONE TRAILER (SET IN HOST)  00000670
+TI2AVL03 EQU   B'00010000'   - BIT 3 - AVAILABLE                        00000680
+TI2AVL04 EQU   B'00001000'   - BIT 4 - AVAILABLE                        00000690
+TI2TRAIN EQU   B'00000100'   - TRAINING TELLER                          00000700
+TI2REENT EQU   B'00000010'   - RE-ENTRY MODE                            00000710
+TI2SCNDT EQU   B'00000001'   - TRANSACTION ARRIVED FOR THE 2ND TIME     00000720
+*                                                                       00000730
+TI2SYSTM DS    XL1           FLAGS TO ISC PINNACLE ( SYSTEMATICS )      00000740
+TI2TLOVR EQU   B'10000000'   - TELLER OVERRIDE                          00000750
+TI2SPOVR EQU   B'01000000'   - SUPERVISOR OVERRIDE                      00000760
+TI2PBREB EQU   B'00100000'   - PASSBOOK REBID                           00000770
+TI2REVTX EQU   B'00010000'   - REVERSAL TRANSACTION                     00000780
+TI2NDAYP EQU   B'00001000'   - NEXT DAY PROCESS                         00000790
+TI2LSTPS EQU   B'00000100'   - LIST POST                                00000800
+TI2INQRB EQU   B'00000010'   - INQUIRY REBID                            00000810
+TI2SAVL7 EQU   B'00000001'   - BIT 7 - AVAILABLE                        00000820
+*                                                                       00000830
+TI2STM01 DS    XL1           FLAGS TO ISC PINNACLE ( SYSTEMATICS )      00000840
+TI2STM   EQU   B'11110000'   - ALLWAYS                                  00000850
+TI2STB04 EQU   B'00001000'   - AVAILABLE                                00000860
+TI2STICA EQU   B'00000100'   - ICR-A PROCESS                            00000870
+TI2STICB EQU   B'00000010'   - ICR-B PROCESS                            00000880
+TI2STICC EQU   B'00000001'   - ICR-C PROCESS                            00000890
+*                                                                       00000900
+TI2FILLH DS    XL12          FILLER ( AVAILABLE )                       00000910
+TI2LENHD EQU   *-CZTSTIB     LENGTH OF HEADER                           00000920
+*                                                                       00000930
+CZTSTIBN DS   0X             TRANS INPUT BLOCK NUMERIC                  00000940
+TI2FLD1  DS    CL15          TRANSACTION NUMERIC FIELD 1                00000950
+TI2FLD2  DS    CL15          TRANSACTION NUMERIC FIELD 2                00000960
+TI2FLD3  DS    CL15          TRANSACTION NUMERIC FIELD 3                00000970
+TI2FLD4  DS    CL15          TRANSACTION NUMERIC FIELD 4                00000980
+TI2FLD5  DS    CL15          TRANSACTION NUMERIC FIELD 5                00000990
+TI2FLD6  DS    CL15          TRANSACTION NUMERIC FIELD 6                00001000
+TI2FLD7  DS    CL15          TRANSACTION NUMERIC FIELD 7                00001010
+TI2FLD8  DS    CL15          TRANSACTION NUMERIC FIELD 8                00001020
+TI2FLD9  DS    CL15          TRANSACTION NUMERIC FIELD 9                00001030
+TI2FLD10 DS    CL15          TRANSACTION NUMERIC FIELD 10               00001040
+TI2FLD11 DS    CL15          TRANSACTION NUMERIC FIELD 11               00001050
+TI2FLD12 DS    CL15          TRANSACTION NUMERIC FIELD 12               00001060
+TI2FLD13 DS    CL15          TRANSACTION NUMERIC FIELD 13               00001070
+TI2FLD14 DS    CL15          TRANSACTION NUMERIC FIELD 14               00001080
+TI2FLD15 DS    CL15          TRANSACTION NUMERIC FIELD 15               00001090
+TI2FLDFL DS    CL15          FILLER                                     00001100
+TI2LNGTN EQU   *-CZTSTIBN    LENGTH OF THE NUMERIC SEGMENT              00001110
+TI2LNGTH EQU   *-CZTSTIB     SUB-TOTAL LENGTH                           00001120
+**********************************************************************  00001130
+* THIS STORAGE LAYOUT DEFINES AN EXTENSION TO THE SAFE II            *  00001140
+* TRANSACTION INPUT BLOCK (TIB). THIS EXTENSION DEFINES THE FORMAT   *  00001150
+* OF THE ALPHANUMERIC DATA RECEIVED FROM THE SAFE II AP PROGRAMS,    *  00001160
+* AFTER FORMATTING.                                                  *  00001170
+**********************************************************************  00001180
+CZTSTIBE DS   0X             TRANS INPUT BLOCK EXTENSION DEFN           00001190
+*                                                                       00001200
+TI2EFLD1 DS    CL40          TRANSACTION APLHANUMERIC FIELD 1           00001210
+TI2EFLD2 DS    CL40          TRANSACTION APLHANUMERIC FIELD 2           00001220
+TI2EFLD3 DS    CL40          TRANSACTION APLHANUMERIC FIELD 3           00001230
+TI2EFLD4 DS    CL40          TRANSACTION APLHANUMERIC FIELD 4           00001240
+TI2EFLD5 DS    CL40          TRANSACTION APLHANUMERIC FIELD 5           00001250
+TI2EFLD6 DS    CL40          TRANSACTION APLHANUMERIC FIELD 6           00001260
+*                                                                       00001270
+TI2FILLR DS    XL80          FILLER ( AVAILABLE )                       00001280
+*                                                                       00001290
+TI2ELENG EQU   *-CZTSTIBE    LENGTH OF THE ALPHANUMERIC SEGMENT         00001300
+TI2FILLX DS    XL500         FILLER ( AVAILABLE )                       00001280
+TI2TTLNG EQU   *-CZTSTIB     TOTAL LENGTH                               00001310

@@ -23,32 +23,29 @@ application:
               dependencyPatterns: 
                 - ${APP_DIR_NAME}/copybook/*.cpy   # Copybook source dependency
                 - ${APP_DIR_NAME}/bms/*.bms        # BMS Map source dependency
-                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency  
+                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency
             # Link card dependency patterns
             - languageExt: lnk                    
               dependencyPatterns: 
-                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency 
-
-    # Variable overrides for the Cobol language task
-    # CUSTOM IBK
+                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency
+    # Variable overrides for the Cobol language task => custom by ibk
     - task: Cobol
       variables:       
         - name: WORKSPACE
           value: /u/idz/B45617/workspaceV3
         - name: APP_DIR_NAME
           value: ZTestV3
-        # Need to build sub-module epsnbrvl.cbl first during cobol builds
-        - name: fileBuildRank
-          value: 1
-          forFiles: "**/cobol/epsnbrvl.cbl"
-
-        # Skip creating a load module for these programs as they will be 
-        # statically linked to other programs
-        - name: doLinkEdit
-          value: false
-          forFiles:
-            - "**/cobol/epsnbrvl.cbl"
-            - "**/cobol/epsmlist.cbl"   
+        - name: compileParms
+          value: LIB
+    
+    # Variable overrides for the Assembler language task
+    - task: Assembler
+      variables:
+        - name: WORKSPACE
+          value: /u/idz/B45617/workspaceV3
+        - name: APP_DIR_NAME
+          value: ZTestV3       
+    
      # CUSTOM IBK
     - task: Start
       variables:
@@ -64,8 +61,11 @@ application:
         # Set flag for link cards with CICS load modules
         - name: hasCICSModules
           value: true
-          forFiles:
-            - "**/link/epsmlist.lnk"
+        # Add CICS libraries to resolve DFHEAI0 and other CICS symbols
+        - name: linkEditSysLibs
+          value:
+            - CICSTS52.CICS.SDFHLOAD
+            - CEE.SCEELKED
     
     # Variable overrides for the ScanLoadModule task
     - task: ScanLoadModule
@@ -73,8 +73,6 @@ application:
         - name: skipScan
           value: true
           forFiles:
-            - "**/cobol/epsnbrvl.cbl"
-            - "**/cobol/epsmlist.cbl"
             - "**/copybook/**"
             - "**/bms/**"
     

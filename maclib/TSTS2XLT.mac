@@ -1,0 +1,34 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                                                                     * 00020000
+*                      TRANSACTION SYSTEM                             * 00030000
+*               COPYBOOK USED BY TSTSXLTB(TSTSXLTC)                   * 00040000
+*                 MATCHES COBOL COPYBOOK TSTS1XLT                     * 00050000
+*                                                                     * 00060000
+*---------------------------------------------------------------------* 00070000
+*                  ** HISTORY OF REVISIONS **                         * 00080000
+*                                                                     * 00090000
+* DESCRIPTION                                                 CHNGID  * 00100000
+* __________________________________________________________  _______ * 00110000
+* 04/10/02 ADD NEW FIELD FOR THOUSANDS DIVIDER                2024478 * 00111000
+* 07/05/96 IMPLEMENTED                                        9913481 * 00120000
+*---------------------------------------------------------------------* 00130000
+TSTS2XLT DSECT                  XLT COMMAREA                            00140000
+XLBSTART EQU   *                XLT STEM                                00150000
+XLBEYECA DS    CL12             EYECATCHER '**TSTS2XLT**'               00160000
+XLBMAPST DS    CL8              MAPSET                                  00170000
+XLBPROG  DS    CL8              PROGRAM NAME                            00180000
+XLBLANG  DS    XL2              LANGUAGE CODE                           00190000
+XLBCURDC DS    CL1              CURRENCY NUMBER OF DECIMALS             00200000
+XLBXLFLG DS    CL1              MAP TRANSLATION ACTION                  00210000
+XLBSMPAD DS    XL4              SYMBOLIC (COPYBOOK) MAP ADDRESS         00220000
+XLBXLTAD DS    XL4              MAP XLT TABLE   (TSTS2XLC) ADDRESS      00230000
+XLBMISAD DS    XL4              MAP MISC TABLE  (TSTS2XMF) ADDRESS      00240000
+XLBRCODE DS    XL2              TSTSXLTB(TSTSXLTC) RETURN CODE          00250000
+XLBTHSDV DS    XL1              THOUSANDS DIVIDER VALUE       2024478   00251000
+         DS    XL7              FILLER                        2024478   00252000
+*                               SEE TSTS1XLT FOR LIST OF CODES          00260000
+XLBCOMLG EQU   *-XLBSTART       LENGTH OF COMMON AREA                   00270000
+*---------------------------------------------------------------------* 00280000
+*                   END OF DSECT TSTS2XLT                             * 00290000
+*---------------------------------------------------------------------* 00300000

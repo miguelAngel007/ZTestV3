@@ -1,0 +1,443 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'WORD TABLE FOR SIGETNME'                                00001000
+SIDTWDTB EQU   *                                                        00002000
+DBLWORDS EQU   *              LIST OF WORD PAIRS                        00010000
+         DC    CL24'&&           SON'                                   00011000
+         DC    CL24'&&           SONS'                                  00012000
+         DC    CL24'AND         SON'                                    00013000
+         DC    CL24'AND         SONS'                                   00014000
+         DC    CL24'CHURCH      OF'                                     00015000
+         DC    CL24'LITTLE      ROCK'                                   00016000
+         DC    CL24'PINE        BLUFF'                                  00017000
+         DC    CL24'SALT        LAKE'                                   00018000
+         DC    12X'FF'                                                  00019000
+CONCTWRD EQU   *              LIST OF CONNECTING WORDS                  00020000
+         DC    CL12'&&          '                             9913574   00021000
+         DC    CL12'AND         '                                       00022000
+         DC    CL12'AS          '                             9913574   00022100
+         DC    CL12'BY          '                                       00023000
+         DC    CL12'FOR         '                                       00024000
+         DC    CL12'OF          '                                       00025000
+         DC    CL12'OR          '                                       00026000
+         DC    12X'FF'                                                  00027000
+LNMWORDS EQU   *              LIST OF WORDS OCCURRING IN MULTIPLE-WORD  00027010
+         DC    CL12'DE          '     LAST NAMES                        00027020
+         DC    CL12'LA          '                                       00027030
+         DC    CL12'MAC         '                                       00027040
+         DC    CL12'MC          '                                       00027050
+         DC    CL12'VAN         '                                       00027060
+         DC    12X'FF'                                                  00027070
+GARBWORD EQU   *             LIST OF GARBAGE WORDS                      00028000
+         DC    CL12'(           '                                       00029000
+         DC    CL12')           '                                       00030000
+         DC    CL12'-           '                                       00031000
+         DC    CL12'-SCA        '                                       00032000
+         DC    CL12'-SPEC       '                                       00033000
+         DC    CL12'-SPECIAL    '                                       00034000
+         DC    CL12'AAF         '                             9913574   00034100
+         DC    CL12'AC          '                                       00035000
+         DC    CL12'ACCOUNT     '                                       00036000
+         DC    CL12'ACCT        '                                       00037000
+         DC    CL12'ADM         '                             9913574   00038000
+         DC    CL12'AGR         '                             9913574   00038100
+         DC    CL12'AT          '                                       00039000
+         DC    CL12'DECD        '                             9913574   00039100
+         DC    CL12'DECEASED    '                             9913574   00039200
+         DC    CL12'FATHER      '                             9913574   00039300
+         DC    CL12'INCOMP      '                             9913574   00039400
+         DC    CL12'INCOMPETENT '                             9913574   00039500
+         DC    CL12'INDIVIDUALLY'                                       00040000
+         DC    CL12'INFANT      '                             9913574   00040100
+         DC    CL12'IRREV       '                             9913574   00040200
+         DC    CL12'IRREVOC     '                             9913574   00040300
+         DC    CL12'IRREVOCABLE '                             9913574   00040400
+         DC    CL12'LAN         '                             9913574   00040500
+         DC    CL12'LANDLORD    '                             9913574   00040600
+         DC    CL12'LEASE       '                             9913574   00040700
+         DC    CL12'MOTHER      '                             9913574   00040800
+         DC    CL12'NAT         '                             9913574   00040900
+         DC    CL12'NATL        '                             9913574   00041000
+         DC    CL12'NATURAL     '                             9913574   00041100
+         DC    CL12'PA          '                             9913574   00041200
+         DC    CL12'REVOC       '                             9913574   00041300
+         DC    CL12'REVOCABLE   '                             9913574   00041400
+         DC    CL12'SC          '                             9913574   00041500
+         DC    CL12'SCA         '                                       00042000
+         DC    CL12'SPEC        '                                       00043000
+         DC    CL12'SPECIAL     '                                       00044000
+         DC    CL12'TENANT      '                             9913574   00044100
+         DC    CL12'TNT         '                             9913574   00044200
+         DC    CL12'U/G/M/A     '                             9913574   00044300
+         DC    CL12'U/T/M/A     '                             9913574   00044400
+         DC    CL12'UGMA        '                             9913574   00044500
+         DC    CL12'UNDER       '                             9913574   00044600
+         DC    CL12'USAF        '                                       00045000
+         DC    CL12'UTMA        '                             9913574   00045100
+         DC    CL12'W/U/T/A     '                             9913574   00045200
+         DC    CL12'WIFE-PAYEE  '                                       00046000
+         DC    12X'FF'                                                  00047000
+SALUTWRD EQU   *             LIST OF SALUTATION WORDS                   00048000
+         DC    CL12'CAPT        '                                       00049000
+         DC    CL12'CAPTAIN     '                                       00050000
+         DC    CL12'COL         '                                       00051000
+         DC    CL12'COLONEL     '                                       00052000
+         DC    CL12'CPL         '                                       00053000
+         DC    CL12'CPT         '                                       00054000
+         DC    CL12'DOCTOR      '                                       00055000
+         DC    CL12'DR          '                                       00056000
+         DC    CL12'LT          '                                       00057000
+         DC    CL12'M/M         '                                       00058000
+         DC    CL12'MAJ         '                                       00059000
+         DC    CL12'MISS        '                                       00060000
+         DC    CL12'MM          '                                       00061000
+         DC    CL12'MR          '                                       00062000
+         DC    CL12'MR&&MRS     '                             9913574   00063000
+         DC    CL12'MR/MRS      '                                       00064000
+         DC    CL12'MRS         '                                       00065000
+         DC    CL12'MS          '                                       00066000
+         DC    CL12'REV         '                                       00067000
+         DC    CL12'SGT         '                                       00068000
+         DC    12X'FF'                                                  00069000
+TITLWORD EQU   *             LIST OF TITLES                             00070000
+         DC    CL12'-MIN        '                             9913574   00070100
+         DC    CL12'-MINOR      '                                       00071000
+         DC    CL12'ADMIN       '                             9913574   00071100
+         DC    CL12'ADMINISTRATO'                             9913574   00071200
+         DC    CL12'ADMINISTRATR'                             9913574   00071300
+         DC    CL12'BENEF       '                             9913574   00071400
+         DC    CL12'BENEFICIARY '                             9913574   00071500
+         DC    CL12'C P A       '                             9913574   00071600
+         DC    CL12'C.P.A       '                             9913574   00071700
+         DC    CL12'CLU         '                                       00072000
+         DC    CL12'CONSERV     '                             9913574   00072100
+         DC    CL12'CONSERVATEE '                             9913574   00072200
+         DC    CL12'CONSERVATOR '                             9913574   00072300
+         DC    CL12'CPA         '                                       00073000
+         DC    CL12'CUST        '                                       00074000
+         DC    CL12'CUSTODIAN   '                                       00075000
+         DC    CL12'CST         '                             9913574   00075100
+         DC    CL12'D.D.S.      '                             9913574   00075200
+         DC    CL12'DDS         '                                       00076000
+         DC    CL12'EXEC        '                             9913574   00076100
+         DC    CL12'EXECUTOR    '                             9913574   00076200
+         DC    CL12'EXECUTRIX   '                                       00077000
+         DC    CL12'GDN         '                                       00078000
+         DC    CL12'GUARD       '                             9913574   00079000
+         DC    CL12'GUARDIAN    '                             9913574   00079100
+         DC    CL12'GUARDIANSHIP'                             9913574   00079200
+         DC    CL12'I R A       '                             9913574   00080000
+         DC    CL12'I.R.A       '                             9913574   00080100
+         DC    CL12'II          '                                       00081000
+         DC    CL12'III         '                                       00082000
+         DC    CL12'IRA         '                             9913574   00082100
+         DC    CL12'IV          '                                       00083000
+         DC    CL12'JR          '                                       00084000
+         DC    CL12'KEO         '                             9913574   00084100
+         DC    CL12'KEOGH       '                             9913574   00084200
+         DC    CL12'LEGAL       '                                       00085000
+         DC    CL12'MD          '                                       00086000
+         DC    CL12'PA          '                                       00087000
+         DC    CL12'PHD         '                                       00088000
+         DC    CL12'RET         '                                       00089000
+         DC    CL12'RN          '                                       00090000
+         DC    CL12'SEP         '                             9913574   00090100
+         DC    CL12'SR          '                                       00091000
+         DC    CL12'TRST        '                             9913574   00091100
+         DC    CL12'TRUST       '                                       00092000
+         DC    CL12'TRUSTEE     '                                       00093000
+         DC    CL12'TSTEE       '                             9913574   00093100
+         DC    CL12'3RD         '                                       00094000
+         DC    12X'FF'                                                  00095000
+COMWORDS EQU   *             LIST OF COMMERCIAL WORDS                   00096000
+         DC    CL12'A-1         '                                       00097000
+         DC    CL12'ACE         '                                       00098000
+         DC    CL12'ACME        '                                       00099000
+         DC    CL12'AGENCIES    '                                       00100000
+         DC    CL12'AGENCY      '                                       00101000
+         DC    CL12'AGENT       '                                       00102000
+         DC    CL12'AGENTS      '                                       00103000
+         DC    CL12'AID         '                                       00104000
+         DC    CL12'ALLIANCE    '                                       00105000
+         DC    CL12'ALLIED      '                                       00106000
+         DC    CL12'ALUMNI      '                             9913574   00106100
+         DC    CL12'AMERICAN    '                                       00107000
+         DC    CL12'AMUSEMENT   '                                       00108000
+         DC    CL12'ANTIQUES    '                             9913574   00108100
+         DC    CL12'APARTMENTS  '                                       00109000
+         DC    CL12'APOSTOLIC   '                                       00110000
+         DC    CL12'APPLIANCE   '                                       00111000
+         DC    CL12'ARCHITECT   '                                       00112000
+         DC    CL12'ARGYLE      '                             9913574   00112100
+         DC    CL12'ARK         '                                       00113000
+         DC    CL12'ARKANSAS    '                                       00114000
+         DC    CL12'ASS         '                                       00115000
+         DC    CL12'ASSEMBLY    '                                       00116000
+         DC    CL12'ASSISTANCE  '                                       00117000
+         DC    CL12'ASSN        '                                       00118000
+         DC    CL12'ASSOC       '                                       00119000
+         DC    CL12'ASSOCIATE   '                                       00120000
+         DC    CL12'ASSOCIATES  '                                       00121000
+         DC    CL12'ASSOCIATION '                                       00122000
+         DC    CL12'ATTORNEY    '                                       00123000
+         DC    CL12'ATTORNEYS   '                                       00124000
+         DC    CL12'AUTO        '                                       00125000
+         DC    CL12'AUTOMATIC   '                                       00126000
+         DC    CL12'AUTOMOBILE  '                                       00127000
+         DC    CL12'AUTOMOTIVE  '                                       00128000
+         DC    CL12'AUXILIARY   '                                       00129000
+         DC    CL12'AVE         '                                       00130000
+         DC    CL12'AVENUE      '                                       00131000
+         DC    CL12'BAND        '                                       00132000
+         DC    CL12'BANK        '                                       00133000
+         DC    CL12'BAPT        '                                       00134000
+         DC    CL12'BAPTIST     '                                       00135000
+         DC    CL12'BEAUTY      '                                       00136000
+         DC    CL12'BELLEVILLE  '                             9913574   00136100
+         DC    CL12'BICENTENNIAL'                                       00137000
+         DC    CL12'BLDG        '                                       00138000
+         DC    CL12'BOARD       '                                       00139000
+         DC    CL12'BODY        '                             9913574   00139100
+         DC    CL12'BOUNTIFUL   '                                       00140000
+         DC    CL12'BROTHERHOOD '                                       00141000
+         DC    CL12'BUILDER     '                                       00142000
+         DC    CL12'BUREAU      '                                       00143000
+         DC    CL12'BUREAUS     '                                       00144000
+         DC    CL12'BUR         '                             9913574   00144100
+         DC    CL12'BURIAL      '                             9913574   00144200
+         DC    CL12'BUSINESS    '                                       00145000
+         DC    CL12'CALVARY     '                                       00146000
+         DC    CL12'CAR         '                                       00147000
+         DC    CL12'CARE        '                                       00148000
+         DC    CL12'CARPET      '                                       00149000
+         DC    CL12'CARS        '                                       00150000
+         DC    CL12'CATHOLIC    '                                       00151000
+         DC    CL12'CEMETERY    '                                       00152000
+         DC    CL12'CHAPT       '                                       00153000
+         DC    CL12'CHAPTER     '                                       00154000
+         DC    CL12'CHORUS      '                                       00155000
+         DC    CL12'CITY        '                                       00156000
+         DC    CL12'CLASS       '                                       00157000
+         DC    CL12'CLASSIC     '                                       00158000
+         DC    CL12'CLEANER     '                                       00159000
+         DC    CL12'CLEANERS    '                                       00160000
+         DC    CL12'CLEANING    '                                       00161000
+         DC    CL12'CLINIC      '                                       00162000
+         DC    CL12'CLUB        '                                       00163000
+         DC    CL12'CLUBS       '                                       00164000
+         DC    CL12'CO          '                                       00165000
+         DC    CL12'COLLEGE     '                                       00166000
+         DC    CL12'COMMERCE    '                                       00167000
+         DC    CL12'COMMERCIAL  '                                       00168000
+         DC    CL12'COMMITTEE   '                                       00169000
+         DC    CL12'COMMUNITY   '                                       00170000
+         DC    CL12'COMPANIES   '                                       00171000
+         DC    CL12'COMPANY     '                                       00172000
+         DC    CL12'CONCESSIONS '                                       00173000
+         DC    CL12'CONCLAVE    '                                       00174000
+         DC    CL12'CONDITIONING'                                       00175000
+         DC    CL12'CONSOLIDATED'                                       00176000
+         DC    CL12'CONSTRUCTION'                                       00177000
+         DC    CL12'CONTINENTAL '                                       00178000
+         DC    CL12'CONTRACTOR  '                                       00179000
+         DC    CL12'CONTRACTORS '                                       00180000
+         DC    CL12'CORP        '                                       00181000
+         DC    CL12'CORPORATION '                                       00182000
+         DC    CL12'CORPS       '                                       00183000
+         DC    CL12'COUNCIL     '                                       00184000
+         DC    CL12'COUNTY      '                                       00185000
+         DC    CL12'COURSE      '                                       00186000
+         DC    CL12'CUSTOM      '                                       00187000
+         DC    CL12'CUSTOMER    '                                       00188000
+         DC    CL12'D/B/A       '                                       00189000
+         DC    CL12'DARIEN      '                             9913574   00189100
+         DC    CL12'DARLINGTON  '                             9913574   00189200
+         DC    CL12'DBA         '                                       00190000
+         DC    CL12'DEALER      '                                       00191000
+         DC    CL12'DEALERS     '                                       00192000
+         DC    CL12'DEMOLAY     '                                       00193000
+         DC    CL12'DEPARTMENT  '                                       00194000
+         DC    CL12'DEPT        '                                       00195000
+         DC    CL12'DISCOUNT    '                                       00196000
+         DC    CL12'DISTRIBUTING'                                       00197000
+         DC    CL12'DISTRIBUTOR '                                       00198000
+         DC    CL12'DISTRIBUTORS'                                       00199000
+         DC    CL12'DIV         '                                       00200000
+         DC    CL12'DIVISION    '                                       00201000
+         DC    CL12'DIVISIONS   '                                       00202000
+         DC    CL12'EDUCATION   '                                       00203000
+         DC    CL12'EDUCATIONAL '                                       00204000
+         DC    CL12'ELECTRIC    '                                       00205000
+         DC    CL12'ELECTRONIC  '                                       00206000
+         DC    CL12'ELECTRONICS '                                       00207000
+         DC    CL12'EMPLOYEE    '                                       00208000
+         DC    CL12'EMPLOYEES   '                                       00209000
+         DC    CL12'ENGINEERS   '                                       00210000
+         DC    CL12'ENTERPRISE  '                                       00211000
+         DC    CL12'ENTERPRISES '                                       00212000
+         DC    CL12'EPISCOPAL   '                                       00213000
+         DC    CL12'ESCROW      '                                       00214000
+         DC    CL12'EST         '                             9913574   00214100
+         DC    CL12'ESTATE      '                                       00215000
+         DC    CL12'ESTATES     '                                       00216000
+         DC    CL12'EXCHANGE    '                                       00217000
+         DC    CL12'EXPENSE     '                                       00218000
+         DC    CL12'FACTORY     '                                       00219000
+         DC    CL12'FANB        '                                       00220000
+         DC    CL12'FARM        '                                       00221000
+         DC    CL12'FARMS       '                                       00222000
+         DC    CL12'FDRL        '                                       00223000
+         DC    CL12'FEDERAL     '                                       00224000
+         DC    CL12'FEDRL       '                                       00225000
+         DC    CL12'FELLOWSHIP  '                                       00226000
+         DC    CL12'FIRE        '                                       00227000
+         DC    CL12'FIRST       '                                       00228000
+         DC    CL12'FISHERIES   '                                       00229000
+         DC    CL12'FOUNDATION  '                                       00230000
+         DC    CL12'FRATERNAL   '                                       00231000
+         DC    CL12'FREIGHT     '                                       00232000
+         DC    CL12'FRT         '                                       00233000
+         DC    CL12'FUND        '                                       00234000
+         DC    CL12'FURNITURE   '                                       00235000
+         DC    CL12'GARAGE      '                                       00236000
+         DC    CL12'GROCERIES   '                                       00237000
+         DC    CL12'GROCERY     '                                       00238000
+         DC    CL12'HARDWARE    '                                       00239000
+         DC    CL12'HEADQUARTERS'                                       00240000
+         DC    CL12'HEALTH      '                                       00241000
+         DC    CL12'HEARING     '                                       00242000
+         DC    CL12'HEATING     '                                       00243000
+         DC    CL12'HOME        '                                       00244000
+         DC    CL12'HOSPITAL    '                                       00245000
+         DC    CL12'HOTEL       '                                       00246000
+         DC    CL12'IMMACULATE  '                                       00247000
+         DC    CL12'INC         '                                       00248000
+         DC    CL12'INCORPORATED'                                       00249000
+         DC    CL12'INDUSTRIAL  '                                       00250000
+         DC    CL12'INDUSTRIES  '                                       00251000
+         DC    CL12'INDUSTRY    '                                       00252000
+         DC    CL12'INN         '                                       00253000
+         DC    CL12'INSURANCE   '                                       00254000
+         DC    CL12'INTERLAKE   '                                       00255000
+         DC    CL12'INTERMOUNTAI'                                       00256000
+         DC    CL12'INTERNATIONA'                                       00257000
+         DC    CL12'INVESTMENT  '                                       00258000
+         DC    CL12'INVESTMENTS '                                       00259000
+         DC    CL12'INVESTOR    '                                       00260000
+         DC    CL12'INVESTORS   '                                       00261000
+         DC    CL12'JAYCEES     '                                       00262000
+         DC    CL12'KIWANIS     '                                       00263000
+         DC    CL12'LANDSCAPING '                                       00264000
+         DC    CL12'LAUNDRY     '                                       00265000
+         DC    CL12'LEAGUE      '                                       00266000
+         DC    CL12'LEASING     '                                       00267000
+         DC    CL12'LIBRARY     '                                       00268000
+         DC    CL12'LINE        '                                       00269000
+         DC    CL12'LINES       '                                       00270000
+         DC    CL12'LOCAL       '                                       00271000
+         DC    CL12'LODGE       '                                       00272000
+         DC    CL12'LR          '                                       00273000
+         DC    CL12'LSE         '                             9913574   00273100
+         DC    CL12'LUTHERAN    '                                       00274000
+         DC    CL12'MACHINE     '                                       00275000
+         DC    CL12'MACHINES    '                                       00276000
+         DC    CL12'MANAGER     '                                       00277000
+         DC    CL12'MARKET      '                                       00278000
+         DC    CL12'MARKETS     '                                       00279000
+         DC    CL12'MART        '                                       00280000
+         DC    CL12'MASONIC     '                                       00281000
+         DC    CL12'MEMORIAL    '                                       00282000
+         DC    CL12'MERCHANTS   '                                       00283000
+         DC    CL12'METHODIST   '                                       00284000
+         DC    CL12'MINUTE      '                                       00285000
+         DC    CL12'MISSIONARY  '                                       00286000
+         DC    CL12'MKT         '                                       00287000
+         DC    CL12'MONTELLO    '                             9913574   00287100
+         DC    CL12'MOTEL       '                                       00288000
+         DC    CL12'MOTOR       '                                       00289000
+         DC    CL12'MOTORS      '                                       00290000
+         DC    CL12'MT. HOREB   '                             9913574   00290100
+         DC    CL12'NATIONAL    '                                       00291000
+         DC    CL12'NATL        '                                       00292000
+         DC    CL12'NAZARENE    '                                       00293000
+         DC    CL12'NIGHT       '                                       00294000
+         DC    CL12'NLR         '                                       00295000
+         DC    CL12'NO          '                                       00296000
+         DC    CL12'NO.         '                                       00297000
+         DC    CL12'NURSERY     '                                       00298000
+         DC    CL12'OFFICE      '                                       00299000
+         DC    CL12'ORGANIZATION'                                       00300000
+         DC    CL12'ORNAMENTAL  '                                       00301000
+         DC    CL12'OWNERS      '                                       00302000
+         DC    CL12'PARLOUR     '                                       00303000
+         DC    CL12'PAYROLL     '                                       00304000
+         DC    CL12'PENTECOSTAL '                                       00305000
+         DC    CL12'PLUMBING    '                                       00306000
+         DC    CL12'PRESBYTERIAN'                                       00307000
+         DC    CL12'PRODUCE     '                                       00308000
+         DC    CL12'PROPERTIES  '                                       00309000
+         DC    CL12'PROPERTY    '                                       00310000
+         DC    CL12'PTA         '                                       00311000
+         DC    CL12'PUBLIC      '                                       00312000
+         DC    CL12'PULASKI     '                                       00313000
+         DC    CL12'QUICK       '                                       00314000
+         DC    CL12'RAZORBACK   '                                       00315000
+         DC    CL12'REALTOR     '                                       00316000
+         DC    CL12'REALTY      '                                       00317000
+         DC    CL12'REFINISHING '                                       00318000
+         DC    CL12'RENT        '                             9913574   00319000
+         DC    CL12'RENTAL      '                             9913574   00319100
+         DC    CL12'RENTALS     '                                       00320000
+         DC    CL12'RESEARCH    '                                       00321000
+         DC    CL12'RESTAURANT  '                                       00322000
+         DC    CL12'RETAIL      '                                       00323000
+         DC    CL12'REUNION     '                                       00324000
+         DC    CL12'RLTY        '                                       00325000
+         DC    CL12'SALE        '                                       00326000
+         DC    CL12'SALES       '                                       00327000
+         DC    CL12'SALON       '                                       00328000
+         DC    CL12'SALVAGE     '                                       00329000
+         DC    CL12'SAVINGS     '                                       00330000
+         DC    CL12'SCHOOL      '                                       00331000
+         DC    CL12'SEC         '                             9913574   00331100
+         DC    CL12'SECURITY    '                                       00332000
+         DC    CL12'SERVE       '                                       00333000
+         DC    CL12'SERVICE     '                                       00334000
+         DC    CL12'SERVICES    '                                       00335000
+         DC    CL12'SHOP        '                                       00336000
+         DC    CL12'SHOPPE      '                                       00337000
+         DC    CL12'SHOPS       '                                       00338000
+         DC    CL12'SLC         '                                       00339000
+         DC    CL12'SOCIETIES   '                                       00340000
+         DC    CL12'SOCIETY     '                                       00341000
+         DC    CL12'SORORITY    '                                       00342000
+         DC    CL12'STATE       '                                       00343000
+         DC    CL12'STORE       '                                       00344000
+         DC    CL12'STORES      '                                       00345000
+         DC    CL12'SUPPLIER    '                                       00346000
+         DC    CL12'SUPPLIERS   '                                       00347000
+         DC    CL12'SUPPLIES    '                                       00348000
+         DC    CL12'SUPPLY      '                                       00349000
+         DC    CL12'SYSTEM      '                                       00350000
+         DC    CL12'SYSTEMS     '                                       00351000
+         DC    CL12'TEAM        '                                       00352000
+         DC    CL12'THE         '                                       00353000
+         DC    CL12'THRIFT      '                                       00354000
+         DC    CL12'TIRE        '                                       00355000
+         DC    CL12'TRAILER     '                                       00356000
+         DC    CL12'TRANSPORTATI'                                       00357000
+         DC    CL12'TRUST       '                                       00358000
+         DC    CL12'TV          '                                       00359000
+         DC    CL12'UNION       '                                       00360000
+         DC    CL12'UNITED      '                                       00361000
+         DC    CL12'UPHOLSTERY  '                                       00362000
+         DC    CL12'UTAH        '                                       00363000
+         DC    CL12'VENDING     '                                       00364000
+         DC    CL12'VOLUNTARY   '                                       00365000
+         DC    CL12'VOLUNTEER   '                                       00366000
+         DC    CL12'VOLUNTEERS  '                                       00367000
+         DC    CL12'WAREHOUSE   '                                       00368000
+         DC    CL12'WELFARE     '                                       00369000
+         DC    CL12'WESTFIELD   '                             9913574   00369100
+         DC    CL12'WHEEL       '                                       00370000
+         DC    CL12'WHOLESALE   '                                       00371000
+         DC    12X'FF'                                                  00372000

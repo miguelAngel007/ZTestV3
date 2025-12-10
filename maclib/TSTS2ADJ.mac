@@ -1,0 +1,50 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                  ** COPYBOOK DESCRIPTION **                         * 00000020
+*           TSTS2ADJ - CURRENT DAY ADJUSTMENT FILE                    * 00000030
+*               APPLICATION FILE ADJUSTMENT TSLOG RBAS                * 00000040
+*               TO BE REPOSTED BY NEXT-DAY POSTING TO BRING           * 00000050
+*               FILE INFORMATION UP TO DATE.  THESE LOG RECORDS       * 00000060
+*               WERE POSTED IN NEXT DAY MODE.                         * 00000070
+*---------------------------------------------------------------------* 00000080
+*                     ** HISTORY OF REVISIONS **                      * 00000090
+* DATE     DESCRIPTION                                        CHNGID  * 00000100
+*___________________________________________________________  _______ * 00000110
+* 02/26/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000996
+* 11/96    INITIAL DISTRIBUTION                               9910919 * 00000998
+*---------------------------------------------------------------------* 00001000
+TSTSADJ  DSECT                                                          00002000
+ADJREC   DS    0X          TS NEXT DAY MEMO BALANCE ADJUSTMENT FILE     00003000
+ADJLEN   DS    XL2                   RECORD LENGTH BYTES                00004000
+         DS    CL2                   FILLER                             00005000
+*                                    RECORD LENGTH IS 792 BYTES.        00006000
+ADJKEY   DS    0CL54                 KEY                                00007000
+ADJAPID  DS    CL2                   APPLICATION ID                     00008000
+ADJMKEY  DS    CL50                  APPLICATION MEMO FILE KEY          00009000
+ADJSEQK  DS    XL2                   RECORD SEQUENCE NUMBER             00010000
+*                                                                       00011000
+ADCAFCL  DS    XL1                   FILE CONVERSION LEVEL              00012000
+ADCARCL  DS    XL1                   REC CONVERSION LEVEL               00013000
+*                                                                       00014000
+ADJLMNT  DS    0CL28                 LAST MAINTENANCE INFO              00015000
+ADJMDAT  DS    CL6                   LAST MAINTENANCE DATE MMDDYY       00016000
+ADJMTIM  DS    CL6                   LAST MAINTENANCE TIME HHMMSS       00017000
+ADJMEMP  DS    CL8                   LAST MAINTENANCE EMPLOYEE ID       00018000
+ADJACHID DS    CL8                   CA CHANGE ID                       00019000
+*                                                                       00020000
+         DS    CL21                  FILLER                             00021000
+ADJAPGP  DS    CL2                   APPLICATION FILE GROUP             00022000
+ADJLOCC  DS    XL2                   LAST OCCURRENCE USED               00023000
+ADJPOCC  DS    XL2                   NBR POSTED OCCURRENCES             00024000
+ADJLSEQ  DS    XL2                   LAST SEQUENCE FOR MEMO KEY         00025000
+*                                                                       00026000
+ADJRBA   DS    0CL27                 TSLOG RBA OCCURRENCE               00027000
+ADJLPST  DS    CL1                     LOG RBA POSTED FLAG              00028000
+ADJLRBA  DS    XL8                     TSLOG RBA              1035850   00029000
+ADJLGP   DS    CL2                     TSLOG GROUP                      00030000
+ADJUSER  DS    CL10                    USER AREA - FOR CLIENTS          00031000
+         DS    CL6                     FILLER                 1035850   00032000
+ADJRBAL  EQU   *-ADJRBA              LENGTH OF ONE RBA OCCUR            00033000
+ADJRBA2  DS    24CL27                REMAINING OCCURRENCES              00034000
+*                                                                       00035000
+ADJRLEN  EQU   *-ADJREC              TSADJ RECORD LENGTH                00036000

@@ -1,0 +1,232 @@
+         MACRO                                                          00010000
+&L       CZFMHDAT                                                       00020000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00030000
+.*********                   P R O L O G                       ******** 00040000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00050000
+.*                                                                    * 00060000
+.*   MACRO NAME : CZFMHDAT                                            * 00070000
+.*                                                                    * 00080000
+.*   DESCRIPTIVE NAME : OBTAIN DATE FROM CICS                         * 00090000
+.*                                                                    * 00100000
+.*   STATUS : VERSION 1                                               * 00110000
+.*            RELEASE LEVEL = 1                                       * 00120000
+.*            MODIFICATION LEVEL = 0                                  * 00130000
+.*                                                                    * 00140000
+.*   COPYRIGHT:                                                       * 00150000
+.*                                                                    * 00160000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00170000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00180000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00190000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00200000
+.*                                                                    * 00210000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00220000
+.*                                                                    * 00230000
+.*   FUNCTION:  TO OBTAIN THE DATE FROM CICS                          * 00240000
+.*                                                                    * 00250000
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS AS FOLLOWS:                   * 00260000
+.*          1) THE MACRO GETS THE DATE FROM THE CICS EXEC INTERFACE   * 00270000
+.*             BLOCK (FIELD EIBDATE) IN PACKED DECIMAL FORM (00YYDDDS)* 00280000
+.*          2) IT CHECKS FOR LEAP YEAR TO ADDRESS THE APPROPRIATE     * 00290000
+.*             DAYS-MONTH TABLE (NORMAL OR LEAP YEAR TABLE).          * 00300000
+.*          3) AFTER, THE MACRO COMPARES TO OBTAIN THE CORRESPONDING  * 00310000
+.*             MONTH BASED IN THE NUMBER OF DAYS. FINALLY IT MOVES    * 00320000
+.*             THE DAY, MONTH AND YEAR TO THE DEFINITE FORMAT AND     * 00330000
+.*             OBTAINS THE JULIAN DATE DIRECTLY FROM THE EIB BLOCK.   * 00340000
+.*             THREE ADDITIONAL FORMATS ARE OBTAINED YYMMDD,          * 00350000
+.*             19YYMMDD AND 0DDMMYYS.                                 * 00360000
+.*                                                                    * 00370000
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00380000
+.*                                                                    * 00390000
+.*   EXTERNAL MODULE(S) CALL :  THIS MACRO IS CALLED BY CZFHII        * 00400000
+.*                              SYSTEM INITIALIZATION FUNCTION        * 00410000
+.*                                                                    * 00420000
+.*   EXTERNAL FIELDS:   DEFINED IN CZFHII AND CZFHAA DYNAMIC STORAGE: * 00430000
+.*                          SCBDATE         DATE DDMMYY               * 00440000
+.*                          SCBYMD          DATE YYMMDD               * 00450000
+.*                          SCBPDAT         DATE PACKED 0DDMMYYS      * 00460000
+.*                          SCBJDAT         JULIAN DATE 00YYDDDS      * 00470000
+.*                          SCBSDAT         DATE STANDARD 19YYMMDD    * 00480000
+.*                          WORKDBL         WORK FIELD                * 00490000
+.*                          WORKAREA        WORK FIELD                * 00500000
+.*                          HDATSAV         SAVE AREA FOR REGS 6 & 7  * 00510000
+.*                                                                    * 00520000
+.*                          DEFINED IN THE CICS EXEC INTERFACE BLOCK: * 00530000
+.*                          EIBDATE         DATE (00YYDDDS)           * 00540000
+.*                                                                    * 00550000
+.*   MESSAGES ISSUED :  NONE                                          * 00560000
+.*                                                                    * 00570000
+.*   CHARACTERISTICS :                                                * 00580000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00590000
+.*                                                                    * 00600000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00610000
+.*                                                                    * 00620000
+.*   RESTRICTIONS: THIS MACRO WORKS UNTIL THE YEAR 2000               * 00630000
+.*                                                                    * 00640000
+.*   PARAMETERS RECEIVED: NONE                                        * 00650000
+.*                                                                    * 00660000
+.*   CONTROL BLOCK(S) BUILT :                                         * 00670000
+.*                                                                    * 00680000
+.*            DATE FIELDS BELONGING TO THE SYSTEM CONTROL BLOCK       * 00690000
+.*                                                                    * 00700000
+.*             LENGTH        NAME          CONTENT                    * 00710000
+.*                                                                    * 00720000
+.*                3         SCBDATE         DATE DDMMYY               * 00730000
+.*                3         SCBYMD          DATE YYMMDD               * 00740000
+.*                4         SCBPDAT         DATE PACKED 0DDMMYYS      * 00750000
+.*                4         SCBJDAT         JULIAN DATE 00YYDDDS      * 00760000
+.*                8         SCBSDAT         DATE STANDARD 19YYMMDD    * 00770000
+.*                                                                    * 00780000
+.*                                                                    * 00790000
+.*   GENERATED CODE :                                                 * 00800000
+.*                    AS PART OF THE SYSTEM CONTROL BLOCK             * 00810000
+.*                                                                    * 00820000
+.*SCBDATE  DS    XL3            FORMAT - DDMMYY                       * 00830000
+.*SCBYMD   DS    XL3            FORMAT - YYMMDD                       * 00840000
+.*SCBPDAT  DS    PL4            FORMAT - 0DDMMYYS                     * 00850000
+.*SCBJDAT  DS    PL4            FORMAT - 00YYDDDS                     * 00860000
+.*SCBSDAT  DS    CL8            FORMAT - 19YYMMDD                     * 00870000
+.*                                                                    * 00880000
+.*   NOTES:                                                           * 00890000
+.*                                                                    * 00900000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00910000
+         EJECT                                                          00920000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00930000
+*                                                                    *  00940000
+*   MACRO NAME : CZFMHDAT                                            *  00950000
+*                                                                    *  00960000
+*   DESCRIPTIVE NAME : OBTAIN DATE FROM CICS                         *  00970000
+*                                                                    *  00980000
+*   STATUS : VERSION 1                                               *  00990000
+*            RELEASE LEVEL = 0                                       *  01000000
+*                                                                    *  01010000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01020000
+         SPACE 3                                                        01030000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01040000
+*                                                                    *  01050000
+*   VALIDATE YEAR TO FIND LEAP YEARS                                 *  01060000
+*                                                                    *  01070000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01080000
+         STM   R6,R7,HDATSAV       SAVE REGISTERS 6 AND 7               01090000
+         XC    WORKDBL,WORKDBL                                          01100000
+         CLI   EIBDATE+1,X'80'     IS YEAR 1980 ?                       01110000
+         BE    COMRG001            YES, LEAP YEAR                       01120000
+         CLI   EIBDATE+1,X'84'     IS YEAR 1984 ?                       01130000
+         BE    COMRG001            YES, LEAP YEAR                       01140000
+         CLI   EIBDATE+1,X'88'     IS YEAR 1988 ?                       01150000
+         BE    COMRG001            YES, LEAP YEAR                       01160000
+         CLI   EIBDATE+1,X'92'     IS YEAR 1992 ?                       01170000
+         BE    COMRG001            YES, LEAP YEAR                       01180000
+         CLI   EIBDATE+1,X'96'     IS YEAR 1996 ?                       01190000
+         BE    COMRG001            YES, LEAP YEAR                       01200000
+         SPACE 3                                                        01210000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01220000
+*                                                                    *  01230000
+*   ADDRESS THE CORRESPONDING DAYS-MONTH TABLE                       *  01240000
+*                                                                    *  01250000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01260000
+         LA    R6,TABNORM         LOAD TABLE FOR NORMAL YEAR            01270000
+         LA    R7,TABNORM+3                                             01280000
+         B     COMRG002                                                 01290000
+COMRG001 EQU   *                                                        01300000
+         LA    R6,TABLEAP         LOAD TABLE FOR LEAP YEAR              01310000
+         LA    R7,TABLEAP+3                                             01320000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01330000
+*                                                                    *  01340000
+* - COMPARE DAYS AGAINST THE TABLE TO OBTAIN THE CORRESPONDING MONTH *  01350000
+* - ADJUST THE NUMBER OF DAYS                                        *  01360000
+* - MOVE THE DATE FIELDS TO OBTAIN THE FORMAT DDMMYY                 *  01370000
+* - OBTAIN THE JULIAN DATE IN FORMAT 00YYDDDS                        *  01380000
+*                                                                    *  01390000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01400000
+COMRG002 EQU   *                                                        01410000
+         MVC   SCBDATE+2(1),EIBDATE+1 MOVE YEAR TO DATE AREA            01420000
+COMRG003 EQU   *                                                        01430000
+         CP    EIBDATE+2(2),0(2,R7) COMPARE DAYS WITH TABLE             01440000
+         BNH   COMRG004        BRANCH IF DAYS LOW OR EQUAL              01450000
+         LA    R6,3(0,R6)          INCREMENT POINTERS                   01460000
+         LA    R7,3(0,R7)                         TO TABLE              01470000
+         B     COMRG003            GO TO COMPARE AGAIN                  01480000
+COMRG004 EQU   *                                                        01490000
+         MVC   SCBJDAT,EIBDATE      MOVE JULIAN DATE                    01500000
+         MVC   SCBDATE+1(1),2(R7)  MOVE MONTH TO DATE AREA              01510000
+         MVC   WORKDBL(2),EIBDATE+2 MOVE DAYS TO WORK AREA              01520000
+         SP    WORKDBL(2),0(2,R6) SUBTRACT DAYS FROM PREVIOUS           01530000
+         LH    R7,WORKDBL                           MONTH               01540000
+         SRL   R7,4               MOVE DAYS TO LOW BYTE                 01550000
+         STC   R7,SCBDATE         STORE DAYS IN DATE AREA               01560000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01570000
+*                                                                    *  01580000
+* - GET THE THREE ADDITIONAL FORMATS REQUIRED FOR THE SYSTEM CONTROL *  01590000
+*   BLOCK:                                                           *  01600000
+*         FORMAT YYMMDD                                              *  01610000
+*         PACKED FORMAT 0DDMMYYS                                     *  01620000
+*         STANDARD FORMAT (DISPLAY) 19YYMMDD                         *  01630000
+*                                                                    *  01640000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01650000
+COMRG005 EQU   *                                                        01660000
+         NI    SCBJDAT+3,X'FC'    *USE "C" AS SIGN FOR JULIAN DATE      01670000
+         MVO   SCBPDAT,SCBDATE    *MOVE DATE TO OBTAIN TODAY'S          01680000
+         OI    SCBPDAT+3,X'0C'    *DATE PACKED INCLUDING SIGN           01690000
+*                                 *OBTAIN DATE IN FORMAT YYMMDD         01700000
+         MVC   SCBYMD(1),SCBDATE+2                                      01710000
+         MVC   SCBYMD+1(1),SCBDATE+1                                    01720000
+         MVC   SCBYMD+2(1),SCBDATE                                      01730000
+*                                 *OBTAIN NOW DATE IN STANDARD          01740000
+         UNPK  WORKAREA,SCBPDAT   *FORMAT. UNPACK DATE                  01750000
+         OI    WORKAREA+7,X'F0'   *AND REMOVE SIGN                      01760000
+         MVC   SCBSDAT(2),=C'19'  *GET FORMAT 19YYMMDD                  01770000
+         MVC   SCBSDAT+2(2),WORKAREA+6                                  01780000
+         MVC   SCBSDAT+4(2),WORKAREA+4                                  01790000
+         MVC   SCBSDAT+6(2),WORKAREA+2                                  01800000
+         XC    WORKDBL,WORKDBL                                          01810000
+         LM    R6,R7,HDATSAV       RESTORE REGISTERS 6 AND 7            01820000
+         B     COMRG006           GO TO THE END OF THIS MACRO           01830000
+         SPACE 3                                                        01840000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01850000
+*                                                                    *  01860000
+*   TABLE FOR NORMAL YEAR                                            *  01870000
+*                                                                    *  01880000
+*   FOR EACH ELEMENT:                                                *  01890000
+*  DAY   DC    PL2            DAYS FROM PREVIOUS MONTHS (ADDR BY R6) *  01900000
+*  MONTH DC    XL1            CURRENT MONTH NUMBER      (ADDR BY R7) *  01910000
+*                                                                    *  01920000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  01930000
+TABNORM  DC    X'000C00'      TABLE FOR NORMAL YEAR                     01940000
+         DC    X'031C01'                                                01950000
+         DC    X'059C02'                                                01960000
+         DC    X'090C03'                                                01970000
+         DC    X'120C04'                                                01980000
+         DC    X'151C05'                                                01990000
+         DC    X'181C06'                                                02000000
+         DC    X'212C07'                                                02010000
+         DC    X'243C08'                                                02020000
+         DC    X'273C09'                                                02030000
+         DC    X'304C10'                                                02040000
+         DC    X'334C11'                                                02050000
+         DC    X'365C12'                                                02060000
+         SPACE 3                                                        02070000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02080000
+*                                                                    *  02090000
+*   TABLE FOR LEAP YEAR                                              *  02100000
+*                                                                    *  02110000
+*   FOR EACH ELEMENT:                                                *  02120000
+*  DAY   DC    PL2            DAYS FROM PREVIOUS MONTHS (ADDR BY R6) *  02130000
+*  MONTH DC    XL1            CURRENT MONTH NUMBER      (ADDR BY R7) *  02140000
+*                                                                    *  02150000
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  02160000
+TABLEAP  DC    X'000C00'      TABLE FOR LEAP YEAR                       02170000
+         DC    X'031C01'                                                02180000
+         DC    X'060C02'                                                02190000
+         DC    X'091C03'                                                02200000
+         DC    X'121C04'                                                02210000
+         DC    X'152C05'                                                02220000
+         DC    X'182C06'                                                02230000
+         DC    X'213C07'                                                02240000
+         DC    X'244C08'                                                02250000
+         DC    X'274C09'                                                02260000
+         DC    X'305C10'                                                02270000
+         DC    X'335C11'                                                02280000
+         DC    X'366C12'                                                02290000
+         SPACE 3                                                        02300000
+COMRG006 EQU   *                                                        02310000
+         MEND                                                           02320000

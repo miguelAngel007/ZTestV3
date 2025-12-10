@@ -1,0 +1,119 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                          TSTS2LDR                                   * 00000004
+*                     TRANSACTION SYSTEM                              * 00000005
+*               LOAD STORAGE DEFINITION RECORD                        * 00000006
+*                                                                     * 00000007
+*---------------------------------------------------------------------* 00000008
+*                  ** HISTORY OF REVISIONS **                         * 00000009
+*                                                                     * 00000010
+* DESCRIPTION                                                 CHNGID  * 00000011
+* __________________________________________________________  _______ * 00000012
+*                                                                     * 00000013
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9910919   00000585
+* 12/96    ADDED FIELDS FOR 24X7 PROCESSING                   9910919 * 00000586
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000588
+*             LDCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000589
+*             LDCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000590
+*             LDRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000591
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000592
+*             LDCACHID DS    CL8         CA CHANGE ID         2602105 * 00000593
+*          CHANGED FILLER LENGTH                              2602105 * 00000594
+*                      DS    CL57        FILLER               2602105 * 00000595
+*                                                             2602105 * 00000596
+*                                                                     * 00000597
+*---------------------------------------------------------------------* 00000598
+*                                                                       00000599
+LDR      DSECT                                                          00000600
+LDRREC   DS    0CL900            LOAD DEFINITION RECORD                 00000700
+*                                                                       00000800
+LDRIOHD  DS    0XL4                I/O HEADER                           00000900
+LDRRECL  DS    XL2                   RECORD LENGTH                      00001000
+         DS    XL2                   FILLER                             00001100
+*                                                                       00001200
+LDRKEY   DS    0CL21               RECORD KEY                           00001300
+LDRKFU   DS    CL1                   TYPE OF FILE                       00001400
+*                                      VALUE 'A' = TS FILE              00001500
+*                                            'B' = APPL BCR             00001600
+*                                            'C' = APPL TRAN GRID       00001700
+LDRKFNM  DS    0CL5                  FILE NAME                          00001800
+LDRKFAP  DS    CL2                     FILE APPLICATION                 00001900
+LDRKFID  DS    CL3                     FILE IDENTIFIER                  00002000
+*                                        VALUES - 'BCR'                 00002100
+*                                               - 'ICR'                 00002200
+*                                               - 'TCR'                 00002300
+*                                               - 'TAR'                 00002400
+*                                               - 'TBR'                 00002500
+*                                               - 'SDR'                 00002600
+*                                               - 'TBL' TRAN GRIDS      00002700
+LDRKFGP  DS    CL2                   FILE GROUP                         00002800
+         DS    CL1                   FILLER                             00002900
+LDRKFTGN DS    CL8                   TRAN GRID NAME                     00003000
+*                                      SPACES UNLESS FILE-ID IS TBL     00003100
+LDRKFSQ  DS    CL4                   RECORD SEQUENCE NUMBER             00003200
+*                                                                       00003300
+LDCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00003310
+LDCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00003320
+LDRLM    DS    0CL24               LAST MAINTENANCE INFORMATION         00003400
+LDRLMDT  DS    0CL6                  LAST MAINTENANCE DATE              00003500
+LDRLMDM  DS    CL2                     LAST MAINTENANCE MONTH           00003600
+LDRLMDD  DS    CL2                     LAST MAINTENANCE DAY             00003700
+LDRLMDY  DS    CL2                     LAST MAINTENANCE YEAR            00003800
+LDRLMT   DS    0CL6                  LAST MAINTENANCE TIME              00003900
+LDRLMTH  DS    CL2                     LAST MAINTENANCE HOUR            00004000
+LDRLMTM  DS    CL2                     LAST MAINTENANCE MINUTES         00004100
+LDRLMTS  DS    CL2                     LAST MAINTENANCE SECONDS         00004200
+LDRLMEM  DS    CL8                   LAST MAINTENANCE EMPLOYEE          00004300
+LDCACHID DS    CL8                     CA CHANGE ID             2602105 00004400
+*                                                                       00004500
+         DS    CL57                FILLER                       2602105 00004600
+*                                                                       00004700
+LDRNXTSQ DS    CL4                 NEXT RECORD SEQUENCE NUMBER          00004800
+LDRKYMX  DS    XL2                 MAXIMUM NUMBER OF RECORD KEYS        00004900
+*                                    VALUE IS +26.                      00005000
+LDRKYUSE DS    XL2                 RECORD KEYS USED                     00005100
+LDRRKYS  DS    CL780               RECORD KEY OCCURRENCES (26 MAX)      00005200
+*                                                                       00005300
+LDRMXLG  EQU   *-LDRREC            MAXIMUM RECORD LENGTH                00005400
+         SPACE 3                                                        00005500
+LDRRKY   DSECT                   RECORD KEY OCCURRENCE                  00005600
+LDRRKYG  DS    CL30                RECORD KEY                           00005700
+*                                                                       00005800
+         ORG   LDRRKYG                                                  00005900
+LDRALLK  DS    CL3                 LOAD ALL RECORDS ON FILE             00006000
+LDRALLKL EQU   C'ALL'                                                   00006100
+LDRALLKM DS    CL27                REMAINDER OF ALL-KEY       9910919   00006110
+*                                                                       00006200
+         ORG   LDRRKYG                                                  00006300
+LDRTCRK  DS    0CL16               TCR KEY                              00006400
+LDRTCRCL DS    CL10                  TCR CLASS                          00006500
+LDRTCRAP DS    CL2                   TCR APPLICATION                    00006600
+LDRTCRTR DS    CL2                   TCR TRAN CODE                      00006700
+LDRTCRUT DS    CL2                   TCR USER TRAN CODE                 00006800
+*                                                                       00006900
+         ORG   LDRRKYG                                                  00007000
+LDRSDRK  DS    0CL18               SDR KEY                              00007100
+LDRSDRCL DS    CL10                  SDR CLASS                          00007200
+LDRSDRNM DS    CL8                   SDR NAME                           00007300
+*                                                                       00007400
+         ORG   LDRRKYG                                                  00007500
+LDRTBRK  DS    0CL18               TBR KEY                              00007600
+LDRTBRCL DS    CL10                  TBR CLASS                          00007700
+LDRTBRNM DS    CL8                   TBR NAME                           00007800
+*                                                                       00007900
+         ORG   LDRRKYG                                                  00008000
+LDRBCRK  DS    0CL14               BCR KEY                              00008100
+LDRBCRGR DS    CL2                   BCR GROUP                          00008200
+LDRBCRCT DS    0CL12                 BCR CONTROLS                       00008300
+LDRBCRC1 DS    CL2                     BCR CONTROL 1                    00008400
+LDRBCRC2 DS    CL3                     BCR CONTROL 2                    00008500
+LDRBCRC3 DS    CL3                     BCR CONTROL 3                    00008600
+LDRBCRC4 DS    CL4                     BCR CONTROL 4                    00008700
+*                                                                       00008800
+         ORG   LDRRKYG                                                  00008900
+LDRTGRK  DS    0CL4                TRAN GRID KEY                        00009000
+LDRTGRUC DS    CL4                   USER TRAN CODE                     00009100
+*                                                                       00009200
+         ORG                                                            00009300

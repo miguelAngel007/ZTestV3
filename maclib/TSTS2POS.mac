@@ -1,0 +1,1215 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         EJECT                                                          00000010
+*---------------------------------------------------------------------* 00000020
+*                   ** PROGRAM DESCRIPTION **                         * 00000030
+*                                                                     * 00000040
+*       TSTS2POS - PROCESSING LOGIC FOR NEXT-DAY POSTING              * 00000041
+*                                                                     * 00000042
+*       THIS COPYBOOK IS USED IN BOTH THE ONLINE AND OFFLINE          * 00000043
+*       NEXT-DAY POSTING PROGRAMS...IT BEGINS AFTER A SEQUENTIAL      * 00000044
+*       READ OF THE LOG HAS BEEN DONE, BRANCHES AND LINKS TO          * 00000045
+*       I/O ROUTINES WHICH ARE UNIQUE TO THE ONLINE AND BATCH         * 00000046
+*       PROGRAMS, AND ENDS BEFORE THE CODE FOR RETURN OR END          * 00000047
+*       OF JOB.                                                       * 00000048
+*                                                                     * 00000049
+*---------------------------------------------------------------------* 00000050
+*                  ** HISTORY OF REVISIONS **                         * 00000051
+*                                                                     * 00000052
+* DESCRIPTION                                                 CHNGID  * 00000053
+* __________________________________________________________  _______ * 00000054
+*                                                                     * 00000055
+* 04/05/16 LIMIT LENGTH OF KEY MOVE TO FIELD LENGTH           1727013   00001050
+* 08/06/13 MODIFY FOR AUTO RESEGMENTATION                     1426371   00001051
+* 08/24/12 SAVE STXRF KEY, KEY LEN, REC LENGTH                1316272   00001052
+* 09/21/10 EXPANDED MAX KEY SIZE                              1115989   00001054
+* 09/15/08 CHANGED TO DETECT KDA NOT PRESENT, GET KEY INFO    0915743   00001055
+* 11/05/07 MODIFIED FOR STXRF PROCESSING                      0825676   00001056
+* 09/30/05 ONLINE EVENT MODIFICATIONS                         0615280   00001058
+* 09/30/03 SPEED UP NEXT DAY REPOST PROCESSING                0424891   00001060
+* 02/25/02 CORRECT REPORT RECORDS ON TSNDP FILE               2024108 * 00001062
+* 02/22/02 SKIP REPOST OF NON-RDA LOGS (AM) IF REVERSED       2024300 * 00001064
+* 0401/00  FIX DAGTAB INCORRECT ADDR & END OF ENTRIES X'FF'   2023708 * 00001066
+* 02/24/00 CORR TRAILER ADD/DELETE LOGIC TO WORK WITH GN3554  2020996 * 00001068
+* 10/15/99 ADD REFERENCE TO CSECT TO CONVERT FIELD MAINT.     2023788 * 00001069
+* 12/15/97 CORRECT USING REGISTER FOR HIGH LEVEL ASSEMBLER    9913401 * 00001070
+* 05/09/97 POPULATE NDP FILE CURRENCY CODE FROM TSLOG RECORD  9913481 * 00001072
+* 01/09/97 MODIFIED FOR 24X7 PROCESSING                       9910919 * 00001074
+* 07/14/95 ON DATA MOVE, IF DATA TYPE IS BINARY, DO NOT TRY   2602019 * 00001076
+*          TO CONVERT IT AS THOUGH IT WERE NUMERIC.           2602019 * 00001078
+* 04/21/95 MODIFY TO FIND DAG IN THE DAG TABLE FOR WORK AREA. 2602019 * 00001080
+* 04/10/95 REMOVE ALL REFERENCES TO DELETE STOP/HOLDS.        2602019 * 00001082
+* 01/09/95 ENHANCE PROCESSING NEW ARCHITECTURE WITH NO RDA.   2602019 * 00001084
+* 12/30/94 ENHANCE RESTART.                                   2602019 * 00001086
+* 12/07/94 PERFORMANCE ENHANCEMENTS.                          2602019 * 00001088
+* 09/16/94 MODIFY TO HANDLE LOG FILE GROUPING.                2602019 * 00001090
+* 09/14/94 PROCESSING ORDER CHANGED TO CORRECT ACCOUNT CHAIN  2602019 * 00001092
+*          AND IMPROVE PERFORMANCE.                           2602019 * 00001094
+*                                                                     * 00001096
+*---------------------------------------------------------------------* 00001098
+         SPACE                                                          00001100
+*********************************************************************** 00001200
+*  SKIP LOGS THAT ARE NOT NEXT-DAY (ALREADY PROCESSED) AND LOGS       * 00001300
+*     DELETED BY DTB                                                  * 00001400
+*  CHECK ALL EXTERNALS TO SEE IF THIS APPL IS BEING PROCESSED,00702394* 00001410
+*  IF NOT, THEN SKIP ALL INTERNALS ASSOCIATED WITH IT ALSO    00702394* 00001420
+*  BUMP TO RDA IN LOG                                                 * 00001500
+*  IF THIS LOG IS NOT A CONTINUATION OF THE LAST, SET A SWITCH AND    * 00001600
+*     BUMP PAST THE RDA EYE CATCHER                                   * 00001700
+*********************************************************************** 00001800
+PRLOG091 EQU   *                                              2602019   00002736
+         CLI   LGTRNNDY,C'1'          Q. NEXT-DAY TRANSACTION?2602019   00002737
+         BNE   PRLOG085                N-SKIP THIS RECORD     2602019   00002740
+         CLI   LGDELTFL,C'2'           Q. DELETED BY DTB?     2602019   00002745
+         BE    PRLOG085                 Y-SKIP THIS RECORD    2602019   00002750
+         MVC   SVDTCAP,LGDATCP         SAVE DATA CAPTURE FLAG 2602019   00002755
+         MVC   SVREALTF,LGAPLRTF       SAVE REAL-TIME FLAG    2602019   00002760
+         MVC   SVNDEXIT,LGNDEXIT       SAVE NEXT DAY EXIT IND 0615280   00002780
+         MVC   SVSEQNUM,LGSEQNUM       SAVE SEQUENCE NUMBER             00003100
+         MVC   SVDELTFL,LGDELTFL       SAVE LOG DELETE FLAG             00003200
+         MVC   SVAPPL,LGAPPLID         SAVE APPLICATION                 00003400
+         MVC   SVAPARCH,LGAPARCH       SAVE APPL ARCHITECTURE TS006.00  00003410
+         MVC   SV1KEYAD,LOWVALU        INIT RDA KDD ADDR 1    00702203  00003420
+         MVC   SV2KEYAD,LOWVALU        INIT RDA ROD ADDR 2    00702203  00003430
+         MVC   SV3KEYAD,LOWVALU        INIT RDA KDD ADDR 3    00702203  00003440
+         LA    R8,LGSHSEQN             LD ADR OF SH SEQ NO    00702203  00003450
+         ST    R8,SVSHSEQA             SAVE ADDR OF S/H SEQ   00702203  00003460
+         MVC   SVACTRBA,HIGHVALU       INITIALIZE THE ACCOUNT 2602019   00003500
+         MVC   SVACTLGG,SPACES          CHAINING FIELDS       2602019   00003510
+         MVI   SVACTNDF,C'0'            "                     2602019   00003520
+         BAL   R15,PRNDP000            SET UP NEW TSNDP REC   2602019   00003530
+         CLC   LGAPLRTF,=C'Y'          Q. A REAL-TIME TRANS?  2602019   00003540
+         BE    PRLOG430                 Y-ONLY WRITE TO LOG   2602019   00003550
+         CLC   LGRDALEN,LOWVALU        Q. IS THERE AN RDA?    2602019   00003560
+         BNE   PRLOG092                 Y-PROCESS THE RDA     2602019   00003570
+         MVI   WKNEWLOG,C'1'           SET FIRST LOG RECORD   0803097   00003605
+         B     PRLOG420                SKIP RDA PROCESSING    2602019   00003610
+PRLOG092 EQU   *                                              0803097   00003615
+         MVC   SVRDALEN,LGRDALEN       SAVE RDA LENGTH                  00003700
+         LA    R7,LGSTMLNG(R6)         LOAD ADDRESS OF LOG PAST STEM    00003800
+         SR    R8,R8                   CLEAR REG FOR INSERT             00003900
+         ICM   R8,3,LGKDALEN           INSERT KDA LENGTH                00004000
+         AR    R7,R8                   BUMP PAST KDA                    00004100
+         ST    R7,SVTDAADR             SAVE TDA ADDRESS                 00004200
+         ICM   R8,3,LGTDALEN           INSERT TDA LENGTH                00004300
+         AR    R7,R8                   BUMP PAST TDA                    00004400
+         ST    R7,SVTDAEND             SAVE END OF TDA                  00004500
+         ICM   R8,3,LGPDALEN           INSERT PDA LENGTH                00004600
+         AR    R7,R8                   BUMP PAST PDA                    00004700
+         ICM   R8,3,LGXMTLEN           INSERT XMT LENGTH                00004800
+         AR    R7,R8                   BUMP PAST XMT                    00004900
+         ICM   R8,3,LGALALEN           INSERT ALA LENGTH                00005000
+         AR    R7,R8                   BUMP PAST ALA                    00005100
+         LR    R8,R7                   LOAD BEGINNING OF RDA            00005200
+         AH    R8,SVRDALEN             ADD LENGTH OF RDA                00005300
+         ST    R8,SVENDRDA             SAVE END OF RDA                  00005400
+         CLC   0(8,R7),=C'** RDA**'    IS EYE CATCHER PRESENT 0803097   00005405
+         BNE   PRLOG095                NO - DO NOT BUMP       0803097   00005410
+         LA    R7,8(R7)                BUMP PAST RDA EYE CATCH0803097   00005415
+PRLOG095 EQU   *                                              0803097   00005420
+         CLC   LGSEQNUM,=C'01'         FIRST LOG RECORD?                00005500
+         BH    PRLOG100                NO  - GO PROCESS LOG             00005600
+         MVI   WKNEWLOG,C'1'           SET NEW LOG FLAG ON              00005700
+         EJECT                                                          00005900
+*********************************************************************** 00006000
+*  LOOP OF RAA PROCESSING IN THE RDA                                  * 00006100
+*    CHECK FOR END OF RDA                                             * 00006200
+*    FIND KEY TO RECORD IN KDD                                        * 00006300
+*    CHECK APPLICATION AND FILE GROUP FOR SELECTED PROCESSING         * 00006400
+*    IF THIS IS A NEW FILE OR NEW KEY, PROCESS LAST RECORD (ADD IT    * 00006500
+*       OR UPDATE IT)                                                 * 00006600
+*    PROCESS CURRENT RECORD                                           * 00006700
+*       IF NEW FILE, READ FDR                                         * 00006800
+*       IF ADD, BAL TO ADD PROCESS ROUTINE THEN GO TO UPDATE LOG      * 00006900
+*       IF DELETE, DELETE THE RECORD AND GO TO UPDATE LOG             * 00007000
+*       IF UPDATE, IF NEW KEY, READ NEW RECORD, BAL TO UPDATE PROCESS * 00007100
+*    AT END OF RDA, UPDATE LOG THEN GO READ NEXT LOG                  * 00007200
+*********************************************************************** 00007300
+         SPACE                                                          00007400
+PRLOG100 EQU   *                                                        00007500
+         C     R7,SVENDRDA             END OF RDA REACHED?              00007600
+         BNL   PRLOG420                YES - GO UPDATE LOG              00007700
+         USING RDARAA,R7               ADDRESS RAA                      00007800
+         LA    R8,RDARAALN(R7)         BUMP PAST RAA                    00007900
+         MVC   SVRAADL,RDARAADL        SAVE DATA LENGTH       0803097   00007905
+         CLI   WKADMULT,C'1'           HAS LOG SPLIT ON ADD   0803097   00007910
+         BE    PRLOG241                YES - MOVE SPLIT DATA  0803097   00007915
+         USING RDAKDD,R8               ADDRESS KDD                      00008000
+         MVC   WKFILE,RDAFN            SAVE FILE NAME                   00008100
+         CLC   RDARKL,=AL2(L'RDARK)    LENGTH > MAX?          1727013   00008110
+         BNH   PRLOG102                NO, OK                 1727013   00008115
+         MVC   RDARKL,=AL2(L'RDARK)    SET TO MAX             1727013   00008120
+PRLOG102 EQU   *                                              1727013   00008130
+         MVC   WKKEYLEN,RDARKL         SAVE KEY LENGTH                  00008200
+         MVI   WKRECKEY,C' '           CLEAR WORK RECORD KEY            00010400
+         MVC   WKRECKEY+1(L'WKRECKEY-1),WKRECKEY                        00010500
+         SR    R6,R6                   CLEAR REG FOR INSERT             00010600
+         ICM   R6,3,RDARKL             INSERT KEY LENGTH                00010700
+         BCTR  R6,0                    SUBTRACT 1 FOR EX INSTRUCTION    00010800
+         EX    R6,PRLOG900             MOVE KEY TO WORK KEY AREA        00010900
+         AIF   ('&PROGNM' NE 'TSTSU402').NU402A               1426371   00010902
+         STM   R6,R9,SVREGS2         SAVE REGS                1426371   00010904
+         MVI   WFGFILK,C' '            CLEAR FILE GROUP KEY   1426371   00010906
+         MVC   WFGFILK+1(L'WFGFILK-1),WFGFILK                 1426371   00010908
+         EX    R6,PRLOG901             SAVE FILE GROUP KEY    1426371   00010910
+         CLI   SVRESEG,C'Y'         RESEGMENTATION REQUIRED?  1426371   00010912
+         BNE   PRLOG128              NO, SKIP                 1426371   00010914
+         CLC   WKFILE(5),=C'TSBCR'   IS CURRENT FILE TSBCR?   1426371   00010916
+         BE    PRLOG128              YES - SKIP               1426371   00010918
+         MVI   WKFDRKEY,C' '           CLEAR FDR KEY          1426371   00010920
+         MVC   WKFDRKEY+1(L'WKFDRKEY-1),WKFDRKEY              1426371   00010922
+         MVC   WKFDRCLS,SVFDRCL        SET UP FDR CLASS       1426371   00010924
+         MVC   WKFDRNAM(5),WKFILE      SETUP FDR FILE FOR KEY 1426371   00010926
+         CLC   SVFDRKEY,WKFDRKEY       IS FILE SAME AS LAST?  1426371   00010928
+         BE    PRLOG105                YES - GO CHECK KEY     1426371   00010930
+         MVC   SVFDRKEY,WKFDRKEY       SAVE NEW FDR KEY       1426371   00010932
+         BAL   R15,RDFDR000            GO READ FDR            1426371   00010934
+PRLOG105 EQU   *                       DETERMINE FILE GROUP   1426371   00010936
+         MVC   WFGAPPL(5),WKFILE       FILE ID                1426371   00010937
+         USING QIRREC,R7             QUEUE INDEX BAR          1426371   00010938
+         USING QIRENT,R9             QUEUE INDEX REC ENT BAR  1426371   00010940
+         TSTS9FG TYPE=MACRO,WR1=R1,WR2=R15,WR3=R7,WR4=R9      1426371   00010942
+         LM    R6,R9,SVREGS2           RESTORE REGS           1426371   00010943
+         CLI   SVSSRFT,C'M'            MASTER?                1426371   00010944
+         BNE   PRLOG125                                       1426371   00010946
+         MVC   RDAFNGP,WFGMSTGP        MOVE NEW FILE GROUP    1426371   00010948
+         B     PRLOG127                                       1426371   00010950
+PRLOG125 EQU   *                       DETERMINE FILE GROUP   1426371   00010952
+         CLI   SVSSRFT,C'C'            CONTROLS               1426371   00010954
+         BNE   PRLOG126                                       1426371   00010956
+         MVC   RDAFNGP,WFGCTLGP        MOVE NEW FILE GROUP    1426371   00010958
+         B     PRLOG127                                       1426371   00010960
+PRLOG126 EQU   *                       DETERMINE FILE GROUP   1426371   00010962
+         CLI   SVSSRFT,C'A'            ALPHA?                 1426371   00010964
+         BNE   PRLOG128                NO CHANGE              1426371   00010966
+         MVC   RDAFNGP,WFGALPGP        MOVE NEW FILE GROUP    1426371   00010968
+PRLOG127 EQU   *                       DETERMINE FILE GROUP   1426371   00010970
+         MVC   WKFILE,RDAFN            SAVE FILE NAME         1426371   00010972
+PRLOG128 EQU   *                       DETERMINE FILE GROUP   1426371   00010974
+         DROP  R7,R8,R9                                       1426371   00010976
+         USING RDARAA,R7               ADDRESS RAA            1426371   00010978
+         LM    R6,R9,SVREGS2           RESTORE REGS           1426371   00010980
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1426371   00010981
+.NU402A  ANOP                                                           00010982
+         LA    R6,RDAKLNG(R8)          BUMP TO THE KEY        00702203  00011000
+         DROP  R8                                             9913401   00011005
+         CLC   WKFILE+2(3),=C'STP'     IS CURRENT FILE STP?   00702203  00011010
+         BE    PRLOG132                YES - GO STORE KEY ADDR00702203  00011020
+         CLC   WKFILE(5),=C'STXRF'     IS CURRENT FILE STXRF? 0825676   00011024
+         BE    PRLOG132                YES -GO STORE KEY ADDR 0825676   00011026
+         CLC   WKFILE+2(3),=C'ACC'     IS CURRENT FILE ACC    00702203  00011030
+         BNE   PRLOG134                NO  - DO NOT STORE ADDR00702203  00011040
+PRLOG132 EQU   *                       FOR STP AND ACC -      00702203  00011050
+         ST    R6,SV1KEYAD             SAVE ADDR OF KEY IN RDA00702203  00011060
+PRLOG134 EQU   *                                              00702203  00011070
+         AH    R6,WKKEYLEN             BUMP PAST KEY                    00011100
+         DROP  R6                                                       00011200
+         USING RDARDD,R6               ADDRESS RDD                      00011300
+         MVC   SVRAADL,RDARAADL        SAVE DATA LENGTH                 00011500
+         ST    R6,SVRDDADR             SAVE DATA DETAIL ADDRESS         00011600
+         CLC   SVFILE,WKFILE           NEW FILE?                        00011700
+         BNE   PRLOG140                YES - GO PROCESS LAST RECORD     00011800
+         CLC   SVRECKEY,WKRECKEY       NEW RECORD?                      00011900
+         BE    PRLOG200                NO  - GO PROCESS CURRENT LOG     00012000
+         SPACE                                                          00012100
+PRLOG140 EQU   *                                                        00012200
+         MVI   READERR,C'N'            RESET READ ERROR FLAG  2602019   00012210
+         CLI   WKRECPRC,C'A'           SHOULD LAST RECORD BE ADDED?     00012300
+         BNE   PRLOG170                NO - GO CHECK DELETE             00012400
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS             00012500
+         CLC   SVFILE+2(3),=C'STP'     STOP/HOLD ADD?                   00012600
+         BNE   PRLOG145                NO - GO ADD REC RTN    0825676   00012700
+         BAL   R15,ADSTH000            PERFORM ADD STOP/HOLD ROUTINE    00012800
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 00702203  00012810
+         B     PRLOG180                GO PROCESS CURRENT LOG           00012900
+         SPACE                                                          00013000
+PRLOG145 EQU   *                                              0825676   00013005
+         CLC   SVFILE(5),=C'STXRF'     XREF ADD?              0825676   00013010
+         BNE   PRLOG150                NO - GO ADD RECORD RTN 0825676   00013015
+         ICM   R15,R15,=V(ADXRF000)                           0825676   00013017
+         BALR  R14,R15                 PERFORM ADD XRF RTN    0825676   00013020
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 0825676   00013025
+         B     PRLOG180                GO PROCESS CURRENT LOG 0825676   00013030
+PRLOG150 EQU   *                                                        00013100
+         CLC   SVFILE+2(3),=C'ACC'     ACCUM TRAN ADD?                  00013200
+         BNE   PRLOG160                NO - GO PERFORM ADD RECORD RTN   00013300
+         BAL   R15,ADACC000            PERFORM ADD ACCUM TRAN ROUTINE   00013400
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 00702203  00013410
+         B     PRLOG180                GO PROCESS CURRENT LOG           00013500
+         SPACE                                                          00013600
+PRLOG160 EQU   *                                                        00013700
+         BAL   R15,ADREC000            GO ADD RECORD                    00013800
+         B     PRLOG180                GO PROCESS CURRENT LOG           00013900
+         SPACE                                                          00014000
+PRLOG170 EQU   *                                                        00014100
+         CLI   WKRECPRC,C'U'           SHOULD LAST RECORD BE UPDATED?   00014200
+         BNE   PRLOG180                NO - GO DO SYNCPOINT             00014300
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS             00014400
+         BAL   R15,UPREC000            GO UPDATE LAST RECORD            00014500
+         SPACE                                                          00014600
+PRLOG180 EQU   *                   *** RETURN FROM ADD,UPDATE ERRORS    00014700
+         CLI   WKNEWLOG,C'1'           NEW LOG?                         00014800
+         BNE   PRLOG210                NO - GO ON                       00014900
+         MVI   WKNEWLOG,C'0'           SET NEW LOG OFF                  00015000
+         SPACE                                                          00015300
+PRLOG200 EQU   *                                                        00015400
+         CLI   READERR,C'Y'            Q. DID HAVE READ ERROR?2602019   00015410
+         BE    PRLOG400                 Y-SKIP PROCESS        2602019   00015420
+         CLI   WKNEWLOG,C'1'           NEW LOG?                         00015500
+         BNE   PRLOG210                NO - GO ON                       00015600
+         MVI   WKNEWLOG,C'0'           SET NEW LOG OFF                  00015700
+         SPACE                                                          00015900
+PRLOG210 EQU   *                       HERE GOES CURRENT REC  0712785   00016000
+         MVI   WKFDRKEY,C' '           CLEAR FDR KEY          1115989   00016010
+         MVC   WKFDRKEY+1(L'WKFDRKEY-1),WKFDRKEY              1115989   00016020
+         MVC   WKFDRCLS,SVFDRCL        SET UP FDR CLASS                 00016100
+         MVC   WKFDRNAM(5),WKFILE      SET UP FDR FILE FOR KEY00707270  00016200
+         CLC   SVFDRKEY,WKFDRKEY       IS FILE SAME AS LAST?  0712785   00016300
+         BE    PRLOG220                YES - GO CHECK KEY               00016400
+         MVC   SVFDRKEY,WKFDRKEY       SAVE NEW FDR KEY       9910919   00016410
+         BAL   R15,RDFDR000            GO READ FDR                      00016500
+         SPACE                                                          00016700
+PRLOG220 EQU   *                                                        00016800
+         MVI   WKRECFLD,C'1'           SET RECORD PROCESS               00016900
+         MVC   WKRECLEN,RDARFL         SAVE RECORD LENGTH               00017000
+         CLI   RDARAAFI,C'E'           ADD RECORD?                      00017100
+         BE    PRLOG250                YES - GO CHECK FOR ADD/DELETE    00017200
+         CLI   RDARAAFI,C'X'           DELETE RECORD?                   00017300
+         BE    PRLOG230                YES - GO CHECK FOR ADD/DELETE    00017400
+         CLI   RDARAAFI,C'R'           FORMAT RECORD?                   00017500
+         BNE   PRLOG260                NO  - GO ON                      00017600
+         CLI   RDARRA,C'A'             ADD?                             00017700
+         BE    PRLOG250                YES - GO PROCESS ADD             00017800
+         SPACE                                                          00017900
+PRLOG230 EQU   *                                                        00018000
+         CLI   RDARAACF,C'Y'           CONTINUATION OF LAST DELETE?     00018100
+         BE    PRLOG400                YES - GO TO NEXT RAA             00018200
+         SPACE                                                          00018800
+PRLOG240 EQU   *                                                        00018900
+         BAL   R15,DEREC000            GO DELETE RECORD                 00019000
+         MVI   SVRECKEY,C' '           CLEAR KEY              1115989   00019100
+         MVC   SVRECKEY+1(L'SVRECKEY-1),SVRECKEY              1115989   00019110
+         B     PRLOG400                GO TO NEXT RAA                   00019200
+         SPACE                                                          00019300
+PRLOG241 EQU   *                                              0803097   00019301
+         BAL   R15,PRADD000            GO ADD RECORD          0803097   00019303
+         MVC   SVRECKEY,WKRECKEY       SAVE NEW KEY           0803097   00019304
+         MVC   SVKEYLEN,WKKEYLEN       SAVE NEW KEY LENGTH    0803097   00019305
+         MVC   SVRECLEN,WKRECLEN       SAVE NEW RECORD LENGTH 0803097   00019306
+         LR    R7,R8                   SET TO BEGIN DATA ADDR 0803097   00019307
+         CLC   SVRAADL,LOWVALU         IS DATA PRESENT IN RDA 0803097   00019308
+         BE    PRLOG242                NO - BUMP PAST END KEY 0803097   00019309
+         AH    R7,SVRAADL              BUMP PAST DATA         0803097   00019310
+PRLOG242 EQU  *                                               0803097   00019311
+         USING RDAKDD,R7                                      0803097   00019313
+         LA    R7,RDAKLNG(R7)          BUMP TO ENDING KDA     0803097   00019314
+         AH    R7,WKKEYLEN             BUMP PAST ENDING KEY   0803097   00019321
+         DROP  R7                                             0803097   00019322
+         USING RDARAA,R7                                      0803097   00019323
+         LA    R7,RDARAALN(R7)         BUMP PAST ENDING RAA   0803097   00019324
+         B     PRLOG100                BUMP TO NEXT RAA       0803097   00019325
+PRLOG250 EQU   *                                                        00019400
+         BAL   R15,PRADD000            GO ADD RECORD                    00019700
+         MVC   SVRECKEY,WKRECKEY       SAVE NEW KEY                     00019800
+         MVC   SVKEYLEN,WKKEYLEN       SAVE NEW KEY LENGTH              00019900
+         MVC   SVRECLEN,WKRECLEN       SAVE NEW RECORD LENGTH           00020000
+         B     PRLOG400                GO TO NEXT RAA                   00020100
+         SPACE                                                          00020200
+PRLOG260 EQU   *                                                        00020300
+         CLC   SVFILE,WKFILE           HAS THIS FILE BEEN READ?         00020400
+         BNE   PRLOG270                NO  - GO READ NEW RECORD         00020500
+         CLC   SVRECKEY,WKRECKEY       HAS THIS RECORD BEEN READ?       00020600
+         BE    PRLOG290                YES - GO PROCESS CURRENT LOG     00020700
+         SPACE                                                          00020800
+PRLOG270 EQU   *                                                        00020900
+         MVI   SVRECKEY,C' '           CLEAR SAVED KEY        1115989   00021000
+         MVC   SVRECKEY+1(L'SVRECKEY-1),SVRECKEY              1115989   00021010
+         CLC   WKFILE(5),=C'STXRF'     XRF UPDATE?            0825676   00021050
+         BE    PRLOG275                YES - PROCESS          0825676   00021060
+         CLC   WKFILE+2(3),=C'STP'     STOP/HOLD UPDATE?                00021100
+         BE    PRLOG280                YES - PROCESS L'S AS WELL        00021200
+         CLI   RDARAAFI,C'L'           SKIP UPDATING FROM RDA?          00021300
+         BE    PRLOG400                YES - SKIP THIS UPDATE           00021400
+         MVI   WKRECFLD,C'2'           SET RECORD PROCESS     00702228  00021410
+         BAL   R15,RDREC000            GO READ THE FILE RECORD LOGGED   00021500
+         MVC   SVRECKEY,WKRECKEY       SAVE NEW KEY                     00021600
+         MVC   SVKEYLEN,WKKEYLEN       SAVE NEW KEY LENGTH              00021700
+         MVC   SVRECLEN,WKRECLEN       SAVE NEW RECORD LENGTH           00021800
+         B     PRLOG290                GO TO UPDATE PROCESS             00021900
+         SPACE                                                          00022000
+PRLOG275 EQU   *                                              0825676   00022010
+         ICM   R15,R15,=V(RDXRF000)                           0825676   00022015
+         BALR  R14,R15                 GO FIND THE ST XRF REC 0825676   00022020
+         MVC   SVRECKEY,WKRECKEY       SAVE NEW KEY           1316272   00022022
+         MVC   SVKEYLEN,WKKEYLEN       SAVE NEW KEY LENGTH    1316272   00022024
+         MVC   SVRECLEN,WKRECLEN       SAVE NEW RECORD LENGTH 1316272   00022026
+         B     PRLOG290                GO TO UPDATE PROCESS   0825676   00022030
+PRLOG280 EQU   *                                                        00022100
+         MVI   WKRECFLD,C'2'           SET FIELD PROCESS                00022200
+         CLI   RDARAAFI,C'L'           LOG FOR STOP/HOLD TO READ REC?   00022300
+         BNE   PRLOG400                NO - DON'T USE THIS TO READ      00022400
+         MVI   WKRECFLD,C'1'           SET RECORD PROCESS               00022500
+         BAL   R15,RDSTH000            GO FIND THE STOP/HOLD RECORD     00022600
+         MVC   SVRECKEY,WKRECKEY       SAVE NEW KEY                     00022700
+         MVC   SVKEYLEN,WKKEYLEN       SAVE NEW KEY LENGTH              00022800
+         MVC   SVRECLEN,WKRECLEN       SAVE NEW RECORD LENGTH           00022900
+         B     PRLOG400                GO TO NEXT RAA                   00023000
+         SPACE                                                          00023100
+PRLOG290 EQU   *                                                        00023200
+         CLI   READERR,C'Y'            Q. DID HAVE READ ERROR?2602019   00023210
+         BE    PRLOG400                 Y-SKIP PROCESS        2602019   00023220
+         MVI   WKRECFLD,C'2'           SET FIELD PROCESS                00023300
+         MVI   WKRECPRC,C'U'           SET UPDATE RECORD FLAG           00023400
+         CLI   SVDELTFL,C'0'           DELETED LOG?                     00023500
+         BH    PRLOG400                YES - SKIP PROCESS               00023600
+         BAL   R15,PRUPD000            GO PROCESS UPDATE REQUEST        00023700
+         SPACE                                                          00023800
+PRLOG400 EQU   *                   *** RETURN FROM READ,DELETE ERROR    00023900
+         MVC   SVFILE,WKFILE           SAVE NEW FILE                    00024000
+*-------------------------------------------------------------2020996-* 00024005
+*  R6 = A(RECOVER DETAIL DATA OR RDD)                         2020996 * 00024010
+*  R7 = A(RDA ACCOUNTING AREA OR RAA)                         2020996 * 00024015
+*                                                             2020996 * 00024020
+*  BEFORE WE REUSE R7 AND LOSE ADDRESSABILITY TO THE RAA      2020996 * 00024025
+*  FIND OUT IF THIS IS A TRAILER DELETE AND DETERMINE THE     2020996 * 00024030
+*  LENGTH OF NEW DATA PRESENT.  IT WILL BE EQUAL TO THE       2020996 * 00024035
+*  LENGTH OF OLD DATA OR IF A TRAILER DELETE IT WILL BE ZERO. 2020996 * 00024040
+*  SET R1 = LENGTH OF NEW DATA FOR USE BELOW IN POSITIONING   2020996 * 00024045
+*  TO TRAILING KEY DATA DETAIL, KDD.                          2020996 * 00024050
+*-------------------------------------------------------------2020996-* 00024055
+         LA    R1,0                    R1 = CLEARED           2020996   00024060
+         CLI   RDARAAFI,C'T'           IS THIS TRAILER LVL    2020996   00024065
+         BE    *+4+4                     Y. ONLY 1 SET OF DATA2020996   00024070
+         ICM   R1,B'0011',RDARFL       R1 = DATA LENGTH/NEW   2020996   00024075
+*+4+4    EQU   *                                              2020996   00024080
+         LA    R7,RDAROD               LOAD ADDRESS OF OLD DATA         00024100
+         CLC   WKFILE+2(3),=C'STP'     IS CURRENT FILE STP?   00702203  00024110
+         BE    PRLOG402                YES - GO STORE KEY ADDR00702203  00024120
+         CLC   WKFILE(5),=C'STXRF'     IS CURRENT FILE STXRF? 0825676   00024124
+         BE    PRLOG402                YES -GO STORE KEY ADDR 0825676   00024126
+         CLC   WKFILE+2(3),=C'ACC'     IS CURRENT FILE ACC?   00702203  00024130
+         BNE   PRLOG404                NO - DO NOT STORE ADDR 00702203  00024140
+PRLOG402 EQU   *                       FOR STP AND ACC        00702203  00024150
+         ST    R7,SV2KEYAD             SAVE ADDR OF KEY IN RDA00702203  00024160
+PRLOG404 EQU   *                                              00702203  00024170
+         MVC   SVDTALEN,RDARFL         SAVE DATA LENGTH                 00024200
+         MVC   SVDSTLEN,RDARDLNG       SAVE DESTINATION LENGTH          00024300
+         AH    R7,SVDTALEN             BUMP PAST DATA                   00024400
+         CLI   WKRECFLD,C'1'           RECORD PROCESS?                  00024500
+         BE    PRLOG410                YES - ONLY ADD REC LENGTH ONCE   00024600
+         AR    R7,R1                   BUMP PAST ANY NEW DATA 2020996   00024700
+         DROP  R7                                                       00024800
+         USING RDAKDD,R7               ADDRESS KDD                      00024900
+         SPACE                                                          00025000
+PRLOG410 EQU   *                                                        00025100
+         LA    R7,RDAKLNG(R7)          BUMP TO KEY PART       00702203  00025200
+         CLC   WKFILE+2(3),=C'STP'     IS CURRENT FILE STP?   00702203  00025210
+         BE    PRLOG412                YES - GO STORE KEY ADDR00702203  00025220
+         CLC   WKFILE(5),=C'STXRF'     IS CURRENT FILE STXRF? 0825676   00025224
+         BE    PRLOG412                YES -GO STORE KEY ADDR 0825676   00025226
+         CLC   WKFILE+2(3),=C'ACC'     IS CURRENT FILE ACC?   00702203  00025230
+         BNE   PRLOG414                NO - DO STORE KEY      00702203  00025240
+PRLOG412 EQU   *                       FOR STP AND ACC        00702203  00025250
+         ST    R7,SV3KEYAD             SAVE ADDR OF KEY IN RDA00702203  00025260
+PRLOG414 EQU   *                                              00702203  00025270
+         AH    R7,WKKEYLEN             BUMP PAST KEY                    00025300
+         DROP  R7                                                       00025400
+         USING RDARAA,R7               ADDRESS RAA                      00025500
+         LA    R7,RDARAALN(R7)         BUMP PAST RAA                    00025600
+         B     PRLOG100                GO PROCESS NEXT RAA              00025700
+         SPACE                                                          00025800
+PRLOG420 EQU   *                                              2602019   00025900
+         CLI   SVREALTF,C'Y'         Q. REAL-TIME TRANS?      9910919   00025910
+         BE    PRLOG430               Y-ONLY WRITE TO LOG     9910919   00025915
+         CLI   SVAPARCH,C'1'           Q. NEW ARCHITECTURE?   2602019   00025920
+         BNE   PRLOG430                 N-PROCESS THE RDA     2602019   00025940
+         CLI   SVDELTFL,C'0'           DELETED LOG?           2024300   00025950
+         BH    PRLOG430                YES - SKIP PROCESS     2024300   00025952
+*********************************************************************** 00025960
+*   PROCESS RECORDS WITHOUT A RDA UNDER THE NEW ARCHITECTURE  2602019 * 00025980
+*********************************************************************** 00026000
+         ICM   R15,15,=V(PNRDA000)   PROCESS NEW ARCH TRANS   2602019   00026020
+         BALR  R14,R15                 THAT HAVE NO RDA       2602019   00026040
+         B     PRLOG010                GO GET NEXT OCCURS     2602019   00026060
+         SPACE 1                                              2602019   00026080
+PRLOG430 EQU   *                                              2602019   00026100
+         CLC   SVSEQNUM,=C'01'    Q. CONTINUATION OF LAST LOG?2602019   00026120
+         BH    PRLOG435            Y-DON'T ADD TO SYNC COUNT  2602019   00026140
+*                                     AND ADJUST READ COUNT   2602019   00026160
+         AP    WKCNTSY,=P'1'           ADD TO PROC SINCE SYNCP2602019   00026180
+         B     PRLOG440                GO GET NEXT OCCURS     2602019   00026200
+         SPACE 1                                              2602019   00026220
+PRLOG435 EQU   *                                              2602019   00026240
+         SP    WKCNTRD,=P'1'         SUBTRACT 1 FROM READ CNT 2602019   00026260
+         SPACE 1                                              2602019   00026280
+PRLOG440 EQU   *                                              2602019   00026300
+         CLC   SVREALTF,=C'Y'        Q. REAL-TIME TRANS?      2602019   00026320
+         BE    PRLOG500               Y-ONLY WRITE TO LOG     2602019   00026340
+         CLI   SVDELTFL,C'0'           DELETED LOG?           2024300   00026350
+         BH    PRLOG500                YES - GO WRITE TO LOG  2024300   00026352
+         SPACE 2                                              2602019   00026360
+*********************************************************************** 00026380
+*   PROCESS RECORDS WITH A RDA                                2602019 * 00026400
+*********************************************************************** 00026420
+*                                                             2602019   00026440
+************************************************************* 0825676   00026500
+* AT THIS POINT, IF LAST ITEM IN RDA IS A STP OR ACC ADD THEN 0825676   00026510
+* THE ADD NEEDS TO TAKE PLACE BEFORE THE LOG IS WRITTEN,      0825676   00026520
+* THE KEY IS DETERMINED AT THE TIME OF THE WRITE OF THE STP   0825676   00026530
+* OR THE ACC FILE.  THE LOG NEEDS TO HAVE THE RIGHT KEY       0825676   00026540
+************************************************************* 0825676   00026550
+         CLI   WKRECPRC,C'A'           IS LAST RDA ENTRY ADD? 0825676   00026560
+         BNE   PRLOG470                NO-CHECK FOR UPDATE    0825676   00026570
+         CLC   SVFILE+2(3),=C'STP'     STOP/HOLD ADD?         0825676   00026580
+         BNE   PRLOG445                NO - GO CK XRF ADD     0825676   00026590
+         BAL   R15,ADSTH000            PERFORM ADD S/H RTN    0825676   00026600
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 0825676   00026610
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS   0825676   00026620
+         B     PRLOG500                GO PROCESS CURRENT LOG 0825676   00026630
+         SPACE 1                                              0825676   00026640
+PRLOG445 EQU   *                                              0825676   00026650
+         CLC   SVFILE(5),=C'STXRF'     ST XRF ADD?            0825676   00026660
+         BNE   PRLOG450                NO - GO CK ACC ADD     0825676   00026670
+         ICM   R15,R15,=V(ADXRF000)                           0825676   00026675
+         BALR  R14,R15                 PERFORM ADD XRF RTN    0825676   00026680
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 0825676   00026690
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS   0825676   00026700
+         B     PRLOG500                GO PROCESS CURRENT LOG 0825676   00026710
+         SPACE 1                                              0825676   00026720
+PRLOG450 EQU   *                                              00702203  00027032
+         CLC   SVFILE+2(3),=C'ACC'     ACCUM TRAN ADD?        00702203  00027034
+         BNE   PRLOG460                NO - SKIP THIS PROCESS 0722923   00027036
+         BAL   R15,ADACC000            PERFORM ADD ACCUM TRAN 00702203  00027038
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 00702203  00027040
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS   00702203  00027042
+         B     PRLOG500                                       0722923   00027043
+         SPACE 1                                              2602019   00027044
+PRLOG460 EQU   *                                              0722923   00027046
+         BAL   R15,ADREC000            GO ADD RECORD          0722923   00027048
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS   0722923   00027050
+         MVI   SVRECKEY,C' '           CLEAR LAST REC KEY     1115989   00027052
+         MVC   SVRECKEY+1(L'SVRECKEY-1),SVRECKEY              1115989   00027053
+         B     PRLOG500                                       2602019   00027054
+         SPACE 1                                              2602019   00027056
+PRLOG470 EQU   *                                              2602019   00027058
+         CLI   WKRECPRC,C'U'           Q. LAST RDA ENTRY UPD? 2602019   00027060
+         BNE   PRLOG500                 N-GO WRITE THE LOG    2602019   00027062
+         BAL   R15,UPREC000            GO UPDATE RECORD       2602019   00027064
+         MVI   WKRECPRC,C' '           CLEAR RECORD PROCESS   2602019   00027066
+         MVI   SVRECKEY,C' '           CLEAR LAST REC KEY     1115989   00027068
+         MVC   SVRECKEY+1(L'SVRECKEY-1),SVRECKEY              1115989   00027069
+         SPACE 1                                              2602019   00027070
+PRLOG500 EQU   *                                              2602019   00027072
+         CLI   SVNDEXIT,C'0'          Q. INVOKE EXIT?         0615280   00027074
+         BE    PRLOG510                N-CONTINUE             0615280   00027076
+         ICM   R15,15,=V(RDAEX000)     Y-SETUP NEXT DAY EXIT  0615280   00027077
+         BASR  R14,R15                   INVOKE EXIT          0615280   00027078
+PRLOG510 EQU   *                                              0615280   00027079
+         CLI   WKLOGUPD,C'Y'          Q. HAS LOG BEEN UPDATED?2602019   00027080
+         BE    PRLOG010                Y-GO GET NEXT OCCURS   2602019   00027082
+         SPACE 1                                              2602019   00027084
+         BAL   R15,UPLOG000            UPDATE LOG RECORD                00027100
+         B     PRLOG010                GO GET NEXT OCCURS     2602019   00027200
+         SPACE                                                          00027300
+         USING RDAKDD,R8               ADDRESS KDD            9913401   00027350
+PRLOG900 MVC   WKRECKEY(0),RDARK       SAVE KEY TO RECORD               00027400
+         AIF   ('&PROGNM' NE 'TSTSU402').NU402B               1426371   00027405
+PRLOG901 MVC   WFGFILK(0),RDARK        SAVE KEY FOR SSR LKUP  1426371   00027410
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1426371   00027414
+.NU402B  ANOP                                                           00027415
+         SPACE                                                          00027500
+         DROP  R6,R7,R8                                                 00027600
+         EJECT                                                          00027700
+*********************************************************************** 00027800
+* ADD ROUTINE                                                         * 00027900
+*   ACCUMULATE LENGTH OF DATA IN RDA                                  * 00028000
+*   MOVE RDA TO RECORD AREA PAST DATA ALREADY MOVED (MULTIPLE RDAS)   * 00028100
+*   IF ACCUMULATED LENGTH DOESN'T MEET RECORD LENGTH, ADD SPANS LOG   * 00028200
+*      SO SET SWITCH                                                  * 00028300
+*   IF TOTAL LENGTH MOVED, SET RECORD PROCESS TO ADD RECORD           * 00028400
+*********************************************************************** 00028500
+         SPACE                                                          00028600
+PRADD000 EQU   *                                                        00028700
+         STM   R6,R9,SVREGS            SAVE REGISTERS                   00028800
+         ST    R15,SVREG15             SAVE BAL REG                     00028900
+         ST    R7,SVRAAADR             SAVE ADDR OF RAA       2602019   00028910
+         CLI   WKADMULT,C'1'           MULTIPLE RDA'S FOR THIS ADD?     00029000
+         BNE   PRADD005                NO - CLEAR ADD LENGTH  0803097   00029100
+         CLC   SVRAADL,LOWVALU         IS ANY DATA PRESENT    0803097   00029105
+         BNE   PRADD015                YES-MOVE DATA FROM RDA 0803097   00029110
+         B     PRADD016                NO - ALL DATA MOVED    0803097   00029115
+PRADD005 EQU   *                                              0803097   00029120
+         MVC   PADGFILE,WKFILE    SAVE FILE NAME FOR ALLOCATE 2602019   00029125
+         BAS   R15,PCDG000             GO CHECK DSM TABLE     0424891   00029130
+         USING SADAGT,R9                                      2602019   00029150
+         MVC   SVADDLEN,LOWVALU        SET ADD ACCUMULATED LENGTH TO 0  00029200
+         ICM   R6,15,DAGTADDR          DAG DATA ADDRESS       2602019   00029210
+         ST    R6,WKRECADR             SAVE RECORD ADDRESS              00029400
+*                                                             2602019   00029500
+PRADD010 EQU   *                                                        00029600
+         DROP  R9                                             2602019   00029700
+         L     R8,SVRDDADR             LOAD DATA DETAIL ADDRESS         00029900
+         USING RDARDD,R8               ADDRESS DATA DETAIL              00030000
+         LA    R8,RDARND               LOAD ADDRESS OF NEW RECORD AREA  00030100
+PRADD015 EQU   *                                              0803097   00030105
+         L     R6,WKRECADR             LOAD RECORD AREA ADDR  0803097   00030110
+         AH    R6,SVADDLEN             ADD LENGTH MOVED SO FAR0803097   00030115
+         XR    R7,R7                   CLEAR LENGTH REG       9910919   00030117
+         ICM   R7,3,SVRAADL            LOAD LENGTH OF DATA    9910919   00030200
+         LR    R9,R7                   USE FOR BOTH SIDES OF MOVE       00030300
+         MVCL  R6,R8                   MOVE DATA TO RECORD AREA         00030400
+         LH    R7,SVRAADL              LOAD DATA LENGTH                 00030500
+         AH    R7,SVADDLEN             ADD LENGTH MOVED SO FAR          00030600
+         STH   R7,SVADDLEN             STORE NEW LENGTH MOVED           00030700
+         MVI   WKADMULT,C'1'           DEFAULT SWITCH FOR MORE LOGS     00030800
+         CLC   SVADDLEN,WKRECLEN       ALL OF RECORD MOVED YET?         00030900
+         BL    PRADD020                NO  - GO BACK TO GET NEXT LOG    00031000
+         L     R15,SVRAAADR             SAVE ADDR OF RAA      2602019   00031002
+         USING RDARAA,R15                                     0803097   00031005
+         CLI   RDARAACF,C'Y'           HAS LOG SPLIT FORWARD  0803097   00031010
+         BE    PRADD020                YES - END KEY ON NXTLOG0803097   00031015
+PRADD016 EQU   *                                              0803097   00031050
+         MVI   WKRECPRC,C'A'           YES - SET ADD RECORD FLAG        00031100
+         MVI   WKADMULT,C' '                 SET MULTIPLE RDAS OFF      00031200
+         SPACE                                                          00031300
+PRADD020 EQU   *                                                        00031400
+         CLI   SVDELTFL,C'0'           DELETED LOG?           0803097   00031405
+         BE    PRADD025                NO - BYPASS CLEAR      0803097   00031410
+         MVI   WKRECPRC,C' '           CLEAR ADD RECORD FLAG  0803097   00031415
+PRADD025 EQU   *                                              0803097   00031420
+         LM    R6,R9,SVREGS            LOAD REGISTERS                   00031500
+         L     R15,SVREG15             LOAD BAL REG                     00031600
+         BR    R15                                                      00031700
+         SPACE                                                          00031800
+         DROP  R8,R15                                         0803097   00031900
+         EJECT                                                          00032000
+*********************************************************************** 00032100
+* UPDATE ROUTINE                                                      * 00032200
+*   GET ADDRESS OF FIELD IN RECORD TO MOVE TO                         * 00032300
+*   DETERMINE IF THIS IS TRAILER ADD, TRAILER DELETE, ADD, SUBTRACT   * 00032400
+*      OR MOVE AND BRANCH TO APPROPRIATE ROUTINE                      * 00032500
+*********************************************************************** 00032600
+         SPACE                                                          00032700
+PRUPD000 EQU   *                                                        00032800
+         STM   R6,R9,SVREGS            SAVE REGISTERS                   00032900
+         ST    R15,SVREG15             SAVE BAL REG                     00033000
+         L     R10,SVRDDADR            LOAD ADDRESS OF DATA DETAIL      00033100
+         USING RDARDD,R10              ADDRESS DATA DETAIL              00033200
+         ST    R10,SVREGCV             SAVE REG 15            2023788   00033202
+         L     R9,SVLSTDAG             LOAD LAST DAG ADDR     0424891   00033204
+         CLC   PADGFILE,WKFILE         Q. PADGFILE EQ WKFILE? 0424891   00033206
+         BE    PRUPD040                Y. BYPASS DSM CHECK    0424891   00033208
+         MVC   PADGFILE,WKFILE    SAVE FILE NAME FOR ALLOCATE 0424891   00033210
+         BAS   R15,PCDG000             GO CHECK DSM TABLE     0424891   00033212
+         USING SADAGT,R9                                      2602019   00033215
+PRUPD040 EQU   *                       FOUND DAG TABLE ENTRY  2023788   00033252
+         CLI   WKCNVRT,C'1'            IS THIS A CONVERSION?  2023788   00033254
+         BE    PRUPD100                YES - CONVERT!         2023788   00033255
+PRUPD050 EQU   *                                              2023788   00033258
+         ICM   R6,15,DAGTADDR          DAG DATA ADDRESS       2602019   00033260
+         DROP  R9                                             2602019   00033265
+         SR    R7,R7                   CLEAR REG FOR INSERT             00033400
+         ICM   R7,3,RDARDPOS           INSERT DESTINATION POSITION      00033500
+         AR    R6,R7                   POINT TO FIELD IN MASTER         00033600
+         MVC   SVDTALEN,RDARFL         SAVE DATA LENGTH                 00033700
+         MVC   SVDSTLEN,RDARDLNG       SAVE DESTINATION LENGTH          00033800
+         CLI   RDARFA,C'T'             ADD A TRAILER?         2020996   00035300
+         BE    PRUPD500                YES - GO ADD IT                  00035400
+         CLI   RDARFA,C'D'             DELETE A TRAILER?      2020996   00035500
+         BE    PRUPD600                YES - GO DELETE IT               00035600
+         CLI   RDARFA,C'A'             ADD DATA?                        00035700
+         BE    PRUPD200                YES - GO PACK OLD AND NEW        00035800
+         CLI   RDARFA,C'S'             SUBTRACT DATA?                   00035900
+         BE    PRUPD200                YES - GO PACK OLD AND NEW        00036000
+         B     PRUPD105                SKIP CONVERSION CODE   2023788   00036010
+         SPACE                                                          00036100
+***************************************                                 00036200
+* MOVE DATA REQUEST                   *                                 00036300
+*   IF NOT PACKED, MOVE DATA FOR THE  *                       2602019   00036400
+*      LOWER OF DATA/DEST LENGTH      *                       2602019   00036500
+*   IF PACKED, CONVERT NEW DATA TO    *                       2602019   00036600
+*      PACKED                         *                       2602019   00036700
+***************************************                                 00037000
+         SPACE                                                          00037100
+PRUPD100 EQU   *                       *** MOVE DATA ***      2023788   00037110
+**************************************************************2023788   00037115
+* IF INPUT CARD INDICATES CONVERSION, GO TO DDGET000/CVFLD000*2023788   00037120
+**************************************************************2023788   00037125
+         SR    R8,R8                   CLEAR R8               2023788   00037140
+         LA    R8,9                    LOOP 9 TIMES           2023788   00037145
+         LA    R7,WKCVTB1              LOAD ADDRESS OF TABLE  2023788   00037150
+PRUPD101 EQU   *                                              2023788   00037155
+         CLC   0(2,R7),WKFILE          APPLICATION FOUND?     2023788   00037160
+         BNE   PRUPD102                IF NOT, GO TO 102      2023788   00037165
+         CLC   WKFILE+2(3),=C'MEM'     IS THIS A MEMO?        2023788   00037168
+         BE    PRUPD103                THEN CONVERT!          2023788   00037169
+         CLC   5(1,R7),WKCVFL          FILE TYPE FOUND?       2023788   00037170
+         BE    PRUPD103                FOUND MODULE - CONVERT!2023788   00037175
+PRUPD102 EQU   *                                              2023788   00037180
+         LA    R7,8(R7)                BUMP TO NEXT ENTRY     2023788   00037185
+         BCT   R8,PRUPD101             LOOP                   2023788   00037190
+         B     PRUPD050                DON'T CONVERT          2023788   00037195
+PRUPD103 CLC   RDARFID,SPACES          ELEMENT ID PROVIDED?   2023788   00037210
+         BE    PRUPD050                DON'T CONVERT          2023788   00037215
+         MVC   PADGFILE,WKFILE    SAVE FILE NAME FOR ALLOCATE 2023788   00037220
+         B     PRUPD106                GO GET ELEMENT POS     2023788   00037225
+PRUPD104 MVC   SVELEID,RDARFID         SAVE ELEMENT ID        2023788   00037230
+         CLC   SADPRADR,LOWVALU        DD ADDRESS PRESENT?    2023788   00037235
+         BE    PRUPD050                DON'T CONVERT          2023788   00037240
+         ICM   R15,R15,=V(DDGET000)                           2023788   00037245
+         BALR  R14,R15                 GO GET ELEMENT POS     2023788   00037250
+         ICM   R15,15,=V(CVFLD000)     CONVERSION!            2023788   00037260
+         BALR  R14,R15                 GO CONVERT             2023788   00037270
+         L     R9,SVDAGTAD             GET DAG TABLE ADDRESS  2023788   00037272
+         USING SADAGT,R9                                      2023788   00037274
+PRUPLOOP EQU   *                       FIND DAG TABLE ENTRY   2023788   00037276
+         CLI   DAGTNAME,X'FF'          Q. END OF TABLE?       2023788   00037278
+         BE    PRERR600                 Y- ERROR              2023788   00037280
+         CLC   DAGTNAME(5),WKFILE      Q. IS THIS IT?         2023788   00037282
+         BE    PRUPD050                 Y-BRANCH              2023788   00037284
+         LA    R9,DAGTLEN(R9)          BUMP TO NEXT ENTRY     2023788   00037286
+         B     PRUPLOOP                LOOP                   2023788   00037288
+PRUPD105 EQU   *                                              2023788   00037290
+         CLI   RDARDFMT,C'P'           PACKED DATA?                     00037300
+         BE    PRUPD120                YES - GO PACK NEW DATA           00037400
+         LA    R8,RDAROD               LOAD ADDRESS OF OLD DATA         00037700
+         AH    R8,SVDTALEN             BUMP TO NEW DATA                 00037800
+         XR    R7,R7                   CLEAR LENGTH REG       9910919   00037810
+         XR    R9,R9                   CLEAR LENGTH REG       9910919   00037820
+         ICM   R9,3,SVDTALEN           LOAD DATA LENGTH       9910919   00037900
+         ICM   R7,3,SVDSTLEN           LOAD DESTINATION LEN   9910919   00038000
+         CR    R7,R9                   DESTINATION LONGER THAN DATA?    00038100
+         BNH   PRUPD110                NO  - MOVE LENGTH OF DESTINATION 00038200
+         LR    R7,R9                   YES - MOVE LENGTH OF DATA        00038300
+         B     PRUPD110                                       2023788   00038302
+PRUPD106 EQU   *                                              2023788   00038304
+         MVI   SADPRRID,00             SET REQ ID:   00       2023788   00038306
+         MVI   SADPRFUN,SADPRGEL       SET REQ FUNC: GET LOC  2023788   00038308
+         MVI   SADPRKLN,21             SET GENERIC KEYLN: 21  2023788   00038310
+         MVC   SADPRKAP(2),PADGFILE    INIT AUX KEY: APPLID   2023788   00038312
+         MVC   SADPRKTY,=C'DAG'        INIT AUX KEY: ENTTYPE  2023788   00038314
+         MVC   SADPRKNM(5),PADGFILE    INIT AUX KEY: ENTNAME  2023788   00038316
+         MVC   SADPRKNM+5(3),=C'   '   BLANK OUT FILE GROUP   2023788   00038318
+         MVC   SADPRKST,=CL8'DSM'      INIT AUX KEY: SUBTYPE  2023788   00038320
+         MVC   SADPRKIN,=F'0'          INIT AUX KEY: INDEX    2023788   00038322
+         MVC   SAVERB(12),=C'CRUNPGM 0036' SET VERB TEXT      2023788   00038324
+         MVC   WKPGMNM(8),=C'SADAUXIB' MOVE IN PROGRAM NAME   2023788   00038325
+         DROP  R11                                            2023788   00038326
+         ICM   R11,15,SVGCA                                   2023788   00038327
+         USING SAS9GCAD,R11                                   2023788   00038328
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2023788   00038329
+         SIPLIST  PARMLIST,(SAS9GCAD,SAVERB,WKPGMNM,SAD9AXCA,SAS9GCAD)  00038330
+         LA    R1,PARMLIST                                    2023788   00038331
+         BAL   R14,CALL001B            GO RUN PROGRAM         2023788   00038332
+         CLC   SAGRETRC(4),HEXZERO     Q. RETURN CODE OK?     2023788   00038334
+         BE    PRUPD107                 Y-CONTINUE            2023788   00038336
+         XC    SAGEBFTX,SAGEBFTX       CLEAR FULL MESS TEXT   2023788   00038338
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2023788   00038339
+         MVC   SAGEBFTX(29),=CL29'ERROR CALLING MODULE SADAUXIB'        00038340
+         XC    SAGEBMES,SAGEBMES       SET ERR MSG # TO ZERO  2023788   00038342
+         MVI   SAGEBFMT,C'F'           FULL TEXT SUBSTITUTION 2023788   00038344
+         MVC   SAGEBSEV(2),=XL2'C'     SET SEVERITY           2023788   00038346
+         MVI   SAGEBABE,C'A'           SET ABEND CODE         2023788   00038348
+         MVI   SAGEBRTE,C'R'           SHIP MSG TO SIMESS     2023788   00038350
+         MVI   SAGEBIMM,C'Y'           SEND MSG IMMEDIATELY   2023788   00038352
+         MVC   SAVERB(12),=C'ERRORGCA0043'                    2023788   00038354
+         SIPLIST PARMLIST,(SAS9GCAD,SAVERB)                   2023788   00038356
+         LA    R1,PARMLIST                                    2023788   00038358
+         BAL   R14,CALL001B                                   2023788   00038360
+PRUPD107 EQU   *                                              2023788   00038362
+         CLC   SADPRST,=F'0'           Q. RETURN CODE OK?     2023788   00038364
+         BE    PRUPD108                 Y-CONTINUE            2023788   00038366
+         XC    SAGEBFTX,SAGEBFTX       CLEAR FULL MESS TEXT   2023788   00038368
+         MVC   SAGEBFTX(25),=CL25'ERROR READING DSM - XXXXX'  2023788   00038370
+         MVC   SAGEBFTX+20(5),PADGFILE MOVE IN FILE NAME      2023788   00038372
+         XC    SAGEBMES,SAGEBMES       SET ERR MSG # TO ZERO  2023788   00038374
+         MVI   SAGEBFMT,C'F'           FULL TEXT SUBSTITUTION 2023788   00038376
+         MVC   SAGEBSEV(2),=XL2'C'     SET SEVERITY           2023788   00038378
+         MVI   SAGEBABE,C'A'           SET ABEND CODE         2023788   00038380
+         MVI   SAGEBRTE,C'R'           SHIP MSG TO SIMESS     2023788   00038382
+         MVI   SAGEBIMM,C'Y'           SEND MSG IMMEDIATELY   2023788   00038384
+         MVC   SAVERB(12),=C'ERRORGCA0043'                    2023788   00038386
+         SIPLIST PARMLIST,(SAS9GCAD,SAVERB)                   2023788   00038388
+         LA    R1,PARMLIST                                    2023788   00038390
+         BAL   R14,CALL001B                                   2023788   00038392
+PRUPD108 EQU   *                                              2023788   00038394
+         L     R6,SADPRADR             GET RETURNED ADDRESS   2023788   00038396
+         B     PRUPD104                                       2023788   00038398
+         SPACE                                                          00038400
+PRUPD110 EQU   *                                                        00038500
+         MVCL  R6,R8                   MOVE NEW DATA TO RECORD          00038600
+         B     PRUPD900                GO RETURN                        00038700
+         SPACE                                                          00038800
+PRUPD120 EQU   *                                                        00038900
+         LA    R8,RDAROD               LOAD ADDRESS OF OLD DATA         00039000
+         AH    R8,SVDTALEN             BUMP TO NEW DATA                 00039100
+         BAL   R15,NMTPK000            GO PACK DATA                     00039200
+         MVC   WKNEWDAT,WKCH9          SAVE NEW DATA                    00039300
+         B     PRUPD300                GO MOVE PACKED DATA    2602019   00039500
+         SPACE                                                          00039800
+***************************************                                 00039900
+* ADD/SUBTRACT DATA REQUEST           *                                 00040000
+*   MOVE OR CONVERT OLD DATA TO PACKED*                                 00040100
+*   CONVERT NEW DATA TO PACKED        *                                 00040200
+*   ADD OR SUBTRACT PACKED DATA       *                                 00040300
+*   IF SUBTRACT, CHECK FOR NEGATIVE   *                                 00040400
+*      RESULT                         *                                 00040500
+*   IF MASTER DATA IS PACKED, ZAP     *                                 00040600
+*      NEW DATA TO MASTER             *                                 00040700
+*   IF MASTER DATA IS BINARY, CONVERT *                                 00040800
+*      NEW DATA TO BINARY             *                                 00040900
+*   ELSE, UNPACK NEW DATA AND MOVE    *                                 00041000
+*      TO MASTER, RIGHT TO LEFT       *                                 00041100
+***************************************                                 00041200
+         SPACE                                                          00041300
+PRUPD200 EQU   *                                                        00041400
+         MVC   SVDTALEN,RDARDLNG       SAVE LGTH OF FILE DATA           00041500
+         CLI   RDARDFMT,C'P'           DATA IN FILE PACKED?             00041600
+         BE    PRUPD202                YES - GO PACK CHG DATA           00041700
+         LR    R8,R6                   LOAD ADDR OF FILE DATA           00041800
+         CLI   RDARDFMT,C'B'           DATA IN FILE BINARY?             00041900
+         BE    PRUPD205                YES - GO CNVRT BINARY            00042000
+         BAL   R15,NMTPK000            GO CNVRT NUM TO PACKED           00042100
+         MVC   WKNEWDAT,WKCH9          SAVE NEW DATA                    00042200
+         B     PRUPD208                GO PACK CHANGE DATA              00042300
+         SPACE                                                          00042400
+PRUPD202 EQU   *                       *** PACKED DATA ***              00042500
+         LA    R9,L'WKNEWDAT-1         LOAD LGTH OF WK FLD              00042600
+         SLL   R9,4                    SHIFT LEFT FOR OP1 LG            00042700
+         AH    R9,SVDTALEN             ADD FROM LENGTH                  00042800
+         BCTR  R9,0                    SUBTRACT 1 FOR EXECUTE           00042900
+         EX    R9,PRUPD960             MOVE TO NEW DATA FLD             00043000
+         B     PRUPD208                GO PACK CHANGE DATA              00043100
+         SPACE                                                          00043200
+PRUPD205 EQU   *                       *** BINARY DATA ***              00043300
+         BAL   R15,BNTPK000            GO CNVRT BINARY TO PCK           00043400
+         SPACE                                                          00043500
+PRUPD208 EQU   *                                                        00043600
+         MVC   SVDTALEN,RDARFL         SAVE DATA LENGTH                 00043700
+         MVC   SVDSTLEN,RDARDLNG       SAVE DATA LENGTH                 00043800
+         LA    R8,RDAROD               LOAD ADDRESS OF OLD DATA         00043900
+         AH    R8,SVDTALEN             BUMP TO NEW DATA                 00044000
+         BAL   R15,NMTPK000            GO PACK NEW DATA                 00044100
+         CLI   RDARFA,C'S'             SUBTRACT DATA?                   00044200
+         BE    PRUPD210                YES - GO SUBTRACT                00044300
+         AP    WKNEWDAT,WKCH9          ADD NEW DATA FROM OLD            00044400
+         B     PRUPD220                GO MOVE DATA                     00044500
+         SPACE                                                          00044600
+PRUPD210 EQU   *                                                        00044700
+         SP    WKNEWDAT,WKCH9          SUBTRACT NEW DATA FROM OLD       00044800
+         CP    WKNEWDAT,=P'0'          NEW DATA NEGATIVE?               00044900
+         BNL   PRUPD220                NO - GO MOVE DATA                00045000
+         MVC   WKFLDID,RDARFID         MOVE FIELD ID                    00045100
+         L     R7,SVNDPREC             LOAD NDP RECORD ADDR   2602019   00045300
+         USING TSTSNDP,R7              ADDRESS RECORD                   00045400
+         CP    NDPMSGUS,NDPMXMSG       MAXIMUM MESSAGES REACHED?        00045500
+         BNL   PRUPD220                YES - DON'T ADD MESSAGE          00045600
+         AP    NDPMSGUS,=P'1'          INCREMENT MESSAGES IN USE        00045700
+         SR    R8,R8                   CLEAR REG FOR INSERT             00045800
+         ICM   R8,3,NDPLNG             INSERT LENGTH OF NDP             00045900
+         USING NDPERROR,R8             ADDRESS MESSAGE AREA             00046000
+         LA    R8,NDPERLNG(R8)         BUMP BY LENGTH OF MESSAGE        00046100
+         STCM  R8,3,NDPLNG             SAVE NEW LENGTH IN NDP           00046200
+         L     R8,SVCURMSG             LOAD CURRENT MESSAGE ADDRESS     00046300
+         MVC   NDPEPROG,WKPGMID        MOVE PROGRAM NAME                00046400
+         MVI   NDPESEV,C'I'            SET SEVERITY AS INFORMATIONAL    00046500
+         MVC   NDPEMSG,SPACES          CLEAR MESSAGE AREA               00046600
+         MVC   NDPERCON(L'WKMSG1),WKMSG1  MOVE NEGATIVE ERROR           00046700
+         MVC   NDPERDAT(8),WKFLDID     MOVE FIELD DESCRIPTION 0802599   00046800
+         MVC   NDPACCT,WKRECKEY        SET ACCOUNT NUMBER     2024108   00046805
+         LA    R8,NDPERLNG(R8)         BUMP TO NEXT MESSAGE             00046900
+         ST    R8,SVCURMSG             STORE NEW MESSAGE ADDRESS        00047000
+         SPACE                                                          00047100
+PRUPD220 EQU   *                                                        00047200
+         CLI   RDARDFMT,C'P'           PACKED DATA?                     00047300
+         BE    PRUPD300                YES - GO MOVE PACKED DATA        00047400
+         CLI   RDARDFMT,C'B'           BINARY DATA?                     00047500
+         BE    PRUPD400                YES - GO MOVE BINARY DATA        00047600
+         SPACE                                                          00047700
+         TSTS9UP WRK9=WKNEWDAT,WRK17=WKCH17                             00047800
+         SPACE                                                          00047900
+         LH    R7,SVDSTLEN             LOAD MASTER DATA LENGTH          00048000
+         AH    R6,SVDSTLEN             BUMP PAST MASTER DESTINATION     00048100
+         LA    R8,WKCH17+L'WKCH17      POINT TO END OF NEW DATA         00048200
+         SPACE                                                          00048300
+PRUPD230 EQU   *                                                        00048400
+         BCTR  R6,0                    SUBTRACT 1 FROM DESTINATION ADDR 00048500
+         BCTR  R8,0                    SUBTRACT 1 FROM NEW DATA ADDR    00048600
+         MVC   0(1,R6),0(R8)           MOVE 1 BYTE                      00048700
+         BCT   R7,PRUPD230             CONTINUE FOR LENGTH OF FIELD     00048800
+         B     PRUPD900                GO RETURN                        00048900
+         SPACE                                                          00049000
+***************************************                                 00049100
+* MOVE PACKED DATA                    *                                 00049200
+***************************************                                 00049300
+         SPACE                                                          00049400
+PRUPD300 EQU   *                                                        00049500
+         LH    R7,SVDSTLEN             LOAD MASTER DATA LENGTH          00049600
+         BCTR  R7,0                    SUBTRACT 1 FOR EXECUTE           00049700
+         SLL   R7,4                    SHIFT LEFT                       00049800
+         LA    R8,L'WKNEWDAT-1         LOAD LEN OF NEW DATA - 1 FOR EX  00049900
+         AR    R7,R8                   ADD TO MASTER LENGTH             00050000
+         EX    R7,PRUPD950             ZAP DATA TO MASTER               00050100
+         B     PRUPD900                GO RETURN                        00050200
+         SPACE                                                          00050300
+***************************************                                 00050400
+* MOVE BINARY DATA                    *                                 00050500
+***************************************                                 00050600
+         SPACE                                                          00050700
+PRUPD400 EQU   *                                                        00050800
+         BAL   R15,PKTBN000            GO CVT TO BINARY, MOVE TO REC    00050900
+         B     PRUPD900                GO RETURN                        00051000
+         SPACE                                                          00051100
+***************************************                                 00051200
+* ADD TRAILER                         *                                 00051300
+***************************************                                 00051400
+         SPACE                                                          00051500
+PRUPD500 EQU   *                                                        00051600
+         LA    R8,RDARND               LOAD ADDRESS OF NEW TRAILER      00051700
+*        AH    R8,SVDTALEN             BUMP TO NEW DATA       2020996   00051800
+         XR    R7,R7                   CLEAR LENGTH REG       9910919   00051810
+         XR    R9,R9                   CLEAR LENGTH REG       9910919   00051820
+         ICM   R9,3,SVDTALEN           LOAD DATA LENGTH       9910919   00051900
+         ICM   R7,3,SVDSTLEN           LOAD DESTINATION LEN   9910919   00052000
+         CR    R7,R9                   DESTINATION LONGER THAN DATA?    00052100
+         BNH   PRUPD510                NO  - MOVE LENGTH OF DESTINATION 00052200
+         LR    R7,R9                   YES - MOVE LENGTH OF DATA        00052300
+         SPACE                                                          00052400
+PRUPD510 EQU   *                                                        00052500
+         MVCL  R6,R8                   MOVE NEW DATA TO RECORD          00052600
+         B     PRUPD900                GO RETURN                        00052700
+         SPACE                                                          00052800
+***************************************                                 00052900
+* DELETE TRAILER                      *                                 00053000
+***************************************                                 00053100
+         SPACE                                                          00053200
+PRUPD600 EQU   *                                                        00053300
+         LA    R8,LOWVALU              LOAD ADDRESS OF LOW VALUES       00053400
+         XR    R7,R7                   CLEAR LENGTH REG       9910919   00053410
+         ICM   R7,3,SVDSTLEN           LOAD DESTINATION LEN   9910919   00053500
+         LA    R9,1                    SET MOVE LENGTH 1 (PAD W/ X'00') 00053600
+         MVCL  R6,R8                   MOVE LOWVALUES TO RECORD         00053700
+         SPACE                                                          00053800
+***************************************                                 00053900
+* SET UPDATE FLAG AND RETURN          *                                 00054000
+***************************************                                 00054100
+         SPACE                                                          00054200
+PRUPD900 EQU   *                                                        00054300
+         LM    R6,R9,SVREGS            LOAD REGISTERS                   00054400
+         L     R15,SVREG15             LOAD BAL REG                     00054500
+         BR    R15                                                      00054600
+         SPACE                                                          00054700
+PRUPD950 ZAP   0(0,R6),WKNEWDAT        ZAP NEW DATA TO RECORD           00054800
+PRUPD960 ZAP   WKNEWDAT,0(0,R6)        ZAP OLD DATA TO WK FLD           00054900
+         SPACE                                                          00055000
+         DROP  R7,R8,R10                                                00055100
+         EJECT                                                          00055200
+*********************************************************************** 00055300
+* SET UP A NEW NDP RECORD FOR A NEW LOG                               * 00055400
+*********************************************************************** 00055500
+         SPACE                                                          00055600
+PRNDP000 EQU   *                                                        00055700
+         STM   R6,R9,SVIRTS            SAVE SUBROUTINE REGS    TS006.00 00055800
+         ST    R15,SVIRT15             SAVE SUBROUTINE BAL REG TS006.00 00055900
+         ICM   R6,15,SVLOGREC          LOAD TSLOG ADDRESS     9910919   00056000
+         USING TSTSLOG,R6              ADDRESS LOG                      00056100
+         L     R9,SVNDPREC             LOAD ADDRESS OF NDP REC2602019   00056200
+         USING TSTSNDP,R9              ADDRESS NDP RECORD               00056300
+         SPACE                                                          00056900
+PRNDP010 EQU   *                                                        00057000
+         MVI   0(R9),X'00'             CLEAR NDP FIXED AREA   2602019   00057110
+         MVC   1(193,R9),0(R9)         CLEAR NDP FIXED AREA   2602019   00057120
+         MVC   NDPRPTS,LGREPLVS        INITIALIZE FIELDS                00057200
+         MVC   NDPPHYL,LGTRNBRN                                         00057300
+         MVC   NDPEMPL,LGEMPID                                          00057400
+         MVC   NDPEXTSQ,LGTRNSER                                        00057500
+         MVC   NDPINTSQ,LGINTXTN                                        00057600
+         MVC   NDPTERM,LGTRMID                                          00057700
+         MVC   NDPDATE,LGTRNDAT                                         00057800
+         MVC   NDPTIME,LGTRNTIM                                         00057900
+         MVC   NDPTRNCD,LGTRNCOD                                        00058000
+         MVC   NDPTRDSC,LGTRNDES                                        00058100
+         MVC   NDPSYST,LGTRMTYP                                         00058200
+         MVC   NDPREV,LGTRNREV                                          00058300
+         MVC   NDPRENTY,LGTRNREN                                        00058400
+         MVC   NDPTRAIN,LGTRNTRN                                        00058500
+         MVC   NDPOVRD,LGOVRLEV                                         00058600
+         MVC   NDPAPPL,LGAPPLID                                         00058700
+         MVC   NDPTYPE,LGAPLDCF                                         00058800
+         MVC   NDPINTTC,LGAPLITC                                        00058900
+         MVC   NDPINTDS,LGAPLDES                                        00059000
+         MVC   NDPINTCU,LGTRNTCR       INTERNAL TRAN CURRENCY 9913481   00059002
+         MVC   NDPACCT,WKRECKEY                                         00059100
+         CLC   LGKDALEN,=X'0000'       IF NO KDA BUILD TRAN   0915743   00059105
+         BNE   PRNDP012                CODE, ACCT KEY FR LDA  0915743   00059110
+         MVC   NDPINTTC,WKTRNCOD                              0915743   00059115
+         MVC   NDPACCT,WKACTKEY                               0915743   00059120
+PRNDP012 EQU   *                                              0915743   00059125
+         ZAP   NDPAMT,=P'0'                                             00059200
+         MVC   NDPBKTNO,LOWVALU                                         00059300
+         ZAP   NDPMXMSG,=P'20'                                          00059400
+         ZAP   NDPMSGUS,=P'0'                                           00059500
+         L     R7,SVTDAADR             LOAD TDA ADDRESS                 00059600
+         LA    R7,8(R7)                BUMP PAST EYE CATCHER            00059700
+         USING TDAOCCUR,R7             ADDRESS OCCURRENCE               00059800
+         SPACE                                                          00059900
+PRNDP020 EQU   *                                                        00060000
+         C     R7,SVTDAEND             END OF TDA?                      00060100
+         BNL   PRNDP040                YES - NO REPORTING TOTAL         00060200
+         CLI   TDARTF,C'1'             IS THIS A REPORTING TOTAL        00060300
+         BE    PRNDP030                YES - USE THIS TOTAL BUCKET      00060400
+         LA    R7,TDAOLNG(R7)          BUMP TO NEXT OCCURRENCE          00060500
+         B     PRNDP020                CHECK NEXT OCCURRENCE            00060600
+         SPACE                                                          00060700
+PRNDP030 EQU   *                                                        00060800
+         MVC   NDPBKTNO,TDATB          MOVE FIRST BUCKET NUMBER         00060900
+         MVC   NDPAMT,TDATV            MOVE AMOUNT                      00061000
+         SPACE                                                          00061100
+PRNDP040 EQU   *                                                        00061200
+         LA    R6,NDPFXLEN             LOAD FIXED AREA LENGTH           00061300
+         STCM  R6,3,NDPLNG             STORE IN RECORD LENGTH           00061400
+         MVC   WKNDPKEY,NDPKEY         SAVE KEY                         00061500
+         LA    R8,NDPMSGS              ADDRESS MESSAGE AREA             00061600
+         ST    R8,SVCURMSG             STORE ADDRESS OF FIRST MSG       00061700
+         SPACE                                                          00061800
+         LA    R6,NDPACCT              LOAD ACCOUNT KEY                 00061900
+         CLC   WKFILE(5),=C'STSTP'     ST STOP HOLD?                    00062000
+         BNE   PRNDP095                NO-CHECK NEXT SPL FILE 0825676   00062100
+         DROP  R6                                                       00062200
+         USING WKSTSKEY,R6             ADDRESS ST STOP HOLD KEY         00062300
+         MVC   WKSTSSEQ,SPACES         CLEAR PACKED SEQ NUMBER          00062400
+         B     PRNDP200                GO TO RETURN                     00062500
+         SPACE                                                          00062600
+PRNDP095 EQU   *                                              0825676   00062610
+         CLC   WKFILE(5),=C'STXRF'     ST PLAN?               0825676   00062620
+         BNE   PRNDP100                NO-CHECK NEXT SPL FILE 0825676   00062630
+         DROP  R6                                             0825676   00062640
+         USING WKSTXKEY,R6             ADDRESS ST PLAN KEY    0825676   00062650
+         CLC   WKSTXTYP,=C'A01'        IS REC TYPE A01        0825676   00062655
+         BE    PRNDP097                Y - GO TO CLEAR A SEQ  0825676   00062660
+         MVC   WKSTXPSQ,SPACES         CLR PACKED SEQ NUMBER  0825676   00062665
+         B     PRNDP200                GO TO RETURN           0825676   00062670
+PRNDP097 EQU   *                                              0825676   00062680
+         MVC   WKSTXASQ,SPACES         CLR PACKED SEQ NUMBER  0825676   00062685
+         B     PRNDP200                GO TO RETURN           0825676   00062690
+PRNDP100 EQU   *                                                        00062700
+         CLC   WKFILE(5),=C'IMSTP'     IM STOP HOLD?                    00062800
+         BNE   PRNDP110                NO - CHECK NEXT SPECIAL FILE     00062900
+         DROP  R6                                                       00063000
+         USING WKIMSKEY,R6             ADDRESS IM STOP HOLD KEY         00063100
+         MVC   WKIMSSEQ,SPACES         CLEAR PACKED SEQ NUMBER          00063200
+         B     PRNDP200                GO TO RETURN                     00063300
+         SPACE                                                          00063400
+PRNDP110 EQU   *                                                        00063500
+         CLC   WKFILE(5),=C'STACC'     ST ACCUM TRAN?                   00063600
+         BNE   PRNDP120                NO - CHECK NEXT SPECIAL FILE     00063700
+         DROP  R6                                                       00063800
+         USING WKSTAKEY,R6             ADDRESS ST ACCUM TRAN KEY        00063900
+         MVC   WKSTASEQ,SPACES         CLEAR PACKED SEQ NUMBER          00064000
+         B     PRNDP200                GO TO RETURN                     00064100
+         SPACE                                                          00064200
+PRNDP120 EQU   *                                                        00064300
+         CLC   WKFILE(5),=C'IMACC'     IM ACCUM TRAN?                   00064400
+         BNE   PRNDP130                NO - CHECK NEXT SPECIAL FILE     00064500
+         DROP  R6                                                       00064600
+         USING WKIMAKEY,R6             ADDRESS IM ACCUM TRAN KEY        00064700
+         MVC   WKIMASEQ,SPACES         CLEAR PACKED SEQ NUMBER          00064800
+         B     PRNDP200                GO TO RETURN                     00064900
+         SPACE                                                          00065000
+PRNDP130 EQU   *                                                        00065100
+         CLC   WKFILE(5),=C'REACC'     RE ACCUM TRAN?                   00065200
+         BNE   PRNDP140                NO - CHECK NEXT SPECIAL FILE     00065300
+         DROP  R6                                                       00065400
+         USING WKREAKEY,R6             ADDRESS RE ACCUM TRAN KEY        00065500
+         MVC   WKREASEQ,SPACES         CLEAR PACKED SEQ NUMBER          00065600
+         B     PRNDP200                GO TO RETURN                     00065700
+         SPACE                                                          00065800
+PRNDP140 EQU   *                                                        00065900
+         CLC   WKFILE(5),=C'ICACC'     IC ACCUM TRAN?                   00066000
+         BNE   PRNDP200                NO - CHECK NEXT SPECIAL FILE     00066100
+         DROP  R6                                                       00066200
+         USING WKICAKEY,R6             ADDRESS IC ACCUM TRAN KEY        00066300
+         MVC   WKICASEQ,SPACES         CLEAR PACKED SEQ NUMBER          00066400
+         SPACE                                                          00066500
+PRNDP200 EQU   *                                                        00066600
+         LM    R6,R9,SVIRTS            LOAD REGISTERS          TS006.00 00066700
+         L     R15,SVIRT15             LOAD BAL REG            TS006.00 00066800
+         BR    R15                     RETURN                           00066900
+         SPACE                                                          00067000
+         DROP  R6,R7,R9                                                 00067100
+         EJECT                                                          00067200
+*********************************************************************** 00067300
+* CONVERT NUMERIC DATA TO PACKED DATA                                 * 00067400
+*********************************************************************** 00067500
+         SPACE                                                          00067600
+NMTPK000 EQU   *                                                        00067700
+         STM   R6,R9,SVSUBS            SAVE SUBROUTINE REGISTERS        00067800
+         ST    R15,SVSUB15             SAVE SUBROUTINE BAL REG          00067900
+         MVC   WKCH17,ZEROS            INIT WORK AREA TO ZEROS          00068000
+         LA    R1,WKCH17               GET ADDR OF WORK AREA  0424891   00068100
+         LA    R1,L'WKCH17(R1)         POINT PAST END OF FLD  0424891   00068200
+         SH    R1,SVDTALEN             SUBTRACT SRC DATA LEN  0424891   00068300
+         LH    R14,SVDTALEN            GET SOURCE LENGTH      0424891   00068500
+         BCTR  R14,0                   DECREMENT BY ONE       0424891   00068510
+         EX    R14,NMTPK900            MOVE FILE DATA TO WORK 0424891   00068800
+         SPACE                                                          00069200
+         TSTS9PK WRK9=WKCH9,WRK17=WKCH17  PACK DECIMAL NUMBER           00069300
+         SPACE                                                          00069400
+         BR    R15                     RETURN                           00069700
+NMTPK900 MVC   0(0,R1),0(R8)           MOVE FILE DATA TO WORK 0424891   00069750
+         EJECT                                                          00069800
+*********************************************************************** 00069900
+* CONVERT PACKED DATA TO BINARY DATA                                  * 00070000
+*********************************************************************** 00070100
+         SPACE                                                          00070200
+PKTBN000 EQU   *                                                        00070300
+         STM   R6,R9,SVSUBS            SAVE SUBROUTINE REGISTERS        00070400
+         ST    R15,SVSUB15             SAVE SUBROUTINE BAL REG          00070500
+         XC    WKCVBIN1,WKCVBIN1       CLEAR WORK AREA                  00070600
+         XC    WKCVBIN2,WKCVBIN2       CLEAR WORK AREA                  00070700
+         ZAP   WKCH9,=P'0'             ZERO OUT WORK AREA               00070800
+         XC    WKCH17,WKCH17           CLEAR WORK AREA                  00070900
+         LA    R7,WKCH17+L'WKCH17      BUMP PAST END OF WORK FIELD      00071000
+         LA    R8,WKNEWDAT+L'WKNEWDAT  BUMP PAST END OF NEW DATA        00071100
+         LA    R9,L'WKNEWDAT           LOAD SOURCE LENGTH               00071200
+         SPACE                                                          00071300
+PKTBN010 EQU   *                                                        00071400
+         BCTR  R7,0                    DECREMENT WORK ADDRESS           00071500
+         BCTR  R8,0                    DECREMENT DATA ADDRESS           00071600
+         MVC   0(1,R7),0(R8)           MOVE ONE BYTE TO WORKAREA        00071700
+         BCT   R9,PKTBN010             LOOP THRU TO MOVE EACH BYTE      00071800
+         DP    WKCH17+2(15),=P'2147483648'  DIVIDE BY 2**31             00071900
+         ZAP   WKDWRD+2(6),WKCH17+11(6)     MOVE LOWER ORDER VALUE      00072000
+         CVB   R8,WKDWRD               CONVERT TO BINARY INTO WKDWRD    00072100
+         ST    R8,WKCVBIN2             SAVE LOWER ORDER BINARY NUMBER   00072200
+         CP    WKCH17(11),=P'0'        TEST FOR ANY HIGH ORDER VALUES   00072300
+         BNH   PKTBN020                NO - GO MOVE DATA                00072400
+         ZAP   WKDWRD,WKCH17+3(8)      MOVE HIGH ORDER DATA             00072500
+         CVB   R8,WKDWRD               CONVERT TO BINARY INTO WKDWRD    00072600
+         ST    R8,WKCVBIN1             SAVE HIGHER ORDER BINARY NUMBER  00072700
+         SPACE                                                          00072800
+PKTBN020 EQU   *                                                        00072900
+         LA    R8,WKCVBIN1+7           POINT TO END OF BINARY 2         00073000
+         AH    R6,SVDSTLEN             ADD LENGTH OF DESTINATION        00073100
+         BCTR  R6,0                    POINT TO LAST BYTE               00073200
+         LH    R9,SVDSTLEN             LOAD DATA LENGTH                 00073300
+         SPACE                                                          00073400
+PKTBN030 EQU   *                                                        00073500
+         MVC   0(1,R6),0(R8)           MOVE DATA TO DESTINATION AREA    00073600
+         BCTR  R6,0                    DECREMENT DATA ADDRESS           00073700
+         BCTR  R8,0                    DECREMENT WORK ADDRESS           00073800
+         BCT   R9,PKTBN030             LOOP TO MOVE ALL BYTES           00073900
+         LM    R6,R9,SVSUBS            LOAD SUBROUTINE REGISTERS        00074000
+         L     R15,SVSUB15             LOAD SUBROUTINE BAL REG          00074100
+         BR    R15                     RETURN                           00074200
+         EJECT                                                          00074300
+*********************************************************************** 00074400
+* CONVERT BINARY DATA TO PACKED DATA                                  * 00074500
+*********************************************************************** 00074600
+         SPACE                                                          00074700
+BNTPK000 EQU   *                                                        00074800
+         STM   R6,R9,SVSUBS            SAVE SUBROUTINE REGS             00074900
+         ST    R15,SVSUB15             SAVE SUBRTN BAL REG              00075000
+         XC    WKCH8,WKCH8             CLEAR WORK AREA                  00075100
+         LA    R6,WKCH8+L'WKCH8        POINT TO END OF WKAREA           00075200
+         LH    R7,SVDTALEN             LOAD LENGTH OF DATA              00075300
+         SR    R6,R7                   POINT TO BGN OF FLD              00075400
+         BCTR  R7,0                    SUBTRACT 1 FOR EXECUTE           00075500
+         EX    R7,BNTPK950             MOVE FILE DATA TO WORK           00075600
+         MVC   WKCVBIN1,WKCH8          MOVE HI ORDER 4 BYTES            00075700
+         L     R6,WKCVBIN1             LOAD INTO EVEN REG               00075800
+         MVC   WKCVBIN2,WKCH8+4        MOVE LO ORDER 4 BYTES            00075900
+         L     R7,WKCVBIN2             LOAD INTO ODD REG                00076000
+         SLDL  R6,1                    SHIFT SIGN BIT TO EVEN           00076100
+         SRL   R7,1                    SHIFT 31 BITS BACK               00076200
+         CVD   R7,WKDWRD               CONVERT ODD REG TO DEC           00076300
+         ZAP   WKNEWDAT,WKDWRD         SAVE IT IN 9 BYTE FLD            00076400
+         LTR   R6,R6                   ANY DATA IN EVEN REG?            00076500
+         BZ    BNTPK010                NO - LEAVE RESULT                00076600
+         CVD   R6,WKDWRD               CONVERT EVEN REG                 00076700
+         ZAP   WKCH9,WKDWRD            MOVE TO 9 BYTE FLD               00076800
+         MP    WKCH9,=P'2147483648'    MULTIPLY BY 2 ** 31              00076900
+         AP    WKNEWDAT,WKCH9          ADD TO LOW ORDER AMT             00077000
+         SPACE                                                          00077100
+BNTPK010 EQU   *                                                        00077200
+         LM    R6,R9,SVSUBS            LOAD SUBROUTINE REGS             00077300
+         L     R15,SVSUB15             LOAD SUBRTN BAL REG              00077400
+         BR    R15                     RETURN                           00077500
+         SPACE                                                          00077600
+BNTPK950 MVC   0(0,R6),0(R8)           MOVE OLD DATA TO WORK            00077700
+         EJECT                                                0424891   00077702
+************************************************************* 0424891   00077704
+* CHECK DSM TABLE BEFORE RUNNING THE ALLOCATE DAG ROUTINE   * 0424891   00077706
+* DAG TABLE MOVES IN BATCH BUT STAYS PUT ONLINE.  THEREFORE * 0424891   00077708
+* BATCH MUST ENTER AT PCDG000. ONLINE MAY ENTER AT PCDG100. * 0424891   00077710
+************************************************************* 0424891   00077712
+PCDG000  EQU   *                       CHECK DAG TABLE        0424891   00077715
+         ICM   R9,15,SVSACB            GET ADDRESS OF SACB    0424891   00077720
+         USING SAS9SCBA,R9                                    0424891   00077725
+         CLC   SVDAGTAD,SACBDAGT       Q. DID DAG TABLE MOVE? 0424891   00077730
+         BE    PCDG100                 N. SEARCH CURRENT TAB  0424891   00077735
+         B     PCDG300                 Y. RUN PADG000         0424891   00077740
+         DROP  R9                                             0424891   00077745
+PCDG100  EQU   *                       CHECK DAG TABLE        0424891   00077750
+         L     R1,SVDSMTAD             GET DSM TABLE ADDRESS  0424891   00077755
+         LH    R9,DSMTABUC             SET # TBL ENTRIES USED 0424891   00077760
+PCDG200  EQU   *                       LOOP THRU DSM TABLE    0424891   00077765
+         CLC   0(5,R1),PADGFILE        Q. IS THIS IT?         0424891   00077770
+         BE    PCDG400                  Y-RESTORE PADG INFO   0424891   00077775
+         LA    R1,15(R1)               BUMP TO NEXT ENTRY     0424891   00077790
+         BCT   R9,PCDG200              CHECK NEXT DAG NAME    0424891   00077795
+PCDG300  EQU   *                       RUN PADG000            0424891   00077800
+         ST    R15,SVREG15P            SAVE RETURN ADDRESS    0424891   00077805
+         ICM   R15,15,=V(PADG000)       ADDRESS OF ROUTINE    0424891   00077810
+         BASR  R14,R15               GET DSM AND ALLOCATE DAG 0424891   00077815
+         L     R9,SVLSTDAG             GET DAG TABLE ADDRESS  0424891   00077820
+         L     R15,SVREG15P            RESTORE RETURN ADDRESS 0424891   00077825
+         B     PCDG500                 RETURN                 0424891   00077830
+PCDG400  EQU   *                       RECOVER DSM INFO       0424891   00077835
+         MVC   PADGDAGI,5(R1)          RECOVER PADG INFO      0424891   00077840
+         ICM   R9,15,11(R1)            R9 = DAG ADDR          0424891   00077845
+         BZ    PCDG300                 ZERO = NO ADDR-SEARCH  0424891   00077850
+         ST    R9,SVLSTDAG             SAVE ADDR OF DAG FOUND 0424891   00077855
+PCDG500  EQU   *                                              0424891   00077860
+         BR    R15                     RETURN                 0424891   00077865
+*********************************************************************** 00077900
+* END OF JOB                                                          * 00078000
+*********************************************************************** 00078100
+         SPACE                                                          00078200
+PREND000 EQU   *                                                        00078300
+         LA    R6,PREND040             LOAD ADDRESS TO RETURN TO        00078400
+         ST    R6,SVENDADR             SAVE END ADDRESS FOR RETURN      00078500
+         CLI   WKRECPRC,C'A'           SHOULD LAST RECORD BE ADDED?     00078600
+         BNE   PREND030                NO - GO CHECK UPDATE             00078700
+         CLC   SVFILE+2(3),=C'STP'     STOP/HOLD ADD?                   00078800
+         BNE   PREND005                NO - GO ADD REC RTN    0825676   00078900
+         BAL   R15,ADSTH000            PERFORM ADD STOP/HOLD ROUTINE    00079000
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 00702203  00079010
+         B     PREND040                GO ADD NDP AND RETURN            00079100
+         SPACE                                                          00079200
+PREND005 EQU   *                                              0825676   00079210
+         CLC   SVFILE,=C'STXRF'        PLAN ADD?              0825676   00079220
+         BNE   PREND010                NO - GO ADD REC RTN    0825676   00079230
+         ICM   R15,R15,=V(ADXRF000)                           0825676   00079235
+         BALR  R14,R15                 PERFORM ADD XRF RTN    0825676   00079240
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 0825676   00079250
+         B     PREND040                GO ADD NDP AND RETURN  0825676   00079260
+PREND010 EQU   *                                                        00079300
+         CLC   SVFILE+2(3),=C'ACC'     ACCUM TRAN ADD?                  00079400
+         BNE   PREND020                NO - GO PERFORM ADD RECORD RTN   00079500
+         BAL   R15,ADACC000            PERFORM ADD ACCUM TRAN ROUTINE   00079600
+         BAL   R15,ADJLG000            PERFORM ADJUST LOG RTN 00702203  00079610
+         B     PREND040                GO ADD NDP AND RETURN            00079700
+         SPACE                                                          00079800
+PREND020 EQU   *                                                        00079900
+         BAL   R15,ADREC000            GO ADD RECORD                    00080000
+         B     PREND040                GO ADD NDP AND RETURN            00080100
+         SPACE                                                          00080200
+PREND030 EQU   *                                                        00080300
+         CLI   WKRECPRC,C'U'           SHOULD LAST RECORD BE UPDATED?   00080400
+         BNE   PREND040                NO - GO RETURN                   00080500
+         BAL   R15,UPREC000            GO UPDATE RECORD                 00080600
+         SPACE                                                          00080700
+PREND040 EQU   *                                                        00080800
+         BAL   R15,ADNDP000            GO WRITE LAST NDP                00081500
+         SPACE                                                          00081800
+PREND050 EQU   *                                                        00081900

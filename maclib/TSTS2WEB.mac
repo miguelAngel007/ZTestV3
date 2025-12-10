@@ -1,0 +1,41 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                            TSTS2WEB                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*               STORAGE REQUIRED FOR ERROR PROCESSING ROUTINE         * 00000500
+*---------------------------------------------------------------------* 00000600
+*                  ** HISTORY OF REVISIONS **                         * 00000602
+*                                                                     * 00000604
+* DESCRIPTION                                                 CHNGID  * 00000606
+* __________________________________________________________  _______ * 00000608
+* 01/27/14 MODIFY FOR DB2                                     1436560   00000695
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000699
+         SPACE                                                          00000700
+WEBREGS  DS    15F                   REGISTER SAVE AREA                 00000800
+WEBFTLID DS    F                     ADDR OF FATAL MSG WITH FIELD ID    00000900
+WEBNFTID DS    F                     ADDR OF NON-FTL MSG WITH FIELD ID  00001000
+WEBNFNID DS    F                     ADDR OF NON-FTL MSG W/O FIELD ID   00001100
+WEBDB2AD DS    F                     DB2 I/O PARM LIST ADDR   1436560   00001110
+WEBSVFID DS    CL8                   SAVE AREA FOR FIELD ID             00001200
+WEBAPPL  DS    CL2                   SAVE AREA FOR APPLICATION ID       00001300
+WEBFTLVL DS    CL2                   FATALITY LEVEL                     00001400
+WEBFTLSW DS    CL1                   FATAL SWITCH                       00001500
+WEBSWPSW DS    CL1                   SWAP SWITCH                        00001600
+*                                       VALUES: 0-NORMAL                00001700
+*                                               1-SWAP                  00001800
+*                                               2-OVERLAY               00001900
+WEBRETCD DS    CL1                   RETURN CODE FOR APPLICATION PGM    00002000
+WEBMGPID DS    CL8                   PROGRAM ID                         00002100
+*        ERROR PROCESSING WORK AREA                                     00002200
+WEBMGWK  DS    0X                                                       00002300
+WEBMGCOD DS    CL4                   MESSAGE CODE                       00002400
+WEBMGSCR DS    CL2                   SCREEN NUMBER                      00002500
+WEBMGFDG DS    CL8                   FIELD DAG NAME                     00002600
+WEBMGFID DS    CL8                   FIELD ID                           00002700
+WEBMGDM1 DS    XL2                   FIELD DIMEN 1                      00002800
+WEBMGDM2 DS    XL2                   FIELD DIMEN 2                      00002900
+WEBMGDM3 DS    XL2                   FIELD DIMEN 3                      00003000
+WEBMGVA1 DS    CL37                  VARIABLE DATA FIELD 1              00003100
+WEBMGVA2 DS    CL25                  VARIABLE DATA FIELD 2              00003200
+WEBMGWLN EQU   *-WEBMGWK                                                00003300

@@ -1,0 +1,46 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                            TRANSACTION SYSTEM                       * 00000300
+*               REQUEST SECURITY COMMUNICATIONS AREA COPYBOOK         * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+TSSEC    DSECT                                                          00000700
+SEC      DS    0CL200                  START OF COMMON AREA             00000800
+SECTSCBA DS    XL4                     ADDR OF TS CONTROL BLOCK         00000900
+SECEMPID DS    CL8                     EMPLOYEE ID                      00001000
+SECERR   DS    CL1                     ACCESS ERROR                     00001100
+*                                        VALUE: 0 - GOOD RETURN         00001200
+*                                               1 - ITR NOT FOUND       00001300
+*                                               2 - EOR NOT FOUND       00001400
+*                                               3 - TAR NOT FOUND       00001500
+*                                               4 - SER NOT FOUND       00001600
+*                                               5 - INCORE LOAD IS IN   00001700
+*                                                   PROCESS             00001800
+*                                               6 - NO. OF OCCURS       00001900
+*                                                   PASSED ZERO         00002000
+*                                               7 - NO. OF TAR TRANS    00002100
+*                                                   ZERO                00002200
+*                                               8 - CICS ERROR          00002300
+SECERRFN DS    CL4                     EIBFN CODE                       00002400
+SECERRRC DS    CL12                    EIBRCODE CODE                    00002500
+SECNUM   DS    XL2                     NUMBER OF OCCURRENCES            00002600
+SECAPPL  DS    CL160                   10 OCCURRENCES OF APPLICATION    00002700
+*                                      DATA - DESCRIBED BY SECAPLDS     00002800
+         DS    CL9                     FILLER                           00002900
+SECEND   EQU   *                       SYMBOLIC END OF SEC              00003000
+SECLEN   EQU   *-SEC                   SYMBOLIC LENGTH OF COMMON AREA   00003100
+         SPACE                                                          00003200
+*****************************************************************       00003300
+*          ONE OCCURRENCE OF APPLIATION DATA                    *       00003400
+*****************************************************************       00003500
+         SPACE                                                          00003600
+SECAPLDS DSECT                                                          00003700
+SECEXTRN DS    CL8                     EXTERNAL TRAN CODE               00003800
+SECAMT   DS    PL5                     TRANACTION AMOUNT                00003900
+SECRETCD DS    CL1                     RETURN CODE                      00004000
+*                                        VALUE: 0 - GOOD RETURN         00004100
+*                                               1 - INVALID TRAN        00004200
+*                                               2 - FLOOR LIMIT ERR     00004300
+         DS    CL2                     FILLER                           00004400
+SECAPLG  EQU   *-SECEXTRN              SYMBOLIC LENGTH OF OCCURRENCE    00004500

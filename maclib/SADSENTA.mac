@@ -1,0 +1,1103 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'DSDIENT  - DATA DICTIONARY ENTITY PROCESSOR'            00000000
+*---------------------------------------------------------------------* 00000100
+*                   ** COPYBOOK DESCRIPTION **                        * 00000150
+*                                                                     * 00000200
+* SADSENTA IS THE DICTIONARY NUCLEUS ENTITY PROCESSOR                 * 00000250
+*                                                                     * 00000300
+*---------------------------------------------------------------------* 00000350
+*---------------------------------------------------------------------* 00000400
+*                  ** HISTORY OF REVISIONS **                         * 00000450
+*                                                                     * 00000500
+* DESCRIPTION                                                 CHNGID  * 00000550
+* __________________________________________________________  _______ * 00000600
+* 05/22/03 ALLOW SELECT STATEMENTS IN ANY ORDER               0354754   00000976
+*                                                                     * 00000978
+*---------------------------------------------------------------------* 00000980
+         EJECT                                                0354754   00000990
+*********************************************************************** 00001000
+* THIS ROUTINE DOES ALL PROCESSING FOR ELEMENT AND ENTITY REQUESTS.   * 00002000
+* REGISTER ONE POINTS TO THE PARAMETER ADDRESS LIST.                  * 00003000
+* REGISTER THREE POINTS TO THE DICTIONARY COMMUNICATION AREA ADDRESS. * 00004000
+* REGISTER FOUR USED TO POINT TO CURRENT ENTITY TYPE ENTRY.           * 00005000
+* REGISTER FIVE USED TO POINT TO INTERNAL I/O BUFFER.                 * 00006000
+* REGISTER SEVEN USED TO POINT TO CURRENT FIELD TABLE ENTRY.          * 00007000
+* REGISTER TEN   USED TO POINT TO USERS BUFFER.                       * 00008000
+* REGISTER THIRTEEN POINTS TO THE REGISTER SAVE AREA ADDRESS.         * 00009000
+* REGISTER FOURTEEN IS THE RETURN ADDRESS.                            * 00010000
+* REGISTER FIFTEEN IS THE ENTRY POINT ADDRESS FOR DSDIENT.            * 00011000
+*                                                                     * 00012000
+*********************************************************************** 00013000
+         EJECT                                                          00014000
+DSDIENT  CSECT                                                          00015000
+         STM   R14,R12,12(R13)    SAVE CALLERS REGISTERS                00016000
+         LR    R2,R15             SET BASE REGISTER                     00017000
+         LA    R12,4095(R2)       SET NEXT BASE REG                     00018000
+         LA    R12,1(R12)         ' '                                   00019000
+         USING DSDIENT,R2,R12     TELL ASSEMBLER OF BASE REGISTERS      00020000
+         USING DSCMAREA,R3        DICTIONARY COMMUNICATION AREA         00021000
+         ST    R13,DICMRREG+4     SAVE CALLERS REGISTER 13              00022000
+         LA    R15,DICMRREG       GET EXTERNAL REGISTER SAVE ADDRESS    00023000
+         ST    R15,8(R13)         CHAIN IN NEW SAVEAREA                 00024000
+         LR    R13,R15            SET NEW REG SAVE AREA                 00025000
+         ICM   R5,15,DICMWORK     SET INTERNAL BUFFERPOINTER            00026000
+         ICM   R10,15,8(R1)       GET USERS BUFFER POINTER              00027000
+         STCM  R10,15,DICMRECA    SAVE USER BUFFER POINTER              00028000
+*********************************************************************** 00029000
+*        INITIALIZE ENTITY TYPE TABLE POINTER                         * 00030000
+*********************************************************************** 00031000
+         NI    DICMDTS,255-DICMILL RESET INIT LOWER LEVEL FLAG          00032000
+         LA    R4,DICMWORK+4      ENTITY TYPE TABLE POINTER             00033000
+         CLI   DICMMORE,C'Y'      TABLES ALREADY INITIALIZED?           00034000
+         BE    DIENTLUP           YES - THEN FIND LAST ENTRY USED       00035000
+         MVI   DICMQSAT,C'N'      THE QUERY HAS NOT BEEN SATISFIED      00036000
+         OI    DICMDTS,DICMILL    SET RESET LOWER LEVEL FLAG            00037000
+         MVI   DICMEFLG(R4),X'00' RESET ENTITY LEVEL FLAGS              00038000
+         B     DIENINIT           GO INITIALIZE ENTRIES                 00039000
+DIENTLUP EQU   *                                                        00040000
+         TM    DICMEFLG(R4),DICMEHER   IS THIS LOWEST LEVEL?            00041000
+         BO    DIENINIT           YES - USE THIS ENTITY TYPE            00042000
+DIENTBMP EQU   *                                                        00043000
+         LA    R4,DICMELEN(R4)    BUMP TO NEXT TABLE ENTRY              00044000
+         LA    R0,DICMWORK+(DICMELEN*4)+4 ADDR OF TABLE END             00045000
+         CR    R4,R0              END OF TABLE?                         00046000
+         BL    DIENTLUP           NO - CHECK NEXT TABLE ENTRY           00047000
+         LA    R4,DICMWORK+4      ENTITY TYPE TABLE POINTER             00048000
+         OI    DICMDTS,DICMILL    SET RESET LOWER LEVEL FLAG            00049000
+*********************************************************************** 00050000
+*        INITIALIZE FIELDS FOR CURRENT TYPE                           * 00051000
+*********************************************************************** 00052000
+DIENINIT EQU   *                                                        00053000
+         XC    DICMSTAT,DICMSTAT  CLEAR ANY DICTIONARY ERRORS           00054000
+         CLC   DICMCMD,=CL6'INSERT' IS THIS REQUEST FOR INSERT?         00055000
+         BNE   DIENINI1           NO, JUMP AROUND                       00056000
+         MVI   DICMQSAT,C'Y'      THE QUERY HAS BEEN SATISFIED          00057000
+         B     DIENCMND           THEN GO PERFORM INSERT REQUEST        00058000
+DIENINI1 EQU *                                                          00059000
+         ICM   R10,15,DICMRECA    RESTORE USER BUFFER POINTER           00060000
+         OI    DICMEFLG(R4),DICMEHER+DICMELNE PROCESS+LOCATE FLAGS ON   00061000
+         LA    R7,DICMWORK+(DICMELEN*4)+4 LOAD ADDRESS OF FIELD TABLE   00062000
+         XR    R9,R9              CLEAR REG TO HOLD INDEX               00063000
+         TM    DICMDTS,DICMILL    IS RESET LOWER LEVEL FLAG ON?         00064000
+         BNO   DIENIBKR           NO - THEN BYPASS RESET OF KEY         00065000
+         XC    DICMENAM(20,R4),DICMENAM(R4) CLEAR VARIABLE PORTION      00066000
+         MVI   DICMEFLG(R4),X'00' RESET ENTITY LEVEL FLAGS              00067000
+         OI    DICMEFLG(R4),DICMEHER+DICMELNE PROCESS+LOCATE FLAGS ON   00068000
+         B     DIENIRST           RESET INDEXES                         00069000
+DIENIBKR EQU   *                                                        00070000
+         TM    DICMEFLG(R4),DICMEIOP+DICMEKAC RECS PROCESSED LAST TIME? 00071000
+         BZ    DIENENXT           NO - THEN SWITCH TO PREV ENTITY       00072000
+         TM    DICMEFLG(R4),DICMEOEN END OF ENTITY FOUND?               00073000
+         BO    DIENIRST           YES - THEN RESET INDEXES              00074000
+         ICM   R9,15,DICMENDX(R4)  GET INDEX                            00075000
+DIENIRST EQU   *                                                        00076000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00077000
+         STCM  R9,15,DICMENDX(R4)  UPDATE INDEX                         00078000
+DIENILUP EQU   *                                                        00079000
+         CLI   DICMSFLD(R7),X'00' IS THIS THE END OF TABLE?             00080000
+         BE    DIENIBRW           YES - SET UP FOR BROWSE               00081000
+         CLI   DICMSFLD(R7),C'W'  IS THIS A WHERE ENTRY?                00082000
+         BE    DIENICK            YES - CHECK FOR KEY                   00083000
+         CLC   DICM1TYP(3,R7),DICMETYP(R4) DO TYPES MATCH?              00084000
+         BNE   DIENIBMP           NO - BYPASS INITIALIZATION            00085000
+         CLI   DICM1IND(R7),C'N' IS THIS AN INDEXED FIELD?              00086000
+         BE    DIENIBMP         NO  - THEN LOCATE NEXT FLAG OK          00087000
+         TM    DICMEFLG(R4),DICMEOEN END OF ENTITY FOUND?               00088000
+         BO    DIENIBMP           YES - THEN DON'T RESET LOC NEXT FLG   00089000
+         NI    DICMEFLG(R4),255-DICMELNE RESET LOCATE NEXT FLAG         00090000
+DIENIBMP EQU   *                                                        00091000
+         LA    R7,DICMFLDL(R7)    GET NEXT TABLE ENTRY                  00092000
+         B     DIENILUP           CHECK THIS ENTRY                      00093000
+DIENICK  EQU   *                                                        00094000
+         CLC   DICM2TYP(3,R7),DICMETYP(R4) DOES SOURCE TYPE MATCH?      00095000
+         BNE   DIENICK1           NO - BYPASS INITIALIZATION            00096000
+         CLI   DICM2IND(R7),C'N' IS THIS AN INDEXED FIELD?              00097000
+         BE    DIENICK1         NO  - THEN LOCATE NEXT FLAG OK          00098000
+         TM    DICMEFLG(R4),DICMEOEN END OF ENTITY FOUND?               00099000
+         BO    DIENICK1           YES - THEN DON'T RESET LOC NEXT FLG   00100000
+         NI    DICMEFLG(R4),255-DICMELNE RESET LOCATE NEXT FLAG         00101000
+DIENICK1 EQU   *                                                        00102000
+         CLC   DICM1TYP(3,R7),DICMETYP(R4) DO TYPES MATCH?              00103000
+         BNE   DIENIBMP           NO - BYPASS INITIALIZATION            00104000
+         TM    DICMDTS,DICMILL    IS RESET LOWER LEVEL FLAG ON?         00105000
+         BNO   DIENIBMP           NO - THEN KEY FIELDS ARE OK           00106000
+         STCM  R10,15,0(R13)      SAVE USERS BUFFER POINTER             00107000
+         LA    R8,DICMEAPL(R4)    POINT TO TARGET AREA                  00108000
+         CLC   DICM1NAM(8,R7),=CL8'APPL' IS FIELD FOR APPL KEY?         00109000
+         BE    DIENIFLD           YES - GO INIT THIS FIELD              00110000
+         LA    R8,DICMENAM(R4)    POINT TO TARGET AREA                  00111000
+         CLC   DICM1NAM(8,R7),=CL8'NAME' IS FIELD FOR NAME KEY?         00112000
+         BE    DIENIFLD           YES - GO INIT THIS FIELD              00113000
+         LA    R8,DICMEALI(R4)    POINT TO TARGET AREA                  00114000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00115000
+         BE    DIENIFLD           YES - GO INIT THIS FIELD              00116000
+         LA    R8,DICMENDX(R4)    POINT TO TARGET AREA                  00117000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX' IS FIELD FOR INDEX KEY?       00118000
+         BNE   DIENIBMP           NO - CHECK ALL ENTRIES IN TABLE       00119000
+         OI    DICMBLD,DICMQRYI   INDICATE QUERY BY INDEX               00120000
+         B     DIENIFLD           GO INIT THIS FIELD                    00121000
+DIENIFLD EQU   *                                                        00122000
+         CLI   DICM1CND(R7),C'<'  IS CONDITION AN INITIALIZER?          00123000
+         BE    DIENIFUN           NO - THEN BYPASS INITIALIZATION       00124000
+         CLI   DICM1CND(R7),C'!'  IS CONDITION AN INITIALIZER?          00125000
+         BE    DIENIFUN           NO - THEN BYPASS INITIALIZATION       00126000
+         B     DIENIFDO           YES - THEN INITIALIZE KEY             00127000
+DIENIFUN EQU   *                                                        00128000
+         XR    R6,R6              CLEAR REG TO HOLD LENGTH              00129000
+         ICM   R6,3,DICM1LEN      GET LENGTH TO CLEAR                   00130000
+         BCTR  R6,0               DECREMENT LENGTH FOR CLEAR            00131000
+         LR    R10,R8             AREA TO CLEAR                         00132000
+         EX    R6,DIENFCLR        CLEAR AREA                            00133000
+         ICM   R10,15,0(R13)      RESET USERS BUFFER POINTER            00134000
+         B     DIENIBMP           CHECK NEXT FIELD                      00135000
+DIENIFDO EQU   *                                                        00136000
+         CLC   DICM2TYP(3,R7),=C'LIT' IS SECOND OPERAND FOR A LITERAL?  00137000
+         BNE   DIENITYP           NO - GO RETRIEVE DICTIONARY ITEM      00138000
+         ICM   R10,15,DICM2NAM(R7) GET LITERAL START ADDRESS            00139000
+         XR    R9,R9              CLEAR REG TO HOLD LENGTH              00140000
+         ICM   R9,3,DICM2LEN(R7)  GET LITERAL LENGTH                    00141000
+         AR    R10,R9             POINT AT LITERAL END +1               00142000
+         BAL   R14,DIENVEXT       CONVERT STRING TO CORRECT FORMAT      00143000
+         LR    R10,R8             SET TARGET AREA ADDRESS               00144000
+         XR    R6,R6              CLEAR REG TO HOLD MAX LENGTH          00145000
+         ICM   R6,3,DICM1LEN(R7)  GET FIELD MAX LENGTH                  00146000
+         BCTR  R6,0               DECREMENT FOR MOVE                    00147000
+         EX    R6,DIENFMVC        MOVE DATA FROM BUFFER TO TARGET AREA  00148000
+         ICM   R10,15,0(R13)      RESET USERS BUFFER POINTER            00149000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX' IS FIELD FOR INDEX KEY?       00150000
+         BNE   DIENIALI           NO - CHECK FOR ALIAS                  00151000
+         CLC   DICM1CND(2,R7),=C'> ' IS CONDITION FOR GREATER THAN?     00152000
+         BNE   DIENIALI           NO - THEN CHECK FOR ALIAS             00153000
+         ICM   R6,15,DICMENDX(R4) GET INDEX JUST INITIALIZED            00154000
+         LA    R6,1(R6)           MAKE GREATER THAN                     00155000
+         STCM  R6,15,DICMENDX(R4) PUT NEW INDEX BACK                    00156000
+DIENIALI EQU   *                                                        00157000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00158000
+         BNE   DIENIBMP           NO - CHECK NEXT FIELD                 00159000
+         BAL   R14,DIENALI        YES - GO GET ENTITY NAME FROM ALIAS   00160000
+         B     DIENIBMP           CHECK NEXT FIELD                      00161000
+DIENITYP EQU   *                                                        00162000
+         BAL   R14,DIEN2GET       GET SECOND OPERAND FROM DICTIONARY    00163000
+         STCM  R10,15,0(R13)      RESAVE USERS BUFFER POINTER           00164000
+         ICM   R9,15,DICMSTAT     GET DICTIONARY STATUS WORD            00165000
+         LTR   R9,R9              ANY ERRORS?                           00166000
+         BNZ   DIENENXT           YES - THEN GET PREV ENTITY TYPE       00167000
+         XR    R9,R9              CLEAR REG TO HOLD LENGTH              00168000
+         ICM   R9,3,DICM2LEN(R7)  GET LITERAL LENGTH                    00169000
+         LR    R10,R8             SET TARGET ADDRESS                    00170000
+         BCTR  R9,0               DECREMENT LENGTH FOR MOVE             00171000
+         EX    R9,DIENFMVC        MOVE DATA FROM BUFFER TO TARGET AREA  00172000
+         ICM   R10,15,0(R13)      RESET USERS BUFFER POINTER            00173000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00174000
+         BNE   DIENIBMP           NO - CHECK NEXT FIELD                 00175000
+         BAL   R14,DIENALI        YES - GO GET ENTITY NAME FROM ALIAS   00176000
+         B     DIENIBMP           CHECK NEXT FIELD                      00177000
+DIENIBRW EQU   *                                                        00178000
+         TM    DICMDTS,DICMILL    IS INIT FLAG ON?                      00179000
+         BO    DIENILOC           YES - THEN FORCE LOCATE OF ENTITY     00180000
+         TM    DICMEFLG(R4),DICMEIOP          RECS PROCESSED LAST TIME? 00181000
+         BZ    DIENIFRC           NO - FORCE NEW ENTITY                 00182000
+         TM    DICMEFLG(R4),DICMELNE LOCATE NEXT ENTITY?                00183000
+         BNO   DIENTST             NO - GO TEST FIELDS                  00184000
+DIENIFRC EQU   *                                                        00185000
+         XR    R9,R9              CLEAR REG TO HOLD NAME INC            00186000
+         IC    R9,DICMENAM+7(R4)  GET CHAR TO INC                       00187000
+         LA    R9,1(R9)           INC TO NEXT NAME                      00188000
+         STC   R9,DICMENAM+7(R4)  PUT INC IN TABLE                      00189000
+         MVC   DICMEALI(20,R4),=20X'FF' CLEAR ALIAS NAME                00190000
+DIENILOC EQU   *                                                        00191000
+         BAL   R14,DIENLNEN       LOCATE NEXT ENTITY                    00192000
+         ICM   R9,15,DICMSTAT     GET STATUS WORD                       00193000
+         LTR   R9,R9              ANY ERRORS?                           00195000
+         BNZ   DIENENXT           YES - GET PREVIOUS TYPE               00196000
+*********************************************************************** 00197000
+*        TEST ALL CONDITIONS IN FIELD TABLE ENTRIES                   * 00198000
+*********************************************************************** 00199000
+DIENTST  EQU   *                                                        00200000
+         NI    DICMDTS,255-DICMILL RESET INIT LOWER LEVEL FLAG          00201000
+         NI    DICMEFLG(R4),255-DICMEIOP RESET I/O PROCESSED FLAG       00202000
+         NI    DICMEFLG(R4),255-DICMEKAC RESET KEY PROCESSED FLAG       00203000
+         NI    DICMEFLG(R4),255-DICMEOEN RESET END OF ENTITY FLAG       00204000
+         NI    DICMEFLG(R4),255-DICMIRTL RESET INDEXED RECORDS READ     00205000
+         LA    R7,DICMWORK+(DICMELEN*4)+4 GET FIELD TABLE START         00206000
+DIENTSLU EQU   *                                                        00207000
+         LR    R6,R5              MAKE OPERAND POINTERS THE SAME        00208000
+         CLI   DICMSFLD(R7),X'00' END OF TABLE?                         00209000
+         BE    DIENEVAL           YES - EVALUATE CONDITIONS             00210000
+         CLC   DICM1TYP(3,R7),DICMETYP(R4) IS CONDITION FOR THIS TYPE?  00211000
+         BNE   DIENTSBM           NO - BYPASS THIS ENTRY                00212000
+         CLI   DICMSFLD(R7),C'W'  IS THIS A WHERE ENTRY?                00213000
+         BNE   DIENTSBM           NO - BYPASS ENTRY                     00214000
+         B     DIENWTST           GO TEST CONDITION                     00215000
+DIENTSBM EQU   *                                                        00216000
+         LA    R7,DICMFLDL(R7)    BUMP TO NEXT FIELD TABLE ENTRY        00217000
+         B     DIENTSLU           CHECK NEXT FIELD ENTRY                00218000
+DIENWTST EQU   *                                                        00219000
+         XC    0(2,R5),0(R5)      CLEAR RECORD LENGTH FIELD             00220000
+         BAL   R14,DIEN1GET       GET FIRST OPERAND                     00221000
+         CLC   DICMSTAT,=F'0'     WAS FIELD FOUND?                      00222000
+         BNE   DIENWBAD           NO  - FLAG CONDITION AS FALSE         00223000
+         XR    R9,R9                                                    00224000
+         ICM   R9,3,DICM1LEN(R7)  GET FIELD LENGTH                      00225000
+         LA    R9,L'DICMKEY(R9)   CALCULATE RECORD LENGTH               00226000
+         STCM  R9,3,0(R5)         PUT RECORD LENGTH IN BUFFER           00227000
+         AR    R5,R9              ADJUST POINTER BY RECORD LENGTH       00228000
+         LA    R5,2(R5)           ADJUST FOR 2 BYTE RECORD LENGTH       00229000
+         CLC   DICM2TYP(3,R7),=C'LIT' IS THIS FIELD A LITERAL?          00230000
+         BNE   DIENWNLT           NO - THEN GO GET FIELD FROM DICTION   00231000
+         STCM  R10,15,0(R13)      SAVE USERS BUFFER ADDRESS             00232000
+         ICM   R10,15,DICM2NAM(R7) GET LITERAL START ADDRESS            00233000
+         XR    R9,R9              CLEAR REG TO HOLD LENGTH              00234000
+         ICM   R9,3,DICM2LEN(R7)  GET LITERAL LENGTH                    00235000
+         AR    R10,R9             POINT AT LITERAL END +1               00236000
+         BAL   R14,DIENVEXT       CONVERT STRING TO CORRECT FORMAT      00237000
+         ICM   R10,15,0(R13)      RESTORE USERS BUFFER ADDRESS          00238000
+         B     DIENWTDO           GO DO ACTUAL TEST                     00239000
+DIENWNLT EQU   *                                                        00240000
+         BAL   R14,DIEN2GET       GET SECOND OPERAND FROM DICTIONARY    00241000
+         CLC   DICMSTAT,=F'0'     WAS FIELD FOUND?                      00242000
+         BNE   DIENWBAD           NO  - FLAG CONDITION AS FALSE         00243000
+DIENWTDO EQU   *                                                        00244000
+         LA    R9,8               SET CONDITION CODE MASK OF EQUAL      00245000
+         CLC   DICM1CND(2,R7),=C'= ' IS CONDITION FOR EQUAL?            00246000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00247000
+         LA    R9,7               SET CONDITION CODE MASK OF NOT EQUAL  00248000
+         CLC   DICM1CND(2,R7),=C'!=' IS CONDITION FOR NOT EQUAL?        00249000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00250000
+         LA    R9,11              SET CONDITION CODE MASK OF NOT LESS   00251000
+         CLC   DICM1CND(2,R7),=C'>=' IS CONDITION FOR GREATER OR EQUAL? 00252000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00253000
+         LA    R9,13              SET CONDITION CODE MASK OF NOT >      00254000
+         CLC   DICM1CND(2,R7),=C'<=' IS CONDITION FOR LESS OR EQUAL?    00255000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00256000
+         LA    R9,2               SET CONDITION CODE MASK OF GREATER    00257000
+         CLC   DICM1CND(2,R7),=C'> ' IS CONDITION FOR GREATER?          00258000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00259000
+         LA    R9,4               SET CONDITION CODE MASK OF LESS       00260000
+         CLC   DICM1CND(2,R7),=C'< ' IS CONDITION FOR LESS?             00261000
+         BE    DIENWCLN           YES - THEN TEST FOR CONDITION         00262000
+         LA    R9,8               SET CONDITION CODE MASK OF EQUAL      00263000
+DIENWCLN EQU   *                                                        00264000
+         SLL   R9,4               SHIFT CONDITION CODE MASK INTO POS    00265000
+         XR    R8,R8              CLEAR WORK REGISTER                   00266000
+         ICM   R8,3,DICM1LEN(R7)  GET OPERAND ONE LENGTH                00267000
+         BCTR  R8,0               DECREMENT LENGTH FOR COMPARE          00268000
+         EX    R8,DIENWCLC        TEST OPERANDS                         00269000
+         EX    R9,DIENWBRA        BRANCH                                00270000
+DIENWBAD EQU   *                                                        00271000
+         LR    R5,R6              RESET INTERNAL BUFFER ADDRESS         00272000
+         MVI   DICMCCOD(R7),FALSE SET FALSE CONDITION                   00273000
+         B     DIENTSBM           CHECK NEXT ENTRY                      00274000
+DIENWTOK EQU   *                                                        00275000
+         LR    R5,R6              RESET INTERNAL BUFFER ADDRESS         00276000
+         MVI   DICMCCOD(R7),TRUE  SET TRUE CONDITION                    00277000
+         B     DIENTSBM           CHECK NEXT ENTRY                      00278000
+*********************************************************************** 00279000
+*        EVALUATE CONDITIONS SET IN TABLE                             * 00280000
+*********************************************************************** 00281000
+DIENEVAL EQU   *                                                        00282000
+         XC    DICMSAVE(8),DICMSAVE CLEAR WORK AREA                     00283000
+         OI    DICMSAVE+3,TRUE    SET DEFAULT OF TRUE                   00284000
+         OI    DICMSAVE,X'80'     SET FIRST TIME FLAG                   00285000
+         LA    R7,DICMWORK+(DICMELEN*4)+4 GET FIELD TABLE START         00286000
+DIENEVLU EQU   *                                                        00287000
+         CLI   DICMSFLD(R7),X'00' END OF TABLE?                         00288000
+         BE    DIENEVCK           YES - CHECK EVALUATION                00289000
+         CLC   DICM1TYP(3,R7),DICMETYP(R4) IS CONDITION FOR THIS TYPE?  00290000
+         BNE   DIENEVBM           NO - BYPASS THIS ENTRY                00291000
+         CLI   DICMSFLD(R7),C'W'  WHERE ENTRY?                          00292000
+         BE    DIENEVDO           YES - TEST THIS ENTRY                 00293000
+DIENEVBM EQU   *                                                        00294000
+         LA    R7,DICMFLDL(R7)    BUMP TO NEXT FIELD TABLE ENTRY        00295000
+         B     DIENEVLU           CHECK NEXT FIELD ENTRY                00296000
+DIENEVDO EQU   *                                                        00297000
+         CLC   DICM1NAM(8,R7),=CL8'APPL' IS THIS A KEY FIELD            00298000
+         BE    DIENEVKF           YES - TURN ON KEY FIELD FOUND         00299000
+         CLC   DICM1NAM(8,R7),=CL8'NAME' IS THIS A KEY FIELD            00300000
+         BE    DIENEVKF           YES - TURN ON KEY FIELD FOUND         00301000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS THIS A KEY FIELD           00302000
+         BE    DIENEVKF           YES - TURN ON KEY FIELD FOUND         00303000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX' IS THIS A KEY FIELD           00304000
+         BE    DIENEVKF           YES - TURN ON KEY FIELD FOUND         00305000
+         B     DIENEVNK           NO - BYPASS KEY FLAG SET              00306000
+DIENEVKF EQU   *                                                        00307000
+         TM    DICMCCOD(R7),TRUE  IS KEY FIELD TEST TRUE  ?             00308000
+         BZ    DIENENXT           NO - GET PREVIOUS LEVEL               00309000
+DIENEVNK EQU   *                                                        00310000
+         TM    DICMSAVE,X'80'     IS THIS THE FIRST ENTRY?              00311000
+         BNO   DIENEVOR           NO - CHECK OR LOGIC                   00312000
+         NI    DICMSAVE,255-X'80' RESET FIRST TIME FLAG                 00313000
+         OC    DICMSAVE+3(1),DICMCCOD(R7) SET INITIAL CONDITION         00314000
+         LR    R9,R7              SAVE THIS ENTRY AS PREVIOUS           00315000
+         B     DIENEVBM           GET NEXT ENTRY                        00316000
+DIENEVOR EQU   *                                                        00317000
+         CLI   DICMCONN(R9),C'O'  IS THIS AN OR CONNECTOR?              00318000
+         BNE   DIENEVAN           NO - THEN DO AND LOGIC                00319000
+         OC    DICMSAVE+3(1),DICMCCOD(R7) OR IN CONDITION CODE          00320000
+         LR    R9,R7              SAVE THIS ENTRY AS PREVIOUS           00321000
+         B     DIENEVBM           GET NEXT ENTRY                        00322000
+DIENEVAN EQU   *                                                        00323000
+         NC    DICMSAVE+3(1),DICMCCOD(R7) AND IN CONDITION              00324000
+         LR    R9,R7              SAVE THIS ENTRY AS PREVIOUS           00325000
+         B     DIENEVBM           GET NEXT ENTRY                        00326000
+*********************************************************************** 00327000
+*        CHECK EVALUATION RESULTS                                     * 00328000
+*********************************************************************** 00329000
+DIENEVCK EQU   *                                                        00330000
+         TM    DICMSAVE+3,TRUE    IS EXPRESSION TRUE?                   00331000
+         BO    DIENCMND           YES - GO DO COMMAND                   00332000
+         B     DIENINIT           GET NEXT ENTITY                       00333000
+DIENENXT EQU   *                                                        00334000
+         TM    DICMBLD,DICMSELX   ANY RECORDS SELECTED ANY LEVEL?       00335000
+         BO    DIENCKBL           YES - RETURN DATA TO CALLER           00336000
+         NI    DICMEFLG(R4),255-DICMEHER RESET PROCESS FLAG             00337000
+         NI    DICMDTS,255-DICMILL RESET INITIALIZE LOWER LEVEL FLAG    00338000
+         LA    R9,DICMELEN        GET ENTITY TABLE ENTRY LENGTH         00339000
+         LA    R8,DICMWORK+4      GET ENTITY TABLE START ADDRESS        00340000
+         SR    R4,R9              GET PREVIOUS ENTRY ADDRESS            00341000
+         CR    R8,R4              ANY PREVIOUS ENTRY?                   00342000
+         BNH   DIENINIT           YES - GO GET NEXT ENTITY              00343000
+         MVI   DICMMORE,C'N'      SET NO MORE RECORDS INDICATOR         00344000
+         CLI   DICMQSAT,C'Y'      HAS THE QUERY BEEN SATISFIED          00345000
+         BE    DIENENX1           YES, ALMOST EVERYTHING IS OK          00346000
+         ICM   R15,15,DICMSTAT    WAS THER AN ERROR REPORTED            00347000
+         LTR   R15,R15                                                  00348000
+         BNZ   DIENEND            YES, GO WITH IT                       00349000
+         MVC   DICMSTAT,=F'16'    NO, THEN IT IS A NOT FOUND            00350000
+         B     DIENEND            EXIT TO NUCLEUS                       00351000
+DIENENX1 EQU *                                                          00352000
+         CLC   DICMSTAT,=F'16'    WAS THERE A NOT FOUND                 00353000
+         BNE   DIENEND            NO, LEAVE IT ALONE                    00354000
+         XC    DICMSTAT,DICMSTAT  YES, IT WAS NOT, SO CLEAR IT          00355000
+         B     DIENEND                                                  00356000
+*********************************************************************** 00357000
+*        SCAN THROUGH FIELD TABLE PERFORMING DESIRED FUNCTION         * 00358000
+*********************************************************************** 00359000
+DIENCMND EQU   *                                                        00360000
+         XC    DICMKEYL,DICMKEYL  CLEAR FIELD OFFSET                    00361000
+         LA    R7,DICMWORK+(DICMELEN*4)+4 GET FIELD TABLE START         00362000
+         NI    DICMEFLG(R4),255-DICMEIOP RESET I/O PROCESSED FLAG       00363000
+         NI    DICMEFLG(R4),255-DICMEKAC RESET KEY PROCESSED FLAG       00364000
+         NI    DICMEFLG(R4),255-DICMEOEN RESET END OF ENTITY FLAG       00365000
+         NI    DICMEFLG(R4),255-DICMIRTL RESET INDEXED RECORDS THIS LVL 00366000
+         OI    DICMEXFL,DICMBTAB INDICATE NEW COMMAND STARTING          00367000
+         STCM  R4,15,DICMAENT     STORE ADDRESS OF ENTITY               00368000
+         STCM  R7,15,DICMAFLD     STORE ADDRESS OF FIELD                00369000
+DIENCMLP EQU   *                                                        00370000
+         CLI   DICMSFLD(R7),X'00'  END OF FIELD TABLE?                  00371000
+         BE    DIENEXIT                                                 00372000
+         CLI   DICMSFLD(R7),C'S'   IS THIS A SELECTED FIELD?            00373000
+         BNE   DIENCMBY            NO - THEN BYPASS THIS ENTRY          00374000
+         CLC   DICM1TYP(3,R7),DICMETYP(R4) IS THIS THE CORRECT TYPE?    00375000
+         BNE   DIENCMBM            NO - THEN BYPASS THIS ENTRY          00376000
+         BAL   R11,DIENCMDO       PERFORM COMMAND                       00377000
+         CLC   DICMCMD,=CL6'DELETE' IS COMMAND FOR DELETE?              00378000
+         BE    DIENEXIT           YES - THEN EXIT                       00379000
+DIENCMBM EQU   *                                                        00380000
+         XR    R9,R9              CLEAR REG FOR FIELD LENGTH            00381000
+         ICM   R9,3,DICM1LEN(R7)    GET FIELD LENGTH                    00382000
+         AH    R9,DICMKEYL        ADD TO OFFSET                         00383000
+         STCM  R9,3,DICMKEYL      SAVE OFFSET                           00384000
+DIENCMBY EQU   *                                                        00385000
+         LA    R7,DICMFLDL(R7)    GET NEXT FIELD ENTRY ADDRESS          00386000
+         B     DIENCMLP                                                 00387000
+DIENEXIT EQU   *                                                        00388000
+         MVI   DICMMORE,C'Y'      SET MORE RECORDS INDICATOR ON         00389000
+         CLC   DICMCMD,=CL6'INSERT' IS COMMAND FOR INSERT?              00390000
+         BE    DIENENXT           YES - THEN EXIT IMMEDIATELY           00391000
+         TM    DICMEFLG(R4),DICMEIOP+DICMEKAC DATA BEEN ACCESSED?       00392000
+         BZ    DIENINIT           NO - GO CHECK FOR RECORDS SELECTED    00393000
+         TM    DICMEFLG(R4),DICMIRTL INDEXED RECORDS READ AT THIS LVL?  00394000
+         BZ    DIENEXNI           NO - BYPASS RESET OF EOE FLAG         00395000
+         NI    DICMEFLG(R4),255-DICMEOEN RESET END OF ENTITY FLAG       00396000
+DIENEXNI EQU   *                                                        00397000
+         TM    DICMEFLG(R4),DICMEOEN IS THIS END OF ENTITY?             00398000
+         BO    DIENINIT           YES - GO CHECK FOR RECORDS PRESENT    00399000
+         LA    R9,DICMELEN(R4)    GET NEXT ENTITY TABLE ENTRY           00400000
+         LA    R0,DICMWORK+(DICMELEN*3)+4 GET LAST ENTRY ADDRESS        00401000
+         CR    R9,R0              ANY MORE ENTRIES LEFT?                00402000
+         BH    DIENCKBL           NO - THEN ALL IS WELL                 00403000
+         CLC   DICMETYP(3,R9),=3X'00' ANY MORE ENTRIES LEFT?            00404000
+         BE    DIENCKBL           NO - THEN ALL IS WELL                 00405000
+         NI    DICMEFLG(R4),255-DICMEHER RESET PROCESS FLAG             00406000
+         OI    DICMDTS,DICMILL    TURN ON INIT LOWER LEVEL FLAG         00407000
+         LR    R4,R9              SET NEXT ENTITY ADDRESS               00408000
+         B     DIENINIT           GO GET NEXT ENTITY                    00409000
+DIENCKBL EQU   *                                                        00410000
+         NI    DICMBLD,255-DICMSELX RESET RECORDS SELECTED FLAG         00411000
+         MVI   DICMQSAT,C'Y'      THE QUERY HAS BEEN SATISFIED          00412000
+         CLC   DICMCMD,=CL6'DELETE' IS COMMAND FOR DELETE?              00413000
+         BE    DIENINIT           YES - THEN DONT EXIT UNTIL DONE       00414000
+         CLC   DICMCMD,=CL6'UPDATE' IS COMMAND FOR UPDATE?              00415000
+         BE    DIENINIT           YES - THEN DONT EXIT UNTIL DONE       00416000
+         CLC   DICMCMD,=CL6'BUILD ' IS COMMAND FOR BUILD?               00417000
+         BNE   DIENEND            NO - THEN RETURN TO CALLER            00418000
+         LA    R9,DICMWORK+(DICMELEN*4)+4 GET FIELD TABLE START         00419000
+         XR    R0,R0              CLEAR WORK REG                        00420000
+         XR    R1,R1              CLEAR WORK REG                        00421000
+DIENBLUP EQU   *                                                        00422000
+         CLI   DICMSFLD(R9),X'00' END OF TABLE?                         00423000
+         BE    DIENBEND           YES - STORE LENGTH                    00424000
+         CLI   DICMSFLD(R9),C'S'  SELECTED FIELD?                       00425000
+         BNE   DIENBBMP           BUMP TO NEXT FIELD ENTRY              00426000
+         ICM   R0,3,DICM1LEN(R9)  GET FIELD LENGTH                      00427000
+         AR    R1,R0              ADD TO ACCUMULATION                   00428000
+DIENBBMP EQU   *                                                        00429000
+         LA    R9,DICMFLDL(R9)    BUMP TO NEXT FIELD ENTRY              00430000
+         B     DIENBLUP           REPEAT UNTIL DONE                     00431000
+DIENBEND EQU   *                                                        00432000
+         XR    R0,R0              CLEAR WORK REG                        00433000
+         ICM   R0,3,0(R10)        GET ACCUMULATED LENGTH                00434000
+         AR    R1,R0              ADD ACCUMULATED LENGTH                00435000
+         STCM  R1,3,0(R10)        SAVE ACCUMULATED LENGTH               00436000
+         B     DIENINIT           CONTINUE WITH BUILD                   00437000
+*********************************************************************** 00438000
+*        DECODE COMMAND AND PERFORM DESIRED FUNCTION                  * 00439000
+*********************************************************************** 00440000
+DIENCMDO EQU   *                                                        00441000
+         CLC   DICMCMD,=CL6'SELECT' IS COMMAND FOR RECORD SELECTION?    00442000
+         BE    DIENCMSL           YES - GO SELECT FIELD                 00443000
+         CLC   DICMCMD,=CL6'BUILD ' IS COMMAND FOR TABLE BUILD?         00444000
+         BE    DIENCMBL           YES - GO BUILD TABLE                  00445000
+         CLC   DICMCMD,=CL6'UPDATE' IS COMMAND FOR RECORD UPDATE?       00446000
+         BE    DIENCMUP           YES - GO UPDATE FIELD                 00447000
+         CLC   DICMCMD,=CL6'INSERT' IS COMMAND FOR RECORD INSERTION?    00448000
+         BE    DIENCMIN           YES - GO INSERT FIELD                 00449000
+         CLC   DICMCMD,=CL6'DELETE' IS COMMAND FOR RECORD DELETION?     00450000
+         BE    DIENCMDL           YES - GO DELETE FIELD                 00451000
+         MVI   DICMMORE,C'N'      RESET MORE RECORDS FLAG               00452000
+         B     DIENCERR           UNSUPPORTED FUNCTION                  00453000
+*********************************************************************** 00454000
+*        SELECT COMMAND PROCESSING                                    * 00455000
+*********************************************************************** 00456000
+DIENCMSL EQU   *                                                        00457000
+         BAL   R14,DIEN1GET       GET FIELD FROM DICTIONARY             00458000
+         ICM   R9,15,DICMSTAT     GET DICTIONARY STATUS WORD            00459000
+         LTR   R9,R9              ANY ERRORS?                           00460000
+         BZ    DIENCMSF           NO - MOVE FIELD                       00461000
+         XR    R9,R9              CLEAR LENGTH REGISTER                 00462000
+         ICM   R9,3,DICM1LEN(R7)    GET FIELD LENGTH                    00463000
+         BCTR  R9,0               DECREMENT LENGTH FOR CLEAR            00464000
+         EX    R9,DIENKCLR        CLEAR BUFFER DATA TO LOW VALUES       00465000
+         B     DIENCMSX           BYPASS NUMBER OF ACCESSES INCR        00466000
+DIENCMSF EQU   *                                                        00467000
+         ICM   R9,15,DICMNACC     GET NUMBER OF DICTIONARY ACCESSES     00468000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00469000
+         STCM  R9,15,DICMNACC     RESTORE NUMBER OF ACCESSES            00470000
+DIENCMSX EQU   *                                                        00471000
+         LR    R8,R10             GET BUFFER START                      00472000
+         XR    R9,R9              CLEAR REG FOR LENGTH                  00473000
+         ICM   R9,3,DICMKEYL      GET CURRENT OFFSET                    00474000
+         AR    R8,R9              POINT TO FIELD START                  00475000
+         ICM   R9,3,DICM1LEN(R7)    GET FIELD LENGTH                    00476000
+         BCTR  R9,0               DECREMENT FOR MOVE                    00477000
+         EX    R9,DIENKMVC        PLACE DATA IN USERS BUFFER            00478000
+         OI    DICMBLD,DICMSELX   SET ON RECORDS SELECTED FLAG          00479000
+         BR    R11                                                      00480000
+*********************************************************************** 00481000
+*        BUILD TABLE PROCESSING                                       * 00482000
+*********************************************************************** 00483000
+DIENCMBL EQU   *                                                        00484000
+         TM    DICMBLD,DICMBLDF   HAS HEADER BEEN BUILT?                00485000
+         BO    DIENCMBD           YES - GO BUILD DETAIL                 00486000
+         OI    DICMBLD,DICMBLDF   INDICATE HEADER BUILT                 00487000
+DIENCMBD EQU   *                                                        00488000
+         BAL   R14,DIEN1GET       GET FIELD FROM DICTIONARY             00489000
+         ICM   R9,15,DICMSTAT     GET DICTIONARY STATUS WORD            00490000
+         LTR   R9,R9              ANY ERRORS?                           00491000
+         BZ    DIENCMBF           NO - MOVE FIELD                       00492000
+         XR    R9,R9              CLEAR LENGTH REGISTER                 00493000
+         ICM   R9,3,DICM1LEN(R7)    GET FIELD LENGTH                    00494000
+         BCTR  R9,0               DECREMENT LENGTH FOR CLEAR            00495000
+         EX    R9,DIENKCLR        CLEAR BUFFER DATA TO LOW VALUES       00496000
+         B     DIENCMBX           BYPASS NUMBER OF ACCESSES INCR        00497000
+DIENCMBF EQU   *                                                        00498000
+         ICM   R9,15,DICMNACC     GET NUMBER OF DICTIONARY ACCESSES     00499000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00500000
+         STCM  R9,15,DICMNACC     RESTORE NUMBER OF ACCESSES            00501000
+DIENCMBX EQU   *                                                        00502000
+         LR    R8,R10             GET BUFFER START                      00503000
+         XR    R0,R0              CLEAR WORK REG                        00504000
+         ICM   R0,3,0(R10)        GET ACCUMULATED LENGTH                00505000
+         AR    R8,R0              ADD IN CURRENT LENGTH                 00506000
+         AH    R8,DICMKEYL        ADD IN CURRENT OFFSET                 00507000
+         XR    R9,R9              CLEAR LENGTH REGISTER                 00508000
+         ICM   R9,3,DICM1LEN(R7)    GET FIELD LENGTH                    00509000
+         BCTR  R9,0               DECREMENT FOR MOVE                    00510000
+         EX    R9,DIENKMVC        PLACE DATA IN USERS BUFFER            00511000
+         OI    DICMBLD,DICMSELX   SET ON RECORDS SELECTED FLAG          00512000
+         BR    R11                                                      00513000
+*********************************************************************** 00514000
+*        UPDATE ENTITY OR ELEMENT                                     * 00515000
+*********************************************************************** 00516000
+DIENCMUP EQU   *                                                        00517000
+         CLC   DICM1NAM(8,R7),=CL8'APPL' IS FIELD FOR APPL KEY?         00518000
+         BE    DIENCMUE           YES - INVALID FIELD                   00519000
+         CLC   DICM1NAM(8,R7),=CL8'NAME' IS FIELD FOR NAME KEY?         00520000
+         BE    DIENCMUE           YES - INVALID FIELD                   00521000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00522000
+         BE    DIENCMUE           YES - INVALID FIELD                   00523000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX' IS FIELD FOR INDEX KEY?       00524000
+         BE    DIENCMUE           YES - INVALID FIELD                   00525000
+         CLC   DICM1NAM(8,R7),=CL8'HINDEX' IS FIELD FOR HINDEX KEY?     00526000
+         BE    DIENCMUE           YES - INVALID FIELD                   00527000
+         BAL   R14,DIEN1UPD       GET FIELD FROM DICTIONARY             00528000
+         BAL   R14,DIENVAL        COLLECT UPDATE DATA                   00529000
+         ICM   R9,15,DICMSTAT     GET DICTIONARY STATUS WORD            00530000
+         LTR   R9,R9              ANY ERRORS?                           00531000
+         BNZ   DIENEND            YES - THEN TRY TO INSERT IT           00532000
+         ICM   R9,15,DICMNACC     GET NUMBER OF DICTIONARY ACCESSES     00533000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00534000
+         STCM  R9,15,DICMNACC     RESTORE NUMBER OF ACCESSES            00535000
+         XR    R9,R9              CLEAR REG TO HOLD REC LENGTH          00536000
+         ICM   R9,3,DICM1LEN(R7)  GET FIELD LENGTH                      00537000
+         LA    R9,L'DICMKEY(R9)   INCREMENT BY KEY SIZE                 00538000
+         STCM  R9,3,0(R5)         PUT REC LENGTH IN BUFFER              00539000
+         MVI   DICMEXT,DICMRWRT   SET UPDATE RECORD FUNCTION            00540000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00541000
+         BALR  R14,R15            PERFORM THE I/O                       00542000
+         ICM   R9,15,DICMSTAT     ANY ERRORS?                           00543000
+         LTR   R9,R9                                                    00544000
+         BNZ   DIENEND            YES - RETURN TO NUC                   00545000
+         BR    R11                                                      00546000
+DIENCMUE EQU   *                                                        00547000
+         LA    R9,305             INDICATE INVALID FIELD FOR UPDATE     00548000
+         STCM  R9,3,DICMSTAT      PUT ERROR CODE IN STATUS FIELD        00549000
+         B     DIENEND            EXIT TO NUC WITH ERROR SET            00550000
+*********************************************************************** 00551000
+*        INSERT ENTITY OR ELEMENT                                     * 00552000
+*********************************************************************** 00553000
+DIENCMIN EQU   *                                                        00554000
+         BAL   R14,DIENVAL        COLLECT UPDATE DATA                   00555000
+         LA    R8,DICMEAPL(R4)    POINT TO APPL KEY                     00556000
+         CLC   DICM1NAM(8,R7),=CL8'APPL' IS FIELD FOR APPL KEY?         00557000
+         BE    DIENCMKY           YES - INITIALIZE KEY                  00558000
+         LA    R8,DICMENAM(R4)    POINT TO NAME KEY                     00559000
+         CLC   DICM1NAM(8,R7),=CL8'NAME' IS FIELD FOR NAME KEY?         00560000
+         BE    DIENCMKY           YES - INITIALIZE KEY                  00561000
+         LA    R8,DICMEALI(R4)    POINT TO ALIAS KEY                    00562000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00563000
+         BE    DIENCMKY           YES - INITIALIZE KEY                  00564000
+         LA    R8,DICMENDX(R4)    POINT TO INDEX KEY                    00565000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX' IS FIELD FOR INDEX KEY?       00566000
+         BE    DIENCMKY           YES - INITIALIZE KEY                  00567000
+         CLC   DICM1NAM(8,R7),=CL8'HINDEX' IS FIELD FOR HINDEX KEY?     00568000
+         BNE   DIENCMNK           YES - INITIALIZE KEY                  00569000
+         LA    R9,305             INDICATE INVALID FIELD FOR INSERT     00570000
+         STCM  R9,3,DICMSTAT      PUT ERROR CODE IN STATUS FIELD        00571000
+         B     DIENEND            EXIT TO NUC WITH ERROR SET            00572000
+DIENCMKY EQU   *                                                        00573000
+         XR    R9,R9              CLEAR REG TO HOLD FIELD LENGTH        00574000
+         ICM   R9,3,DICM1LEN(R7)  GET FIELD LENGTH                      00575000
+         BCTR  R9,0               DECREMENT FOR MOVE                    00576000
+         EX    R9,DIENKMVC        MOVE DATA TO KEY                      00577000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00578000
+         BNER  R11                NO - BYPASS ALIAS CHECK               00579000
+         BAL   R14,DIENALI        GET ENTITY NAME FROM ALIAS            00580000
+         BR    R11                RETURN                                00581000
+DIENCMNK EQU   *                                                        00582000
+         MVC   DICMEFLD(8,R4),DICM1NAM(R7) PUT FIELD NAME IN KEY        00583000
+         MVC   DICMEFNM(1,R4),DICM1FLD(R7) PUT FIELD NUMBER IN KEY      00584000
+         MVC   DICMKEY,DICMEAPL(R4) MOVE KEY TO DICTIONARY KEY          00585000
+         CLI   DICM1IND(R7),C'N'  IS FIELD INDEXED?                     00586000
+         BNE   DIENCMIX           YES - BYPASS ZERO OF INDEX            00587000
+         XC    DICMKNDX,DICMKNDX  CLEAR FIELD INDEX                     00588000
+DIENCMIX EQU   *                                                        00589000
+         MVI   DICMEXT,DICMWRIT   SET INSERT RECORD FUNCTION            00590000
+         MVC   2(L'DICMKEY,R5),DICMKEY MOVE KEY TO BUFFER               00591000
+         XR    R9,R9              CLEAR REG TO HOLD REC LENGTH          00592000
+         ICM   R9,3,DICM1LEN(R7)  GET FIELD LENGTH                      00593000
+         LA    R9,L'DICMKEY(R9)   INCREMENT BY KEY SIZE                 00594000
+         STCM  R9,3,0(R5)         PUT REC LENGTH IN BUFFER              00595000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00596000
+         BALR  R14,R15            PERFORM THE I/O                       00597000
+         ICM   R9,15,DICMSTAT     ANY ERRORS?                           00598000
+         LTR   R9,R9                                                    00599000
+         BNZ   DIENEND            YES - EXIT TO NUC                     00600000
+         ICM   R9,15,DICMNACC     GET NUMBER OF DICTIONARY ACCESSES     00601000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00602000
+         STCM  R9,15,DICMNACC     RESTORE NUMBER OF ACCESSES            00603000
+         BR    R11                                                      00604000
+*********************************************************************** 00605000
+*        DELETE COMMAND PROCESSING                                    * 00606000
+*********************************************************************** 00607000
+DIENCMDL EQU   *                                                        00608000
+         NI    DICMEFLG(R4),255-(DICMEIOP+DICMEKAC) RESET DATA ACCESS   00609000
+         MVC   DICMKEY,DICMEAPL(R4) GET KEY DATA                        00610000
+         XC    DICMKFLD(8),DICMKFLD CLEAR FIELD NAME IN KEY             00611000
+         TM    DICMBLD,DICMQRYI   IS THIS DELETE BY INDEX ?             00612000
+         BO    DIENCMDI           YES - THEN LEAVE INDEX ALONE          00613000
+         XC    DICMKNDX,DICMKNDX  ELSE CLEAR INDEX TO DELETE ENTITY     00614000
+DIENCMDI EQU   *                                                        00615000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER                00616000
+         MVI   DICMEXT,DICMDELE   SET DELETE RECORD FUNCTION            00617000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00618000
+         BALR  R14,R15            PERFORM THE I/O                       00619000
+         ICM   R9,15,DICMSTAT     GET DICTIONARY STATUS WORD            00620000
+         LTR   R9,R9              ANY ERRORS?                           00621000
+         BNZR  R11                YES - RETURN                          00622000
+         MVI   DICMQSAT,C'Y'      QUERY HAS BEEN SATISFIED              00623000
+         ICM   R9,15,DICMNACC     GET NUMBER OF DICTIONARY ACCESSES     00624000
+         LA    R9,1(R9)           INCREMENT BY ONE                      00625000
+         STCM  R9,15,DICMNACC     RESTORE NUMBER OF ACCESSES            00626000
+         BR    R11                RETURN                                00627000
+*********************************************************************** 00628000
+*        GET ENTITY NAME FROM ALIAS NAME                              * 00629000
+*********************************************************************** 00630000
+DIENALI  EQU   *                                                        00631000
+         XC    0(L'DICMKEY+10,R5),0(R5) CLEAR BUFFER AREA               00632000
+         MVC   DICMKAPL,DICMEAPL(R4) MOVE IN APPLICATION KEY            00633000
+         MVC   DICMKFRM,=C'ALI'   SET ALIAS FORMAT TYPE IN KEY          00634000
+         MVC   DICMKNAM(L'DICMCALI),DICMEALI(R4)  ALIAS NAME IN KEY     00635000
+         MVC   2(L'DICMKEY,R5),DICMKEY   SET KEY IN BUFFER              00636000
+         MVI   DICMEXT,DICMREAD   SET READ RECORD FUNCTION              00637000
+         LR    R0,R14             SAVE RETURN ADDRESS                   00638000
+         L     R15,=A(DSDIEXT)    GET EXTERNAL ROUTINE ADDRESS          00639000
+         BALR  R14,R15            PERFORM THE I/O                       00640000
+         ICM   R9,15,DICMSTAT     GET STATUS CODE                       00641000
+         LTR   R9,R9              ANY ERRORS?                           00642000
+         BNZ   DIENNALI           YES - ITS NOT AN ALIAS                00643000
+         MVC   DICMENAM(8,R4),L'DICMKEY+2(R5)  PUT ENT NAME IN KEY      00644000
+         LR    R14,R0             RESTORE RETURN REGISTER               00645000
+         BR    R14                                                      00646000
+DIENNALI EQU   *                                                        00647000
+         XC    DICMSTAT,DICMSTAT  WHO CARES IF ERROR                    00648000
+         MVC   DICMENAM(8,R4),DICMEALI(R4) ENTITY NAME TO KEY SAVE      00649000
+         LR    R14,R0             RESTORE RETURN REGISTER               00650000
+         BR    R14                                                      00651000
+*********************************************************************** 00652000
+*        PLACE FIELD VALUE INTO DICTIONARY BUFFER                     * 00653000
+*********************************************************************** 00654000
+DIENVAL  EQU   *                                                        00655000
+         TM    DICMDTS,DICMDFMT   IS USER DATA FORMATTED?               00656000
+         BZ    DIENVUNF           NO - PROCESS VALUES STRING            00657000
+         XR    R9,R9              CLEAR A WORK REGISTER                 00658000
+         ICM   R9,3,DICM1LEN(R7)  GET FIELD LENGTH                      00659000
+         BCTR  R9,0               MAKE LENGTH RELATIVE TO ZERO          00660000
+         EX    R9,DIENDMVC        MOVE DATA TO OUTPUT BUFFER            00661000
+         LA    R10,1(R10,R9)      BUMP TO NEXT INPUT FIELD              00662000
+*    INSERT ROUTINE CALL FOR PICTURE OR EDITRULE FIELDS HERE    *       00663000
+         BR    14                 RETURN - MOVE IS COMPLETE             00664000
+DIENVUNF EQU   *                                                        00665000
+         XR    R9,R9              CLEAR LENGTH COUNTER REG              00666000
+         CLC   0(7,R10),=C'VALUES(' BEGINNING OF STRING?                00667000
+         BNE   DIENVSTR           NO - BUFFER POINTER OK                00668000
+         LA    R10,7(R10)         BUMP PAST STRING START IN BUFFER      00669000
+DIENVSTR EQU   *                                                        00670000
+         CLI   0(R10),QUOTE       IS THIS A STRING START OR END?        00671000
+         BE    DIENVSET           YES - SET STRING START/END FLAG       00672000
+         TM    DICMENT,DICMSTRG   PROCESSING A STRING?                  00673000
+         BO    DIENVCNT           YES - THEN COUNT CHARACTER            00674000
+         CLI   0(R10),C' '        IS THIS A SPACE?                      00675000
+         BE    DIENVBYP           YES - BYPASS                          00676000
+         CLI   0(R10),COMMA       END OF FIELD VALUE?                   00677000
+         BE    DIENVEXT           YES - THEN MOVE VALUE TO BUFFER       00678000
+         CLI   0(R10),RIPAR       END OF VALUES STRING?                 00679000
+         BE    DIENVEXT           YES - THEN MOVE VALUE TO BUFFER       00680000
+         CLI   0(R10),ENDDLM      END OF VALUES STRING?                 00681000
+         BE    DIENVEXT           YES - THEN MOVE VALUE TO BUFFER       00682000
+DIENVCNT EQU   *                                                        00683000
+         LA    R9,1(R9)           INCREMENT FIELD LENGTH                00684000
+DIENVBYP EQU   *                                                        00685000
+         LA    R10,1(R10)         LOOK AT NEXT CHARACTER                00686000
+         B     DIENVSTR           TEST NEXT CHARACTER                   00687000
+DIENVSET EQU   *                                                        00688000
+         CLC   0(2,R10),DQUOTE    IS THIS A DOUBLE QUOTE?               00689000
+         BNE   DIENVSTS           NO -  SET STRING START/END FLAG       00690000
+         LA    R9,1(R9)           INCREMENT FIELD LENGTH                00691000
+         LA    R10,1(R10)         PRETEND IT'S JUST ONE CHARACTER       00692000
+         B     DIENVCNT           PROCESS NEXT SINGLE QUOTE AS DATA     00693000
+DIENVSTS EQU   *                                                        00694000
+         TM    DICMENT,DICMSTRG   IN A STRING?                          00695000
+         BO    DIENVEXT           YES - EXTRACT DATA                    00696000
+         XI    DICMENT,DICMSTRG   TOGGLE STRING BIT                     00697000
+         B     DIENVBYP           BYPASS QUOTE CHARACTER                00698000
+DIENVEXT EQU   *                                                        00699000
+         STM   R11,R9,12(R13)      SAVE REGISTERS                       00700000
+         MVC   DICMSAVE(16),ZEROS CLEAR WORK AREA TO ZEROS              00701000
+         XR    R6,R6              CLEAR WORK REG                        00702000
+         ICM   R6,3,DICM1LEN(R7)  GET FIELD MAX LENGTH                  00703000
+         BCTR  R6,0               MAKE MAX LENGTH RELATIVE TO ZERO      00704000
+         LTR   R9,R9              IS LENGTH ZERO?                       00705000
+         BZ    DIENVMER           YES - ERROR NO DATA PRESENT           00706000
+         SR    R10,R9             POINT AT FIELD START                  00707000
+         BCTR  R9,0               MAKE ACT LENGTH RELATIVE TO ZERO      00708000
+         CLI   DICM1ATT(R7),C'A'  CHARACTER FIELD?                      00709000
+         BE    DIENVMVC           YES - MOVE DATA TO BUFFER             00710000
+         CLI   DICM1ATT(R7),C'C'  CHARACTER FIELD?                      00711000
+         BE    DIENVMVC           YES - MOVE DATA TO BUFFER             00712000
+         CLI   DICM1ATT(R7),C'X'  HEXADECIMAL FIELD?                    00713000
+         BE    DIENVMVX           YES - CONVERT DATA AND MOVE           00714000
+         CLI   DICM1ATT(R7),C'N'  NUMERIC FIELD?                        00715000
+         BE    DIENVMVN           YES - MOVE DATA TO WORK AREA          00716000
+         LA    R11,DICMSAVE       WORK AREA POINTER                     00717000
+         EX    R9,DIENIPCK        PACK DATA INTO COMMON                 00718000
+         CLI   DICM1ATT(R7),C'P'  PACKED FIELD?                         00719000
+         BE    DIENVMVS           MOVE PACKED FIELD                     00720000
+         OI    15(R11),X'0F'      FORCE A VALID SIGN                    00721000
+         CVB   R0,8(R11)          CONVERT DATA TO BINARY                00722000
+         STCM  R0,15,12(R11)      SAVE BINARY DATA                      00723000
+         B     DIENVMVS           MOVE DATA TO BUFFER                   00724000
+DIENVMVN EQU   *                                                        00725000
+         LA    R11,DICMSAVE+15    END OF WORK AREA                      00726000
+         SR    R11,R9             CALCULATE WORK START                  00727000
+         EX    R9,DIENIMVN        MOVE DATA TO WORK                     00728000
+DIENVMVS EQU   *                                                        00729000
+         LA    R11,DICMSAVE+15    END OF WORK ADDRESS                   00730000
+         SR    R11,R6             CALCULATE WORK START                  00731000
+         EX    R6,DIENWMVC        MOVE DATA TO BUFFER                   00732000
+         B     DIENVEND           GO TO WRAP UP                         00733000
+DIENVMVC EQU   *                                                        00734000
+         EX    R6,DIENSCLR        CLEAR OUTPUT BUFFER                   00735000
+DIENVMVA EQU   *                                                        00737000
+         LR    R7,R10             SET FROM ADDRESS START                00738000
+         LA    R8,L'DICMKEY+2(R5) SET TO ADDRESS START                  00739000
+         LA    R11,1(R9)          SET ACTUAL FIELD LENGTH               00740000
+DIENVMVL EQU   *                                                        00741000
+         CLC   0(2,R7),DQUOTE     IS THIS A DOUBLE QUOTE                00742000
+         BNE   DIENVMVB                                                 00743000
+         LA    R7,1(R7)           BUMP TO NEXT POSITION                 00744000
+         BCTR  R11,0              DECREMENT LENGTH COUNT                00745000
+DIENVMVB EQU   *                                                        00746000
+         MVC   0(1,R8),0(R7)      MOVE DATA TO BUFFER                   00747000
+         LA    R7,1(R7)           BUMP TO NEXT FROM POSITION            00748000
+         LA    R8,1(R8)           BUMP TO NEXT TO   POSITION            00749000
+         BCT   R11,DIENVMVL       CONTINUE CHECKING                     00750000
+         B     DIENVEND           GO TO WRAP UP                         00751000
+DIENVMVX EQU   *                                                        00752000
+         XR    R7,R7              CLEAR WORK REGISTER                   00753000
+         XR    R11,R11            CLEAR WORK REGISTER                   00754000
+         LA    R4,L'DICMKEY+2(R5) GET OUTPUT BUFFER START               00755000
+         EX    R9,DIENDMVC        MOVE VALUE TO BUFFER                  00756000
+         EX    R9,DIENVTRN        TRANSLATE DATA                        00757000
+         STCM  R10,15,DICMSAVE+4  SAVE DATA ADDRESS                     00758000
+         LR    R10,R4             POINT TO DATA IN BUFFER               00759000
+         STC   R9,DICMSAVE        STORE LENGTH FOR TEST                 00760000
+         LA    R9,1(R9)           RESTORE ACTUAL LENGTH                 00761000
+         TM    DICMSAVE,X'01'     IS LENGTH AN ODD NUMBER               00762000
+         BZ    DIENVMXO           YES - LEAVE FIRST DIGIT AS ZERO       00763000
+DIENVMXL EQU   *                                                        00764000
+         IC    R11,0(R10)         GET CHARACTER                         00765000
+         CH    R11,=H'255'        CHAR IN ERROR?                        00766000
+         BE    DIENVERR           YES - VALUE ERROR                     00767000
+         SLL   R11,4              SHIFT LEFT 4 BITS                     00768000
+         LA    R10,1(R10)         GET NEXT CHAR TO TRANSLATE            00769000
+         BCTR  R9,0               DECREMENT LENGTH                      00770000
+DIENVMXO EQU   *                                                        00771000
+         IC    R7,0(R10)          GET CHARACTER                         00772000
+         CH    R7,=H'255'         CHAR IN ERROR?                        00773000
+         BE    DIENVERR           YES - VALUE ERROR                     00774000
+         OR    R11,R7             COMBINE HEX DIGITS                    00775000
+         STC   R11,0(R4)          PUT HEX DIGITS IN BUFFER              00776000
+         LA    R10,1(R10)         GET NEXT CHAR TO TRANSLATE            00777000
+         LA    R4,1(R4)           GET NEXT CHAR TO TRANSLATE            00778000
+         BCT   R9,DIENVMXL        REPEAT UNTIL ALL DIGITS CONVERTED     00779000
+         ICM   R10,15,DICMSAVE+4  RESTORE USERS DATA BUFFER ADDRESS     00780000
+         IC    R9,DICMSAVE        GET FIELD LENGTH                      00781000
+         AR    R10,R9             BUMP PAST FIELD VALUES IN USER BUFFER 00782000
+         EX    R6,DIENXCLR        CLEAR OUTPUT BUFFER                   00783000
+         LA    R10,2(R10)         BUMP PAST DELIMITER                   00784000
+         B     DIENVEXI           MOVE IS COMPLETE                      00785000
+DIENVEND EQU   *                                                        00786000
+*    INSERT ROUTINE CALL FOR PICTURE OR EDITRULE FIELDS HERE    *       00787000
+         LA    R10,2(R10,R9)      POINT TO NEXT INPUT FIELD VALUE       00788000
+DIENVEXI EQU   *                                                        00789000
+         LM    R11,R9,12(R13)      RESTORE REGISTERS                    00790000
+         TM    DICMENT,DICMSTRG   IN A STRING?                          00791000
+         BNOR  R14                NO  - RETURN                          00792000
+         XI    DICMENT,DICMSTRG   TOGGLE STRING BIT                     00793000
+         LA    R10,1(R10)         BUMP PAST ENDING QUOTE                00794000
+         BR    R14                RETURN                                00795000
+*********************************************************************** 00796000
+*        LOCATE THE NEXT ENTITY TO PROCESS                            * 00797000
+*********************************************************************** 00798000
+DIENLNEN EQU   *                                                        00799000
+         LR    R0,R14            SAVE RETURN REGISTER                   00800000
+         XC    DICMEFLD(8,R4),DICMEFLD(R4) CLEAR FIELD NAME             00801000
+         MVC   DICMKEY,DICMEAPL(R4) PUT KEY IN KEY AREA                 00802000
+         XC    DICMKNDX,DICMKNDX CLEAR INDEX                            00803000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER                00804000
+DIENLNLU EQU   *                                                        00805000
+         MVI   DICMEXT,DICMBRWS INDICATE BROWSE REQUEST                 00806000
+         L     R15,=A(DSDIEXT)  GET EXTERNAL ROUTINE ADDRESS            00807000
+         BALR  R14,R15          PERFORM I/O                             00808000
+         LR    R14,R0           RESTORE RETURN REGISTER                 00809000
+         CLC   7(8,R5),DICMENAM(R4) ARE NAMES THE SAME ?                00810000
+         BE    DIENLAOK         YES - THEN LEAVE ALIAS AS IS            00811000
+         XC    DICMEALI(20,R4),DICMEALI(R4) CLEAR ALIAS NAME            00812000
+DIENLAOK EQU   *                                                        00813000
+         ICM   R9,15,DICMSTAT   GET DICTIONARY STATUS WORD              00814000
+         LTR   R9,R9            ANY ERRORS?                             00815000
+         BZ    DIENLTYP         NA - CHECK TYPE OVERFLOW                00816000
+         B     DIENLRET         RETURN TO CALLER                        00817000
+DIENLTYP EQU   *                                                        00818000
+         CLC   DICMCMD,=CL6'UPDATE' IS THIS REQUEST FOR UPD?  0354754   00818100
+         BNE   DIENLTY1           NO, JUMP AROUND             0354754   00818200
+         CLC   2(2,R5),DICMEAPL(R4) SAME APPLICATION?         0354754   00818300
+         BNE   DIENLTY2         NO - PROCESS RECORD           0354754   00818400
+DIENLTY1 EQU   *                                              0354754   00818500
+         MVC   DICMEAPL(2,R4),2(R5) SAVE APPLICATION CODE               00819000
+         CLC   4(3,R5),DICMETYP(R4) ARE TYPE CODES THE SAME?            00820000
+         BL    DIENLNLO         NO - SCAN AGAIN                         00821000
+         BH    DIENLNHI                                                 00822000
+DIENLTY2 EQU   *                                              0354754   00822500
+         MVC   DICMENAM(16,R4),7(R5) SAVE NEW ENTITY                    00823000
+         CLC   DICMEAPL(2,R4),=C'$$' IS THIS A DEFINITION RECORD?       00824000
+         BNER  R14              NO - PROCESS THIS RECORD                00825000
+DIENLNHI EQU   *                                                        00826000
+         XR    R9,R9            CLEAR WORK REG                          00827000
+         IC    R9,DICMEAPL+1(R4) GET LAST CHAR OF APPLICATION CODE      00828000
+         LA    R9,1(R9)         BUMP BY ONE                             00829000
+         STC   R9,DICMEAPL+1(R4) PUT CHAR BACK                          00830000
+         XC    DICMENAM(16,R4),DICMENAM(R4) CLEAR REMAINDER OF KEY      00831000
+         B     DIENLNEN         SCAN AGAIN                              00832000
+DIENLNLO EQU   *                                                        00833000
+         XC    DICMENAM(16,R4),DICMENAM(R4) CLEAR REMAINDER OF KEY      00834000
+         IC    R9,DICMDFRM+2(R5) GET LAST CHAR OF TYPE                  00835000
+         LA    R9,1(R9)         BUMP BY ONE                             00836000
+         STC   R9,DICMDFRM+2(R5) PUT CHAR BACK                          00837000
+         MVC   DICMKEY,2(R5)    SAVE KEY TO SCAN                        00838000
+         XC    DICMKNDX,DICMKNDX CLEAR INDEX                            00839000
+         B     DIENLNLU         SCAN AGAIN                              00840000
+DIENLRET EQU   *                                                        00841000
+         XC    DICMEAPL(2,R4),DICMEAPL(R4)  CLEAR APPL CODE             00844000
+         XC    DICMENAM(20,R4),DICMENAM(R4) CLEAR NAME,FIELD            00845000
+         XC    DICMEALI(20,R4),DICMEALI(R4) CLEAR ALIAS                 00846000
+         BR    R14              RETURN TO CALLER                        00847000
+*********************************************************************** 00848000
+*        GET FIRST OPERAND FROM DICTIONARY                            * 00849000
+*********************************************************************** 00850000
+DIEN1UPD EQU   *                                                        00851000
+         LR    R0,R14           SAVE RETURN REGISTER                    00852000
+DIEN1UFL EQU   *                                                        00853000
+         MVC   DICMEFLD(8,R4),DICM1NAM(R7) PUT FIELD NAME IN KEY        00854000
+         MVC   DICMEFNM(1,R4),DICM1FLD(R7) PUT FIELD NUMBER IN KEY      00855000
+         MVC   DICMKEY,DICMEAPL(R4) PUT KEY IN KEY AREA                 00856000
+         CLI   DICM1IND(R7),C'Y' IS THIS AN INDEXED FIELD?              00857000
+         BE    DIEN1UF          YES - THEN KEY IS OK                    00858000
+         XC    DICMKNDX,DICMKNDX NO - THEN CLEAR INDEX PORTION OF KEY   00859000
+DIEN1UF  EQU   *                                                        00860000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER                00861000
+         MVI   DICMEXT,DICMUPDT INDICATE READ UPDATE REQUEST            00862000
+         L     R15,=A(DSDIEXT)  GET EXTERNAL ROUTINE ADDRESS            00863000
+         BALR  R14,R15          PERFORM I/O                             00864000
+         ICM   R9,15,DICMSTAT   GET DICTIONARY STATUS WORD              00865000
+         LTR   R9,R9            ANY ERRORS?                             00866000
+         BZ    DIEN1URK         NA - BYPASS OVERFLOW IND SET            00867000
+         CLI   DICM1IND(R7),C'N' IS THIS AN INDEXED FIELD?              00868000
+         BE    DIEN1URT         NO - BYPASS END OF ENTITY SET           00869000
+         OI    DICMEFLG(R4),DICMEOEN SET END OF ENTITY FLAG ON          00870000
+         B     DIEN1URT         RETURN TO CALLER                        00871000
+DIEN1URK EQU   *                                                        00872000
+         MVC   DICMEAPL(2,R4),2(R5) SAVE APPLICATION CODE               00873000
+         MVC   DICMENAM(16,R4),7(R5) SAVE REMAINTER OF KEY(NOT TYPE)    00874000
+         OI    DICMEFLG(R4),DICMEIOP SET IO PERFORMED FLAG              00875000
+DIEN1URT EQU   *                                                        00876000
+         LR    R14,R0           RESET RETURN ADDRESS                    00877000
+         BR    R14                                                      00878000
+*********************************************************************** 00879000
+*        GET FIRST OPERAND FROM DICTIONARY                            * 00880000
+*********************************************************************** 00881000
+DIEN1GET EQU   *                                                        00882000
+         LA    R8,DICMEAPL(R4)  POINT TO APPLICATION KEY                00883000
+         CLC   DICM1NAM(8,R7),=CL8'APPL' IS FIELD FOR APPL KEY?         00884000
+         BE    DIEN1GKY         YES - GET KEY FIELD                     00885000
+         LA    R8,DICMENAM(R4)  POINT TO NAME KEY                       00886000
+         CLC   DICM1NAM(8,R7),=CL8'NAME' IS FIELD FOR NAME KEY?         00887000
+         BE    DIEN1GKY         YES - GET KEY FIELD                     00888000
+         LA    R8,DICMEALI(R4)  POINT TO ALIAS KEY                      00889000
+         CLC   DICM1NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00890000
+         BE    DIEN1GKY         YES - GET KEY FIELD                     00891000
+         LA    R8,DICMENDX(R4)  POINT TO INDEX KEY                      00892000
+         CLC   DICM1NAM(8,R7),=CL8'INDEX'   FIELD FOR INDEX KEY?        00893000
+         BE    DIEN1GKY         YES - GET KEY FIELD                     00894000
+         LR    R0,R14           SAVE RETURN REGISTER                    00895000
+         B     DIEN1GFL         GET FIELD FROM DICTIONARY               00896000
+DIEN1GKY EQU   *                                                        00897000
+         XR    R9,R9            CLEAR REG FOR FIELD LENGTH              00898000
+         ICM   R9,3,DICM1LEN(R7) GET FIELD LENGTH                       00899000
+         BCTR  R9,0             DECREMENT LENGTH FOR MOVE               00900000
+         EX    R9,DIENBMVC      PUT FIELD IN BUFFER                     00901000
+         OI    DICMEFLG(R4),DICMEKAC INDICATE KEY INFO ACCESSED         00902000
+         BR    R14              RETURN                                  00903000
+DIEN1GFL EQU   *                                                        00904000
+         MVC   DICMEFLD(8,R4),DICM1NAM(R7) PUT FIELD NAME IN KEY        00905000
+         MVC   DICMEFNM(1,R4),DICM1FLD(R7) PUT FIELD NUMBER IN KEY      00906000
+         MVC   DICMKEY,DICMEAPL(R4) PUT KEY IN KEY AREA                 00907000
+         CLI   DICM1IND(R7),C'Y' IS THIS AN INDEXED FIELD?              00908000
+         BE    DIEN1IF          YES - THEN KEY IS OK                    00909000
+         XC    DICMKNDX,DICMKNDX NO - THEN CLEAR INDEX PORTION OF KEY   00910000
+DIEN1IF  EQU   *                                                        00911000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER                00912000
+         LA    R14,0               R14 = EX INDEX (0 = CLR TO NULLS)    00913000
+         CLI   DICM1ATT(R7),C'A'   IS FLD ATTRIBUTE ALPHABETIC          00914000
+         BE    DIEN1IF1              Y. RESET INDEX FOR CLR TO BLANKS   00915000
+         CLI   DICM1ATT(R7),C'C'   IS FLD ATTRIBUTE CHARACTER           00916000
+         BNE   DIEN1IF2              N. LEAVE INDEX FOR CLR TO NULLS    00917000
+DIEN1IF1 EQU   *                                                        00918000
+         LA    R14,6               R14 = EX INDEX (6 = CLR TO BLANKS)   00919000
+DIEN1IF2 EQU   *                                                        00920000
+         LA    R9,0             CLEAR REG FOR FIELD LENGTH              00921000
+         ICM   R9,3,DICM1LEN(R7) GET FIELD LENGTH                       00922000
+         BCTR  R9,0             DECREMENT LENGTH FOR MOVE               00923000
+         EX    R9,DIEN$CLR(R14) INITIALIZE BUFFER / ATTRIBUTE           00924000
+         MVI   DICMEXT,DICMREAD INDICATE READ REQUEST                   00925000
+         L     R15,=A(DSDIEXT)  GET EXTERNAL ROUTINE ADDRESS            00926000
+         BALR  R14,R15          PERFORM I/O                             00927000
+         ICM   R9,15,DICMSTAT   GET DICTIONARY STATUS WORD              00928000
+         LTR   R9,R9            ANY ERRORS?                             00929000
+         BZ    DIEN1GRK         NA - BYPASS OVERFLOW IND SET            00930000
+         CLI   DICM1IND(R7),C'N' IS THIS AN INDEXED FIELD?              00931000
+         BE    DIEN1GRT         NO - BYPASS END OF ENTITY SET           00932000
+         OI    DICMEFLG(R4),DICMEOEN SET END OF ENTITY INDICATOR        00933000
+         B     DIEN1GRT         RETURN TO CALLER                        00934000
+DIEN1GRK EQU   *                                                        00935000
+         MVC   DICMEAPL(2,R4),2(R5) SAVE APPLICATION CODE               00936000
+         MVC   DICMENAM(16,R4),7(R5) SAVE REMAINTER OF KEY(NOT TYPE)    00937000
+         OI    DICMEFLG(R4),DICMEIOP SET IO PERFORMED FLAG              00938000
+         CLI   DICM1IND(R7),C'N' IS THIS AN INDEXED FIELD?              00939000
+         BE    DIEN1GRT         NO - BYPASS END OF ENTITY SET           00940000
+         NI    DICMEFLG(R4),255-DICMEOEN RESET END OF ENTITY FLAG       00941000
+         OI    DICMEFLG(R4),DICMIRTL INDEXED RECORDS READ AT THIS LVL   00942000
+DIEN1GRT EQU   *                                                        00943000
+         LR    R14,R0           RESET RETURN ADDRESS                    00944000
+         BR    R14                                                      00945000
+*********************************************************************** 00946000
+*        GET SECOND OPERAND FROM DICTIONARY                           * 00947000
+*********************************************************************** 00948000
+DIEN2GET EQU   *                                                        00949000
+         STCM  R8,15,DICMSAVE  SAVE REG 8                               00950000
+         STCM  R6,15,DICMSAVE+4 SAVE REG 6                              00951000
+         LR    R0,R14          SAVE RETURN ADDRESS                      00952000
+         LR    R1,R4            SAVE CURRENT ENTITY POINTER             00953000
+         LA    R4,DICMWORK+4    GET ENTITY TABLE START                  00954000
+         LA    R6,DICMWORK+(DICMELEN*3)+4 GET LAST ENTRY ADDRESS        00955000
+DIEN2GLP EQU   *                                                        00956000
+         CLC   DICMETYP(3,R4),DICM2TYP(R7) DO ENTITIES MATCH?           00957000
+         BE    DIEN2GTF         YEP - PROCESS FOR THIS TYPE             00958000
+         LA    R4,DICMELEN(R4)  BUMP TO NEXT ENTITY ENTRY               00959000
+         CR    R4,R6            END OF TABLE?                           00960000
+         BH    DIENTERR         YES - ENTITY TABLE ERROR                00961000
+         B     DIEN2GLP         NOP - TRY NEXT ENTRY                    00962000
+DIEN2GTF EQU   *                                                        00963000
+         LA    R8,DICMEAPL(R4)  POINT TO APPLICATION KEY                00964000
+         CLC   DICM2NAM(8,R7),=CL8'APPL' IS FIELD FOR APPL KEY?         00965000
+         BE    DIEN2GKY         YES - GET KEY FIELD                     00966000
+         LA    R8,DICMENAM(R4)  POINT TO NAME KEY                       00967000
+         CLC   DICM2NAM(8,R7),=CL8'NAME' IS FIELD FOR NAME KEY?         00968000
+         BE    DIEN2GKY         YES - GET KEY FIELD                     00969000
+         LA    R8,DICMEALI(R4)  POINT TO ALIAS KEY                      00970000
+         CLC   DICM2NAM(8,R7),=CL8'ALIAS' IS FIELD FOR ALIAS KEY?       00971000
+         BE    DIEN2GKY         YES - GET KEY FIELD                     00972000
+         LA    R8,DICMENDX(R4)  POINT TO INDEX KEY                      00973000
+         CLC   DICM2NAM(8,R7),=CL8'INDEX'   FIELD FOR INDEX KEY?        00974000
+         BE    DIEN2GKY         YES - GET KEY FIELD                     00975000
+         LR    R0,R14           SAVE RETURN REGISTER                    00976000
+         B     DIEN2GFL         NO - GET FIELD FROM DICTIONARY          00977000
+DIEN2GKY EQU   *                                                        00978000
+         XR    R9,R9            CLEAR REG FOR FIELD LENGTH              00979000
+         ICM   R9,3,DICM2LEN(R7) GET FIELD LENGTH                       00980000
+         BCTR  R9,0             DECREMENT LENGTH FOR MOVE               00981000
+         EX    R9,DIENBMVC      PUT FIELD IN BUFFER                     00982000
+         OI    DICMEFLG(R4),DICMEKAC INDICATE KEY INFO ACCESSED         00983000
+         B     DIEN2GRT         RETURN                                  00984000
+DIEN2GFL EQU   *                                                        00985000
+         MVC   DICMEFLD(8,R4),DICM2NAM(R7) PUT FIELD NAME IN KEY        00986000
+         MVC   DICMEFNM(1,R4),DICM2FLD(R7) PUT FIELD NUMBER IN KEY      00987000
+         MVC   DICMKEY,DICMEAPL(R4) PUT KEY IN KEY AREA                 00988000
+         CLI   DICM2IND(R7),C'Y' IS THIS AN INDEXED FIELD?              00989000
+         BE    DIEN2IF          YES - THEN KEY IS OK                    00990000
+         XC    DICMKNDX,DICMKNDX NO - THEN CLEAR INDEX PORTION OF KEY   00991000
+DIEN2IF  EQU   *                                                        00992000
+         MVC   2(L'DICMKEY,R5),DICMKEY PUT KEY IN BUFFER                00993000
+         LA    R14,0               R14 = EX INDEX (0 = CLR TO NULLS)    00994000
+         CLI   DICM2ATT(R7),C'A'   IS FLD ATTRIBUTE ALPHABETIC          00995000
+         BE    DIEN2IF1              Y. RESET INDEX FOR CLR TO BLANKS   00996000
+         CLI   DICM2ATT(R7),C'C'   IS FLD ATTRIBUTE CHARACTER           00997000
+         BNE   DIEN2IF2              N. LEAVE INDEX FOR CLR TO NULLS    00998000
+DIEN2IF1 EQU   *                                                        00999000
+         LA    R14,6               R14 = EX INDEX (6 = CLR TO BLANKS)   01000000
+DIEN2IF2 EQU   *                                                        01001000
+         LA    R9,0             CLEAR REG FOR FIELD LENGTH              01002000
+         ICM   R9,3,DICM2LEN(R7) GET FIELD LENGTH                       01003000
+         BCTR  R9,0             DECREMENT LENGTH FOR MOVE               01004000
+         EX    R9,DIEN$CLR(R14) INITIALIZE BUFFER / ATTRIBUTE           01005000
+         MVI   DICMEXT,DICMREAD INDICATE READ REQUEST                   01006000
+         L     R15,=A(DSDIEXT)  GET EXTERNAL ROUTINE ADDRESS            01007000
+         BALR  R14,R15          PERFORM I/O                             01008000
+         ICM   R9,15,DICMSTAT   GET DICTIONARY STATUS WORD              01009000
+         LTR   R9,R9            ANY ERRORS?                             01010000
+         BZ    DIEN2GRS         NA - BYPASS OVERFLOW IND SET            01011000
+         CLI   DICM2IND(R7),C'N' IS THIS AN INDEXED FIELD?              01012000
+         BE    DIEN2GRT         NO - BYPASS END OF ENTITY SET           01013000
+         OI    DICMEFLG(R4),DICMEOEN SET END OF ENTITY INDICATOR        01014000
+         B     DIEN2GRT         RETURN TO CALLER                        01015000
+DIEN2GRS EQU   *                                                        01016000
+         OI    DICMEFLG(R4),DICMEIOP SET IO PERFORMED FLAG              01017000
+         CLI   DICM2IND(R7),C'N' IS THIS AN INDEXED FIELD?              01018000
+         BE    DIEN2GRT         NO - BYPASS IRTL SET                    01019000
+         OI    DICMEFLG(R4),DICMIRTL SET INDEXED RECORDS READ THIS LVL  01020000
+DIEN2GRT EQU   *                                                        01021000
+         ICM   R8,15,DICMSAVE   RESTORE REG 8                           01022000
+         ICM   R6,15,DICMSAVE+4 RESTORE REG 6                           01023000
+         LR    R4,R1            RESTORE CURRENT ENTITY POINTER          01024000
+         LR    R14,R0           RESET RETURN ADDRESS                    01025000
+         BR    R14                                                      01026000
+*********************************************************************** 01027000
+*        ERROR ROUTINES                                               * 01028000
+*********************************************************************** 01029000
+DIENVERR EQU   *                                                        01030000
+         MVI   DICMMORE,C'N'      INDICATE NO MORE RECORDS              01031000
+         LA    R0,315             INDICATE INVALID VALUE SPECIFIED      01032000
+         STCM  R0,15,DICMSTAT     SAVE ERROR CODE IN STATUS AREA        01033000
+         B     DIENEND            RETURN TO CALLER                      01034000
+DIENVMER EQU   *                                                        01035000
+         MVI   DICMMORE,C'N'      INDICATE NO MORE RECORDS              01036000
+         LA    R0,318             NO VALUE PRESENT FOR FIELD            01037000
+         STCM  R0,15,DICMSTAT     SAVE ERROR CODE IN STATUS AREA        01038000
+         B     DIENEND            RETURN TO CALLER                      01039000
+DIENCERR EQU   *                                                        01040000
+         MVI   DICMMORE,C'N'      INDICATE NO MORE RECORDS              01041000
+         LA    R0,326             UNSUPPORTED COMMAND                   01042000
+         STCM  R0,15,DICMSTAT     SAVE ERROR CODE IN STATUS AREA        01043000
+         B     DIENEND            RETURN TO CALLER                      01044000
+DIENTERR EQU   *                                                        01045000
+         MVI   DICMMORE,C'N'      WHERE CLAUSE INVALID                  01046000
+         LA    R0,327             UNSUPPORTED COMMAND                   01047000
+         STCM  R0,15,DICMSTAT     SAVE ERROR CODE IN STATUS AREA        01048000
+         B     DIENEND            RETURN TO CALLER                      01049000
+*********************************************************************** 01050000
+*        EXIT PROGRAM                                                 * 01051000
+*********************************************************************** 01052000
+DIENEND  EQU   *                                                        01053000
+         L     R13,DICMRREG+4     RESTORE CALLERS REGISTER SAVE         01054000
+         LM    R14,R12,12(R13)    RESTORE CALLERS REGISTERS             01055000
+         BR    R14                RETURN TO CALLER                      01056000
+         TITLE 'DSDIENT  - LITERAL POOL'                                01057000
+DIENFMVC MVC   0(0,R10),L'DICMKEY+2(R5)  MOVE DATA TO USERS BUFFER      01058000
+DIENDMVC MVC   L'DICMKEY+2(0,R5),0(R10) MOVE DATA TO OUTPUT BUFFER      01059000
+DIENWMVC MVC   L'DICMKEY+2(0,R5),0(R11) MOVE DATA TO OUTPUT BUFFER      01060000
+DIENBMVC MVC   L'DICMKEY+2(0,R5),0(R8)  MOVE KEY FIELD TO BUFFER        01061000
+DIENKMVC MVC   0(0,R8),L'DICMKEY+2(R5)  MOVE BUFFER TO KEY FIELD        01062000
+DIENWCLC CLC   L'DICMKEY+2(0,R6),L'DICMKEY+2(R5) WHERE TEST             01063000
+DIENWBRA BC    0,DIENWTOK               GO SET TRUE FLAG                01064000
+DIENIMVN MVC   0(0,R11),0(R10)          MOVE NUMERIC DATA TO WORK AREA  01065000
+DIENIPCK PACK  8(8,R11),0(0,R10)        PACK DATA INTO WORK AREA        01066000
+DIENFCLR XC    0(0,R10),0(R10)    CLEAR FIELD AREA IN USERS BUFFER      01067000
+DIENKCLR XC    L'DICMKEY+2(0,R5),L'DICMKEY+2(R5) CLEAR DATA IN BUFFER   01068000
+* ==> DO NOT CHANGE SEQUENCE OF 1) DIEN$CLR, 2) DIENBCLR, 3) DIENSCLR * 01069000
+DIEN$CLR DS   0CL6                 EXT BUFFER CLEAR / ATTRIBUTE       * 01070000
+DIENBCLR MVC   L'DICMKEY+2(0,R5),LOWVALU1 CLEAR OUTPUT BUFFER TO NULLS* 01071000
+DIENSCLR MVC   L'DICMKEY+2(0,R5),BLANKS   CLEAR OUTPUT BUFFER TO BLNKS* 01072000
+* ==> DO NOT CHANGE SEQUENCE OF 1) DIEN$CLR, 2) DIENBCLR, 3) DIENSCLR * 01073000
+DIENXCLR MVC   0(0,R4),BLANKS CLEAR OUTPUT REMAINING BUFFER             01074000
+DIENVTRN TR    0(0,R4),TRTTBL-X'C1'    TRANSLATE DATA                   01075000
+DQUOTE   DC    X'7D7D'                                                  01076000
+ZEROS    DC    16C'0'                                                   01077000
+BLANKS   DC    256C' '                                                  01078000
+LOWVALU1 DC    256X'00'                                                 01079000
+TRTTBL   DC    X'0A0B0C0D0E0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'  01080000
+         DC    X'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0001020304'  01081000
+         DC    X'0506070809FFFFFFFFFFFF'                                01082000
+         LTORG                                                          01083000
+         DROP                                                           01084000

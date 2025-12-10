@@ -1,0 +1,75 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00001000
+* SASDMSCS IS THE MAP OF WORKING STORAGE REQUIRED FOR SASDMSC.        * 00002000
+* THE STORAGE IS ALLOCATED BY SASERVO AND PASSED TO SASDMSC.          * 00003000
+*---------------------------------------------------------------------* 00004000
+*                     ** HISTORY OF REVISIONS **                      * 00005000
+*                                                                     * 00006000
+* DESCRIPTION                                                 CHNGID  * 00007000
+* __________________________________________________________  _______ * 00008000
+* 01/22/14 ADD DB2 WORKING STORAGE FIELDS                     1436560   00008900
+* 03/08/12 CORRECT XLEN PROCESSING CALC RECORD LEN            1416229   00008902
+* 05/22/02 INIT DIST (MADE INTO COPYBOOK FROM SASDMSC DSECT)  2024355 * 00009000
+*---------------------------------------------------------------------* 00010000
+SASDMSCS DSECT                                                          00011000
+SAVEDFHA DS    (DFHEIEND-DFHEISTG)C                                     00012000
+SAVER00  DS    F                                                        00013000
+SAVER13  DS    F                                                        00014000
+SAVER14  DS    F                                                        00015000
+SAVEREGS DS   16F                                                       00016000
+CICSRTRN DS    F                   A(RETURN) FROM CICS RTN              00017000
+WPREVSEG DS    F                   WORK POINTER FOR READ BACK-          00018000
+*                                   WARDS AT SUBORDINATE LVLS.          00019000
+*                                  BYTE 1 CONTROLS NUMBER OF            00020000
+*                                   READPREV'S NEEDED AT ROOT           00021000
+*                                                             1436560   00021010
+WKDB2MOD DS    CL8                 NAME OF DB2 I/O MOD        1436560   00021020
+WKDB2FUN DS    CL12                FUNCTION                   1436560   00021030
+DB2WAREA DS    CL40                WORK AREA                  1436560   00021040
+DB2PARMS DS    5F                  PARAMETER LIST             1436560   00021050
+SAVERQST DS    X                   SAVE SDMSRQST FIELD        1436560   00021060
+SAVENUKE DS    F                   SAVE SACBNUKE FIELD        1436560   00021070
+SAVELREC DS    F                   SAVE SDMSLREC FIELD        1436560   00021080
+SAVEDB2  DS    F                   SAVE DB2 SEG TAB ADDR      1436560   00021090
+SDB2R14  DS    F                   SAVE R14 FOR DB2 CALL      1436560   00021100
+DB2R14   DS    F                   SAVE AREA FOR R14          1436560   00021110
+DB2SEGP  DS    30F                 PARENT/DATA/RETCOD         1436560   00021120
+DB2SEGPL EQU   12                  TABLE ENTRY LENGTH         1436560   00021130
+DB2REGS  DS    18F                 SAVE AREA FOR DB2 ROUTINES 1436560   00021140
+DB2UREGS DS    18F                 SAVE AREA FOR DB2 UNLOAD   1436560   00021150
+DB2UREGR DS    18F                 SAVE AREA FOR DB2 REAAPLY  1436560   00021160
+DB2FBREG DS    18F                 SAVE AREA FOR DB2 FULL BUF 1436560   00021170
+DB2FBSAV DS    18F                 SAVE AREA FOR DB2REGS      1436560   00021180
+DB2R15   DS    F                   SAVE R15 FOR RETURN        1436560   00021190
+DB2REQ   DS    CL1                 REQUEST CODE               1436560   00021200
+DB2FBREQ DS    CL1                 SAVE SDMSRQST FOR DB2      1436560   00021205
+DB2FLG1  DS    CL1                 DBCOPY FLAG FOR DB2        1436560   00021210
+DB2FLG2  DS    CL1                 REAPPLY FLAG FOR DB2       1436560   00021220
+DB2LEV   DS    CL1                 SAVE SEGMENT LEVEL         1436560   00021230
+DB2PSEGC DS    CL1                 SAVE PARENT SEGMENT CODE   1436560   00021240
+SEGWTB   DS    0CL32               SINGLE ENTRY WORK TABLE    1436560   00021250
+         DS    CL4                 FILLER UNUSED              1436560   00021260
+SEGWFRES DS    CL4                 AMOUNT OF FREE STORAGE     1436560   00021270
+SEGWDB2A DS    CL4                 NOT USED FOR SINGLE        1436560   00021280
+SEGWENDA DS    CL4                 NOT USED FOR SINGLE        1436560   00021290
+SEGWCT   DS    CL2                 CONSTANT 1                 1436560   00021300
+SEGWFLG  DS    CL1                 CONSTANT 00                1436560   00021310
+SEGWTAB  DS   0CL13                SINGLE TABLE ENTRY         1436560   00021320
+SEGWSEGC DS    CL1                 SEGMENT CODE               1436560   00021330
+SEGWSEGL DS    CL1                 SEGMENT LEVEL              1436560   00021340
+SEGWSEGA DS    CL1                 SEGMENT ACTION             1436560   00021350
+SEGWRQST DS    CL1                 REQUEST                    1436560   00021360
+SEGWITNT DS    CL1                 INTENT                     1436560   00021370
+SEGWDTAD DS    CL4                 DATA ADDRESS               1436560   00021380
+SEGWSEGP DS    CL4                 SEGMENT PARENT ADDRESS     1436560   00021390
+*                                                             1436560   00021400
+SAVEKEY  DS    64F                                                      00022000
+FWORD    DS    F                   FULLWORD WORK AREA                   00023000
+FWORD1   DS    F                   FULLWORD WORK AREA         1436560   00023500
+KEYOFFST DS    F                   KEY OFFSET                           00024000
+XLENSGNO DS    F                   XLEN SEGMENT NUMBER                  00025000
+XLENSGAD DS    A                   A(XLEN SEG NEXT AVAIL BYTE)          00026000
+XLENODLN DS    F                   L'XLEN REC ORIG DATA SAVED           00027000
+XLENMREC DS    F                   XLEN MAX REC SIZE WORK     1416229   00027100
+XLENODSV DS    CL256               XLEN RECORD ORIG DATA SAVE           00028000
+SDMSSTGL EQU   (*-SASDMSCS)        L/SASDMSC WORKING STORAGE            00029000

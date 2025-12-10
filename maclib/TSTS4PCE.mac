@@ -1,0 +1,47 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                            TSTS4PCE                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*                  REQUEST TO CICS ERROR MSG FORMATTER                * 00000500
+*---------------------------------------------------------------------* 00000600
+*                  ** HISTORY OF REVISIONS **                         * 00000602
+*                                                                     * 00000604
+* DESCRIPTION                                                 CHNGID  * 00000606
+* __________________________________________________________  _______ * 00000608
+* 04/30/12 DB2                                                1436560   00000695
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000699
+ERERROR  EQU   *                                                        00000700
+         MVI   WEBRETCD,C'1'         SET BAD RETURN CODE                00000800
+         MVC   CEREIBFN,EIBFN        MOVE FUNCTION CODE TO PARAM LIST   00000900
+         MVC   CEREIBRC,EIBRCODE     MOVE RESPONSE CODE TO PARAM LIST   00001000
+*                                    DISABLE HANDLE                     00001100
+         SPACE                                                          00001200
+*        EXEC CICS PUSH HANDLE                                          00001300
+         DFHECALL =X'020C0000088000'
+         SPACE                                                          00001400
+         LA    R1,CERLEN             MOVE LENGTH OF COMMUNICATION AREA  00001500
+         STH   R1,HWORD              TO WORK AREA                       00001600
+         SPACE                                                          00001700
+*        EXEC  CICS LINK PROGRAM ('TSTSCER1')                           00001800
+*                        COMMAREA (CER)                                 00001900
+*                        LENGTH  (HWORD)                                00002000
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'TSTSCER1'),(______R*
+               F,CER),(FB_2,HWORD)
+*                                    REINSTATE HANDLE                   00002100
+*        EXEC CICS POP HANDLE                                           00002200
+         DFHECALL =X'020E0000088000'
+         MVC   WEBMGCOD,=C'0162'     CICS ERROR                         00002300
+         MVC   WEBMGVA1,CERERMSG     MOVE MESSAGE INTO VAR 1            00002400
+         B     ERTN0990                                                 00002500
+ERERRDB2 EQU   *                     DB2 I/O ERROR            1436560   00002600
+         MVI   WEBRETCD,C'1'         SET BAD RETURN           1436560   00002700
+         MVC   WEBMGCOD,=C'0862'     SET MSG CODE FOR DB2 ERR 1436560   00002800
+         ICM   R1,15,WEBDB2AD        ADDRESS DB2 MESSAGE TEXT 1436560   00002900
+         MVC   WEBMGVA1(8),EIBRSRCE                           1436560   00003000
+         MVC   WEBMGVA1+9(16),0(R1) RETURN CODE TEXT (SQL)    1436560   00003100
+         MVC   WEBMGVA2(12),16(R1)   REST OF RETURN CODE TEXT 1436560   00003200
+         MVC   WEBMGVA2+12(13),=CL13' '                       1436560   00003300
+ERERRXIT EQU   *                                              1436560   00003400
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

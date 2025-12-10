@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'SADSMSGA  - DATA DICTIONARY MESSAGE ROUTINE'            00000000
+*********************************************************************** 00001000
+* THIS ROUTINE DOES MESSAGE PROCESSING FOR THE DATA DICTIONARY SYSTEM.* 00002000
+* REGISTER ONE POINTS TO THE PARAMETER ADDRESS LIST.                  * 00003000
+* REGISTER THREE POINTS TO THE DICTIONARY COMMUNICATION AREA ADDRESS. * 00004000
+* REGISTER FOUR POINTS TO THE PARSED COMMAND.                         * 00005000
+* REGISTER FIVE POINTS TO THE INPUT OUTPUT AREA.                      * 00006000
+* REGISTER THIRTEEN POINTS TO THE REGISTER SAVE AREA ADDRESS.         * 00007000
+* REGISTER FOURTEEN IS THE RETURN ADDRESS.                            * 00008000
+* REGISTER FIFTEEN IS THE ENTRY POINT ADDRESS FOR DSDIMSG.            * 00009000
+*                                                                     * 00010000
+* THE MESSAGE CODE IS LOCATED IN THE COMMON AREA STATUS FIELD DICMSTAT* 00011000
+* THIS PROGRAM LOCATES THE MESSAGE CODE IN THE MESSAGE TABLE AND      * 00012000
+* BUILDS THE CORRESPONDING MESSAGE IN THE COMMON AREA MESSAGE TEXT    * 00013000
+* FIELD DICMMSGT.                                                     * 00014000
+*********************************************************************** 00015000
+         EJECT                                                          00016000
+DSDIMSG  CSECT                                                          00017000
+         STM   R14,R12,12(R13)    SAVE CALLERS REGISTERS                00018000
+         LR    R2,R15             SET BASE REGISTER                     00019000
+         USING DSDIMSG,R2         TELL ASSEMBLER OF BASE REGISTER       00020000
+         USING DSCMAREA,R3        DICTIONARY COMMUNICATION AREA         00021000
+         LA    R8,DSMSTAB         SET MESSAGE TABLE ADDRESS             00022000
+DIMSSCN  EQU   *                                                        00023000
+         CLC   2(2,R8),=XL2'FFFF' END OF TABLE?                         00024000
+         BE    DIMSEND            YES - RETURN                          00025000
+         CLC   2(2,R8),DICMSTAT+2 IS THIS THE MESSAGE CODE?             00026000
+         BE    DIMSEND            YES - PROCESS MESSAGE                 00027000
+         LA    R8,DIMSENTL(R8)    POINT TO NEXT MESSAGE.                00028000
+         B     DIMSSCN            CHECK NEXT MESSAGE                    00029000
+DIMSEND  EQU   *                                                        00030000
+         MVC   DICMMSGT,4(R8)     MOVE IN MESSAGE TEXT                  00031000
+         CLC   2(2,R8),=XL2'FFFF' UNKNOWN ERROR TYPE?                   00032000
+         BE    DIMSJRET           YES - LEAVE STATUS AS IS (VSAM)       00033000
+         MVC   DICMSTAT,0(R8)     MOVE IN RETURN CODE AND ERROR CODE    00034000
+DIMSJRET EQU   *                                                        00035000
+         LM    R14,R12,12(R13)    RESTORE CALLERS REGISTERS             00036000
+         BR    R14                RETURN TO CALLER                      00037000
+         TITLE 'SADSMSGA  - LITERAL POOL'                               00038000
+         LTORG                                                          00039000
+         TITLE 'SADSMSTA  - DATA DICTIONARY MESSAGE TABLE'              00040000
+         COPY  SADSMSTA                                                 00041000
+         DROP                                                           00042000

@@ -1,0 +1,47 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*  07/14/88, 10:30                                                    * 00000200
+*                            TSTS4FTE                                 * 00000300
+*                       TRANSACTION SYSTEM                            * 00000400
+*            FORMAT TERMINAL ERRORS FOR INPUT ANALYSIS                * 00000500
+*---------------------------------------------------------------------* 00000600
+ERTN0990 EQU   *                                                        00000700
+         L     R10,DFHEICAP            LOAD COMMAREA ADDRESS            00000800
+         USING TSIADCOM,R10            ADDRESS COMMAREA                 00000900
+         CLC   NCATSCBA,LOWVALU        DOES TSCB EXIST?                 00001000
+         BE    ERTN1000                NO  - GO FORMAT MSG IN FAKE MDA  00001100
+         BAL   R15,ERRTN000            YES - GO PROCESS MDA ERROR       00001200
+         B     ERTN1100                      THEN GO TO OUTPUT          00001300
+         SPACE                                                          00001400
+ERTN1000 EQU   *                                                        00001500
+         L     R10,DFHEICAP            LOAD COMMAREA ADDRESS            00001600
+         MVI   NCAESTFL,C'0'           SET TSCB NOT ESTABLISHED FLAG    00001700
+         LA    R6,WKMDA                LOAD ADDRESS OF MDA IN W.S.      00001800
+         USING MDAOCCUR,R6             ADDRESS AREA WITH MDA DSECT      00001900
+         MVC   MDACODE(2),WEBAPPL      MOVE IN MSG CODE APPLICATION     00002000
+         MVC   MDACODE+2(4),WEBMGCOD           MSG CODE                 00002100
+         MVC   MDADAG,WEBMGFDG                 DAG NAME                 00002200
+         MVC   MDAFI,WEBMGFID                  FIELD ID                 00002300
+         MVC   MDAFDM1,WEBMGDM1                DAG DIMENSION 1          00002400
+         MVC   MDAFDM2,WEBMGDM2                DAG DIMENSION 2          00002500
+         MVC   MDAFDM3,WEBMGDM3                DAG DIMENSION 3          00002600
+         MVC   MDAPI,WEBMGPID                  PROGRAM ID               00002700
+         MVC   MDAVD1,WEBMGVA1                 VARIABLE 1               00002800
+         MVC   MDAVD2,WEBMGVA2                 VARIABLE 2               00002900
+         ST    R6,NCATSCBA             STORE ADDRESS FOR ERROR MODULE   00003000
+         SPACE                                                          00003100
+*        EXEC  CICS LINK PROGRAM ('TSTSNEH1')                           00003200
+*                        COMMAREA (TSIADCOM)                            00003300
+*                        LENGTH (WKNCALEN)                              00003400
+         DFHECALL =X'0E02E0000800000100',(CHA8,=CL8'TSTSNEH1'),(______R*
+               F,TSIADCOM),(FB_2,WKNCALEN)
+         SPACE                                                          00003500
+         MVC   NCATSCBA,LOWVALU        CLEAR TSCB ADDRESS               00003600
+         MVC   NCAPRID,MDAPI           MOVE 4-BYTE PROGRAM ID           00003700
+         MVC   NCAMSGN,MDACODE         MOVE MESSAGE NUMBER              00003800
+         MVC   NCAERRM,MDAVD           MOVE MESSAGE                     00003900
+         SPACE                                                          00004000
+ERTN1100 EQU   *                                                        00004100
+         DROP  R10                                                      00004200
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

@@ -1,0 +1,742 @@
+         MACRO                                                          00000100
+         CZFMACTE                                                      X00000200
+               &TYPE=,                                                 X00000300
+               &HELP=            HELP FUNCTION                          00000400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000500
+.*********                   P R O L O G                       ******** 00000600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000700
+.*                                                                    * 00000800
+.*   MACRO NAME : CZFMACTE                                            * 00000900
+.*                                                                    * 00001000
+.*   DESCRIPTIVE NAME : SEGMENT 15 END  INSERTION MACRO               * 00001100
+.*                                                                    * 00001200
+.*   STATUS : VERSION 1                                               * 00001300
+.*            RELEASE LEVEL = 1                                       * 00001400
+.*            MODIFICATION LEVEL = 0                                  * 00001500
+.*                                                                    * 00001600
+.*   COPYRIGHT:                                                       * 00001700
+.*                                                                    * 00001800
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00001900
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00002000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00002100
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00002200
+.*                                                                    * 00002300
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00002400
+.*                                                                    * 00002500
+.*   FUNCTION:  TO INSERT A GROUP OF TABLES AND CONSTANTS AT THE      * 00002600
+.*              END OF THE AP SEGMENT 15. THE INFORMATION             * 00002700
+.*              CONTAINED IN THE TABLES IS PREDEFINED.                * 00002800
+.*                                                                    * 00002900
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 3 PARTS:           * 00003000
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00003100
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00003200
+.*          2) THE MACRO TYPE=ENTRY PROCESS -    CHECKS IF IT IS      * 00003300
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00003400
+.*             THE PREDEFINED INFORMATION IS PUT IN PLACE.            * 00003500
+.*          3) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00003600
+.*             CORRECTLY CODED AND IN THE PROPER ORDER.               * 00003700
+.*                                                                    * 00003800
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00003900
+.*                                                                    * 00004000
+.*   EXTERNAL MODULE(S) CALL :  CZFMHELP TO VALIDATE HELP REQUESTS    * 00004100
+.*                              CZFMHIMS TO PRINT REQUESTED MESSAGES  * 00004200
+.*                                                                    * 00004300
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00004400
+.*                                                                    * 00004500
+.*   CHARACTERISTICS :                                                * 00004600
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00004700
+.*                                                                    * 00004800
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00004900
+.*                                                                    * 00005000
+.*   RESTRICTIONS: NONE                                               * 00005100
+.*                                                                    * 00005200
+.*   PARAMETERS RECEIVED:                                             * 00005300
+.*                                                                    * 00005400
+.*             TYPE=              *MACRO TYPE(INITIAL, ENTRY, FINAL)  * 00005500
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00005600
+.*                                                                    * 00005700
+.*   CONTROL BLOCK(S) BUILT :                                         * 00005800
+.*                                                                    * 00005900
+.*            TABLES AND CONSTANTS INSERTED AT THE END OF             * 00006000
+.*                  AP SEGMENT 15                                     * 00006100
+.*                                                                    * 00006200
+.*            - DEVICE EXTENSION HEADER DEFINITION                    * 00006300
+.*                                                                    * 00006400
+.*            SEGMENT 13 TABLES                                       * 00006500
+.*                                                                    * 00006600
+.*            - DEVICE INFORMATION TABLE                              * 00006700
+.*            - RESOURCES INFORMATION TABLE                           * 00006800
+.*                                                                    * 00006900
+.*   GENERATED CODE :                                                 * 00007000
+.*                                                                    * 00007100
+.*            TABLES AND CONSTANTS INSERTED AT THE END OF             * 00007200
+.*                  AP SEGMENT 15                                     * 00007300
+.*                                                                    * 00007400
+.*            - DEVICE EXTENSION HEADER DEFINITION                    * 00007500
+.*                                                                    * 00007600
+.*            SEGMENT 13 TABLES                                       * 00007700
+.*                                                                    * 00007800
+.*            - DEVICE INFORMATION TABLE                              * 00007900
+.*            - RESOURCES INFORMATION TABLE                           * 00008000
+.*                                                                    * 00008100
+.*   NOTES:  NONE                                                     * 00008200
+.*                                                                    * 00008300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008500
+.*                                                                    * 00008600
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00008700
+.*                                                                    * 00008800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008900
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00009000
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00009100
+         GBLA  &MACTE             *MACRO CZFMACTE INDICATOR             00009200
+         GBLA  &MACTE1            *MACRO CZFMACTE INDICATOR FOR ENTRY   00009300
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00009400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009500
+.*                                                                    * 00009600
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00009700
+.*                                                                    * 00009800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009900
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00010000
+         LCLB  &ERRIND            *ERROR INDICATOR                      00010100
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00010200
+&ERRIND  SETB  0                  *INITIALIZE VALUE OF ERROR INDICATOR  00010300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00010400
+.*                                                                    * 00010500
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00010600
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00010700
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00010800
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00010900
+.*   PERFORMED.                                                       * 00011000
+.*                                                                    * 00011100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00011200
+         CZFMHELP HELP=&HELP         IS HELP FUNCTION REQUIRED ?        00011300
+         AIF (&HELPARM EQ 1).HELP                                       00011400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00011500
+.*                                                                    * 00011600
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00011700
+.*                                                                    * 00011800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00011900
+.P1VAL   ANOP                                                           00012000
+         AIF   (&MACTE EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00012100
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00012200
+         AIF   ('&TYPE' EQ 'ENTRY').P2V1                                00012300
+         AIF   ('&TYPE' EQ 'FINAL').P3V1                                00012400
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 00012500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00012600
+.*                                                                    * 00012700
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 00012800
+.*                                                                    * 00012900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00013000
+.P1V1    ANOP                                                           00013100
+         AIF (&MACTE NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00013200
+&MACTE   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00013300
+         AIF (&MFINAL GT 0).NOFINAL                                     00013400
+.SETMAC  ANOP                                                           00013500
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00013600
+&MACREC  SETC  'CZFMACTE'         *NAME OF CURRENT MACRO                00013700
+         TITLE 'SEGMENT 15 END INSERTION'                               00013800
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00013900
+*                                                                    *  00014000
+*   MACRO NAME : CZFMACTE                                            *  00014100
+*                                                                    *  00014200
+*   DESCRIPTIVE NAME : SEGMENT 15 END INSERTION MACRO                *  00014300
+*                                                                    *  00014400
+*   STATUS : VERSION 1                                               *  00014500
+*            RELEASE LEVEL = 0                                       *  00014600
+*            MODIFICATION LEVEL = 0                                  *  00014700
+*                                                                    *  00014800
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00014900
+         AGO   .END               *EXIT FROM THE MACRO                  00015000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00015100
+.*                                                                    * 00015200
+.*   VALIDATION OF MACRO TYPE=ENTRY                                   * 00015300
+.*            MACRO INITIAL MUST HAVE BEEN PREVIOULSY PROCESSED       * 00015400
+.*                                                                    * 00015500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00015600
+.P2V1    ANOP                                                           00015700
+         AIF (&MACTE NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00015800
+         AIF (&MACTE1 NE 0).P2E1A *MORE THAN ONE TYPE ENTRY RECEIVED    00015900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00016000
+.*                                                                    * 00016100
+.*   IF NOT ERROR FOUND, INSERT TABLES AND CONSTANTS                  * 00016200
+.*                                                                    * 00016300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00016400
+.P2V2    ANOP                                                           00016500
+         AIF   (&ERRIND).END                                            00016600
+&MACTE1  SETA  1                  *SET ON MACRO ENTRY RECEIVED IND      00016700
+.*                                          *INSERTION BEGINS           00016800
+*********************************************************************** 00016900
+*                                                                     * 00017000
+*                                                                     * 00017100
+*          EQUATES TO CALCULATE THE LENGTH OF THE TABLES              * 00017200
+*                                                                     * 00017300
+*                                                                     * 00017400
+*********************************************************************** 00017500
+CZFACTMS CSECT                    *                                     00017600
+         DS    0D                 *ALIGNMENT TO DOUBLE WORD             00017700
+S15HDR   EQU   78                 *SEGMENT 15 FIXED HEADER     @A000234 00017800
+MSTRLENG EQU   *-CZFACTMS+S15HDR  *LENGTH OF CZFACTMS CSECT (MASTER)    00017900
+         EJECT                                                          00018000
+CZFACTDT CSECT                    *                                     00018100
+*********************************************************************** 00018200
+*                                                                     * 00018300
+*                                                                     * 00018400
+*          DEVICE TABLE EXTENSION                                     * 00018500
+*                                                                     * 00018600
+*                                                                     * 00018700
+*********************************************************************** 00018800
+XDEVICE  EQU   *                                                        00018900
+         DC    AL2(XDTENBR)       *NUMBER OF ENTRIES                    00019000
+         DC    AL2(XDTELEN)       *LENGTH OF ENTRY                      00019100
+XDTELEN  EQU   16                 *                                     00019200
+*                                                                       00019300
+         DC    AL1(2)             *LOGICAL DEVICE CODE (JP)             00019400
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00019500
+         DC    XL1'02'            *CONTINUOUS-FORMS MODE                00019600
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00019700
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00019800
+         DC    AL1(48)            *DEVPARM DATA BYTE 3                  00019900
+         DC    XL1'21'            *DEVPARM DATA BYTE 4                  00020000
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00020100
+         DC    AL1(0)             *DEVPARM DATA BYTE 6                  00020200
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00020300
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00020400
+         DC    AL2(0)             *2 BYTES RESERVED                     00020500
+         DC    AL1(DVC4710)       *DEVICE CODE                          00020600
+         DC    X'0000'            *KEEP SPACE                           00020700
+*                                                                       00020800
+         DC    AL1(2)             *LOGICAL DEVICE CODE (JP)             00020900
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00021000
+         DC    XL1'02'            *CONTINUOUS-FORMS MODE                00021100
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00021200
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00021300
+         DC    AL1(56)            *DEVPARM DATA BYTE 3                  00021400
+         DC    XL1'11'            *DEVPARM DATA BYTE 4                  00021500
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00021600
+         DC    AL1(0)             *DEVPARM DATA BYTE 6                  00021700
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00021800
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00021900
+         DC    AL2(0)             *2 BYTES RESERVED                     00022000
+         DC    AL1(DVC3616J)      *DEVICE CODE                          00022100
+         DC    X'0000'            *KEEP SPACE                           00022200
+*                                                                       00022300
+         DC    AL1(2)             *LOGICAL DEVICE CODE (JP)        JJ   00022400
+         DC    AL1(2)             *INTERNAL DEVICE CODE            JJ   00022500
+         DC    XL1'02'            *CONTINUOUS-FORMS MODE           JJ   00022600
+         DC    AL1(0)             *DEVPARM DATA BYTE 1   PAGE SIZE JJ   00022700
+         DC    AL1(0)             *DEVPARM DATA BYTE 2   WARNING LINEJJ 00022800
+         DC    AL1(99)            *DEVPARM DATA BYTE 3   LINE LENGTH JJ 00022900
+         DC    XL1'03'            *DEVPARM DATA BYTE 4   DEV CHAR  JJ   00023000
+         DC    AL1(0)             *DEVPARM DATA BYTE 5   RESERVED  JJ   00023100
+         DC    AL1(0)             *DEVPARM DATA BYTE 6   RESERVED  JJ   00023200
+         DC    AL1(0)             *DEVPARM DATA BYTE 7   RESERVED  JJ   00023300
+         DC    AL1(0)             *DEVPARM DATA BYTE 8   RESERVED  JJ   00023400
+         DC    AL2(0)             *2 BYTES RESERVED                JJ   00023500
+         DC    AL1(DVC4720)       *DEVICE CODE                     JJ   00023600
+         DC    X'0000'            *KEEP SPACE                      JJ   00023700
+*                                                                  JJ   00023800
+         DC    AL1(2)             *LOGICAL DEVICE CODE (JP)             00023900
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00024000
+         DC    XL1'02'            *CONTINUOUS-FORMS MODE                00024100
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00024200
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00024300
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00024400
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00024500
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00024600
+         DC    AL1(0)             *DEVPARM DATA BYTE 6                  00024700
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00024800
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00024900
+         DC    AL2(0)             *2 BYTES RESERVED                     00025000
+         DC    AL1(DVC3620J)      *DEVICE CODE                          00025100
+         DC    X'0000'            *KEEP SPACE                           00025200
+*                                                                       00025300
+         DC    AL1(3)             *LOGICAL DEVICE CODE (PB)             00025400
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00025500
+         DC    XL1'00'            *PASSBOOK MODE                        00025600
+         DC    AL1(37)            *DEVPARM DATA BYTE 1                  00025700
+         DC    AL1(17)            *DEVPARM DATA BYTE 2                  00025800
+         DC    AL1(3)             *DEVPARM DATA BYTE 3                  00025900
+         DC    AL1(8)             *DEVPARM DATA BYTE 4                  00026000
+         DC    AL1(36)            *DEVPARM DATA BYTE 5                  00026100
+         DC    AL1(3)             *DEVPARM DATA BYTE 6                  00026200
+         DC    AL1(75)            *DEVPARM DATA BYTE 7                  00026300
+         DC    XL1'23'            *DEVPARM DATA BYTE 8                  00026400
+         DC    AL2(0)             *2 BYTES RESERVED                     00026500
+         DC    AL1(DVC3616D)      *DEVICE CODE                          00026600
+         DC    X'0000'            *KEEP SPACE                           00026700
+*                                                                       00026800
+         DC    AL1(3)             *LOGICAL DEVICE CODE (PB)         JJ  00026900
+         DC    AL1(2)             *INTERNAL DEVICE CODE             JJ  00027000
+         DC    XL1'00'            *PASSBOOK MODE                    JJ  00027100
+         DC    AL1(37)            *DEVPARM DATA BYTE 1   PAGE SIZE  JJ  00027200
+         DC    AL1(17)            *DEVPARM DATA BYTE 2   CENTERFOLD BJJ 00027300
+         DC    AL1(3)             *DEVPARM DATA BYTE 3   CENTERFOLD SJJ 00027400
+         DC    AL1(0)             *DEVPARM DATA BYTE 4   STEP OFFSETJJ  00027500
+         DC    AL1(4)             *DEVPARM DATA BYTE 5   LINE OFFSETJJ  00027600
+         DC    AL1(2)             *DEVPARM DATA BYTE 6   LEFT MARGINJJ  00027700
+         DC    AL1(75)            *DEVPARM DATA BYTE 7   LINE LENGTHJJ  00027800
+         DC    XL1'23'            *DEVPARM DATA BYTE 8              JJ  00027900
+         DC    XL1'02'            *DEVPARM DATA BYTE 9   SKEW       JJ  00028000
+         DC    XL1'00'            *1 BYTES RESERVED                 JJ  00028100
+         DC    AL1(DVC4720)       *DEVICE CODE                      JJ  00028200
+         DC    X'0000'            *KEEP SPACE                       JJ  00028300
+*                                                                   JJ  00028400
+         DC    AL1(3)             *LOGICAL DEVICE CODE (PB)             00028500
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00028600
+         DC    XL1'11'            *PASSBOOK MODE                        00028700
+         DC    AL1(24)            *DEVPARM DATA BYTE 1                  00028800
+         DC    AL1(12)            *DEVPARM DATA BYTE 2                  00028900
+         DC    AL1(2)             *DEVPARM DATA BYTE 3                  00029000
+         DC    AL1(10)            *DEVPARM DATA BYTE 4                  00029100
+         DC    AL1(30)            *DEVPARM DATA BYTE 5                  00029200
+         DC    AL1(6)             *DEVPARM DATA BYTE 6                  00029300
+         DC    AL1(12)            *DEVPARM DATA BYTE 7                  00029400
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00029500
+         DC    AL2(0)             *2 BYTES RESERVED                     00029600
+         DC    AL1(DVC3620P)      *DEVICE CODE                          00029700
+         DC    X'0000'            *KEEP SPACE                           00029800
+*                                                                       00029900
+         DC    AL1(6)             *LOGICAL DEVICE CODE (CF)             00030000
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00030100
+         DC    XL1'01'            *CUT-FORMS MODE                       00030200
+         DC    AL1(4)             *DEVPARM DATA BYTE 1                  00030300
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00030400
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00030500
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00030600
+         DC    AL1(48)            *DEVPARM DATA BYTE 5                  00030700
+         DC    XL1'27'            *DEVPARM DATA BYTE 6                  00030800
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00030900
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00031000
+         DC    AL2(0)             *2 BYTES RESERVED                     00031100
+         DC    AL1(DVC4710)       *DEVICE CODE                          00031200
+         DC    X'0000'            *KEEP SPACE                           00031300
+*                                                                       00031400
+         DC    AL1(6)             *LOGICAL DEVICE CODE (CF)             00031500
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00031600
+         DC    XL1'01'            *CUT-FORMS MODE                       00031700
+         DC    AL1(20)            *DEVPARM DATA BYTE 1 = PAGESIZE       00031800
+         DC    AL1(0)             *DEVPARM DATA BYTE 2 = WARNING LINE   00031900
+         DC    AL1(0)             *DEVPARM DATA BYTE 3 = OFFSET STEPS   00032000
+         DC    AL1(20)            *DEVPARM DATA BYTE 4 = OFFSET LINES   00032100
+         DC    AL1(100)           *DEVPARM DATA BYTE 5 = LINE LENGTH    00032200
+         DC    XL1'23'            *DEVPARM DATA BYTE 6 = SHR 6LPI 12CPI 00032300
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00032400
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00032500
+         DC    AL2(0)             *2 BYTES RESERVED                     00032600
+         DC    AL1(DVC3616D)      *DEVICE CODE                          00032700
+         DC    X'0000'            *KEEP SPACE                           00032800
+*                                                                       00032900
+         DC    AL1(6)             *LOGICAL DEVICE CODE (CF)          JJ 00033000
+         DC    AL1(2)             *INTERNAL DEVICE CODE              JJ 00033100
+         DC    XL1'01'            *CUT-FORMS MODE                    JJ 00033200
+         DC    AL1(50)            *DEVPARM DATA BYTE 1 = PAGESIZE    JJ 00033300
+         DC    AL1(0)             *DEVPARM DATA BYTE 2 = WARNING LINEJJ 00033400
+         DC    AL1(0)             *DEVPARM DATA BYTE 3 = OFFSET STEPSJJ 00033500
+         DC    AL1(4)             *DEVPARM DATA BYTE 4 = OFFSET LINESJJ 00033600
+         DC    AL1(99)            *DEVPARM DATA BYTE 5 = LINE LENGTH JJ 00033700
+         DC    XL1'2B'            *DEVPARM DATA BYTE 6 = SHR 6LPI 12CPI 00033800
+         DC    XL1'43'            *DEVPARM DATA BYTE 7               JJ 00033900
+         DC    AL1(0)             *DEVPARM DATA BYTE 8               JJ 00034000
+         DC    AL2(0)             *2 BYTES RESERVED                  JJ 00034100
+         DC    AL1(DVC4720)       *DEVICE CODE                       JJ 00034200
+         DC    X'0000'            *KEEP SPACE                        JJ 00034300
+*                                                                    JJ 00034400
+         DC    AL1(6)             *LOGICAL DEVICE CODE (CF)             00034500
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00034600
+         DC    XL1'19'            *CUT-FORMS MODE                       00034700
+         DC    AL1(20)            *DEVPARM DATA BYTE 1 = PAGESIZE       00034800
+         DC    AL1(0)             *DEVPARM DATA BYTE 2 = WARNING LINE   00034900
+         DC    AL1(0)             *DEVPARM DATA BYTE 3   NOT USED       00035000
+         DC    AL1(0)             *DEVPARM DATA BYTE 4 = OFFSET STEPS   00035100
+         DC    AL1(27)            *DEVPARM DATA BYTE 5 = OFFSET LINES   00035200
+         DC    AL1(6)             *DEVPARM DATA BYTE 6 = 6LPI           00035300
+         DC    AL1(12)            *DEVPARM DATA BYTE 7 = 12CPI          00035400
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00035500
+         DC    AL2(0)             *2 BYTES RESERVED                     00035600
+         DC    AL1(DVC3620P)      *DEVICE CODE                          00035700
+         DC    X'0000'            *KEEP SPACE                           00035800
+*                                                                       00035900
+         DC    AL1(7)             *LOGICAL DEVICE CODE (VP)             00036000
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00036100
+         DC    XL1'01'            *CUT-FORMS MODE                       00036200
+         DC    AL1(4)             *DEVPARM DATA BYTE 1                  00036300
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00036400
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00036500
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00036600
+         DC    AL1(48)            *DEVPARM DATA BYTE 5                  00036700
+         DC    XL1'27'            *DEVPARM DATA BYTE 6                  00036800
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00036900
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00037000
+         DC    AL2(0)             *2 BYTES RESERVED                     00037100
+         DC    AL1(DVC4710)       *DEVICE CODE                          00037200
+         DC    X'0000'            *KEEP SPACE                           00037300
+*                                                                       00037400
+         DC    AL1(7)             *LOGICAL DEVICE CODE (VP)             00037500
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00037600
+         DC    XL1'01'            *CUT-FORMS MODE                       00037700
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00037800
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00037900
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00038000
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00038100
+         DC    AL1(100)           *DEVPARM DATA BYTE 5                  00038200
+         DC    XL1'23'            *DEVPARM DATA BYTE 6                  00038300
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00038400
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00038500
+         DC    AL2(0)             *2 BYTES RESERVED                     00038600
+         DC    AL1(DVC3616D)      *DEVICE CODE                          00038700
+         DC    AL1(2+128)         *ADL-LDC                              00038800
+         DC    AL1(0)             *ADL-FORMAT                           00038900
+*                                                                       00039000
+         DC    AL1(7)             *LOGICAL DEVICE CODE (VP)       JJ    00039100
+         DC    AL1(2)             *INTERNAL DEVICE CODE           JJ    00039200
+         DC    XL1'01'            *CUT-FORMS MODE                 JJ    00039300
+         DC    AL1(30)            *DEVPARM DATA BYTE 1            JJ    00039400
+         DC    AL1(0)             *DEVPARM DATA BYTE 2            JJ    00039500
+         DC    AL1(0)             *DEVPARM DATA BYTE 3            JJ    00039600
+         DC    AL1(28)            *DEVPARM DATA BYTE 4            JJ    00039700
+         DC    AL1(99)            *DEVPARM DATA BYTE 5            JJ    00039800
+         DC    XL1'2B'            *DEVPARM DATA BYTE 6            JJ    00039900
+         DC    XL1'43'            *DEVPARM DATA BYTE 7            JJ    00040000
+         DC    AL1(0)             *DEVPARM DATA BYTE 8            JJ    00040100
+         DC    AL2(0)             *2 BYTES RESERVED               JJ    00040200
+         DC    AL1(DVC4720)       *DEVICE CODE                    JJ    00040300
+         DC    AL1(0)             *ADL-LDC                        JJ    00040400
+         DC    AL1(0)             *ADL-FORMAT                     JJ    00040500
+*                                                                 JJ    00040600
+         DC    AL1(7)             *LOGICAL DEVICE CODE (VP)             00040700
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00040800
+         DC    XL1'19'            *CUT-FORMS MODE                       00040900
+         DC    AL1(4)             *DEVPARM DATA BYTE 1                  00041000
+         DC    AL1(4)             *DEVPARM DATA BYTE 2                  00041100
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00041200
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00041300
+         DC    AL1(6)             *DEVPARM DATA BYTE 5                  00041400
+         DC    AL1(6)             *DEVPARM DATA BYTE 6                  00041500
+         DC    AL1(12)            *DEVPARM DATA BYTE 7                  00041600
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00041700
+         DC    AL2(0)             *2 BYTES RESERVED                     00041800
+         DC    AL1(DVC3620P)      *DEVICE CODE                          00041900
+         DC    AL1(2+128)         *ADL-LDC                              00042000
+         DC    AL1(0)             *ADL-FORMAT                           00042100
+*                                                                       00042200
+*                                                                       00042300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00042400
+.*********   D E V P A R M A   I N T E R B A N C    AGOSTO / 88   ***** 00042500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00042600
+.*********   LDC   20  ( CUT FORMAT )      GIROS CHQ/GEREN O.PAGO ***** 00042700
+.*********   LDC   08  ( PASSBOOK   )      LIBRETA DE INTERPLAZO  ***** 00042800
+.*********   LDC   08   BYTE 6 CAMBIO DE AL1(2) A AL1(1)          ***** 00042900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00043000
+*                                                                       00043100
+         DC    AL1(8)             *LOGICAL DEVICE CODE (PB)         JJ  00043200
+         DC    AL1(2)             *INTERNAL DEVICE CODE             JJ  00043300
+         DC    XL1'00'            *PASSBOOK MODE                    JJ  00043400
+         DC    AL1(31)            *DEVPARM DATA BYTE 1   PAGE SIZE  JJ  00043500
+         DC    AL1(15)            *DEVPARM DATA BYTE 2   CENTERFOLD BJJ 00043600
+         DC    AL1(3)             *DEVPARM DATA BYTE 3   CENTERFOLD SJJ 00043700
+         DC    AL1(4)             *DEVPARM DATA BYTE 4   STEP OFFSETJJ  00043800
+         DC    AL1(2)             *DEVPARM DATA BYTE 5   LINE OFFSETJJ  00043900
+         DC    AL1(1)             *DEVPARM DATA BYTE 6   LEFT MARGINJJ  00044000
+         DC    AL1(73)            *DEVPARM DATA BYTE 7   LINE LENGTHJJ  00044100
+         DC    XL1'23'            *DEVPARM DATA BYTE 8              JJ  00044200
+         DC    XL1'00'            *DEVPARM DATA BYTE 9   SKEW       JJ  00044300
+         DC    XL1'00'            *1 BYTES RESERVED                 JJ  00044400
+         DC    AL1(DVC4720)       *DEVICE CODE                      JJ  00044500
+         DC    X'0000'            *KEEP SPACE                       JJ  00044600
+*                                                                       00044700
+         DC    AL1(20)            *LOGICAL DEVICE CODE (CF)          JJ 00044800
+         DC    AL1(2)             *INTERNAL DEVICE CODE              JJ 00044900
+         DC    XL1'00'            *CUT-FORMS MODE                    JJ 00045000
+         DC    AL1(34)            *DEVPARM DATA BYTE 1 = PAGESIZE    JJ 00045100
+         DC    AL1(0)             *DEVPARM DATA BYTE 2 = WARNING LINEJJ 00045200
+         DC    AL1(0)             *DEVPARM DATA BYTE 3 = OFFSET STEPSJJ 00045300
+         DC    AL1(03)            *DEVPARM DATA BYTE 4 = OFFSET LINESJJ 00045400
+         DC    AL1(00)            *DEVPARM DATA BYTE 5 = LINE LENGTH JJ 00045500
+         DC    XL1'00'            *DEVPARM DATA BYTE 6 = SHR 6LPI 12CPI 00045600
+         DC    XL1'50'            *DEVPARM DATA BYTE 7               JJ 00045700
+         DC    XL1'22'            *DEVPARM DATA BYTE 8               JJ 00045800
+         DC    AL2(0)             *2 BYTES RESERVED                  JJ 00045900
+         DC    AL1(DVC4720)       *DEVICE CODE                       JJ 00046000
+         DC    X'0000'            *KEEP SPACE                        JJ 00046100
+*                                                                       00046200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00046300
+.*********   D E V P A R M A   I N T E R B A N C    AGOSTO / 88   ***** 00046400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00046500
+*                                                                       00046600
+         DC    AL1(253)           *LOGICAL DEVICE CODE (BMS/FP)         00046700
+         DC    AL1(4)             *INTERNAL DEVICE CODE                 00046800
+         DC    XL1'02'            *LEFT CARRIAGE (OR ONE ONLY)          00046900
+         DC    AL1(66)            *DEVPARM DATA BYTE 1                  00047000
+         DC    AL1(60)            *DEVPARM DATA BYTE 2                  00047100
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00047200
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00047300
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00047400
+         DC    AL1(0)             *DEVPARM DATA BYTE 6                  00047500
+         DC    AL1(0)             *DEVPARM DATA BYTE 7                  00047600
+         DC    AL1(0)             *DEVPARM DATA BYTE 8                  00047700
+         DC    AL2(0)             *2 BYTES RESERVED                     00047800
+         DC    AL1(DVC3615)       *DEVICE CODE (=DVC3619)               00047900
+         DC    AL1(0)             *ADL-LDC                              00048000
+         DC    AL1(0)             *ADL-FORMAT                           00048100
+*                                                                       00048200
+*                                                                       00048300
+XDTENBR  EQU   (*-XDEVICE-4)/XDTELEN                                    00048400
+PROCESS  EQU   *                  *TABLE START LABEL                    00048500
+DATALENG EQU   *-CZFACTDT         *LENGTH OF CZFACTDT CSECT (DATA)      00048600
+S15LENG  EQU   MSTRLENG+DATALENG  *SEGMENT 15 LENGTH                    00048700
+*********************************************************************** 00048800
+*    NEXT INSTRUCTION IS USED TO ROUND THE INFORMATION TO BE          * 00048900
+*    STORED IN SEGMENT 15 TO A MULTIPLE OF 256.                       * 00049000
+*    THE FORMULA COMPUTES FIRST THE NUMBER OF 256 BLOCKS REQUIRED,    * 00049100
+*    THEN COMPUTES THE ROUNDED NUMBER OF BYTES AND THEN SUBTRACTS     * 00049200
+*    THE AMOUNT USED PADDING THE REMAINDER WITH BINARY ZEROS.         * 00049300
+*********************************************************************** 00049400
+         DC    ((((S15LENG+255)/256)*256)-S15LENG)X'00'                 00049500
+*********************************************************************** 00049600
+*                                                                     * 00049700
+*                                                                     * 00049800
+*          END OF TABLES TO BE STORED IN SEGMENT 15                   * 00049900
+*                                                                     * 00050000
+*                                                                     * 00050100
+*********************************************************************** 00050200
+         EJECT                                                          00050300
+*********************************************************************** 00050400
+*                                                                     * 00050500
+*                                                                     * 00050600
+*          START OF TABLES TO BE STORED IN SEGMENT 13                 * 00050700
+*                                                                     * 00050800
+*                                                                     * 00050900
+*********************************************************************** 00051000
+S13DISPL EQU   916                *SEGMENT 13 DISPLACEMENT(R1.2 660)IG* 00051100
+CZFAS13S DS    0X                 *START OF DATA FOR SEGMENT 13         00051200
+         DC    AL2(XDEVICE-CZFACTDT+MSTRLENG)    *DEVICE TABLE XTEN     00051300
+         DC    YL2(DEVICES-CZFAS13S+S13DISPL)    *DEVICE TABLE          00051400
+         DC    YL2(RESOURC-CZFAS13S+S13DISPL)    *QUEUE REQUEST TABLE   00051500
+         DC    YL2(OPBLOCK-CZFAS13S+S13DISPL)    *OPERATOR BLOCKS       00051600
+         EJECT                                                          00051700
+*********************************************************************** 00051800
+*                                                                     * 00051900
+*                                                                     * 00052000
+*          TABLE OF DEVICES INFORMATION                               * 00052100
+*                                                                     * 00052200
+*                                                                     * 00052300
+*********************************************************************** 00052400
+DEVICES  EQU   *                                                        00052500
+         DC    AL2(DVTENBR)       *NUMBER OF ENTRIES                    00052600
+         DC    AL2(DVTELEN)       *LENGTH OF ENTRY                      00052700
+DVTELEN  EQU   8                  *                                     00052800
+*                                                                       00052900
+         DC    AL1(2)             *LOGICAL DEVICE CODE (JP)             00053000
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00053100
+         DC    XL1'01'            *CUT-FORMS MODE                       00053200
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00053300
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00053400
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00053500
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00053600
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00053700
+*                                                                       00053800
+         DC    AL1(3)             *LOGICAL DEVICE CODE (PB)             00053900
+         DC    AL1(3)             *INTERNAL DEVICE CODE                 00054000
+         DC    6X'FF'             *NO DEVICE PARAMETER                  00054100
+*                                                                       00054200
+         DC    AL1(4)             *LOGICAL DEVICE CODE (AD)             00054300
+         DC    AL1(4)             *INTERNAL DEVICE CODE                 00054400
+         DC    XL1'01'            *CUT-FORMS MODE                       00054500
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00054600
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00054700
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00054800
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00054900
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00055000
+*                                                                       00055100
+         DC    AL1(6)             *LOGICAL DEVICE CODE (CF)             00055200
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00055300
+         DC    XL1'01'            *CUT-FORMS MODE                       00055400
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00055500
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00055600
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00055700
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00055800
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00055900
+*                                                                       00056000
+         DC    AL1(7)             *LOGICAL DEVICE CODE (VP)             00056100
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00056200
+         DC    XL1'01'            *CUT-FORMS MODE                       00056300
+         DC    AL1(0)             *DEVPARM DATA BYTE 1                  00056400
+         DC    AL1(0)             *DEVPARM DATA BYTE 2                  00056500
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00056600
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00056700
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00056800
+*                                                                       00056900
+         DC    AL1(252)           *LOGICAL DEVICE CODE (BMS/JP)         00057000
+         DC    AL1(2)             *INTERNAL DEVICE CODE                 00057100
+         DC    XL1'02'            *CONTINUOUS-FORMS MODE                00057200
+         DC    AL1(66)            *DEVPARM DATA BYTE 1                  00057300
+         DC    AL1(60)            *DEVPARM DATA BYTE 2                  00057400
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00057500
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00057600
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00057700
+*                                                                       00057800
+         DC    AL1(253)           *LOGICAL DEVICE CODE (BMS/FP)         00057900
+         DC    AL1(4)             *INTERNAL DEVICE CODE                 00058000
+         DC    XL1'03'            *BOTH FORMS                           00058100
+         DC    AL1(66)            *DEVPARM DATA BYTE 1                  00058200
+         DC    AL1(60)            *DEVPARM DATA BYTE 2                  00058300
+         DC    AL1(0)             *DEVPARM DATA BYTE 3                  00058400
+         DC    AL1(0)             *DEVPARM DATA BYTE 4                  00058500
+         DC    AL1(0)             *DEVPARM DATA BYTE 5                  00058600
+*                                                                       00058700
+DVTENBR  EQU   (*-DEVICES-4)/DVTELEN                                    00058800
+         EJECT                                                          00058900
+*********************************************************************** 00059000
+*                                                                     * 00059100
+*                                                                     * 00059200
+*          TABLE OF RESOURCES INFORMATION                             * 00059300
+*                                                                     * 00059400
+*                                                                     * 00059500
+*********************************************************************** 00059600
+RESOURC  EQU   *                                                        00059700
+         DC    AL2(RITENBR)       *NUMBER OF ENTRIES                    00059800
+         DC    AL2(RITELEN)       *LENGTH FOR EACH ENTRY                00059900
+RITELEN  EQU   8                  *RESOURCES TABLE LENGTH               00060000
+*                                                                       00060100
+         DC    AL1(01)            *REQUEST LEVEL NUMBER                 00060200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00060300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00060400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00060500
+         DC    XL1'00'            *NUMBER OF USERS                      00060600
+         DC    AL1(02)            *REQUEST LEVEL NUMBER                 00060700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00060800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00060900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00061000
+         DC    XL1'00'            *NUMBER OF USERS                      00061100
+         DC    AL1(03)            *REQUEST LEVEL NUMBER                 00061200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00061300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00061400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00061500
+         DC    XL1'00'            *NUMBER OF USERS                      00061600
+         DC    AL1(04)            *REQUEST LEVEL NUMBER                 00061700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00061800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00061900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00062000
+         DC    XL1'00'            *NUMBER OF USERS                      00062100
+         DC    AL1(05)            *REQUEST LEVEL NUMBER                 00062200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00062300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00062400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00062500
+         DC    XL1'00'            *NUMBER OF USERS                      00062600
+         DC    AL1(12)            *REQUEST LEVEL NUMBER                 00062700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00062800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00062900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00063000
+         DC    XL1'00'            *NUMBER OF USERS                      00063100
+         DC    AL1(13)            *REQUEST LEVEL NUMBER                 00063200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00063300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00063400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00063500
+         DC    XL1'00'            *NUMBER OF USERS                      00063600
+         DC    AL1(14)            *REQUEST LEVEL NUMBER                 00063700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00063800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00063900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00064000
+         DC    XL1'00'            *NUMBER OF USERS                      00064100
+         DC    AL1(15)            *REQUEST LEVEL NUMBER                 00064200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00064300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00064400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00064500
+         DC    XL1'00'            *NUMBER OF USERS                      00064600
+         DC    AL1(20)            *REQUEST LEVEL NUMBER                 00064700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00064800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00064900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00065000
+         DC    XL1'00'            *NUMBER OF USERS                      00065100
+         DC    AL1(21)            *REQUEST LEVEL NUMBER                 00065200
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00065300
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00065400
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00065500
+         DC    XL1'00'            *NUMBER OF USERS                      00065600
+         DC    AL1(22)            *REQUEST LEVEL NUMBER                 00065700
+         DC    XL2'0000'          *OVERLAY SECTION NAME POINTER         00065800
+         DC    XL2'0000'          *LAST REQUEST QUEUED                  00065900
+         DC    XL2'0001'          *LAST REQUEST IN PROCESS              00066000
+         DC    XL1'00'            *NUMBER OF USERS                      00066100
+*                                                                       00066200
+RITENBR  EQU   (*-RESOURC-4)/RITELEN                                    00066300
+S13LENG  EQU   *-CZFAS13S         *SEGMENT 13 LENGTH                    00066400
+*********************************************************************** 00066500
+*                                                                     * 00066600
+*                                                                     * 00066700
+*          END OF TABLES TO BE STORED IN SEGMENT 13                   * 00066800
+*                                                                     * 00066900
+*                                                                     * 00067000
+*********************************************************************** 00067100
+         EJECT                                                          00067200
+*********************************************************************** 00067300
+*                                                                     * 00067400
+*                                                                     * 00067500
+*          OPERATOR BLOCKS                                            * 00067600
+*                                                                     * 00067700
+*                                                                     * 00067800
+*********************************************************************** 00067900
+OPBLOCK  EQU   *                  *START OF OPERATOR BLOCKS             00068000
+         AGO   .END                                                     00068100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00068200
+.*                                                                    * 00068300
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00068400
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00068500
+.*            A MACRO TYPE=INITIAL AND A MACRO TYPE=ENTRY             * 00068600
+.*                                                                    * 00068700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00068800
+.P3V1    ANOP                                                           00068900
+         AIF (&MACTE NE 1).P3E1                                         00069000
+         AIF (&MACTE1 NE 1).P3E1A                                       00069100
+&MACTE   SETA  2                                                        00069200
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00069300
+         AGO   .END                                                     00069400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00069500
+.*                                                                    * 00069600
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00069700
+.*    MESSAGES REQUIRED.                                                00069800
+.*                                                                    * 00069900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00070000
+.HELP    ANOP                                                           00070100
+         CZFMHIMS MSGNUM=998                                            00070200
+         CZFMHIMS MSGNUM=84                                             00070300
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTE                            00070400
+         CZFMHIMS MSGNUM=2                                              00070500
+         CZFMHIMS MSGNUM=85                                             00070600
+         CZFMHIMS MSGNUM=75                                             00070700
+         CZFMHIMS MSGNUM=86                                             00070800
+       AGO   .END                                                       00070900
+.NOFINAL ANOP                                                           00071000
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00071100
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00071200
+.PCOMP   ANOP                                                           00071300
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMACTE                            00071400
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00071500
+         AGO   .END                                                     00071600
+.PUE1    ANOP                                                           00071700
+         CZFMHIMS MSGNUM=84                                             00071800
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00071900
+         AGO   .END                                                     00072000
+.P1E1    ANOP                                                           00072100
+         CZFMHIMS MSGNUM=2                                              00072200
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00072300
+         AGO   .END                                                     00072400
+.P2E1    ANOP                                                           00072500
+         CZFMHIMS MSGNUM=85                                             00072600
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00072700
+         AGO   .END                                                     00072800
+.P2E1A   ANOP                                                           00072900
+         CZFMHIMS MSGNUM=75                                             00073000
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00073100
+         AGO   .END                                                     00073200
+.P3E1    ANOP                                                           00073300
+         CZFMHIMS MSGNUM=86                                             00073400
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00073500
+         AGO   .END                                                     00073600
+.P3E1A   ANOP                                                           00073700
+         CZFMHIMS MSGNUM=87                                             00073800
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00073900
+         AGO   .END                                                     00074000
+.END     ANOP                                                           00074100
+         MEND                                                           00074200

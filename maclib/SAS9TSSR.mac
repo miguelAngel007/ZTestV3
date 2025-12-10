@@ -1,0 +1,23 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+* *** COPY BOOK: SAS9TSSR - TABLE OF TSSSR RECORDS                    * 00000200
+* *** TSSSR TABLE DAG                                                 * 00000300
+*********************************************************************** 00000400
+*                    ** HISTORY OF REVISIONS **                       * 00000500
+* DESCRIPTION                                                 CHNG ID * 00000600
+*------------------------------------------------------------ ------- * 00000700
+* 09/23/14 MODIFY TO USE VALUE FROM SIOPTNS                   1526648   00001997
+* 11/12/02 INCREASE TABLE TO 999 ENTRIES                      0324033 * 00001998
+*********************************************************************** 00002000
+*                                                             0324033   00003000
+SAS9TSSR DSECT                                                          00004000
+TSSRTBL  DS   0D                                              1526648   00006000
+TSSRKEY  DS    CL33          ENTIRE KEY INFORMATION                     00009000
+TSSRBTSG DS    CL2           BATCH SEGEMENT                   2522090   00010000
+TSSRLAST DS    CL1           LAST ASSIGNED INDICATOR                    00010100
+TSSROLGP DS    0CL6          ONLINE GROUP NUMBERS             2522090   00010110
+TSSRMSTG DS    CL2               MASTER RECORD                2522090   00010120
+TSSRCTLG DS    CL2               CONTROL RECORD               2522090   00010130
+TSSRALPG DS    CL2               ALPHA RECORD                 2522090   00020000
+TSSRELEN EQU   *-TSSRKEY     ..LENGTH OF TABLE ENTRY                    00030000
+TSSRTLEN EQU   &SSRRECS*TSSRELEN   LENGTH OF TABLE            1526648   00032000

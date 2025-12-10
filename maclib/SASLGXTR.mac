@@ -1,0 +1,452 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*                                                                     * 00002000
+* SASLGXTR - LOG EXTRACT (PARALLEL LOGIC IN SASERVB/SASERVO)          * 00003000
+*            LOG EXTRACT ADDED TO SASERVB IN GN25/GN0462)             * 00004000
+*            LOG EXTRACT ADDED TO SASERVO IN GN26/GN1182)             * 00005000
+*   GN5612   LOG EXTRACT CONVERTED TO COPYBOOK W/FIXES                * 00006000
+*                                                                     * 00007000
+*********************************************************************** 00008000
+*                                                                     * 00009000
+*     PURPOSE: - POPULATE DAGS WITH INFO LOGGED IN PDA/ALA            * 00010000
+*              - SIMPLE EDITS FOR SIZES                               * 00011000
+*              - SIMPLE EDITS FOR DAG AVAILABILITY                    * 00012000
+*********************************************************************** 00013000
+*                  ** HISTORY OF REVISIONS **                         * 00014000
+*                                                                     * 00015000
+* DESCRIPTION                                                 CHNGID  * 00016000
+* ___________________________________________________________ _______ * 00017000
+* 11/01/07 PREVNT STG CORRUPTN BEYOND SAS9EXTT ON LOG-EXTRACT ~~~5612 * 00018000
+*---------------------------------------------------------------------* 00019000
+*                                                                     * 00020000
+* TO MODIFY #LOG DATA AREAS (LDA) THAT CAN BE EXTRACTED FROM          * 00021000
+* TSLOG RECORD INTO SAS9EXTT EXTRACT TABLE:                           * 00022000
+*   1) MODIFY &EXTTOCC (BELOW) TO DESIRED NUMBER                      * 00023000
+*   2) REASSEMBLE ALL MODULES WHICH COPY SASLGXTR/SAS9EXTT            * 00024000
+*   3) SET SAEXT001 OCCURS IN DAG SAS9EXTT TO MATCH &EXTTOCC          * 00025000
+*   4) REGEN DAG SAS9EXTT                                             * 00026000
+*   5) RECOMPILE ALL API MODULES WITH API LOG EXTRACT REQUEST         * 00027000
+*-------------------------------------------------------------       -* 00028000
+         GBLA  &EXTTOCC      # ENTRIES TO BE IN SAS9EXTT TBL            00029000
+&EXTTOCC SETA  40            SET #ENTRIES FOR SAS9EXTT TABLE            00030000
+LOGEXTRA DS    0H                                                       00031000
+         SPACE 1                                                        00032000
+         MVC   SDMSRQST,SARBVNUM   MOVE REQUEST VECTOR TO SDMSCNTL      00033000
+         ICM   R1,B'1111',SARBDATA GET PARM LIST ADDRESS IN R1          00034000
+         ICM   R1,15,0(R1)         FIRST/ONLY PARM=ALFA ADDR            00035000
+         LA    R1,0(,R1)           MAKE INTO AN ADDRESS                 00036000
+         ST    R1,REQRALFA         REQUESTORS ALFA TABLE                00037000
+         SPACE                                                          00038000
+LOGEX000 DS    0H                 DO TRACE ENTRY                        00039000
+         ICM   R15,15,SARBTRAC     ACCESS OUR TRACE TABLE ENTRY         00040000
+         MVC   STRVDATA-STRACE(8,R15),=C'SAS9EXTT'  RESULT DAG          00041000
+*-------------------------------------------------------------       -* 00042000
+* GET ADDRESSABILITY TO TSLOG RECORD                                  * 00043000
+*-------------------------------------------------------------       -* 00044000
+         OC    TSLOGADR,TSLOGADR Q.HAVE WE FOUND TSLOG YET ?            00045000
+         BNZ   LOGEX001          A.YES- CONTINUE                        00046000
+         MVI   SADMRQST,SADMDAGR  DAG RETRIEVAL REQUEST                 00047000
+         MVC   SADMNAME,=CL8'TSLOG   ' FIND THE TSLOG DAG               00048000
+         BAS   R14,D&C.AGMAN                                            00049000
+         LTR   R15,R15          Q.IS IT HUNKY-DORRY ?                   00050000
+         BNZ   LOGEXERR         A.NO, QUIT                              00051000
+         ST    R0,TSLOGADR       VE HAF IT NOW.                         00052000
+         SPACE                                                          00053000
+LOGEX001 DS    0H                 POINT AT PDA                          00054000
+         L     R6,TSLOGADR        PDA = ADDR OF LOG +   9  + STEM       00055000
+*                                                   + KDA  +  TDA       00056000
+         USING TSTSLOG,R6                                               00057000
+*-------------------------------------------------------------       -* 00058000
+* GET/STORE ADDRESS, LENGTH, UPPER BOUNDARY OF TSLOG/PDA & ALA        * 00059000
+*-------------------------------------------------------------       -* 00060000
+         SR    R0,R0              ZERO WORK REG                         00061000
+         LR    R1,R6              R1 AT START OF LOG                    00062000
+         ICM   R0,3,LGSTMLEN      LENGTH OF STEM                        00063000
+         AR    R1,R0              BUMP PAST STEM                        00064000
+         ICM   R0,3,LGKDALEN      LENGTH OF KDA                         00065000
+         AR    R1,R0              BUMP PAST KDA                         00066000
+         ICM   R0,3,LGTDALEN      LENGTH OF TDA                         00067000
+         AR    R1,R0              BUMP PAST TDA                         00068000
+         ST    R1,WKPDAADR        STASH PDA ADDRESS                     00069000
+         ICM   R0,3,LGPDALEN      LENGTH OF PDA                         00070000
+         STH   R0,WKPDALEN        STASH PDA LENGTH                      00071000
+         AR    R1,R0              BUMP PAST PDA                         00072000
+         ST    R1,WKENDPDA        STASH END OF PDA ADDRESS              00073000
+         ICM   R0,3,LGXMTLEN      LENGTH OF XMT MESSAGE                 00074000
+         AR    R1,R0              BUMP PAST XMT MESSAGE                 00075000
+         ST    R1,WKALAADR        STASH ALA ADDRESS                     00076000
+         ICM   R0,3,LGALALEN      LENGTH OF ALA MESSAGE                 00077000
+         STH   R0,WKALALEN        STASH ALA LENGTH                      00078000
+         AR    R1,R0              BUMP PAST ALA                         00079000
+         ST    R1,WKENDALA        STASH END OF ALA ADDRESS              00080000
+         DROP  R6                                                       00081000
+*-------------------------------------------------------------       -* 00082000
+* GET ADDRESSABILITY TO SAS9EXTT TABLE                                * 00083000
+*-------------------------------------------------------------       -* 00084000
+         USING SAS9EXTT,R5                                              00085000
+         ICM   R5,B'1111',WKEXTADD R5 = A(SAS9EXTT) = VALID?            00086000
+         BNZ   LOGEX002             SKIP DAG REQ IF VALID               00087000
+         MVI   SADMRQST,SADMDAGR  DAG RETRIEVAL REQUEST                 00088000
+         MVC   SADMNAME,=CL8'SAS9EXTT' GET LOG EXTR RESLT DAG           00089000
+         BAS   R14,D&C.AGMAN                                            00090000
+         LTR   R15,R15          Q.IS IT HUNKY-DORRY ?                   00091000
+         BNZ   LOGEXERR         A.NO, QUIT                              00092000
+         ST    R0,WKEXTADD      A.YES, SAVE ADDRESS, & REALLY           00093000
+         LR    R5,R0              POINT AT LOG EXTRACT TABLE            00094000
+         A     R0,=A(&EXTTOCC*EXTTELEN) LGH EXTRACT TABLE               00095000
+         ST    R0,WKEXTRFL      SAVE A(REQFLAGS>LAST TBL ENT)           00096000
+         MVC   FULLCNTL,EXTTFULL  STASH FULL CONTROL BYTE.              00097000
+*-------------------------------------------------------------       -* 00098000
+* FIRST TIME IN, SAS9EXTT WILL BE INITIALIZED TO HEX ZEROES.          * 00099000
+*                                                                     * 00100000
+* SAS9EXTT IS A CONTROL TABLE WHICH DESCRIBES WHICH DAGS              * 00101000
+* CONTAINED IN THE TSLOG RECORD ARE NEEDED BY THE MODULE              * 00102000
+* ISSUING THE API LOG EXTRACT (WHICH DAGS FOUND IN THE                * 00103000
+* REQUESTING MODULE'S ALFA TABLE MATCH DAGS FOUND IN THE              * 00104000
+* TSLOG/PDA).  A DAG WITHIN THE TSLOG/PDA MAY MATCH A DAG             * 00105000
+* NAME (NON-REDEF) WITHIN THE ALFA TABLE OR IT MAY MATCH A            * 00106000
+* REDEF NAME, AND THERE MAY BE MULTIPLE ITERATIONS OF A               * 00107000
+* GIVEN DAG WITHIN THE TSLOG/PDA.  ONLY ONE ITERATION OF A            * 00108000
+* GIVEN DAG WITHIN THE TSLOG/PDA MAY BE LOADED AT A TIME TO           * 00109000
+* THE SASERVB-MANAGED DAG STORAGE AREA.  FLAGS WITHIN EACH            * 00110000
+* ITERATION OF THE SAS9EXTT TABLE ARE USED TO CONTROL/INDICATE        * 00111000
+* WHICH ITERATION OF THE DAG IN THE TSLOG/PDA IS CURRENTLY            * 00112000
+* LOADED TO THE SASERVB-MANAGED DAG STORAGE AREA.                     * 00113000
+*                                                                     * 00114000
+* AFTER THE INITIAL INVOCATION OF THE LOGEXTR ROUTINE TO LOAD         * 00115000
+* THE SAS9EXTT TABLE, ADDITIONAL INVOCATIONS MAY BE MADE TO           * 00116000
+* LOAD TO THE SASERVB-MANAGED DAG STORAGE AREA ITERATIONS OF          * 00117000
+* DAGS WHICH HAVE NOT PREVIOUSLY BEEN LOADED/PROCESSED BY THE         * 00118000
+* REQUESTING MODULE.                                                  * 00119000
+*                                                                     * 00120000
+*-------------------------------------------------------------       -* 00121000
+LOGEX002 DS    0H                                                       00122000
+         SR    R15,R15           CLEAR RC                               00123000
+         CLI   EXTTDONE,C'N'     Q.WHICH PASS IS THIS ?                 00124000
+         BE    LOGEX200          A.ITS NOT THE FIRST PASS.              00125000
+         LA    R15,4     PRE-SET RC TO 4 (NO PDA/ALA PROCSED)           00126000
+         CLI   EXTTDONE,C'Y'     Q.WHICH PASS IS THIS ?                 00127000
+         BE    LOGEX200          A.ITS AFTER WE'VE PROCESSED            00128000
+         L     R6,WKPDAADR        R6 IS NOW AT START OF PDA             00129000
+         LA    R6,8(,R6)          BUMP PAST PDA EYECATCHER              00130000
+         CLI   EXTTPDA,C'N'     Q.AVOID PDA SECTION ?                   00131000
+         BE    LOGEX030         A.YES, GO TO ALA                        00132000
+         OC    WKPDALEN,WKPDALEN Q. IS THERE A PDA ?                    00133000
+         BZ    LOGEX030          A. NO, I'M BOUND 4 ALA WITH A BANJO..  00134000
+*-------------------------------------------------------------       -* 00135000
+* LOOP: LOAD SAS9EXTT FOR ALL TSLOG/PDA DAGS MATCHING ALFA TAB        * 00136000
+*-------------------------------------------------------------       -* 00137000
+LOGEX010 DS    0H                 START OF PDA LOOP (MAY HAVE 2 DAGS)   00138000
+         XC    WKLOGRDF,WKLOGRDF INITIALIZE WKLOGRDF NOW.               00139000
+         BAS   R4,LOGEXEDT       DO EDITS & MOVE TO DAG IF OK           00140000
+         LTR   R15,R15          Q.ERROR ?                               00141000
+         BNZ   LOGEXERR         A.YES, BAIL OUT                         00142000
+         AR    R6,R7              BUMP PAST THAT PDA INFORMATION        00143000
+         C     R6,WKENDPDA      Q.ARE WE THROUGH WITH THAT PDA ?        00144000
+         BL    LOGEX010         A.NO, GO PROCESS NEXT DAG/PDA           00145000
+LOGEX030 DS    0H                                                       00146000
+         L     R5,WKEXTADD       RESET TO SAS9EXTT                      00147000
+         OC    WKALALEN,WKALALEN Q.IS THERE ALA INFORMATION ?           00148000
+         BZ    LOGEXREF          A.NO - WRAP IT UP.                     00149000
+         CLI   EXTTALA,C'N'     Q.AVOID ALA SECTION ?                   00150000
+         BE    LOGEXREF         A.YES, WRAP IT UP...                    00151000
+         L     R6,WKALAADR        R6 IS NOW AT START OF ALA SECTION     00152000
+         SR    R7,R7              ZERO LENGTH REGISTER                  00153000
+         LA    R6,8(,R6)          BUMP PAST ALA EYECATCHER              00154000
+*-------------------------------------------------------------       -* 00155000
+* LOOP: LOAD SAS9EXTT FOR ALL TSLOG/ALA DAGS MATCHING ALFA TAB        * 00156000
+*-------------------------------------------------------------       -* 00157000
+LOGEX040 DS    0H                 PROCESS ALA                           00158000
+         XC    WKLOGRDF,WKLOGRDF INITIALIZE WKLOGRDF NOW.               00159000
+         BAS   R4,LOGEXEDT       DO EDITS & MOVE TO DAG IF OK           00160000
+         C     R15,=F'12'       Q.FATAL ERROR ?                         00161000
+         BNL   LOGEXERR         A.YES, BAIL OUT                         00162000
+         AR    R6,R7              BUMP PAST THAT ALA INFORMATION        00163000
+         C     R6,WKENDALA      Q.ARE WE THROUGH WITH THAT ALA ?        00164000
+         BL    LOGEX040         A.NO, GO PROCESS NEXT DAG/ALA           00165000
+*-------------------------------------------------------------       -* 00166000
+* SET POINTERS/FLAGS PER SAS9EXTT ENTRY.                              * 00167000
+*   EXTTSUB IS SET TO NEXT SAS9EXTT ENTRY NUMBER FOR SAME DAG         * 00168000
+*   EXTTLAST IS SET TO N IF THERE ARE MORE ITERATIONS FOR DAG         * 00169000
+*   ................TO Y IF THIS IS LAST ITERATIONS FOR DAG           * 00170000
+*   (FIRST, HE STEPS FORWARD THROUGH THE TABLE, SETTING ALL           * 00171000
+*    EXTTLAST FLAGS TO 'Y'.  THEN HE STEPS BACKWARD THROUGH           * 00172000
+*    THE TABLE, RESETTING ALL EXTTLAST FLAGS TO 'N' EXCEPT            * 00173000
+*    THE ITERATION THAT REALLY IS THE LAST ONE.)                      * 00174000
+*-------------------------------------------------------------       -* 00175000
+LOGEXREF DS    0H                 XREF THE TABLE                        00176000
+         SR    R2,R2              ZERO WORK REG                         00177000
+         LA    R2,EXTTELEN(R2)    FIND BACKUP FACTOR                    00178000
+         LA    R3,1               SET COUNTER TO 1                      00179000
+         L     R5,WKEXTADD        GET ON TABLE AND GO TO END            00180000
+         OC    EXTTDAGN,EXTTDAGN Q.ACTIVE ENTRY ?                       00181000
+         BZ    LOGEXERR          A.NO, TABLE IS EMPTY                   00182000
+LOGEXR00 DS    0H                                                       00183000
+         MVI   EXTTLAST,C'Y'       INITIAL LAST FLAG TO YES             00184000
+         LA    R3,1(R3)            INCREMENT COUNTER                    00185000
+         LA    R5,EXTTELEN(,R5)   BUMP TO NEXT ENTRY                    00186000
+         C     R5,WKEXTRFL       DO WE HAVE MORE TABLE ENTRIES          00187000
+         BNL   LOGEXR01            N. LAST-FLAG INIT IS DONE            00188000
+         OC    EXTTDAGN,EXTTDAGN Q.ACTIVE ENTRY ?                       00189000
+         BNZ   LOGEXR00          A.YES, INITIALIZE IT                   00190000
+LOGEXR01 DS    0H                                                       00191000
+         SR    R5,R2              R2 STILL LENGTH OF ONE ENTRY          00192000
+         BCTR  R3,0               UNCOUNT 1 FROM COUNTER.               00193000
+         LTR   R3,R3            Q.ARE WE FINISHED ?                     00194000
+         BZ    LOGEXWRP         A. YES - WRAP IT UP                     00195000
+         CLI   EXTTLAST,C'N'    Q.HAVE WE PROCESS THIS BUGGER?          00196000
+         BE    LOGEXR01          A.WHY YES, IT IS, SKIP IT.             00197000
+         MVC   WKLOGDAG,EXTTDAGN  THIS IS ITS NAME                      00198000
+         STCM  R3,15,WKPOINT      THIS IS THE CURRENT ENTRY             00199000
+         MVC   WKLAST,WKPOINT     THIS IS THE LAST ENTRY                00200000
+         ST    R5,WKLASTA         AND ITS ADDRESS                       00201000
+LOGEXR02 DS    0H                                                       00202000
+         BCTR  R3,0               BACKUP 1 ENTRY                        00203000
+         LTR   R3,R3            Q. EOT?                                 00204000
+         BZ    LOGEXR03         A. YES                                  00205000
+         SR    R5,R2              BACKUP 1 ENTRY                        00206000
+         CLC   EXTTDAGN,WKLOGDAG  Q. DUPLICATES ?                       00207000
+         BNE   LOGEXR02           A. NO - LOOK AGAIN                    00208000
+         MVI   EXTTLAST,C'N'      THIS IS NOT THE LAST OF ITS KIND      00209000
+         MVC   EXTTRSUB,WKPOINT+2 THIS POINTS TO NEXT OF ITS KIND       00210000
+         ST    R3,WKPOINT         THIS POINTS TO THIS ENTRY             00211000
+         B     LOGEXR02           RETURN TO LOOP1.                      00212000
+LOGEXR03 DS    0H                                                       00213000
+         L     R5,WKLASTA         GO TO LAST (RIGHTMOST) ENTRY          00214000
+         MVC   EXTTRSUB,WKPOINT+2 PTS 2 ITSELF OR PREV DUPE.            00215000
+         L     R3,WKLAST                                                00216000
+         BCTR  R3,0             BACKUP 1 (COUNTER)                      00217000
+         LTR   R3,R3            Q.ARE WE FINISHED ?                     00218000
+         BZ    LOGEXWRP         A.Y-FINISHED - WRAP IT UP               00219000
+         SR    R5,R2              BACKUP 1 ENTRY (DATA)                 00220000
+         ST    R5,WKLASTA                                               00221000
+         CLI   EXTTLAST,C'N'    Q.HAVE WE PROCESS THIS BUGGER?          00222000
+         BE    LOGEXR01         A.Y- SKIP IT                            00223000
+         MVC   WKLOGDAG,EXTTDAGN  THE ENTRY WE ARE XREFING NOW.         00224000
+         ST    R3,WKLAST                                                00225000
+         ST    R3,WKPOINT                                               00226000
+         B     LOGEXR02           JUMP BACK INTO XREF LOOP.             00227000
+*-------------------------------------------------------------       -* 00228000
+* WRAPUP.  SET EXTTDONE TO 'Y' AND THEN RESET IT IF ANY DAG           * 00229000
+* INTERATIONS ARE FOUND WHICH HAVE NOT BEEN SEEN/PROCESSED            * 00230000
+* (EXTTSEEN = 'N').                                                   * 00231000
+*-------------------------------------------------------------       -* 00232000
+LOGEXWRP DS    0H                                                       00233000
+         L     R5,WKEXTADD    SCAN SAS9EXTT FOR ALL DONES               00234000
+         MVI   EXTTDONE,C'Y'  INITIAL IT AS DONE                        00235000
+LOGEXW01 DS    0H                                                       00236000
+         CLI   EXTTSEEN,C'N'  Q. HAS THIS ENTRY BEEN SEEN ?             00237000
+         BE    LOGEXW02       A. NO - WE AREN'T DONE YET, OFF DONE FLG  00238000
+         LA    R5,EXTTELEN(,R5)   BUMP TO NEXT ENTRY                    00239000
+         C     R5,WKEXTRFL       DO WE HAVE MORE TABLE ENTRIES          00240000
+         BNL   LOGEX999            N. WE'RE DONE HERE                   00241000
+         OC    EXTTDAGN,EXTTDAGN Q. THRU WITH TABLE ?                   00242000
+         BZ    LOGEX999          A. Y- GET OUTTA HERE                   00243000
+         B     LOGEXW01          A. N- CONTINUE LOOKING AT TABLE        00244000
+LOGEXW02 DS    0H                                                       00245000
+         L     R5,WKEXTADD    SCAN SAS9EXTT FOR ALL DONES               00246000
+         MVI   EXTTDONE,C'N'                                            00247000
+         B     LOGEX999                                                 00248000
+*-------------------------------------------------------------       -* 00249000
+* PERFORMED ROUTINE.  LOAD SAS9EXTT TABLE FOR DAG IN TSLOG            * 00250000
+* RECORD IF DAGNAME MATCHES ALFA TABLE OF REQUESTING MODULE.          * 00251000
+*-------------------------------------------------------------       -* 00252000
+LOGEXEDT DS    0H   (PERFORMED)   EDIT - IS DAG IN ALFA TABLE ?         00253000
+         USING SASLDA,R6                                                00254000
+         L     R5,WKEXTADD        REPOINT TO EXTRACT TABLE              00255000
+         LA    R15,0              INITIALIZE RC TO 0.                   00256000
+         SR    R7,R7              ZERO LENGTH FIELD                     00257000
+         ICM   R7,3,SASLDALL      LENGTH OF THIS PDA SEGMENT            00258000
+         MVC   WKLOGID,SASLDAID   STASH IDENTIFIER                      00259000
+         MVC   WKLOGDAG,SASLDANM     AND DAG NAME                       00260000
+         LR    R3,R6                                                    00261000
+         LA    R3,SASLDALG(R3)    START OF DATA                         00262000
+         ST    R3,DATAADDR        SAVE IT HERE                          00263000
+         ICM   R3,15,REQRALFA     ACCESS ALFA TABLE AND SEARCH.         00264000
+         LA    R3,8(,R3)          BUMP PAST EYECATCHER                  00265000
+         USING WSTAB,R3                                                 00266000
+LOGEXSRC DS    0H                                                       00267000
+         CLI   WSTBNAME,X'FF'    Q.ARE WE STILL IN ALFA TABLE           00268000
+         BE    LOGEXNFD          A.NO, THIS DAG WAS NOT FOUND           00269000
+         CLC   WSTBNAME,WKLOGDAG Q.IS THIS DAG IT ?                     00270000
+         BE    LOGEXFND          A.YES-GO SEE ABOUT DISPOSITON STATUS   00271000
+         LA    R3,WSTBLEN(R3)    A.NO -BUMP TO NEXT ENTRY               00272000
+         B     LOGEXSRC               -AND CONTINUE SEARCH              00273000
+LOGEXNFD DS    0H                 ITS NOT HERE                          00274000
+         LA    R15,8              - RC= 8                               00275000
+         MVC   SAGRETRC,=F'8'      "REQUEST NOT SERVICED"               00276000
+         LA    R15,ERR990    EXTRACTED DAG NOT IN ALFA TABLE            00277000
+         B     LOGEXRT1                                                 00278000
+LOGEXFND DS    0H                 ITS HERE                              00279000
+         MVI   DUPESW,C' '        DUPLICATE DAG INDICATOR - OFF         00280000
+         MVI   REDEFSW,C' '       DUPLICATE REDEF INDIC8R - OFF         00281000
+         ST    R3,WKALFA          STASH ENTRIES ALFA ADDRESS            00282000
+         LA    R1,(&EXTTOCC) SET R1 AS LOOP COUNT FOR LOGEXF01          00283000
+         CLI   WSTBDSP1,C'R'    Q.REDEF ?                               00284000
+         BNE   LOGEXF01         A.N-RECORD THIS DAG IN SAS9EXTT         00285000
+         MVI   REDEFSW,C'Y'       TURN REDEF SWITCH ON                  00286000
+         SR    R2,R2              ZERO WORK REG                         00287000
+         LA    R2,WSTBLEN(R2)     FIND BACKUP FACTOR                    00288000
+LOGEXFRE DS    0H                                                       00289000
+         SR    R3,R2              AND BACKUP TO PREVIOUS DAG            00290000
+         CLI   WSTBDSP1,C'R'    Q.IS THIS THE OBJECT OF MY DESIRES ?    00291000
+         BE    LOGEXFRE         A.N- STILL LOOKING FOR SOURCE OF REDEF. 00292000
+         MVC   WKLOGRDF,WSTBNAME A.Y- FILL OUT REDEF NAME IN TABLE      00293000
+         L     R3,WKALFA           AND RESTORE R3 TO ALFA.              00294000
+LOGEXF01 DS    0H                                                       00295000
+         CLC   EXTTDAGN,WKLOGDAG Q.DAG ALREADY RECORDED ?               00296000
+         BE    LOGEXF02          A.Y-ALREADY ONE TABLED, MAKE ANOTHER   00297000
+         CLC   EXTTRDEF,WKLOGDAG Q.DAG USING RECORDED REDEF ?           00298000
+         BE    LOGEXF02          A.Y-NAG NAG NAG                        00299000
+         OC    WKLOGRDF,WKLOGRDF Q.IS THERE A REDEF INVOLVED ?          00300000
+         BZ    LOGEXNRD          A.NO- DON'T DO NEXT COMPARE            00301000
+         CLC   EXTTDAGN,WKLOGRDF Q.DAGS REDEF ALREADY RECORDED ?        00302000
+         BE    LOGEXF02          A.Y-SEE 2 LINES ABOVE                  00303000
+         CLC   EXTTRDEF,WKLOGRDF Q.REDEF USING RECORDED REDEF ?         00304000
+         BNE   LOGEXNRD          A.N-GO LOOK FOR EMPTY SLOT             00305000
+LOGEXF02 DS    0H                                                       00306000
+         MVI   DUPESW,C'Y'        DUPLICATE DAG INDICATOR.              00307000
+         B     LOGEXLP1           CONT LOOKING FOR EMPTY SLOT           00308000
+LOGEXNRD DS    0H                                                       00309000
+         OC    EXTTDAGN,EXTTDAGN Q.EMPTY ENTRY ?                        00310000
+         BZ    LOGEXF03          A.Y-RECORD THIS DAG HERE               00311000
+LOGEXLP1 DS    0H                                                       00312000
+         LA    R5,EXTTELEN(,R5)   BUMP TO NEXT ENTRY                    00313000
+         BCT   R1,LOGEXF01        LOOP                                  00314000
+         LA    R15,ERR991    TOO MANY DAGS IN LOG RECORD.               00315000
+         MVC   SAGRETRC,=F'8'      "REQUEST NOT SERVICED"               00316000
+         B     LOGEXRT1                                                 00317000
+LOGEXF03 DS    0H                                                       00318000
+         MVC   EXTTDAGN,WKLOGDAG RECORD DAG NAME                        00319000
+         MVC   EXTTRDEF,WKLOGRDF LOW-VALUES IS ACCEPTABLE HERE.         00320000
+         MVC   EXTTID,WKLOGID    RECORD DAG IDENFIER                    00321000
+         STCM  R6,15,EXTTADDR       RECORD DATA ADDRESS (FROM)          00322000
+         CLI   DUPESW,C'Y'      Q.IS DAG UNIQUE OR DUPLICATE ?          00323000
+         BE    LOGEXF08         A.DUPLICATE - GO MAKE DUPE ENTRY        00324000
+         CLI   FULLCNTL,C'Y'    Q.DOES USER WANT FULL CONTROL ?         00325000
+         BE    LOGEXF08         A.YES, GO MAKE FAKE DUPE ENTRY          00326000
+LOGEXF07 DS    0H                ENTRY FOR LOADED DAG                   00327000
+         MVI   EXTTSELE,C'N'     RECORD SELECTED                        00328000
+         MVI   EXTTSEEN,C'Y'     RECORD SEEN                            00329000
+         MVI   EXTTLOAD,C'Y'     RECORD LOAD                            00330000
+         B     LOGEXF09          GO EDIT AND GET DAG ADDRESS            00331000
+LOGEXF08 DS    0H                ENTRY FOR DUPLICATE UNLOADED DAG       00332000
+         MVI   DUPESW,C'Y'       IN CASE NOT ALREADY SET                00333000
+         MVI   EXTTSELE,C'Y'     RECORD SELECTED                        00334000
+         MVI   EXTTSEEN,C'N'     RECORD SEEN                            00335000
+         MVI   EXTTLOAD,C'N'     RECORD LOAD                            00336000
+LOGEXF09 DS    0H                                                       00337000
+         SR    R1,R1             CLEAR REGISTER                         00338000
+         LA    R1,SASLDALG(R1)   FIND BACKUP FACTOR                     00339000
+         SR    R7,R1            DON'T COUNT PREFIX AREA IN LEN          00340000
+         STCM  R7,3,WKPDALN2                                            00341000
+         CLC   WSTBDAGL,WKPDALN2 Q.MAKE SURE THE DATA WILL FIT IN DAG   00342000
+         BNL   LOGEGETD         A.LOOKS GOOD TO ME, GO FIND THAT DAG    00343000
+         LA    R15,12           A.ITS TOO BIG, WON'T FIT, RC=12         00344000
+         B     LOGEXRT1         - FATAL ERROR - RECOMPILE ?             00345000
+LOGEGETD DS    0H                                                       00346000
+         CLI   REDEFSW,C'Y'     Q. IS THIS A REDEF ?                    00347000
+         BNE   LOGEGET2         A. NO- GET THE DAG NAME                 00348000
+         MVC   WKLOGDAG,EXTTRDEF A.Y- GET THE REDEF DAG                 00349000
+LOGEGET2 DS    0H                                                       00350000
+         MVI   SADMRQST,SADMDAGR  DAG RETRIEVAL REQUEST                 00351000
+         MVC   SADMNAME,WKLOGDAG  NAME OF DAG TO RETRIEVE               00352000
+         BAS   R14,D&C.AGMAN                                            00353000
+         LTR   R15,R15          Q.WAS DAG FOUND ?                       00354000
+         BNZ   LOGEXRT1         A.NO, THIS IS NOT GOOD                  00355000
+         STCM  R0,15,EXTDAGAD   A.Y, VERRY GOOD. STORE DAG ADDRESS      00356000
+         CLI   DUPESW,C'Y'      Q.REDY 2 MVC, SHOULD WE ?               00357000
+         BE    LOGEXRT1         A.N - NO, THIS IS A DUPLICATE, GOTTA W8 00358000
+LOGEXMVC DS    0H                 MOVE R6(PDALEN/ALALEN) TO TARGET DAG  00359000
+         LA    R2,SASLDALG(,R6)   SOURCE                                00360000
+         LR    R3,R7              THIS SEGMENTS LENGTH                  00361000
+         LR    R1,R3              TARGET/SOURCE LENGTHS                 00362000
+         MVCL  R0,R2              MOVE IT MOVE IT MOVE IT               00363000
+LOGEXRT1 DS    0H                 RETURN                                00364000
+         LA    R7,SASLDALG(R7)    GIVE R7 ITS ORIG LEN BACK             00365000
+         BR    R4                                                       00366000
+*-------------------------------------------------------------       -* 00367000
+* LOGEX200 IS PROCESSING FOR A SUBSEQUENT PASS. (EXTTDONE=N)          * 00368000
+* SAS9EXTT TABLE HAS BEEN POPULATED BUT NOT ALL THE DAGS IN           * 00369000
+* THE TSLOG/PDA HAVE YET BEEN LOADED TO THE SASERVB MANAGED           * 00370000
+* DAG STORAGE AREA FOR ACCESS/PROCESSING BY THE 'LOG EXTRACT'         * 00371000
+* REQUESTING MODULE.  (MULTIPLE ITERATIONS OF A GIVEN DAG CAN         * 00372000
+* BE LOADED ONLY SINGLE THREAD TO THE SERV MANAGED DAG STG.)          * 00373000
+*-------------------------------------------------------------       -* 00374000
+LOGEX200 DS    0H             SUBSEQUENT PASS                           00375000
+         CLI   EXTTLOAD,C'Y'    Q.THIS DAG BEEN LOADED?                 00376000
+         BNE   LOGEX201         A.N - DO NOTHING                        00377000
+         MVI   EXTTLOAD,C'P'    A.Y - SAY IT PREVIOUSLY LOADED          00378000
+LOGEX201 DS    0H                                                       00379000
+         LA    R5,EXTTELEN(,R5)   BUMP TO NEXT ENTRY                    00380000
+         C     R5,WKEXTRFL       DO WE HAVE MORE TABLE ENTRIES          00381000
+         BNL   LOGEX203            N. DONE W/EXTTLOAD CHECK             00382000
+         OC    EXTTDAGN,EXTTDAGN  Q. FINISHED?                          00383000
+         BNZ   LOGEX200           A. N- CONTINUE                        00384000
+LOGEX203 DS    0H                                                       00385000
+         L     R5,WKEXTADD        POINT BACK TO START OF TABLE          00386000
+         SR    R2,R2              ZERO COUNTER                          00387000
+LOGEX205 DS    0H                                                       00388000
+         CLI   EXTTSELE,C'Y'    Q.WAS THIS FIELD SELECTED ?             00389000
+         BE    LOGEX210         A.YES, CHECK IT OUT                     00390000
+LOGEX206 LA    R5,EXTTELEN(,R5)   BUMP TO NEXT ENTRY                    00391000
+         C     R5,WKEXTRFL       DO WE HAVE MORE TABLE ENTRIES          00392000
+         BNL   LOGEXWRP            N. GO TO WRAPUP                      00393000
+         OC    EXTTDAGN,EXTTDAGN  Q. FINISHED?                          00394000
+         BNZ   LOGEX205           A. N- CONTINUE                        00395000
+         B     LOGEXWRP                                                 00396000
+LOGEX210 DS    0H                                                       00397000
+         L     R6,WKEXTADD      POINT AT START O'TABLE USING R6         00398000
+LOGEX211 DS    0H                                                       00399000
+         CLC   EXTTDAGN-SAS9EXTT(8,R6),EXTTDAGN DAGN=DAGN?              00400000
+         BE    LOGEX213         A. YES - SEE IF ITS LOADED...           00401000
+         CLC   EXTTRDEF-SAS9EXTT(8,R6),EXTTDAGN REDEF=DAGN?             00402000
+         BE    LOGEX213         A. YES - SEE IF ITS LOADED...           00403000
+         OC    EXTTRDEF,EXTTRDEF Q.IS THERE A REDEF INVOLVED ?          00404000
+         BZ    LOGEX2NR          A.NO- DON'T DO NEXT COMPARE            00405000
+         CLC   EXTTDAGN-SAS9EXTT(8,R6),EXTTRDEF DAG = REDEF?            00406000
+         BE    LOGEX213         A. YES - SEE IF ITS LOADED...           00407000
+         CLC   EXTTRDEF-SAS9EXTT(8,R6),EXTTRDEF REDEF = REDEF?          00408000
+         BE    LOGEX213         A. YES - SEE IF ITS LOADED...           00409000
+LOGEX2NR DS    0H                                                       00410000
+         OC    0(8,R6),0(R6)    Q. E-O-T?                               00411000
+         BE    LOGEX220         A. YES, POPULATE THAT DAG               00412000
+LOGEX212 LA    R6,EXTTELEN(,R6) NEXT ENTRY                              00413000
+         C     R6,WKEXTRFL       DO WE HAVE MORE TABLE ENTRIES          00414000
+         BNL   LOGEX220            N. GO POPULATE THAT DAG              00415000
+         B     LOGEX211                                                 00416000
+LOGEX213 DS    0H                                                       00417000
+         CLI   EXTTLOAD-SAS9EXTT(R6),C'Y'  Q.DUPE ALREDY LOADED?        00418000
+         BNE   LOGEX212                    A.N- RE-ENTER LOOP2          00419000
+         B     LOGEX206                    A.Y- BYPASS, RE-ENTER LOOP1  00420000
+LOGEX220 DS    0H                ENTRY FOR LOADED DAG                   00421000
+         MVI   EXTTSELE,C'N'     RECORD SELECTED                        00422000
+         MVI   EXTTSEEN,C'Y'     RECORD SEEN                            00423000
+         MVI   EXTTLOAD,C'Y'     RECORD LOAD                            00424000
+         ICM   R0,15,EXTDAGAD     TARGET                                00425000
+         ICM   R6,15,EXTTADDR        SOURCE                             00426000
+         SR    R7,R7              ZERO LENGTH REG                       00427000
+         ICM   R7,3,SASLDALL-SASLDA(R6) GET LENGTH                      00428000
+         SR    R1,R1              CLEAR REGISTER                        00429000
+         LA    R1,SASLDALG(R1)    FIND BACKUP FACTOR                    00430000
+         SR    R7,R1              DON'T COUNT THE PREFIX AREA           00431000
+         LA    R2,SASLDALG(,R6)   SOURCE                                00432000
+         LR    R3,R7              THIS SEGMENTS LENGTH                  00433000
+         LR    R1,R3              TARGET/SOURCE LENGTHS                 00434000
+         MVCL  R0,R2              MOVE IT MOVE IT MOVE IT               00435000
+         LA    R7,SASLDALG(R7)    RESTORE THE LENGTH                    00436000
+         B     LOGEX206          RE-ENTER LOOP1                         00437000
+*-------------------------------------------------------------       -* 00438000
+* LOGEX200 IS PROCESSING FOR A SUBSEQUENT PASS. (EXTTDONE=N)          * 00439000
+*-------------------------------------------------------------       -* 00440000
+LOGEXERR DS    0H                DO ERROR PROCESSING HERE               00441000
+         ICM   R5,15,SARBTRAC     ACCESS OUR TRACE TABLE ENTRY          00442000
+         MVC   STRVDATA-STRACE(8,R5),WKLOGDAG  PROBLEM DAG              00443000
+         MVC   SDMSSEGN,WKLOGDAG PUT DAGNAME HERE FOR SASERTB           00444000
+         L     R5,WKEXTADD       POINT TO START OF TABLE                00445000
+         MVI   EXTTDONE,C'E'     INDICATE ERROR                         00446000
+         B     LOGEX999          AND RIDE OFF INTO THE SUNSET           00447000
+*-------------------------------------------------------------       -* 00448000
+* RETURN TO CALLER.                                                   * 00449000
+*-------------------------------------------------------------       -* 00450000
+LOGEX999 DS    0H                                                       00451000

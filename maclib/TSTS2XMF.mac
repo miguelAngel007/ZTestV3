@@ -1,0 +1,36 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                                                                     * 00020000
+*                      TRANSACTION SYSTEM                             * 00030000
+*                                                                     * 00040000
+*       MISCELLANEOUS FIELDS FOR DECIMAL TRANSLATION COPYBOOK         * 00050000
+*            THIS IS A DSECT THAT IS USED BY APPLICATION              * 00060000
+*        PROGRAMS TO LINK TO THE TSTSXLTB(TSTSXLC) PROGRAM            * 00070000
+*                MATCHES COBOL COPYBOOK TSTS1XMF                      * 00080000
+*                                                                     * 00090000
+*---------------------------------------------------------------------* 00100000
+*                  ** HISTORY OF REVISIONS **                         * 00110000
+*                                                                     * 00120000
+* DESCRIPTION                                                 CHNGID  * 00130000
+* __________________________________________________________  _______ * 00140000
+* 07/05/96 IMPLEMENTED FLOATING DECIMAL FUNCTIONALITY         9913481 * 00150000
+*---------------------------------------------------------------------* 00160000
+XMFSTEM  DSECT                  MISC FIELDS PROCESSING                  00170000
+XMFSTART EQU   *                XMF STEM                                00180000
+XMFNMDPI DS    CL1              NUMBER OF DECIMALS IN                   00190000
+XMFNMDPO DS    CL1              NUMBER OF DECIMALS OUT                  00200000
+XMFSTMLN EQU   *-XMFSTART       LENGTH OF STEM AREA                     00210000
+         SPACE                                                          00220000
+         DS    0C                                                       00230000
+XMFOCCUR DSECT                                                          00240000
+XMFOCSTA EQU   *                XMF STEM                                00250000
+XMFOCWDF DS    CL1              WHOLE DOLLAR FLAG                       00260000
+XMFOCAMI DS    CL23             INPUT AMOUNT FIELD                      00270000
+XMFOCNDI DS    CL1              OCCUR NO DECIMALS IN                    00280000
+XMFOCAMO DS    CL23             OUTPUT AMOUNT FIELD                     00290000
+XMFOCNDO DS    CL1              OCCUR NO DECIMALS OUT                   00300000
+XMFOCLEN EQU   *-XMFOCSTA       LENGTH OF OCCURENCE                     00310000
+         DS    CL2401           REST OF OCCURENCES                      00320000
+*---------------------------------------------------------------------* 00330000
+*                   END OF DSECT TSTS2XMF                             * 00340000
+*---------------------------------------------------------------------* 00350000

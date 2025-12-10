@@ -1,0 +1,33 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                            TSTS2PWC                                 * 00000300
+*           COMMON STORAGE FOR PASSWORD GENERATION AND/OR EDIT,       * 00000400
+*           DECRYPTION AND ENCRYPTION (BAL) ROUTINES.                 * 00000500
+*                                                                     * 00000600
+*********************************************************************** 00000700
+*----------------------------------------------------*        0815615   00000710
+*               ** HISTORY OF REVISIONS **           *        0815615   00000720
+* DESCRIPTION                                 CHNGID *        0815615   00000730
+* ____________________________________________________        0815615   00000740
+*                                                             0815615   00000750
+* 07/24/15  SHA 256 CHANGES                                   1616795   00000758
+* 03/20/07  PASSWORD ENCRYPTION                               0815615   00000760
+*----------------------------------------------------*        0815615   00000770
+         SPACE 2                                                        00000800
+PWCCOMMA DS    0CL100                  START OF COMMON AREA   1616795   00000900
+PWCTSCBA DS    XL4                     TSCB ADDRESS                     00001000
+PWCGVLNG DS    CL2                     LENGTH OF COMMON AREA            00001100
+PWCINDIC DS    CL1                     PASSWORD INDICATOR               00001200
+PWCGNLTH DS    CL2                     LENGTH OF PW--SMR GEN,DECRYPTION 00001300
+PWCSERA  DS    XL4                     SER ADDRESS                      00001600
+PWCEORA  DS    XL4                     EOR ADDRESS                      00001700
+PWCRETCD DS    CL2                     RETURN CODE                      00001800
+PWCMODA  DS    CL4                     CURRENT MONTH/DAY                00001900
+PWCPSWA  DS    XL4                     PSW ADDRESS            0815615   00001920
+PWCITRA  DS    XL4                     ITR ADDRESS            0815615   00001940
+PWCPSWD  DS    CL20                    PASSWORD ENTERED       1616795   00001945
+         DS    XL12                    FILLER                 1616795   00001950
+PWCENCRY DS    CL32                    HASHED PASSWORD        1616795   00001955
+         DS    XL5                     FILLER                 1616795   00001960
+PWCLEN   EQU   *-PWCCOMMA                                               00002000

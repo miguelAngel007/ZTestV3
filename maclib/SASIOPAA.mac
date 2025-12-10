@@ -1,0 +1,48 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                            SASIOPAA                                 * 00000200
+*                       TRANSACTION SYSTEM                            * 00000300
+*                     SA SI APPLICATION OPTIONS                       * 00000400
+*                                                                     * 00000500
+*                      HISTORY OF REVISIONS                           * 00000600
+* DESCRIPTION                                                         * 00000700
+* --------------------------------------------------------------------* 00000800
+* 02/10/14 ADDED SENSITIVE DATA FIELDS                        1436560   00000892
+* 09/19/12 ADDED DB2 FLAG                                     1336326   00000893
+* 06/13/12 ADDED INDICATOR FOR TSAER USE                      1326243   00000894
+* 03/03/11 ADDED QUALIFERS FOR LOG EVENT EXIT                 1226030   00000895
+* 05-05-06 ADDED TWO NEW LOG MASKING USER EXITS               0715441   00000896
+* 05-18-04 ADDED LOG EVENT EXIT                               0445028 * 00000898
+* 11-10-97 ADDED COPYBOOK FOR SASIOPTA                        9913483 * 00000900
+*---------------------------------------------------------------------* 00001000
+         SPACE 2                                                        00001100
+SASIOPTA DSECT                                                          00001200
+SIOPTA   DS    0CL300                APPLICATION CONTROLS               00001300
+SIOPALNG DS    XL2                   RECORD LENGTH                      00001400
+         DS    CL2                   FILLER                             00001500
+SIOPARK  DS    0CL60                 RECORD KEY                         00001600
+SIOPASN  DS    CL8                          STRUCTURE NAME              00001700
+SIOPAC1  DS    XL2                          CNTL-1                      00001800
+SIOPASK  DS    CL50                         SEARCH KEY                  00001900
+SIOPADT  DS    PL5                   LAST MAINT DATE                    00002000
+SIOPATM  DS    PL5                   LAST MAINT TIME                    00002100
+VERSION  DS    CL1                   VERSION - D,I,G                    00002200
+NSTALD   DS    CL1                   APPL INSTALLED           0445028   00002300
+LOGEVENT DS    CL8                   LOG EVENT EXIT           0445028   00002302
+LOGMCXIT DS    CL8                   LOG MASK EXIT CICS       0715441   00002304
+LOGMBXIT DS    CL8                   LOG MASK EXIT BATCH      0715441   00002306
+LOGEVALL DS    CL1                   LOG EVENT ALL            1226030   00002310
+LOGEVDEB DS    CL1                   LOG EVENT DEBIT          1226030   00002320
+LOGEVCRD DS    CL1                   LOG EVENT CREDIT         1226030   00002330
+LOGEVINQ DS    CL1                   LOG EVENT INQUIRY        1226030   00002340
+LOGEVMAN DS    CL1                   LOG EVENT MAINTENCE      1226030   00002350
+LOGEVOTH DS    CL1                   LOG EVENT OTHER          1226030   00002360
+LOGEVAPI DS    CL1                   LOG EVENT EXIT IS API    1226030   00002370
+LOGEVTMO DS    CL1                   LOG EVENT FOR TM ONLINE  1226030   00002380
+LOGEVTMB DS    CL1                   LOG EVENT FOR TM BATCH   1226030   00002390
+OPTAGSUB DS    CL1                   IND FOR TSAER USE        1326243   00002400
+OPTADB2F DS    CL1                   USE DB2 FLAG Y/N         1336326   00002401
+SIOPAEEX DS    CL8                   ENCRYPTION EXIT          1436560   00002405
+SIOPAEXF DS    CL1                   ENCRYPTION EXIT API Y/N  1436560   00002406
+         DS    CL180                 FILLER                   1436560   00002490
+OPTALEN  EQU   *-SIOPTA              SYMBOLIC LGTH SASIOPTA             00002500

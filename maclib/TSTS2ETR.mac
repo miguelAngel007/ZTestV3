@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************   00000100
+*                                                                   *   00000200
+*                          TRANSACTION SYSTEM                       *   00000300
+*                        EMPLOYEE TOTALS RECORD                     *   00000400
+*                                                                   *   00000500
+*********************************************************************   00000600
+*                                                                       00000700
+TSETR    DSECT                                                          00000800
+ETR      DS    0X                                                       00000900
+ETRHEADR DS    0XL6                    EMPLOYEE TOTALS RECORD           00001000
+ETRRECLN DS    XL2                     ETR RECORD LENGTH                00001100
+*                                     **MAXVALUE 1860***                00001200
+         DS    CL2                     FILLER..VALUE LOW-VALUES         00001300
+*                                                                       00001400
+ETRREC   DS    0X                      EMPLOYEE TOTALS RECORD           00001500
+*                      ETR KEY AREA                                     00001600
+ETRKEY   DS    0CL43                   EMPLOYEE TOTAL RECORD KEY        00001700
+ETREORKY DS    0CL21                   ETR-EOR KEY                      00001800
+ETREORLV DS    0CL5                    EOR LEVELS                       00001900
+ETREORL1 DS    CL2                     EOR LEVEL 1                      00002000
+ETREORL2 DS    CL3                     EOR LEVEL 2                      00002100
+ETREMPID DS    CL8                     EMPLOYEE ID NUMBER               00002200
+         DS    CL8                     FILLER                           00002300
+*                      SIGNON INFORMATION                               00002400
+ETRSGON  DS    0CL22                   SIGNON INFORMATION               00002500
+ETRPLOC  DS    CL4                     PHYSICAL LOCATION                00002600
+ETRCURR  DS    CL3                     ETR CURRENCY           0722348   00002700
+ETRDEPT  DS    CL3                     ETR DEPARTMENT         0722348   00002750
+ETRBATCH DS    CL5                     ETR BATCH              0722348   00002800
+ETRSUBAT DS    CL5                     ETR SUB-BATCH          0722348   00002850
+ETRTRNFG DS    CL1                     ETR TRAINING FLAG                00002900
+ETRNDFLG DS    CL1                     ETR NEXT DAY FLAG                00003000
+*                     ETR BALANCE                                       00003100
+ETRBALFG DS    CL1                     ETR BALANCE FLAG                 00003200
+*                                      VALUES 0 - NOT BALANCED          00003300
+*                                             1 - BALANCE ATTEMPTED     00003400
+*                                             2 - BALANCE NORMALLY      00003500
+*                                             3 - EOD FORCED BALANCE    00003600
+*                                                                       00003700
+ETRSERCL DS    CL10                    ETR SER CALSS ID                 00003800
+*                                                                       00003900
+*                     EMPLOYEE TOTALS AREA                              00004000
+*                                                                       00004100
+ETRTOTAR DS    0X                      ETR EMPLOYEE TOTRALS AREA        00004200
+ETRTOTNB DS    PL2                     ETR NUMBER OF TOTALS             00004300
+*                                                                       00004400
+ETREMPTL DS    0X                      ETR EMPLOYEE TOTALS 1ST OCCUR    00004500
+ETRTOTAM DS    PL9                     ETR TOTAL AMOUNT 1ST OCCUR       00004600
+ETRTOTCT DS    PL3                     ETR TOTAL COUNT 1ST OCCUR        00004700
+         DS    XL1788                  2ND TO 150 OCCUR                 00004800
+ETRENDT  EQU   *-ETREMPTL              LENGTH OF TOTALS AREA            00004900
+ETREND   EQU   *                                                        00005000
+ETRLEN   EQU   *-ETR                                                    00005100
+         EJECT                                                          00005200

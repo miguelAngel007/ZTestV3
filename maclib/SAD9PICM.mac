@@ -1,0 +1,471 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      1726914   00001999
+&LABEL   SAD9PICM &PREFIX=SADPE,   1ST 5 CHARS OF LOCATION NAMES       X00002000
+               &PICIN=SADPEPIC,    PICTURE TO BE EDITTED               X00003000
+               &PICINL=60,         L'PICTURE TO BE EDITTED             X00004000
+               &$=$,               CURRENCY SYMBOL                     X00005000
+               &PICATT=SADPEATT,   RETURN AREA FOR DERIVED ATTRIBUTE   X00006000
+               &PICLEN=SADPELEN,   RETURN AREA FOR DERIVED LENGTH      X00007000
+               &PICDEC=SADPEDEC,   RETURN AREA FOR DERIVED # DECIMALS  X00008000
+               &MACSA=SADPESAV,    SAVEAREA FOR CALLERS REGISTERS 1-6  X00009000
+               &DWORD=SADPEDWD,    DOUBLEWORD WORK AREA                X00010000
+               &PICWK=SADPEWKA,    PICTURE WORKAREA                    X00011000
+               &PICFLG=SADPEFLG,   FLAG BYTE                           X00012000
+               &PICSYN=SADPESYN,   FLAG BIT (EQU): SYNCHRONIZED        X00013000
+               &PICSGN=SADPESGN,   FLAG BIT (EQU): PICTURE SIGNED      X00014000
+               &PICFMS=SADPEFMS,   FLAG BIT (EQU): MULTIPLIER STARTED  X00015000
+               &PICERR=SADPEFIP,   FLAG BIT (EQU): INVALID PICTURE     X00016000
+               &PICGRP=SADPEGRP,   FLAG BIT (EQU): GROUP ITEM          X00017000
+               &PICGUS=SADPEGUS,   FLAG BIT (EQU): GRP USAGE SPECIFIED X00018000
+               &PICGU1=SADPEGU1,   FLAG BIT (EQU): GRP USAGE COMP-1    X00019000
+               &PICGU2=SADPEGU2,   FLAG BIT (EQU): GRP USAGE COMP-2    X00020000
+               &PICGU3=SADPEGU3,   FLAG BIT (EQU): GRP USAGE COMP-3    X00021000
+               &PICGU4=SADPEGU4,   FLAG BIT (EQU): GRP USAGE COMP-4    X00022000
+               &PICGU5=SADPEGU5,   FLAG BIT (EQU): GRP USAGE COMP-5    X00022010
+               &PICGUD=SADPEGUD,   FLAG BIT (EQU): GRP USAGE/DISPLAY   X00023000
+               &PICCMP=SADPECMP,   USAGE / COMP 1-4 OR DISPLAY (5)     X00024000
+               &PICCNT=SADPECNT,   # COUNTABLE CHARACTERS              X00025000
+               &PICSCL=SADPESCL,   # COUNTABLE SCALING CHARACTERS      X00026000
+               &PICMLT=SADPEMLT,   # COUNTABLE CHARACTERS IN MULTIPLIERX00027000
+               &PICVAL=SADPEVAL,   VALID SYMBOL TRANSLATION TABLE      X00028000
+               &PICALF=SADPEALF,   ALPHABETIC TRANSLATION TABLE        X00029000
+               &PICNAT=SADPENAT,   NATIONAL FLAG                       X00029010
+               &PICFL1=SADPEFL1,   FLAG BYTE                           X00029020
+               &PICSEP=SADPESEP,   FLAG BIT (EQU): SEPARATE            X00029030
+               &PICSLD=SADPESLD,   FLAG BIT (EQU): LEADING             X00029040
+               &PICSTR=SADPESTR,   FLAG BIT (EQU): TRAILING            X00029050
+               &PICNUM=SADPENUM    NUMERIC TRANSLATION TABLE            00030000
+*---------------------------------------------------------------------* 00031000
+*DERIVE FROM PICTURE: STG LENGTH, DECIMAL POSITIONS, & EDIT ATTRIBUTES* 00032000
+*---------------------------------------------------------------------* 00033000
+.*--------------------------------------------------------------------* 00034000
+.*                                                                    * 00035000
+.* VARIABLES MAY BE SPECIFIED AS INDICATED BELOW:                     * 00036000
+.*                                                                    * 00037000
+.*   VARIABLE       REQUIRED   DATANAME  REGISTER  DATAVALUE(CONSTANT)* 00038000
+.*   -----------    --------   --------  --------  -------------------* 00039000
+.*     &PICIN                      X       2-15                       * 00040000
+.*     &PICINL                             2-15        X              * 00041000
+.*     &MACSA                      X       2-15                       * 00042000
+.*   (ALL OTHERS)                  X                                  * 00043000
+.*                                                                    * 00044000
+.*     (EXAMPLES)               ANYNAME    (R2)        1              * 00045000
+.*                                                                    * 00046000
+.* VALUES SPECIFIED AS DATANAME WILL BE USED IN LOAD-ADDRESS          * 00047000
+.* INSTRUCTIONS.  VALUES SPECIFIED IN REGISTER NOTATION WILL BE       * 00048000
+.* USED IN LOAD-REGISTER INSTRUCTIONS.                                * 00049000
+.*                                                                    * 00050000
+.* NOTE: DEFAULT NAMES FOR DATA AREAS USED BY THIS MACRO ARE THOSE    * 00051000
+.* USED IN THE CORRESPONDING COPYBOOK, SAD9PICA, TO DEFINE THE        * 00052000
+.* NECESSARY DATA AREAS.                                              * 00053000
+.*                                                                    * 00054000
+.* HISTORY OF REVISIONS:                                              * 00055000
+.* ---------------------                                              * 00056000
+.*05/07/15 CHANGE TO ALLOW COMP-5                             1726914 * 00056089
+.*03/09/15 CHANGE TO ALLOW NATIONAL DEFINITION                1616798 * 00056090
+.*11/04/14 CHANGE TO ALLOW PIC N FOR UNICODE                  1526736 * 00056095
+.* SA0290  SA0004  ORIGINAL DIST TO SUPPORT SADAUXIB AUX GEN          * 00057000
+.* SA0551  SA0005  SUPPORT COMP-1 AND COMP-2 PICTURES          2500579* 00057005
+.*                                                                    * 00058000
+.*--------------------------------------------------------------------* 00059000
+         LCLA  &LEN                                                     00060000
+         LCLC  &P,&S,&REG                                               00061000
+&S       SETC  '&SYSNDX'                                                00062000
+&S       SETC  '&S'(3,2)                                                00063000
+&P       SETC  '&PREFIX&S'                                              00064000
+         AIF   ('&MACSA'(1,1) NE '(').@PE01A                            00065000
+&LEN     SETA  K'&MACSA-2                                               00066000
+&REG     SETC  '&MACSA'(2,&LEN)                                         00067000
+         LR    R14,&REG            R14 = A(MACRO WORKAREA)              00068000
+         AGO   .@PE01B                                                  00069000
+.@PE01A  ANOP                                                           00070000
+         LA    R14,&MACSA         R14 = A(MACRO WORK AREA)              00071000
+.@PE01B  ANOP                                                           00072000
+         STM   R1,R7,0(R14)        SAVE CONTENTS OF WORK REGS NEEDED    00073000
+         AIF   ('&PICIN'(1,1) NE '(').@PE02A                            00074000
+&LEN     SETA  K'&PICIN-2                                               00075000
+&REG     SETC  '&PICIN'(2,&LEN)                                         00076000
+         LR    R15,&REG            R15 = A(INPUT PICTURE) - PERM        00077000
+         AGO   .@PE02B                                                  00078000
+.@PE02A  ANOP                                                           00079000
+         LA    R15,&PICIN          R15 = A(INPUT PICTURE) - PERM        00080000
+.@PE02B  ANOP                                                           00081000
+         AIF   ('&PICINL'(1,1) NE '(').@PE03A                           00082000
+&LEN     SETA  K'&PICINL-2                                              00083000
+&REG     SETC  '&PICINL'(2,&LEN)                                        00084000
+         LR    R7,&REG             R2 = L'PICTURE CLAUSE - PERM         00085000
+         AGO   .@PE03B                                                  00086000
+.@PE03A  ANOP                                                           00087000
+         LA    R7,&PICINL          R2 = L'INPUT PICTURE CLAUSE - PERM   00088000
+.@PE03B  ANOP                                                           00089000
+         NI    &PICFLG,&PICGRP+&PICGUS CLEAR FLAGS EXCEPT GRP USAGE     00090000
+         LA    R0,0                R0 = 0 (TO CLEAR DATA FIELDS)        00091000
+         STCM  R0,B'0011',&PICCNT  INIT TO ZERO: # CNTABLE CHAR         00092000
+         STCM  R0,B'0011',&PICSCL  INIT TO ZERO: # SCALING CHAR         00093000
+         STCM  R0,B'0011',&PICDEC  INIT TO ZERO: # DECIMAL POS          00094000
+         STCM  R0,B'0011',&PICLEN  INIT TO ZERO: DERIVED LENGTH         00095000
+         MVI   &PICATT,C' '        INIT TO BLNK: DERIVED ATTRIBUTE      00096000
+         NI    &PICFLG,X'FF'-&PICERR CLEAR FLAG: INVALID PICTURE        00098000
+         CLI   0(R15),C' '         IS THERE A PICTURE CLAUSE AT ALL     00099000
+         BNH   &P.$                  N. SKIP TO EXIT                    00100000
+         NI    &PICFL1,X'00'       CLEAR FLAGS                1616798   00100001
+         MVI   &PICNAT,C'N'         INIT FLAG                 1526736   00100002
+         CLI   0(R15),C'N'         NATIONAL?                  1526736   00100004
+         BNE   &P.0                  N. SKIP                  1526736   00100006
+         MVI   &PICNAT,C'Y'          SET FLAG                 1526736   00100008
+&P.0     DS   0H                                              1526736   00100009
+         SPACE                                                          00100010
+*--------------------------------------------------------------2500579* 00100020
+*PIC CLAUSE FOR COMP-1 AND COMP-2 IS ILLEGAL. SET LEN & ATT    2500579* 00100030
+*--------------------------------------------------------------2500579* 00100040
+         MVI   &PICCMP,C'1'        SET COMP TYPE: SHORT PREC   2500579  00100050
+         CLC   0(7,R15),=C'COMP-1 ' SHORT PREC FLOAT POINT?    2500579  00100060
+         BE    &P.T                  Y. GO SET LEN AND ATTR    2500579  00100070
+         CLC   0(16,R15),=C'COMPUTATIONAL-1 ' SHORT PREC F-PT? 2500579  00100080
+         BE    &P.T                  Y. GO SET LEN AND ATTR    2500579  00100090
+         MVI   &PICCMP,C'2'        SET COMP TYPE: LONG PREC    2500579  00100100
+         CLC   0(7,R15),=C'COMP-2 ' LONG PREC FLOAT POINT?     2500579  00100110
+         BE    &P.T                  Y. GO SET LEN AND ATTR    2500579  00100120
+         CLC   0(16,R15),=C'COMPUTATIONAL-2 ' LONG PREC F-PT?  2500579  00100130
+         BE    &P.T                  Y. GO SET LEN AND ATTR    2500579  00100140
+         MVI   &PICCMP,C' '        SET COMP TYPE: DEFAULT      2500579  00100150
+*--------------------------------------------------------------2500579* 00100155
+         SPACE                                                          00100160
+         LR    R1,R15              R1 = A(INPUT PICTURE CLAUSE)         00101000
+         LR    R2,R7               R2 = L'PICTURE CLAUSE                00102000
+         LA    R3,&PICWK           R3 = A(TRANSLATE PICTURE CLAUSE)     00103000
+         LA    R4,0                R4 = L'TRANSLATE PICTURE CLAUSE      00104000
+         MVI   &PICWK,C' '         CLEAR PICTURE CLAUSE WKAREA FOR TRT  00105000
+         MVC   &PICWK+1(L'&PICWK-1),&PICWK                              00106000
+         CLI   &PICVAL,X'FF'       HAVE TRANSLATE TBLS BEEN INITIALIZED 00107000
+         BE    &P.A                  Y. NO NEED TO REINIT               00108000
+         MVI   &PICVAL,X'FF'         N. INIT TRANSLATE TABLES           00109000
+         MVC   &PICVAL+1(255),&PICVAL   VALID SYMBOL TRANSLATE TABLE    00110000
+         MVI   &PICVAL+C'.',0             CHAR .                        00111000
+         MVI   &PICVAL+C'+',0             CHAR +                        00112000
+         MVI   &PICVAL+C'&$',0            CHAR $ (OR SPECIAL VARIABLE)  00113000
+         MVI   &PICVAL+C'*',0             CHAR *                        00114000
+         MVI   &PICVAL+C'-',0             CHAR -                        00115000
+         MVI   &PICVAL+C'/',0             CHAR /                        00116000
+         MVI   &PICVAL+C',',0             CHAR ,                        00117000
+         MVI   &PICVAL+C'A',0             CHAR A                        00118000
+         MVI   &PICVAL+C'B',0             CHAR B                        00119000
+         MVI   &PICVAL+C'C',0             CHAR C (OF CR)                00120000
+         MVI   &PICVAL+C'D',0             CHAR D (OF (DB)               00121000
+         MVI   &PICVAL+C'N',0             CHAR N              1526736   00121095
+         MVI   &PICVAL+C'P',0             CHAR ,                        00122000
+         MVI   &PICVAL+C'R',0             CHAR R (OF CR)                00123000
+         MVI   &PICVAL+C'S',0             CHAR S                        00124000
+         MVI   &PICVAL+C'V',0             CHAR V                        00125000
+         MVI   &PICVAL+C'X',0             CHAR X                        00126000
+         MVI   &PICVAL+C'Z',0             CHAR Z                        00127000
+         MVI   &PICVAL+C'0',0             CHAR 0                        00128000
+         MVI   &PICVAL+C'9',0             CHAR 9                        00129000
+         MVI   &PICALF,X'FF'            INIT TRANSLATE TABLES           00130000
+         MVC   &PICALF+1(255),&PICALF   ALPHABETIC TRANSLATE TABLE      00131000
+         MVI   &PICALF+C'A',X'00'       A = INDICATES ALPHABETIC        00132000
+         MVI   &PICALF+C'B',X'00'       B = INDICATES ALPHABETIC        00133000
+         MVI   &PICNUM,X'FF'                                            00134000
+         MVC   &PICNUM+1(255),&PICNUM   NUMERIC TRANSLATE TABLE         00135000
+         MVI   &PICNUM+C'P',X'00'       P = INDICATES NUMERIC           00136000
+         MVI   &PICNUM+C'S',X'00'       S = INDICATES NUMERIC           00137000
+         MVI   &PICNUM+C'V',X'00'       V = INDICATES NUMERIC           00138000
+         MVI   &PICNUM+C'9',X'00'       9 = INDICATES NUMERIC           00139000
+         SPACE                                                          00140000
+&P.A     DS   0H              ***  FIND LENGTH OF PICTURE PROPER        00141000
+         CLI   0(R1),C' '          HAVE WE FOUND END OF PICTURE PROPER  00142000
+         BE    &P.C                  Y. SKIP TO FIND ATTRIBUTE          00143000
+         CLI   0(R1),C'('          IS THIS THE START OF A MULTIPLIER    00144000
+         BNE   *+4+4                 N. SKIP TO CK MULTIPLIER STATUS    00145000
+         OI    &PICFLG,&PICFMS     SET FLAG: MULTIPLER STARTED          00146000
+*+4+4    EQU   *                                                        00147000
+         TM    &PICFLG,&PICFMS     IS THIS A CHAR WITHIN MULTIPLIER     00148000
+         BO    &P.B                  Y. SKIP PICTURE CHAR SAVE          00149000
+         MVC   0(1,R3),0(R1)         N. SAVE PICTURE BYTE FOR TRT       00150000
+         LA    R3,1(,R3)           R3 = A(NEXT TRT PICTURE BYTE SLOT)   00151000
+         LA    R4,1(,R4)           R4 = L'TRT PICTURE BYTE              00152000
+&P.B     DS   0H                                                        00153000
+         CLI   0(R1),C')'          IS THIS THE END OF A MULTIPLIER      00154000
+         BNE   *+4+4+4+4             N. SKIP MULTIPLIER STATUS RESET    00155000
+         TM    &PICFLG,&PICFMS     HAS MULTIPLIER BEEN STARTED          00156000
+         BZ    &P.$                  N. SKIP TO ERROR: INVALID PICTURE  00157000
+         NI    &PICFLG,X'FF'-&PICFMS RESET FLAG: MULTIPLER ENDED        00158000
+*+4+4+4+4 EQU   *                                                       00159000
+         LA    R1,1(,R1)           LOOK AT NEXT BYTE OF PICTURE INPUT   00160000
+         BCT   R2,&P.A             LOOP TO CK FOR END OF PICTURE PROPER 00161000
+         SPACE                                                          00162000
+&P.C     DS   0H              ***  FIND ATTRIBUTE FROM PICTURE          00163000
+         TM    &PICFLG,&PICFMS     HAS MULTIPLIER BEEN STARTED          00164000
+         BO    &P.$                  Y. SKIP TO ERROR: INVALID PICTURE  00165000
+         LR    R3,R7               R3 = L'PICTURE CLAUSE WORKAREA       00166000
+         SR    R3,R2               R3 = L'PICTURE CLAUSE PROPER         00167000
+         BCTR  R3,0                R3 = LC'PICTURE CLAUSE PROPER        00168000
+         LTR   R4,R4               DO WE HAVE ANY PICTURE TO TRANSLATE  00169000
+         BZ    &P.$                  N. SKIP TO EXIT                    00170000
+         BCTR  R4,R0               R4 = LC'TRANSLATE PICTURE CLAUSE     00171000
+         STM   R1,R2,&DWORD        SAVE REGS 1-2                        00172000
+         EX    R4,&P.W             DOES PICTURE HAVE VALID SYMBOLS      00173000
+         LM    R1,R2,&DWORD        RESET REGS 1-2                       00174000
+         BNZ   &P.$                  N. SKIP TO ERROR EXIT              00175000
+         MVI   &PICATT,C'A'        SET PICTURE DERIVED ATT = A (ALFA)   00176000
+         EX    R4,&P.X             IS PICTURE ALPHABETIC                00177000
+         LM    R1,R2,&DWORD        RESET REGS 1-2                       00178000
+         BZ    &P.L                  Y. LEAVE CALC ATTRIBUTE = A        00179000
+         MVI   &PICATT,C'C'        SET PICT DERIVED ATT = C (ALPHANUM)  00180000
+         EX    R4,&P.Y             IS PICTURE NUMERIC                   00181000
+         LM    R1,R2,&DWORD        RESET REGS 1-2                       00182000
+         BNZ   &P.E                  N. LEAVE CALC ATTR = C   1616798   00183000
+         MVI   &PICATT,C'N'        SET PICT DERIVED ATT = N (NUMERIC)   00184000
+&P.D     DS   0H                                                        00185000
+         TM    &PICFLG,&PICGUS     IS THERE A GROUP USAGE OVERRIDE      00186000
+         BZ    &P.E                  N. SKIP TO PARSE FOR COMP-X        00187000
+         MVC   &PICCMP,&PICFLG     MOVE GROUP USAGE FLAGS TO COMP TYPE  00188000
+         XI    &PICCMP,X'FF'-&PICGUS ISOLATE GROUP USAGE FLAGS          00189000
+         OI    &PICCMP,X'F0'       SET GROUP USAGE TO COMP TYPE IND     00190000
+         B     &P.L                SKIP USAGE PARSING                   00191000
+&P.E     DS   0H                                                        00192000
+         MVI   &PICWK,C' '         CLEAR USAGE WORK AREA                00193000
+         MVC   &PICWK+1(L'&PICWK-1),&PICWK                              00194000
+         LA    R4,&PICWK           R4 = A(WORK AREA FOR USAGE WORD)     00195000
+         SPACE                                                          00196000
+.*--------------------------------------------------------------------- 00197000
+.* USAGE INDEX IS NOT SUPPORTED BY THE DICTIONARY FACILITY (OR BY API). 00198000
+.* THIS MACRO ASSUMES THAT THE FIRST WORD (TOKEN) IN THE PICTURE SPEC   00199000
+.* WILL BE THE PICTURE CLAUSE PROPER.  OTHER CLAUSES MAY FOLLOW--SUCH   00200000
+.* AS SYNC, USAGE, JUSTIFY, BLANK WHEN ZERO, SIGN SEPARATE.             00201000
+.*--------------------------------------------------------------------- 00202000
+&P.F     DS   0H               *** FIND USAGE FROM PICTURE              00203000
+         CLI   0(R1),C' '          DO WE STILL HAVE WORD SEPARATOR      00204000
+         BH    &P.H                  N. SKIP TO SAVE WORD               00205000
+         LA    R1,1(,R1)           LOOK AT NEXT BYTE OF PICTURE INPUT   00206000
+         BCT   R2,&P.F             LOOP TO CK FOR END OF SEP/PIC        00207000
+         B     &P.L                IF PIC END, USAGE IS DISPLAY         00208000
+&P.G     DS   0H                                                        00209000
+         CLI   0(R1),C' '          HAVE WE HIT END OF WORD              00210000
+         BE    &P.I                  Y. SKIP TO DIAGNOSE USAGE          00211000
+&P.H     DS   0H                                                        00212000
+         CLI   0(R1),C'-'          IS THIS POSSIBLY A COMP-X USAGE      00213000
+         BNE   *+4+6                 N. CANT SAVE COMP TYPE             00214000
+         MVC   &PICCMP,1(R1)         Y. SAVE POSS COMP TYPE             00215000
+*+4+6    EQU   *                                                        00216000
+         MVC   0(1,R4),0(R1)         N. SAVE CURRENT BYTE IN &PICWK     00217000
+         LA    R4,1(,R4)                INCR TO NEXT BYTE OF WORKAREA   00218000
+         LA    R1,1(,R1)           LOOK AT NEXT BYTE OF PICTURE INPUT   00219000
+         BCT   R2,&P.G               N. LOOP TO CK FOR END OF PICTURE   00220000
+&P.I     DS   0H                                                        00221000
+         CLC   =CL8'NATIONAL',&PICWK IS THIS A NATIONAL ITEM  1616798   00221310
+         BNE   &P.I1               SKIP TO NEXT CK            1616798   00221320
+         MVI   &PICNAT,C'Y'        SET NATIONAL FLAG          1616798   00221330
+         B     &P.K                SKIP TO CK FOR NEXT WORD   1616798   00221340
+&P.I1    DS   0H                                              1616798   00221350
+         CLC   =CL7'LEADING',&PICWK IS THIS A LEADING SIGN    1616798   00221360
+         BNE   &P.I2               SKIP TO NEXT CK            1616798   00221370
+         OI    &PICFL1,&PICSLD     SET FLAG: LEADING          1616798   00221380
+         B     &P.I4               CHECK FOR NATIONAL SIGNED  1616798   00221390
+&P.I2    DS   0H                                              1616798   00221400
+         CLC   =CL8'TRAILING',&PICWK IS THIS A TRAILING SIGN  1616798   00221410
+         BNE   &P.I3               SKIP TO NEXT CK            1616798   00221420
+         OI    &PICFL1,&PICSTR     SET FLAG: TRAILING         1616798   00221430
+         B     &P.I4               CHECK FOR NATIONAL SIGNED  1616798   00221440
+&P.I3    DS   0H                                              1616798   00221450
+         CLC   =CL8'SEPARATE',&PICWK IS THIS A SEPARATE SIGN  1616798   00221460
+         BNE   &P.I5               SKIP TO NEXT CK            1616798   00221470
+         OI    &PICFL1,&PICSEP     SET FLAG: SEPARATE         1616798   00221480
+         B     &P.I4               CHECK FOR NATIONAL SIGNED  1616798   00221490
+&P.I4    DS   0H                                              1616798   00221500
+         CLI   &PICNAT,C'Y'        IS THIS PIC NATIONAL?      1616798   00221510
+         BNE   &P.$                  N. INVALID PICTURE       1616798   00221520
+         B     &P.K                SKIP TO CK FOR NEXT WORD   1616798   00221530
+&P.I5    DS   0H                                              1616798   00221540
+         CLC   =CL4'COMP',&PICWK   IS THIS A COMPUTATIONAL ITEM         00222000
+         BNE   &P.J                SKIP TO CK FOR SYNC                  00223000
+         CLI   &PICCMP,C' '        IS SPEC FOR COMP/COMP-4              00224000
+         BNE   &P.K                  N. SKIP TO CK FOR NEXT WORD        00225000
+         MVI   &PICCMP,C'4'         Y. SET DEFAULT COMP TO COMP-4       00226000
+         B     &P.K                SKIP TO CK FOR NEXT WORD             00227000
+&P.J     DS   0H                                                        00228000
+         CLC   =CL4'SYNC',&PICWK   IS THIS A SYNCHRONIZED ITEM          00229000
+         BNE   &P.K                  N. LEAVE SYNC FLAG OFF             00230000
+         OI    &PICFLG,&PICSYN       Y. SET SYNC FLAG ON                00231000
+&P.K     DS   0H                                                        00232000
+         LTR   R2,R2               HAVE WE EXAMINED WHOLE PICTURE FIELD 00233000
+         BNZ   &P.D                  N. LOOP TO READ TO PICTURE END     00234000
+&P.L     DS   0H              ***  FIND DATA LENGTH FROM PICTURE        00235000
+.*--------------------------------------------------------------------- 00236000
+.*  AT THIS POINT, THE FIELD '&PICCMP' VALUE IS SET IF THE PICTURE HAS  00237000
+.*  COMP OR COMPUTATIONAL ANYWHERE IN THE PICTURE CLAUSE OR IF THE      00238000
+.*  USAGE WAS EXPLICITLY SPECIFIED ON INPUT. THE '&PICSYN' FLAG IS      00239000
+.*  SET IF SYNC OR SYNCHRONIZED OCCURS ANYWHERE IN THE PICTURE.         00240000
+.*        EX: FOR COMP-1,  &PICCMP = 1                                  00241000
+.*            FOR COMP-2,  &PICCMP = 2                                  00242000
+.*            FOR COMP-3,  &PICCMP = 3                                  00243000
+.*            FOR COMP  ,  &PICCMP = 4                                  00244000
+.*            FOR COMP-4,  &PICCMP = 4                                  00245000
+.*            FOR COMP-5,  &PICCMP = 5                        1726914   00245010
+.*            FOR DISPLAY, &PICCMP = 7                        1726914   00246000
+.*                                                                      00247000
+.*  THE FIELD '&PICNAT' VALUE IS SET TO Y IF THE PICTURE HAS  1616798   00247400
+.*  NATIONAL ANYWHERE IN THE PICTURE CLAUSE. THE '&PICSLD'    1616798   00247410
+.*  FLAG IS SET IF LEADING OCCURS ANYWHERE IN THE PICTURE.    1616798   00247420
+.*  THE '&PICSTR' FLAG IS SET IF TRAILING OCCURS ANYWHERE     1616798   00247430
+.*  IN THE PICTURE. THE '&PICSEP' FLAG IS SET IF SEPARATE     1616798   00247440
+.*  OCCURS ANYWHERE IN THE PICTURE.                           1616798   00247450
+.*        EX: NATIONAL LEADING SEPARATE                       1616798   00247460
+.*            NATIONAL TRAILING SEPARATE                      1616798   00247470
+.*                                                            1616798   00247480
+.*  THE PROGRAM MUST NOW GO BACK THROUGH R15 TO CALCULATE               00248000
+.*  NUMBER COUNTABLE CHARACTERS.  (P S V ARE NON-COUNTABLE.)            00249000
+.*  NATIONAL NUMERIC DEFINITION REQUIRES THAT THE SIGN BE A   1616798   00249100
+.*  SEPARATE CHARACTER.  IF NATIONAL IS PRESENT IN THE        1616798   00249200
+.*  PICTURE S IS NOW TREATED AS COUNTABLE.                    1616798   00249300
+.*                                                                      00250000
+.*  FOR DISPLAY ITEMS, DATA LENGTH = # COUNTABLE CHARACTERS.            00251000
+.*  FOR COMP-3 ITEMS, DATA LENGTH = ((#CHAR/2) - (REM-1))               00252000
+.*                                                                      00253000
+.*  FOR COMP-1 ITEMS, DATA LENGTH = 4                                   00254000
+.*  FOR COMP-2 ITEMS, DATA LENGTH = 8                                   00255000
+.*  FOR COMP-4 ITEMS, DATA LENGTH = 2 IF #CHARS = 1-4                   00256000
+.*                                = 4 IF #CHARS = 5-9                   00257000
+.*                                = 8 IF #CHARS =10-18                  00258000
+.*  FOR COMP-5 ITEMS, DATA LENGTH = 2 IF #CHARS = 1-4         1726914   00258010
+.*                                = 4 IF #CHARS = 5-9         1726914   00258020
+.*                                = 8 IF #CHARS =10-18        1726914   00258030
+.*                                                                      00259000
+.*--------------------------------------------------------------------  00260000
+         LR    R0,R15              R0 = A(FIRST BYTE OF PICTURE CLAUSE) 00261000
+         LA    R1,0(R3,R15)        R1 = A(LAST BYTE OF PICTURE)         00262000
+         LA    R4,1(,R3)           R4 = L'PICTURE CLAUSE PROPER         00263000
+&P.M     DS   0H                                                        00264000
+         MVC   &PICMLT,=CL5'00001' DEFAULT MULTIPLIER = 1               00265000
+         CLI   0(R1),C')'          DO WE HAVE BACK END OF MULTIPLIER    00266000
+         BNE   &P.P                  N. BYPASS MULTIPLIER PARSE         00267000
+         LA    R2,4                  Y. SET INDEX FOR MULT LAST BYTE    00268000
+         BCTR  R1,R0               R1 = A(LAST DIGIT OF MULTIPLIER)     00269000
+         BCTR  R4,R0               R4 = REMAINING LENGTH OF PICTURE     00270000
+&P.N     DS   0H                                                        00271000
+         CLI   0(R1),C'('          DO WE HAVE FRONT END OF MULTIPLIER   00272000
+         BE    &P.O                  N. EXIT MULTIPLIER PARSE           00273000
+         LA    R5,&PICMLT.(R2)     R5 = A(CURR POSITION IN MULTIPLIER)  00274000
+         MVC   0(1,R5),0(R1)       SAVE MULTIPLIER DIGIT                00275000
+         BCTR  R1,R0               R1 = A(PREVIOUS BYTE OF PICTURE)     00276000
+         BCTR  R2,R0               R2 = INDEX TO MULTIPLIER PREV BYTE   00277000
+         BCT   R4,&P.N             R4 = REMAINING LENGTH OF PICTURE     00278000
+         B     &P.$                SKIP TO ERROR EXIT                   00279000
+&P.O     DS   0H                                                        00280000
+         BCTR  R1,R0               R1 = A(PIC CHAR TO BE MULTIPLIED)    00281000
+         BCTR  R4,R0               R4 = REMAINING LENGTH OF PICTURE     00282000
+&P.P     DS   0H                                                        00283000
+         CR    R0,R1               HAVE WE FOUND ALL COUNTABLE CHARS    00284000
+         BH    &P.S                  Y. SKIP TO CK USAGE FOR LENGTH     00285000
+.* -------------------------------------------------------------------- 00286000
+.* SCALE COUNTS FOR DECIMAL POSITIONS BUT NOT FOR STORAGE LENGTH        00287000
+.* UNLESS SIGN SEPARATE IS SPECIFIED.                                   00288000
+.* -------------------------------------------------------------------- 00289000
+         CLI   0(R1),C'P'          IS THIS A SCALING CHARACTER          00290000
+         BNE   &P.Q                  N. SKIP TO CK OTHER NON-COUNTS     00291000
+         OC    &PICCNT,&PICCNT     ARE SCALING CHARACTERS RIGHTMOST     00292000
+         BZ    &P.R                  Y. DONT COUNT FOR DECIMAL POSITION 00293000
+         LA    R5,0                     (R5 = CLEARED)                  00294000
+         ICM   R5,B'0011',&PICSCL    N. FETCH # DIGITS/SCALE: PREV      00295000
+         LA    R5,1(,R5)                ACCUM # DIGITS/SCALE: NEW       00296000
+         STCM  R5,B'0011',&PICSCL       STORE # DIGITS/SCALE: NEW       00297000
+         B     &P.R                     DONT COUNT FOR DATA LENGTH      00298000
+&P.Q     DS   0H                                                        00299000
+         CLI   0(R1),C'S'          IS THIS SIGN CHAR (NON-COUNTABLE)    00300000
+         BNE   &P.Q1                 N. COUNT FOR DATA LENGTH 1616798   00301000
+         OI    &PICFLG,&PICSGN       Y. SET FLAG: PICTURE IS SIGNED     00302000
+         CLI   &PICNAT,C'Y'        IS THIS PIC NATIONAL?      1616798   00302200
+         BE    &P.Q1                 Y. INCLUDE SIGN IN COUNT 1616798   00302300
+         B     &P.R                     EXIT - DONT COUNT FOR LENGTH    00303000
+&P.Q1    EQU   *                                              1616798   00304000
+         CLI   0(R1),C'V'          IS THIS A DECIMAL LOCATOR            00305000
+         BNE   *+4+6+4               N. SKIP DECPOS LOGIC               00306000
+         MVC   &PICDEC,&PICCNT       Y. SAVE # DIGITS / DEC POSITION    00307000
+         B     &P.R                SKIP TO CHECK NEXT BYTE PREVIOUS     00308000
+*+4+6+4  EQU   *                                                        00309000
+         LA    R5,0                R5 CLEARED                           00310000
+         ICM   R5,B'0011',&PICCNT  FETCH # COUNTABLE CHARACTERS: PREV   00311000
+         PACK  &DWORD,&PICMLT      CONVERT MULTIPLIER FOR CALCULATION   00312000
+         CVB   R6,&DWORD           R6 = MULTIPLIER                      00313000
+         AR    R5,R6               ACCUM # COUNTABLE CHARACTERS: NEW    00314000
+         STCM  R5,B'0011',&PICCNT  STORE # COUNTABLE CHARACTERS: NEW    00315000
+&P.R     DS   0H                                                        00316000
+         BCTR  R1,R0               R1 = PREVIOUS BYTE OF PICTURE        00317000
+         BCT   R4,&P.M             R4 = LOOP TO FRONT OF PICTURE        00318000
+&P.S     DS   0H                                                        00319000
+         LA    R6,0                R6 CLEARED                           00320000
+         ICM   R6,B'0011',&PICSCL  FETCH # DECIMAL POSITIONS VIA SCALE  00321000
+         BZ    &P.T                LEAVE #DEC AS IS IF NO SCALING CHARS 00322000
+         LA    R5,0                R5 CLEARED                           00323000
+         ICM   R5,B'0011',&PICCNT  FETCH # DECIMAL POSITIONS W/O SCALE  00324000
+         AR    R5,R6               ACCUM # DECIMAL POSITIONS TOTAL      00325000
+         STCM  R5,B'0011',&PICDEC  STORE # DECIMAL POSITIONS TOTAL      00326000
+&P.T     DS   0H                                                        00327000
+         CLI   &PICNAT,C'Y'        NATIONAL                   1526736   00327010
+         BNE   &P.TA                                          1526736   00327020
+         XR    R5,R5                                          1526736   00327025
+         ICM   R5,B'0011',&PICCNT                             1526736   00327030
+         AR    R5,R5               DOUBLE STORAGE             1526736   00327040
+         STCM  R5,B'0011',&PICCNT                             1526736   00327050
+         TM    &PICFLG,&PICSGN     IS PICTURE SIGNED?         1616798   00327100
+         BO    &P.T1                 Y. CHECK FOR SEPARATE    1616798   00327110
+         CLI   &PICFL1,X'00'         N. ARE THERE SIGN WORDS? 1616798   00327120
+         BE    &P.TA                 N. CONTINUE              1616798   00327130
+         B     &P.$                  Y. INVALID PICTURE       1616798   00327140
+&P.T1    DS   0H                                              1616798   00327150
+         TM    &PICFL1,&PICSEP     IS SIGN SEPARATE?          1616798   00327160
+         BO    &P.T2                 Y. CHECK FOR LEAD/TRAIL  1616798   00327170
+         B     &P.$                  N. INVALID PICTURE       1616798   00327180
+&P.T2    DS   0H                                              1616798   00327190
+         TM    &PICFL1,&PICSLD     IS SIGN LEADING?           1616798   00327200
+         BO    &P.TA                 Y. CONTINUE              1616798   00327210
+         TM    &PICFL1,&PICSTR     IS SIGN TRAILING?          1616798   00327220
+         BO    &P.TA                 Y. CONTINUE              1616798   00327230
+         B     &P.$                  N. INVALID PICTURE       1616798   00327240
+&P.TA    DS   0H                                              1616798   00327250
+         MVC   &PICLEN,&PICCNT     DEFAULT LENGTH = # COUNTABLE CHAR    00328000
+         CLI   &PICCMP,C'5'        COMP 1-5?                  1726914   00329000
+         BH    &P.Z                  N. SKIP TO MACRO EXIT    1726914   00330000
+         CLI   &PICCMP,C'1'        IS USAGE COMPUTATIONAL               00331000
+         BL    &P.Z                  N. SKIP TO MACRO EXIT              00332000
+         BH    &P.U                  Y. SKIP TO CK COMP-2 IF NOT COMP-1 00333000
+         MVC   &PICLEN,=H'4'       SET PICTURE DERIVED LENGTH = 4       00334000
+         MVI   &PICATT,C'C'        SET PICTURE DERIVED ATTRIB = C       00335000
+         BE    &P.Z                SKIP TO MACRO EXIT                   00336000
+&P.U     DS   0H                                                        00337000
+         CLI   &PICCMP,C'2'        IS THIS ITEM COMPUTATIONAL-2         00338000
+         BNE   *+4+6+4+4             Y. SKIP TO CK COMP-3               00339000
+         MVC   &PICLEN,=H'8'       SET PICTURE DERIVED LENGTH = 8       00340000
+         MVI   &PICATT,C'C'        SET PICTURE DERIVED ATTRIB = C       00341000
+         BE    &P.Z                SKIP TO MACRO EXIT                   00342000
+*+4+6+4+4 EQU  *                                                        00343000
+         CLI   &PICCMP,C'3'        IS THIS ITEM COMPUTATIONAL-3         00344000
+         BNE   &P.V                  Y. SKIP TO CK COMP-4               00345000
+         LA    R5,0                R5 CLEARED                           00346000
+         ICM   R5,B'0011',&PICCNT  FETCH # COUNTABLE CHARACTERS: CHAR   00347000
+         SRL   R5,1                R1 = #DIGITS/2                       00348000
+         LA    R5,1(,R5)           DATA LENGTH = ((#DIGITS/2) + 1)      00349000
+         STCM  R5,B'0011',&PICLEN  STORE # COUNTABLE CHARACTERS: PACKED 00350000
+         MVI   &PICATT,C'P'        SET PICTURE DERIVED ATTRIB = P       00351000
+         B     &P.Z                SKIP TO MACRO EXIT                   00352000
+&P.V     DS   0H               *** USAGE COMP/COMP-4/COMP-5   1726914   00353000
+         MVI   &PICATT,C'B'        SET PICTURE DERIVED ATTRIB = B       00354000
+         MVC   &PICLEN,=H'2'       SET PICTURE DERIVED LENGTH = 2       00355000
+         CLC   &PICCNT,=H'4'       IS THIS A HALFWORD                   00356000
+         BNH   &P.Z                  Y. SKIP TO MACRO EXIT              00357000
+         MVC   &PICLEN,=H'4'       SET PICTURE DERIVED LENGTH = 4       00358000
+         CLC   &PICCNT,=H'9'       IS THIS A FULLWORD                   00359000
+         BNH   &P.Z                  Y. SKIP TO MACRO EXIT              00360000
+         MVC   &PICLEN,=H'8'       SET PICTURE DERIVED LENGTH = 8       00361000
+         B     &P.Z                                                     00362000
+         SPACE                                                          00363000
+&P.W     TRT   &PICWK.(0),&PICVAL  DOES PICTURE USE VALID SYMBOLS       00364000
+&P.X     TRT   &PICWK.(0),&PICALF  IS THE PICTURE ALPHABETIC            00365000
+&P.Y     TRT   &PICWK.(0),&PICNUM  IS THE PICTURE NUMERIC               00366000
+         SPACE                                                          00367000
+&P.$     DS   0H                                                        00368000
+         OI    &PICFLG,&PICERR     SET FLAG: INVALID PICTURE            00369000
+&P.Z     DS   0H                                                        00370000
+         LM    R1,R7,0(R14)        RELOAD CALLER'S REGS                 00371000
+         MEND                                                           00372000

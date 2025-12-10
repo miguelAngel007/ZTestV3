@@ -1,0 +1,59 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00010000
+*                                                                     * 00020000
+*                      TRANSACTION SYSTEM                             * 00030000
+*                 USER OPTION  RECORD LAYOUT                          * 00040000
+*                                                                     * 00050000
+*********************************************************************** 00060000
+*                       *** HISTORY REVISION ***                      * 00070000
+*  02/04/03   INITIAL RELEASE RENAMED FROM TSTS2UOP           0324492 * 00080000
+*********************************************************************** 00090000
+TSTSUOP  DSECT                                                          00100000
+UOP      DS    0X                                                       00110000
+UOPKEY   DS    0CL23   KEY                                              00120000
+UOPAPPL  DS    CL2       APPL ID                                        00130000
+UOPTYPE  DS    CL1       U = USER OPTION                                00140000
+*                        B = CLIENT SPECIFIC USER PHASE                 00150000
+*                        C = CRITICAL ISSUE BULLETIN                    00160000
+*                        D = DOCUMENTATION CHANGE                       00170000
+*                        F = TS/SA CONTROL FILE CHANGE                  00180000
+*                        R = REGIONAL                                   00190000
+*                        S = RSEC                                       00200000
+*                        U = USER OPTION                                00210000
+*                        X = TRANSMIT                                   00220000
+UOPCTLS  DS    0CL16     CTLS                                           00230000
+UOPCTL1  DS    CL4       CTL1                                           00240000
+UOPCTL2  DS    CL4       CTL2                                           00250000
+UOPCTL3  DS    CL4       CTL3                                           00260000
+UOPCTL4  DS    CL4       CTL4                                           00270000
+UOPOPTN  DS    CL4       OPTION NUMBER                                  00280000
+*                                                                       00290000
+UOPLMNT  DS    0CL30      LAST MAINT INFO                               00300000
+UOPLMFL  DS    CL1        FIELD LVL                                     00310000
+UOPLMRL  DS    CL1        REC LVL                                       00320000
+UOPLDTTM DS    0CL12                                                    00330000
+UOPLMDT  DS    0CL6       LAST MNT DATE                                 00340000
+UOPLMMO  DS    CL2                                                      00350000
+UOPLMDA  DS    CL2                                                      00360000
+UOPLMYR  DS    CL2                                                      00370000
+UOPLMTM  DS    0CL6       LAST MNT TIME                                 00380000
+UOPLMHR  DS    CL2                                                      00390000
+UOPLMMN  DS    CL2                                                      00400000
+UOPLMSC  DS    CL2                                                      00410000
+UOPLMEMP DS    CL8        LAST MNT EMPID                                00420000
+UOPLMCHG DS    CL8        LAST MNT CHANGE ID                            00430000
+*                                                                       00440000
+UOPDESC  DS    0CL100      DEFINITION AREA                              00450000
+UOPOPTD  DS    CL49        DEFINITION DESC                              00460000
+UOPBPHS  DS    CL8         DEFINITION BASE MODULE                       00470000
+UOPBILL  DS    CL1         DEFINITION BILLABLE FLAG                     00480000
+         DS    CL42        FILLER                                       00490000
+         ORG   UOPDESC                                                  00500000
+UOPCDESC DS    0CL100      CLIENT SUBSCRIPTION DATA                     00510000
+UOPCOPTD DS    CL46        CLIENT SUBSCRIPTION EXEC DESC                00520000
+UOPDET   DS    0CL11       CLIENT SUBSCRIPTION DETAIL                   00530000
+UOPOPTFL DS    CL1         SUB OPTION FLAG (Y/N)                        00540000
+UOPEXOPT DS    CL10        SUB EXEC DATA                                00550000
+         DS    CL43        FILLER                                       00560000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                                00569900
+         ORG                                                            00570000

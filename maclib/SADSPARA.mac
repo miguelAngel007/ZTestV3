@@ -1,0 +1,669 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'SADSPARA - DATA DICTIONARY PARSING ROUTINE'   0635249   00000100
+*---------------------------------------------------------------------* 00000200
+*                   ** PROGRAM DESCRIPTION **                         * 00000300
+*                                                                     * 00000400
+* PROGRAM SADSPARA                                                    * 00000500
+*                                                                     * 00000600
+*********************************************************************** 00001000
+* THIS ROUTINE DOES COMMAND PARSING FOR THE DATA DICTIONARY.          * 00002000
+* REGISTER THREE POINTS TO THE DICTIONARY COMMUNICATION AREA ADDRESS. * 00003000
+* REGISTER FOUR POINTS TO THE PARSED COMMAND.                         * 00004000
+* REGISTER FIVE POINTS TO THE INPUT / OUTPUT AREA.                    * 00005000
+* REGISTER SEVEN IS USED TO STORE THE COMMAND OPERAND LENGTHS.        * 00006000
+* REGISTER THIRTEEN POINTS TO THE REGISTER SAVE AREA ADDRESS.         * 00007000
+* REGISTER FOURTEEN IS THE RETURN ADDRESS.                            * 00008000
+* REGISTER FIFTEEN IS THE ENTRY POINT ADDRESS FOR DSDIPARS.           * 00009000
+*                                                                     * 00010000
+* VALIDATION IS DONE BY SCANNING THE        COMMAND, CHECKING EACH    * 00011000
+* TOKEN FOR A VALID DICTIONARY KEYWORD.    APPLICATION CODES, FORMAT  * 00012000
+* TYPES, AND FIELD NAMES FROM THE PARSED COMMAND ARE VALIDATED AGAINST* 00013000
+* THE DICTIONARY DEFINITIONS.                                         * 00014000
+*                                                                     * 00015000
+* REGISTERS (3),(4), AND (7) ARE GLOBAL REGISTERS AND SHOULD NOT BE   * 00016000
+* MODIFIED.                                                           * 00017000
+*********************************************************************** 00018000
+*---------------------------------------------------------------------* 00018010
+         EJECT                                                0635249   00018020
+*---------------------------------------------------------------------* 00018030
+*                  ** HISTORY OF REVISIONS **                         * 00018040
+*                                                                     * 00018050
+* DESCRIPTION                                                 CHNGID  * 00018060
+* __________________________________________________________  _______ * 00018070
+* 04/29/05 MAKE ERROR MESSAGES UNIQUE                         0635249   00018970
+*                                                                     * 00018980
+*---------------------------------------------------------------------* 00018990
+         EJECT                                                          00019000
+DSDIPARS CSECT                                                          00020000
+*********************************************************************** 00021000
+*        PROGRAM INITIALIZATION                                       * 00022000
+*********************************************************************** 00023000
+         STM   R14,R12,12(R13)    SAVE CALLERS REGISTERS                00024000
+         LR    R2,R15             SET BASE REGISTER                     00025000
+         USING DSDIPARS,R2        TELL ASSEMBLER OF BASE REGISTER       00026000
+         USING DSCMAREA,R3        DICTIONARY COMMUNICATION AREA         00027000
+         ST    R13,DICMRREG+4     SAVE CALLERS REG 13                   00028000
+         LA    R15,DICMRREG       GET DICTIONARY REGISTER SAVE AREA     00029000
+         ST    R15,8(R13)         CHAIN SAVE AREA ADDRESSES             00030000
+         LR    R13,R15            SET NEW SAVEAREA ADDRESS              00031000
+         XC    DICMSTAT,DICMSTAT  CLEAR STATUS CODE                     00032000
+         CLI   DICMMORE,C'Y'      ARE THERE MORE RECORDS POSSIBLE?      00033000
+         BE    DIPREND            YES - THEN DON'T RE-PARSE COMMAND     00034000
+         XC    DICMNACC,DICMNACC  CLEAR NUMBER OF ACCESSES THIS COMMAND 00035000
+         XR    R7,R7              CLEAR REG FOR TOKEN LENGTH            00036000
+         LA    R8,DICMWORK+4      ENTITY TYPE TABLE AREA                00037000
+         LR    R5,R8              SET BUFFER ADDRESS IN R5              00038000
+         LR    R14,R3             PUT CONTROL AREA ADDRESS IN R14       00039000
+         A     R14,=F'4096'       SET END OF CONTROL AREA               00040000
+         STCM  R14,15,DICMLITA    INITIALIZE LITERAL AREA ADDRESS       00041000
+         LA    R14,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START            00042000
+         STCM  R14,15,DICMWORK    SAVE ADDRESS IN CONTROL AREA          00043000
+         XC    0(DICMFLDL,R14),0(R14) CLEAR FIRST TABLE ENTRY           00044000
+         OI    DICMDTS,DICMALL    SET TO PROCESS ALL FIELDS             00045000
+         MVC   DICMCMD,SPACES     CLEAR COMMAND SAVE AREA               00046000
+         MVC   DICMCFRM,SPACES    CLEAR FORMAT TYPE SAVE                00047000
+         MVC   DICMCALI,SPACES    CLEAR ENTITY NAME                     00048000
+         MVC   DICMCNAM,SPACES    CLEAR FIELD NAME                      00049000
+         BAL   R14,DITKSTRT       GET COMMAND TOKEN                     00050000
+         LA    R9,DICMCMD         SET TARGET ADDRESS                    00051000
+         EX    R7,DIPRCMVC        SAVE COMMAND                          00052000
+         CLC   DICMCMD,=C'END   ' IS COMMAND TO CLOSE DICTIONARY?       00053000
+         BE    DIPREND            YES - THEN EXIT TO NUC FOR CLOSE      00054000
+*********************************************************************** 00055000
+*        VALIDATE COMMAND CODE                                        * 00056000
+*********************************************************************** 00057000
+         BAL   R14,DIPRPARS       GET FIRST ROUTINE TOKEN               00058000
+         LA    R8,DSCLTAB         GET COMMAND TABLE ADDRESS             00059000
+DIPRCVAL EQU   *                                                        00060000
+         CLC   0(6,R8),=6X'FF'    END OF TABLE?                         00061000
+         BE    DIPRCBAD           YES - PRESENT CALLER WITH ERROR       00062000
+         CLC   0(6,R8),DICMCMD    IS THIS THE COMMAND?                  00063000
+         BE    DIPRCRTN           YES - PERFORM DESIGNATED ROUTINES     00064000
+         LA    R8,DICLENT(R8)     GET NEXT COMMAND TABLE ENTRY          00065000
+         B     DIPRCVAL           DO AGAIN                              00066000
+DIPRCRTN EQU   *                                                        00067000
+         CLI   6(R8),EMPTY        END OF ROUTINE INDEXES?               00068000
+         BE    DIPREND            YES - EXIT PARSING ROUTINE            00069000
+         XR    R15,R15            CLEAR WORK REGISTER                   00070000
+         IC    R15,6(R8)          GET ROUTINE INDEX                     00071000
+         SLL   R15,2              MULTIPLY INDEX BY 4                   00072000
+         STCM  R8,15,DICMRECL     SAVE TABLE ENTRY ADDRESS              00073000
+         BAL   R14,DIPRBTAB(R15)  PERFORM PARSING ROUTINE               00074000
+         ICM   R8,15,DICMRECL     RESTORE TABLE ENTRY ADDRESS           00075000
+         LA    R8,1(R8)           GET NEXT ROUTINE INDEX                00076000
+         B     DIPRCRTN           CONTINUE UNTIL ALL ROUTINES PERFORMED 00077000
+DIPRBTAB EQU   *                                                        00078000
+         B     DIPRFVAL           FIELD VALIDATION ROUTINE              00079000
+         B     DIPRTVAL           TYPE VALIDATION ROUTINE               00080000
+         B     DIPRWVAL           WHERE CLAUSE PROCESSING               00081000
+         B     DIPRENTN           BUILD ENTITY NAME ROUTINE             00082000
+         B     DIPRAXIO           EXTRACT FUNCTION FOR AUXIO            00083000
+         B     DIPRMSIO           EXTRACT FUNCTION FOR MAIN DICTIONARY  00084000
+*********************************************************************** 00085000
+*        CREATE FIELD TABLE ENTRY                                     * 00086000
+*********************************************************************** 00087000
+DIPRFVAL EQU   *                                                        00088000
+         STM   R14,R15,12(R13)    SAVE CALLERS REGISTERS                00089000
+         LA    R8,DICMWORK+(DICMELEN*4)+4 FIELD TABLE START             00090000
+         XC    0(DICMFLDL,R8),0(R8)    INIT FIELD TABLE ENTRY           00091000
+DIPRFVDO EQU   *                                                        00092000
+         CLI   0(R4),C'*'         WERE ALL FIELDS SELECTED?             00093000
+         BE    DIPRFALL           YES - SET ALL FLAG THEN BYPASS TOKEN  00094000
+         CLC   0(5,R4),=C'WITH '  START OF BUILD FIELD NAME LIST?       00095000
+         BE    DIPRFNXT           YES - THEN BYPASS TOKEN               00096000
+         CLI   0(R4),LEPAR        BEGINNING OF FIELD NAME LIST?         00097000
+         BE    DIPRFNXT           YES - THEN BYPASS TOKEN               00098000
+         CLI   0(R4),RIPAR        END       OF FIELD NAME LIST?         00099000
+         BE    DIPRFNXT           YES - THEN BYPASS TOKEN               00100000
+         CLI   0(R4),COMMA        FIELD SEPARATOR?                      00101000
+         BE    DIPRFNXT           YES - THEN BYPASS TOKEN               00102000
+         CLC   0(5,R4),=C'FROM '  END OF FIELD NAMES?                   00103000
+         BE    DIPRFEXT           YES - EXIT ROUTINE                    00104000
+         CLC   0(6,R4),=C'WHERE '  END OF FIELD NAMES?                  00105000
+         BE    DIPRFEXT           YES - EXIT ROUTINE                    00106000
+         MVC   DICMCNAM,SPACES    CLEAR ENTITY NAME AREA                00107000
+         LA    R9,DICMCNAM        ADDRESS OF NAME SAVE                  00108000
+         EX    R7,DIPRCMVC        SAVE ENTITY NAME OF ALIAS             00109000
+         BAL   R14,DIPRFNAM       PARSE FIELD NAME                      00110000
+         NI    DICMDTS,255-DICMALL RESET PROCESS ALL FIELDS FLAG        00111000
+         MVI   DICMSFLD(R8),C'S'  INDICATE THIS FIELD SELECTED          00112000
+         XR    R9,R9              CLEAR WORK REG                        00113000
+         AR    R9,R4              POINT PAST TOKEN                      00114000
+         AR    R9,R7              POINT PAST TOKEN                      00115000
+         CLI   1(R9),LEPAR        WERE QUALIFIERS SPECIFIED?            00116000
+         BNE   DIPRCRET           NO - ENTRY HAS BEEN BUILT             00117000
+         BAL   R14,DIPRPARS       GET FIRST QUALIFIER                   00118000
+         CLI   0(R4),COMMA        HAS TOKEN BEEN OMITTED?               00119000
+         BE    DIPRCATT           YES - LOOK FOR NEXT TOKEN             00120000
+         CLI   0(R4),RIPAR        END OF SUBLIST?                       00121000
+         BE    DIPRCRET           YES - GO REWRITE DEFINITION RECORD    00122000
+         EX    R7,DIPRPACK        PACK LENGTH                           00123000
+         OI    DICMSAVE+7,X'0F'   FORCE A VALID SIGN                    00124000
+         CVB   R9,DICMSAVE        CONVERT LENGTH TO BINARY              00125000
+         CH    R9,=H'255'         IS LENGTH VALID?                      00126000
+         BH    DIPRFLER           YES - TELL NUCLEUS OF LENGTH ERROR    00127000
+         STCM  R9,3,DICM1LEN(R8)  SAVE LENGTH IN DEFINITION             00128000
+DIPRCATT EQU   *                                                        00129000
+         BAL   R14,DIPRPARS       GET NEXT QUALIFIER                    00130000
+         CLI   0(R4),COMMA        HAS TOKEN BEEN OMITTED?               00131000
+         BE    DIPRCOCR           YES - LOOK FOR NEXT TOKEN             00132000
+         CLI   0(R4),RIPAR        END OF SUBLIST?                       00133000
+         BE    DIPRCRET           YES - GO REWRITE DEFINITION RECORD    00134000
+         LA    R9,DICM1ATT(R8)    POINT TO FIELD ATTRIBUTE              00135000
+         MVC   DICM1ATT(2,R8),SPACES CLEAR ATTRIBUTE FIELD              00136000
+         EX    R7,DIPRCMVC        MOVE ATTR   TO DEFINITION             00137000
+         CLI   DICM1ATT(R8),C'A'  ALPHA NUMERIC FIELD?                  00138000
+         BE    DIPRCOCR           YES - GO CHECK OCCUR FLAG             00139000
+         CLI   DICM1ATT(R8),C'C'  CHARACTER FIELD?                      00140000
+         BE    DIPRCOCR           YES - GO CHECK OCCUR FLAG             00141000
+         CLI   DICM1ATT(R8),C'X'  HEXADECIMAL FIELD?                    00142000
+         BE    DIPRCOCR           YES - GO CHECK OCCUR FLAG             00143000
+         CLI   DICM1ATT(R8),C'N'  NUMERIC FIELD?                        00144000
+         BNE   DIPRCAPK           NO  - CHECK FOR PACKED FIELD          00145000
+         CLC   DICM1LEN(2,R8),=H'16' LENGTH GREATER THAN 16 DIGITS?     00146000
+         BH    DIPRFLER           YES - TELL NUC OF LENGTH ERROR        00147000
+         B     DIPRCOCR           CHECK OCCUR FLAG                      00148000
+DIPRCAPK EQU   *                                                        00149000
+         CLI   DICM1ATT(R8),C'P'  HEXADECIMAL FIELD?                    00150000
+         BNE   DIPRCABI           NO  - CHECK FOR BINARY FIELD          00151000
+         CLC   DICM1LEN(2,R8),=H'08' LENGTH GREATER THAN 08 DIGITS?     00152000
+         BH    DIPRFLER           YES - TELL NUC OF LENGTH ERROR        00153000
+         B     DIPRCOCR           CHECK OCCUR FLAG                      00154000
+DIPRCABI EQU   *                                                        00155000
+         CLI   DICM1ATT(R8),C'B'  HEXADECIMAL FIELD?                    00156000
+         BNE   DIPRATER           YES - GO CHECK OCCUR FLAG             00157000
+         CLC   DICM1LEN(2,R8),=H'04' LENGTH GREATER THAN 04 DIGITS?     00158000
+         BH    DIPRFLER           YES - TELL NUC OF LENGTH ERROR        00159000
+DIPRCOCR EQU   *                                                        00160000
+         BAL   R14,DIPRPARS       GET NEXT QUALIFIER                    00161000
+         CLI   0(R4),COMMA        HAS TOKEN BEEN OMITTED?               00162000
+         BE    DIPRCDUN           YES - LOOK FOR NEXT TOKEN             00163000
+         CLI   0(R4),RIPAR        END OF SUBLIST?                       00164000
+         BE    DIPRCRET           YES - GO REWRITE DEFINITION RECORD    00165000
+         LA    R9,DICM1IND(R8)    POINT TO FIELD OCCURANCE FLAG         00166000
+         EX    R7,DIPRCMVC        MOVE ATTR   TO DEFINITION             00167000
+         CLI   DICM1IND(R8),C'Y'  OCCURANCE FLAG A Y ?                  00168000
+         BE    DIPRCDUN           YES - FLAG IS OK                      00169000
+         CLI   DICM1IND(R8),C'N'  OCCURANCE FLAG A N ?                  00170000
+         BE    DIPRCDUN           YES - FLAG IS OK                      00171000
+         B     DIPROCER           ANYTHING ELSE IS AN ERROR             00172000
+DIPRCDUN EQU   *                                                        00173000
+DIPRCRET EQU   *                                                        00174000
+         LA    R8,DICMFLDL(R8)    BUMP TO NEXT FIELD ENTRY              00175000
+         LA    R15,DSCMAREA       GET CONTROL AREA START                00176000
+         LR    R0,R8              GET CURRENT TABLE ADDRESS             00177000
+         SR    R0,R15             GET OFFSET INTO CONTROL AREA          00178000
+         CH    R0,=H'4096'        ANY MORE STORAGE?                     00179000
+         BH    DIPRSTER           NO - REPORT SHORT ON STORAGE          00180000
+         STCM  R8,15,DICMWORK     SAVE TABLE END ADDRESS                00181000
+         XC    0(DICMFLDL,R8),0(R8) CLEAR ENTRY TO MARK TABLE END       00182000
+DIPRFNXT EQU   *                                                        00183000
+         BAL   R14,DIPRPARS       GET NEXT FIELD TOKEN                  00184000
+         B     DIPRFVDO           GO GET NEXT FIELD                     00185000
+DIPRFALL EQU   *                                                        00186000
+         OI    DICMDTS,DICMALL    SET TO PROCESS ALL FIELDS             00187000
+         B     DIPRFNXT           GET NEXT FIELD                        00188000
+DIPRFEXT EQU   *                                                        00189000
+         LM    R14,R15,12(R13)    RESTORE CALLERS REGISTERS             00190000
+         BR    R14                RETURN TO CALLER                      00191000
+*********************************************************************** 00192000
+*        PARSE ENTITY TYPE                                            * 00193000
+*********************************************************************** 00194000
+DIPRTVAL EQU   *                                                        00195000
+         STM   R14,R15,12(R13)    SAVE CALLERS REGISTERS                00196000
+         LA    R6,DICMWORK+4      POINT TO ENTITY TABLE                 00197000
+         CLC   DICMCMD,=C'UPDATE' IS THIS COMMAND FOR UPDATE?           00198000
+         BE    DIPRTPSV           YES - THEN NO PREFIX REQUIRED         00199000
+         CLC   0(5,R4),=C'FROM '  WAS 'FROM ' SPECIFIED?                00200000
+         BE    DIPRTVOK           YES - GET ENTITY TYPES                00201000
+         CLC   0(5,R4),=C'INTO '  WAS 'INTO ' SPECIFIED?                00202000
+         BE    DIPRTVOK           YES - GET ENTITY TYPES                00203000
+         CLC   0(6,R4),=C'TABLE ' WAS 'TABLE' SPECIFIED?                00204000
+         BE    DIPRTVOK           YES - GET ENTITY TYPES                00205000
+         CLC   0(8,R4),=C'SYNONYM ' WAS 'SYNONYM' SPECIFIED?            00206000
+         BE    DIPRSYN            YES - GET SYNONYM NAME                00207000
+         B     DIPRFIER           TELL NUC OF NO FROM/INTO/TABLE        00208000
+DIPRTVOK EQU   *                                                        00209000
+         MVC   0(L'DICMKEY,R6),LOWVALU INIT ENTITY TYPE TABLE ENTRY     00210000
+         BAL   R14,DIPRPARS       GET ENTITY TYPE                       00211000
+         CLI   0(R4),LEPAR        START OF FIELD NAME SUBLIST?          00212000
+         BE    DIPRTEXT           YES - THEN EXIT TYPES ROUTINE         00213000
+         CLC   0(6,R4),=C'WHERE ' END OF ENTITY TYPE LIST?              00214000
+         BE    DIPRTEXT           YES - THEN EXIT TYPES ROUTINE         00215000
+DIPRTPSV EQU   *                                                        00216000
+         LA    R9,DICMETYP(R6)    POINT TO ENTITY TYPE SAVE             00217000
+         MVC   DICMETYP(3,R6),SPACES CLEAR ENTITY TYPE AREA             00218000
+         EX    R7,DIPRCMVC        SAVE ENTITY TYPE                      00219000
+         LA    R6,DICMELEN(R6)    BUMP TO NEXT TYPE ENTRY               00220000
+         LA    R9,DICMWORK+(DICMELEN*4)+3   END ADDRESS                 00221000
+         CR    R6,R9              EXCEED TABLE SIZE YET?                00222000
+         BL    DIPRTVOK           NO - CHECK FOR NEXT TYPE              00223000
+         B     DIPRLERR           TOO MANY ENTITY TYPES SPECIFIED       00224000
+DIPRTEXT EQU   *                                                        00225000
+         LM    R14,R15,12(R13)    RESTORE CALLERS REGISTERS             00226000
+         BR    R14                RETURN TO CALLER                      00227000
+*********************************************************************** 00228000
+*        PARSE SYNONYM NAME                                           * 00229000
+*********************************************************************** 00230000
+DIPRSYN  EQU   *                                                        00231000
+         BAL   R14,DIPRPARS       GET SYNONYM NAME                      00232000
+         LA    R6,DICMWORK+4      POINT TO KEY AREA                     00233000
+         MVC   DICMENAM(20,R6),SPACES CLEAR NAME AREA IN KEY            00234000
+         CLI   2(R4),C'.'         WAS APPL ENTERED?                     00235000
+         BNE   DIPRAPER           NO - TELL NUC OF  ERROR               00236000
+         MVC   DICMEAPL(2,R6),0(R4) MOVE APPLICATION TO KEY             00237000
+         LA    R9,DICMETYP(R6)    POINT TO NAME AREA -3 BYTES           00238000
+         EX    R7,DIPRCMVC        SAVE NAME                             00239000
+         MVC   DICMETYP(3,R6),=C'ALI' FORCE ALIAS ENTITY TYPE           00240000
+         BAL   R14,DIPRPARS       GET 'FOR ' KEYWORD                    00241000
+         CLC   0(4,R4),=C'FOR '   WAS 'FOR ' KEYWORD FOUND?             00242000
+         BNE   DIPRFOER           NO - REPORT 'FOR' ERROR               00243000
+         BAL   R14,DIPRPARS       GET ENTITY NAME                       00244000
+         LA    R9,DICMCNAM        POINT TO ENTITY NAME AREA             00245000
+         MVC   DICMCNAM,SPACES    CLEAR ENTITY NAME AREA                00246000
+         EX    R7,DIPRCMVC        SAVE ENTITY NAME                      00247000
+         LM    R14,R15,12(R13)    RESTORE CALLERS REGISTERS             00248000
+         BR    R14                RETURN TO CALLER                      00249000
+*********************************************************************** 00250000
+*        PARSE WHERE CLAUSE                                           * 00251000
+*********************************************************************** 00252000
+DIPRWVAL EQU   *                                                        00253000
+         STM   R14,R15,12(R13)    SAVE    CALLERS REGISTERS             00254000
+         CLC   0(6,R4),=C'WHERE ' IS THIS A WHERE CLAUSE?               00255000
+         BNE   DIPRWERR           NO - REPORT ERROR                     00256000
+         ICM   R8,15,DICMWORK     GET TABLE END ADDRESS                 00257000
+         ICM   R0,15,DICMLITA     GET LITERAL START ADDRESS             00258000
+DIPRWLUP EQU   *                                                        00259000
+         MVC   0(DICMFLDL,R8),LOWVALU INIT FIELD TABLE ENTRY            00260000
+         BAL   R14,DIPRPARS       GET CONDITION OPERAND ONE             00261000
+         MVC   DICMCNAM,SPACES    CLEAR ENTITY NAME AREA                00262000
+         LA    R9,DICMCNAM        ADDRESS OF NAME SAVE                  00263000
+         EX    R7,DIPRCMVC        SAVE ENTITY NAME OF ALIAS             00264000
+         BAL   R14,DIPRFNAM       PARSE FIELD NAME                      00265000
+         MVI   DICMSFLD(R8),C'W'  INDICATE AS WHERE ENTRY               00266000
+         BAL   R14,DIPRPARS       GET CONDITION OPERATOR                00267000
+         CLC   0(2,R4),=C'= '     IS IT AN EQUAL CONDITION?             00268000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00269000
+         CLC   0(2,R4),=C'!='     IS IT AN NOT EQUAL CONDITION?         00270000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00271000
+         CLC   0(2,R4),=C'> '     IS IT AN GREATER THAN CONDITION?      00272000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00273000
+         CLC   0(2,R4),=C'< '     IS IT AN LESS THAN CONDITION?         00274000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00275000
+         CLC   0(2,R4),=C'>='     IS IT AN GREATER OR EQUAL CONDITION?  00276000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00277000
+         CLC   0(2,R4),=C'<='     IS IT AN LESS THAN OR EQUAL CONDITION 00278000
+         BE    DIPRCDOK           YES - THEN CONDITION OPERATOR IS OK   00279000
+         B     DIPRCDER           BAD CONDITION OPERATOR                00280000
+DIPRCDOK EQU   *                                                        00281000
+         MVC   DICM1CND(2,R8),0(R4) SAVE CONDITION OPERATOR IN TABLE    00282000
+         BAL   R14,DIPRPARS       GET LITERAL OR FIELD NAME             00283000
+         CLI   0(R4),QUOTE        IS THIS A CHARACTER LITERAL?          00284000
+         BE    DIPRCLIT           YES - THEN PROCESS LITERAL            00285000
+         CLI   0(R4),C'0'         IS THIS A NUMERIC LIT                 00286000
+         BL    DIPRCKNM           NO - PROCESS AS FIELD NAME            00287000
+         CLI   0(R4),C'9'         IS THIS A NUMERIC LIT                 00288000
+         BH    DIPRCKNM           NO - PROCESS AS FIELD NAME            00289000
+         LA    R6,1(R7)           SAVE LITERAL LENGTH                   00290000
+         LR    R15,R4             SAVE LITERAL START                    00291000
+         MVC   DICM2ATT(2,R8),=C'N ' FORCE ATTR OF NUMB                 00292000
+         MVI   DICM2IND(R8),C'N' FORCE INDEX IND OF NO                  00293000
+         B     DIPRNLIT           PROCESS NUMERIC LITERAL               00294000
+DIPRCKNM EQU   *                                                        00295000
+         MVC   DICMCNAM,SPACES    CLEAR ENTITY NAME AREA                00296000
+         LA    R9,DICMCNAM        ADDRESS OF NAME SAVE                  00297000
+         EX    R7,DIPRCMVC        SAVE ENTITY NAME OF ALIAS             00298000
+         BAL   R14,DIPRSFNM       PARSE FIELD NAME                      00299000
+         B     DIPRCNXT           CHECK FOR ANOTHER WHERE CONDITION     00300000
+DIPRCLIT EQU   *                                                        00301000
+         MVC   DICM2ATT(2,R8),=C'C ' FORCE ATTR OF CHAR                 00302000
+         MVI   DICM2IND(R8),C'N' FORCE INDEX IND OF NO                  00303000
+         LA    R6,1(R7)           SAVE LITERAL LENGTH                   00304000
+         BCTR  R6,0               DECREMENT FOR BEGINNING QUOTE         00305000
+         BCTR  R6,0               DECREMENT FOR ENDING    QUOTE         00306000
+         LA    R15,1(R4)          POINT BEYOND BEGINNING QUOTE          00307000
+DIPRNLIT EQU   *                                                        00308000
+         SR    R0,R6              POINT AT LIT ENTRY START              00309000
+         LR    R9,R0              USE REG 9 AS BASE FOR LIT TABLE       00310000
+         STCM  R6,3,DICM2LEN(R8)  SAVE LITERAL LENGTH IN FIELD TABLE    00311000
+         BCTR  R6,0               MAKE LENGTH RELATIVE TO ZERO          00312000
+         EX    R6,DIPRLMVC        MOVE LITERAL TO TABLE                 00313000
+         MVC   DICM2TYP(3,R8),=C'LIT' FORCE TYPE OF LITERAL             00314000
+         STCM  R0,15,DICM2NAM(R8) SAVE POINTER TO LITERAL IN FIELD      00315000
+         STCM  R0,15,DICMLITA     SAVE LITERAL POINTER IN COMMON        00316000
+DIPRCNXT EQU   *                                                        00317000
+         LA    R14,DICMFLDL(R8)   GET NEXT FIELD ENTRY ADDRESS          00318000
+         STCM  R14,15,DICMWORK    SAVE IN CONTROL AREA                  00319000
+         XC    0(DICMFLDL,R14),0(R14) CLEAR ENTRY TO MARK END TABLE     00320000
+         BAL   R14,DIPRPARS       GET CONNECTOR TOKEN                   00321000
+         CLC   0(3,R4),=C'AND'    IS IT AN AND CONNECTOR?               00322000
+         BE    DIPRCNOK                                                 00323000
+         CLC   0(2,R4),=C'OR'     IS IT AN OR  CONNECTOR?               00324000
+         BE    DIPRCNOK                                                 00325000
+         B     DIPRCNER                                                 00326000
+DIPRCNOK EQU   *                                                        00327000
+         MVC   DICMCONN(1,R8),0(R4) SET CONNECTOR IN FIELD TABLE        00328000
+         LA    R8,DICMFLDL(R8)    BUMP TO NEXT FIELD ENTRY              00329000
+         CR    R8,R0              TABLE OVERLAP?                        00330000
+         BNL   DIPRSTER           YES- REPORT SHORT ON STORAGE          00331000
+         STCM  R8,15,DICMWORK     SAVE NEXT TABLE ENTRY ADDRESS         00332000
+         B     DIPRWLUP           GO GET NEXT FIELD                     00333000
+DIPRWEND EQU   *                                                        00334000
+         LM    R14,R15,12(R13)    RESTORE CALLERS REGISTERS             00335000
+         BR    R14                RETURN TO CALLER                      00336000
+*********************************************************************** 00337000
+*        PARSE BUILD ENTITY NAME                                      * 00338000
+*********************************************************************** 00339000
+DIPRENTN EQU   *                                                        00340000
+         STM   R14,R15,12(R13)    SAVE    CALLERS REGISTERS             00341000
+         LR    R14,R4             SAVE TOKEN START                      00342000
+         LR    R15,R7             SAVE TOKEN LENGTH                     00343000
+         MVC   DICPKEY,SPACES     CLEAR AUXILIARY KEY AREA              00344000
+         LA    R9,DICPKEY         POINT AT 25 BYTE KEY AREA             00345000
+         CLI   0(R4),QUOTE        IS FIRST CHARACTER A QUOTE?           00346000
+         BNE   DIPRENTM           MOVE TOKEN TO KEY                     00347000
+         LA    R4,1(R4)           BYPASS QUOTE                          00348000
+         BCTR  R7,0               DECREMENT BY                          00349000
+         BCTR  R7,0               TWO                                   00350000
+DIPRENTM EQU   *                                                        00351000
+         EX    R7,DIPRCMVC        MOVE IN AUX KEY                       00352000
+         LR    R4,R14             RESTORE TOKEN START                   00353000
+         LR    R7,R15             RESTORE TOKEN LENGTH                  00354000
+         BAL   R14,DIPRPARS       GET 'WITH' KEYWORD                    00355000
+         CLC   0(5,R4),=C'WITH '  IS THIS THE WITH KEYWORD?             00356000
+         BNE   DIPRWKER           REPORT ERROR                          00357000
+         LM    R14,R15,12(R13)    RESTORE CALLERS REGISTERS             00358000
+         BR    R14                RETURN TO CALLER                      00359000
+*********************************************************************** 00360000
+*        EXTRACT FUNCTION FOR AUXILIARY I/O CALL                      * 00361000
+*********************************************************************** 00362000
+DIPRAXIO EQU   *                                                        00363000
+         CLC   0(3,R4),=C'GET'    IS THIS A GET FUNCTION?               00364000
+         BE    DIPRAXGT           YES - GO SET GET INDICATOR            00365000
+         CLC   0(3,R4),=C'BRO'    IS THIS A BRO FUNCTION?               00366000
+         BE    DIPRAXBR           YES - GO SET GET INDICATOR            00367000
+         CLC   0(3,R4),=C'PUT'    IS THIS A PUT FUNCTION?               00368000
+         BE    DIPRAXPT           YES - GO SET PUT INDICATOR            00369000
+         CLC   0(3,R4),=C'DEL'    IS THIS A DEL FUNCTION?               00370000
+         BE    DIPRAXDT           YES - GO SET DEL INDICATOR            00371000
+         CLC   0(3,R4),=C'CLO'    IS THIS A CLO FUNCTION?               00372000
+         BE    DIPRAXCT           YES - GO SET CLO INDICATOR            00373000
+         B     DIPREXER           ANYTHING ELSE IS AN ERROR             00374000
+DIPRAXGT EQU   *                                                        00375000
+         MVI   DICMEXT,DICMAREA   INDICATE READ REQUEST                 00376000
+         BR    R14                RETURN TO CALLER                      00377000
+DIPRAXBR EQU   *                                                        00378000
+         MVI   DICMEXT,DICMABRW   INDICATE BROWSE REQUEST               00379000
+         BR    R14                RETURN TO CALLER                      00380000
+DIPRAXPT EQU   *                                                        00381000
+         MVI   DICMEXT,DICMAWRI   INDICATE WRITE REQUEST                00382000
+         BR    R14                RETURN TO CALLER                      00383000
+DIPRAXDT EQU   *                                                        00384000
+         MVI   DICMEXT,DICMADEL   INDICATE DELETE REQUEST               00385000
+         BR    R14                RETURN TO CALLER                      00386000
+DIPRAXCT EQU   *                                                        00387000
+         MVI   DICMEXT,DICMACLO   INDICATE CLOSE REQUEST                00388000
+         BR    R14                RETURN TO CALLER                      00389000
+*********************************************************************** 00390000
+*        EXTRACT FUNCTION FOR MAIN DICTIONARY                         * 00391000
+*********************************************************************** 00392000
+DIPRMSIO EQU   *                                                        00393000
+         CLC   0(4,R4),=C'GETU'   IS THIS A GET UPDATE FUNCTION?        00394000
+         BE    DIPRMSGU           YES - GO SET GET INDICATOR            00395000
+         CLC   0(3,R4),=C'GET'    IS THIS A GET FUNCTION?               00396000
+         BE    DIPRMSGT           YES - GO SET GET INDICATOR            00397000
+         CLC   0(3,R4),=C'BRO'    IS THIS A BROWSE FUNCTION?            00398000
+         BE    DIPRMSBR           YES - GO SET BRO INDICATOR            00399000
+         CLC   0(3,R4),=C'PUT'    IS THIS A PUT FUNCTION?               00400000
+         BE    DIPRMSPT           YES - GO SET PUT INDICATOR            00401000
+         CLC   0(3,R4),=C'UPD'    IS THIS A UPD FUNCTION?               00402000
+         BE    DIPRMSUP           YES - GO SET UPD INDICATOR            00403000
+         CLC   0(3,R4),=C'DEL'    IS THIS A DEL FUNCTION?               00404000
+         BE    DIPRMSDT           YES - GO SET DEL INDICATOR            00405000
+         CLC   0(3,R4),=C'CLO'    IS THIS A CLO FUNCTION?               00406000
+         BE    DIPRMSCT           YES - GO SET CLO INDICATOR            00407000
+         B     DIPREXER           ANYTHING ELSE IS AN ERROR             00408000
+DIPRMSBR EQU   *                                                        00409000
+         MVI   DICMEXT,DICMBRWS   INDICATE BROWSE REQUEST               00410000
+         BR    R14                RETURN TO CALLER                      00411000
+DIPRMSGT EQU   *                                                        00412000
+         MVI   DICMEXT,DICMREAD   INDICATE READ REQUEST                 00413000
+         BR    R14                RETURN TO CALLER                      00414000
+DIPRMSGU EQU   *                                                        00415000
+         MVI   DICMEXT,DICMUPDT   INDICATE READ UPDATE REQUEST          00416000
+         BR    R14                RETURN TO CALLER                      00417000
+DIPRMSPT EQU   *                                                        00418000
+         MVI   DICMEXT,DICMWRIT   INDICATE WRITE REQUEST                00419000
+         BR    R14                RETURN TO CALLER                      00420000
+DIPRMSUP EQU   *                                                        00421000
+         MVI   DICMEXT,DICMRWRT   INDICATE REWRITE REQUEST              00422000
+         BR    R14                RETURN TO CALLER                      00423000
+DIPRMSDT EQU   *                                                        00424000
+         MVI   DICMEXT,DICMDELE   INDICATE DELETE REQUEST               00425000
+         BR    R14                RETURN TO CALLER                      00426000
+DIPRMSCT EQU   *                                                        00427000
+         MVI   DICMEXT,DICMCLOS   INDICATE CLOSE REQUEST                00428000
+         BR    R14                RETURN TO CALLER                      00429000
+*********************************************************************** 00430000
+*        PARSE FIELD NAME                                             * 00431000
+*********************************************************************** 00432000
+DIPRFNAM EQU   *                                                        00433000
+         LA    R6,DICMCNAM        GET FIELD NAME ADDRESS                00434000
+         LA    R9,20              SET SCAN LENGTH                       00435000
+         XR    R15,R15            CLEAR WORK REGISTER                   00436000
+DIPRFLUP EQU   *                                                        00437000
+         CLI   0(R6),C'.'         IS THIS A TYPE DELIMITER?             00438000
+         BE    DIPRFSAV           YES - THEN PROCESS FIELD              00439000
+         LA    R6,1(R6)           LOOK AT NEXT CHARACTER                00440000
+         LA    R15,1(R15)         INCREMENT TYPE LENGTH                 00441000
+         BCT   R9,DIPRFLUP        CONTINUE UNTIL END OF FIELD           00442000
+         LA    R9,1(R7)           SAVE TOKEN LENGTH                     00443000
+         LA    R6,DICMCNAM        GET FIELD NAME BEGIN ADDRESS          00444000
+         B     DIPRFNSV           SAVE NAME                             00445000
+DIPRFSAV EQU   *                                                        00446000
+         LA    R9,1(R7)           SAVE TOKEN LENGTH                     00447000
+         MVC   DICM1TYP(3,R8),SPACES CLEAR TYPE IN FIELD TABLE          00448000
+         CH    R15,=H'3'          TOO MANY CHARACTERS IN TYPE FIELD?    00449000
+         BH    DIPRTERR           YES - TELL NUC OF TYPE ERROR          00450000
+         SR    R9,R15             GET FIELD NAME LENGTH                 00451000
+         BCTR  R15,0              MAKE LENGTH RELATIVE TO ZERO          00452000
+         EX    R15,DIPRTSAV       SAVE TYPE                             00453000
+         LA    R6,1(R6)           BUMP PAST (.)                         00454000
+         BCTR  R9,0               DECREMENT FOR (.)                     00455000
+DIPRFNSV EQU   *                                                        00456000
+         CH    R9,=H'8'           IS FIELD NAME LENGTH TOO LONG?        00457000
+         BH    DIPRFERR           YES - REPORT NAME ERROR               00458000
+         BCTR  R9,0               MAKE LENGTH RELATIVE TO ZERO          00459000
+         MVC   DICM1NAM(8,R8),SPACES CLEAR NAME IN FIELD TABLE          00460000
+         EX    R9,DIPRNSAV        SAVE NAME                             00461000
+         BR    R14                RETURN TO CALLER                      00462000
+*********************************************************************** 00463000
+*        PARSE FIELD NAME FOR OPERAND 2                               * 00464000
+*********************************************************************** 00465000
+DIPRSFNM EQU   *                                                        00466000
+         LA    R6,DICMCNAM        GET FIELD NAME ADDRESS                00467000
+         LA    R9,20              SET SCAN LENGTH                       00468000
+         XR    R15,R15            CLEAR WORK REGISTER                   00469000
+DIPRSFLP EQU   *                                                        00470000
+         CLI   0(R6),C'.'         IS THIS A TYPE DELIMITER?             00471000
+         BE    DIPRSFSV           YES - THEN PROCESS FIELD              00472000
+         LA    R6,1(R6)           LOOK AT NEXT CHARACTER                00473000
+         LA    R15,1(R15)         INCREMENT TYPE LENGTH                 00474000
+         BCT   R9,DIPRSFLP        CONTINUE UNTIL END OF FIELD           00475000
+         LA    R9,1(R7)           SAVE TOKEN LENGTH                     00476000
+         LA    R6,DICMCNAM        GET FIELD NAME BEGIN ADDRESS          00477000
+         B     DIPRSFNS           SAVE NAME                             00478000
+DIPRSFSV EQU   *                                                        00479000
+         LA    R9,1(R7)           SAVE TOKEN LENGTH                     00480000
+         MVC   DICM2TYP(3,R8),SPACES CLEAR TYPE IN FIELD TABLE          00481000
+         CH    R15,=H'3'          TOO MANY CHARACTERS IN TYPE FIELD?    00482000
+         BH    DIPRTERR           YES - TELL NUC OF TYPE ERROR          00483000
+         SR    R9,R15             GET FIELD NAME LENGTH                 00484000
+         BCTR  R15,0              MAKE LENGTH RELATIVE TO ZERO          00485000
+         EX    R15,DIPRT2SV       SAVE TYPE                             00486000
+         LA    R6,1(R6)           BUMP PAST (.)                         00487000
+         BCTR  R9,0               DECREMENT FOR (.)                     00488000
+DIPRSFNS EQU   *                                                        00489000
+         CH    R9,=H'8'           IS FIELD NAME LENGTH TOO LONG?        00490000
+         BH    DIPRFERR           YES - REPORT NAME ERROR               00491000
+         BCTR  R9,0               MAKE LENGTH RELATIVE TO ZERO          00492000
+         MVC   DICM2NAM(8,R8),SPACES CLEAR NAME IN FIELD TABLE          00493000
+         EX    R9,DIPRN2MV        SAVE NAME                             00494000
+         BR    R14                RETURN TO CALLER                      00495000
+*********************************************************************** 00496000
+*        PARSE COMMAND LINE                                           * 00497000
+*********************************************************************** 00498000
+DIPRPARS EQU   *                                                        00499000
+         CLI   0(R4),LEPAR        WAS THIS TOKEN A DELIMITER?           00500000
+         BE    DIPRTKDL           YES - ADJUST FOR NEW TOKEN START      00501000
+         CLI   0(R4),RIPAR        WAS THIS TOKEN A DELIMITER?           00502000
+         BE    DIPRTKDL           YES - ADJUST FOR NEW TOKEN START      00503000
+         CLI   0(R4),COMMA        WAS THIS TOKEN A DELIMITER?           00504000
+         BE    DIPRTKDL           YES - ADJUST FOR NEW TOKEN START      00505000
+         CLI   0(R4),BLANK        WAS THIS TOKEN A DELIMITER?           00506000
+         BE    DIPRTKDL           YES - ADJUST FOR NEW TOKEN START      00507000
+         LA    R4,2(R4,R7)        GET NEXT TOKEN START ADDRESS          00508000
+         B     DIPRTKND           NOT A DELIMITER                       00509000
+DIPRTKDL EQU   *                                                        00510000
+         LA    R4,1(R4,R7)        GET NEXT TOKEN START ADDRESS          00511000
+DIPRTKND EQU   *                                                        00512000
+         CLI   0(R4),ENDDLM       END OF COMMAND                        00513000
+         BE    DIPREND            YES - EXIT TO NUCLEUS                 00514000
+         LR    R7,R4              SAVE TOKEN START                      00515000
+         BCTR  R7,0               DECREMENT ONE                         00516000
+         CLI   0(R7),ENDDLM       END OF COMMAND                        00517000
+         BE    DIPREND            YES - EXIT TO NUCLEUS                 00518000
+         XR    R7,R7              CLEAR LENGTH REGISTER                 00519000
+DITKSTRT EQU   *                                                        00520000
+         CLI   0(R4),BLANK        IS THIS CHARACTER A SPACE?            00521000
+         BNE   DITKNFND          NO  - THEN PROCESS THIS CHARACTER      00522000
+         LA    R4,1(R4)           POINT PAST SPACE                      00523000
+         B     DITKSTRT           GET NEXT CHARACTER                    00524000
+DITKNFND EQU   *                                                        00525000
+         CLI   0(R4),QUOTE        IS THIS A STRING DELIMITER?           00526000
+         BE    DITKNSTR           YES - SET STRING FLAG                 00527000
+         TM    DICMPARS,DICMSTRG  STRING FLAG SET?                      00528000
+         BO    DITKNNXT           YES - THEN INCLUDE CHARACTER          00529000
+         CLI   0(R4),ENDDLM       END OF TOKEN?                         00530000
+         BE    DITKNEND           YES - PROCESS TOKEN                   00531000
+         CLI   0(R4),LEPAR        END OF TOKEN?                         00532000
+         BE    DITKNEND           YES - PROCESS TOKEN                   00533000
+         CLI   0(R4),RIPAR        END OF TOKEN?                         00534000
+         BE    DITKNEND           YES - PROCESS TOKEN                   00535000
+         CLI   0(R4),COMMA        END OF TOKEN?                         00536000
+         BE    DITKNEND           YES - PROCESS TOKEN                   00537000
+         CLI   0(R4),BLANK        END OF TOKEN?                         00538000
+         BE    DITKNEND           YES - PROCESS TOKEN                   00539000
+DITKNNXT EQU   *                                                        00540000
+         LA    R7,1(R7)           COUNT CHARACTER IN TOKEN LENGTH       00541000
+         LA    R4,1(R4)           GET NEXT CHARACTER                    00542000
+         B     DITKNFND           CHECK CHARACTER TYPE                  00543000
+DITKNEND EQU   *                                                        00544000
+         SR    R4,R7              GET TOKEN START ADDRESS               00545000
+         LTR   R7,R7              IS LENGTH ZERO?                       00546000
+         BZ    DITKNLOK           YES - THEN LENGTH IS OK               00547000
+         BCTR  R7,0               MAKE LENGTH RELATIVE TO ZERO          00548000
+DITKNLOK EQU   *                                                        00549000
+         CLI   0(R4),ENDDLM       IS THIS THE END OF THE INPUT AREA?    00550000
+         BE    DIPREND            YES - RETURN TO NUCLEUS               00551000
+         BR    R14                RETURN TO CALLER                      00552000
+DITKNSTR EQU   *                                                        00553000
+         XI    DICMPARS,DICMSTRG  TOGGLE STRING FLAG                    00554000
+         B     DITKNNXT           INCLUDE APOST IN STRING               00555000
+*********************************************************************** 00556000
+*        ERROR HANDLING ROUTINES                                      * 00557000
+*********************************************************************** 00558000
+DIPRCBAD EQU   *                                                        00559000
+         LA    R0,302             INVALID COMMAND CODE                  00560000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00561000
+         B     DIPREND            RETURN TO NUC                         00562000
+DIPRTERR EQU   *                                                        00563000
+         LA    R0,304             FORMAT TYPE NOT VALID                 00564000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00565000
+         B     DIPREND            RETURN TO NUC                         00566000
+DIPRFERR EQU   *                                                        00567000
+         LA    R0,305             FIELD NAME  NOT VALID                 00568000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00569000
+         B     DIPREND            RETURN TO NUC                         00570000
+DIPRFIER EQU   *                                                        00571000
+         LA    R0,306             FROM/INTO NOT SPECIFIED               00572000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00573000
+         B     DIPREND            RETURN TO NUC                         00574000
+DIPRLERR EQU   *                                                        00575000
+         LA    R0,307             TOO MANY ENTITY TYPES SPECIFIED       00576000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00577000
+         B     DIPREND            RETURN TO NUC                         00578000
+DIPRFOER EQU   *                                                        00579000
+         LA    R0,308             SYNONYM 'FOR' KEYWORD MISSING         00580000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00581000
+         B     DIPREND            RETURN TO NUC                         00582000
+DIPRAPER EQU   *                                                        00583000
+         LA    R0,312             APPLICATION CODE NOT SPECIFIED        00584000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00585000
+         NI    DICMDTS,255-DICMRWD RESET REWRITE FLAG                   00586000
+         B     DIPREND            RETURN TO NUC                         00587000
+DIPRFLER EQU   *                                                        00588000
+         LA    R0,313             FIELD LENGTH IS INVALID               00589000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00590000
+         B     DIPREND            RETURN TO NUC                         00591000
+DIPRNERR EQU   *                                                        00592000
+         LA    R0,314             NUMBER OF FIELDS GREATER THAN 256     00593000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00594000
+         B     DIPREND            RETURN TO NUC                         00595000
+DIPRATER EQU   *                                                        00596000
+         LA    R0,316             INVALID ATTRIBUTE SPECIFIED           00597000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00598000
+         B     DIPREND            RETURN TO NUC                         00599000
+DIPROCER EQU   *                                                        00600000
+         LA    R0,317             INVALID OCCURS FLAG SPECIFIED         00601000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00602000
+         B     DIPREND            RETURN TO NUC                         00603000
+DIPRWERR EQU   *                                                        00604000
+         LA    R0,319             WHERE EXPECTED NOT FOUND              00605000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00606000
+         B     DIPREND            RETURN TO NUC                         00607000
+DIPRSTER EQU   *                                                        00608000
+         LA    R0,2320            SHORT ON STORAGE            0635249   00609000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00610000
+         B     DIPREND            RETURN TO NUC                         00611000
+DIPRCDER EQU   *                                                        00612000
+         LA    R0,321             INVALID CONDITION OPERATOR            00613000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00614000
+         B     DIPREND            RETURN TO NUC                         00615000
+DIPRCNER EQU   *                                                        00616000
+         LA    R0,322             INVALID CONNECTOR                     00617000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00618000
+         B     DIPREND            RETURN TO NUC                         00619000
+DIPRWKER EQU   *                                                        00620000
+         LA    R0,328             KEYWORD "WITH" MISSING                00621000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00622000
+         B     DIPREND            RETURN TO NUC                         00623000
+DIPREXER EQU   *                                                        00624000
+         LA    R0,329             KEYWORD INVALID                       00625000
+         ST    R0,DICMSTAT            IN COMMON AREA                    00626000
+         B     DIPREND            RETURN TO NUC                         00627000
+*********************************************************************** 00628000
+*        RETURN TO NUCLEUS - RELOAD DEF TAB IF NEEDED                 * 00629000
+*********************************************************************** 00630000
+DIPREND  EQU   *                                                        00631000
+         L     R15,4(R13)         GET CALLERS REG 13                    00632000
+         LR    R13,R15            RESTORE CALLERS REGISTER SAVE AREA    00633000
+         LM    R14,R12,12(R13)    RESTORE CALLERS REGISTERS             00634000
+         BR    R14                RETURN TO CALLER                      00635000
+         TITLE 'SADSCLTA  - DICTIONARY COMMAND TABLE'                   00636000
+         COPY  SADSCLTA                                                 00637000
+         TITLE 'SADSPARA - LITERAL POOL'                                00638000
+DIPRFTST CLC   DICMDFNM(0,R8),0(R4) IS FIELD NAME  VALID?               00639000
+DIPRTSAV MVC   DICM1TYP(0,R8),DICMCNAM PUT TYPE IN FIELD TABLE          00640000
+DIPRNSAV MVC   DICM1NAM(0,R8),0(R6)    PUT NAME IN FIELD TABLE          00641000
+DIPRT2SV MVC   DICM2TYP(0,R8),DICMCNAM PUT TYPE IN FIELD TABLE          00642000
+DIPRN2MV MVC   DICM2NAM(0,R8),0(R6)    PUT NAME IN FIELD TABLE          00643000
+DIPRPACK PACK  DICMSAVE(8),0(0,R4) PACK CURRENT FIELD INDEX             00644000
+DIPRCMVC MVC   0(0,R9),0(R4)      SAVE DATA                             00645000
+DIPRNCHK CLC   0(0,R4),DICMCALI   SAME ENTITY NAME AS LAST REQUEST?     00646000
+DIPRLMVC MVC   0(0,R9),0(R15)      MOVE LITERAL TO LITERAL TABLE        00647000
+         LTORG                                                          00648000
+HIGHVALU DC    50X'FF'                                                  00649000
+LOWVALU  DC    50X'00'                                                  00650000
+SPACES   DC    50C' '                                                   00651000
+         DROP                                                           00652000

@@ -1,0 +1,60 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* * * * * *              D  D  T  A  B  E                   * * * * * * 00002000
+*                                                                     * 00003000
+*   DATA DEF TABLE                                                    * 00004000
+*   SAS9DDTD COPYA                                                    * 00005000
+*   MAINT: 05/09/94 SSR COLUMN CONTROL FLAGS                  2522090 * 00006000
+*********************************************************************** 00007000
+         SPACE                                                          00008000
+DDTABE   DSECT                                                          00009000
+DDTNAME  DS    CL8                  DATA DEFINITION NAME                00010000
+*                                    OR MEMORY TAG FOR VIRT. FILE       00011000
+DDTDSTBE DS    XL4                  ADDRESS OF OWNING DSETTBE           00012000
+DDTDSETS DS    0XL8                 DSET ADDRESS(ES)                    00013000
+DDTDSETA DS    XL4                  ADDRESS OF ONLY DSET OR OUTPUT DSET 00014000
+*                                    IF SEQMASTER.                      00015000
+DDTDSETI DS    XL4                  BATCH: ADDR INPUT DST SEQM2500610   00016000
+*                                   CICS: ADDR OF ACTIVE TS   2500610   00016010
+*                                         SSR ENTRY           2500610   00016020
+DDTDSETL DS    XL3                  LENGTH OF DSET TABLE STORAGE        00017000
+         SPACE                                                          00018000
+DDTFLAGS DS    X                    DDTABE FLAG VALUES                  00019000
+DDTFLORG EQU   B'10000000'          THIS DDTABE HOLDS DEFAULT DDNAME    00020000
+DDTFLVIR EQU   B'01000000'          VIRTUAL FILE ('TO MEMORY')          00021000
+DDTFLSET EQU   B'00100000'          INTENT HAS BEEN SET.                00022000
+DDTFLFOV EQU   B'00010000'          A FILE OVERRIDE WAS PROCESSED       00023000
+DDTFLAUX EQU   B'00001000'          THIS DDTABE MATCHES DDNAME IN DST   00024000
+*                                    AS IT WAS ON SAAUX.                00024010
+DDTFLSMS EQU   B'00000100'          SEQUENTIAL UPDATE PAIRED MASTER     00025000
+DDTFLSSR EQU   B'00000010'          CICS: NO APPLICABLE TSSSR 2500610   00026000
+*                                    EITHER NO TSQSI ANCHOR   2500610   00026010
+*                                     -OR-  NO TSSSR INDEX    2500610   00026020
+*                                     -OR-  NO NTRIES FOR APPL2500610   00026030
+*                                     -OR-  NO FILE ENTRIES   2500610   00026040
+*                                           +NO APPL DEFAULT  2500610   00026050
+DDTFLRCV EQU   B'00000001'          RECOVERABLE DATASET: THIS FLAG IS   00027000
+*                                    A COPY OF THE VALUE IN THE DSET.   00028000
+*                                    IF LOGGING IS OFF, THE DSET BIT    00029000
+*                                    WILL BE OFF.  IF LOGGING IS ON,    00030000
+*                                    THIS BIT WILL BE OR'ED TO THE      00031000
+*                                    DSET, TO RE-ACTIVATE LOGGING       00032000
+*                                    BY DSET.                           00033000
+DDTFLAG2 DS    X                    SEGMENTATION FLAG.        2511739   00033100
+DDTFSSRM EQU   B'00010000'         USE ONLINE MASTER SEGS COL.2522090   00033110
+DDTFSSRC EQU   B'00001000'         USE ONLINE CONTROL ''  ''  2522090   00033120
+DDTFSSRA EQU   B'00000100'         USE ONLINE ALPHA   ''  ''  2522090   00033130
+DDTFSEGC EQU   B'00000010'          CLOSABLE SEGMENTATION FILE2522090   00033200
+DDTFSEGF EQU   B'00000001'          SEGMENTATION FILE         2522090   00033300
+DDTFGETS DS    X              Y INDICATE LAST ACCESS = GET SEQ2511739   00033400
+DDTFDFLT DS    X              Y = CONTROLLED BY DFLT SSR RECOR2511739   00033500
+         SPACE                                                          00034000
+DDTCOPYA DS    XL4                  DBCOPY WORKAREA ADDRESS             00035000
+DDTCOPYL DS    XL4                  DBCOPY WORKAREA LENGTH              00036000
+DDTTSSRA DS    XL4                  ADDRESS OF SSR IN SAS9TSSR          00036500
+         DS    0F                                                       00037000
+DDTELEN  EQU   *-DDTABE             LENGTH OF ONE TABLE ENTRY           00038000
+         SPACE                                                          00039000
+* * * * * *              D  D  T  A  B  E                   * * * * * * 00040000
+*********************************************************************** 00041000
+         SPACE 3                                                        00042000

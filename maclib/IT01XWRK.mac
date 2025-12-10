@@ -1,0 +1,128 @@
+*********************************************************************** 00000010
+* IT01XWRK: WORK FIELD FOR INTERFAZ SAFEII AND SYSTEMATICS            * 00000020
+*********************************************************************** 00000040
+WRKFLD1  DS    PL8                * WORK FIELD 1:                     * 00000070
+WRKFLD2  DS    PL8                * WORK FIELD 2:                     * 00000080
+WRKFLD3  DS    PL8                * WORK FIELD 3:                     * 00000090
+WRKFLD4  DS    PL8                * WORK FIELD 4:                     * 00000100
+*********************************************************************** 00000250
+*                  WORK FIELDS FOR KEY                                * 00000260
+*********************************************************************** 00000270
+WRKEYEFR DS    0CL23              * KEY OF FILE 'EFR'                 * 00000280
+WKEFRIDE DS    CL3                * IDENTIFICATION OF FILE            * 00000290
+WKEFRCLA DS    CL10               * CLASS OF FILE                     * 00000300
+WKEFRFIL DS    CL8                * FILLER                            * 00000310
+WKEFRSQN DS    CL2                * NUMBER SEQUENCE                   * 00000320
+*                                                                     * 00000720
+WRKEYETR DS    0CL23              * KEY OF FILE 'ETR'                 * 00000280
+WKETRIDE DS    CL3                * IDENTIFICATION OF FILE            * 00000290
+WKETRCLA DS    CL10               * CLASS OF FILE                     * 00000300
+WKETRTRX DS    CL4                * CODE TRANSACTION                  * 00000310
+WKETRFIL DS    CL4                * FILLER                            * 00000320
+WKETRSQN DS    CL2                * NUMBER SEQUENCE                   * 00000320
+*                                                                     * 00000720
+*********************************************************************** 00000740
+*          WORK FIELDS FOR SAVE AREAS:                                * 00000750
+*          - SAVE AREA FOR THE WORK REGISTERS R6 - R10.               * 00000760
+*          - SAVE AREA FOR A LOOP COUNTER.                            * 00000770
+*          - SAVE AREA FOR A ADDRESS.                                 * 00000770
+*********************************************************************** 00000780
+         DS    0D                 * ALIGN ON DOUBLE-WORD BOUNDARY.    * 00000840
+SPMWORK  DS   2D                  * DOUBLE WORD.                      * 00000790
+FLWSAV01 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000790
+FLWSAV02 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000790
+FLWSAV03 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000790
+FLWSAV04 DS    F                  * SAVE AREA FOR PROGRAM.            * 00000790
+WRKLOOP1 DS    F                  * LOOP COUNTER SAVE AREA.           * 00000800
+WRKPNTP1 DS    F                  * AREA FOR POINTER.                 * 00000800
+WRKPNTP2 DS    F                  * AREA FOR POINTER.                 * 00000800
+WRKPNTP3 DS    F                  * AREA FOR POINTER.                 * 00000800
+WRKADDR1 DS    F                  * AREA FOR ADDRESS.                 * 00000800
+WRKADDR2 DS    F                  * AREA FOR ADDRESS.                 * 00000800
+WRKADDR3 DS    F                  * AREA FOR ADDRESS.                 * 00000800
+WRKADDR4 DS    F                  * AREA FOR ADDRESS.                 * 00000800
+WRKHLFWR DS    H                  * AREA FOR WORK.                    * 00000800
+WRKLGEFR DS    H                  * AREA FOR LENGHT.                  * 00000800
+WRKLGETR DS    H                  * AREA FOR LENGHT.                  * 00000800
+WRKWSLEN DS    H                  * AREA FOR LENGHT.                  * 00000800
+WRKWSLON DS    H                  * AREA FOR LENGHT.                  * 00000800
+*********************************************************************** 00000810
+*                WORK FIELDS FOR VARIOUS FIELDS.                      * 00000820
+*********************************************************************** 00000830
+         DS    0D                 * ALIGN ON DOUBLE-WORD BOUNDARY.    * 00000840
+WRKDBLW  DS    D                  * DOUBLE WORD.                      * 00000850
+WRKPL2   DS    PL2                * 2-BYTE PACKED FIELD.              * 00000870
+WRKNROBT DS    PL2                * WORK FIELD                        * 00000870
+WRKTGLOC DS    PL2                * WORK FIELD                        * 00000870
+WRKTGLEN DS    PL2                * WORK FIELD                        * 00000870
+WRKNRTRL DS    PL3                * WORK FIELD                        * 00000870
+WRKTGLNG DS    PL2                * WORK FIELD                        * 00000870
+WRKLNGDL DS    PL2                * WORK FIELD                        * 00000870
+WRKSRLOC DS    PL2                * WORK FIELD                        * 00000870
+WRKSCLNG DS    PL2                * WORK FIELD                        * 00000870
+WRKTRLNG DS    PL2                * WORK FIELD                        * 00000870
+WRKCNTR  DS    PL2                * WORK FIELD                        * 00000870
+WRKLGTEM DS    PL3                * WORK FIELD                        * 00000870
+WRKLNGT  DS    PL3                * WORK FIELD                        * 00000870
+WRKNROCH DS    PL3                * WORK FIELD                        * 00000870
+WRKLONTR DS    PL3                * WORK FIELD                        * 00000870
+WRKTRLOC DS    PL3                * WORK FIELD                        * 00000870
+*********************************************************************** 00002750
+*          WORK FIELDS FOR INDICATORS:                                * 00002760
+*          - END-OF-LOOP INDICATOR.                                   * 00002770
+*          - INDICATOR OF TYPE TRANSACTION.                           * 00002780
+*          - GENERAL PURPOSE INDICATOR.                               * 00002790
+*********************************************************************** 00002800
+WRKLOOP  DS    XL1                * STATUS OF LOOP:                   * 00002810
+LOOPDO   EQU   B'00000000'        * - CONTINUE TO DO THE LOOP.        * 00002820
+LOOPEND  EQU   B'10000000'        * - END OF LOOP.                    * 00002830
+WRKIND   DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WRKIND00 EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WRKIND01 EQU   B'01000000'        * BIT 1 SET.                        * 00002920
+WRKIND02 EQU   B'00100000'        * BIT 2 SET.                        * 00002930
+WRKBITON DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WRKINDOP DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKTEST   EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WKSETON  EQU   B'01000000'        * BIT 1 SET.                        * 00002910
+WKSETOFF EQU   B'00100000'        * BIT 2 SET.                        * 00002910
+WRKSTABT DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKBITON  EQU   B'11111111'        * BIT ON.                           * 00002920
+WKBITOFF EQU   B'00000000'        * BIT OFF.                          * 00002930
+WRKCODRE DS    XL1                * CODE RETURN.                      * 00002900
+WKRETOK  EQU   B'00000000'        * RETURN CODE OK                    * 00002920
+WKRETBAD EQU   B'11111111'        * RETURN CODE BAD                   * 00002930
+WRKTYPME DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKINDSDR EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WKINDMSG EQU   B'01000000'        * BIT 1 SET.                        * 00002910
+WRKTYPMG DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKINPRDS EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WRKTYPFM DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKINDAPF EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WKINDHST EQU   B'01000000'        * BIT 1 SET.                        * 00002910
+WRKTYPDI DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WKINDDIS EQU   B'10000000'        * BIT 0 SET.                        * 00002910
+WKINDPRT EQU   B'01000000'        * BIT 1 SET.                        * 00002910
+WRKFOUND DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WRKTGROP DS    XL1                * GENERAL PURPOSE INDICATOR.        * 00002900
+WRKDLM11 DS    XL1                * CODE DELIMITER.                   * 00002900
+WRKTYPE  DS    XL1                * TYPE OF TRAILER HEADER.           * 00002900
+WRKTTYPE DS    CL1                * TYPE OF TRAILER TRANSACTION.      * 00002900
+WRKAPFM  DS    XL1                * TYPE FIELD AP FORMAT.             * 00002900
+WRKHSFM  DS    XL1                * TYPE FIELD HOST FORMAT.           * 00002900
+WRKFMHDI DS    XL1                * FMH DISPLAY.                      * 00002900
+WRKFMHPR DS    XL1                * FMH PRINTER.                      * 00002900
+WRKNEWLI DS    XL1                * TYPE FIELD NEW LINE.              * 00002900
+WRKSDR   DS    XL1                * TYPE FIELD SDR.                   * 00002900
+WRKFINSD DS    XL1                * TYPE FIELD END SDR.               * 00002900
+WRKSRTYP DS    XL1                * TYPE FIELD SOURCE.                * 00002900
+WRKDLMT  DS    XL5                * DELIMITER SYSTEMATICS NEW LINE    * 00002900
+WRKFMHST DS    XL2                * FMH HOST FORMAT.                  * 00002900
+WRKDISP  DS    CL3                * DELIMITER DISPLAY.                * 00002900
+WRKPRTN  DS    CL3                * DELIMITER PRINTER.                * 00002900
+TRANSOK  DS    XL1                * INDICATOR CODE RETURN.            * 00002900
+WRKTEMPO DS    CL16               * AREA TEMPORAL.                    * 00002900
+WRKTRANS DS    CL8                * AREA TEMPORAL.                    * 00002900
+WRKEIB   DS    CL8                * AREA TEMPORAL.                    * 00002900
+*********************************************************************** 00003380
+*                          END OF IT01XWRK                            * 00003390
+*********************************************************************** 00003400

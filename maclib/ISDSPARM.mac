@@ -1,0 +1,28 @@
+         MACRO                                                          00000100
+         ISDSPARM &DSECT=YES                                            00000200
+         AIF   ('&DSECT' EQ 'YES').DSECT                                00000300
+ISDSPARM EQU   *                                                        00000400
+SLASH    DS    X                       BACK SLASH                       00000500
+QUOTE    DS    X                       QOUTE                            00000600
+EXCLMTN  DS    X                       EXCLAMATION POINT                00000700
+         DS    X                                                        00000800
+MAILMTBL DS    XL256                   MAIL MERGE FORMAT TABLE          00000900
+LOTUSTBL DS    XL256                   LOTUS FORMAT TABLE               00001000
+SLASHTB  DS    XL256                   FORWARD TO BACK SLASH TABLE      00001100
+UPRCASE  DS    XL256                   LOWER TO UPPER CASE TABLE        00001200
+LWRCASE  DS    XL256                   UPPER TO LOWER CASE TABLE        00001300
+         DS    XL64                    SI DATE/TIME STAMP               00001400
+         AGO   .END                                                     00001500
+.DSECT   ANOP                                                           00001600
+ISDSPARM DSECT                                                          00001700
+SLASH    DS    X                       BACK SLASH                       00001800
+QUOTE    DS    X                       QOUTE                            00001900
+EXCLMTN  DS    X                       EXCLAMATION POINT                00002000
+         DS    X                                                        00002100
+MAILMTBL DS    XL256                   MAIL MERGE FORMAT TABLE          00002200
+LOTUSTBL DS    XL256                   LOTUS FORMAT TABLE               00002300
+SLASHTB  DS    XL256                   FORWARD TO BACK SLASH TABLE      00002400
+UPRCASE  DS    XL256                   LOWER TO UPPER CASE TABLE        00002500
+LWRCASE  DS    XL256                   UPPER TO LOWER CASE TABLE        00002600
+         DS    XL64                    SI DATE/TIME STAMP               00002700
+.END     MEND                                                           00002800

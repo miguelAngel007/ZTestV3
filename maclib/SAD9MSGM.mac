@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000000
+         SAD9MSGM &DSECT=YES,&TYPE=SAAUX                                00001000
+.*--------------------------------------------------------------------- 00001010
+.*                   ** MACRO DESCRIPTION **                  2022261   00001020
+.*                                                                      00001030
+.* SAD9MSGM IS THE MACRO TO GENERATE THE MESSAGE RECORD LAYOUT          00001040
+.*                                                                      00001050
+.*--------------------------------------------------------------------- 00001060
+.*                  ** HISTORY OF REVISIONS **                2022261   00001070
+.*                                                                      00001080
+.* DESCRIPTION                                                CHNGID    00001090
+.* __________________________________________________________ _______   00001100
+.* 11/10/99 MODIFIED TO ADD ADDITIONAL SEVERITY CODES         2022261   00001970
+.*                                                                      00001980
+.*--------------------------------------------------------------------- 00001990
+         AIF   ('&DSECT' EQ 'YES').MSGDSCT                              00002000
+&TYPE  DS    0F                                                         00003000
+         AGO   .MSGCONT                                                 00004000
+.MSGDSCT ANOP                                                           00005000
+&TYPE DSECT                                                             00006000
+.MSGCONT ANOP                                                           00007000
+&TYPE.MES DS    CL6                MESSAGE KEY (APPL AND NUMBER)        00008000
+&TYPE.TYP DS    CL1                TEXT TYPE                            00009000
+&TYPE.TXT DS    CL50               TEXT                                 00010000
+&TYPE.TXS DS    CL25               SHORT TEXT                           00011000
+&TYPE.SEV DS    CL2                BATCH SEVERITY                       00012000
+&TYPE.ADM DS    CL2                ADMIN SEVERITY                       00013000
+&TYPE.TEL DS    CL2                TELLER SEVERITY                      00014000
+&TYPE.ATM DS    CL2                ATM SEVERITY                         00015000
+&TYPE.PLT DS    CL2                PLATFORM SEVERITY          2022261   00015100
+&TYPE.OC5 DS    CL2                SEVERITY OCCURRENCE 5      2022261   00015200
+&TYPE.OC6 DS    CL2                SEVERITY OCCURRENCE 6      2022261   00015300
+&TYPE.OC7 DS    CL2                SEVERITY OCCURRENCE 7      2022261   00015400
+&TYPE.OC8 DS    CL2                SEVERITY OCCURRENCE 8      2022261   00015500
+&TYPE.OC9 DS    CL2                SEVERITY OCCURRENCE 9      2022261   00015600
+&TYPE.OCA DS    CL2                SEVERITY OCCURRENCE A      2022261   00015700
+&TYPE.BRT DS    CL1                BATCH ROUTE FLAG                     00016000
+&TYPE.ORT DS    CL1                ONLINE ROUTE FLAG                    00017000
+&TYPE.ABE DS    CL1                ABEND INDICATOR                      00018000
+&TYPE.PST DS    CL1                FORCE POST FLAG                      00019000
+&TYPE.SEC DS    CL1                SECURITY ERROR FLAG                  00020000
+&TYPE.DES DS    CL316              DESCRIPTION                          00021000
+         MEND                                                           00022000

@@ -1,0 +1,81 @@
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+*********************************************************************** 00000100
+*                TSTL2PSV--PASSBOOK TEMPORARY STORAGE SAVE AREA       * 00000200
+*                                                                     * 00000300
+*    PASSBOOK SAVE AREA FOR PASSING TRANSACTIONS TO THE               * 00000400
+*    OUTPUT ROUTINE FOR PRINTING.                                     * 00000500
+*    THIS IS A DEFINITION OF MAIN STORAGE AND ITS ADDRESS             * 00000600
+*    IS SAVED IN THE TSCB AREA.                                       * 00000700
+*    LENGTH IS 15 + (70 TIMES NUMBER OF OCCURENCES)                   * 00000800
+*********************************************************************** 00000900
+*                  ** HISTORY OF REVISIONS **               * 9910395   00000902
+*                                                           * 9910395   00000904
+* DESCRIPTION                                       CHNGID  * 9910395   00000906
+* ________________________________________________  _______ * 9910395   00000908
+* 08/29/03 REPLACE FILLER WITH IMPACS CHECK NUMBER   TL0487 * 0420487   00000990
+* 02/27/98 DECREASE FILLER IN RENEWAL FIELDS        ~~~0422 * 9910422   00000993
+* 01/20/98 INCREASE FIELD SIZES                     ~~~0422 * 9910422   00000994
+* 03/24/97 TELLER CD PASSBOOKS                      ~~~0395 * 9910395   00000996
+* ________________________________________________  _______ * 9910395   00000998
+PBSVWRK  DSECT                                                          00001000
+PBSVAREA DS    0CL15                                                    00001100
+PBSVLEN  DS    XL4                       PASSBOOK RECORD LENGTH         00001200
+PBSVLINE DS    XL2                       NUMBER OF PASSBOOK TRANS       00001300
+PBSVBALA DS    PL9                       BALANCE ADJUSTMENT             00001400
+*                                                                       00001500
+PBSVTRIT DS    CL2100                    PASSBOOK TRANS                 00001600
+*                                                                       00001700
+         ORG   PBSVTRIT                                                 00001800
+PBSVTRAN DS    0CL70                     ONE OCCURRENCE OF TRANS        00001900
+PBSVEDTE DS    0CL6                      EFFECTIVE DATE                 00002000
+PBSVEDYR DS    CL2                                                      00002100
+PBSVEDMO DS    CL2                                                      00002200
+PBSVEDDA DS    CL2                                                      00002300
+PBSVDT   DS    0CL6                      TRANSACTION DATE               00002400
+PBSVMO   DS    CL2                          MONTH                       00002500
+PBSVDA   DS    CL2                          DAY                         00002600
+PBSVYR   DS    CL2                          YEAR                        00002700
+*                                                                       00002800
+PBSVRENW DS   0CL20                      RENEWAL FIELDS       9910395   00002810
+PBSVRNDT DS    CL6                       RENEWAL DATE         9910395   00002820
+PBSVRNRT DS    PL5                       RENEWAL RATE         9910422   00002830
+PBSVRNTM DS    CL1                       RENEWAL TERM         9910395   00002840
+PBSVRNIN DS    PL2                       RENEWAL INCR         9910395   00002850
+PBSVRNIT DS    CL3                       RENEWAL ITEM         9910395   00002860
+         DS    CL3                       FILLER               9910422   00002870
+         ORG   PBSVRENW                                       9910395   00002880
+PBSVBRCH DS    CL4                       PHYSICAL BRANCH                00002900
+PBSVTELR DS    CL8                       TELLER ID                      00003000
+PBSVSERN DS    CL8                       SERIAL NO                      00003100
+PBSVREVF DS    CL1                       REVERSAL FLAG                  00003200
+PBSVTIME DS    0CL6                      TRAN TIME                      00003300
+PBSVHRS  DS    CL2                          HOURS                       00003400
+PBSVMIN  DS    CL2                          MINUTES                     00003500
+PBSVSEC  DS    CL2                          SECONDS                     00003600
+PBSVTC   DS    CL2                       TRANSACTION CODE               00003700
+*                                           01 - DEPOSIT/CREDIT         00003800
+*                                           02 - INTEREST/CREDIT        00003900
+*                                           51 - WITHDRAWAL/DEBIT       00004000
+*                                           52 - SERVICE CHRG/DEBIT     00004100
+*                                           53 - PENALTY/DEBIT          00004200
+*                                           54 - TAX/DEBIT              00004300
+*                                           91 - MEMO/(NOT MONETARY)    00004400
+*                                           99 - RENEWAL      9910395   00004410
+*                                                                       00004500
+PBSVBAL  DS    PL9                          RUNNING BALANCE             00004600
+PBSVMON  DS    0CL15                     MONETARY TRANSACTION           00004700
+PBSVAMT  DS    PL9                          TRANSACTION AMOUNT          00004800
+PBSVUTC  DS    CL4                          USER TRANCODE               00004900
+PBSVUSC  DS    CL2                          USER SUB CODE               00005000
+*                                                                       00005100
+         ORG   PBSVMON                                                  00005200
+PBSVMEM  DS    CL15                      MEMO MESSAGE TEXT              00005300
+*                                                                       00005500
+* NOTE                                                        0420487   00005505
+* PBSVCKNO CONTAINS THE HEXADECIMAL VALUE OF A 10 BYTE CHECK  0420487   00005510
+* NUMBER. THIS WAS DONE TO AVOID EXPANDING THE COPYBOOK.      0420487   00005515
+* TSTLOTL1 - OUTPUT ANALYSIS WILL CONVERT IT TO DECIMAL.      0420487   00005520
+*                                                             0420487   00005525
+PBSVCKNO DS    CL5                       IM CHECK NUMBER      0420487   00005600
+*                                                                       00005700
+         DS    CL2030                    OCCURRENCES 2 - 30             00005800

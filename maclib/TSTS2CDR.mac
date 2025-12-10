@@ -1,0 +1,39 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000100
+*             TSTS2CDR - CONTROLLER DEFINITION RECORD                *  00000200
+*                                                                    *  00000300
+**********************************************************************  00000400
+*-----------------------------------------------------------* 0314611   00000402
+*                  ** HISTORY OF REVISIONS **               * 0314611   00000404
+*                                                           * 0314611   00000406
+* DESCRIPTION                                       CHNGID  * 0314611   00000408
+* ________________________________________________  _______ * 0314611   00000410
+*                                                           * 0314611   00000412
+* 10/04/02 ADD CDR CHANGID FIELD                    ~~~4611 * 0314611   00000496
+************************************************************* 0314611   00000498
+         SPACE 2                                                        00000500
+TSTSCDR  DSECT                                                          00000600
+CDR      DS    0X                                                       00000700
+CDRLNG   DS    XL2                     CDR RECORD LENGTH                00000800
+*                                      MAX. VALUE '+540'                00000900
+CDRLNGFL DS    XL2                     FILLER LOW VALUES                00001000
+CDRKEY   DS    0CL23                   KEY                              00001100
+CDRRECID DS    CL3                     RECORD ID 'CDR'                  00001200
+CDRCLAS  DS    CL10                    CLASS                            00001300
+CDRNAME  DS    CL8                     NAME - EXTERNAL TRAN ID          00001400
+CDRSEQN  DS    CL2                     SEQUENCE NUMBER - VALUE '00'     00001500
+*     END OF KEY                                                        00001600
+CDRLMNT  DS    0CL28                   LAST MAINTENANCE INFO  0314611   00001610
+CDRLMDT  DS    CL6                     LAST MAINTENCE DATE MMDDYY       00001700
+CDRLMTM  DS    CL6                     LAST MAINTENCE TIME HHMMSS       00001800
+CDRLMEM  DS    CL8                     LAST MAINTENCE EMPLOYEE ID       00001900
+CDRLCID  DS    CL8                     CHANGE ID              0314611   00002000
+CDRFILRA DS    CL4                     FILLER - VALUE SPACES  0314611   00002010
+CDRFILR  DS    CL23                    FILLER - VALUE SPACES  0314611   00002100
+CDROCCR  DS    PL2                     NUMBER OF FIELD ID'S 'MAX = 57'  00002200
+CDRSTMLG EQU   *-CDR                   LENGTH OF STEM OF CDR            00002300
+CDRFLDID DS    CL8                     1ST FIELD ID                     00002400
+CDRFLIDS DS    CL448                   2ND THRU 57TH OCCUR OF FIELD ID  00002500
+*                                                                       00002600
+CDREND   EQU   *                       SYMBOLIC END OF CDR              00002700
+CDRLEN   EQU   *-CDR                   SYMBOLIC LENGTH OF CDR           00002800

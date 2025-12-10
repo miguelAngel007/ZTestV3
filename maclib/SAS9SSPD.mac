@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* SA STORAGE SEGMENT PREFIX AND OTHER ASSOCIATED DATA                 * 00002000
+* 012000    ADDED ADDRESS TO ALFA VECTOR                      2024207   00002999
+* 061093LKS ADD SECOND FLAG BYTE PGMFLAG2                     2500295   00003000
+*SAS9SSPD                                                             * 00004000
+*********************************************************************** 00005000
+SASSP    DSECT             SA STORAGE SEGMENT PREFIX                    00006000
+SASSPSID DS    CL04        ..STORAGE ID('DTA ','PGM ','SYS ')           00007000
+SASSPAMT DS    F           ..STORAGE AMOUNT                             00008000
+SASSPF@  DS    F           ..FWD POINTER                                00009000
+SASSPB@  DS    F           ..BWD POINTER                                00010000
+SASSPL0  EQU   *-SASSP     LENGTH OF PREFIX                             00011000
+SASSPCNT DS    H           ..NBR OF TABLE ENTRIES                       00012000
+SASSPACT DS    H           ..NBR OF TABLE ENTRIES USED                  00013000
+SASSPLEN DS    H           ..LENGTH OF TABLE ENTRIES                    00014000
+         DS    0F                                                       00015000
+SASSPL1  EQU   *-SASSP     LENGTH OF PREFIX+EXTENTION                   00016000
+SASSPTBL EQU   *           BEGIN OF TABLE                               00017000
+         SPACE 2                                                        00018000
+PGMNTRY  DSECT             PROGRAM TABLE ENTRY                          00019000
+PGMNAME  DS    CL08        ..PGM NAME                                   00020000
+PGMFLAG  DS    XL01        ..PGM FLAG                                   00021000
+$PGMKEEP EQU   X'80'       ....KEEP PGM IN STORAGE                      00022000
+$PGMUSE  EQU   X'40'       ....PGM IN USE                               00023000
+$PGMRLES EQU   X'20'       ....RELEASABLE                               00024000
+$PGMNFND EQU   X'10'       ....PGM NOT FOUND                            00025000
+$PGMAPI  EQU   X'08'       ....API PGM                                  00026000
+$PGMCBL  EQU   X'04'       ....CBL PGM                                  00027000
+$PGMLOAD EQU   X'01'       ....PRELOADED MODULE                         00028000
+PGMLVL   DS    XL01        ..PGM EXEC LEVEL                             00029000
+PGMFLAG2 DS    XL01        ..MORE PGM FLAGS                   2500295   00029010
+$PGMCBL2 EQU   X'80'       ....COBOL 2 PROGRAM                2500295   00029012
+$PGMAMOD EQU   X'40'       ....AMODE (31 IF ON)               2500295   00029014
+$PGMRMOD EQU   X'20'       ....RESIDENCY (ABOVE 16M IF ON)    2500295   00029016
+$PGMLE   EQU   X'10'       ....LE/370 ENVIRONMENT             2602600   00029018
+PGMLIBF  DS    XL01        ..FROM PDS2LIBF                    2500295   00029030
+PGMLIBC  DS    XL01        ..FROM PDS2CNCT                    2500295   00029040
+         DS    0F                                                       00030000
+PGMUCNT  DS    F           ..PGM USE COUNT                              00031000
+PGMLP@   DS    F           ..PGM LOAD POINT ADDR                        00032000
+PGMEP@   DS    F           ..PGM ENTRY POINT ADDR                       00033000
+PGMALFA@ DS    F           ..PGM ALFA TABLE ADDR                        00034000
+PGMALFAV DS    F           ..PGM ALFA VECTOR TABLE ADDR       2024207   00034500
+PGMGMSZ  DS    F           ..GETMAIN STORAGE SIZE                       00035000
+PGMLMSZ  DS    F           ..LOAD MODULE SIZE                           00036000
+PGMSARB  DS    F           ..SARB ADDR                                  00037000
+PGMILBD@ DS    F           ..VSE COBOL SUBR SWITCH ADDR                 00038000
+PGMNLODS DS    F           ..NUMBER OF TIMES PROGRAM HAS BEEN LOADED    00039000
+PGMUCNTL DS    F           ..NUMBER OF TIMES USED SINCE LAST LOAD       00040000
+PGMALFEN DS    H           ..NUMBER OF ENTRIES IN ALFA TABLE            00041000
+PGMALFRE DS    H           ..NUMBER OF REDEF ENTRIES IN ALFA TABLE      00042000
+PGMNTRYL EQU   *-PGMNTRY   LENGTH OF TABLE ENTRY                        00043000
+*                                                                     * 00044000
+*********************************************************************** 00045000

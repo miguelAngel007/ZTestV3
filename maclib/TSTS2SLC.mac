@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*           TSTS2SLC--COMMON STORAGE FOR SECURITY LOGGING             * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+         SPACE 2                                                        00000600
+*********************************************************************** 00000700
+*              SECURITY LOGGING COMMON STORAGE                        * 00000800
+*********************************************************************** 00000900
+TSSLC    DS    0CL260                START OF COMMON AREA               00001000
+SLCEYEC  DS    CL8                   EYE CATCHER                        00001100
+SLCEMPID DS    CL8                   EMPLOYEE IDENTIFIER                00001200
+SLCEMPIN DS    CL3                   EMPLOYEE INITIALS                  00001300
+SLCPHYL  DS    CL4                   PHYSICAL LOCATION                  00001400
+SLCRPTLV DS    0CL12                 REPORT LEVELS                      00001500
+SLCRPTL1 DS    CL2                      LEVEL 1                         00001600
+SLCRPTL2 DS    CL3                      LEVEL 2                         00001700
+SLCRPTL3 DS    CL3                      LEVEL 3                         00001800
+SLCRPTL4 DS    CL4                      LEVEL 4                         00001900
+SLCTRMID DS    CL4                   TERMINAL IDENTIFIER                00002000
+SLCTRMTY DS    CL2                   TERMINAL TYPE                      00002100
+SLCDRCRF DS    C                     DEBIT CREDIT FLAG                  00002200
+*              VALUES :  0 - OTHER                                      00002300
+*                        1 - CREDIT                                     00002400
+*                        2 - DEBIT                                      00002500
+*                        3 - FILE MAINTENANCE                           00002600
+SLCEXTRC DS    CL8                   EXTERNAL TRANSACTION CODE          00002700
+SLCTRDES DS    CL15                  TRANSACTION DESCRIPTION            00002800
+SLCTRTME DS    CL6                   TRANSACTION TIME (HHMMSS)          00002900
+SLCTRDTE DS    CL6                   TRANSACTION DATE (MMDDYY)          00003000
+SLCAPPID DS    CL2                   APPLICATION IDENTIFIER             00003100
+SLCTRKEY DS    CL50                  TRANSACTION KEY                    00003200
+SLCPGMID DS    CL8                   PROGRAM ID                         00003300
+SLCMSGCD DS    CL6                   MESSAGE CODE                       00003400
+SLCERMSG DS    CL100                 ERROR MESSAGE                      00003500
+SLCERRFL DS    C                     ERROR FLAG                         00003600
+*              VALUES :  0 - NO CICS ERRORS IN TSTSSEC1                 00003700
+*                        1 - CICS ERRORS IN TSTSSEC1                    00003800
+SLCEIBFN DS    XL2                   EIBFN                              00003900
+SLCEIBRC DS    XL6                   EIBRCODE                           00004000
+         DS    CL8                   FILLER                             00004100
+SLCLNG   EQU   *-TSSLC               SYMBOLIC LENGTH OF COMMON AREA     00004200
+         SPACE                                                          00004300

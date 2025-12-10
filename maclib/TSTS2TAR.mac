@@ -1,0 +1,63 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*            TSTS2TAR - TRANSACTION AUTHORIZATION RECORD              * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 04/09/14 ADD SEQUENCE NBR, CONVERT MAX NBR TO BINARY        1436551 * 00000686
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             TACAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             TACARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             TARLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             TACACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL18        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTAR    DSECT                                                          00000700
+TAR      DS    0C                                                       00000800
+TARLNG   DS    XL2                     TAR RECORD LENGTH                00000900
+*                                        MAX VALUE +9680        2600851 00001000
+         DS    XL2                     FILLER                           00001100
+TARKEY   DS    0CL23                   TAR KEY                          00001200
+TARRID   DS    CL3                       RECORD ID VALUE 'TAR'          00001300
+TARCLASS DS    CL10                      RECORD CLASS                   00001400
+         DS    CL8                       FILLER               1436551   00001495
+TARSEQ   DS    XL2                       RECORD SEQUENCE      1436551   00001500
+TACAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001510
+TACARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001520
+TARLMNT  DS    0CL28                   LAST MAINTENANCE DATA    2602105 00001600
+TARLMDT  DS    0CL6                      LAST MAINTENANCE DATE          00001700
+TARLMDM  DS    CL2                         LAST MAINTENANCE MONTH       00001800
+TARLMDD  DS    CL2                         LAST MAINTENANCE MONTH       00001900
+TARLMDY  DS    CL2                         LAST MAINTENANCE MONTH       00002000
+TARLMTI  DS    0CL6                      LAST MAINTENANCE TIME          00002100
+TARLMTH  DS    CL2                         LAST MAINTENANCE HOUR        00002200
+TARLMTM  DS    CL2                         LAST MAINTENANCE MINUTE      00002300
+TARLMTS  DS    CL2                         LAST MAINTENANCE SECOND      00002400
+TARLMEMP DS    CL8                       LAST MAINTENANCE EMPLOYEE      00002500
+TACACHID DS    CL8                       CA CHANGE ID           2602105 00002600
+         DS    XL18                    FILLER                   2602105 00002700
+TARINEX  DS    CL1                     INCLUDE / EXCLUDE FLAG   2602105 00002800
+TARMXCT  DS    PL2                     MAX. AUTH TRAN +396    1436551   00002900
+TARUSCT  DS    XL2                     USED AUTH TRANS        1436551   00003000
+TARAUTHO DS    XL9504                  AUTHORIZED TRAN OCCUR  1436551   00003100
+*                                                                       00003200
+*                                                                       00003300
+TARAUTHD DSECT                                                          00003400
+TARENTRY DS    0CL24                   TRANSACTION AUTHORIZATION ENTRY  00003500
+TAROPTFL DS    CL1                     AUTH TRAN OPTION FLAG            00003600
+TARTRNCD DS    0CL16                   AUTH TRAN CODE                   00003700
+TARTRNTC DS    CL8                     AUTH TRAN APPL TRAN CODE         00003800
+TARTRNUC DS    CL8                     AUTH TRAN USER TRAN CODE         00003900
+TARFLRLM DS    XL2                     AUTH TRAN FLOOR LIMIT            00004000
+         DS    XL5                     FILLER                           00004100

@@ -1,0 +1,38 @@
+*********************************************************************** 00000100
+*FIAS DEALER RESERVE ONLINE FILES - FCT ENTRIES  1.7                  * 00000200
+*********************************************************************** 00000300
+DRALP01  DFHFCT TYPE=DATASET,                                          X00000400
+               DSNAME=NLIC.CICS.MVS.DRALPM.VSAM,                       X00000500
+               DATASET=DRALP01,                                        X00000600
+               ACCMETH=VSAM,DISP=SHR,                                  X00000700
+               SERVREQ=(READ,UPDATE,ADD,BROWSE,DELETE),                X00000800
+               FILSTAT=(ENABLED,CLOSED),                               X00000900
+               RECFORM=(FIXED,BLOCKED),                                X00001000
+               STRNO=1,                                                X00001100
+               BUFND=2,                                                X00001200
+               BUFNI=1,                                                X00001300
+               JID=NO,LSRPOOL=1,RSL=PUBLIC,                            X00001400
+               LOG=NO                                                   00001500
+DRMEM01  DFHFCT TYPE=DATASET,                                          X00001600
+               DSNAME=NLIC.CICS.MVS.DRMEMM.VSAM,                       X00001700
+               DATASET=DRMEM01,                                        X00001800
+               ACCMETH=VSAM,DISP=SHR,                                  X00001900
+               SERVREQ=(READ,UPDATE,ADD,BROWSE,DELETE),                X00002000
+               FILSTAT=(ENABLED,CLOSED),                               X00002100
+               RECFORM=(FIXED,BLOCKED),                                X00002200
+               STRNO=2,                                                X00002300
+               BUFND=2,                                                X00002400
+               BUFNI=3,                                                X00002500
+               JID=NO,LSRPOOL=1,RSL=PUBLIC                             X00002600
+               LOG=YES                                                  00002700
+DRACT01  DFHFCT TYPE=DATASET,                                          X00002800
+               DSNAME=NLIC.CICS.MVS.DRACTM.VSAM,                       X00002900
+               DATASET=DRACT01,                                        X00003000
+               ACCMETH=VSAM,DISP=SHR                                   X00003100
+               SERVREQ=(READ,UPDATE,ADD,BROWSE,DELETE),                X00003200
+               FILSTAT=(ENABLED,CLOSED),                               X00003300
+               STRNO=2,                                                X00003400
+               BUFND=2,                                                X00003500
+               BUFNI=2,                                                X00003600
+               JID=NO,LSRPOOL=1,RSL=PUBLIC,                            X00003700
+               LOG=YES                                                  00003800

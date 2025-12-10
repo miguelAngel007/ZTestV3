@@ -1,0 +1,210 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*     * FO5238*05/12/11 PROYECTO UPGRADE SYSTEMATIC
+         TITLE 'TSTS2APC - APPC COMMUNICATION AREA'                     00001000
+*********************************************************************** 00001100
+*                                                                     * 00001200
+*             TSTS2APC--ISC MESSAGE FORMAT AFTER TS DELIVERY          * 00001300
+*                                                                     * 00001400
+*                        HISTORY OF REVISIONS                         * 00001401
+*  08/29/10 SAFE/TS TELLER INTERFACE(FO0628-PROYECTO MIGRACIONGNUP004 * 00001402
+*           TOLDII                                            GNUP004 * 00001403
+* 09/16/15  ADDED NEW FIELDS FOR REST SERVICES                1626902 * 00001411
+* 02/20/13  ADDED NEW FIELDS FOR FIS STANDARD HEADER          1336381 * 00001412
+* 06/17/11  ADDED NEW FIELDS FOR WEB SERVICES                 1226081 * 00001413
+* 05/11/06  ADD NEW TRANSMISSION DATE FIELD                   0645471 * 00001414
+* 08/14/03  CHANGE COMMENTS AT LABEL TSAPFSEC FROM FUNCTION   0414797 * 00001415
+*           SECURITY CODE AND ADD THE VALUES FOR EORCB PROC   0414797 * 00001416
+* 08/14/02  ADD NEW TRANSMISSION VERSION FIELD                0314565 * 00001417
+* 11/11/99  ADD NEW MESSAGE FORMAT                            2021071 * 00001418
+* 09/08/99  ADD LANGUAGE CODE FIELD                           2024087 * 00001420
+*********************************************************************** 00001500
+*                                                                       00001600
+*********************************************************************** 00001700
+*                       ISC INPUT MESSAGE INPUT AREA                  * 00001800
+*********************************************************************** 00001900
+PISCMSG  DS    0CL256                  TELLER INPUT MESSAGE             00002000
+         ORG   PISCMSG                                                  00002100
+PINMSG   DS    0CL256                  TELLER INPUT MESSAGE             00002200
+PCICSID  DS    CL4                     CICS TRANSACTION CODE 'TTOH'     00002300
+PSBARC1  DS    CL3                     1ST SBA,ROW,COLM TRIPLET         00002400
+PXTRNCD  DS    CL4                     EXTERNAL TRANCODE                00002500
+P9OVRT   DS    0CL8                    PCTW OVERRIDE TLR ID   2021071   00002510
+*PTELID   DS    CL4                     TELLER ID             GNUP004   00002600
+PTELID   DS    CL8                     TELLER ID              GNUP004   00002601
+*POVRTEL  DS    CL4                     OVERRIDE TELLER ID    GNUP004   00002700
+PSEQNUM  DS    CL4                     TRANSACTION SEQUENCE NUMBER      00002800
+PIND1    DS    XL1                     1ST STATUS BYTE                  00002900
+PIND2    DS    XL1                     SECOND STATUS BYTE               00003000
+PIND3    DS    XL1                     THIRD STATUS BYTE                00003100
+PTIME    DS    CL6                     TRANSACTION TIME 'HHMMSS'        00003200
+*P9PLOC   DS    CL4                     PCTW PHYSICAL LOCATION 2021071  00003205
+*PLANG    DS    CL2                     LANGUAGE CODE          2024087  00003210
+*P9SOUR   DS    CL2                     PC TW SOURCE CODE      2021071  00003300
+POVRTEL  DS    CL8                     OVERRIDE TELLER ID      GNUP004  00003301
+PHDRLNG  EQU   *-PINMSG                LENGTH OF HEADER                 00003400
+PDTARC   DS    CL216                   REST OF TELLER TRANSMISSION      00003500
+*                                                                       00003600
+*********************************************************************** 00003700
+*                                                                     * 00003800
+*             TSTS2APC--ISC MESSAGE FORMAT BEFORE TS DELIVERY         * 00003900
+*                                                                     * 00004000
+*********************************************************************** 00004100
+*                                                                       00004200
+*********************************************************************** 00004300
+*                       ISC INPUT MESSAGE INPUT AREA                  * 00004400
+*********************************************************************** 00004500
+         ORG   PISCMSG                                                  00004600
+P2INMSG  DS    0CL256                  TELLER INPUT MESSAGE             00004700
+P2CICSID DS    CL4                     CICS TRANSACTION CODE 'TTOH'     00004800
+P2SBARC1 DS    CL3                     1ST SBA,ROW,COLM TRIPLET         00004900
+P2XTRNCD DS    CL4                     EXTERNAL TRANCODE                00005000
+*P2TELID  DS    CL4                     TELLER ID             GNUP004   00005100
+P2TELID  DS    CL8                     TELLER ID              GNUP004   00005101
+P2SEQNUM DS    CL4                     TRANSACTION SEQUENCE NUMBER      00005200
+P2IND1   DS    XL1                     1ST STATUS BYTE                  00005300
+P2IND2   DS    XL1                     SECOND STATUS BYTE               00005400
+P2TIME   DS    CL4                     TRANSACTION TIME 'HHMM'          00005500
+P2SBARC2 DS    CL3                     END OF HEADER TRIPLET            00005600
+P2HDRLNG EQU   *-P2INMSG               LENGTH OF HEADER                 00005700
+*        DS    CL228                   REST OF TELLER TRANSMISGNUP004   00005800
+         DS    CL224                   REST OF TELLER TRANSMISGNUP004   00005801
+*                                                                       00005900
+*********************************************************************** 00006000
+*                                                                     * 00006100
+*             TSTS2APC--PC MESSAGE FORMAT FOR TS DELIVERY             * 00006200
+*                                                                     * 00006300
+*********************************************************************** 00006400
+         ORG   PISCMSG                                                  00006500
+         DS    (PHDRLNG)C          RESERVED FOR TELLER COMPAT           00006600
+SAS9RECH DS    0XL31                                                    00006700
+SAS9RECL DS    CL5                 LENGTH OF RECORD (CHARACTER)         00006800
+SAS9EMID DS    CL8                 EMPLOYEE ID                          00006900
+SAS9FSEC DS    CL1                 FUNCTION SECURITY CODE               00007000
+SAS9BUST DS    CL1                 BUSINESS MODULE TYPE A/S/T           00007100
+SAS9BUSM DS    CL8                 BUSINESS MODULE                      00007200
+SAS9MSEV DS    CL2                 MAXIMUM SEVERITY (CHARACTER)         00007300
+SAS9APER DS    CL4                 APPC ERROR CODE  (CHARACTER)         00007400
+SAS9NDAG DS    CL2                 NUMBER OF DAGS   (CHARACTER)         00007500
+SAS9DAGR DS    0XL17               OCCURS FOR EACH DAG                  00007600
+SAS9DAGN DS    CL8                 DAG NAME                             00007700
+SAS9DAGW DS    CL1                 WHOLE/PART FLAG W/P                  00007800
+SAS9DAGA DS    CL1                 ACTION I/O/B                         00007900
+SAS9DDSP DS    CL2                 DAG DISPOSITION                      00008000
+SAS9DAGL DS    CL5                 DAG LENGTH (CHARACTER)               00008100
+SAS9DAGD DS    0C                  DAG DATA                             00008200
+**************************************************************2021071** 00008300
+*                                                             2021071 * 00008400
+*             TSTS2APC--PC MESSAGE FORMAT VERSION 001         2021071 * 00008500
+*                                                             2021071 * 00008600
+**************************************************************2021071** 00008700
+         ORG   PISCMSG                                        2021071   00008800
+TSAPTRCD DS    CL4                 CICS TRANSACTION CODE      2021071   00008900
+TSAPVER  DS    CL3                 MESSAGE FORMAT VERSION 001 2021071   00009000
+TSAPEXTR DS    CL4                 EXTERNAL TRANCODE          2021071   00009100
+TSAPAPPL DS    CL2                 APPLICATION CODE           2021071   00009200
+TSAPTVER DS    CL3                 TRANSMISSION VERSION       0314565   00009210
+         DS    CL3                 FILLER                     0314565   00009300
+TSAPSEQ  DS    CL4                 TRANSACTION SEQUENCE NO.   2021071   00009400
+TSAPCMPI DS    XL1                 COMPRESSION INDICATOR      2021071   00009500
+*                                      C - COMPRESSED         2021071   00009600
+*                                      N - NOT COMPRESSED     2021071   00009700
+TSAPENQR DS    XL1                 ENCODING ORDER             2021071   00009800
+*                                      1 - COMPRESS/ENCRYPT   2021071   00009900
+*                                      2 - ENCRYPT/COMPRESS   2021071   00010000
+*                                      3 - ENCRYPT ONLY       2021071   00010100
+*                                      4 - COMPRESS ONLY      2021071   00010200
+TSAPFMTC DS    XL1                 FORMAT CODING BYTE         2021071   00010300
+TSAPTIME DS    CL6                 TRANSACTION TIME 'HHMMSS'  2021071   00010400
+TSAPEKEY DS    CL8                 ENCRYPTION KEY             2021071   00010500
+TSAPHLGN EQU   *-TSAPTRCD          LENGTH OF HEADER           2021071   00010600
+* END OF HEADER                                               2021071   00010700
+* THIS PORTION MATCHES ORIGINAL FORMAT SAS9RECH-SAS9DAGD      2021071   00010800
+TSAPRECH DS    0XL108              MESSAGE DETAIL             2021071   00010900
+TSAPRECL DS    CL5                 LENGTH OF RECORD (CHAR)    2021071   00011000
+TSAPEMID DS    CL8                 EMPLOYEE ID                2021071   00011100
+TSAPFSEC DS    CL1                 BUSINESS FUNCTION CODE     0414797   00011200
+*                                  A - ADD                    0414797   00011210
+*                                  C - CHANGE                 0414797   00011220
+*                                  I - INQUIRY                0414797   00011230
+*                                  D - DELETE                 0414797   00011240
+*                                  $ - MONETARY               0414797   00011250
+TSAPBUST DS    CL1                 BUSINESS MODULE TYPE A/S/T 2021071   00011300
+TSAPBUSM DS    CL8                 BUSINESS MODULE            2021071   00011400
+TSAPMSEV DS    CL2                 MAXIMUM SEVERITY (CHAR)    2021071   00011500
+TSAPAPER DS    CL4                 APPC ERROR CODE (CHAR)     2021071   00011600
+TSAPNDAG DS    CL2                 NUMBER OF DAGS (CHAR)      2021071   00011700
+* FORMAT VERSION 001 ADDITIONAL FIELDS                        2021071   00011800
+TSAPSTTM DS    XL4                 TRANSACTION START TIME     2021071   00011900
+TSAPSPTM DS    XL4                 TRANSACTION STOP TIME      2021071   00012000
+TSAPPRID DS    XL4                 PROCESS ID                 2021071   00012100
+TSAPPCID DS    CL9                 PC / MACHINE ID            2021071   00012200
+TSAPAKEY DS    CL16                PASSTICKET / AUTH KEY      2021071   00012300
+TSAPDATE DS    CL8                 TRANSMISSION DATE          0645471   00012400
+TSAPSOUR DS    CL2                 SOURCE CODE                2021071   00012500
+TSAPLANG DS    CL2                 LANGUAGE CODE              2021071   00012600
+TSAPTBY1 DS    XL1                 STATUS BYTE 1              2021071   00012700
+TSAPTBY2 DS    XL1                 STATUS BYTE 2              2021071   00012800
+TSAPTBY3 DS    XL1                 STATUS BYTE 3              0645471   00012810
+TSAPTWOV DS    0CL8                TW OVERRIDE ID             2021071   00012900
+TSAPTLID DS    CL4                 TELLER ID                  2021071   00013000
+TSAPOVID DS    CL4                 OVERRIDE ID                2021071   00013100
+TSAPRLVL DS    0CL12                                          0414797   00013150
+TSAPRPT1 DS    CL2                 REPORT LEVEL 1             2021071   00013200
+TSAPRPT2 DS    CL3                 REPORT LEVEL 2             2021071   00013300
+TSAPRPT3 DS    CL3                 REPORT LEVEL 3             2021071   00013400
+TSAPRPT4 DS    CL4                 REPORT LEVEL 4             2021071   00013500
+TSAPPHYL DS    CL4                 PHYSICAL LOCATION          2021071   00013600
+TSAPMCFM DS    CL1                 MESSAGE CHARACTER FORMAT   2021071   00013700
+*                                      E - EBCDIC             2021071   00013800
+*                                      A - ASCII              2021071   00013900
+* START OF DAG OCCURS FORMAT VERSION 001                      2021071   00014000
+TSAPDAGR DS    0XL17               START OF DAG OCCURS        2021071   00014100
+TSAPDAGN DS    CL8                 DAG NAME                   2021071   00014200
+TSAPDAGW DS    CL1                 WHOLE/PART FLAG W/P        2021071   00014300
+TSAPDAGA DS    CL1                 ACTION I/O/B               2021071   00014400
+TSAPDDSP DS    CL2                 DAG DISPOSITION            2021071   00014500
+TSAPDAGL DS    CL5                 DAG LENGTH (CHAR)          2021071   00014600
+TSAPDAGD DS    0C                  DAG DATA                   2021071   00014700
+************************************************************* 1226081 * 00014800
+*                                                             1226081 * 00014900
+*             TSTS2APC--XML MESSAGE FORMAT                    1226081 * 00015000
+*                                                             1226081 * 00015100
+************************************************************* 1226081 * 00015200
+         ORG   PISCMSG                                        1226081   00015300
+TSXPHDR  DS    0CL256              XML HEADER AREA            1226081   00015400
+TSXPTRCD DS    CL4                 CICS TRANSACTION CODE      1226081   00015500
+TSXPVER  DS    CL3                 MESSAGE FORMAT VERSION     1226081   00015600
+TSXPEXTR DS    CL8                 EXTERNAL TRANCODE          1226081   00015700
+TSXPEMID DS    CL8                 EMPLOYEE ID                1226081   00015800
+TSXPLANG DS    CL2                 LANGUAGE CODE              1226081   00015900
+TSXPAPPL DS    CL2                 APPLICATION CODE           1226081   00016000
+TSXPFSEC DS    CL1                 FUNCTION SECURITY CODE     1226081   00016100
+TSXPSOUR DS    CL2                 SOURCE CODE                1226081   00016200
+TSXPEFDT DS    CL8                 EFFECTIVE DATE             1226081   00016300
+TSXPDATE DS    CL8                 TRANSMISSION DATE          1226081   00016400
+TSXPTIME DS    CL6                 TRANSACTION TIME 'HHMMSS'  1226081   00016500
+TSXPSEQ  DS    CL8                 TRANSACTION SEQUENCE NUM   1226081   00016600
+TSXPSPOV DS    CL8                 SUPERVISOR OVERRIDE ID     1226081   00016700
+TSXPTLOV DS    CL8                 TELLER OVERRIDE ID         1226081   00016800
+TSXPRLVL DS    0CL12               REPORT LEVELS              1226081   00016900
+TSXPRPT1 DS    CL2                        LEVEL 1             1226081   00017000
+TSXPRPT2 DS    CL3                        LEVEL 2             1226081   00017100
+TSXPRPT3 DS    CL3                        LEVEL 3             1226081   00017200
+TSXPRPT4 DS    CL4                        LEVEL 4             1226081   00017300
+TSXPPHYL DS    CL4                 PHYSICAL LOCATION          1226081   00017400
+TSXPSTA1 DS    CL1                 STATUS BYTE 1              1226081   00017500
+*                                  BIT 0 - REBID              1226081   00017600
+*                                  BIT 1 - REENTRY            1226081   00017700
+*                                  BIT 2 - CORRECTION         1226081   00017800
+*                                  BIT 3 - TRAINING           1226081   00017900
+TSXPSTA2 DS    CL1                 STATUS BYTE 2              1226081   00018000
+TSXPRENT DS    CL1                 REENTRY FLAG               1336381   00018100
+TSXPCORR DS    CL1                 CORRECTION FLAG            1336381   00018200
+TSXPMSGT DS    CL1                 MESSAGE STRUCTURE C OR T   1336381   00018300
+*                                  C - COPYBOOK               1336381   00018400
+*                                  T - TAGGED                 1336381   00018500
+TSXPIBMM DS    CL4                 IBM PARSED MESSAGE ADDR    1336381   00018600
+TSXPXMIA DS    CL4                 ADDR TO ADDITIONAL XML INF 1336381   00018700
+TSXPACTN DS    CL1                 ACTION CODE                1626902   00018710
+TSXPJSON DS    CL1                 JSON MESSAGE FORMAT        1626902   00018720
+         DS    CL149                                          1626902   00018800

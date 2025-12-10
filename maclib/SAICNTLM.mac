@@ -1,0 +1,62 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAICNTLM &DSECT=YES                                            00002000
+.********************************************************************** 00002100
+.*                 ** HISTORY OF REVISIONS **                         * 00002200
+.*                                                                    * 00002300
+.* DESCRIPTION                                                CHNGID  * 00002400
+.* _________________________________________________________  _______ * 00002500
+.*                                                                    * 00002600
+.* 01/21/14  ADD ADDRESS FOR DB2 SQL ERROR INFORMATION        1436560   00002994
+.* 04/06/01  MODIFIED FOR OPTIONAL ERROR PROCESSING           2024312 * 00002995
+.*                                                                    * 00002997
+.********************************************************************** 00002999
+         AIF   ('&DSECT' EQ 'YES').DODSECT                              00003000
+SDMSCNTL DS    0F                                                       00004000
+         AGO   .SDMSDST                                                 00005000
+.DODSECT ANOP                                                           00006000
+SDMSCNTL DSECT                                                          00007000
+.SDMSDST ANOP                                                           00008000
+SDMSDSSN DS    CL8                     NAME OF DATABASE ACESSED         00009000
+SDMSAREA DS    A                       IOAREA FOR SEGMENT               00010000
+SDMSRTRN DS    2H                      RETURN CODE + ERROR CODE         00011000
+SDMSALEN DS    H                       LENGTH OF SDMSAREA               00012000
+SDMSFDBK DS    CL8                     NAME OF SEGMENT RETURNED         00013000
+SDMSSTAT DS    CL2                     SDMS STATUS FIELD                00014000
+SDMSRQST DS    X                       REQUESTED FUNCTION               00015000
+SDMSOPEN EQU   0                       OPEN DATASET                     00016000
+SDMSCLSE EQU   1                       CLOSE DATASET                    00017000
+SDMSCKPT EQU   2                       FLUSH BUFFERS                    00018000
+SDMSGETS EQU   3                       READ NEXT RECORD                 00019000
+SDMSGETU EQU   4                       KEYED READ                       00020000
+SDMSGETG EQU   5                       GENERIC (GREATER THAN EQUAL TO)  00021000
+SDMSREPL EQU   6                       REPLACE CURRENT RECORD           00022000
+SDMSDLET EQU   7                       DELETE CURRENT RECORD            00023000
+SDMSISRT EQU   8                       INSERT NEW RECORD                00024000
+SDMSUTIL EQU   9                       UNLOAD UTILITY FUNCTION          00025000
+SDMSILOG EQU   10                      INITIALIZE LOGGING               00026000
+SDMSTLOG EQU   11                      TERMINATE LOGGING                00027000
+SDMSSYNC EQU   12                      SYNCPOINT LOGGING                00028000
+SDMSROLL EQU   13                      ROLL BACK TO LAST SYNC POINT     00029000
+SDMSGETL EQU   14                      GET LESS THAN          2500610   00029010
+SDMSDB2I EQU   15                      DB2 INSERT             1436560   00029030
+SDMSDB2F EQU   16                      DB2 FLUSH BUFFER       1436560   00029040
+SDMSDB2R EQU   17                      DB2 ROLLBACK           1436560   00029050
+SDMSSEGN DS    CL8                     NAME OF DESIRED SEGMENT          00030000
+* DIAGNOSTIC INFO, USED IN DIAG. MESSAGE(S) TO SIMESS/SAMESS            00031000
+SDMSZDSO DS    XL4                     OUTPUT OR ONLY DSET ADDRESS      00032000
+SDMSZDSI DS    XL4                     INPUT DSET ADDRESS IF SEQMSTR    00033000
+SDMSZSYM DS    CL8                     SYMBOLIC NAME OF FAILING LOC.    00034000
+SDMSZR15 DS    XL4                     REGISTER 15 AT TIME OF FAILURE   00035000
+SDMSZR00 DS    XL4                     REGISTER 0  AT TIME OF FAILURE   00036000
+SDMSZR01 DS    XL4                     REGISTER 1  AT TIME OF FAILURE   00037000
+SDMSEOPF DS    XL1                     ERROR OPTION FLAG (AOR)2600661   00037010
+SDMSOPTL DS    X                       OPTIONAL ERROR INVOKED 2024312   00037020
+SDMSMRER EQU   B'00000001'             MAXIMUM REC LENGTH ERR 2024312   00037030
+SDMSGCA  DS    XL4                     GCA ADDRESS            1436560   00037040
+* THE ADDR BELOW POINTS TO A 1000 BYTE AREA THAT CONTAINS...  1436560   00037050
+* CL16 EYE-CATEHER '*DB2 SQL ERROR *', XL4 SQL CODE,          1436560   00037060
+* CL5 SQL STATE, CL5 TABLE NAME, XL8 FILLER,                  1436560   00037070
+* 8CL120 ERROR TEXT                                           1436560   00037080
+SDMSSQLE DS    XL4                     DB2 I/O MOD ERROR AREA 1436560   00037090
+         MEND                                                           00038000

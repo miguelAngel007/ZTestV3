@@ -1,0 +1,117 @@
+*     * FO5238*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+000100***********************************************************
+000200*  PROGRAM COPYBOOK  IMUOLOAD                             *
+000300*  THIS COPYBOOK CONTAINS THE CUSTOM USER OPTIONS THAT    *
+000400*  ARE CODED IN THE ASSOCIATED PROGRAM.                   *
+000500*  THIS STANDARD APPLICATION COPYBOOK CONTAINS            *
+000600*    UO-TABLE-LOAD (READS AND LOADS TO MEMORY THE USER    *
+000700*                   OPTION TABLE)                         *
+000800*    UO-INIT-TO-N  (ON A FAILED READ WILL INITIALIZE ALL  *
+000900*                   OPTION FLAGS TO 'N' ASSUMING THERE IS *
+001000*                   NO CUSTOM USER OPTIONS FOR THIS       *
+001100*                   CLIENT AND APPLICATION.               *
+001200***********************************************************
+001300***********************************************************
+001400*                                                         *
+001500*  UO-TABLE-LOAD  READS THE TSUOBM FILE INTO MEMORY TO    *
+001600*                 PROCESS THE CUSTOM USER OPTIONS.        *
+001700*                                                         *
+001800***********************************************************
+001900 UO-TABLE-LOAD.
+002000     IF UO-TABLE-OPEN = 'N'
+002100         MOVE 'O' TO I-O-CONTROL-OPERATOR
+002200         PERFORM UO-IO-RTN THRU UO-IO-RTN-X
+002300         MOVE 'Y' TO  UO-TABLE-OPEN.
+002400     PERFORM UO-READ-TABLE THRU UO-READ-TABLE-EXIT.
+002500 UO-TABLE-LOAD-EXIT.
+002600     EXIT.
+002700***********************************************************
+002800*                                                         *
+002900*  UO-READ-TABLE  READS THE CONTROL FILE INTO WORKING     *
+003000*                 STORAGE BASED ON THE CURRENT BCR        *
+003100*                 CONTROL LEVEL.  IF THAT CONTROL LEVEL   *
+003200*                 DOES NOT EXIST THE READS WILL DROP THAT *
+003300*                 LEVEL AND READ THE NEXT HIGHEST UNTIL   *
+003400*                 IT GETS TO THE CTL1 LEVEL.  IF IT DOES  *
+003500*                 NOT GET A HIT AT THE CTL1 LEVEL ALL THE *
+003600*                 OPTION FLAGS WILL BE SET TO 'N'.        *
+003700*                                                         *
+003800***********************************************************
+003900 UO-READ-TABLE.
+003910     MOVE 'IM'    TO WK-UO-APPL.
+004000     MOVE WBC1-CONTROL-1 TO WK-UO-CTL1.                           0266741
+004100     MOVE WBC1-CONTROL-2 TO WK-UO-CTL2.                           0266741
+004200     MOVE WBC1-CONTROL-3 TO WK-UO-CTL3.                           0266741
+004300     MOVE ZERO          TO WK-UO-CTL4.
+004400
+004410     MOVE WK-UO-APPL TO UB-APPL.
+004500     MOVE WK-UO-CTL1 TO UB-CTL1.
+004600     MOVE WK-UO-CTL2 TO UB-CTL2.
+004700     MOVE WK-UO-CTL3 TO UB-CTL3.
+004800     MOVE WK-UO-CTL4 TO UB-CTL4.
+004900     MOVE 'K' TO I-O-CONTROL-OPERATOR
+005000     PERFORM UO-IO-RTN        THRU UO-IO-RTN-X.
+005100
+005200     IF I-O-88-NOT-FOUND
+005210           MOVE WK-UO-APPL TO UB-APPL
+005300           MOVE WK-UO-CTL1 TO UB-CTL1
+005400           MOVE WK-UO-CTL2 TO UB-CTL2
+005500           MOVE WK-UO-CTL3 TO UB-CTL3
+005600           MOVE ZEROS   TO UB-CTL4
+005700           PERFORM UO-IO-RTN  THRU UO-IO-RTN-X.
+005800
+005900     IF I-O-88-NOT-FOUND
+005910           MOVE WK-UO-APPL TO UB-APPL
+006000           MOVE WK-UO-CTL1 TO UB-CTL1
+006100           MOVE WK-UO-CTL2 TO UB-CTL2
+006200           MOVE ZEROS   TO UB-CTL3
+006300           MOVE ZEROS   TO UB-CTL4
+006400           PERFORM UO-IO-RTN  THRU UO-IO-RTN-X.
+006500
+006600     IF I-O-88-NOT-FOUND
+006610           MOVE WK-UO-APPL TO UB-APPL
+006700           MOVE WK-UO-CTL1 TO UB-CTL1
+006800           MOVE ZEROS   TO UB-CTL2
+006900           MOVE ZEROS   TO UB-CTL3
+007000           MOVE ZEROS   TO UB-CTL4
+007100           PERFORM UO-IO-RTN  THRU UO-IO-RTN-X.
+007200
+007300     IF I-O-88-NOT-FOUND
+007400           PERFORM UO-INIT-TO-N THRU UO-INIT-TO-N-EXIT.
+007500 UO-READ-TABLE-EXIT.
+007600     EXIT.
+007700
+007800 UO-IO-RTN.
+007900     MOVE 'I' TO I-O-CONTROL-ACCESS
+008000     CALL 'TSUOBMV' USING I-O-CONTROL-AREA,
+008100                          USER-OPTION-DETAIL.
+008200     IF I-O-88-NOT-FOUND
+008300        GO TO UO-IO-RTN-X.
+008400     IF NOT I-O-88-NORMAL-RET
+008500         MOVE 503             TO  SIMESS-MESS-NO
+008600         MOVE 'UO FILE ERROR' TO  SIMESS-OPTIONAL-MESSAGE
+008700         CALL 'SIMESS'     USING  SIMESS-AREA.
+008800 UO-IO-RTN-X.
+008900     EXIT.
+009000***********************************************************
+009100*                                                         *
+009200*  UO-INIT-TO-N   WILL LOOP THROUGH THE TABLE SETTING     *
+009300*                 ALL THE OPTION FLAGS TO 'N' ASSUMING    *
+009400*                 THAT A CONTROL RECORD WAS NOT FOUND     *
+009500*                 FOR THIS CLIENT IN THIS APPLICATION.    *
+009600*                                                         *
+009700*  UO-INIT-CNTR   THIS DATA FIELD IS USED FOR THE NUMBER  *
+009800*                 OF OCCURANCES FOR THE OPTIONS BECAUSE   *
+009900*                 WE DO NOT WANT TO CHANGE THE COPYBOOK   *
+010000*                 IF WE HAVE TO ENLARGE THE TABLE.        *
+010100***********************************************************
+010200 UO-INIT-TO-N.
+010300     PERFORM UO-INIT-PARA
+010400          VARYING UO-INIT-CNTR FROM 1 BY 1
+010500          UNTIL   UO-INIT-CNTR > UO-INIT-CNTR-MAX.
+010600 UO-INIT-TO-N-EXIT.
+010700     EXIT.
+010800 UO-INIT-PARA.
+010900     MOVE 'N' TO UB-OPTION-FLAG (UO-INIT-CNTR).
+011000 UO-INIT-PARA-EXIT.
+011100     EXIT.

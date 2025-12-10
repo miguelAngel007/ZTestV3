@@ -1,0 +1,96 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************   00000100
+*      FLEX ACCOUNT USER PARSING FOR KDA                            *   00000200
+*********************************************************************   00000300
+* 05/23/03 CHG INSTR TO NOT USE HEXZERO CONSTANT              0354532   00000388
+* 10/17/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349   00000390
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      9913349   00000398
+*********************************************************************   00000399
+KDAACX00 EQU   *                                                        00000400
+         XC    TSACX,TSACX             CLEAR FLEX ACCT RECORD           00000500
+         MVC   ACXITRA,STMITRA         STEM ITR ADDR TO FLEX ITR ADDR   00000600
+         MVC   ACXFKEY,SPACES          MOVE 40 BLANKS TO KEY AREA       00000700
+         MVC   ACXFKEY+40(3),SPACES    MOVE 3 BLANKS TO KEY AREA        00000800
+         L     R7,SVKDACUR             GET ADDRESS OF CURRENT KDA       00000900
+         USING KDAOCCUR,R7             ADDRESS KDA OCCURENCE            00001000
+         MVC   ACXAPPL,KDAAI           MOVE APPLICATION                 00001100
+         XC    SVFLDID,SVFLDID         CLEAR FIELD IDENTIFIER           00001200
+         MVC   SVFLDLEN,ICR2BSLN       SAVE LENGTH                      00001300
+         MVC   SVFLDID,ICR2BS1F        MOVE FIELD IDENTIFIER            00001400
+         MVC   SVDAGNM,ICR2BSDN        MOVE DAG NAME          9913349   00001410
+         MVC   SVELEID,ICR2BSEL        MOVE ELEMENT ID        9913349   00001420
+         MVC   SVDIM1,ICR2BDM1         MOVE ELEMENT DIM1      9913349   00001430
+         MVC   SVDIM2,ICR2BDM2         MOVE ELEMENT DIM2      9913349   00001440
+         MVC   SVDIM3,ICR2BDM3         MOVE ELEMENT DIM3      9913349   00001450
+         MVC   SVFLDOFF,ICR2BS1P       MOVE FIELD POSITION              00001500
+         MVC   SVFLDLM,SVTTRFDL        GET FIELD ID DELIMETER           00001600
+         MVC   SVENDMSG,SVEOMADD       GET END OF MESSAGE ADDRESS       00001700
+         ICM   R15,15,=V(FDMSG000)                                      00001790
+         ST    R14,SAVER14             SAVE R14                         00001792
+         BALR  R14,R15                 FIND DATA IN MESSAGE             00001794
+         L     R14,SAVER14             RELOAD IT                        00001800
+         OC    SVMSGADR,SVMSGADR       FIELD FOUND IN MSG?    0354532   00001802
+         BNZ   KDAACX05                YES - SKIP EOR SEARCH  0354532   00001804
+         MVC   SVFLDLEN,ICR2BSLN       NO - RESET FIELD LNGTH FROM ICR  00001805
+         CLC   STMTRTY,=C'TL'          TRANSACTION FROM TELLER?         00001806
+         BE    KDAACX04                YES - DON'T SEARCH EOR           00001808
+         L     R10,NCAEORA             POINT TO EOR                     00001810
+         USING TSTSEOR,R10             ADDRESS EOR                      00001812
+         LA    R1,EORTRDAT             ADDRESS EOR DATA AREA            00001814
+         XR    R15,R15                 CLEAR REG FOR INSERT             00001816
+         ICM   R15,3,EORTRUSE         INSERT DATA LENGTH USED           00001818
+         AR    R1,R15                  ADDRESS END OF USED              00001820
+         ST    R1,SVENDMSG             SAVE ADDRESS                     00001822
+         LA    R1,EORTRDAT+2           LENGTH FLD                       00001824
+         DROP  R10                     R1 - EOR DATA                    00001826
+         XR    R10,R10                 CLEAR REGISTER                   00001828
+KDAACX01 EQU   *                                                        00001832
+         C     R1,SVENDMSG             END OF DATA REACHED?             00001834
+         BNL   KDAACX04                YES - CONTINUE                   00001836
+         CLI   0(R1),X'11'             DELIMITER FOUND?                 00001838
+         BE    KDAACX02                YES-GO CHECK FILED ID            00001840
+         LA    R1,1(R1)                INCREMENT EOR DATA               00001842
+         B     KDAACX01                GO TO NEXT BYTE                  00001844
+KDAACX02 EQU   *                                                        00001848
+         CLC   1(8,R1),SVFLDID         FIELD ID IN EOR?                 00001850
+         BE    KDAACX03                YES - CONTINUE                   00001852
+         LA    R1,9(R1)                INCREMENT PAST DELIM/ID          00001854
+         B     KDAACX01                GO TO NEXT BYTE                  00001856
+KDAACX03 EQU   *                                                        00001858
+         LA    R1,9(R1)                INCREMENT PAST DELIM/ID          00001860
+         ST    R1,SVMSGADR             SAVE ADDRESS OF DATA             00001862
+KDAACX04 EQU   *                                                        00001866
+         OC    SVMSGADR,SVMSGADR       FIELD FOUND IN MSG?    0354532   00001868
+         BZ    KDAACX40                NO - BYPASS LINK       0354532   00001870
+KDAACX05 EQU   *                                                        00001872
+         XR    R1,R1                   CLEAR REG FOR INSERT             00001900
+         ICM   R1,3,SVFLDLEN           GET SOURCE LENGTH FOR FLEX KEY   00002000
+         BCTR  R1,0                    SUBTRACT FOR EXECUTE             00002100
+         L     R10,SVMSGADR            POINT R10 TO DATA SOURCE START   00002200
+         EX    R1,KDAACX10             MOVE FLEX KEY                    00002300
+         LA    R10,SIWSLKCA            SET UP DSECT BASE REG            00002400
+         USING SIDSLKCA,R10            ESTABLISH ADDRESSABILITY         00002500
+         MVC   LINKPPTN,=C'TSNTLACX'   MOVE NAME OF LINKTO PROGRAM      00002600
+         SIPLIST PARMLIST,(DFHEIBLK,SIWSLKCA,TSACX)                     00002700
+         LA    R1,PARMLIST             POINT TO PARAMETER STRING        00002800
+         CALL  FILINK                                                   00002900
+         CLC   ACXRTCD,=C'0'           WAS THERE AN ERROR?              00003000
+         BE    KDAACX20                NO - GO DO USER KDA PARSING      00003100
+         MVC   WMSMGCOD,=C'9998'       YES - SET UP ERROR MSG           00003200
+         MVC   WMSMGVA1(L'LINKPPTN),LINKPPTN  PROG NAME IN &1           00003300
+         MVC   WMSMGVA2(25),ACXERR  ERROR MESSAGE IN &2                 00003400
+         B     ERRPR000                GO PROCESS ERROR                 00003500
+         SPACE                                                          00003600
+KDAACX10 MVC   ACXFKEY(0),0(R10)       *** EXECUTED MOVE INSTRUCTION    00003700
+         SPACE                                                          00003800
+KDAACX20 EQU   *                                                        00003900
+         XR    R10,R10                 CLEAR WORK REGISTER              00004000
+         ICM   R10,3,ICR2BDLN          LOAD DATA PARSE LENGTH - DEST    00004100
+         EX    R10,KDAACX30            MOVE SI KEY                      00004200
+         ST    R7,SVKDACUR             SAVE ADDRESS OF CURRENT KDA      00004300
+         B     KDAACX40                GO TO END OF USERPARSE           00004400
+         SPACE                                                          00004500
+KDAACX30 MVC   KDARK(0),ACXSKEY        *** EXECUTED MOVE INSTRUCTION    00004600
+         SPACE                                                          00004700
+KDAACX40 EQU   *                                                        00004800
+         EJECT                                                          00004900

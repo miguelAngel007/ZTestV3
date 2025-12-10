@@ -1,0 +1,35 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                      TRANSACTION SYSTEM                             * 00000300
+*              USER OPTION GLOBAL COMMUNICATIONS AREA                 * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000502
+*                       *** HISTORY REVISION ***                      * 00000504
+*  11/07/16   ADD PROCESS DATE                                1727046 * 00000596
+*  07/24/02   ADD CTL4, ACCTION FLAG & RETURN CODE            0324492 * 00000598
+*********************************************************************** 00000600
+TSUOGCA  DSECT                                                          00000700
+UOGCA    DS    0CL34                   START OF COMMON AREA   1727046   00000800
+UOCAKEY  DS    0CL26                   APPLICATION & CONTROLS 1727046   00000900
+UOCAAPPL DS    XL2                       APPLICATION                    00001000
+UOCACTL1 DS    XL4                       CONTROL 1                      00001100
+UOCACTL2 DS    XL4                       CONTROL 2                      00001200
+UOCACTL3 DS    XL4                       CONTROL 3                      00001300
+UOCACTL4 DS    XL4                       CONTROL 4            0324492   00001310
+UOCACUDT DS    CL8                       CURRENT DATE         1727046   00001315
+UOCAIND  DS    XL1                       INDICATOR                      00001400
+*              VALUES: 'L' TABLE REQUESTED WAS LOADED         0324492   00001410
+*                      'D' DEFAULT TABLE RETURNED             0324492   00001420
+UOCAADDR DS    XL4                       ADDR OF UO RECORD IN CORE      00001500
+UOCAFMT  DS    CL1                       FORMAT INDICATOR     0324492   00001600
+*              VALUES: ' ' SHORT VERSION                      0324492   00001700
+*                      'E' EXPANDED VERSION                   0324492   00001800
+UOCAREQ  DS    CL1                       BATCH REQUEST CODE   0324492   00001810
+*              VALUES: 'C' CLOSE                              0324492   00001820
+*                      ' ' OPEN THEN READ                     0324492   00001830
+*                      ANYTHING ELSE - READ                   0324492   00001840
+UOCRETCD DS    CL1                       RETURN CODE          0324492   00001900
+*              VALUES: '0' GOOD RETURN                        0324492   00001910
+*                      '1' OPEN ERROR                         0324492   00001920
+*                      '2' READ ERROR                         0324492   00001930

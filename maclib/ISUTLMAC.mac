@@ -1,0 +1,1664 @@
+         MACRO                                                          00000100
+         ISUTLMAC &OPSYS=MVS,&PRINTER=1403                              00000200
+         LCLB  &DOS,&VSE2,&MVS                                          00000300
+         AIF   ('&OPSYS' EQ 'DOS').SETDOS                               00000400
+         AIF   ('&OPSYS' EQ 'VSE').SETDOS                               00000500
+         AIF   ('&OPSYS' EQ 'VSESP').SETDOS2                            00000600
+         AIF   ('&OPSYS' EQ 'VSE/SP').SETDOS2                           00000700
+         AIF   ('&OPSYS'(1,4) EQ 'VSE2').SETDOS2                        00000800
+         AIF   ('&OPSYS' EQ 'MVS').SETMVS                               00000900
+         AIF   ('&OPSYS' EQ 'OS').SETMVS                                00001000
+         MNOTE 'INVALID OPSYS PARAMETER, MACRO TERMINATED'              00001100
+         MEXIT                                                          00001200
+.SETDOS  ANOP                                                           00001300
+&DOS     SETB  1                                                        00001400
+         AGO   .START                                                   00001500
+.SETDOS2 ANOP                                                           00001600
+&DOS     SETB  1                                                        00001700
+&VSE2    SETB  1                                                        00001800
+         AGO   .START                                                   00001900
+.SETMVS  ANOP                                                           00002000
+&MVS     SETB  1                                                        00002100
+.START   ANOP                                                           00002200
+         TITLE 'INPUT-OUTPUT IMF UTILITY'                               00002300
+ISUTIL   START 0                                                        00002400
+         EJECT                                                          00002500
+*        SIBASE BASEREG=(10,11,12),ID=ISUTIL,TYPE=MAINLINE              00002600
+         SIBASE BASEREG=(10,11,12),ID=ISUTIL,TYPE=MAINLINE              00002700
+         EJECT                                                          00002800
+         AIF   (&DOS).D0001                                             00002900
+**************************************************************          00003000
+********************** M V S *********************************          00003100
+*                                                            *          00003200
+*    CHECK FOR PARM 'DEBUG' ON CARD ---> TURN ON DEBUGSW = Y *          00003300
+*    CHECK FOR PARM 'INITIALIZE' ON CARD                     *          00003400
+*                                                            *          00003500
+**************************************************************          00003600
+**************************************************************          00003700
+         SPACE 1                                                        00003800
+PARMCHK  EQU   *                                                        00003900
+         MVI   IOACCESS,C'U'           SET ACCESS TO UPDATE             00004000
+         L     R4,0(R1)                R4 - ADDRESS OF PARMS            00004100
+         LH    R3,0(R4)                R3 - LENGTH OF PARMS             00004200
+         LTR   R3,R3                   Q. PARMS?                        00004300
+         BZ    LOADMOD                 A. NO, GO TO LOADMOD             00004400
+PARMLOOP EQU   *                                                        00004500
+         CLC   0(5,R4),=C'DEBUG'       Q. DEBUG ON?                     00004600
+         BE    PARMDEBU                A. YES, GO TO PARMDEBU           00004700
+         CLC   0(10,R4),=C'INITIALIZE' Q. INITIALIZE FILE?              00004800
+         BE    PARMINIT                A. YES, GO TO PARMINIT           00004900
+         B     PARMEXIT                GO TO PARMEXIT                   00005000
+         SPACE                                                          00005100
+PARMDEBU EQU   *                                                        00005200
+         MVI   DEBUGSW,C'Y'                                             00005300
+         MVI   CTLDEBUG,C'Y'                                            00005400
+         B     PARMEXIT                GO TO PARMEXIT                   00005500
+         SPACE                                                          00005600
+PARMINIT EQU   *                                                        00005700
+         MVI   IOACCESS,C'L'           INITIALIZE IMF FILE              00005800
+         B     PARMEXIT                GO TO PARMEXIT                   00005900
+         SPACE                                                          00006000
+PARMEXIT EQU   *                                                        00006100
+         LA    R4,1(R4)                BUMP 1 BYTE                      00006200
+         BCT   R3,PARMLOOP             GO TO PARMLOOP                   00006300
+LOADMOD  EQU   *                                                        00006400
+         LOAD  EP=ILBOSTP0    ESTABLISH ISUTIL AS HIGH LEVEL MODUEL     00006410
+         ST    R0,ILBOSTP0                                              00006420
+         L     15,ILBOSTP0    THE CALL TO 'ILBOSTP0' ESTABLISHES ISUTIL 00006430
+         CALL  SILINK,(ILBOSTPP)  AS THE HIGH LEVEL MODUEL AND PREVENTS 00006440
+*                             COBOL FROM MAKING ISIMFM THE HIGH MODUEL  00006450
+*        LOAD  EP=SIMESS                                                00006500
+         LOAD  EP=SIMESS                                                00006600
+         ST    R0,SIMESS                                                00006700
+*        LOAD  EP=SIGETDTE                                              00006800
+         LOAD  EP=SIGETDTE                                              00006900
+         ST    R0,SIGETDTE                                              00007000
+*        LOAD  EP=SIGETIME                                              00007100
+         LOAD  EP=SIGETIME                                              00007200
+         ST    R0,SIGETIME                                              00007300
+*        LOAD  EP=SILOADTB                                              00007310
+         LOAD  EP=SILOADTB                                              00007320
+         ST    R0,SILOADTB                                              00007330
+*        LOAD  EP=ISIMFM                                                00007400
+         LOAD  EP=ISIMFM                                                00007500
+         ST    R0,ISIMFM                                                00007600
+*        LOAD  EP=ISIMFMV                                               00007700
+         LOAD  EP=ISIMFMV                                               00007800
+         ST    R0,ISIMFMV                                               00007900
+*        LOAD  EP=ISPARSE                                               00008000
+         LOAD  EP=ISPARSE                                               00008100
+         ST    R0,ISPARSE                                               00008200
+*        LOAD  EP=ISPSEUDO                                              00008300
+         LOAD  EP=ISPSEUDO                                              00008400
+         ST    R0,ISPSEUDO                                              00008500
+         AGO   .C0001                                                   00008600
+         EJECT                                                          00008700
+.D0001   ANOP                                                           00008800
+**************************************************************          00008900
+********************** V S E *********************************          00009000
+*                                                            *          00009100
+*    CHECK FOR SYSPARM='BOTH'==> DEBUG & INITIALIZE          *          00009200
+*              SYSPARM='INIT'==> INITIALIZE                  *          00009300
+*              SYSPARM='DEBUG'==> DEBUG FLAG SET ON          *          00009400
+*                                                            *          00009500
+**************************************************************          00009600
+**************************************************************          00009700
+*        COMRG                                                          00009800
+         COMRG                                                          00009900
+         MVI   IOACCESS,C'U'           SET ACCESS TO UPDATE             00010000
+         L     R1,112(0,1)             GET ADDRESS OF SYSPARM FIELD     00010100
+         CLC   1(5,R1),=C'DEBUG'       Q. DEBUG SET?                    00010200
+         BE    PARMDEBU                A. YES, GO TO PARMDEBU           00010300
+         CLC   1(4,R1),=C'BOTH'        Q. DEBUG & INITIALIZE?           00010400
+         BE    PARMBOTH                A. YES, GO TO PARMDEBU           00010500
+         CLC   1(4,R1),=C'INIT'        Q. INITIALIZE?                   00010600
+         BNE   PARMEXIT                A. NO, GO TO PARMEXIT            00010700
+         SPACE                                                          00010800
+PARMINIT EQU   *                                                        00010900
+         MVI   IOACCESS,C'L'           INITIALIZE IMF FILE              00011000
+         B     PARMEXIT                                                 00011100
+         SPACE                                                          00011200
+PARMDEBU EQU   *                                                        00011300
+         MVI   DEBUGSW,C'Y'            SET DEBUG FLAGS ON               00011400
+         MVI   CTLDEBUG,C'Y'                                            00011500
+         B     PARMEXIT                                                 00011600
+         SPACE                                                          00011700
+PARMBOTH EQU   *                                                        00011800
+         MVI   IOACCESS,C'L'           INITIALIZE IMF FILE              00011900
+         MVI   DEBUGSW,C'Y'            SET DEBUG FLAGS ON               00012000
+         MVI   CTLDEBUG,C'Y'                                            00012100
+         B     PARMEXIT                                                 00012200
+PARMEXIT EQU   *                                                        00012300
+         AGO   .C0001                                                   00012400
+         EJECT                                                          00012500
+.C0001   ANOP                                                           00012600
+**************************************************************          00012700
+*        I N I T I A L I Z E                                 *          00012800
+**************************************************************          00012900
+         MVC   MESSPGM,=CL8'ISUTIL'                                     00013000
+         MVC   MESSOPT(16),=CL16'090412 D0401    '                      00013100
+         L     R15,SIMESS                                               00013200
+*        CALL  (15),(SIDSMESS),VL                                       00013300
+         CALL  (15),(SIDSMESS),VL                                       00013400
+         L     R15,SIGETDTE                                             00013500
+*        CALL  (15),(T1DATE),VL                                         00013600
+         CALL  (15),(T1DATE),VL                                         00013700
+         L     R15,SIGETIME                                             00013800
+*        CALL  (15),(T1TIME),VL                                         00013900
+         CALL  (15),(T1TIME),VL                                         00014000
+         L     R15,SILOADTB                                             00014010
+*        CALL  (15),(ISPARMS,ISDSPARM),VL                               00014020
+         CALL  (15),(ISPARMS,ISDSPARM),VL                               00014030
+         LA    R5,ISDSPARM                                              00014040
+         ST    R5,PARMADDR                                              00014050
+         MVC   CTLOPT,=CL2'01'                                          00014100
+         MVI   IOOPER,C'O'                                              00014200
+         MVC   CTLACC,IOACCESS                                          00014300
+         L     R15,ISIMFM                                               00014400
+*        CALL  (15),(SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL            00014500
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00014600
+         LH    R1,IORETCOD                                              00014700
+         LTR   R1,R1                                                    00014800
+         BZ    OPENSYS                                                  00014900
+         MVC   ERRORNO,=H'13'                                           00015000
+         BAL   R14,ERRORPRT                                             00015100
+OPENSYS  EQU   *                                                        00015200
+         AIF   (&DOS).D0002                                             00015300
+         CLI   DEBUGSW,C'Y'                                             00015600
+         BNE   APARA                                                    00015700
+*        OPEN  (SNAPOUT,OUTPUT)                                         00015800
+         OPEN  (SNAPOUT,OUTPUT)                                         00015900
+         AGO   .C0002                                                   00016000
+.D0002   ANOP                                                           00016100
+         AGO   .C0002                                                   00016400
+.C0002   ANOP                                                           00016500
+         EJECT                                                          00016600
+**************************************************************          00016700
+**************************************************************          00016800
+*                                                            *          00016900
+*    ENTER OPTIONS FROM SYSIN                                *          00017000
+*                                                            *          00017100
+**************************************************************          00017200
+**************************************************************          00017300
+         SPACE 1                                                        00017400
+APARA    EQU   *                                                        00017500
+         BAL   R9,CLRBLOCK             CLEAR CONTROL BLOCK              00017600
+         LA    R1,SIDSCNTL             I/O CONTROL BLOCK AREA           00017700
+         ST    R1,PARM1A               PASSED TO SIREADTN               00017800
+         LA    R1,CARDIN               I-O-RETURN-AREA FROM SIREADTN    00017900
+         ST    R1,PARM2A               KEEP FOR FUTURE USE              00018000
+         OI    PARM2A,X'80'            INDICATE NO 3RD PARAMETER        00018100
+         L     R15,=V(SIREADTN)        EXTERNAL READ ROUTINE            00018200
+         ST    R15,AREADTN             ADDR OF READ ROUTINE             00018300
+         MVI   IOOPER,C'O'             OPEN SYSIN                       00018400
+         MVI   IOACCESS,C'I'           FOR INPUT ONLY                   00018500
+         LA    R1,PARM1A                                                00018600
+         L     R15,AREADTN                                              00018700
+         BALR  R14,R15                                                  00018800
+         MVI   IOOPER,C'R'             READ A CARD RECORD               00018900
+         MVI   IOACCESS,C'I'           FOR INPUT ONLY                   00018910
+         LA    R1,PARM1A                                                00018920
+         L     R15,AREADTN                                              00018930
+         BALR  R14,R15                                                  00018940
+         CLC   IORETCOD,=H'4'          Q. END OF FILE                   00018950
+         BE    AREADEOF                A. YES GO TO END OF FILE RTN     00018960
+         MVC   ERRORNO,=X'0000'                                         00019000
+         BAL   R14,ERRORPRT                                             00019100
+         LA    R3,CARDIN-1             R3 = ADDRESS OF CARD             00019200
+         LA    R7,80                   R7 = 80                          00019300
+ALOOP1   LA    R3,1(R3)                BUMP 1 BYTE                      00019400
+         LA    R4,COMMANDS-24          R4 = COMMAND TABLE               00019500
+         USING COMTABLE,R4                                              00019600
+         BCT   R7,ALOOP2               GO TO ALOOP2 R7 TIMES            00019700
+         CLI   MATCHSW,C'Y'            Q. MATCH FOUND?                  00019800
+         BE    AREAD                   A. YES, GOTO AREAD               00019900
+         MVC   ERRORNO,=H'01'                                           00020000
+         B     ERRORPRT                GO TO ERRORPRT                   00020100
+ALOOP2   EQU   *                                                        00020200
+         LA    R4,24(R4)               BUMP TABLE ENTRY LENGTH          00020300
+         CLI   0(R4),X'FF'             Q. END OF TABLE?                 00020400
+         BE    ALOOP1                  A. YES, GO TO ALOOP1             00020500
+         LH    R5,COMNLGTH             R5 = LENGTH OF COMMAND           00020600
+         BCTR  R5,0                    SUBTRACT 1 FROM LENGTH           00020700
+         EX    R5,COMMCLC              Q. COMMAND?                      00020800
+         BNE   ALOOP2                  A. NO, GOTO ALOOP2               00020900
+         MVI   MATCHSW,C'Y'            MOVE 'Y' TO MATCHSW              00021000
+         LH    R5,COMOFSET             R5 = OFFSET TO VALUE             00021100
+         AR    R5,R3                   R5 = ADDRESS OF VALUE            00021200
+         ST    R5,FULLWORD             SAVE ADDRESS                     00021300
+         AH    R3,COMNLGTH             ADD LENGTH OF COMMAND            00021400
+         SH    R7,COMNLGTH             SUBTRACT LENGTH OF COMMAND       00021500
+         CLI   COMEDIT,C'C'            Q. CHARACTER EDIT?               00021600
+         BE    ACHAR                   A. YES, GO TO ACHAR              00021700
+         B     NUMTEST                 A. NO, GO TO NUMTEST             00021800
+         SPACE                                                          00021900
+COMMCLC  CLC   0(1,R3),COMCOMM         ** EXECUTED COMMAND **           00022000
+         EJECT                                                          00022100
+**************************************************************          00022200
+*        MOVE NUMERIC FIELDS TO CONTROL BLOCK                *          00022300
+**************************************************************          00022400
+*                                                                       00022500
+NUMTEST  TRT   0(1,R5),NUMERIC         Q. NUMERIC?                      00022600
+         BNZ   TESTNUM                 A. NO, GOTO TESTNUM              00022700
+         LA    R5,1(R5)                BUMP 1 BYTE                      00022800
+         B     NUMTEST                 GOTO NUMTEST                     00022900
+TESTNUM  MVC   ERRORNO,=H'02'                                           00023000
+         C     R5,FULLWORD             Q. NUMBER THERE?                 00023100
+         BE    ERRORPRT                A. NO, GOTO ERRORPRT             00023200
+         L     R1,FULLWORD             R1 = START ADDRESS               00023300
+         SR    R5,R1                   R5 = LENGTH OF NUMBER            00023400
+         BCTR  R5,0                    SUBTRACT 1 FROM LENGTH           00023500
+         LA    R2,7                    R2 = OUTPUT LENGTH               00023600
+         SLL   R2,4                    SHIFT                            00023700
+         OR    R2,R5                   PUT IN INPUT LENGTH              00023800
+         STC   R2,ZAP01+1              ZAP INSTRUCTION                  00023900
+ZAP01    PACK  DBLWORD,0(1,R1)         PACK                             00024000
+         CVB   R1,DBLWORD              CONVERT TO BINARY                00024100
+         L     R2,COMADDR              RECEIVING ADDRESS                00024200
+         CLI   COMEDIT,C'H'            Q. STORE HALFWORD?               00024300
+         BE    STHALF                  A. YES, GO TO STHALF             00024400
+         CLI   COMEDIT,C'F'            Q. STORE FULLWORD?               00024500
+         BE    STFULL                  A. YES, GO TO STFULL             00024600
+         MVC   ERRORNO,=H'12'                                           00024700
+         B     ERRORPRT                GO TO ERRORPRT                   00024800
+STHALF   STH   R1,0(R2)                STORE VALUE                      00024900
+         B     ALOOP1                                                   00025000
+STFULL   ST    R1,0(R2)                STORE VALUE                      00025100
+         B     ALOOP1                                                   00025200
+         EJECT                                                          00025300
+**************************************************************          00025400
+*        MOVE CHARACTER FIELDS TO CONTROL BLOCK              *          00025500
+**************************************************************          00025600
+*                                                                       00025700
+ACHAR    EQU   *                                                        00025800
+         LR    R1,R5                   MOVE R5 -> R1                    00025900
+         LH    R5,COMNLGTH             R5 = COMMAND LENGTH              00026000
+         L     R6,COMADDR              RECEIVING FIELD ADDRESS          00026100
+         MVI   0(R6),C' '              MOVE SPACE TO FIRST BYTE         00026200
+         CLI   COMTYPE,C'C'            Q. PRIMARY COMMAND?              00026300
+         BE    CHARMOVE                A. YES, GO TO MOVECHAR           00026400
+         LH    R2,COMLGTH              MAXIMUM LENGTH OF FIELD          00026500
+         LA    R2,1(R2)                ADD 1 TO MAXIMUM LENGTH          00026600
+         L     R5,FULLWORD             R5 = ADDRESS OF FIELD            00026700
+ACHARL   CLI   0(R5),X'7D'             Q. QUOTE?                        00026800
+         BE    MOVECHAR                A. YES, GO TO MOVCHAR            00026900
+         CLC   0(1,R5),QUOTE           Q. DOUBLE QUOTE?                 00027000
+         BE    MOVECHAR                A. YES, GO TO MOVCHAR            00027100
+         LA    R5,1(R5)                BUMP 1 BYTE                      00027200
+         BCT   R2,ACHARL               GOTO ACHARL                      00027300
+         MVC   ERRORNO,=H'03'                                           00027400
+         B     ERRORPRT                GOTO ERROR3                      00027500
+MOVECHAR MVC   ERRORNO,=H'04'                                           00027600
+         C     R5,FULLWORD             Q. VALUE THERE?                  00027700
+         BE    ERRORPRT                A. NO, GOTO ERROR4               00027800
+         L     R1,FULLWORD             R1 = START ADDRESS               00027900
+         SR    R5,R1                   R5 = LENGTH OF FIELD             00028000
+         AR    R3,R5                   ADD LENGTH TO REG3               00028100
+         SR    R7,R5                   SUBTRACT LENGTH FROM REG7        00028200
+CHARMOVE BCTR  R5,0                    SUBTRACT 1                       00028800
+         STC   R5,ZAP03+1              ZAP INSTRUCTION                  00028900
+ZAP03    MVC   0(1,R6),0(R1)           MOVE FIELD                       00029000
+         C     R6,=A(CTLKEY)           Q. MOVE TO CTLKEY?               00029010
+         BNE   ALOOP1                  A. NO, GO TO ALOOP1              00029100
+         STC   R5,ZAP04+1              ZAP INSTRUCTION                  00029110
+ZAP04    TR    0(1,R6),SLASHTB         TRANSLATE FORWARD TO BACKSLASH   00029120
+         B     ALOOP1                  GO TO ALOOP1                     00029130
+         EJECT                                                          00029200
+**************************************************************          00029300
+*        READ PARAMETER CARD                                 *          00029400
+**************************************************************          00029500
+*                                                                       00029600
+AREAD    CLI   CARDEND,C' '            Q. CARD CONTINUED?               00029700
+         BE    BPROCESS                A. NO, GO PROCESS COMMAND        00029800
+         B     AREADC                  GO TO READ CONTINUE              00029900
+AREADN   CLI   DEBUGSW,C'Y'            Q. DEBUGGING ON?                 00030000
+         BNE   AREADB                  A. NO, GO TO AREADB              00030100
+         AIF   (&DOS).D0005                                             00030200
+         SNAP  ID=000,DCB=SNAPOUT,SDATA=Q,PDATA=REGS,STORAGE=(X,Y)      00030300
+         AGO   .C0005                                                   00030400
+.D0005   ANOP                                                           00030500
+         PDUMP X,Y                                                      00030600
+         AGO   .C0005                                                   00030700
+.C0005   ANOP                                                           00030800
+AREADB   BAL   R9,CLRBLOCK             CLEAR CONTROL BLOCK              00030900
+AREADC   EQU   *                       GET FIRST RECORD                 00031000
+         MVI   IOOPER,C'R'             READ A CARD RECORD               00031100
+         MVI   IOACCESS,C'I'           FOR INPUT ONLY                   00031200
+         LA    R1,PARM1A                                                00031300
+         L     R15,AREADTN                                              00031400
+         BALR  R14,R15                                                  00031500
+         CLC   IORETCOD,=H'4'          Q. END OF FILE                   00031600
+         BE    AREADEOF                A. YES GO TO END OF FILE RTN     00031700
+         MVC   ERRORNO,=H'00'                                           00032000
+         BAL   R14,ERRORPRT                                             00032100
+         LA    R3,CARDIN-1             R3 = ADDRESS OF CARD             00032200
+         LA    R7,80                   R7 = 80                          00032300
+         MVI   MATCHSW,C'N'            MOVE 'N' TO MATCHSW              00032400
+         B     ALOOP1                  GO TO ALOOP1                     00032500
+         EJECT                                                          00032600
+**************************************************************          00032700
+*        READ END OF FILE                                    *          00032800
+**************************************************************          00032900
+*                                                                       00033000
+AREADEOF EQU   *                                                        00033100
+OKEXIT   EQU   *                                                        00033200
+         AIF   (&DOS).D0007                                             00033300
+         CLI   DEBUGSW,C'Y'                                             00033400
+         BNE   CLOSEFL                                                  00033500
+         CLOSE SNAPOUT                                                  00033600
+CLOSEFL  EQU   *                                                        00033700
+         AGO   .C0007                                                   00033800
+.D0007   ANOP                                                           00033900
+         AGO   .C0007                                                   00034100
+.C0007   ANOP                                                           00034200
+         MVI   WSSPLCD,C'9'                                             00034210
+         MVI   PLCTL,C'9'                                               00034220
+         BAL   R9,CALLPRT              CALL SIPRINT TO CLOSE FILES      00034230
+         MVI   WSSPLCD,C'1'                                             00034240
+         MVC   CTLOPT,=CL2'02'                                          00034300
+         MVI   IOOPER,C'E'                                              00034400
+         MVI   IOACCESS,C'U'                                            00034500
+         MVC   CTLACC,IOACCESS                                          00034600
+         L     R15,ISIMFM                                               00034700
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00034800
+         LH    R1,IORETCOD                                              00034900
+         LTR   R1,R1                                                    00035000
+         BZ    CLSMESS                                                  00035100
+         MVC   ERRORNO,=H'14'                                           00035200
+         BAL   R14,ERRORPRT                                             00035300
+CLSMESS  MVC   MESSPGM,=XL8'FFFFFFFFFFFFFFFF'                           00035400
+         L     R15,SIMESS                                               00035500
+         CALL  (15),(SIDSMESS),VL                                       00035600
+         AIF   (&DOS).D0007A                                            00035610
+         CLC   MESSRET,=H'0'                                            00035700
+         BE    EXITPGM                                                  00035800
+         MVC   RETCODE+2,MESSRET                                        00035810
+EXITPGM  L     R15,RETCODE                                              00035900
+         SIRETRN RC=(15)                                                00036000
+         AGO   .C0007A                                                  00036005
+.D0007A  ANOP                                                           00036010
+         EOJ                                                            00036020
+.C0007A  ANOP                                                           00036030
+         EJECT                                                          00036100
+**************************************************************          00036200
+**************************************************************          00036300
+*                                                            *          00036400
+*    PROCESS COMMANDS IN THE COMMAND CONTROL BLOCK           *          00036500
+*                                                            *          00036600
+**************************************************************          00036700
+**************************************************************          00036800
+         SPACE 1                                                        00036900
+BPROCESS EQU   *                                                        00037000
+         ST    R3,REG3                  R3 = SAVE REG 3                 00037100
+         CLC   CTLCOMM(3),=CL3'DIR'     Q. DIRECTORY OF FILE?           00037200
+         BE    BDIRECT                  A. YES, GO TO BDIRECT           00037300
+         CLC   CTLCOMM(4),=CL4'DUMP'    Q. DUMP CONTENTS OF FILE?       00037400
+         BE    BDUMP                    A. YES, GO TO BDUMP             00037500
+         CLC   CTLCOMM(5),=CL5'MKDIR'   Q. MKDIR DIRECTORY FILE?        00037600
+         BE    DMKDIR                   A. YES, GO TO DMKDIR            00037700
+         CLC   CTLCOMM(5),=CL5'RMDIR'   Q. RMDIR DIRECTORY FILE?        00037800
+         BE    DRMDIR                   A. YES, GO TO DMKDIR            00037900
+         CLC   CTLCOMM(5),=CL5'ERASE'   Q. ERASE FILE?                  00038000
+         BE    DERASE                   A. YES, GO TO DMKDIR            00038100
+         CLC   CTLCOMM(5),=CL5'COPY '   Q. COPY DIRECTORY FILE?         00038200
+         BE    DCOPY                    A. YES, GO TO DMKDIR            00038300
+         CLC   CTLCOMM(6),=CL6'IMPORT'  Q. IMPORT A FILE?               00038400
+         BE    DIMPORT                  A. YES, GO TO DMKDIR            00038500
+         CLC   CTLCOMM(6),=CL6'EXPORT'  Q. EXPORT A FILE?               00038600
+         BE    DEXPORT                  A. YES, GO TO DMKDIR            00038700
+         CLC   CTLCOMM(6),=CL6'ATTRIB'  Q. CHANGE ATTRIBUTES?           00038800
+         BE    DATTRIB                  A. YES, GO TO DATTRIB           00038900
+         CLC   CTLCOMM(6),=CL6'RENAME'  Q. RENAME A FILE?               00038910
+         BE    DRENAME                  A. YES, GO TO DRENAME           00038920
+         CLC   CTLCOMM(6),=CL6'CHKDSK'  Q. CHECK THE DISK?              00039000
+         BE    DCHKDSK                  A. YES, GO TO DCHKDSK           00039100
+         MVC   ERRORNO,=H'18'           ERROR NUMBER 18                 00039200
+         BAL   R14,ERRORPRT             GOTO ERROR ROUTINE              00039210
+         B     AREADN                   READ NEXT COMMAND CARD          00039300
+         EJECT                                                          00039400
+**************************************************************          00039500
+**************************************************************          00039600
+*        DIRECTORY OF EXTRACT FILE                           *          00039700
+**************************************************************          00039800
+**************************************************************          00039900
+*                                                                       00040000
+BDIRECT  EQU   *                                                        00040100
+         ZAP   LINECTR,=P'99'                                           00040200
+         MVI   ISKEY,X'00'                                              00040300
+         MVC   ISKEY+1(L'ISKEY-1),ISKEY                                 00040400
+BDIRLOOP EQU   *                                                        00040500
+         MVC   ISSEQ,=XL5'FFFFFFFFFF'                                   00040600
+         MVI   CTLOPT,C'T'                                              00040700
+         L     R15,ISIMFM                                               00040800
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00040900
+         LH    R1,IORETCOD                                              00041000
+         LTR   R1,R1                                                    00041100
+         BNZ   BDIRECTX                                                 00041200
+         MVI   CTLOPT,C'R'                                              00041300
+         L     R15,ISIMFM                                               00041400
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00041500
+         LH    R1,IORETCOD                                              00041600
+         LTR   R1,R1                                                    00041700
+         BNZ   BDIRECTX                                                 00041800
+         CLC   ISSEQ,=XL2'0000'                                         00041900
+         BNE   BDIRLOOP                                                 00042000
+         CP    LINECTR,LINELMT                                          00042100
+         BL    BDIRPRT                                                  00042200
+         AP    PAGECTR,=P'1'                                            00042300
+         ZAP   LINECTR,=P'4'                                            00042400
+         UNPK  T1PAGE,PAGECTR                                           00042500
+         L     R15,SIGETIME                                             00042600
+         CALL  (15),(T1TIME),VL                                         00042700
+         OI    T1PAGE+L'T1PAGE-1,X'F0'                                  00042800
+         MVI   PLCTL,C'P'                                               00042900
+         BAL   R9,CALLPRT                                               00043000
+         MVC   PRTLINE(L'TITLE1),TITLE1                                 00043100
+         BAL   R9,CALLPRT                                               00043200
+BDIRPRT  EQU   *                                                        00043300
+         BAL   R14,PRTDIRE              PRINT DIRECTORY INFO            00043400
+         B     BDIRLOOP                                                 00043500
+BDIRECTX EQU   *                                                        00043600
+         ZAP   LINECTR,=P'99'                                           00043700
+         L     R3,REG3                  R3 = RESTORE REG 3              00043800
+         B     AREADN                                                   00043900
+         EJECT                                                          00044000
+**************************************************************          00044100
+**************************************************************          00044200
+*        HEXADECIMAL DUMP OF FILE CONTENTS                   *          00044300
+**************************************************************          00044400
+**************************************************************          00044500
+*                                                                       00044600
+BDUMP    EQU   *                                                        00044700
+         MVC   ERRORNO,=H'05'                                           00044705
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00044710
+         MVI   ISKEY,X'00'                                              00044800
+         MVC   ISKEY+1(L'ISKEY-1),ISKEY                                 00044900
+         L     R15,ISPARSE                                              00045000
+         CALL  (15),(CTLKEY,ISDATA,PARMADDR)                            00045100
+         L     R15,ISPSEUDO                                             00045200
+         CALL  (15),(ISDATA,ISPPATH)                                    00045300
+         L     R15,ISPSEUDO                                             00045400
+         CALL  (15),(CTLKEY,ISPKEY)                                     00045500
+         MVC   WSPATH(L'ISKEY),ISKEY                                    00045600
+         MVI   CTLRPLFG,C'U'                                            00045700
+PDMPFIND MVI   CTLOPT,C'S'                                              00045800
+         L     R15,ISIMFM                                               00045900
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00046000
+         LH    R1,IORETCOD                                              00046200
+         LTR   R1,R1                                                    00046300
+         BNZ   ERRORPRT                                                 00046400
+         MVI   CTLOPT,C'R'                                              00046500
+         L     R15,ISIMFM                                               00046600
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00046700
+         LH    R1,IORETCOD                                              00046800
+         LTR   R1,R1                                                    00046900
+         BNZ   ERRORPRT                                                 00047000
+         CLC   ISKEY(4),WSPATH                                          00047100
+         BNE   ERRORPRT                                                 00047200
+         CLC   CTLKEY,ISPATH                                            00047300
+         BE    PDMPFOUN                                                 00047400
+         LH    R1,ISPCHAIN                                              00047500
+         LA    R1,1(R1)                                                 00047600
+         STH   R1,ISPCHAIN                                              00047700
+         B     PDMPFIND                                                 00047800
+PDMPFOUN CLI   ISTYPE,C'F'                                              00047900
+         BNE   ERRORPRT                                                 00048000
+         MVC   ISADATE(2),T1DATE+6                                      00048100
+         MVC   ISADATE+2(2),T1DATE                                      00048200
+         MVC   ISADATE+4(2),T1DATE+3                                    00048300
+         MVC   ISATIME(2),T1TIME                                        00048400
+         MVC   ISATIME+2(2),T1TIME+3                                    00048500
+         MVC   ISATIME+4(2),T1TIME+6                                    00048600
+         MVI   CTLOPT,C'W'                                              00048700
+         L     R15,ISIMFM                                               00048800
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00048900
+         MVI   CTLRPLFG,C' '                                            00049000
+         MVC   WSPATH(L'ISKEY),ISKEY                                    00049100
+         ZAP   LINECTR,=P'99'                                           00049200
+         EJECT                                                          00049300
+**************************************************************          00049400
+*        DUMP RECORD                                         *          00049500
+**************************************************************          00049600
+*                                                                       00049700
+BDMPREC  EQU   *                                                        00049800
+         MVI   CONTSW,C'N'              MOVE 'N' TO CONTINUE SWITCH     00049900
+         MVI   XLINE1,C' '                                              00050000
+         MVC   XLINE1+1(L'XLINE1-1),XLINE1                              00050100
+         MVC   XLINE2,XLINE1                                            00050200
+         MVC   CLINE,XLINE1                                             00050300
+         LA    R3,ISDATA                                                00050400
+         LH    R4,ISRECLEN                                              00050500
+         L     R1,ISPREFIX                                              00050600
+         SR    R4,R1                    CALCULATE DATA LENGTH           00050700
+         ST    R4,FULLWORD              R4 = DATA LENGTH                00050800
+         LA    R5,CLINE                                                 00050900
+         LA    R6,XLINE1                                                00051000
+         LA    R7,XLINE2                                                00051100
+         ZAP   CHARCTR,=P'0'            ZERO OUT THE CHARACTER COUNTER  00051200
+DMPLOOP  EQU   *                                                        00051300
+         AP    CHARCTR,=P'1'            ADD 1 TO CHAR COUNTER           00051400
+         CP    CHARCTR,=P'101'          Q. GREATER THAN +100            00051500
+         BNE   DMPCONT                  A. NO, GO TO DMPCONT            00051600
+         BAL   R14,DUMPPRT                                              00051700
+         ZAP   CHARCTR,=P'1'            ZERO OUT THE CHARACTER COUNTER  00051800
+DMPCONT  MVC   ARG(1),0(R3)             MOVE VALUE                      00051900
+         SIEXLATE WAREA=AREA1           CONVERT TO HEX                  00052000
+         MVC   0(1,R5),0(R3)                                            00052100
+         MVC   0(1,R6),HEXDCML                                          00052200
+         MVC   0(1,R7),HEXDCML+1                                        00052300
+         LA    R5,1(R5)                                                 00052400
+         LA    R6,1(R6)                                                 00052500
+         LA    R7,1(R7)                                                 00052600
+         LA    R3,1(R3)                 BUMP REG3                       00052700
+         BCT   R4,DMPLOOP               GO TO DMPLOOP R4 TIMES          00052800
+*                                                                       00052900
+         BAL   R14,DUMPPRT                                              00053000
+         ZAP   CHARCTR,=P'0'            ZERO OUT THE CHARACTER COUNTER  00053100
+         MVI   CTLOPT,C'R'              READ A RECORD!!!!!!!!!          00053200
+         L     R15,ISIMFM                                               00053300
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00053400
+         LH    R15,IORETCOD             R15 = READ RETURN CODE          00053500
+         LTR   R15,R15                  Q. END-OF-FILE?                 00053600
+         BNZ   BDMPEXIT                 A. YES, GO TO BDMPEXIT          00053700
+         CLC   ISKEY(L'ISKEY-2),WSPATH  Q. KEY CHANGED?                 00053800
+         BE    BDMPREC                  GO DUMP RECORD                  00053900
+BDMPEXIT EQU   *                                                        00054000
+         ZAP   LINECTR,=P'99'                                           00054100
+         L     R3,REG3                  R3 = RESTORE REG 3              00054200
+         B     AREADN                                                   00054300
+         EJECT                                                          00054400
+**************************************************************          00054500
+**************************************************************          00054600
+*        MKDIR + ERASE + RMDIR + COPY                        *          00054700
+**************************************************************          00054800
+**************************************************************          00054900
+*                                                                       00055000
+DMKDIR   EQU   *                                                        00055100
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00055110
+         MVI   IOOPER,C'5'              MKDIR COMMAND !!!!!!!!          00055200
+         MVC   CTLOPT,=CL2'05'          MKDIR COMMAND !!!!!!!!          00055300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00055400
+         MVC   ERRORNO,=H'06'                                           00055500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00055600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR6            00055700
+         L     R3,REG3                  R3 = RESTORE REG 3              00055800
+         B     AREADN                                                   00055900
+         SPACE                                                          00056000
+DERASE   EQU   *                                                        00056100
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00056110
+         MVI   IOOPER,C'3'              ERASE COMMAND !!!!!!!!          00056200
+         MVC   CTLOPT,=CL2'03'          ERASE COMMAND !!!!!!!!          00056300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00056400
+         MVC   ERRORNO,=H'07'                                           00056500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00056600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR7            00056700
+         L     R3,REG3                  R3 = RESTORE REG 3              00056800
+         B     AREADN                                                   00056900
+         SPACE                                                          00057000
+DRMDIR   EQU   *                                                        00057100
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00057110
+         MVI   IOOPER,C'4'              RMDIR COMMAND !!!!!!!!          00057200
+         MVC   CTLOPT,=CL2'04'          RMDIR COMMAND !!!!!!!!          00057300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00057400
+         MVC   ERRORNO,=H'08'                                           00057500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00057600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR8            00057700
+         L     R3,REG3                  R3 = RESTORE REG 3              00057800
+         B     AREADN                                                   00057900
+         SPACE                                                          00057905
+DCOPY    EQU   *                                                        00057910
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00057915
+         BAL   R9,XTLNKEY               CHECK FOR CTLNKEY?              00057920
+         MVI   IOOPER,C'6'              COPY COMMAND !!!!!!!!           00057925
+         MVC   CTLOPT,=CL2'06'          COPY COMMAND !!!!!!!!           00057930
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00057935
+         MVC   ERRORNO,=H'09'                                           00057940
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00057945
+         BNE   ERRORPRT                 A. YES, GO TO ERROR9            00057950
+         L     R3,REG3                  R3 = RESTORE REG 3              00057955
+         B     AREADN                                                   00057960
+         SPACE                                                          00058100
+DRENAME  EQU   *                                                        00058105
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00058110
+         BAL   R9,XTLNKEY               CHECK FOR CTLNKEY?              00058120
+         MVI   IOOPER,C' '              RENAME COMMAND !!!!!!!!         00058200
+         MVC   CTLOPT,=CL2'11'          RENAME COMMAND !!!!!!!!         00058300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00058400
+         MVC   ERRORNO,=H'09'                                           00058500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00058600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR9            00058700
+         L     R3,REG3                  R3 = RESTORE REG 3              00058800
+         B     AREADN                                                   00058900
+         SPACE                                                          00059000
+DIMPORT  EQU   *                                                        00059100
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00059105
+         BAL   R9,XTLDDN                CHECK FOR CTLDDN?               00059110
+         BAL   R9,XTLLRECL              CHECK FOR CTLLRECL?             00059115
+         BAL   R9,XTLBLKSZ              CHECK FOR CTLBLKSZ?             00059120
+         BAL   R9,XTLRECFM              CHECK FOR CTLRECFM?             00059125
+         BAL   R9,XTLDSOR               CHECK FOR CTLDSOR?              00059130
+         BAL   R9,XTLVORG               CHECK FOR CTLVORG?              00059135
+         MVI   IOOPER,C'7'              IMPORT COMMAND !!!!!!!!         00059200
+         MVC   CTLOPT,=CL2'07'          IMPORT COMMAND !!!!!!!!         00059300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00059400
+         MVC   ERRORNO,=H'10'                                           00059500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00059600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR10           00059700
+         L     R3,REG3                  R3 = RESTORE REG 3              00059800
+         B     AREADN                                                   00059900
+         SPACE                                                          00060000
+DEXPORT  EQU   *                                                        00060100
+         BAL   R9,XTLKEY                CHECK FOR CTLKEY?               00060105
+         BAL   R9,XTLDDN                CHECK FOR CTLDDN?               00060110
+         MVI   IOOPER,C'8'              EXPORT COMMAND !!!!!!!!         00060200
+         MVC   CTLOPT,=CL2'08'          EXPORT COMMAND !!!!!!!!         00060300
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00060400
+         MVC   ERRORNO,=H'11'                                           00060500
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00060600
+         BNE   ERRORPRT                 A. YES, GO TO ERROR11           00060700
+         L     R3,REG3                  R3 = RESTORE REG 3              00060800
+         B     AREADN                                                   00060900
+         EJECT                                                          00061000
+**************************************************************          00061100
+*        EXECUTE CHKDSK COMMAND                              *          00061200
+**************************************************************          00061300
+*                                                                       00061400
+DCHKDSK  EQU   *                                                        00061500
+         MVC   ERRORNO,=H'17'                                           00061600
+         MVI   CTLOPT,C'C'                                              00061700
+         L     R15,ISIMFM                                               00061800
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,CHKDSKA,CTLBLOCK,ISDSPARM),VL   00061900
+         LH    R1,IORETCOD                                              00062000
+         LTR   R1,R1                                                    00062100
+         BNZ   ERRORPRT                                                 00062200
+         CLI   DEBUGSW,C'Y'            Q. DEBUGGING ON?                 00062300
+         BNE   DCHK001                 A. NO, GO TO DCHK001             00062400
+         AIF   (&DOS).D0008                                             00062500
+         SNAP  ID=000,DCB=SNAPOUT,SDATA=Q,PDATA=REGS,STORAGE=(X,Y)      00062600
+         AGO   .C0008                                                   00062700
+.D0008   ANOP                                                           00062800
+         PDUMP X,Y                                                      00062900
+         AGO   .C0008                                                   00063000
+.C0008   ANOP                                                           00063100
+DCHK001  EQU   *                                                        00063200
+         ZAP   LINECTR,=P'99'                                           00063300
+         AP    PAGECTR,=P'1'                                            00063400
+         UNPK  T1PAGE,PAGECTR                                           00063500
+         L     R15,SIGETIME                                             00063600
+         CALL  (15),(T1TIME),VL                                         00063700
+         OI    T1PAGE+L'T1PAGE-1,X'F0'                                  00063800
+         MVI   PLCTL,C'P'                                               00063900
+         BAL   R9,CALLPRT                                               00064000
+         MVC   PRTLINE(L'TITLE1),TITLE1                                 00064100
+         BAL   R9,CALLPRT                                               00064200
+         BAL   R9,CALLPRT                                               00064300
+         L     R1,AVSPAC                                                00064400
+         CVD   R1,DBLWORD                                               00064500
+         MVC   PLINE+1(L'DMASK),DMASK                                   00064600
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00064700
+         MVC   PLINE+23(20),=CL20'TOTAL SPACE IN BYTES'                 00064800
+         BAL   R9,CALLPRT                                               00064900
+         AIF   (&DOS).C0009                                             00065000
+         L     R1,HALCRBA                                               00065100
+         CVD   R1,DBLWORD                                               00065200
+         MVC   PLINE+1(L'DMASK),DMASK                                   00065300
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00065400
+         MVC   PLINE+23(26),=CL26'HIGH ALLOCATED RBA (BYTES)'           00065500
+         BAL   R9,CALLPRT                                               00065600
+         L     R1,ENDRBA                                                00065700
+         CVD   R1,DBLWORD                                               00065800
+         MVC   PLINE+1(L'DMASK),DMASK                                   00065900
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00066000
+         MVC   PLINE+23(18),=CL18'ENDING RBA (BYTES)'                   00066100
+         BAL   R9,CALLPRT                                               00066200
+         L     R1,HALCRBA                                               00066300
+         L     R0,ENDRBA                                                00066400
+         SR    R1,R0                                                    00066500
+         CVD   R1,DBLWORD                                               00066600
+         MVC   PLINE+1(L'DMASK),DMASK                                   00066700
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00066800
+         MVC   PLINE+23(23),=CL23'AVAILABLE SPACE (BYTES)'              00066900
+         BAL   R9,CALLPRT                                               00067000
+.C0009   ANOP                                                           00067100
+         L     R1,NLOGR                                                 00067200
+         CVD   R1,DBLWORD                                               00067300
+         MVC   PLINE+1(L'DMASK),DMASK                                   00067400
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00067500
+         MVC   PLINE+23(17),=CL17'NUMBER OF RECORDS'                    00067600
+         BAL   R9,CALLPRT                                               00067700
+         L     R1,CINV                                                  00067800
+         CVD   R1,DBLWORD                                               00067900
+         MVC   PLINE+1(L'DMASK),DMASK                                   00068000
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00068100
+         MVC   PLINE+23(21),=CL21'CONTROL INTERVAL SIZE'                00068200
+         BAL   R9,CALLPRT                                               00068300
+         L     R1,LRECL                                                 00068400
+         CVD   R1,DBLWORD                                               00068500
+         MVC   PLINE+1(L'DMASK),DMASK                                   00068600
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00068700
+         MVC   PLINE+23(21),=CL21'MAXIMUM RECORD LENGTH'                00068800
+         BAL   R9,CALLPRT                                               00068900
+         L     R1,NEXT                                                  00069000
+         CVD   R1,DBLWORD                                               00069100
+         MVC   PLINE+1(L'DMASK),DMASK                                   00069200
+         ED    PLINE+1(L'DMASK),DBLWORD                                 00069300
+         MVC   PLINE+23(17),=CL17'NUMBER OF EXTENTS'                    00069400
+         BAL   R9,CALLPRT                                               00069500
+         MVI   ISKEY,X'00'                                              00069600
+         MVC   ISKEY+1(L'ISKEY-1),ISKEY                                 00069700
+         MVI   CTLRPLFG,C'U'                                            00069800
+DCHK002  EQU   *                                                        00069900
+         MVC   ISSEQ,=XL5'FFFFFFFFFF'                                   00070000
+         MVI   CTLOPT,C'T'                                              00070100
+         L     R15,ISIMFM                                               00070200
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00070300
+         LH    R1,IORETCOD                                              00070400
+         LTR   R1,R1                                                    00070500
+         BNZ   DCHK002X                                                 00070600
+         MVI   CTLOPT,C'R'                                              00070700
+         L     R15,ISIMFM                                               00070800
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00070900
+         CLC   ISSEQ,=XL2'0000'                                         00071000
+         BE    DCHK002                                                  00071100
+*                                                                       00071200
+*    BAD ENTRY FOUND! DELETE THE DATA PORTION OF THE ENTRY              00071300
+*                                                                       00071400
+         MVC   PRTLINE+3(L'T3PSEUDP),T3PSEUDP                           00071500
+         LH    R1,ISPPATH                                               00071600
+         CVD   R1,DBLWORD                                               00071700
+         UNPK  PRTLINE+25(5),DBLWORD                                    00071800
+         OI    PRTLINE+29,X'F0'                                         00071900
+         MVC   PRTLINE+32(L'T3PSEUD),T3PSEUD                            00072000
+         LH    R1,ISPKEY                                                00072100
+         CVD   R1,DBLWORD                                               00072200
+         UNPK  PRTLINE+48(5),DBLWORD                                    00072300
+         OI    PRTLINE+52,X'F0'                                         00072400
+         MVC   PRTLINE+56(30),=CL30'DATA WITH NO DIRECTORY DELETED'     00072500
+         BAL   R9,CALLPRT                                               00072600
+         BAL   R9,CALLPRT                                               00072700
+         MVC   CTCISKEY(L'ISKEY),ISKEY                                  00072800
+DCHK002A MVI   CTLOPT,C'D'                                              00072900
+         L     R15,ISIMFM                                               00073000
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00073100
+         MVI   CTLOPT,C'R'                                              00073200
+         L     R15,ISIMFM                                               00073300
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00073400
+         LH    R1,IORETCOD                                              00073500
+         LTR   R1,R1                                                    00073600
+         BNZ   DCHK002X                                                 00073700
+         CLC   CTCISKEY(6),ISKEY                                        00073800
+         BE    DCHK002A                                                 00073900
+         MVC   ISKEY,CTCISKEY                                           00074000
+         B     DCHK002                                                  00074100
+DCHK002X EQU   *                                                        00074200
+         MVI   CTLRPLFG,C' '                                            00074300
+         ZAP   LINECTR,=P'99'                                           00074400
+         L     R3,REG3                  R3 = RESTORE REG 3              00074500
+         B     AREADN                                                   00074600
+         EJECT                                                          00074700
+**************************************************************          00074800
+*        EXECUTE ATTRIB COMMAND                              *          00074900
+**************************************************************          00075000
+*                                                                       00075100
+DATTRIB  EQU   *                                                        00075200
+         MVC   ERRORNO,=H'15'                                           00075300
+         MVI   ATTR,C'0'                                                00075400
+         LA    R1,ATTRIBS                                               00075500
+         LA    R2,10                    LENGTH OF ATTRIBS               00075600
+DALOOP   EQU   *                                                        00075700
+         CLI   0(R1),C'='               Q. EQUAL SIGN?                  00075800
+         BE    DALOOP1                  A. YES, GO TO DALOOP1           00075900
+         LA    R1,1(R1)                 BUMP ONE BYTE                   00076000
+         BCT   R2,DALOOP                GO TO DALOOP 10 TIMES           00076100
+         B     ERRORPRT                 GO TO ERROR15                   00076200
+DALOOP1  LA    R1,1(R1)                 BUMP ONE BYTE                   00076300
+         BCTR  R2,0                     SUBTRACT ONE FROM R2            00076400
+         CLI   0(R1),C'R'               Q. READ ATTRIBUTE               00076500
+         BNE   DATSTW                   A. GO TO DATSTW                 00076600
+         OI    ATTR,X'01'               SET READ ATTRIBUTE ON           00076700
+         B     DALOOP1X                                                 00076800
+DATSTW   CLI   0(R1),C'W'               Q. WRITE ATTRIBUTE              00076900
+         BNE   DATSTA                   A. GO TO DATSTA                 00077000
+         OI    ATTR,X'02'               SET READ ATTRIBUTE ON           00077100
+         B     DALOOP1X                                                 00077200
+DATSTA   CLI   0(R1),C'A'               Q. APPEND ATTRIBUTE             00077300
+         BNE   DASETMD                  A. GO TO DASETMD                00077400
+         OI    ATTR,X'04'               SET READ ATTRIBUTE ON           00077500
+DALOOP1X BCT   R2,DALOOP1               GOTO DALOOP1 10 TIMES           00077600
+*                                                                       00077700
+DASETMD  EQU   *                                                        00077800
+         LA    R1,ATTRIBS                                               00077900
+         LA    R2,10                    LENGTH OF ATTRIBS               00078000
+DASLOOP1 CLI   0(R1),C'='               Q. END OF WHO'S                 00078100
+         BE    DATTRIBX                 A. GO TO DATTRIBX               00078200
+DASA     CLI   0(R1),C'A'               Q. ALL                          00078300
+         BNE   DASP                     A. GO TO DASP                   00078400
+         MVC   CTLNKEY(1),ATTR                                          00078500
+         MVC   CTLNKEY+1(1),ATTR                                        00078600
+         MVC   CTLNKEY+2(1),ATTR                                        00078700
+         MVC   CTLNKEY+3(1),ATTR                                        00078800
+         MVC   CTLNKEY+4(1),ATTR                                        00078900
+         B     DASLOOPX                                                 00079000
+DASP     CLI   0(R1),C'P'               Q. PUBLIC                       00079100
+         BNE   DASB                     A. GO TO DASB                   00079200
+         MVC   CTLNKEY(1),ATTR                                          00079300
+         B     DASLOOPX                                                 00079400
+DASB     CLI   0(R1),C'B'               Q. INSTITUTION                  00079500
+         BNE   DASG                     A. GO TO DASG                   00079600
+         MVC   CTLNKEY+1(1),ATTR                                        00079700
+         B     DASLOOPX                                                 00079800
+DASG     CLI   0(R1),C'G'               Q. GROUP                        00079900
+         BNE   DASU                     A. GO TO DASU                   00080000
+         MVC   CTLNKEY+2(1),ATTR                                        00080100
+         B     DASLOOPX                                                 00080200
+DASU     CLI   0(R1),C'U'               Q. USER                         00080300
+         BNE   DAST                     A. GO TO DAST                   00080400
+         MVC   CTLNKEY+3(1),ATTR                                        00080500
+         B     DASLOOPX                                                 00080600
+DAST     CLI   0(R1),C'T'               Q. TERMINAL                     00080700
+         BNE   DASLOOPX                 A. GO TO DASLOOPX               00080800
+         MVC   CTLNKEY+4(1),ATTR                                        00080900
+DASLOOPX LA    R1,1(R1)                 BUMP INDEX                      00081000
+         BCT   R2,DASLOOP1              GOTO DASLOOP1 10 TIMES          00081100
+*                                                                       00081200
+DATTRIBX EQU   *                                                        00081300
+         MVI   IOOPER,C' '              ATTRIB COMMAND !!!!!!!!         00081400
+         MVC   CTLOPT,=CL2'12'          ATTRIB COMMAND !!!!!!!!         00081500
+         BAL   R9,DEXEC                 EXECUTE COMMAND PROCESSOR       00081600
+         MVC   ERRORNO,=H'16'                                           00081700
+         CP    CTLRETCD,=P'0'           Q. ERROR?                       00081800
+         BNE   ERRORPRT                 A. YES, GO TO ERROR16           00081900
+         L     R3,REG3                  R3 = RESTORE REG 3              00082000
+         B     AREADN                                                   00082100
+         EJECT                                                          00082200
+**************************************************************          00082300
+*        EXECUTE COMMAND PROCESSOR                           *          00082400
+**************************************************************          00082500
+*                                                                       00082600
+DEXEC   EQU    *                                                        00082700
+         L     R15,ISIMFM                                               00082800
+         CALL  SILINK,(ISIMFMP,SIDSCNTL,ISIMFREC,CTLBLOCK,ISDSPARM),VL  00082900
+         BR    R9                                                       00083000
+         EJECT                                                          00083002
+*********************************************************************** 00083004
+*        CHECK FOR SUB-COMMANDS MISSING FROM COMMAND LINE             * 00083006
+*********************************************************************** 00083008
+         SPACE 1                                                        00083010
+XTLKEY   EQU  *                           CHECK FOR CTLKEY?             00083012
+         CLI  CTLKEY,C' '                                               00083014
+         BNER R9                                                        00083016
+         MVC  ERRORNO,=H'19'                                            00083018
+         BAL  R14,ERRORPRT                                              00083020
+         BR   R9                                                        00083022
+         SPACE                                                          00083024
+XTLDDN   EQU  *                           CHECK FOR CTLDDN?             00083026
+         CLI  CTLDDN,C' '                                               00083028
+         BNER R9                                                        00083030
+         MVC  ERRORNO,=H'20'                                            00083032
+         BAL  R14,ERRORPRT                                              00083034
+         BR   R9                                                        00083036
+         SPACE                                                          00083038
+XTLLRECL EQU  *                           CHECK FOR CTLLRECL?           00083040
+         CLC  CTLLRECL,=H'0'                                            00083042
+         BNER R9                                                        00083044
+         MVC  ERRORNO,=H'21'                                            00083046
+         BAL  R14,ERRORPRT                                              00083048
+         BR   R9                                                        00083050
+         SPACE                                                          00083052
+XTLBLKSZ EQU  *                           CHECK FOR CTLBLKSZ?           00083054
+         CLC  CTLBLKSZ,=F'0'                                            00083056
+         BNER R9                                                        00083058
+         MVC  ERRORNO,=H'22'                                            00083060
+         BAL  R14,ERRORPRT                                              00083062
+         BR   R9                                                        00083064
+         SPACE                                                          00083066
+XTLRECFM EQU  *                           CHECK FOR CTLRECFM?           00083068
+         CLI  CTLRECFM,C'F'                                             00083070
+         BER  R9                                                        00083072
+         CLI  CTLRECFM,C'V'                                             00083074
+         BER  R9                                                        00083076
+         MVC  ERRORNO,=H'23'                                            00083078
+         BAL  R14,ERRORPRT                                              00083080
+         BR   R9                                                        00083082
+         SPACE                                                          00083084
+XTLDSOR  EQU  *                           CHECK FOR CTLDSOR?            00083086
+         CLI  CTLDSOR,C' '                                              00083088
+         BER  R9                                                        00083090
+         CLI  CTLDSOR,C'B'                                              00083092
+         BER  R9                                                        00083094
+         CLI  CTLDSOR,C'S'                                              00083096
+         BER  R9                                                        00083098
+         CLI  CTLDSOR,C'V'                                              00083100
+         BER  R9                                                        00083102
+         CLI  CTLDSOR,C'F'                                              00083103
+         BER  R9                                                        00083104
+         MVC  ERRORNO,=H'24'                                            00083105
+         BAL  R14,ERRORPRT                                              00083106
+         BR   R9                                                        00083108
+         SPACE                                                          00083110
+XTLNKEY  EQU  *                           CHECK FOR CTLNKEY?            00083112
+         CLI  CTLNKEY,C' '                                              00083114
+         BNER R9                                                        00083116
+         MVC  ERRORNO,=H'25'                                            00083118
+         BAL  R14,ERRORPRT                                              00083120
+         BR   R9                                                        00083122
+XTLVORG  EQU  *                           VALIDATE VSAM ORGANIZATION    00083124
+         CLI  CTLVORG,C' '                                              00083126
+         BER  R9                                                        00083128
+         CLI  CTLVORG,C'E'                                              00083130
+         BER  R9                                                        00083132
+         CLI  CTLVORG,C'K'                                              00083134
+         BER  R9                                                        00083136
+         MVC  ERRORNO,=H'26'                                            00083138
+         BAL  R14,ERRORPRT                                              00083140
+         BR   R9                                                        00083142
+         EJECT                                                          00083144
+*********************************************************************** 00083200
+*        CALLED ROUTINE TO PRINT ERRORS IN INPUT STREAM               * 00083300
+*********************************************************************** 00083400
+         SPACE 1                                                        00083500
+ERRORPRT EQU   *                                                        00083600
+         ST    R14,REG14                                                00083700
+         LA    R2,ERR0MSG-40                                            00083800
+PRTERRLP LA    R2,40(R2)                                                00083900
+         CLC   ERRORNO,4(R2)                                            00084000
+         BE    PRTERRCT                                                 00084100
+         CLI   4(R2),X'FF'                                              00084200
+         BNE   PRTERRLP                                                 00084300
+PRTERRCT CP    LINECTR,LINELMT                                          00084400
+         BL    PRTERROR                                                 00084500
+         AP    PAGECTR,=P'1'                                            00084600
+         ZAP   LINECTR,=P'4'                                            00084700
+         UNPK  T1PAGE,PAGECTR                                           00084800
+         L     R15,SIGETIME                                             00084900
+         CALL  (15),(T1TIME),VL                                         00085000
+         OI    T1PAGE+L'T1PAGE-1,X'F0'                                  00085100
+         MVI   PLCTL,C'P'                                               00085200
+         BAL   R9,CALLPRT                                               00085300
+         MVC   PRTLINE(L'TITLE1),TITLE1                                 00085400
+         BAL   R9,CALLPRT                                               00085500
+         MVC   PRTLINE(91),TITLE2                                       00085600
+         BAL   R9,CALLPRT                                               00085700
+PRTERROR CLC   0(4,R2),=F'0'                                            00085800
+         BNE   PRTERRMG                                                 00085900
+         MVC   PLINE+10(L'CARDIN),CARDIN                                00086000
+         BAL   R9,CALLPRT                                               00086100
+         AP    LINECTR,=P'1'                                            00086200
+         L     R14,REG14                                                00086300
+         BR    R14                                                      00086400
+PRTERRMG MVI   PLCTL,C'2'                   PRINT AND SPACE 2 (X'11')   00086500
+         CP    CTLRETCD,=P'0'                                           00086600
+         BE    PRTERR                                                   00086700
+         MVC   PLINE+2(3),=CL3'RC='                                     00086800
+         UNPK  PLINE+5(4),CTLRETCD                                      00086900
+         OI    PLINE+8,X'F0'                                            00087000
+PRTERR   MVC   PLINE+10(34),6(R2)                                       00087100
+         BAL   R9,CALLPRT                                               00087200
+         MVC   RETCODE,=F'8'                                            00087210
+         AP    LINECTR,=P'2'                                            00087300
+         L     R14,0(R2)                                                00087400
+         BR    R14                     BRANCH BACK                      00087500
+         EJECT                                                          00087600
+*********************************************************************** 00087700
+*        CALLED ROUTINE TO PRINT REPORT DETAIL LINE                   * 00087800
+*********************************************************************** 00087900
+         SPACE 1                                                        00088000
+DUMPPRT  EQU   *                                                        00088100
+         ST    R14,REG14A                R14 = STORE REGISTER           00088200
+         CP    LINECTR,LINELMT                                          00088300
+         BL    PRTDUMP                                                  00088400
+         AP    PAGECTR,=P'1'                                            00088500
+         ZAP   LINECTR,=P'4'                                            00088600
+         UNPK  T1PAGE,PAGECTR                                           00088700
+         L     R15,SIGETIME                                             00088800
+         CALL  (15),(T1TIME),VL                                         00088900
+         OI    T1PAGE+L'T1PAGE-1,X'F0'                                  00089000
+         MVI   PLCTL,C'P'                SKIP TO CHANNEL ONE            00089100
+         BAL   R9,CALLPRT                                               00089200
+         MVC   PRTLINE(L'TITLE1),TITLE1                                 00089300
+         BAL   R9,CALLPRT                                               00089400
+         CLC   ISSEQ,=X'0000'            Q. DIRECTORY ENTRY?            00089500
+         BNE   PRTDCNT1                  A. NO, GO TO PRTDCNT1          00089600
+         BAL   R14,PRTDIRE               PRINT DIRECTORY INFO           00089700
+PRTDCNT1 MVC   PRTLINE(L'TITLE2),TITLE2                                 00089800
+         BAL   R9,CALLPRT                                               00089900
+PRTDUMP  AP    LINECTR,=P'5'                                            00090000
+         CLI   CONTSW,C'N'                                              00090100
+         BNE   PRTDCNT2                                                 00090200
+         MVC   PLINE+2(6),=XL6'402020202120'                            00090300
+         LH    R1,ISSEQ                                                 00090400
+         CVD   R1,DBLWORD                                               00090500
+         ED    PLINE+2(6),DBLWORD+5                                     00090600
+PRTDCNT2 MVC   PLINE+10(L'CLINE),CLINE   MOVE CHARACTER LINE            00090700
+         BAL   R9,CALLPRT                PRINT CHARACTER LINE           00090800
+         MVC   PLINE+10(L'XLINE1),XLINE1 MOVE FIRST HEX LINE            00090900
+         BAL   R9,CALLPRT                PRINT FIRST HEX LINE           00091000
+         CLI   CONTSW,C'N'                                              00091100
+         BNE   PRTDCNT3                                                 00091200
+         MVC   PLINE+2(2),=C'L='                                        00091300
+         L     R1,FULLWORD                                              00091400
+         CVD   R1,DBLWORD                                               00091500
+         UNPK  PLINE+4(4),DBLWORD                                       00091600
+         OI    PLINE+7,X'F0'                                            00091700
+PRTDCNT3 MVI   PLCTL,C'2'                SET CARRIAGE CONTROL - X'11'   00091800
+         MVC   PLINE+10(L'XLINE2),XLINE2 MOVE SECOND HEX LINE           00091900
+         BAL   R9,CALLPRT                PRINT SECOND HEX LINE          00092000
+         MVI   XLINE1,C' '                                              00092100
+         MVC   XLINE1+1(L'XLINE1-1),XLINE1                              00092200
+         MVC   XLINE2,XLINE1                                            00092300
+         MVC   CLINE,XLINE1                                             00092400
+         LA    R5,CLINE                                                 00092500
+         LA    R6,XLINE1                                                00092600
+         LA    R7,XLINE2                                                00092700
+         MVI   CONTSW,C'Y'               MOVE 'Y' TO CONTINUE SWITCH    00092800
+         L     R14,REG14A                R14 = RESTORE REGISTER         00092900
+         BR    R14                       BRANCH BACK                    00093000
+         EJECT                                                          00093100
+*********************************************************************** 00093200
+*        CALLED ROUTINE TO PRINT DETAIL                               * 00093300
+*********************************************************************** 00093400
+         SPACE 1                                                        00093500
+CALLPRT  EQU   *                                                        00093600
+         NOP   CP0010                  BRANCH ALL BUT FIRST TIME        00093610
+         OI    *-3,X'F0'               MAKE NOP A BRANCH                00093620
+         LA    R1,PRTLINE              ADDR OF PRINT LINE               00093630
+         ST    R1,PARM1                PASSED TO SIPRINT                00093640
+         LA    R1,SIWSSPAR             WORKING STOR PARAMETERS          00093650
+         ST    R1,PARM2                PASSED TO SIPRINT                00093660
+         OI    PARM2,X'80'                                              00093670
+         AIF   (&DOS).D0010                                             00093680
+         LOAD  EP=SIPRINT              EXTERNAL PRINT ROUTINE           00093700
+         ST    R0,APRINT               ADDRESS OF PRINT ROUTINE         00093800
+         AGO   .C0010                                                   00093900
+.D0010   ANOP                                                           00094000
+         L     R15,=V(SIPRINT)         EXTERNAL PRINT ROUTINE           00094100
+         ST    R15,APRINT              ADDR OF PRINT ROUTINE            00094200
+.C0010   ANOP                                                           00094300
+CP0010   EQU   *                                                        00094400
+         LA    R1,PARM1                                                 00094500
+         L     R15,APRINT                                               00094600
+         BALR  R14,R15                                                  00094700
+         MVI   PLCTL,C'1'              CARRIAGE CONTROL-PRINT, SPACE 1  00094800
+         MVI   PLINE,C' '              CLEAR LINE TO SPACES             00094900
+         MVC   PLINE+1(131),PLINE      *                                00095000
+         BR    R9                      BRANCH BACK                      00095100
+         EJECT                                                          00095200
+*********************************************************************** 00095300
+*        PRINT DIRECTORY ENTRY INFORMATION                            * 00095400
+*********************************************************************** 00095500
+         SPACE 1                                                        00095600
+PRTDIRE  EQU   *                                                        00095700
+         ST    R14,REG14                 R14 = SAVE REGISTER            00095800
+         AP    LINECTR,=P'9'                                            00095900
+         MVC   PLINE+76(10),=CL10'SEC CNTLS='                           00096000
+         MVC   PLINE+86(L'ISBANK),ISBANK                                00096100
+         MVI   PLINE+88,C'/'                                            00096200
+         MVC   PLINE+89(L'ISGROUP),ISGROUP                              00096300
+         MVI   PLINE+93,C'/'                                            00096400
+         MVC   PLINE+94(L'ISOPID),ISOPID                                00096500
+         MVI   PLINE+98,C'/'                                            00096600
+         MVC   PLINE+99(L'ISTERMID),ISTERMID                            00096700
+         MVC   PLINE+105(6),=CL6'ATTRS='                                00096800
+         LA    R2,ISPATTR                                               00096900
+         LA    R1,PLINE+111                                             00097000
+         BAL   R9,FORATTR                                               00097100
+         LA    R2,ISBATTR                                               00097200
+         BAL   R9,FORATTR                                               00097300
+         LA    R2,ISGATTR                                               00097400
+         BAL   R9,FORATTR                                               00097500
+         LA    R2,ISOATTR                                               00097600
+         BAL   R9,FORATTR                                               00097700
+         LA    R2,ISTATTR                                               00097800
+         BAL   R9,FORATTR                                               00097900
+         BCTR  R1,0                                                     00098000
+         MVI   0(R1),C' '                                               00098100
+         CLI   ISTYPE,C'D'                                              00098200
+         BNE   BDIRTYPV                                                 00098300
+         MVC   PLINE(11),=CL11' DIRECTORY='                             00098400
+         MVC   PLINE+11(L'ISPATH),ISPATH                                00098500
+         B     BDIRTYPX                                                 00098700
+BDIRTYPV CLI   ISTYPE,C'V'                                              00098800
+         BNE   BDIRTYPF                                                 00098900
+         MVC   PLINE(8),=CL8' VOLUME='                                  00099000
+         MVC   PLINE+8(L'ISPATH),ISPATH                                 00099100
+         B     BDIRTYPX                                                 00099300
+BDIRTYPF CLI   ISTYPE,C'F'                                              00099400
+         BNE   BDIRTYPU                                                 00099500
+         MVC   PLINE(6),=CL6' FILE='                                    00099600
+         MVC   PLINE+6(L'ISPATH),ISPATH                                 00099700
+         B     BDIRTYPX                                                 00099900
+BDIRTYPU MVC   PLINE(6),=CL6' ????='                                    00100000
+         MVC   PLINE+6(L'ISPATH),ISPATH                                 00100100
+         B     BDIRTYPX                                                 00100300
+BDIRTYPX MVI   PLCTL,C'2'              PRINT AND SKIP 2 - X'11'         00100400
+         BAL   R9,CALLPRT                                               00100500
+         MVC   PRTLINE+3(L'T3PSEUDP),T3PSEUDP                           00100600
+         MVC   PRTLINE+33(L'T3CREATE),T3CREATE                          00100700
+         SR    R1,R1                                                    00100800
+         ICM   R1,3,ISPPATH                                             00100900
+         CVD   R1,DBLWORD                                               00101000
+         UNPK  PRTLINE+25(5),DBLWORD                                    00101100
+         OI    PRTLINE+29,X'F0'                                         00101200
+         LA    R2,ISCDATE                                               00101300
+         LA    R1,PRTLINE+55                                            00101400
+         BAL   R9,FORDATE                                               00101500
+         CLI   ISTYPE,C'F'                                              00101600
+         BNE   PRTDIRE1                                                 00101700
+         MVC   PRTLINE+75(L'T3RECS),T3RECS                              00101800
+         MVC   PRTLINE+89(L'T3MASK),T3MASK                              00101900
+         ED    PRTLINE+89(L'T3MASK),ISFRECS                             00102000
+         B     PRTDIRE2                                                 00102100
+PRTDIRE1 MVC   PRTLINE+75(L'T3DENTRY),T3DENTRY                          00102200
+         MVC   PRTLINE+89(L'T3MASK),T3MASK                              00102300
+         ED    PRTLINE+89(L'T3MASK),ISDDIRE                             00102400
+PRTDIRE2 BAL   R9,CALLPRT                                               00102500
+*                                                                       00102600
+         MVC   PRTLINE+3(L'T3PSEUD),T3PSEUD                             00102700
+         MVC   PRTLINE+33(L'T3MAINT),T3MAINT                            00102800
+         SR    R1,R1                                                    00102900
+         ICM   R1,3,ISPKEY                                              00103000
+         CVD   R1,DBLWORD                                               00103100
+         UNPK  PRTLINE+25(5),DBLWORD                                    00103200
+         OI    PRTLINE+29,X'F0'                                         00103300
+         LA    R2,ISMDATE                                               00103400
+         LA    R1,PRTLINE+55                                            00103500
+         BAL   R9,FORDATE                                               00103600
+         CLI   ISTYPE,C'F'                                              00103700
+         BNE   PRTDIRE3                                                 00103800
+         MVC   PRTLINE+75(L'T3BYTES),T3BYTES                            00103900
+         MVC   PRTLINE+89(L'T3MASK),T3MASK                              00104000
+         ED    PRTLINE+89(L'T3MASK),ISFBYTES                            00104100
+PRTDIRE3 BAL   R9,CALLPRT                                               00104200
+*                                                                       00104300
+         CLI   ISTYPE,C'F'                                              00104400
+         BNE   PRTDIRE4                                                 00104500
+         MVC   PRTLINE+3(L'T3LRECL),T3LRECL                             00104600
+         SR    R1,R1                                                    00104700
+         ICM   R1,3,ISLRECL                                             00104800
+         CVD   R1,DBLWORD                                               00104900
+         UNPK  PRTLINE+25(5),DBLWORD                                    00105000
+         OI    PRTLINE+29,X'F0'                                         00105100
+PRTDIRE4 MVC   PRTLINE+33(L'T3ACCESS),T3ACCESS                          00105200
+         LA    R2,ISADATE                                               00105300
+         LA    R1,PRTLINE+55                                            00105400
+         BAL   R9,FORDATE                                               00105500
+         BAL   R9,CALLPRT                                               00105600
+*                                                                       00105700
+         MVC   PRTLINE+33(L'T3TYPE),T3TYPE                              00105800
+         MVC   PRTLINE+55(1),ISTYPE                                     00105900
+         CLI   ISTYPE,C'F'                                              00106000
+         BNE   PRTDIRE5                                                 00106100
+         MVC   PRTLINE+3(L'T3BLKSIZ),T3BLKSIZ                           00106200
+         SR    R1,R1                                                    00106300
+         ICM   R1,15,ISBLKSZ                                            00106400
+         CVD   R1,DBLWORD                                               00106500
+         UNPK  PRTLINE+25(5),DBLWORD                                    00106600
+         OI    PRTLINE+29,X'F0'                                         00106700
+PRTDIRE5 BAL   R9,CALLPRT                                               00106800
+*                                                                       00106900
+         CLI   ISTYPE,C'F'                                              00107000
+         BNE   PRTDIRE6                                                 00107100
+         MVC   PRTLINE+3(L'T3DSORG),T3DSORG                             00107200
+         MVC   PRTLINE+33(L'T3RECFM),T3RECFM                            00107300
+         MVC   PRTLINE+25(1),ISDSORG                                    00107400
+         MVC   PRTLINE+55(3),ISRECFM                                    00107500
+PRTDIRE6 BAL   R9,CALLPRT                                               00107600
+*                                                                       00107700
+         BAL   R9,CALLPRT                                               00107800
+         L     R14,REG14                 R14 = RESTORE REGISTER         00107900
+         BR    R14                       BRANCH BACK                    00108000
+         EJECT                                                          00108100
+*********************************************************************** 00108200
+*        FORMAT DATE                                                  * 00108300
+*********************************************************************** 00108400
+         SPACE 1                                                        00108500
+FORDATE  EQU   *                                                        00108600
+         MVC   0(2,R1),2(R2)                                            00108700
+         MVI   2(R1),C'/'                                               00108800
+         MVC   3(2,R1),4(R2)                                            00108900
+         MVI   5(R1),C'/'                                               00109000
+         MVC   6(2,R1),0(R2)                                            00109100
+         MVI   8(R1),C'-'                                               00109200
+         MVC   9(2,R1),6(R2)                                            00109300
+         MVI   11(R1),C'.'                                              00109400
+         MVC   12(2,R1),8(R2)                                           00109500
+         MVI   14(R1),C'.'                                              00109600
+         MVC   15(2,R1),10(R2)                                          00109700
+         BR    R9                      BRANCH BACK                      00109800
+         EJECT                                                          00109900
+*********************************************************************** 00110000
+*        FORMAT ATTR  R1=PRTLINE R2=ATTR                              * 00110100
+*********************************************************************** 00110200
+         SPACE 1                                                        00110300
+FORATTR  EQU   *                                                        00110400
+         TM    1(R2),X'FF'                                              00110500
+         BNZ   FAREAD                                                   00110600
+         MVI   0(R1),C'L'                                               00110700
+         LA    R1,1(R1)                                                 00110800
+FAREAD   TM    1(R2),1                                                  00110900
+         BZ    FAWRITE                                                  00111000
+         MVI   0(R1),C'R'                                               00111100
+         LA    R1,1(R1)                                                 00111200
+FAWRITE  TM    1(R2),2                                                  00111300
+         BZ    FAAPPEND                                                 00111400
+         MVI   0(R1),C'W'                                               00111500
+         LA    R1,1(R1)                                                 00111600
+FAAPPEND TM    1(R2),4                                                  00111700
+         BZ    FAEXIT                                                   00111800
+         MVI   0(R1),C'A'                                               00111900
+         LA    R1,1(R1)                                                 00112000
+FAEXIT   MVI   0(R1),C'/'                                               00112100
+         LA    R1,1(R1)                                                 00112200
+         BR    R9                      BRANCH BACK                      00112300
+         EJECT                                                          00112400
+*********************************************************************** 00112500
+*        CLEAR CONTROL BLOCK                                          * 00112600
+*********************************************************************** 00112700
+         SPACE 1                                                        00112800
+CLRBLOCK EQU   *                                                        00112900
+         L     R15,CTLLGTH                                              00113000
+         LA    R1,CTLBLOCK                                              00113100
+CLRLOOP  MVI   0(R1),C' '                                               00113200
+         LA    R1,1(R1)                                                 00113300
+         BCT   R15,CLRLOOP                                              00113400
+         ZAP   CTCRECS,=P'0'                                            00113500
+         ZAP   CTCBYTES,=P'0'                                           00113600
+         ZAP   CTLRETCD,=P'0'                                           00113700
+         MVC   CTLLRECL,=XL2'0000'                                      00113800
+         MVC   CTLBLKSZ,=XL4'00000000'                                  00113900
+         MVC   CTLDEBUG,DEBUGSW                                         00114000
+         MVC   ATTRIBS(L'ATTRIBS),SPACES                                00114100
+         BR    R9                                                       00114200
+         EJECT                                                          00114300
+**************************************************************          00114400
+*    WORKING STORAGE AREA                                    *          00114500
+**************************************************************          00114600
+*                                                                       00114700
+X        DS    0F                                                       00114800
+RETCODE  DC    F'0'                    JOB RETURN CODE                  00114900
+DBLWORD  DC    D'0'                    DBLWORD FOR CVB INSTRUCTIONS     00115000
+FULLWORD DC    F'0'                    FULLWORD FOR CVD INSTRUCTIONS    00115100
+REG3     DC    F'0'                    SAVE REG 3                       00115200
+REG14    DC    F'0'                    SAVE REG 14                      00115300
+REG14A   DC    F'0'                    SAVE REG 14 (ANOTHER)            00115400
+PARMADDR DC    F'0'                                                     00115450
+ERRORNO  DC    H'00'                   ERROR NUMBER                     00115500
+WSPATH   DC    CL64' '                 SAVE KEY                         00115600
+PAGECTR  DC    PL4'0'                  PAGE COUNTER                     00115700
+LINECTR  DC    PL4'99'                 PAGE COUNTER                     00115800
+CHARCTR  DC    PL4'0'                  CHAR COUNTER                     00115900
+LINELMT  DC    PL4'63'                 LINE COUNT LIMIT                 00116000
+MATCHSW  DC    CL1'N'                  MATCH SWITCH                     00116100
+CONTSW   DC    CL1'N'                  CONTINUE SWITCH                  00116200
+DEBUGSW  DC    CL1'N'                  DEBUG SWITCH                     00116300
+ISIMFMP  DC    CL8'ISIMFM  '           ISIMFM PROGRAM NAME              00116310
+ILBOSTPP DC    CL8'ILBOSTP0'           COBOL RUN TIME MODULE            00116320
+*                                                                       00116400
+SPACES   DC    CL80' '                 SPACES                           00116500
+PARM1    DC    F'0'                    SIPRINT PARAMETERS               00116505
+PARM2    DC    F'0'                                                     00116510
+APRINT   DC    F'0'                                                     00116515
+PARM1A   DC    F'0'                    SIREADTN PARAMETERS              00116520
+PARM2A   DC    F'0'                                                     00116525
+PARM3A   DC    F'0'                                                     00116530
+AREADTN  DC    F'0'                                                     00116535
+         EJECT                                                          00116540
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00116570
+*        WORKING STORAGE SPOOL AREA                                   * 00116575
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00116580
+         SPACE 1                                                        00116585
+SIWSSPAR DS    0CL77                                                    00116590
+WSSPLCD  DC    C'1'                                                     00116595
+WSSPLFM  DC    C'A'                                                     00116600
+WSSPLPGM DC    C'ISUTIL  '                                              00116605
+WSRPTNUM DC    C'000'                                                   00116610
+WSBCRBRK DC    C' '                                                     00116615
+WSBCRCTL DC    CL22'0000000000000000000000'                             00116620
+WSRPTBRK DC    C' '                                                     00116625
+WSRPTCTL DC    CL22'0000000000000000000000'                             00116630
+WSBLSTSW DC    C'0'                                                     00116635
+WSLNSEQ  DC    PL4'0'                                                   00116640
+WSLNTYPE DC    C' '                                                     00116645
+WSLNSTYP DC    C' '                                                     00116650
+WSRCPLVL DC    C'0'                                                     00116655
+WSPRTID  DC    C' '                                                     00116660
+WSEXTFL  DC    C' '                                                     00116665
+WSEXTLN  DC    X'0085'                 133 LENGTH                       00116670
+WSPRTXLT DC    C' '                                                     00116675
+         DC    CL5' '                                                   00116680
+         EJECT                                                          00116685
+*********************************************************************** 00116790
+*        TABLES                                                       * 00116800
+*********************************************************************** 00116900
+         SPACE 1                                                        00117000
+LOADADDR DS    0F                                                       00117100
+         AIF   (&DOS).D0099                                             00117200
+SIMESS   DS    F'0'                    LOAD 'SIMESS'                    00117300
+SIGETIME DS    F'0'                    LOAD 'SIGETIME'                  00117400
+SIGETDTE DS    F'0'                    LOAD 'SIGETDTE'                  00117500
+SILOADTB DS    F'0'                    LOAD 'SILOADTB'                  00117510
+ISIMFM   DS    F'0'                    LOAD 'ISIMFM' - COMMAND PROCESS  00117600
+ISIMFMV  DS    F'0'                    LOAD 'ISIMFMV' - IMF I/O         00117700
+ISPARSE  DS    F'0'                    LOAD 'ISPARSE' - PARSE FILENAME  00117800
+ISPSEUDO DS    F'0'                    LOAD 'ISPSEUDO' - PSEUDO KEY     00117900
+ILBOSTP0 DS    F'0'                    LOAD 'ILBOSTP0' - ASSM ENVIROMNT 00117950
+         AGO   .C0099                                                   00118000
+.D0099   ANOP                                                           00118100
+SIMESS   DC    V(SIMESS)                                                00118200
+SIGETIME DC    V(SIGETIME)                                              00118300
+SIGETDTE DC    V(SIGETDTE)                                              00118400
+SILOADTB DC    V(SILOADTB)                                              00118410
+ISIMFM   DC    V(ISIMFM)                                                00118500
+ISIMFMV  DC    V(ISIMFMV)                                               00118600
+ISPARSE  DC    V(ISPARSE)                                               00118700
+ISPSEUDO DC    V(ISPSEUDO)                                              00118800
+.C0099   ANOP                                                           00118900
+ISPARMS  DC    C'ISPARMS '                                              00118910
+NUMERIC  DC    240X'FF',10X'00',6X'FF' NUMERIC TEST AREA                00119000
+         EJECT                                                          00120700
+*********************************************************************** 00120800
+*        COMMAND TABLE                                                * 00120900
+*********************************************************************** 00121000
+COMMANDS DS    0D                                                       00121100
+         DC    C'CC  ',CL8'DIR ',A(CTLCOMM),H'3',H'0',H'8',H'0'         00121200
+         DC    C'CC  ',CL8'RMDIR ',A(CTLCOMM),H'5',H'0',H'8',H'0'       00121300
+         DC    C'CC  ',CL8'MKDIR ',A(CTLCOMM),H'5',H'0',H'8',H'0'       00121400
+         DC    C'CC  ',CL8'ERASE ',A(CTLCOMM),H'5',H'0',H'8',H'0'       00121500
+         DC    C'CC  ',CL8'RENAME ',A(CTLCOMM),H'6',H'0',H'8',H'0'      00121600
+         DC    C'CC  ',CL8'COPY  ',A(CTLCOMM),H'4',H'0',H'8',H'0'       00121700
+         DC    C'CC  ',CL8'DUMP  ',A(CTLCOMM),H'4',H'0',H'8',H'0'       00121800
+         DC    C'CC  ',CL8'IMPORT',A(CTLCOMM),H'6',H'0',H'8',H'0'       00121900
+         DC    C'CC  ',CL8'EXPORT',A(CTLCOMM),H'6',H'0',H'8',H'0'       00122000
+         DC    C'CC  ',CL8'ATTRIB',A(CTLCOMM),H'6',H'0',H'8',H'0'       00122100
+         DC    C'CC  ',CL8'CHKDSK',A(CTLCOMM),H'6',H'0',H'8',H'0'       00122200
+*                                                                       00122300
+* SUBCOMMANDS                                                           00122400
+*                                                                       00122500
+         DC    C'SC  ',CL8'NAME',A(CTLKEY),H'4',H'6',H'64',H'0'         00122600
+         DC    C'SC  ',CL8'DDNAME',A(CTLDDN),H'6',H'8',H'8',H'0'        00122700
+         DC    C'SH  ',CL8'LRECL',A(CTLLRECL),H'5',H'6',H'2',H'0'       00122800
+         DC    C'SF  ',CL8'BLKSIZE',A(CTLBLKSZ),H'7',H'8',H'2',H'0'     00122900
+         DC    C'SC  ',CL8'RECFM',A(CTLRECFM),H'5',H'7',H'3',H'0'       00123000
+         DC    C'SC  ',CL8'NEWNAME',A(CTLNKEY),H'7',H'9',H'64',H'0'     00123100
+         DC    C'SC  ',CL8'ATTR',A(ATTRIBS),H'4',H'6',H'10',H'0'        00123200
+         DC    C'SC  ',CL8'DSORG',A(CTLDSOR),H'5',H'7',H'1',H'0'        00123300
+         DC    C'SC  ',CL8'VSAMORG',A(CTLVORG),H'7',H'9',H'1',H'0'      00123305
+         DC    C'SC  ',CL8'BANK',A(CTLBANK),H'4',H'6',H'2',H'0'         00123310
+         DC    C'SC  ',CL8'GROUP',A(CTLGROUP),H'5',H'7',H'4',H'0'       00123320
+         DC    C'SC  ',CL8'OPID',A(CTLOPID),H'4',H'6',H'4',H'0'         00123330
+         DC    C'SC  ',CL8'TERMID',A(CTLTRMID),H'6',H'8',H'4',H'0'      00123340
+         DC    XL8'FFFFFFFFFFFFFFFF'                                    00123400
+*                                                                       00123500
+* ATTRIBUTES                                                            00123600
+*                                                                       00123700
+ATTR     DC    C'0'                    ATTRIBUTE VALUE                  00123800
+ATTRIBS  DC    CL10' '                 ATTRIBUTE STRING                 00123900
+         DC    X'40'                                                    00124000
+         EJECT                                                          00124100
+*********************************************************************** 00124200
+*        CHKDSK AREA                                                  * 00124300
+*********************************************************************** 00124400
+CHKDSKA  DS    0D                                                       00124500
+AVSPAC   DC    F'0'                 AVAILABLE SPACE IN BYTES            00124600
+CINV     DC    F'0'                 CONTROL INTERVAL SIZE               00124700
+LRECL    DC    F'0'                 MAXIMUM RECORD SIZE                 00124800
+NLOGR    DC    F'0'                 NUMBER OF LOGICAL RECORDS           00124900
+NEXT     DC    F'0'                 NEXT EXTENT NUMBER (MAX 123)        00125000
+ENDRBA   DC    F'0'                 ENDING RBA (MVS ONLY)               00125100
+HALCRBA  DC    F'0'                 HIGH ALLOCATED RBA (MVS ONLY)       00125200
+DMASK    DC    XL20'402020206B2020206B2020206B2020206B202120'           00125300
+         EJECT                                                          00125400
+**************************************************************          00125500
+*    SIEXLATE ASSEMBLER MACRO PARAMETERS FOR IT'S USE        *          00125600
+**************************************************************          00125700
+*                                                                       00125800
+         DS    0F                                                       00125900
+AREA1    DS    0CL6                                                     00126000
+ARG      DC    XL1'00'                                                  00126100
+HEXDCML  DC    XL2'0000'                                                00126200
+DECIMAL  DC    XL3'000000'                                              00126300
+         LTORG                                                          00126400
+         EJECT                                                          00126500
+**************************************************************          00126600
+*    BUFFERS                                                 *          00126700
+**************************************************************          00126800
+*                                                                       00126900
+CARDIN   DS    0CL80                                                    00127000
+         DS    CL71                                                     00127100
+CARDEND  DS    CL1                                                      00127200
+         DS    CL8                                                      00127300
+         SPACE                                                          00127400
+PRTLINE  DS    0CL133                                                   00127500
+PLCTL    DS    CL1                                                      00127600
+PLINE    DS    CL132                                                    00127700
+         ORG   PLINE                                                    00127800
+         DS    CL132                                                    00127900
+         ORG                                                            00128000
+CLINE    DC    CL100' '                                                 00128100
+XLINE1   DC    CL100' '                                                 00128200
+XLINE2   DC    CL100' '                                                 00128300
+         EJECT                                                          00128400
+**************************************************************          00128500
+*        TITLES                                              *          00128600
+**************************************************************          00128700
+         SPACE 1                                                        00128800
+TITLE1   DS    0CL133                                                   00128900
+         DC    XL1'11'                                                  00129000
+         DC    CL38' SYSTEMATICS IMF UTILITY V5.00        '             00129100
+         DC    CL52' '                                                  00129200
+T1DATE   DC    CL8'MM/DD/YY'                                            00129300
+         DC    CL5' '                                                   00129400
+T1TIME   DC    CL8'HH:MM:SS'                                            00129500
+         DC    CL11' '                                                  00129600
+         DC    CL5'PAGE '                                               00129700
+T1PAGE   DC    CL4'   0'                                                00129800
+         DC    CL1' '                                                   00129900
+*                                                                       00130000
+TITLE2   DS    0CL133                                                   00130100
+         DC    XL1'11'                                                  00130200
+         DC    CL40'  RECORD  ....+....1....+....2....+....3'           00130300
+         DC    CL40'....+....4....+....5....+....6....+....7'           00130400
+         DC    CL40'....+....8....+....9....+....0          '           00130500
+         DC    CL12'            '                                       00130600
+T3PSEUDP DC    CL15'PSEUDO PATH KEY'                                    00130700
+T3PSEUD  DC    CL10'PSEUDO KEY'                                         00130800
+T3CREATE DC    CL13'CREATION DATE'                                      00130900
+T3MAINT  DC    CL21'LAST MAINTENANCE DATE'                              00131000
+T3ACCESS DC    CL16'LAST ACCESS DATE'                                   00131100
+*                                                                       00131200
+T3LRECL  DC    CL05'LRECL'                                              00131300
+T3BLKSIZ DC    CL07'BLKSIZE'                                            00131400
+T3DSORG  DC    CL05'DSORG'                                              00131500
+T3RECFM  DC    CL05'RECFM'                                              00131600
+T3TYPE   DC    CL14'DIRECTORY TYPE'                                     00131700
+*                                                                       00131800
+T3RECS   DC    CL14'NO. OF RECORDS'                                     00131900
+T3BYTES  DC    CL14'NO. OF BYTES  '                                     00132000
+T3DENTRY DC    CL14'NO. OF ENTRIES'                                     00132100
+T3MASK   DC    XL20'402020206B2020206B2020206B2020206B202120'           00132200
+         EJECT                                                          00132300
+**************************************************************          00132400
+*        ERROR MESSAGES                                      *          00132500
+**************************************************************          00132600
+         SPACE 1                                                        00132700
+         DS   0D                                                        00132800
+ERR0MSG  DC   A(0),H'00',CL34' '                                        00132900
+ERR1MSG  DC   A(AREADN),H'01',CL34'INVALID COMMAND ON INPUT CARD'       00133000
+ERR2MSG  DC   A(AREADN),H'02',CL34'NUMBER NOT FOUND AFTER COMMAND'      00133100
+ERR3MSG  DC   A(AREADN),H'03',CL34'ENDING QUOTE NOT FOUND ON LITERAL'   00133200
+ERR4MSG  DC   A(AREADN),H'04',CL34'NULL CHARACTER STRING FOR COMMAND'   00133300
+ERR5MSG  DC   A(AREADN),H'05',CL34'FILE TO HEX DUMP NOT FOUND'          00133400
+ERR6MSG  DC   A(AREADN),H'06',CL34'ERROR PROCESSING MKDIR COMMAND'      00133500
+ERR7MSG  DC   A(AREADN),H'07',CL34'ERROR PROCESSING ERASE COMMAND'      00133600
+ERR8MSG  DC   A(AREADN),H'08',CL34'ERROR PROCESSING RMDIR COMMAND'      00133700
+ERR9MSG  DC   A(AREADN),H'09',CL34'ERROR PROCESSING COPY COMMAND'       00133800
+ERR10MSG DC   A(AREADN),H'10',CL34'ERROR PROCESSING IMPORT COMMAND'     00133900
+ERR11MSG DC   A(AREADN),H'11',CL34'ERROR PROCESSING EXPORT COMMAND'     00134000
+ERR12MSG DC   A(AREADN),H'12',CL34'INVALID EDIT FIELD IN COMMAND TBL'   00134100
+ERR13MSG DC   A(CLSMESS),H'13',CL34'OPEN ERROR ON IMF FILE'             00134200
+ERR14MSG DC   A(CLSMESS),H'14',CL34'CLOSE ERROR ON IMF FILE'            00134300
+ERR15MSG DC   A(AREADN),H'15',CL34'ERROR IN FLAGS PARAMETER'            00134400
+ERR16MSG DC   A(AREADN),H'16',CL34'ERROR PROCESSING ATTRIB COMMAND'     00134500
+ERR17MSG DC   A(AREADN),H'17',CL34'ERROR PROCESSING CHKDSK COMMAND'     00134600
+ERR18MSG DC   A(AREADN),H'18',CL34'PRIMARY COMMAND NOT SPECIFIED'       00134618
+ERR19MSG DC   A(AREADN),H'19',CL34'''NAME='' SUB-COMMAND MISSING'       00134619
+ERR20MSG DC   A(AREADN),H'20',CL34'''DDNAME='' SUB-COMMAND MISSING'     00134620
+ERR21MSG DC   A(AREADN),H'21',CL34'''LRECL='' SUB-COMMAND MISSING'      00134621
+ERR22MSG DC   A(AREADN),H'22',CL34'''BLKSIZE='' SUB-COMMAND MISSING'    00134622
+ERR23MSG DC   A(AREADN),H'23',CL34'''RECFM='' SUB-COMMAND INVALID'      00134623
+ERR24MSG DC   A(AREADN),H'24',CL34'''DSORG='' SUB-COMMAND INVALID'      00134624
+ERR25MSG DC   A(AREADN),H'25',CL34'''NEWNAME='' SUB-COMMAND MISSING'    00134625
+ERR26MSG DC   A(AREADN),H'26',CL34'''VSAMORG='' SUB-COMMAND INVALID'    00134626
+ERR99MSG DC   A(AREADN),X'FFFF',CL34'UNKNOWN ERROR CONDITION'           00134700
+         EJECT                                                          00134800
+**************************************************************          00134900
+*        LTORG                                               *          00135000
+**************************************************************          00135100
+         SPACE 1                                                        00135200
+         LTORG                                                          00135300
+         EJECT                                                          00135400
+**************************************************************          00135500
+*    DCBS                                                    *          00135600
+**************************************************************          00135700
+*                                                                       00135800
+         AIF   (NOT &DOS).OSDCB                                         00135900
+         AGO   .CPYBKS                                                  00137200
+.OSDCB   ANOP                                                           00137300
+SNAPOUT  DCB   DDNAME=SNAPOUT,RECFM=VBA,MACRF=(W),                     X00138200
+               DSORG=PS,LRECL=125,BLKSIZE=882                           00138300
+         AGO   .CPYBKS                                                  00138400
+.CPYBKS  ANOP                                                           00138500
+         EJECT                                                          00138600
+*********************************************************************** 00138700
+*        COPY BOOKS                                                   * 00138800
+*********************************************************************** 00138900
+         SPACE 1                                                        00139000
+*        -------------------                                            00139100
+*        SIMESS CONTROL AREA                                            00139200
+*        -------------------                                            00139300
+         DS    0D                                                       00139400
+         COPY   SIDSMESS                                                00139500
+*        ------------------                                             00139600
+*        I/O CONTROL AREA                                               00139700
+*        ------------------                                             00139800
+SIDSCNTL DS    0D                                                       00139900
+IOOPER   DS    CL1                     OPERATOR                         00140000
+IOACCESS DS    CL1                     ACCESS                           00140100
+IORETCOD DS    H                       RETURN CODE                      00140200
+IORBA    DS    F                       RBA                              00140300
+         DS    F                       FILLER                           00140400
+         EJECT                                                          00140500
+*        ------------------                                             00140600
+*        CONTROL BLOCK                                                  00140700
+*        ------------------                                             00140800
+CTLLGTH  DC    A(CTLEND-CTLBLOCK)      LENGTH OF CONTROL BLOCK          00140900
+CTLBLOCK DS    0D                                                       00141000
+CTLOPT   DS    CL2                     OPTION                           00141100
+CTLRETCD DS    PL4                     RETURN CODE                      00141200
+CTLCOMM  DS    CL8                     CURRENT COMMAND                  00141300
+         DS    CL142                                                    00141400
+CTLKEY   DS    CL64                    EXTRACT KEY                      00141500
+CTLNKEY  DS    CL64                    NEW COPY KEY                     00141600
+CTLDDN   DS    CL8                     DDNAME                           00141700
+CTLLRECL DS    CL2                     LRECL (BINARY HALFWORD)          00141800
+CTLBLKSZ DS    CL4                     BLKSIZE (BINARY FULLWORD)        00141900
+CTLRECFM DS    CL3                     RECORD FORMAT                    00142000
+CTLDSOR  DS    CL1                     DISK ORGANIZATION (S/V)          00142100
+CTCISP   DS    CL4                     CICS ISP COMMAND                 00142200
+CTCBPTR  DS    CL4                     CICS BUFFER POINTER              00142300
+CTCISKEY DS    CL8                     CICS SAVE CURRENT KEY            00142400
+CTCPATH  DS    CL8                     CICS SAVE CURRENT PATH           00142500
+CTCNKEY  DS    CL8                     CICS NEW KEY                     00142600
+CTCRECS  DS    PL8                     CICS NUMBER OF RECORDS           00142700
+CTCBYTES DS    PL8                     CICS NUMBER OF BYTES             00142800
+CTCSWT   DS    CL1                     CICS FILE SWITCH                 00142900
+CTLACC   DS    CL1                     ACCESS                           00143000
+CTLRPLFG DS    CL1                     UPDATE RPL FLAG                  00143100
+CTLDEBUG DS    CL1                     DEBUG SWITCH (Y=ON)              00143200
+CTLBANK  DS    CL2                     SECURITY BANK NUMBER             00143300
+CTLGROUP DS    CL4                     SECURITY GROUP                   00143400
+CTLOPID  DS    CL4                     SECURITY OPID                    00143500
+CTLTRMID DS    CL4                     SECURITY TERMID                  00143600
+CTLVORG  DS    CL1                     VSAM ORGANIZATION (K OR E)       00143650
+CTLDCRCL DS    CL10                    DCR CLASS                        00143655
+CTLEND   EQU   *                                                        00143700
+         EJECT                                                          00143800
+*        ------------------                                             00143805
+*        SIMS PARMS                                                     00143810
+*        ------------------                                             00143815
+ISDSPARM EQU   *                                                        00143820
+SLASH    DS    X                       BACK SLASH                       00143825
+QUOTE    DS    X                       QOUTE                            00143830
+EXCLMTN  DS    X                       EXCLAMATION POINT                00143835
+         DS    X                                                        00143840
+MAILMTBL DS    XL256                   MAIL MERGE FORMAT TABLE          00143845
+LOTUSTBL DS    XL256                   LOTUS FORMAT TABLE               00143850
+SLASHTB  DS    XL256                   FORWARD TO BACK SLASH TABLE      00143855
+UPRCASE  DS    XL256                   LOWER TO UPPER CASE TABLE        00143860
+LWRCASE  DS    XL256                   UPPER TO LOWER CASE TABLE        00143865
+         DS    XL64                    SI DATE/TIME STAMP               00143870
+         DS    XL8                     MVS LOADS ON DOUBLE WORD         00143874
+         EJECT                                                          00143875
+*        ------------------                                             00143900
+*        IMF RECORD                                                     00144000
+*        ------------------                                             00144100
+ISPREFIX DC    A(ISDATA-ISIMFREC)      LENGTH OF KEY FIELDS             00144200
+ISIMFREC DS    0D                                                       00144300
+ISRECLEN DS    CL2                                                      00144400
+         DS    CL2                                                      00144500
+ISKEY    DS    0CL8                                                     00144600
+ISPPATH  DS    CL2                                                      00144700
+ISPKEY   DS    CL2                                                      00144800
+ISPCHAIN DS    CL2                                                      00144900
+ISSEQ    DS    CL2                                                      00145000
+ISDATA   DS    CL6000                                                   00145100
+         ORG   ISDATA                                                   00145200
+ISPATH   DS    CL64                                                     00145300
+ISTYPE   DS    CL1                                                      00145400
+ISCDATE  DS    CL6                                                      00145500
+ISCTIME  DS    CL6                                                      00145600
+ISMDATE  DS    CL6                                                      00145700
+ISMTIME  DS    CL6                                                      00145800
+ISADATE  DS    CL6                                                      00145900
+ISATIME  DS    CL6                                                      00146000
+ISBANK   DS    CL2                                                      00146100
+ISGROUP  DS    CL4                                                      00146200
+ISOPID   DS    CL4                                                      00146300
+ISTERMID DS    CL4                                                      00146400
+ISPATTR  DS    CL2                                                      00146500
+ISBATTR  DS    CL2                                                      00146600
+ISGATTR  DS    CL2                                                      00146700
+ISOATTR  DS    CL2                                                      00146800
+ISTATTR  DS    CL2                                                      00146900
+ISFBYTES DS    PL8                                                      00147000
+ISFRECS  DS    PL8                                                      00147100
+ISLRECL  DS    CL2                                                      00147200
+ISBLKSZ  DS    CL4                                                      00147300
+ISDSORG  DS    CL1                                                      00147400
+ISRECFM  DS    CL3                                                      00147500
+ISDCRCL  DS    CL10                                                     00147510
+         ORG   ISFBYTES                                                 00147600
+ISDDIRE  DS    PL8                                                      00147700
+         ORG                                                            00147800
+Y        DS    0F                                                       00147900
+         EJECT                                                          00148000
+**************************************************************          00148100
+*    DSECTS                                                  *          00148200
+**************************************************************          00148300
+*                                                                       00148400
+COMTABLE DSECT                                                          00148500
+COMTYPE  DS    CL1                     COMMAND TYPE                     00148600
+*                                         C = PRIMARY COMMAND           00148700
+*                                         S = SECONDARY COMMAND         00148800
+COMEDIT  DS    CL1                     EDIT FLAG                        00148900
+*                                         C = CHARACTER                 00149000
+*                                         H = HALFWORD                  00149100
+*                                         F = FULLWORD                  00149200
+         DS    CL2                                                      00149300
+COMCOMM  DS    CL8                     COMMAND NAME                     00149400
+COMADDR  DS    CL4                     ADDRESS OF RECEIVING FIELD       00149500
+COMNLGTH DS    CL2                     COMMAND NAME LENGTH              00149600
+COMOFSET DS    CL2                     OFFSET TO CONTENTS               00149700
+COMLGTH  DS    CL2                     MAXIMUM RECEIVING FIELD LENGTH   00149800
+         DS    CL2                                                      00149900
+         MEND                                                           00150000

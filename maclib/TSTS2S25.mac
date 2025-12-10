@@ -1,0 +1,39 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**********************************************************************  00000001
+*--------------------------------------------------------------------*  00000002
+*                  ** HISTORY OF REVISIONS **                        *  00000003
+*                                                                    *  00000004
+* DATE     DESCRIPTION                                        CHNGID *  00000005
+* ________ _________________________________________________  _______*  00000006
+*                                                                    *  00000007
+* 01/17/95 EXPAND TS MONETARY FIELDS                          2602603*  00000098
+**********************************************************************  00000099
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*                   TSTS2S25 **  SYSTEM TRANSACTION                   * 00000300
+*                          VOID CHECK REVERSAL                        * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+         SPACE 2                                                        00000700
+TS25     DS    0CL80                 TRANSACTION AREA                   00000800
+TS25TRNC DS    CL4                   TRANSACTION TRANCODE               00000900
+*                    VALUES :  TS25  - VOID CHECK REVERSAL              00001000
+TS25CTYP DS    0CL3                  CHECK TYPE                         00001100
+TS25CNUM DS    CL11                  CHECK NUMBER                       00001200
+TS25CAMT DS    0CL17                 CHECK AMOUNT             2602603   00001300
+TS25CAM1 DS    CL15                    DOLLARS                2602603   00001400
+TS25CAM2 DS    CL2                     CENTS                            00001500
+         DS    CL15                  FILLER                   2602603   00001600
+         ORG                                                            00001700
+TS25IDTE DS    0CL6                  ISSUE DATE                         00001800
+TS25IMM  DS    CL2                     MONTH                            00001900
+TS25IDD  DS    CL2                     DAY                              00002000
+TS25IYY  DS    CL2                     YEAR                             00002100
+TS25IEMP DS    CL8                   ISSUE EMPLOYEE                     00002200
+TS25CCKF DS    C                     CASHIER CHECK FLAG                 00002300
+*                    VALUES :  SPACE - NOT CASHIER CHECK                00002400
+*                              1   - CASHIER CHECK                      00002500
+TS25PRTF DS    C                     PRINT FLAG                         00002600
+*                    VALUES :   0 - PRINTED WITH OFFSETTING TRANS       00002700
+*                               1 - PRINTED WITH NO OFFSETTING TRANS    00002800
+TS25ACCT DS    CL14                  ACCOUNT NUMBER                     00002900

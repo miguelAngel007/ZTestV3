@@ -1,0 +1,74 @@
+         MACRO                                                          00010000
+         CZFMHELP                                                      X00020000
+               &HELP=                                                   00030000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00040000
+.*********                   P R O L O G                       ******** 00050000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00060000
+.*                                                                    * 00070000
+.*   MACRO NAME : CZFMHELP                                            * 00080000
+.*                                                                    * 00090000
+.*   DESCRIPTIVE NAME : INTERNAL GENERALIZED HELP VALIDATION          * 00100000
+.*                                                                    * 00110000
+.*   STATUS : VERSION 1                                               * 00120000
+.*            RELEASE LEVEL = 1                                       * 00130000
+.*            MODIFICATION LEVEL = 0                                  * 00140000
+.*                                                                    * 00150000
+.*   COPYRIGHT -                                                      * 00160000
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00170000
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00180000
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00190000
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00200000
+.*                                                                    * 00210000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00220000
+.*                                                                    * 00230000
+.*   FUNCTION:                                                        * 00240000
+.*            TO VALIDATE THE PARAMETER HELP CODED WITH MOST MACROS.  * 00250000
+.*                                                                    * 00260000
+.*   LOGIC:                                                           * 00270000
+.*            CHECK FOR HELP PARAMETERS AND SET APPROPRIATE HELP      * 00280000
+.*            MODE.                                                   * 00290000
+.*                                                                    * 00300000
+.*   ENTRY POINT : AT THE BEGINNING OF THE MACRO                      * 00310000
+.*                                                                    * 00320000
+.*   EXTERNAL MODULE(S) CALL : NONE                                   * 00330000
+.*                                                                    * 00340000
+.*   MESSAGES ISSUED : THE REQUESTED                                  * 00350000
+.*                                                                    * 00360000
+.*   CHARACTERISTICS :                                                * 00370000
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00380000
+.*                                                                    * 00390000
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00400000
+.*                                                                    * 00410000
+.*   RESTRICTIONS:  NONE                                              * 00420000
+.*                                                                    * 00430000
+.*   PARAMETERS RECEIVED:                                             * 00440000
+.*            HELP=         *TO DETERMINE HELP REQUESTED              * 00450000
+.*                                                                    * 00460000
+.*   CONTROL BLOCK(S) BUILT :  NONE                                   * 00470000
+.*                                                                    * 00480000
+.*   GENERATED CODE : NONE                                            * 00490000
+.*                                                                    * 00500000
+.*   NOTES:  NONE                                                     * 00510000
+.*                                                                    * 00520000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00530000
+         GBLB  &HELPARM                    *HELP INDICATOR              00540000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00550000
+.*                                                                    * 00560000
+.*             PARAMETERS VALIDATION                                  * 00570000
+.*                                                                    * 00580000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00590000
+         AIF   (T'&HELP EQ 'O').P1V1       * OMITTED PARAMETER?         00600000
+         AIF   ('&HELP' EQ 'NO').P1V1      * NO HELP REQUESTED          00610000
+         AIF   ('&HELP' EQ 'YES').P1V2     * YES HELP REQUESTED         00620000
+         AGO   .P1V3                       * INVALID OPERAND            00630000
+.P1V1    ANOP                                                           00640000
+&HELPARM SETB  0                           * TURN OFF HELP              00650000
+        MEXIT                                                           00660000
+.P1V2    ANOP                                                           00670000
+&HELPARM SETB  1                           * ACTIVIATE HELP             00680000
+        MEXIT                                                           00690000
+.P1V3    ANOP                                                           00700000
+&HELPARM SETB  1                           * ACTIVATE HELP              00710000
+        CZFMHIMS MSGNUM=997                 * INDICATE ERROR            00720000
+        MEXIT                                                           00730000
+         MEND                                                           00740000

@@ -1,0 +1,44 @@
+*********************************************************************** 00000100
+***   * FO0628 11/08/03 WCHM PROYECTO MIGRACION TOLDII               **
+***********************************************************************
+***************************  CZTS2IIS  ******************************** 00000800
+*        ISC PINNACLE EXTENDED FORMAT OF THE INPUT MESSAGE            * 00000900
+*********************************************************************** 00001000
+IISDSECT DSECT                                                          00000700
+IISCMSG  DS   0CL508         TELLER INPUT MESSAGE                       00001100
+IISCICID DS    CL4           CICS TRANSACTION IDENTIFICACION : 'TTOH'   00001400
+IISBARC1 DS    CL3           MESSAGE DELIMITER                          00001500
+*              X'114040'     - TERMINAL TO HOST                         00001500
+IISXTRCD DS    CL4           EXTERNAL TRANSACTION CODE                  00001600
+IISTELID DS    CL8           TELLER ID                                  00001700
+IISSEQNU DS    CL4           TRANSACTION SEQUENCE (OR SERIAL) NUMBER    00001900
+IISSTAT  DS   0XL3           TRANSACTION STATUS BYTES                   00002000
+IISIND1  DS    XL1           - 1ST STATUS BYTE                          00002000
+IISIND1U EQU   B'11110000'     . UNUSED, ALWAYS B'1111'                 00002000
+IISREESF EQU   B'00001000'     . REENTRY / STORE AND FORWARD            00002000
+IISPBKRB EQU   B'00000100'     . PASSBOOK REBID                         00002000
+IISTELOV EQU   B'00000010'     . TELLER OVERRIDE                        00002000
+IISSUPOV EQU   B'00000001'     . SUPERVISOR OVERRIDE                    00002000
+IISIND2  DS    XL1           - SECOND STATUS BYTE                       00002100
+IISIND2U EQU   B'11110000'     . UNUSED, ALWAYS B'1111'                 00002000
+IISCORR  EQU   B'00001000'     . CORRECTION                             00002000
+IISNXDAY EQU   B'00000100'     . NEXT DAY                               00002000
+IISTRAIN EQU   B'00000010'     . TRAINING                               00002000
+IISLSTPS EQU   B'00000001'     . UNUSED : LIST POST                     00002000
+IISIND3  DS    XL1           - THIRD STATUS BYTE                        00002200
+IISIND3U EQU   B'11110000'     . UNUSED, ALWAYS B'1111'                 00002000
+IISINQRB EQU   B'00001000'     . INQUIRY REBID                          00002000
+*                              . BITS 5 TO 7 : UNUSED
+IISTIME  DS    CL6           TRANSACTION TIME 'HHMMSS'                  00002300
+IISOVRTL DS    CL8           OVERRIDE TELLER ID                         00001800
+IISCHDLN EQU   *-IISCMSG     LENGTH OF INPUT HEADER                     00002500
+*********************************************************************** 00000800
+* THE NEXT FIELDS ARE REPEATED FOR EVERY FIELD THAT WAS ENTERED ON    * 00000900
+* THE TELLER SCREEN.                                                  * 00000900
+*        DS    XL1           FIELD DELIMITER : X'11'                  * 00000900
+*        DS    XL2           FIELD ID (CAN BE CHARACTER, HEXADECIMAL, * 00000900
+*                                OR NUMERIC IN FORMAT; E.I. X'C3F0')  * 00000900
+*        DS    XLNN          KEYED DATA (ACTUAL IT ON THE SCREEN)     * 00000900
+*********************************************************************** 00000800
+IISDTARC DS    CL468         INPUT DATA AREA COMMUNICATION              00002600
+*                                                                       00002700

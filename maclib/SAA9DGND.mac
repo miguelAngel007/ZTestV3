@@ -1,0 +1,34 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*                                                                       00000000
+SAA9DGND DSECT                         DAG EDIT INFO                    00001000
+ADGNDGLG DS    XL2                     DATA GROUP LENGTH                00002000
+ADGNDAG  DS    CL8                     DAG GROUP ID                     00003000
+ADGNSEQS DS    0XL4                                                     00004000
+ADGNCSEQ DS    PL2                     CURRENT SEQUENCE NBR             00005000
+ADGNNSEQ DS    PL2                     NEXT SEQUENCE NBR                00006000
+ADGN#ENT DS    XL1                     NUMBER OF ENTRIES - THIS RECORD  00007000
+ADGNAREA DS    0XL1                    START OF VAR DATA AREA           00008000
+ADGNLGTH EQU   *-SAA9DGND              LENGTH OF HEADER AREA            00009000
+*                                                                       00010000
+SAA9DGNB DSECT                         DAG EDIT INFO                    00011000
+BDGN#ELE DS    XL1                     NUMBER OF ELEMENTS - THIS ENTRY  00012000
+BDGNAPID DS    CL2                     APPLICATION ID FOR MSG           00013000
+BDGNMSG# DS    XL2                     MESSAGE NUMBER                   00014000
+BDGNSVL  DS    XL1                     SEVERITY LEVEL                   00015000
+BDGNOPDT DS    XL1                     OPTIONAL DATA FLAG               00016000
+BDGNEXIT EQU   B'10000000'             EXIT ROUTINE PRESENT?            00017000
+BDGNPARM EQU   B'01000000'             PARMS STRUCTURE ID PRESENT?      00018000
+BDGNCRIT EQU   B'00100000'             CRITERIA DATA PRESENT?           00019000
+BDGNLGTH EQU   *-SAA9DGNB              LENGTH OF DETAIL HEADER          00020000
+*                                                                       00021000
+*                                      OCCURS BASED ON ADGN#ELE         00022000
+SAA9DGNC DSECT                         DAG EDIT INFO                    00023000
+CDGNEINF DS    0CL14                   ELEMENT ID & OCCURS INFO         00024000
+CDGNELE  DS    CL8                     ELEMENT ID                       00025000
+CDGNOC1  DS    XL2                     ELEMENT OCCURS 1                 00026000
+CDGNOC2  DS    XL2                     ELEMENT OCCURS 2                 00027000
+CDGNOC3  DS    XL2                     ELEMENT OCCURS 3                 00028000
+CDGNINDX DS    XL2                     DISP INTO DMS FOR THIS ELE       00029000
+CDGNDISP DS    XL2                     DISP INTO DAG FOR THIS ELE       00030000
+CDGNLGTH EQU   *-SAA9DGNC              LENGTH OF ELE TABLE ENTRY        00031000
+*                                                                       00032000

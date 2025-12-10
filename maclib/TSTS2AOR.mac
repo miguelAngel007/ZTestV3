@@ -1,0 +1,70 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*               ** COPYBOOK DESCRIPTION **                            * 00000200
+*                   TRANSACTION SYSTEM                                * 00000300
+*                   APPLICATION OPTIONS RECORD                        * 00000400
+*                                                                     * 00000500
+*********************************************************************** 00000600
+*---------------------------------------------------------------------* 00000610
+*                  ** HISTORY OF REVISIONS **                         * 00000611
+*                                                                     * 00000612
+* DESCRIPTION                                                 CHNGID  * 00000613
+* __________________________________________________________  _______ * 00000614
+* 04/12/95 ADD SDMS ERROR OPTION FLAG. THIS WILL CAUSE CERTAIN2600661 * 00000685
+*          ERRORS SUCH AS NOTOPEN, DISABLED AND DSIDERR TO    2600661 * 00000686
+*          RETURN CONTROL TO THE APPL PGM WITH RETURN CODE 4  2600661 * 00000687
+*          INSTEAD OF SA426 MSG AND ABEND FOLLOWING.          2600661 * 00000688
+* 08/30/94 ADD REAL TIME APPLICATION FLAG                     2602019 * 00000689
+* 12/94    ADDED THE FOLLOWING FIELDS.                        2602105 * 00000690
+*       00001610  AOCAFCL  DS  XL1  FILE CONVERSION LEVEL     2602105 * 00000691
+*       00001620  AOCARCL  DS  XL1  REC CONVERSION LEVEL      2602105 * 00000692
+*          REPLACED THE LAST MAINT TERM ID WITH CHANGE ID.    2602105 * 00000693
+*       00002000  AOCACHID DS  CL8  CA CHANGE ID              2602105 * 00000694
+*          CHANGED THE FILLER LENGTH FOLLOWING CHANGE ID      2602105 * 00000695
+*       00002100           DS  XL29 FILLER                    2602105 * 00000697
+*                                                                     * 00000698
+*---------------------------------------------------------------------* 00000699
+         SPACE 2                                                        00000700
+TSTSAOR  DSECT                                                          00000800
+AOR      DS    0X                                                       00000900
+AORLNG   DS    XL2                   AOR RECORD LENGTH                  00001000
+*                                    MAX. VALUE '+1650'                 00001100
+         DS    XL2                   FILLER                             00001200
+AORKEY   DS    0CL23                 KEY                                00001300
+AORRECID DS    CL3                   RECORD ID 'AOR'                    00001400
+AORCLASS DS    CL10                  CLASS                              00001500
+         DS    CL10                  FILLER                             00001600
+AOCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001610
+AOCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001620
+AORLMNT  DS    0CL28                 LAST MAINT INFO            2602105 00001630
+AORLMDAT DS    CL6                   LAST MAINT DATE                    00001700
+AORLMTIM DS    CL6                   LAST MAINT TIME                    00001800
+AORLMEMP DS    CL8                   LAST MAINT EMPLOYEE ID             00001900
+AOCACHID DS    CL8                   CA CHANGE ID               2602105 00002000
+         DS    XL29                  FILLER                     2602105 00002100
+AORAPPMX DS    PL2                   MAXIMUM # OF APPLICATIONS          00002200
+*                                    VALUE '+120'             2501474   00002300
+AORAPPUS DS    PL2                   # OF APPLICATIONS IN USE           00002400
+AORAPPLS DS    XL1560                120 OCCURRENCES OF APPL  2501474   00002500
+*                                    PROCESSING OPTIONS - DESCRIBED     00002600
+*                                    BY AORAPPL DSECT                   00002700
+AOREND   EQU   *                     SYMBOLIC END OF AOR                00002800
+AORLEN   EQU   *-AOR                 SYMBOLIC LENGTH OF AOR             00002900
+         SPACE                                                          00003000
+*********************************************************************** 00003100
+* DESCRIPTION OF ONE APPLICATION PROCESSING OPTION OCCURRENCE         * 00003200
+*********************************************************************** 00003300
+         SPACE                                                          00003400
+AORAPPDS DSECT                       APPLICATION PROCESSING OPTIONS     00003500
+AORAPID  DS    CL2                   APPLICATION ID                     00003600
+AORAPBCR DS    CL1                   BCR CONTROL FLAG                   00003700
+AORARCHT DS    CL1                   ARCHITECTURE                       00003800
+*                  VALUES :  0 - SINGLE SOURCE ARCHITECTURE             00003900
+*                            1 - NEW ARCHITECTURE                       00004000
+AORCTLLN DS    CL2                   MAXIMUM CONTROL LENGTH FOR APPL    00004100
+AORCENBS DS    CL2                   BASE YEAR TO DETERMINE CENTURY     00004200
+AORFILGP DS    CL1                   FILE GROUPING INDICATOR  2501276   00004210
+AORARTF  DS    CL1                   APPL REAL-TIME FLAG      2602019   00004220
+AORERROP DS    CL1                   SDMS ERROR OPTION FLAG   2600661   00004230
+         DS    XL2                   FILLER                   2600661   00004300
+AORAPPLG EQU   *-AORAPID             SYMBOLIC LENGTH OF AOR             00004400

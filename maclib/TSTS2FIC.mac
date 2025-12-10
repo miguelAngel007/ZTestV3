@@ -1,0 +1,42 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000100
+*                                                                     * 00000200
+*        TSTS2FIC  ---  FIAS COMM AREA FOR TRANSFER CONTROL PROGRAMS  * 00000300
+*                                                                     * 00000400
+*********************************************************************** 00000500
+*                  ** HISTORY OF REVISIONS **                         * 00000505
+* DESCRIPTION                                                 CHNGID  * 00000510
+* __________________________________________________________  _______ * 00000515
+* 04/10/02 ADD EOR THOUSANDS DIVIDER VIEW PREF                2024478 * 00000592
+* 10/22/01 ADD EOR DATE VIEW PREF                             2024347 * 00000594
+* 05/01/97 ADD LANGUAGE TRANSLATION                           9913481 * 00000596
+*---------------------------------------------------------------------* 00000598
+FIASCOMM DS    0CL9000                                                  00000600
+FIASPRMS DS    0CL76                 FIRST 76 BYTES OF COMM AREA        00000700
+         DS    CL37                  FILLER                   2024478   00000800
+FIASTHOU DS    CL1                   THOUSANDS DIVIDER VALUE  2024478   00000802
+         DS    CL6                   FILLER                   2024478   00000804
+FIASLANG DS    CL2                   EOR LANGUAGE PREF        9913481   00000810
+FIASNEIB DS    CL1                   EIB INDICATOR                      00000900
+*                                    VALUE: BLANK-USE EIB FOR TRANID    00001000
+*                                           'E'-USE FIASORIG FOR TRANID 00001100
+FIASDEST DS    CL4                   DEST TRANID (PASSED TO FISECRTY)   00001200
+FIASORIG DS    CL4                   ORIG TRANID (PASSED TO FIASXCTL)   00001300
+FIASAID  DS    CL1                   AID BYTE-TSTSXCT1 HARD CODES '7D'  00001400
+         DS    CL8                   FILLER                   9913481   00001500
+FIASSDRC DS    CL2                   EOR SDR OVRRIDE CLASS    2024347   00001510
+FIASEORD DS    CL2                   EOR DATE VIEW PREF       2024347   00001512
+         DS    CL1                   FILLER                   9913481   00001520
+FIASCIFA DS    XL4                   CIF RECORD ADDRESS                 00001600
+FIASCIFX DS    CL2                   CIF XCTL INDICATOR                 00001700
+FIASPASS DS    CL1                   PASS INDIC-TSTSXCT1 HARD CODES '5' 00001800
+FIASCTLS DS    0C                                                       00001900
+         DS    CL29                  CONTROLS AND ACCT#                 00002000
+FIASHUH  DS    CL2                   TSTSXCT1 HARD CODES 'F0'           00002100
+FIASAPAR DS    CL8893                FILLER                   TS006.00  00002200
+         ORG   FIASAPAR                                                 00002300
+         DS    CL198                 FILLER                             00002400
+FIASNEWP DS    CL8                   NEW ACCT TRAN - FROM CIF TS006.00  00002500
+FIASINQP DS    CL8                   INQ TRAN CD - FROM CIF   TS006.00  00002600
+FIASNAMP DS    CL8                   N/A MNT TRN CD - FRM CIF TS006.00  00002700
+         ORG                                                            00002800

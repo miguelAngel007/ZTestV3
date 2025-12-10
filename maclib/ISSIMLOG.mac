@@ -1,0 +1,77 @@
+         MACRO                                                          00000100
+         ISSIMLOG &DSECT=NO,&ALIGN=NO                                   00000200
+         LCLB  &DST,&ALN                                                00000300
+         AIF   ('&ALIGN' EQ 'YES').SETALN                               00000400
+         AIF   ('&DSECT' EQ 'YES').SETYES                               00000500
+         AIF   ('&DSECT' EQ 'NO').START                                 00000600
+         MNOTE 'INVALID DSECT PARAMETER, MACRO TERMINATED'              00000700
+         MEXIT                                                          00000800
+.SETALN  ANOP                                                           00000900
+&ALN     SETB  1                                                        00001000
+&DST     SETB  0                                                        00001100
+         AGO   .START                                                   00001200
+.SETYES  ANOP                                                           00001300
+&ALN     SETB  0                                                        00001400
+&DST     SETB  1                                                        00001500
+         AGO   .START                                                   00001600
+.START   ANOP                                                           00001700
+*                                                                       00001800
+*                       SIMS LOG RECORD                                 00001900
+*                                                                       00002000
+         AIF   (&DST).DSECT                                             00002100
+         AIF   (NOT &ALN).EQUAT                                         00002200
+ISSIMLOG DS    0D                                                       00002300
+         AGO   .CONTIN                                                  00002400
+.EQUAT   ANOP                                                           00002500
+ISSIMLOG EQU   *                                                        00002600
+         AGO   .CONTIN                                                  00002700
+.DSECT   ANOP                                                           00002800
+ISSIMLOG DSECT                                                          00002900
+         AGO   .CONTIN                                                  00003000
+.CONTIN  ANOP                                                           00003100
+LOGCTL1  DS    CL2                     LOG CONTROL 1                    00003200
+LOGCTL2  DS    CL3                     LOG CONTROL 2                    00003300
+LOGCTL3  DS    CL4                     LOG CONTROL 3                    00003400
+LOGCTL4  DS    CL4                     LOG CONTROL 4                    00003500
+LOGACCT  DS    CL18                    LOG ACCOUNT NUMBER               00003600
+LOGAPPL  DS    CL2                     SIMS APPLICATION                 00003700
+LOGTYPE  DS    CL4                     LOG RECORD TYPE                  00003800
+LOGTIME  DS    CL7                     TIME                             00003900
+LOGDATE  DS    CL5                     DATE                             00004000
+LOGOPID2 DS    CL3                     OPERATOR ID                      00004100
+LOGLGTH  DS    XL2                     LOG RECORD LENGTH (BINARY)       00004200
+LOGPRBA  DS    XL4                     LOG RECORD RBA CHAIN BACK        00004300
+LOGMRBA  DS    XL4                     LOG MONETARY RBA CHAIN BACK      00004400
+LOGDFLG  DS    CL1                     LOG DELETE FLAG                  00004500
+LOGTFLG  DS    CL2                     LOG TELLER FLAG                  00004600
+LOGCFLG  DS    CL1                     LOG DEBIT/CREDIT FLAG            00004700
+LOGBTCH  DS    CL5                     LOG BATCH NUMBER                 00004800
+LOGTERM  DS    CL4                     LOG TERMINAL ID                  00004900
+*                                                                       00005000
+*        SIMS LOG RECORD DATA PORTION                                   00005100
+*                                                                       00005200
+LOGFILEN DS    CL8                     SIMS FCT ACCESSED NAME           00005300
+LOGMODUL DS    CL8                     SIMS READ ROUTINE                00005400
+LOGCONVE DS    CL8                     SIMS CONVERSION ROUTINE          00005500
+LOGERROR DS    CL80                    SIMS ERROR MESSAGE               00005600
+LOGSTART DS    0CL6                    SIMS START TIME                  00005700
+LOGSHR   DS    CL2                     SIMS START HOUR                  00005800
+LOGSMIN  DS    CL2                     SIMS START MINUTE                00005900
+LOGSSEC  DS    CL2                     SIMS START SECOND                00006000
+LOGEND   DS    CL6                     SIMS END TIME                    00006100
+LOGRACC  DS    PL5                     SIMS RECORDS READ                00006200
+LOGRSEL  DS    PL5                     SIMS RECORDS SELECTED            00006300
+LOGMREC  DS    PL5                     SIMS MESSAGES RECEIVED           00006400
+LOGMRSED DS    PL5                     SIMS MESSAGES RESENT             00006500
+LOGMSEND DS    PL5                     SIMS MESSAGES SENT               00006600
+LOGBANK  DS    CL2                     IMF CONTROLS BANK                00006700
+LOGGROUP DS    CL4                     IMF CONTROLS GROUP               00006800
+LOGOPID  DS    CL4                     IMF CONTROLS OPERATOR ID         00006900
+LOGTERMI DS    CL4                     IMF CONTROLS TERMINAL ID         00007000
+LOGQUERY DS    CL80                    QUERY                            00007100
+LOGSCHED DS    CL9                     IMF SCHEDULE                     00007200
+LOGPURGE DS    CL1                     IMF PURGE FLAG                   00007300
+LOGTASKN DS    PL4                     CICS TASK NUMBER                 00007400
+LOGTRAN  DS    CL4                     CICS TRANSACTION CODE            00007500
+LOGEND2  EQU   *                                                        00007600
+         MEND                                                           00007700

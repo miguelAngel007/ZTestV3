@@ -1,0 +1,58 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+GNM2WKAR DS    0D                                                       00000100
+         DC    CL8'SIDTGNM2'   WORK AREA EYE-CATCHER                    00000200
+G2NMADDR DC    XL4'00'         NAME INPUT AREA ADDRESS                  00000300
+G2ARLNG  DC    XL2'00'         INPUT AREA LENGTH                        00000400
+G2LNLNG  DC    XL2'00'         NAME LINE LENGTH (ACTUAL NAME AREA)      00000500
+G2LNOFS  DC    XL2'00'         NAME DATA OFFSET IN INPUT LINE           00000600
+G2RETCOD DC    XL2'00'         RETURN CODE                              00000700
+*                                0 - NO ERRORS                          00000800
+*                                4 - NAME ONLY ERRORS                   00000900
+*                                8 - SERIOUS ROUTINE ERRORS             00001000
+*                               12 - COMBINATION OF 8 AND 4 RTN CODES   00001100
+*                               16 - ROUTINE FATAL ERRORS - NO OUTPUT   00001200
+G2ENLNOF DC    XL2'00'         END OF LINE OFFSET                       00001300
+G2TBLID  DC    CL2'00'         KEY WORD TABLE MODULE ID                 00001400
+G2FORCE  DC    CL1' '          TYPE FORCE CODE                          00001500
+*                                SPACE - DONT FORCE                     00001600
+*                                P     - FORCE PERSONAL                 00001700
+*                                C     - FORCE COMMERCIAL               00001800
+G2RETKEY DC    CL1'0'          RETURN CIF KEY                           00001900
+G2RETSAL DC    CL1'0'          RETURN SALUTATION FLAG                   00002000
+G2RETTTL DC    CL1'0'          RETURN TITLE FLAG                        00002100
+G2NMONLY DC    CL1'0'          ONLY NAME LINES PASSED                   00002200
+         DC    CL3'000'        UNUSED OPTION FLAGS                      00002300
+G2RTNOPT DC    CL8'11111111'   ERROR RETURN OPTION FLAGS                00002400
+         DC    XL6'00'         FILLER                                   00002500
+G2NONAME DC    PL1'0'          NUMBER OF NAMES RETURNED                 00002600
+G2LSTLNE DC    PL1'0'          LAST INPUT LINE A NAME WAS FOUND ON      00002700
+G2NAMES  DC    5CL104' '       NAME RETURN AREA                         00002800
+G2NMERMS DS    0CL256          NAME ERROR MESSAGES TEXT                 00002900
+         DC    CL32'LAST NAME CANNOT BE DETERMINED'                     00003000
+         DC    CL32'LAST NAME NOT FOUND'                                00003100
+         DC    CL32'MORE THAN THREE WORDS IN NAME'                      00003200
+         DC    CL32' '                                                  00003300
+         DC    CL32' '                                                  00003400
+         DC    CL32' '                                                  00003500
+         DC    CL32' '                                                  00003600
+         DC    CL32' '                                                  00003700
+G2ERRFLG DC    CL8'00000000'   ERROR FLAGS                              00003800
+         DC    XL6'00'         FILLER                                   00003900
+G2ERREND DC    XL2'0001'       NUMBER OF ERROR MESSAGES FOLLOWING       00004000
+G2ERRMSG DS    0CL32           ROUTINE ERROR MESSAGES TEXT              00004100
+         DC    CL32'NO INPUT DATA'                                      00004200
+         SPACE 3                                                        00004300
+G2NMAREA DS    0CL104   DEFINES THE G2NAMES AREA                        00004400
+G2NMTYPE DS    CL1      TYPE OF NAME                                    00004500
+*                           P - PERSONAL                                00004600
+*                           C - COMMERCIAL                              00004700
+G2NMLINE DS    PL1      INPUT LINE NUMBER NAME WAS FOUND ON             00004800
+         DS    CL5      FILLER                                          00004900
+G2NMERIN DS    CL1      NAME ERROR INDICATOR                            00005000
+*                           SPACE - NO ERROR FOUND                      00005100
+*                           E     - ERROR ON NAME - CHECK NAME FLAGS    00005200
+G2NMERFL DS    CL8      NAME ERROR FLAGS                                00005300
+G2NMSAL  DS    CL16     SALUTATION                                      00005400
+G2NMNAME DS    CL40     STANDARD NAME                                   00005500
+G2NMTTL  DS    CL16     TITLE                                           00005600
+G2NMKEY  DS    CL16     CIF KEY                                         00005700

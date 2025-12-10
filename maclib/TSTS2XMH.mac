@@ -1,0 +1,100 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         TITLE 'TSTS2XMH - XML HEADER FIELD POSITIONS'                  00000100
+*********************************************************************** 00000200
+*                                                                     * 00000300
+* TSTS2XMH - THIS IS A TABLE OF OFFSETS AND LENGTHS FOR XML HEADER    * 00000400
+* FIELDS. IT IS USED IN ICR SELECTION SO HEADER FIELDS CAN BE         * 00000500
+* REFERENCED. IT MAY ALSO BE USED IN PARSING AND CONDITIONAL PARSING. * 00000600
+*                                                                     * 00000700
+* THIS COPYBOOK SHOULD BE MODIFIED WHEN THE TSTS2APC XML FIELDS ARE   * 00000800
+* MODIFIED WITH NEW POSITIONS, LENGTHS, OR WHEN FIELDS ARE ADDED.     * 00000900
+*                                                                     * 00001000
+*                        HISTORY OF REVISIONS                         * 00001100
+*                                                                     * 00001200
+* 09/16/15  ADDED NEW HEADER FIELDS FOR REST / JSON           1626902 * 00001498
+* 04/24/13  INITIAL RELEASE                                   1336392 * 00001500
+*********************************************************************** 00001600
+         DS    0F                    TABLE OF HEADER FIELDS             00001700
+TSXPTBL  DC    C'TSXPTRCD'           FIELD - CICS TRAN CODE             00001800
+         DC    H'4'                   LENGTH 4                          00001900
+         DC    H'0'                   OFFSET FROM TSXPHDR               00002000
+         DC    C'TSXPVER '           FIELD - MESSAGE VERSION            00002100
+         DC    H'3'                   LENGTH 3                          00002200
+         DC    H'4'                   OFFSET FROM TSXPHDR               00002300
+         DC    C'TSXPEXTR'           FIELD - EXTERNAL TRAN              00002400
+         DC    H'8'                   LENGTH 8                          00002500
+         DC    H'7'                   OFFSET FROM TSXPHDR               00002600
+         DC    C'TSXPEMID'           FIELD - EMPLOYEE ID                00002700
+         DC    H'8'                   LENGTH 8                          00002800
+         DC    H'15'                  OFFSET FROM TSXPHDR               00002900
+         DC    C'TSXPLANG'           FIELD - LANGUAGE                   00003000
+         DC    H'2'                   LENGTH 2                          00003100
+         DC    H'23'                  OFFSET FROM TSXPHDR               00003200
+         DC    C'TSXPAPPL'           FIELD - APPLICATION CODE           00003300
+         DC    H'2'                   LENGTH 2                          00003400
+         DC    H'25'                  OFFSET FROM TSXPHDR               00003500
+         DC    C'TSXPFSEC'           FIELD - FUNCTION SECURITY          00003600
+         DC    H'1'                   LENGTH 1                          00003700
+         DC    H'27'                  OFFSET FROM TSXPHDR               00003800
+         DC    C'TSXPSOUR'           FIELD - SOURCE CODE                00003900
+         DC    H'2'                   LENGTH 2                          00004000
+         DC    H'28'                  OFFSET FROM TSXPHDR               00004100
+         DC    C'TSXPEFDT'           FIELD - EFFECTIVE DATE             00004200
+         DC    H'8'                   LENGTH 8                          00004300
+         DC    H'30'                  OFFSET FROM TSXPHDR               00004400
+         DC    C'TSXPDATE'           FIELD - TRANSACTION DATE           00004500
+         DC    H'8'                   LENGTH 8                          00004600
+         DC    H'38'                  OFFSET FROM TSXPHDR               00004700
+         DC    C'TSXPTIME'           FIELD - TRANSACTION TIME           00004800
+         DC    H'6'                   LENGTH 6                          00004900
+         DC    H'46'                  OFFSET FROM TSXPHDR               00005000
+         DC    C'TSXPSEQ '           FIELD - TRANSACTION SEQUENCE       00005100
+         DC    H'8'                   LENGTH 8                          00005200
+         DC    H'52'                  OFFSET FROM TSXPHDR               00005300
+         DC    C'TSXPSPOV'           FIELD - SUPERVISOR OVERRIDE ID     00005400
+         DC    H'8'                   LENGTH 8                          00005500
+         DC    H'60'                  OFFSET FROM TSXPHDR               00005600
+         DC    C'TSXPTLOV'           FIELD - TELLER OVERRIDE ID         00005700
+         DC    H'8'                   LENGTH 8                          00005800
+         DC    H'68'                  OFFSET FROM TSXPHDR               00005900
+         DC    C'TSXPRLVL'           FIELD - REPORT LEVELS              00006000
+         DC    H'12'                  LENGTH 12                         00006100
+         DC    H'76'                  OFFSET FROM TSXPHDR               00006200
+         DC    C'TSXPRPT1'           FIELD - REPORT LEVEL 1             00006300
+         DC    H'2'                   LENGTH 2                          00006400
+         DC    H'76'                  OFFSET FROM TSXPHDR               00006500
+         DC    C'TSXPRPT2'           FIELD - REPORT LEVEL 2             00006600
+         DC    H'3'                   LENGTH 3                          00006700
+         DC    H'78'                  OFFSET FROM TSXPHDR               00006800
+         DC    C'TSXPRPT3'           FIELD - REPORT LEVEL 3             00006900
+         DC    H'3'                   LENGTH 3                          00007000
+         DC    H'81'                  OFFSET FROM TSXPHDR               00007100
+         DC    C'TSXPRPT4'           FIELD - REPORT LEVEL 4             00007200
+         DC    H'4'                   LENGTH 4                          00007300
+         DC    H'84'                  OFFSET FROM TSXPHDR               00007400
+         DC    C'TSXPPHYL'           FIELD - PHYSICAL LOCATION          00007500
+         DC    H'4'                   LENGTH 4                          00007600
+         DC    H'88'                  OFFSET FROM TSXPHDR               00007700
+         DC    C'TSXPSTA1'           FIELD - STATUS BYTE 1              00007800
+         DC    H'1'                   LENGTH 1                          00007900
+         DC    H'92'                  OFFSET FROM TSXPHDR               00008000
+         DC    C'TSXPSTA2'           FIELD - STATUS BYTE 2              00008100
+         DC    H'1'                   LENGTH 1                          00008200
+         DC    H'93'                  OFFSET FROM TSXPHDR               00008300
+         DC    C'TSXPRENT'           FIELD - REENTRY FLAG               00008400
+         DC    H'1'                   LENGTH 1                          00008500
+         DC    H'94'                  OFFSET FROM TSXPHDR               00008600
+         DC    C'TSXPCORR'           FIELD - CORRECTION FLAG            00008700
+         DC    H'1'                   LENGTH 1                          00008800
+         DC    H'95'                  OFFSET FROM TSXPHDR               00008900
+         DC    C'TSXPMSGT'           FIELD - MESSAGE STRUCTURE FLAG     00009000
+         DC    H'1'                   LENGTH 1                          00009100
+         DC    H'96'                  OFFSET FROM TSXPHDR               00009200
+         DC    C'TSXPACTN'           FIELD - ACTION CODE      1626902   00009300
+         DC    H'1'                   LENGTH 1                1626902   00009400
+         DC    H'105'                 OFFSET FROM TSXPHDR     1626902   00009500
+         DC    C'TSXPJSON'           FIELD - JSON INDICATOR   1626902   00009600
+         DC    H'1'                   LENGTH 1                1626902   00009700
+         DC    H'106'                 OFFSET FROM TSXPHDR     1626902   00009800
+         DC    X'FF'                 END OF TABLE             1626902   00009900
+         DS    0F                                             1626902   00010000

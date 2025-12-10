@@ -1,0 +1,61 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*                                                                     * 00000100
+* * * BEGINNING OF SIDSSLKP COPYBOOK                                    00000200
+*        THIS THE ASSEMBLER EQUIVALENT OF THE SIWSSLKP COBOL COPYBOOK * 00000300
+*********************************************************************** 00000400
+*                                                                     * 00000500
+*-----------------------------------------------------------* 0525104   00000502
+*                  ** HISTORY OF REVISIONS **               * 0525104   00000504
+*                                                           * 0525104   00000506
+* DESCRIPTION                                      CHNGID   * 0525104   00000508
+* _______________________________________________  ________ * 0525104   00000510
+* 10/12/04 INCREASED SSR SEGMENTS(LKPSTKTB) FROM    GN5104  * 0525104   00000592
+* 26 TO 201.ALSO CHANGED THE COMMENT ON LKPMAXRT.   GN5104  * 0525104   00000594
+*                                                           * 0525104   00000596
+*-----------------------------------------------------------* 0525104   00000598
+*        -----------------------------------------------------          00000600
+*        CALLING PARAMETERS FOR BATCH INCORE LOOKUP (SISSLKP)           00000700
+*        -----------------------------------------------------          00000800
+         SPACE 3                                                        00000900
+LKPREQ   DSECT                                                          00001000
+LKPREQ1  DS    CL1       LOOKUP REQUEST TYPE 1                          00001100
+LKPSEG   EQU   C'0'      SEGMENT                                        00001200
+LKPSEG1  EQU   C' '      ALSO SEGMENT LOOKUP                            00001300
+LKPMST   EQU   C'1'      MASTER GROUP                                   00001400
+LKPCTL   EQU   C'2'      CONTROL GROUP                                  00001500
+LKPALP   EQU   C'3'      ALPHA GROUP                                    00001600
+LKPREQ2  DS    CL1       LOOKUP REQUEST TYPE 2                          00001700
+LKPDET1  EQU   C' '      DETAIL RECORD LOOKUP                           00001800
+LKPDET2  EQU   C'0'      DETAIL RECORD LOOKUP 2ND OPTION                00001900
+LKPCTL1  EQU   C'1'      CONTROL 1 LOOKUP                               00002000
+LKPCTL2  EQU   C'2'      CONTROL 2 LOOKUP                               00002100
+LKPCTL3  EQU   C'3'      CONTROL 3 LOOKUP                               00002200
+LKPCTL4  EQU   C'4'      CONTROL 4 LOOKUP                               00002300
+LKPC1SG  EQU   C'5'      CONTROL 1 / BATCH SEGMENT LOOKUP               00002400
+LKPC2SG  EQU   C'6'      CONTROL 2 / BATCH SEGMENT LOOKUP               00002500
+LKPC3SG  EQU   C'7'      CONTROL 3 / BATCH SEGMENT LOOKUP               00002600
+LKPC4SG  EQU   C'8'      CONTROL 4 / BATCH SEGMENT LOOKUP               00002700
+LKPALL   EQU   C'9'      LOOKUP VIA SEGMENT NUMBER OR ALL               00002800
+LKPACCT  EQU   C'A'      LOOKUP SINGLE SEGMENT BY ACCOUNT     2511795   00002810
+LKPTCTLS DS    0CL28     CNTLS/ACCT PASSED FOR SEARCH ARGUMENT2511795   00002900
+LKPTCTL1 DS    0CL2       CONTROL 1 SEARCH                              00003000
+LKPTCTL2 DS    0CL5       CONTROL 2 SEARCH                              00003100
+LKPTCTL3 DS    0CL8       CONTROL 3 SEARCH                              00003200
+LKPTCTL4 DS    0CL12      CONTROL 4 SEARCH                              00003300
+LKPTACCT DS    0CL28      ACCOUNT SEARCH                      2511795   00003310
+         DS    CL28       PLACE HOLDER FOR CONTROLS AND ACCT  2511795   00003400
+LKPTBSEG DS    CL2       BATCH SEGMENT PASSED FOR SEARCH ARGUMENT       00003500
+LKRETCOD DS    CL1       RETURN CODE FROM THIS REQUEST                  00003600
+LKPNRMRT EQU   C'0'          NORMAL RETURN - LOOKUP SUCCESSFUL          00003700
+LKPLOWRT EQU   C'1'          ENTRY LOWER THAN FIRST ENTRY IN TBL        00003800
+LKPNOMAT EQU   C'2'          NO MATCH ON CTLS/BATCH SEG COMBINATION     00003900
+LKPMPTRT EQU   C'5'          EMPTY RESPONSE TABLE                       00004000
+LKPMAXRT EQU   C'6'          MAXIMUM ENTRIES EXCEEDED         0525104   00004100
+LKPINVRT EQU   C'9'          INVALID ACTION FLAG                        00004200
+         SPACE 3                                                        00004300
+*** RESPONSE FOR STACK OF ENTRIES ***                                   00004400
+LKPRESP  DSECT                                                          00004500
+LKPSTKTB DS    201CL2    STACK TABLE ENTRIES                  0525104   00004600
+LKPSTKLN EQU  *-LKPSTKTB LENGTH OF STACK TABLE                          00004700
+         SPACE 3                                                        00004800
+*** END OF SIDSSLKP COPYBOOK                                            00004900

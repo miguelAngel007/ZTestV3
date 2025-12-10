@@ -1,0 +1,212 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*                TSTS2SER -- SYSTEM ENVIRONMENT RECORD                * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 07/08/13 ADD FIS STD PASSWORD FREQS                         1416481   00000676
+* 03/11/13 ADD RESEGMENTATION IN PROGRESS FLAG                1426371   00000677
+* 10/24/12 ADD DUAL SIGNOFF FLAG                              1326276   00000678
+* 03/03/10 4-BYTE RBA TO 8-BYTE XRBA                          1035850   00000679
+* 10/29/09 ADDED MULTIPLE LOG GROUPS                          1025861   00000680
+* 01/03/2008 ADDED PHYSICAL LOCATION OVERRIDE FROM EOR        0825667 * 00000681
+*             SEREORPO DS    CL1   USE PHYSICAL LOC FROM EOR  0825667 * 00000682
+* 03/20/07 INCREASE SIZE OF SERPWMSK FIELD                    0815615   00000683
+* 07/01/99 ADDED NEW BALANCE PRIOR TO SIGNOFF FIELD           2024095 * 00000684
+* 02/15/97 ADDED NEW FIELDS FOR 24X7 PROCESSING               9910919 * 00000685
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000686
+*             SECAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000687
+*             SECARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000688
+*             SERLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000689
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000690
+*             SECACHID DS    CL8         CA CHANGE ID         2602105 * 00000691
+*          CHANGED FILLER LENGTH                              2602105 * 00000692
+*                      DS    CL21        FILLER               2602105 * 00000693
+*          ADDED THE FOLLOWING FIELD:                         2602105 * 00000694
+*             SECACIDR DS    CL1         CA CHG ID REQD FLAG  2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSSER  DSECT                                                          00000700
+SER      DS    0X                                                       00000800
+SERLNG   DS    XL2                   SER RECORD LENGTH                  00000900
+*                                    VALUE '+2600'            1025861   00001000
+         DS    XL2                   FILLER                             00001100
+SERKEY   DS    0CL23                 KEY                                00001200
+SERRECID DS    CL3                   RECORD ID                          00001300
+*                                    VALUE 'SER'                        00001400
+SERCLASS DS    CL10                  CLASS                              00001500
+         DS    CL10                  FILLER                             00001600
+SERKYLEN EQU   *-SERKEY                SYMBOLIC KEY LENGTH    9910919   00001605
+SECAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00001610
+SECARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00001620
+SERLMNT  DS    0CL28                 LAST MAINTENANCE INFO      2602105 00001630
+SERMDAT  DS    CL6                   LAST MAINTENANCE DATE MMDDYY       00001700
+SERMTIM  DS    CL6                   LAST MAINTENANCE TIME HHMMSS       00001800
+SERMEMP  DS    CL8                   LAST MAINTENANCE EMPLOYEE ID       00001900
+SECACHID DS    CL8                     CA CHANGE ID             2602105 00002000
+*                                                               2602105 00002010
+         DS    CL13                    FILLER                 9910919   00002020
+SEREIBTD DS    CL1                     SELECT EIB/SER TRAN DTE9910919   00002030
+*                                           S - USE SERCURDT  9910919   00002032
+*                                           E - USE EIBDATE   9910919   00002034
+SERNXTDY DS    CL1                     BLANK IF NOT NEXT DAY M9910919   00002040
+SERDULSF DS    CL1                     DUAL SIGNOFF FLAG      1326276   00002042
+*                                      Y-SIGNOFF ADMIN/TELLER 1326276   00002044
+         DS    XL2                     FILLER                 1426371   00002050
+SERRESEG DS    CL1                     RESEG IN PROGRESS      1426371   00002056
+*                                           Y - YES           1426371   00002058
+SERNDPCP DS    CL1                     TSPA NEXT DAY POST CMPL9910919   00002060
+*                                           Y - TSPA IS CMPL  9910919   00002070
+*                                           N - TSPA IS NOT CM9910919   00002080
+SECACIDR DS    CL1                     CA CHG ID REQD FLAG    9910919   00002090
+*                                                                       00002100
+SERPREDT DS    CL6                   PREVIOUS PROCESS DATE              00002200
+SERCURDT DS    CL6                   CURRENT  PROCESS DATE              00002300
+SERNXTDT DS    CL6                   NEXT BUSINESS DATE                 00002400
+SERPDOW  DS    CL1                   PREVIOUS DAY OF WEEK               00002500
+SERCDOW  DS    CL1                   CURRENT DAY OF WEEK                00002600
+SERNDOW  DS    CL1                   NEXT DAY OF WEEK                   00002700
+*              1 - MONDAY  2 - TUESDAY  3 - WEDNESDAY  4 - THURSDAY     00002800
+*              5 - FRIDAY  6 - SATURDAY 7 - SUNDAY                      00002900
+SERCURHD DS    CL1                   CURRENT DAY HOLIDAY                00003000
+*              0 - CURRENT DAY IS NOT A HOLIDAY                         00003100
+*              1 - NON-PROCESSING HOLIDAY                               00003200
+*              2 - ONLINE ONLY PROCESSING HOLIDAY                       00003210
+SEREIBDT DS    PL4                   EIBDATE                            00003300
+SERADOW  DS    CL1                   ATM DAY OF WEEK          2602107   00003350
+*                                                                       00003500
+SERDATBL DS    CL8                   NON-PROCESS DATE TABLE             00003600
+SERUSECP DS    CL8                   USER SECURITY PHASE                00003700
+SERULOGP DS    CL8                   USER LOG PHASE                     00003800
+SERTOTPH DS    CL8                   TOTALLING PHASE                    00003900
+         DS    CL16                  FILLER                             00004000
+SERUBALP DS    CL8                   USER BALANCE PHASE                 00004100
+SERUBKOP DS    CL8                   USER DATA BACKOUT PAHSE            00004200
+*                                                                       00004400
+SERFLIMS DS    0XL40                 FLOOR LIMITS                       00004500
+SERFLIM  DS    PL4                   1ST OCCURRENCE OF FLOOR LIMIT      00004600
+         DS    XL36                  2ND-10TH OCCURRENCE OF FLOOR LIMIT 00004700
+*                                                                       00004800
+SERLEVEL DS    0CL10                 ERROR SEVERITY LEVELS              00004900
+SEREMPER DS    CL2                   EMPLOYEE ERROR                     00005000
+*                                    NUMERIC REQUIRED                   00005100
+SERSUPV  DS    CL2                   SUPERVISOR ERROR                   00005200
+*                                    NUMERIC REQUIRED                   00005300
+SERCONT  DS    CL2                   CONT PROCESS                       00005400
+*                                    NUMERIC DEFAULT 97                 00005500
+SERSTOP  DS    CL2                   STOP PROCESS                       00005600
+*                                    NUMERIC DEFAULT 98                 00005700
+SERABEND DS    CL2                   IMM ABEND                          00005800
+*                                    NUMERIC DEFAULT 99                 00005900
+SERDEST1 DS    CL4                   DESTINATION 1                      00006000
+SERDEST2 DS    CL4                   DESTINATION 2                      00006100
+SERTOTN  DS    PL2                   NUMBER OF TOTAL BUCKETS            00006200
+SERBALSO DS    CL1                   BALANCE PRIOR TO SIGNOFF 2024095   00006210
+SEREORPO DS    CL1                  USE PHYSICAL LOC FROM EOR 0825667   00006220
+         DS    CL9                   FILLER                   0825667   00006300
+*                                    0 = NOT REQUIRED         2024095   00006312
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024095   00006313
+*                                    1 = BALANCED EOR REQUIRED          00006314
+SERMIRLG DS    CL1                   MIRROR LOG FLAG                    00006400
+*                                    0 = NO MIRROR LOG                  00006500
+*                                    1 = MIRROR LOG                     00006600
+SERGLRPL DS    CL1                   GLR PHYSCAL LOCATION               00006700
+*                                    0 = GLR PHYSICAL LOCATION IS NOT   00006800
+*                                        PART OF GLR KEY                00006900
+*                                    1 = GLR PHYSICAL LOCATION IS PART  00007000
+*                                        OF GLR KEY                     00007100
+SERLGCTL DS    CL1                   LOG CONTROL FILE CHANGES           00007200
+*                                   1 = FUNCTION LOGGING ONLY 00702117  00007400
+*                                   2 = LOG FUNCTION & DETAIL 00702117  00007600
+SERCALID DS    CL2                   CALENDAR ID (IN DATE TABLE)        00007900
+         DS    CL2                   FILLER                   2501474   00008000
+SERSOT   DS    CL2                   NUMBER OF SIGNON TRIES             00008100
+SERPSAT  DS    CL1                   PROCESS SATURDAY FLAG              00008200
+*                                    0 = NO SATURDAY PROCESSING         00008300
+*                                    1 = ONLINE ONLY ON SATURDAY        00008400
+*                                    2 = ONLINE AND OFFLINE ON SATURDAY 00008500
+SERPSUN  DS    CL1                   PROCESS SUNDAY FLAG                00008600
+*                                    0 = NO SUNDAY PROCESSING           00008700
+*                                    1 = ONLINE ONLY ON SUNDAY          00008800
+*                                    2 = ONLINE AND OFFLINE ON SUNDAY   00008900
+SERPTEL  DS    CL1                   PROCESS TS TELLERS                 00009000
+*                                    0 = DO NOT PROCESS TS TELLERS      00009100
+*                                    1 = PROCESS TS TELLERS             00009200
+SERFIOFF DS    CL1                   TIME SIGNOFF FOR FIAS TRANSACTIONS 00009300
+*                                    0 = DO NOT FORCE SIGNOFF FI TRANS  00009400
+*                                        WHEN TIME HAS EXPIRED          00009500
+*                                    1 = DO FORCE SIGNOFF FI TRANS      00009600
+*                                        WHEN TIME HAS EXPIRED          00009700
+SERIGNND DS    CL1                   IGNORE NEXT DAY FLAG               00009800
+*                                    0 = DO NOT INGORE                  00009900
+*                                    1 = IGNORE NEXT DAY                00010000
+         DS    CL22                  FILLER                   2602107   00010100
+SERATMDT DS    CL6                   SER ATM CURRENT DATE     2602107   00010110
+         DS    CL12                  FILLER                   2602107   00010120
+         DS    CL2                   FILLER                   1025861   00010200
+SERCIRGP DS    CL2                   CHECK INVENTORY FILE GROUP         00010300
+SERGLRGP DS    CL2                   GENERAL LEDGER FILE GROUP          00010400
+         DS    CL4                   FILLER                             00010500
+SERPSWD  DS    0CL60                 PASSWORD INFORMATION               00010600
+SERPWIND DS    CL1                   PASSWORD INDICATOR                 00010700
+SERGENPH DS    CL8                   GENERATE PASSWORD PHASE            00010800
+SERENCPH DS    CL8                   ENCRYPT PASSWORD PHASE             00010900
+SERDECPH DS    CL8                   DECRYPT PASSWORD PHASE             00011000
+SERPWEXP DS    CL3                   PASSWORD EXPIRATION DAYS           00011100
+SERPWEDT DS   0CL20                  PASSWORD EDIT FIELDS               00011200
+SERPWMAX DS    CL2                   PASSWORD MAX LENGTH                00011300
+SERPWMIN DS    CL2                   PASSWORD MINIMUM LENGTH            00011400
+SERPWRDN DS    CL1                   PASSWORD CHECK REDUNDANT CHAR      00011500
+SERPWHST DS    CL1                   PASSWORD CHECK HISTORY             00011600
+SERPWEMP DS    CL1                   PASSWORD CHECK EMPL ID             00011700
+SERCHGFR DS    CL1                   PASSWORD CHANGE FREQ               00011800
+SERDOULE DS    CL1                   DOUBLE CHECK NEW PASSWORD          00011900
+SERPWMSK DS    CL20                  PASSWORD EDIT MASK       0815615   00012000
+SERPWCHG DS    CL03                  DISAB DAYS PWD MUST CHG  1416481   00012100
+SERPWINT DS    CL03                  DISAB PWD NOT USED ADD   1416481   00012110
+SERPWUSE DS    CL03                  DISAB DAYS PWD NOT USED  1416481   00012120
+SERPWNOT DS    CL03                  DAYS BEFORE CHG NOTICE   1416481   00012130
+         DS    CL14                  FILLER                   1416481   00012200
+SEREBRIN DS    0CL16                 EBR FILE INFORMATION               00012300
+SEREBRGP DS    CL2                   EBR FILE GROUP                     00012400
+SEREBRCL DS    CL10                  EBR FILE CLASS                     00012500
+         DS    CL4                   FILLER                             00012600
+SERFDRIN DS    0CL16                 FDR FILE INFORMATION               00012700
+         DS    CL2                   FILLER                             00012800
+SERFDRCL DS    CL10                  FDR FILE CLASS                     00012900
+         DS    CL4                   FILLER                             00013000
+SERTPFIN DS    0CL16                 TPF FILE INFORMATION               00013100
+SERTPFGP DS    CL2                   TPF FILE GROUP                     00013200
+SERTPFCL DS    CL10                  TPF FILE CLASS                     00013300
+         DS    CL4                   FILLER                             00013400
+         DS    CL5                   FILLER                             00013500
+SERLGRPS DS    0CL1700               LOG GROUP AREA           1025861   00013505
+SERLGREN DS    0CL17                 LOG GROUP ENTRY          1025861   00013510
+SERLOGRP DS    CL2                   LOG FILE GROUP           1025861   00013515
+SERLGCDI DS    CL1                 CURRENT DAY GROUP INC/EXC  1025861   00013520
+*                                           I - INCLUDE       1025861   00013525
+*                                           E - EXCLUDE       1025861   00013530
+*                                           F - FULL          1025861   00013535
+SERLGNDI DS    CL1                   NEXT DAY GROUP INC/EXC   1025861   00013540
+*                                           I - INCLUDE       1025861   00013545
+*                                           E - EXCLUDE       1025861   00013550
+*                                           F - FULL          1025861   00013555
+SERNHRBA DS    XL8                   TSLGN HIGH-USED RBA      1035850   00013565
+         DS    CL5                   FILLER                   1025861   00013570
+         DS    CL1683                REMAINING ENTRIES        1025861   00013575
+SERCURAG DS    CL200                 TABLE OF AVAIL LOG GPS   1025861   00013580
+SERCURAC DS    PL2                   COUNT OF AVAIL LOG GPS   1025861   00013585
+SERNXDAG DS    CL200                 TABLE OF AVAIL LOG GPS   1025861   00013590
+SERNXDAC DS    PL2                   COUNT OF AVAIL LOG GPS   1025861   00013595
+         DS    CL56                  FILLER                   1025861   00013598
+*                                                                       00013600
+SEREND   EQU   *                     SYMBOLIC END OF SER                00013700
+SERLEN   EQU   *-SER                 SYMBOLIC LENGTH OF SER             00013800

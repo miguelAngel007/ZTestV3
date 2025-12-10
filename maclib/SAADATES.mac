@@ -1,0 +1,129 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+* SAADATES IS THE MAP OF WORKING STORAGE REQUIRED FOR SAADATEO.       * 00020000
+* THE STORAGE IS ALLOCATED BY SASERVO AND PASSED TO SAADATEO.         * 00030000
+*---------------------------------------------------------------------* 00040000
+*                     ** HISTORY OF REVISIONS **                      * 00050000
+*                                                                     * 00060000
+* DESCRIPTION                                                 CHNGID  * 00070000
+* __________________________________________________________  _______ * 00080000
+* 05/22/02 INIT DIST (MADE INTO COPYBOOK FROM SAADATEO DSECT) 2024355 * 00090000
+*---------------------------------------------------------------------* 00100000
+VARDATA  DSECT                                                          00110000
+SAVEAREA DS    18F                                                      00120000
+SIWSLKCA DS    CL(LINKDSLN)                                             00130000
+***** DYNAMIC STORAGE VARIABLES *****                                   00140000
+DBLWORD  DC    D'0'                                                     00150000
+DWD      DC    D'0'                                                     00160000
+         DS    0D                                                       00170000
+DATEAREA DS    0CL19                                                    00180000
+LOWDATE  DS    0CL8                                                     00190000
+LOYR     DC    CL4'0000'                                                00200000
+LOMO     DC    CL2'00'                                                  00210000
+LODA     DC    CL2'00'                                                  00220000
+HIGHDATE DS    0CL8                                                     00230000
+HIYR     DC    CL4'0000'                                                00240000
+HIMO     DC    CL2'00'                                                  00250000
+HIDA     DC    CL2'00'                                                  00260000
+NOINCR   DC    PL3'0'                                                   00270000
+MONTHCNT DS    PL2                                                      00280000
+WKYR     DS    CL1                                                      00290000
+WKMO     DC    PL3'0'                                                   00300000
+WORKDAYS DC    PL3'0'                                                   00310000
+WORKL    DC    PL4'0'                                                   00320000
+WORKH    DC    PL4'0'                                                   00330000
+SAVELYR  DC    H'0'                                                     00340000
+SAVEHYR  DC    H'0'                                                     00350000
+SAVEMO   DC    XL1'00'                                                  00360000
+LOWDAYS  DC    PL2'000'                                                 00370000
+HIGHDAYS DC    PL2'000'                                                 00380000
+DAYSINMO DC    CL2'00'                                                  00390000
+         DS    0D                                                       00400000
+PARMADDR DC    3F'0'                                                    00410000
+LOWFEB   DC    PL2'28'                                                  00420000
+HIGHFEB  DC    PL2'28'                                                  00430000
+HOLDYR   DS    D                                                        00440000
+HOLDAREA DS    CL8                                                      00450000
+HOLDJUL  DS    CL7                                                      00460000
+*                                                                       00470000
+PDER04   DS    F                                                        00480000
+PDER05   DS    F                                                        00490000
+PJER04   DS    F                                                        00500000
+PJER05   DS    F                                                        00510000
+BADDATE  DS    CL1                                                      00520000
+*                                                                       00530000
+***************************************                                 00540000
+*DATE AREA FORMAT 1                  **                                 00550000
+***************************************                                 00560000
+*                                                                       00570000
+DTAREAF1 DS    0CL19                                                    00580000
+*                                                                       00590000
+DF1DATE1 DS    0CL8                                                     00600000
+DF1DT1CC DS    CL2                                                      00610000
+DF1DT1YY DS    CL2                                                      00620000
+DF1DT1MM DS    CL2                                                      00630000
+DF1DT1DD DS    CL2                                                      00640000
+*                                                                       00650000
+DF1DATE2 DS    0CL8                                                     00660000
+DF1DT2CC DS    CL2                                                      00670000
+DF1DT2YY DS    CL2                                                      00680000
+DF1DT2MM DS    CL2                                                      00690000
+DF1DT2DD DS    CL2                                                      00700000
+*                                                                       00710000
+DF1NBR   DS    PL3                                                      00720000
+*                                                                       00730000
+***************************************                                 00740000
+*DATE AREA FORMAT 2                  **                                 00750000
+***************************************                                 00760000
+*                                                                       00770000
+DTAREAF2 DS    0CL13                                                    00780000
+*                                                                       00790000
+DF2DATE1 DS    0CL8                                                     00800000
+DF2DT1MM DS    CL2                                                      00810000
+DF2DT1DD DS    CL2                                                      00820000
+DF2DT1CC DS    CL2                                                      00830000
+DF2DT1YY DS    CL2                                                      00840000
+DF2JULCY DS    PL3                                                      00850000
+DF2JULDD DS    PL2                                                      00860000
+*                                                                       00870000
+***************************************                                 00880000
+*DATE AREA FORMAT 3                  **                                 00890000
+***************************************                                 00900000
+*                                                                       00910000
+DTAREAF3 DS    0CL11                                                    00920000
+*                                                                       00930000
+DF3JUL   DS    CL5                     JULIAN DATE FORMAT YYDDD         00940000
+DF3MDY   DS    CL6                     GREGORIAN DATE MMDDYY            00950000
+*                                                                       00960000
+***************************************                                 00970000
+*DATE AREA FORMAT 4                  **                                 00980000
+***************************************                                 00990000
+*                                                                       01000000
+DTAREAF4 DS    0CL19                                                    01010000
+*                                                                       01020000
+DF4DATE1 DS    0CL8                                                     01030000
+DF4DT1MM DS    CL2                                                      01040000
+DF4DT1DD DS    CL2                                                      01050000
+DF4DT1CC DS    CL2                                                      01060000
+DF4DT1YY DS    CL2                                                      01070000
+*                                                                       01080000
+DF4NBR   DS    CL1                                                      01090000
+*                                                                       01100000
+DF4DOW   DS    CL9                                                      01110000
+DF4FORM  DC    C'8'                                                     01120000
+*                                                                       01130000
+PARMLST  DS    20F                                                      01140000
+PARMREGS DS    3F                      PARAMETER ADDRESS SAVE AREA      01150000
+SAVREG8  DS    F                       REG 8 ADDRESS SAVE AREA          01160000
+SAVREG9  DS    F                       REG 9 ADDRESS SAVE AREA          01170000
+*                                                                       01180000
+D        DS    D                                                        01190000
+SAWSAVAR DS    18F                 SAWEEKDY REG SAVE AREA               01200000
+DUBLWORD DS    D                                                        01210000
+WKYEAR   DS    D                                                        01220000
+WKMON    DS    D                                                        01230000
+WKDAY    DS    D                                                        01240000
+YEAR     DS    CL4                                                      01250000
+FORMAT   DS    CL1                                                      01260000
+NUMTEST  DS    CL6                                                      01270000
+DTEOSTGL EQU   (*-VARDATA)         L/SAADATEO WORKING STORAGE           01280000

@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000100
+*                  ** HISTORY OF REVISIONS **                         * 00000200
+*                                                                     * 00000300
+* DESCRIPTION                                                 CHNGID  * 00000400
+* __________________________________________________________  _______ * 00000500
+* 03/24/03 NEW PARMS KEYWORDS                                 0334673 * 00000596
+* 11/28/01 PARMS OWNERSHIP EXTRACT ENHANCEMENT                2024417 * 00000598
+* 03/19/98 MODIFY TO MATCH SAP9PDAD                           9913789   00000600
+*                                                                     * 00000800
+*---------------------------------------------------------------------* 00000900
+SAP9PDAD DSECT                                                          00001000
+*                                      PDA FIXED AREA:                  00002000
+PDALGTH  DS    CL2                         PDA LGTH                     00003000
+PDAKEY   DS    0CL8                        PDA KEY                      00004000
+PDAKEYMJ DS    XL4                         PDA KEY - MAJOR              00005000
+PDAKEYMN DS    XL4                         PDA KEY - MINOR              00006000
+PDASYSID DS    CL8                         SYSTEM ID - PARMS            00007000
+PDAFUNCD DS    XL2                         FUNCTION CODE                00008000
+PDAFUNAD DS    CL1                         FUNCTION AID                 00009000
+PDADRCOM DS    CL2                         DRIVER COMM CODE             00010000
+PDASETUP DS    CL8                         SETUP PROGRAM                00011000
+PDAEXTRA DS    CL8                         EXTRACT PROGRAM              00012000
+PDAAPPLY DS    CL8                         APPLY PROGRAM                00013000
+PDACOPY  DS    CL8                         COPY PROGRAM                 00014000
+PDA#ACTN DS    XL2                         NUMBER OF ACTION CODES       00015000
+PDAACTCD DS    CL5                        ACTION CODES - 5 ENTRIES      00016000
+         DS    CL20                       OTHER 4 ACTION CODES          00017000
+*                                      PDA USER DEFINED AREA:           00018000
+PDASID   DS    CL8                     STRUCTURE ID                     00019000
+PDACTL1  DS    CL4                     CTL1                             00020000
+PDAMKL   DS    XL2                     MEMBER KEY LENGTH                00021000
+PDAMK    DS    CL40                    MEMBER KEY                       00022000
+PDAFMKL  DS    XL2                     FROM MEMBER KEY LENGTH           00023000
+PDAFMK   DS    CL60                    FROM MEMBER KEY        9913789   00024000
+PDATMKL  DS    XL2                     TO MEMBER KEY LENGTH             00025000
+PDATMK   DS    CL60                    TO MEMBER KEY          9913789   00026000
+PDAEFDL  DS    XL4                     EFF DATE LOW                     00027000
+PDAEFDH  DS    XL4                     EFF DATE HIGH                    00028000
+PDAOWN   DS    CL3                     AUDIT OWNERSHIP FIELD  2024417   00028100
+PDADAP   DS    CL2                     DISTRIBUTION APPLID    0334673   00028110
+PDADCTL  DS    CL2                     DISTRIBUTION CONTROL   0334673   00028120
+PDA#SK   DS    XL2                     NUMBER OF SEARCH KEY ENTRIES     00029000
+PDAFIXED EQU   *-SAP9PDAD              LGTH OF FIXED AREA               00030000
+*                                                                       00031000
+PDASKAR  DS    0CL52                   SEARCH KEY INFO AREA (1 ENTRY)   00032000
+PDASKNM  DS    CL8                     SEARCH KEY NAME                  00033000
+PDASKLG  DS    XL2                     SEARCH KEY LENGTH                00034000
+PDASK    DS    CL40                    SEARCH KEY                       00035000
+PDASKID  DS    XL2                     SEARCH KEY ID                    00036000
+PDAVAREN EQU   *-PDASKAR               LGTH OF ONE ENTRY                00037000
+*                                                                       00038000
+         DS    CL1508                  REMAINING 29 SK ENTRIES          00039000
+*                                                                       00040000
+PDALG    EQU   *-SAP9PDAD              LENGTH OF SAP9PDAD               00041000

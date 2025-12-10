@@ -1,0 +1,28 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+* * * * * *              D  S  E  T  T  B  E                * * * * * * 00002000
+*                                                                     * 00003000
+*   DATA SET TABLE                                                    * 00004000
+*   SAS9DS2D COPYA                                                    * 00005000
+*   MAINT: 10/17/89                                                   * 00006000
+*********************************************************************** 00007000
+         SPACE                                                          00008000
+DSETTBE  DSECT                                                          00009000
+DSTNAME  DS    CL8          1-8     DATA SET NAME                       00010000
+DSTDDTBE DS    XL4          9-12    ADDRESS OF CURRENT DDTABE           00011000
+DSTFLAGS DS    X           13       DSET PROCESSING CONTROLS            00012000
+DSTFLPRE EQU   B'10000000'          DSET WAS ADDED DURING INITIAL-      00013000
+*                                    IZATION (PRE-EXEC) PROCESSING.     00014000
+*                                    DEFAULT ASSIGNMENT NOT MADE YET.   00015000
+DSTFLUA  EQU   B'01111111'          FLAGS NOT USED                      00016000
+         DS    0F          14-16                                        00017000
+DSTCOPYA DS    F           17-20    MASTER DBCOPY WORKAREA ADDRESS      00018000
+*                                   AS EACH FDDTABE BECOMES THE DONOR   00019000
+*                                    DURING A DBCOPY OPERATION, THIS    00020000
+*                                    ADDRESS IS COPIED TO THE FDDTABE.  00021000
+         DS    CL12        21-32    FILLER FOR DUMP READING.            00022000
+DSTELEN  EQU   *-DSETTBE            LENGTH OF ONE TABLE ENTRY           00023000
+         SPACE                                                          00024000
+* * * * * *              D  S  E  T  T  B  E                * * * * * * 00025000
+*********************************************************************** 00026000
+         SPACE 3                                                        00027000

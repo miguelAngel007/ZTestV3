@@ -1,0 +1,378 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                  ** COPYBOOK DESCRIPTION **                         * 00000020
+*                                                                     * 00000030
+*            TSTS2TBR -  TRANSACTION BUILD RECORD (TBR)               * 00000040
+*                 MAXIMUM RECORD SIZE 30720 BYTES             2021071   00000050
+*                                                                     * 00000060
+*---------------------------------------------------------------------* 00000070
+*                  ** HISTORY OF REVISIONS **                         * 00000080
+*                                                                     * 00000090
+* DESCRIPTION                                                 CHNGID  * 00000100
+* __________________________________________________________  _______ * 00000110
+*                                                                     * 00000120
+* 03/30/11 ADDED NEW SEGMENTS 2E AND 2F FOR WEB SERVICES      1226081   00000580
+* 07/20/05 GN5191 ADD GETWHILE SEGMENT 2D                     0635191 * 00000581
+*          GN5191 ADD BATCH SEQUENTIAL GETWHILE INDICATOR     0635191 * 00000582
+* 04/08/04 GN4798 ADD BATCH INTERFACE TBR FIELDS              0514798 * 00000583
+* 01/31/02 ADD NEW CREATE TDA FLAG                            2024444 * 00000584
+* 11/10/99 INCREASED MAXIMUM RECORD LENGTH                    2021071   00000585
+* 06/23/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349   00000587
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000588
+*             TBCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000589
+*             TBCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000590
+*             TBRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000591
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000592
+*             TBCACHID DS    CL8         CA CHANGE ID         2602105 * 00000593
+*          CHANGED FILLER LENGTH AND MOVED IT                 2602105 * 00000594
+*                      DS    CL22        FILLER               2602105 * 00000595
+*                                                             2602105 * 00000596
+*                                                                     * 00000597
+*---------------------------------------------------------------------* 00000598
+*                                                                       00000599
+****************************************************************        00000600
+*                                                              *        00000700
+*             SEGMENT 1  -  STEM PORTION OF TBR                *        00000800
+*        THE TBR CONTROL SEGMENT'S LENGTH IS 110 BYTES         *        00000900
+*                                                              *        00001000
+****************************************************************        00001100
+*                                                              *        00001200
+TBRSEG1  DSECT                     TBR SEGMENT 1                        00001300
+TBR1REC  DS    0C                                                       00001400
+TBR1STEM DS    0CL110                                                   00001500
+TBR1LENG DS    XL2                     TBR RECORD LENGTH                00001600
+         DS    CL2                     FILLER                           00001700
+TBR1KEY  DS    0CL18                   TBR KEY                          00001800
+TBR1CLAS DS    CL10                      CLASS                          00001900
+TBR1TRID DS    CL8                       EXTERNAL TRAN CODE             00002000
+TBCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00002010
+TBCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00002020
+TBR1LMNT DS    0CL28                   LAST MAINT DATA          2602105 00002100
+TBR1LDAT DS    CL6                       LAST MAINT DATE MMDDYY         00002200
+TBR1LTIM DS    CL6                       LAST MAINT TIME HHMMSS         00002300
+TBR1LEMP DS    CL8                       LAST MAINT EMPLOYEE ID         00002400
+TBCACHID DS    CL8                       CA CHANGE ID           2602105 00002500
+TBR1TYPE DS    CL1                       PLATFORM TYPE        9913349   00002505
+*                                VALUE:  C - CONVENTIONAL     0514798   00002510
+*                                        P - PC               0514798   00002512
+*                                        S - SHARED/SDR       0514798   00002514
+*                                        B - BATCH            0514798   00002516
+*                                        X - TAGGED XML       1226081   00002518
+TBR1TOT  DS    CL1                       CREATE TDA FLAG      2024444   00002520
+TBR1PID  DS    CL8                       PRIMARY INPUT DAG    0514798   00002522
+         DS    CL12                      FILLER               0514798   00002550
+TBR1FLDS DS    0CL26                                                    00002600
+TBR1DESC DS    CL15                    TRANSACTION DESCRIPTION          00002700
+TBR1CLSF DS    CL1                     CLOSE FLAG                       00002800
+TBR1FLAG DS    XL1                     STEM FLAG                        00002900
+TBR1EDPS EQU   B'10000000'               EDIT THEN POST                 00003000
+TBR1DOCP DS    CL1                     DOCUMENT PREP FLAG               00003100
+TBR1PAPH DS    CL8                     USER PARSING PHASE               00003200
+TBR1SIZE DS    0CL8                    SEGMENT SIZES                    00003300
+TBR1#ICR DS    XL2                       NUMBER OF ICR SELECTN OCCURS   00003400
+TBR1ICLG DS    XL2                       ICR SELECT OCCURRENCE SEG SIZE 00003500
+TBR1USLG DS    XL2                       USER DATA SEGMENT SIZE         00003600
+TBR1TCLG DS    XL2                       TRAN CHAINING DATA SEGMENT SZ  00003700
+TBR1BALF DS    CL1                     TRANSACTION BALANCE FLAG         00003800
+TBR1BALN EQU   C'0'                      TRANSACTION SHOULD NOT BALANCE 00003900
+TBR1BALY EQU   C'1'                      TRANSACTION SHOULD BALANCE     00004000
+TBR1PRVF DS    CL1                     PARTIAL REVERSAL FLAG  0802653   00004010
+TBR1PRVN EQU   C'0'                      PART REV NOT ALLOWED 0802653   00004020
+TBR1PRVY EQU   C'1'                      PART REV ALLOWED     0802653   00004030
+TBR1PRVR EQU   C'2'                      PART REV REQUIRED    0802653   00004040
+TBR1LGN  EQU   *-TBR1REC                                                00004200
+*                                                                       00004300
+        TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD SEGMENT 2A'          00004400
+TBR2VAR  EQU   *                                                        00004500
+*******************************************************************     00004600
+*                                                                 *     00004700
+*     SEGMENT 2A - INPUT CONTROL RECORD SELECTION INFORMATION     *     00004800
+*  EACH INPUT CONTROL RECORD SELECTION OCCURRENCE HAS A LENGTH OF *     00004900
+*  40 BYTES.  THE NUMBER OF OCCURRENCES WITHIN THE SEGMENT IS     *     00005000
+*  VARIABLE.                                                      *     00005100
+*                                                                 *     00005200
+*******************************************************************     00005300
+*                                                                       00005400
+TBRSEG2A DSECT                                                          00005500
+TBR2AICR DS    0CL40                   ICR SELECTION CRITERIA           00005600
+TBR2AID  DS    CL1                     SEGMENT 2A ID (WILL BE 'A')      00005700
+TBR2ALEN DS    XL2                     LENGTH OF THIS OCCURRENCE        00005800
+TBR2AKEY DS    0CL18                   ICR KEY                          00005900
+TBR2AKCL DS    CL10                      ICR KEY CLASS                  00006000
+TBR2AKNM DS    CL8                       ICR KEY NAME                   00006100
+TBR2AOPT DS    CL1                     ICR PROCESS OPTION               00006200
+TBR2APAL EQU   C'0'                      ALWAYS PROCESS ICR             00006300
+TBR2APDE EQU   C'1'                      PROCESS DEPENDING ON CONDITION 00006400
+TBR2APUR EQU   C'2'                      EXEC USER CODE                 00006500
+TBR2APPR EQU   C'3'                      PRCS ICR DATA PRSNT  2501040   00006510
+TBR2APNP EQU   C'4'                      PRCS ICR DATA NOT PR 2501040   00006520
+TBR2AFUN DS    CL8                       ICR FUNCTION         0514798   00006530
+*                                 VALUES:  GET                0514798   00006531
+*                                          GETEQ              0514798   00006532
+*                                          GETGE              0514798   00006533
+*                                          GETWHILE           0514798   00006534
+*                                          EXIT               0514798   00006535
+*                                          INSERT             0514798   00006536
+*                                          MAP                0514798   00006537
+*                                          MAPHDR             0514798   00006538
+*                                          MAPTRL             0514798   00006539
+TBR2APRO DS    0XL7   FIELDS FOR BATCH INTERFACE PROCESSING   0635191   00006550
+TBR2AIAD DS    XL4                       ICR ADDRESS          0514798   00006552
+TBR2ASEL DS    CL1                       ICR SELECTED (Y/N)   0514798   00006554
+TBR2AGWI DS    CL1                       ICR GETWHILE IND     0514798   00006556
+TBR2AGSI DS    CL1                       ICR SEQ.GW IND       0635191   00006557
+TBR2AEOJ DS    CL1                       ICR COND ON EOJ      0514798   00006558
+         DS    CL2                       FILLER               0635191   00006600
+TBR2ALGN EQU   *-TBR2AICR              SEGMENT 2A LENGTH                00006700
+*                                                                       00006800
+        TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD SEGMENT 2B'          00006900
+******************************************************************      00007000
+*                                                                *      00007100
+* SEGMENT 2B - INPUT CONTROL RECORD SELECTION FIELD CONDITIONAL  *      00007200
+*              INFORMATION                                       *      00007300
+* CONDITIONAL SELECTION INFORMATION WILL BE PRESENT IF THE       *      00007400
+* PROCESS OPTION FLAG IN SEGMENT 2A IS A '1'. IF PRESENT, THE    *      00007500
+* INFORMATION WILL BE 417 BYTES LONG.                       * 9913349   00007600
+******************************************************************      00007700
+*                                                                       00007800
+TBRSEG2B DSECT                                                          00007900
+TBR2BCND DS    0CL417                  CONDITIONAL INFOR      9913349   00008000
+TBR2BID  DS    CL1                     SEGMENT 2B ID (WILL BE 'B')      00008100
+TBR2BFLD DS    0CL400                  FIELD CONDITIONALS     9913349   00008200
+TBR2BOC1 DS    0CL50                   1ST FIELD COND OCCUR   9913349   00008300
+TBR2BFDI DS    CL8                     FIELD IDENTIFIER                 00008400
+TBR2BPOS DS    XL2                     POSITION OF DATA IN TRANSMISSION 00008500
+TBR2BDNM DS    CL8                     DAG NAME               9913349   00008510
+TBR2BELE DS    CL8                     ELEMENT ID             9913349   00008520
+TBR2BDI1 DS    XL2                     DIM 1                  9913349   00008530
+TBR2BDI2 DS    XL2                     DIM 2                  9913349   00008540
+TBR2BDI3 DS    XL2                     DIM 3                  9913349   00008550
+TBR2BCOM DS    CL2                     COMPARE OPTION                   00008600
+TBR2BCPS EQU   C'  '                      NO COMPARISON                 00008700
+TBR2BCEQ EQU   C'EQ'                      EQUAL                         00008800
+TBR2BCNE EQU   C'NE'                      NOT EQUAL                     00008900
+TBR2BCGT EQU   C'GT'                      GREATER THAN                  00009000
+TBR2BCLE EQU   C'LE'                      LESS THAN OR EQUAL            00009100
+TBR2BCLT EQU   C'LT'                      LESS THAN                     00009200
+TBR2BCGE EQU   C'GE'                      GREATER THAN OR EQUAL         00009300
+TBR2BCPR EQU   C'PR'                      IF FIELD IS PRESENT           00009400
+TBR2BCNP EQU   C'NP'                      IF FIELD NOT PRESENT          00009500
+TBR2BCCV EQU   C'CV'                      VARIABLE TO VARIABLE COMPARE  00009600
+TBR2BCTM EQU   C'TM'                      TEST UNDER MASK               00009700
+TBR2BCLG DS    XL1                     COMPARISON DATA LENGTH           00009800
+TBR2BCDA DS    CL15                    COMPARISON DATA                  00009900
+TBR2BOC2 DS    CL350                   2ND-8TH FLD COND OCCUR 9913349   00010000
+TBR2BREL DS    XL12                    RELATIONSHIPS OF FIELDS THAT CAN 00010100
+TBR2BFIL DS    CL4                     RESERVED FOR FUTURE    9913349   00010110
+*                                      AFFECT PROCESSING                00010200
+TBR2BLGN EQU   *-TBR2BCND                                               00010300
+*                                                             0514798   00010305
+        TITLE 'TSTS2TBR -TRANSACTION BUILD RECORD SEGMENT 2C' 0514798   00010307
+**************************************************************0514798   00010310
+*                                                             0514798   00010315
+* SEGMENT 2C - INPUT CONTROL RECORD SELECTION FIELD CONDITION 0514798   00010320
+*              INFORMATION FOR BATCH TBRS                     0514798   00010325
+* CONDITIONAL SELECTION INFORMATION WILL BE PRESENT IF THE    0514798   00010330
+* TBR PLATFORM TYPE IS A 'B' AND                              0514798   00010335
+* PROCESS OPTION FLAG IN SEGMENT 2A IS A '1'. IF PRESENT, THE 0514798   00010340
+* INFORMATION WILL BE 600 BYTES LONG.                         0514798   00010345
+**************************************************************0514798   00010350
+*                                                             0514798   00010355
+TBRSEG2C DSECT                                                0514798   00010360
+TBR2CCND DS    0CL600                  CONDITIONAL INFO       0514798   00010365
+TBR2CID  DS    CL1                     SEGMENT 2C ID 'C'      0514798   00010370
+TBR2CVCN DS    XL2                     VAR ENTRY COUNT        0514798   00010375
+TBR2CDCN DS    XL2                     TEXT ENTRY COUNT       0514798   00010380
+TBR2CDMA DS    XL4                     DMT ADDR               0514798   00010385
+         DS    XL20                                           0514798   00010390
+TBR2CFLD DS    0CL176                  VARIABLES              0514798   00010395
+TBR2COC1 DS    0CL22                   1ST VAR OCCURRENCE     0514798   00010400
+TBR2CDNM DS    CL8                     DAG NAME               0514798   00010405
+TBR2CELE DS    CL8                     ELEMENT ID             0514798   00010410
+TBR2CDI1 DS    XL2                     DIM 1                  0514798   00010415
+TBR2CDI2 DS    XL2                     DIM 2                  0514798   00010420
+TBR2CDI3 DS    XL2                     DIM 3                  0514798   00010425
+TBR2COC2 DS    CL154                   2ND-8TH FLD VAR OCCUR  0514798   00010430
+TBR2CEXP DS    0CL395                  VARIABLES              0514798   00010435
+TBR2CEX1 DS    CL79                    1ST VAR OCCURRENCE     0514798   00010440
+TBR2CEX2 DS    CL316                   2ND-5TH FLD VAR OCCUR  0514798   00010445
+TBR2CLGN EQU   *-TBR2CCND                                     0514798   00010455
+*                                                             0514798   00010460
+        TITLE 'TSTS2TBR -TRANSACTION BUILD RECORD SEGMENT 2D' 0635191   00010462
+**************************************************************0635191   00010464
+*                                                             0635191   00010466
+* SEGMENT 2D - INPUT CONTROL RECORD SELECTION FIELD GETWHILE  0635191   00010468
+*              INFORMATION FOR BATCH TBRS                     0635191   00010470
+* GETWHILE SELECTION INFORMATION WILL BE PRESENT IF THE TBR   0635191   00010472
+* PLATFORM TYPE IS A 'B' AND FUNCTION IN SEGMENT 2A IS        0635191   00010474
+* 'GETWHILE'.                                                 0635191   00010476
+* IF PRESENT THE INFORMATION WILL BE 600 BYTES LONG.          0635191   00010478
+**************************************************************0635191   00010480
+*                                                             0635191   00010482
+TBRSEG2D DSECT                                                0635191   00010484
+TBR2DCND DS    0CL600                  GETWHILE INFORMATION   0635191   00010486
+TBR2DID  DS    CL1                     SEGMENT 2D ID 'D'      0635191   00010488
+TBR2DVCN DS    XL2                     VAR ENTRY COUNT        0635191   00010490
+TBR2DDCN DS    XL2                     TEXT ENTRY COUNT       0635191   00010492
+TBR2DDMA DS    XL4                     DMT ADDR               0635191   00010494
+         DS    XL20                                           0635191   00010496
+TBR2DFLD DS    0CL176                  VARIABLES              0635191   00010498
+TBR2DOC1 DS    0CL22                   1ST VAR OCCURRENCE     0635191   00010500
+TBR2DDNM DS    CL8                     DAG NAME               0635191   00010502
+TBR2DELE DS    CL8                     ELEMENT ID             0635191   00010504
+TBR2DDI1 DS    XL2                     DIM 1                  0635191   00010506
+TBR2DDI2 DS    XL2                     DIM 2                  0635191   00010508
+TBR2DDI3 DS    XL2                     DIM 3                  0635191   00010510
+TBR2DOC2 DS    CL154                   2ND-8TH FLD VAR OCCUR  0635191   00010512
+TBR2DEXP DS    0CL395                  VARIABLES              0635191   00010514
+TBR2DEX1 DS    CL79                    1ST VAR OCCURRENCE     0635191   00010516
+TBR2DEX2 DS    CL316                   2ND-5TH FLD VAR OCCUR  0635191   00010518
+TBR2DLGN EQU   *-TBR2DCND                                     0635191   00010520
+*                                                             0635191   00010522
+       TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD SEGMENT 2E' 1226081   00010524
+************************************************************* 1226081   00010526
+*                                                           * 1226081   00010528
+*     SEGMENT 2E - INPUT CONTROL REC SELECTION INFORMATION  * 1226081   00010530
+*  EACH INPUT CONTROL REC SELECTION OCCURRENCE HAS A LEN OF * 1226081   00010532
+*  72 BYTES. THE NUMBER OF OCCURRENCES WITHIN THE SEGMENT IS* 1226081   00010534
+*  VARIABLE.                                                * 1226081   00010536
+*                                                           * 1226081   00010538
+************************************************************* 1226081   00010540
+*                                                             1226081   00010545
+TBRSEG2E DSECT                      SEGMENT 2E DSECT          1226081   00010550
+TBR2EICR DS    0CL90                ICR SELECTION CRITERIA    1226081   00010555
+TBR2EID  DS    CL1               SEGMENT 2E ID (WILL BE 'E')  1226081   00010560
+TBR2ELEN DS    XL2               LENGTH OF THIS OCCURRENCE    1226081   00010565
+TBR2EKEY DS    0CL18                   ICR KEY                1226081   00010570
+TBR2EKCL DS    CL10                      ICR KEY CLASS        1226081   00010575
+TBR2EKNM DS    CL8                       ICR KEY NAME         1226081   00010580
+TBR2EOPT DS    CL1                     ICR PROCESS OPTION     1226081   00010585
+TBR2EPAL EQU   C'0'                      ALWAYS PROCESS ICR   1226081   00010590
+TBR2EPDE EQU   C'1'                    PROCESS DEPENDING ON   1226081   00010595
+TBR2EPUR EQU   C'2'                      EXEC USER CODE       1226081   00010600
+TBR2EPPR EQU   C'3'                      PRCS ICR DATA PRSNT  1226081   00010605
+TBR2EPNP EQU   C'4'                      PRCS ICR DATA NOT PR 1226081   00010610
+TBR2EFUN DS    CL8                       ICR FUNCTION         1226081   00010615
+*                                 VALUES:  GET                1226081   00010620
+*                                          GETEQ              1226081   00010625
+*                                          GETGE              1226081   00010630
+*                                          GETWHILE           1226081   00010635
+*                                          EXIT               1226081   00010640
+*                                          INSERT             1226081   00010645
+*                                          MAP                1226081   00010650
+*                                          MAPHDR             1226081   00010655
+*                                          MAPTRL             1226081   00010660
+TBR2EPRO DS    0XL7   FIELDS FOR BATCH INTERFACE PROCESSING   1226081   00010665
+TBR2EIAD DS    XL4                       ICR ADDRESS          1226081   00010670
+TBR2ESEL DS    CL1                       ICR SELECTED (Y/N)   1226081   00010675
+TBR2EGWI DS    CL1                       ICR GETWHILE IND     1226081   00010680
+TBR2EGSI DS    CL1                       ICR SEQ.GW IND       1226081   00010685
+TBR2EEOJ DS    CL1                       ICR COND ON EOJ      1226081   00010690
+TBR2EIPP DS    CL32                      ICR PARSE PARENT     1226081   00010695
+TBR2EKEO DS    0CL18                     OUTBOUND ICR KEY     1226081   00010700
+TBR2EKCO DS    CL10                  OUTBOUND ICR KEY CLASS   1226081   00010705
+TBR2EKNO DS    CL8                    OUTBOUND ICR KEY NAME   1226081   00010710
+         DS    CL2                       FILLER               1226081   00010715
+TBR2ELGN EQU   *-TBR2EICR              SEGMENT 2E LENGTH      1226081   00010720
+*                                                             1226081   00010725
+       TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD SEGMENT 2F' 1226081   00010730
+************************************************************* 1226081   00010732
+*                                                           * 1226081   00010734
+* SEGMENT 2F - INPUT CONTROL RECORD SELECTION FIELD         * 1226081   00010736
+*              CONDITIONAL INFORMATION                      * 1226081   00010738
+* CONDITIONAL SELECTION INFORMATION WILL BE PRESENT IF THE  * 1226081   00010740
+* PROCESS OPTION FLAG IN SEGMENT 2E IS A '1'.IF PRESENT, THE* 1226081   00010742
+* INFORMATION WILL BE 911 BYTES LONG.                       * 1226081   00010744
+************************************************************* 1226081   00010746
+*                                                             1226081   00010750
+TBRSEG2F DSECT                   SEGMENT 2F DSECT             1226081   00010755
+TBR2FCND DS    0CL947            CONDITIONAL INFOR            1226081   00010760
+TBR2FID  DS    CL1               SEGMENT 2F ID (WILL BE 'F')  1226081   00010765
+TBR2FFLD DS    0CL930            FIELD CONDITIONALS           1226081   00010770
+TBR2FOC1 DS    0CL155             1ST FIELD COND OCCUR        1226081   00010775
+TBR2FPOS DS    XL2               POSITION OF DATA IN TRANS    1226081   00010780
+TBR2FDN1 DS    CL32              PARENT NAME                  1226081   00010785
+TBR2FDN2 DS    CL32              PARENT NAME                  1226081   00010790
+TBR2FDN3 DS    CL32              PARENT NAME                  1226081   00010792
+TBR2FELE DS    CL32              TAG NAME                     1226081   00010794
+TBR2FDI1 DS    XL2                     DIM 1                  1226081   00010796
+TBR2FDI2 DS    XL2                     DIM 2                  1226081   00010798
+TBR2FDI3 DS    XL2                     DIM 3                  1226081   00010800
+TBR2FDEC DS    CL1              DECIMAL                       1226081   00010802
+TBR2FCOM DS    CL2               COMPARE OPTION               1226081   00010805
+TBR2FCPS EQU   C'  '                NO COMPARISON             1226081   00010810
+TBR2FCEQ EQU   C'EQ'                EQUAL                     1226081   00010815
+TBR2FCNE EQU   C'NE'                NOT EQUAL                 1226081   00010820
+TBR2FCGT EQU   C'GT'                GREATER THAN              1226081   00010825
+TBR2FCLE EQU   C'LE'                LESS THAN OR EQUAL        1226081   00010830
+TBR2FCLT EQU   C'LT'                LESS THAN                 1226081   00010835
+TBR2FCGE EQU   C'GE'                GREATER THAN OR EQUAL     1226081   00010840
+TBR2FCPR EQU   C'PR'                IF FIELD IS PRESENT       1226081   00010845
+TBR2FCNP EQU   C'NP'                IF FIELD NOT PRESENT      1226081   00010850
+TBR2FCCV EQU   C'CV'                VARIABLE TO VARIABLE COMP 1226081   00010855
+TBR2FCTM EQU   C'TM'                TEST UNDER MASK           1226081   00010860
+TBR2FCLG DS    XL1               COMPARISON DATA LENGTH       1226081   00010865
+TBR2FCDA DS    CL15              COMPARISON DATA              1226081   00010870
+TBR2FOC2 DS    CL775         2ND-6TH FLD COND OCCUR           1226081   00010875
+TBR2FREL DS    XL12          RELATIONSHIPS OF FIELDS THAT CAN 1226081   00010880
+TBR2FFIL DS    CL4           RESERVED FOR FUTURE              1226081   00010885
+*                            AFFECT PROCESSING                1226081   00010890
+TBR2FLGN EQU   *-TBR2FCND                                     1226081   00010895
+*                                                             1226081   00010900
+        TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD SEGMENT 3' 1226081   00010905
+************************************************************* 1226081   00010910
+*                                                           * 1226081   00010920
+*             SEGMENT 3  -  USER DATA SEGMENT               * 1226081   00010930
+* THE USER DATA SEGMENT, IF PRESENT, WILL VARY IN LEN FROM  * 1226081   00010940
+* A MINIMUM OF THREE BYTES TO A MAX OF 257 BYTES DEPENDING  * 1226081   00011000
+* ON THE LENGTH OF THE USER DATA.                           * 1226081   00011100
+*                                                           * 1226081   00011200
+************************************************************* 1226081   00011300
+*                                                                       00011400
+TBRSEG3  DSECT                                                          00011500
+TBR3UDA  DS    0CL257                  USER DATA SEGMENT                00011600
+TBR3ID   DS    CL1                       SEGMENT 3 ID (WILL BE '3')     00011700
+TBR3ULNG DS    XL1                       USER DATA LENGTH               00011800
+TBR3USDA DS    CL255                     DATA                           00011900
+TBR3LGN  EQU   *-TBR3UDA                                                00012000
+         ORG                                                            00012100
+*                                                                       00012200
+        TITLE 'TSTS2TBR - TRANSACTION BUILD RECORD  SEGMENT 4'          00012300
+****************************************************************        00012400
+*                                                              *        00012500
+*        SEGMENT 4  -  TRANSACTION CHAINING OCCURRENCE         *        00012600
+* EACH OCCURRENCE OF THE TRANSACTION CHAINING SEGMENT HAS A    *        00012700
+* LENGTH OF 60 BYTES.  THE SEGMENT MAY OR MAY NOT BE PRESENT* 9913349   00012800
+* IF PRESENT, THE SEGMENT WILL CONSIST OF 1-10 OCCURRENCES     *        00012900
+* OF TRANSACTION CHAINING INFORMATION.                         *        00013000
+****************************************************************        00013100
+*                                                                       00013200
+TBRSEG4  DSECT                                                          00013300
+TBR4TRCH DS    0CL60                   TRAN CHAINING DEFIN    9913349   00013400
+TBR4ID   DS    CL1                       SEGMENT 4 ID (WILL BE '4')     00013500
+TBR4NAME DS    CL8                       TBR NAME                       00013600
+TBR4FLD  DS    CL8                       FIELD IDENTIFIER               00013700
+TBR4POST DS    XL2                       POSITION WITHIN FIELD          00013800
+TBR4DNM  DS    CL8                       DAG NAME             9913349   00013810
+TBR4ELE  DS    CL8                       ELEMENT ID           9913349   00013820
+TBR4DIM1 DS    XL2                       DIM 1                9913349   00013830
+TBR4DIM2 DS    XL2                       DIM 2                9913349   00013840
+TBR4DIM3 DS    XL2                       DIM 3                9913349   00013850
+TBR4POPT DS    CL1                       PROC OPTION                    00013900
+TBR4PALW EQU   C'0'                        ALWAYS FORMAT TRANSACTION    00014000
+TBR4PDEP EQU   C'1'                        FORMAT DEPENDING ON COMPARE  00014100
+TBR4COPT DS    CL2                       COMPARE OPTION                 00014200
+TBR4COSP EQU   C'  '                       ALWAYS CHAIN                 00014300
+TBR4COEQ EQU   C'EQ'                       EQUAL                        00014400
+TBR4CONE EQU   C'NE'                       NOT EQUAL                    00014500
+TBR4COGT EQU   C'GT'                       GREATER THAN                 00014600
+TBR4COLE EQU   C'LE'                       LESS THAN OR EQUAL           00014700
+TBR4COLT EQU   C'LT'                       LESS THAN                    00014800
+TBR4COGE EQU   C'GE'                       GREATER THAN OR EQUAL        00014900
+TBR4COPR EQU   C'PR'                       FORMAT IF FIELD IS PRESENT   00015000
+TBR4CONP EQU   C'NP'                       FORMAT IF FIELD NOT PRESENT  00015100
+TBR4COTM EQU   C'TM'                       TEST UNDER MASK              00015200
+TBR4CDLG DS    XL1                       COMPARISON DATA LENGTH         00015300
+TBR4CDAT DS    CL15                      COMPARISON DATA                00015400
+TBR4LGN  EQU   *-TBR4TRCH                                               00015500
+TBRRECL  EQU   32740                                          2021071   00015600

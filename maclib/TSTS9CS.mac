@@ -1,0 +1,29 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000100
+&LA      TSTS9CS                                                        00000200
+         GBLB  &SW,&SW2                                       2024349   00000400
+.***********************************************************  2024349   00000650
+.*                 ** HISTORY OF REVISIONS **              *  2024349   00000660
+.*                                                         *  2024349   00000670
+.* DESCRIPTION                                             *  2024349   00000680
+.* ________________________________________________________*  2024349   00000690
+.*                                                         *  2024349   00000700
+.* 06/29/01  MODIFIED FOR SDT PROCESSING OF SCF            *  2024349   00000770
+.*                                                         *  2024349   00000780
+.***********************************************************  2024349   00000790
+.********************************************************************** 00000800
+.*                                                                    * 00000900
+.*       THIS MACRO RESETS THE SWITCH CONTROL PROCESSING FOR THE      * 00001000
+.*       TSTS9AD MACRO TO AID IN COMPILING CSECTS THAT USE THE        * 00001100
+.*       THE 9AD MACRO AS WELL AS THE MAIN PROCESSING CSECT.          * 00001200
+.********************************************************************** 00011600
+.********************************************************************** 00014900
+.*       THE FIRST TIME THIS MACRO APPEARS IN A PROGRAM, SUBROUTINES  * 00015000
+.*       ADNDEX00 & ADRECS00 WILL APPEAR, BUT THEY WILL BE SUPPRESSED * 00015100
+.*       IN SUBSEQUENT EXPANSIONS. (IF &SW IS A 1 AND NEEDS TO BE     * 00015200
+.*       RESET TO 0 SO CODE CAN BE GENERATED FOR THE CSECT            * 00015250
+.********************************************************************** 00015300
+&SW      SETB  0                                                        00015500
+&SW2     SETB  0                                              2024349   00015550
+         EJECT                                                          00015600
+         MEND                                                           00023700

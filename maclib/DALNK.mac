@@ -1,0 +1,46 @@
+000100 01  DA-LINK-AREA.                                                      20
+000200************************************************************            30
+000300*    INPUT DATA AREA                                       *            40
+000400************************************************************            50
+000500     03  DA-LNK-I-ROUT           PIC X(8).                              60
+000600     03  DA-LNK-I-TABLE          PIC X(8).                              70
+000700     03  DA-LNK-I-EDIT           PIC X(8).                              80
+000800     03  DA-LNK-I-OPER           PIC X(4).                              90
+000900*    VALID CODES:      OPEN, READ, CLOS                    *            00
+001000     03  DA-LNK-I-LGTH           PIC S9(5)   COMP-3.                    10
+001100     03  DA-LNK-I-LIMIT          PIC S9(7)   COMP-3.                    20
+001200     03  DA-LNK-I-RTNC           PIC X.                                 30
+001300     03  DA-LNK-I-FILE           PIC X(9000).                           40
+001400     03  FILLER     REDEFINES    DA-LNK-I-FILE.                         50
+001500         05  DA-LNK-I-CHAR       PIC X       OCCURS 9000 TIMES.         60
+001600************************************************************            70
+001700*    OUTPUT DATA AREA                                      *            80
+001800************************************************************            90
+001900     03  DA-LNK-O-ROUT           PIC X(8).                              00
+002000     03  DA-LNK-O-TABLE          PIC X(8).                              10
+002100     03  DA-LNK-O-EDIT           PIC X(8).                              20
+002200     03  DA-LNK-O-OPER           PIC X(4).                              30
+002300*    VALID CODES:      OPEN, WRIT, CLOS                    *            40
+002400     03  DA-LNK-O-LGTH           PIC S9(5)   COMP-3.                    50
+002500     03  DA-LNK-O-LIMIT          PIC S9(7)   COMP-3.                    60
+002600     03  DA-LNK-O-RTNC           PIC X.                                 70
+002700     03  DA-LNK-O-FILE           PIC X(9000).                           80
+002800     03  FILLER     REDEFINES    DA-LNK-O-FILE.                         90
+002900         05  DA-LNK-O-CHAR       PIC X       OCCURS 9000 TIMES.         00
+003000************************************************************            10
+003100*    MISCELLANEOUS DATA AREA                               *            20
+003200************************************************************            30
+003300     03  DA-LNK-S-EDIT           PIC X(8).                              40
+003400     03  FILLER                  PIC X(8).                              50
+003500     03  DA-LNK-S-ROUT           PIC X(8).                              60
+003600     03  FILLER                  PIC X(8).                              70
+003700************************************************************            80
+003800*    INPUT DATA AREA 2 AND 3                               *            90
+003900************************************************************            00
+004000     03  DA-LNK-2-FILE           PIC X(9000).                           10
+004100     03  FILLER     REDEFINES    DA-LNK-2-FILE.                         20
+004200         05  DA-LNK-2-CHAR       PIC X       OCCURS 9000 TIMES.         30
+004300     03  DA-LNK-3-FILE           PIC X(9000).                           40
+004400     03  FILLER     REDEFINES    DA-LNK-3-FILE.                         50
+004500         05  DA-LNK-3-CHAR       PIC X       OCCURS 9000 TIMES.         60
+004600     EJECT                                                              70

@@ -1,0 +1,13 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+* THIS IS A COPYBOOK TO DO A CICS GETMAIN ONLY                          00000100
+* 07/25/01 ADD SHARED DATA TABLE PROCESS OPT FOR TSSCF RECS   2024349   00000196
+* 08/21/00 31-BIT                                             2024183   00000198
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024349   00000199
+*        EXEC  CICS GETMAIN FLENGTH(M008)                               00000200
+*                      SET (&WR1)                                       00000300
+*                      INITIMG (X'00')                                  00000400
+*                      NOHANDLE                                         00000500
+         DFHECALL =X'0C02B000280000CC00',(PTR4__RF,&WR1),,(___1,=X'00')*
+               ,(FB_4,M008)
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

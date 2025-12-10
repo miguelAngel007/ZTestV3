@@ -1,0 +1,156 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&LABEL   SAD9RMAP &PREFIX=SADRM,   1ST 5 CHARS OF LOCATION NAMES       X00002000
+               &DATA=,             A(DATA TO BE MAPPED)                X00003000
+               &DFNS=,             A(REP DFN RECORDS T/B USED FOR MAP) X00004000
+               &NUMDFNS=1,         A(FULLWORD = # DFN RECORDS PASSED)  X00005000
+               &WKAREA=            A(8-FULLWORD WORK AREA)              00006000
+*---------------------------------------------------------------------* 00008000
+* SAD9RMAP - MAP REPOSITORY DATA FIELDS (ADR/LEN) PER REPOSITORY DFN  * 00009000
+*---------------------------------------------------------------------* 00010000
+.*--------------------------------------------------------------------* 00011000
+.*                                                                    * 00012000
+.* VARIABLES MAY BE SPECIFIED AS INDICATED BELOW:                     * 00013000
+.*                                                                    * 00014000
+.*   VARIABLE       REQUIRED   DATANAME  REGISTER  DATAVALUE(CONSTANT)* 00015000
+.*   -----------    --------   --------  --------  -------------------* 00016000
+.*     &PREFIX                                         X              * 00017000
+.*     &DATA            X          X       2-12                       * 00018000
+.*     &DFNS            X          X       2-12                       * 00019000
+.*     &NUMDFNS                    X       2-12        X (NUMERIC)    * 00020000
+.*     &WKAREA          X          X       0-15                       * 00021000
+.*                                                                    * 00023000
+.*     (EXAMPLES)               ANYNAME    (R2)        1              * 00024000
+.*                                                                    * 00025000
+.* VALUES SPECIFIED AS DATANAME WILL BE USED IN LOAD-ADDRESS          * 00026000
+.* INSTRUCTIONS.  VALUES SPECIFIED IN REGISTER NOTATION WILL BE       * 00027000
+.* USED IN LOAD-REGISTER INSTRUCTIONS.                                * 00028000
+.*                                                                    * 00029000
+.* &DATA, &DFNS, AND &WKAREA MUST BE SPECIFIED.  &NUMDFNS MUST BE     * 00030000
+.* SPECIFIED IF THERE IS MORE THAN ONE DEFINITION RECORD PASSED.      * 00031000
+.*                                                                    * 00035000
+.* LOCATES INPUT $$ DEFINITION RECORD FOR DATA SPECIFIED BY &DATA.    * 00036000
+.* RETURNS ADDRESS OF INPUT $$ DEFINITION RECORD IN R1.               * 00037000
+.*                                                                    * 00038000
+.* MAPS RECORD BY MATCHING DATA TO DEFINITION, DETERMINING ADDRESS    * 00039000
+.* AND LENGTH FOR EACH FIELD, AND LOADING ADDRESS/LENGTH TO           * 00040000
+.* DEFINITION RECORD TEMPORARY DATA STORAGE FIELDS.                   * 00041000
+.*                                                                    * 00042000
+.* THIS MACRO ASSUMES THE PRESENCE OF THE MACRO SAD9RDFN TO PROVIDE   * 00043000
+.* A MAP TO REPOSITORY DEFINITION RECORDS.  IT ALSO ASSUMES REGISTER  * 00044000
+.* EQUATES (R1 EQU 1, ETC.)                                           * 00045000
+.*                                                                    * 00046000
+.* R1 WILL RETURN THE ADDRESS OF THE MATCHING DEFINITION RECORD.      * 00047000
+.* R15 WILL RETURN A COMPLETION CODE (0 = NORMAL; 4/8/12/16 = FAILURE)* 00048000
+.*                                                                    * 00049000
+.*                    HISTORY OF REVISIONS                              00050000
+.* DESCRIPTION                                                CHNGID  * 00051000
+.* ---------------------------------------------------------  --------* 00051100
+.* 01/09/95 MOD FOR 32 BYTE AUDIT SEGMENT FOLLOWING KEY       2602105 * 00051998
+.* SA0290  SA0004  ORIGINAL DIST TO SUPPORT SADAUXIB AUX GEN          * 00052000
+.*                                                                    * 00053000
+.*--------------------------------------------------------------------* 00054000
+         LCLA  &AUDLEN,&LEN                                             00055000
+         LCLC  &P,&S,&ADSAV,&REG                                        00056000
+&P       SETC  '&PREFIX'                                                00057000
+&S       SETC  '&SYSNDX'                                                00058000
+&S       SETC  '&S'(3,2)                                                00059000
+&AUDLEN  SETA  32                                             2602105   00062000
+.@RM01   ANOP                                                           00063000
+         AIF   ('&WKAREA'(1,1) NE '(').@RM02A                           00064000
+&LEN     SETA  K'&WKAREA-2                                              00065000
+&REG     SETC  '&WKAREA'(2,&LEN)                                        00066000
+         LR    R14,&REG            R14 = A(MACRO WORKAREA)              00067000
+         AGO   .@RM02B                                                  00068000
+.@RM02A  ANOP                                                           00069000
+         LA    R14,&WKAREA         R14 = A(MACRO WORK AREA)             00070000
+.@RM02B  ANOP                                                           00071000
+         STM   R1,R8,0(R14)        SAVE CONTENTS OF WORK REGS NEEDED    00072000
+         AIF   ('&DATA'(1,1) NE '(').@RM03A                             00073000
+&LEN     SETA  K'&DATA-2                                                00074000
+&REG     SETC  '&DATA'(2,&LEN)                                          00075000
+         LR    R15,&REG             R15 = A(REPOSITORY IO AREA BUFFER)  00076000
+         AGO   .@RM03B                                                  00077000
+.@RM03A  ANOP                                                           00078000
+         LA    R15,&DATA            R15 = A(REPOSITORY IO AREA BUFFER)  00079000
+.@RM03B  ANOP                                                           00080000
+         AIF   ('&DFNS'(1,1) NE '(').@RM04A                             00081000
+&LEN     SETA  K'&DFNS-2                                                00082000
+&REG     SETC  '&DFNS'(2,&LEN)                                          00083000
+         LR    R1,&REG             R1 = A(REPOSITORY DEFINITION RECS)   00084000
+         AGO   .@RM04B                                                  00085000
+.@RM04A  ANOP                                                           00086000
+         LA    R1,&DFNS            R1 = A(REPOSITORY DEFINITION RECS)   00087000
+.@RM04B  ANOP                                                           00088000
+         USING SADFNPFX,R1         R1 = BASE FOR REP DEFINITION RECORD  00089000
+         AIF   (T'&NUMDFNS EQ 'N').@RM05B                               00090000
+         AIF   ('&NUMDFNS'(1,1) NE '(').@RM05A                          00091000
+&LEN     SETA  K'&NUMDFNS-2                                             00092000
+&REG     SETC  '&NUMDFNS'(2,&LEN)                                       00093000
+         LR    R2,&REG             R2 = # INPUT REPOSITORY DFN RECORDS  00094000
+         AGO   .@RM05C                                                  00095000
+.@RM05A  ANOP                                                           00096000
+         L     R2,&NUMDFNS         R2 = # INPUT REPOSITORY DFN RECORDS  00097000
+         AGO   .@RM05C                                                  00098000
+.@RM05B  ANOP                                                           00099000
+         LA    R2,&NUMDFNS         R2 = # INPUT REPOSITORY DFN RECORDS  00100000
+.@RM05C  ANOP                                                           00101000
+         LA    R3,0                R3 = CLEARED                         00102000
+&P&S.1   DS   0H                                                        00103000
+         CLC   SADFNTYP,2(R15)      HAVE WE FOUND INPUT DFN RECORD      00104000
+         BE    &P&S.2              Y. PROCEDE TO MAP                    00105000
+         ICM   R3,B'0011',SADFNLEN R3 = L'INPUT DFN RECORD              00106000
+         LA    R1,3(R3,R1)         R1 = A(NEXT REPOS DFN RECORD)        00107000
+         BCT   R2,&P&S.1         LOOP TO FIND MATCHING DFN REC          00108000
+         LA    R15,12              R15=RTN CODE: NO MATCHING DFN RECORD 00109000
+         B     &P&S.9            SKIP OUT OF MAPIN ROUTINE              00110000
+&P&S.2   DS   0H                                                        00111000
+         ST    R1,0(R14)           SAVE A(CUR DFN REC/REC MAPPED)       00112000
+         LA    R0,C'N'             INIT REC TYPE AS PARENT SEGMENT      00113000
+         OC    21(4,R15),21(R15)   IS THIS A ROOT SEGMENT (INDEX = 0)   00114000
+         BZ    &P&S.3                Y. BYPASS RESET FOR CHILD SEGMENT  00115000
+         LA    R0,C'Y'             INIT REC TYPE AS CHILD SEGMENT       00116000
+&P&S.3   DS   0H                                                        00117000
+         LA    R2,0                R2 = CLEARED                         00118000
+         ICM   R2,B'0011',SADFN#FL R2 = # FIELDS IN DFN RECORD          00119000
+         LR    R3,R2               R3 = # FIELDS IN DFN RECORD          00120000
+&P&S.4   DS   0H                                                        00121000
+         MVI   SADFNFTW,0          CLEAR OLD MAP DATA                   00122000
+         MVC   SADFNFTW+1(L'SADFNFTW-1),SADFNFTW                        00123000
+         LA    R1,L'SADFNFSG(,R1)  R1 = A(NEXT REPOS FLD DFN)           00124000
+         BCT   R3,&P&S.4         LOOP THRU ALL FLD DFNS                 00125000
+         L     R1,0(R14)           R1 = A(CUR DFN REC/REC MAPPED)       00126000
+         LA    R4,&AUDLEN          R4 = L'GN26 AUDIT SEGMENT  2602105   00127000
+         CLC   25(8,R15),=CL8' '   IS THIS A PRE-GN26 RECORD  2602105   00127100
+         BE    &P&S.5                Y. RESET L'AUDIT SEG=08  2602105   00127200
+         CLC   25(8,R15),=XL8'00'  IS THIS A PRE-GN26 RECORD  2602105   00127300
+         BNE   &P&S.6                N. LEAVE L'AUDIT SEG=32  2602105   00127400
+&P&S.5   DS   0H                                              2602105   00127500
+         LA    R4,8                  Y. RESET L'AUDIT SEG=08  2602105   00127600
+&P&S.6   DS   0H                                              2602105   00127700
+         LA    R4,25(R4,R15)       R4 = A(#FLDS IN REC VARDTA)2602105   00127800
+         ICM   R3,B'0001',0(R4)    R3 = # FLDS IN REC VARDATA 2602105   00127900
+         LA    R4,1(,R4)           R4 = A(IOAR VAR FORMAT DTA)2602105   00128000
+         LA    R5,0                R5 = DISPLACEMENT BEYOND VAR DATA    00129000
+         LA    R6,0                R6 = CLEARED FOR VAR DATA LENGTH     00130000
+&P&S.7   DS   0H                                                        00131000
+         CLM   0,B'0001',SADFNFOC  IS THIS NEXT FLD DFN FOR THIS REC    00132000
+         BE    &P&S.8              Y. PROCEDE TO MAP DISP & LENGTH      00133000
+         LA    R1,L'SADFNFSG(,R1)  R1 = A(NEXT REPOS FLD DFN)           00134000
+         BCT   R2,&P&S.7         LOOP TO SEARCH FOR NEXT FLD DFN        00135000
+         LA    R15,16              R15=RTN CODE: DFN-DATA MISMATCH      00136000
+         B     &P&S.9            SKIP OUT OF MAPIN ROUTINE              00137000
+&P&S.8   DS   0H                                                        00138000
+         LA    R7,0(R5,R4)         R7 = A(CURR VAR DATA LENGTH)         00139000
+         STCM  R7,B'1111',SADFNFAD SAVE A(CURR VAR DATA LENGTH & DATA)  00140000
+         ICM   R6,B'0001',0(R7)    R6 = L'CURR VAR DATA                 00141000
+         STCM  R6,B'0001',SADFNFLN SAVE L'CURR VAR DATA                 00142000
+         LA    R5,1(R6,R5)         R5 = DISPL TO NEXT VAR DATA FLD      00143000
+         LA    R1,L'SADFNFSG(,R1)  R1 = A(NEXT REPOS FLD DFN)           00144000
+         BCTR  R2,0                R2 = # REPOS FLD DFNS EXAMINED       00145000
+         BCT   R3,&P&S.7         LOOP TO @MAP ALL VAR DATA FLDS         00146000
+         LA    R15,0               R15=RTN CODE: NORMAL                 00147000
+         DROP  R1                                                       00148000
+&P&S.9   DS   0H                                                        00149000
+         LM    R1,R8,0(R14)        RELOAD CALLER'S REGS                 00150000
+         MEND                                                           00151000

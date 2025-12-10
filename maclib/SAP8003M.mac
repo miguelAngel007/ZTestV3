@@ -1,0 +1,15 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000000
+         SAP8003M &DSECT=YES,&TYPE=TE                                   00001000
+         AIF   ('&DSECT' EQ 'YES').M03DSCT                              00002000
+&TYPE.NTRY    DS    0F                                                  00003000
+         AGO   .M03CONT                                                 00004000
+.M03DSCT ANOP                                                           00005000
+&TYPE.NTRY DSECT                                                        00006000
+.M03CONT ANOP                                                           00007000
+&TYPE.PARRC   DS    H                                                   00008000
+&TYPE.PAREC   DS    H                                                   00009000
+&TYPE.RSLT    DS    H                                                   00010000
+&TYPE.MSG     DS    CL40                                                00011000
+&TYPE.LGTH    EQU   *-&TYPE.NTRY                                        00012000
+         MEND                                                           00013000

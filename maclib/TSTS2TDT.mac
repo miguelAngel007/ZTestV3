@@ -1,0 +1,25 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+******************************************************************      00000100
+*                                                                *      00000200
+*       TSTS2TDT - APPLICATION TRANSFER DATA TABLE COPYBOOK      *      00000300
+*                                                                *      00000400
+******************************************************************      00000500
+TSTDT    DSECT                                                          00000600
+TDTTBLEN DS    XL4                   TABLE LENGTH                       00000700
+*                                                                       00000800
+TDTENTRY DSECT                       TDT ENTRY                2511679   00000900
+TDTFRTID DS    0CL4                  "FROM" TRAN ID                     00001000
+TDTFRAPP DS    CL2                   "FROM" APPLICATION                 00001100
+TDTFRTRN DS    CL2                   "FROM" TRAN ID                     00001200
+TDTFRFLD DS    CL8                   "FROM" FIELD ID                    00001300
+TDTFRLEN DS    XL2                   "FROM" FIELD LENGTH                00001400
+TDTFRTYP DS    CL1                   "FROM" FIELD TYPE                  00001500
+         DS    XL1                   FILLER                             00001600
+TDTTOTID DS    0CL4                  "TO" TRAN ID                       00001700
+TDTTOAPP DS    CL2                   "TO" APPLICATION                   00001800
+TDTTOTRN DS    CL2                   "TO" TRAN ID                       00001900
+TDTTOFLD DS    CL8                   "TO" FIELD ID                      00002000
+TDTTOLEN DS    XL2                   "TO" FIELD LENGTH                  00002100
+TDTTOTYP DS    CL1                   "TO" FIELD TYPE                    00002200
+         DS    XL1                   FILLER                             00002300
+TDTENLEN EQU   *-TDTENTRY            ENTRY LENGTH                       00002400

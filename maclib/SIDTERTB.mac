@@ -1,0 +1,83 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000050
+*                  ** HISTORY OF REVISIONS **                         * 00000051
+*                                                                     * 00000052
+* DESCRIPTION                                                 CHNGID  * 00000053
+* __________________________________________________________  _______ * 00000054
+*                                                                     * 00000055
+* 09/03/02 ADD MSG 0999 CONSOLE RESPONSE REQUIRED             0324623 * 00000057
+* 05/22/95 CORRECT ERROR MESSAGE DESCRIPTION         2601677  0324623 * 00000059
+*                                                                     * 00000060
+*---------------------------------------------------------------------* 00000070
+SIDTERTB DS    0D                                                       00000100
+         DC    AL1(L'SIER0001)                                          00000200
+SIER0001 DC    C'000104  (BCR / CCR) CONTROL RECORD MISSING'            00000300
+         DC    AL1(L'SIER0002)                                          00000400
+SIER0002 DC    C'000200  INFORMATIONAL MESSAGE FOLLOWS:'                00000500
+         DC    AL1(L'SIER0003)                                          00000600
+SIER0003 DC    C'000300  TRAILER HAS AN INVALID NAME TO GENERATE AN ALPX00000700
+               HA FILE ENTRY'                                           00000800
+         DC    AL1(L'SIER0004)                                          00000900
+SIER0004 DC    C'000400C  '                                             00001000
+         DC    AL1(L'SIER0005)                                          00001100
+SIER0005 DC    C'000500  CORE STORAGE REQUIREMENTS OF JOB FOLLOWS:'     00001200
+         DC    AL1(L'SIER0401)                                          00001300
+SIER0401 DC    C'040100  RECORD NOT FOUND CONDITION'                    00001400
+         DC    AL1(L'SIER0402)                                          00001500
+SIER0402 DC    C'040212 DPARTICIPANT RECORD MISSING FOR BANK'           00001600
+         DC    AL1(L'SIER0403)                                          00001700
+SIER0403 DC    C'040300  VSAM FILE OPENED FOR OUTPUT (UPDATE) MODE'     00001800
+         DC    AL1(L'SIER0404)                                          00001900
+SIER0404 DC    C'040400  OPENED FILE DUMMIED OUT (SET IGNORED)'         00002000
+         DC    AL1(L'SIER0408)                                          00002100
+SIER0408 DC    C'040800  EXCEPTION MASTER NOT FOUND FOR EXCEPTION'      00002200
+         DC    AL1(L'SIER0409)                                          00002300
+SIER0409 DC    C'040904C SOURCE MODULE ON LOAD LIBRARY NOT FOUND'       00002400
+         DC    AL1(L'SIER0501)                                          00002500
+SIER0501 DC    C'050112 AREQUIRED PROGRAM PERFORMANCE UNSUCCESSFUL'     00002600
+         DC    AL1(L'SIER0502)                                          00002700
+SIER0502 DC    C'050212 AREQUIRED (BCR / CCR) CONTROL RECORD(S) MISSINGX00002800
+               '                                                        00002900
+         DC    AL1(L'SIER0503)                                          00003000
+SIER0503 DC    C'050312 AREQUIRED CONTROL FIELD MISSING OR INVALID'     00003100
+         DC    AL1(L'SIER0504)                                          00003200
+SIER0504 DC    C'050412 AREQUIRED FILE NULL'                            00003300
+         DC    AL1(L'SIER0505)                                          00003400
+SIER0505 DC    C'050512 AREQUIRED FILE DOES NOT MATCH BCR'              00003500
+         DC    AL1(L'SIER0506)                                          00003600
+SIER0506 DC    C'050612 AINTERNAL TABLE FILE HAS EXCEEDED ITS LIMIT'    00003700
+         DC    AL1(L'SIER0507)                                          00003800
+SIER0507 DC    C'050712 ADUPLICATE RECORD FOUND'                        00003900
+         DC    AL1(L'SIER0901)                                          00004000
+SIER0901 DC    C'090112 AOPERATOR CONTROL CHARACTER INVALID'            00004100
+         DC    AL1(L'SIER0902)                                          00004200
+SIER0902 DC    C'090212 AOPEN ERROR ON FILEACB'                         00004300
+         DC    AL1(L'SIER0904)                                          00004400
+SIER0904 DC    C'090412 AVSAM ERROR IN MODCB MACRO'                     00004500
+         DC    AL1(L'SIER0905)                                          00004600
+SIER0905 DC    C'090512 DGET ERROR ON FILERPL'                          00004700
+         DC    AL1(L'SIER0906)                                2601677   00004800
+SIER0906 DC    C'090612 DGET FOR UPDATE NOT MADE BEFORE REWRITE'        00004900
+         DC    AL1(L'SIER0907)                                          00005000
+SIER0907 DC    C'090712 DPUT ERROR ON FILERPL'                          00005100
+         DC    AL1(L'SIER0908)                                2601677   00005200
+SIER0908 DC    C'090812 DGET FOR UPDATE NOT MADE BEFORE ERASE'          00005300
+         DC    AL1(L'SIER0909)                                          00005400
+SIER0909 DC    C'090912 DERASE ERROR ON FILERPL'                        00005500
+         DC    AL1(L'SIER0910)                                          00005600
+SIER0910 DC    C'091012 AFILE MUST BE OPEN BEFORE PROCESSING'           00005700
+         DC    AL1(L'SIER0911)                                          00005800
+SIER0911 DC    C'091112 AOPEN REJECTED, FILE ALREADY OPEN'              00005900
+         DC    AL1(L'SIER0912)                                          00006000
+SIER0912 DC    C'091212 ACLOSE REJECTED, FILE ALREADY CLOSED'           00006100
+         DC    AL1(L'SIER0913)                                          00006200
+SIER0913 DC    C'091312 ASHOWCB ERROR ON FILERPL'                       00006300
+         DC    AL1(L'SIER0914)                                          00006400
+SIER0914 DC    C'091412 AERASE ONLY VALID FOR KEYED-SEQUENCE FILE'      00006500
+         DC    AL1(L'SIER0915)                                          00006600
+SIER0915 DC    C'091512 AVALID READ MUST PRECEED RE-READ'               00006700
+         DC    AL1(L'SIER0916)                                          00006800
+SIER0916 DC    C'091612 AACCESS CONTROL OPERATOR INVALID'               00006900
+         DC    AL1(L'SIER0999)                                0324623   00006910
+SIER0999 DC    C'099900C CONSOLE RESPONSE REQUIRED:'          0324623   00006920
+         DC    X'FF'                                                    00007000

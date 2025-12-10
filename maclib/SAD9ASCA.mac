@@ -1,0 +1,44 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*  SAD9ASCA: SADAUXIC ACQUIRED STORAGE CONTROL AREA                   * 00002000
+*                                                                     * 00003000
+*  NUMBER OF CONTROL SEGMENTS ALLOCATED FOR THE SAD9ASCA CONTROL AREA * 00004000
+*  IS SPECIFIED IN THE LCLA VARIABLE &SADSCSG.                        * 00005000
+*                                                                     * 00006000
+*  CONTROL SEGMENTS ARE INDEXED BY THE SAD9AXCA REQUEST ID.  FOR      * 00007000
+*  EXAMPLE, THE COMMON USE REQUEST ID IS 00 AND WILL BE CONTROLLED    * 00008000
+*  BY THE FIRST SAD9ASCA SEGMENT.                                     * 00009000
+*                                                                     * 00010000
+*  ALL POSSIBLE REQUEST IDS SHOULD BE DOCUMENTED IN THE SAD9AXCA      * 00011000
+*  MACRO, FOLLOWING DEFINITION OF THE REQUEST ID FIELD SADPRRID.      * 00012000
+*                                                                     * 00013000
+*  NUMBER OF CONTROL SEGMENTS IS SPECIFIED IN SADSC#SG AND MUST BE    * 00014000
+*  EQUAL TO OR GREATER THAN NUMBER POSSIBLE REQUEST IDS.              * 00015000
+*                                                                     * 00016000
+*********************************************************************** 00017000
+*                    ** HISTORY OF REVISIONS **                       * 00018000
+* DESCRIPTION                                                 CHNGID  * 00019000
+* ----------------------------------------------------------- --------* 00020000
+* 08/15/01 REDUCE SADAUXIC LINKS                              2020218 * 00020996
+* 09/30/97 SUPPORT AUX ENTITY SIZES GREATER THAN 64K          9913569 * 00020998
+* 06/28/94 ORIGINAL DISTRIBUTION                              2600590 * 00021000
+*                                                                     * 00022000
+*********************************************************************** 00023000
+SAD9ASCA DSECT                                                          00024000
+SADSCSTM DS   0CL24                CONTROL BLOCK STEM         9913569   00025000
+SADSCEYE DS    CL8                 CONTROL BLOCK ID: 'SAD9ASCA'         00026000
+SADSCRBL DS    HL2                 RB LEVEL                   9913569   00026100
+SADSCLVL EQU   1                   RB LEVEL = 1               9913569   00026200
+         DS    XL6                 RESERVED                   9913569   00026300
+SADSCGFW DS   0CL6                 CURRENT FILE WORK AREA DATA          00027000
+SADSCAFW DS    AL4                 A(CURRENT FILE WORK AREA)            00028000
+SADSCLFW DS    HL2                 LENGTH OF CURRENT FILE WORK AREA     00029000
+SADSC#SC DS    HL2  =(SADSCLEN/SADSCLSG) CONTROL SEGMTS/CONTROL AREA    00030000
+SADSC#SG EQU   15                  CONTROL SEGMENTS/AREA      2020218   00031000
+SADSCSEG DS   0CL12                STORAGE CONTROL SEGMENT    9913569   00032000
+SADSCAAS DS    AL4                 A(SADAUXIC ACQUIRED STG)             00033000
+SADSCLAS DS    FL4                 L'SADAUXIC ACQUIRED STG    9913569   00034000
+SADSCLUS DS    FL4                 L'SADAUXIC STG USED/CUR ENT9913569   00035000
+SADSCLSG EQU   *-SADSCSEG          L'STORAGE CONTROL AREA CONTROL SEGMT 00036000
+         DS    (SADSC#SG-1)CL(SADSCLSG) STG CTL SEGMENTS (2-N)          00037000
+SADSCLEN EQU   *-SAD9ASCA          L'STORAGE CONTROL AREA               00038000

@@ -1,0 +1,66 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00010000
+&LA      SAS9DPLL &PROG=,&COMMAREA=,&COMMLEN=,                         X00020000
+               &SACB=,&SACBEP=                                          00030000
+.********************************************************************** 00040000
+.*                                                                    * 00050000
+.*       THIS MACRO CHECKS THE SACB FOR A VALID ENTRY POINT           * 00060000
+.*       ADDRESS TO THE PROGRAM.  IF YOUR PROGRAM                     * 00070000
+.*       ALREADY HAS SACB ADDRESSABILITY OMIT THE SACB                * 00080000
+.*       PARAMETER.  WHEN THE SACB PARAMETER IS PASSED                * 00090000
+.*       IT IS LOADED TO R14, VERIFIED AS NOT ZERO AND                * 00100000
+.*       ADDRESSABILITY IS ESTABLISHED.  THE ENTRY ADDRESS IS         * 00110000
+.*       THEN VERIFIED.  IF THE ENTRY ADDRESS IS PRESENT THE          * 00120000
+.*       MACRO WILL BRANCH DIRECTLY TO THE ENTRY ADDRESS              * 00130000
+.*       PROVIDED.  FOR TEST PURPOSES THE LINK MAY BE FORCED          * 00140000
+.*       USING THE SAAB LINK TEST OPTION.  IN THE LINKED              * 00150000
+.*       PROGRAM A TEST FOR THE SACBNUKE ADDRESS IS MADE.             * 00160000
+.*       THIS ADDRESS WILL BE ZERO IF THE OPTION IS ON.               * 00170000
+.*                                                                    * 00180000
+.*       THE VARIABLES FOR THIS MACRO ARE AS FOLLOWS:                 * 00190000
+.*                                                                    * 00200000
+.*       &LA       - LABEL OF MACRO (ALL LABELS IN MACRO CONTAIN      * 00210000
+.*                   THIS AS A PREFIX)                                * 00220000
+.*       &PROG     - PROGRAM NAME TO LOAD AND LINK TO                 * 00230000
+.*       &COMMAREA - NAME OF THE COMMAREA TO PASS                     * 00240000
+.*       &COMMLEN  - LEN OF THE PASSED COMMAREA                       * 00250000
+.*       &SACB     - SACB ADDRESS FIELD IF YOUR PROGRAM               * 00260000
+.*                   DOES NOT HAVE SACB ADDRESSABILITY                * 00270000
+.*       &SACBEP   - SACB FIELD CONTAINING THE PROGRAM                * 00280000
+.*                   ENTRY ADDRESS.  USED TO DETERMINE                * 00290000
+.*                   THE PROCESSING REQUIRED.                         * 00300000
+.********************************************************************** 00310000
+.*                 ** HISTORY OF REVISIONS **                         * 00320000
+.*                                                                    * 00330000
+.* DESCRIPTION                                                CHNGID  * 00340000
+.* _________________________________________________________  _______ * 00350000
+.*                                                                    * 00360000
+.* 08/15/01 INITIAL RELEASE                                   2020218 * 00370000
+.********************************************************************** 00380000
+.********************************************************************** 00390000
+.* CHECK ENTRY ADDRESS TO DETERMINE PROCESSING REQUIRED               * 00400000
+.********************************************************************** 00410000
+&LA.LL00 EQU   *                                                        00420000
+         AIF   (T'&SACB EQ 'O').SACBAD0                                 00430000
+         ICM   R14,B'1111',&SACB     A(SACB) ?                          00440000
+         BZ    &LA.LL70              N. SKIP BASR                       00450000
+         USING SAS9SCBA,R14          BASE FOR SACB                      00460000
+.SACBAD0 ANOP                                                           00470000
+         ICM   R15,B'1111',&SACBEP   A(ENTRY POINT ADDR)?               00480000
+         BZ    &LA.LL70              N. SKIP BASR                       00490000
+         TM    &SACBEP,X'80'         IS STORAGE IN USE?                 00491000
+         BNZ   &LA.LL70              Y. SKIP BASR                       00492000
+         SIPLIST PARMLIST,(DFHEIBLK,&COMMAREA,&COMMLEN)                 00500000
+         AIF   (T'&SACB EQ 'O').SACBAD1                                 00510000
+         DROP  R14                   DROP BASE REG                      00520000
+.SACBAD1 ANOP                                                           00530000
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS              00540000
+         ST    R13,DFHEIR13          SAVE R13                           00550000
+         LA    R13,DFHEISA           POINT TO ADDR SAVE AREA            00560000
+         BASR  R14,R15               BASR TO PROGRAM                    00570000
+         L     R13,DFHEIR13          RESTORE REGISTER 13                00580000
+         B     &LA.LL90              BRANCH TO RETURN                   00590000
+&LA.LL70 DS   0H                                                        00600000
+         COPY  TSTS4LLK                                                 00610000
+&LA.LL90 DS   0H                                                        00620000
+         MEND                                                           00630000

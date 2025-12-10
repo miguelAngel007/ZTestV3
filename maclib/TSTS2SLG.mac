@@ -1,0 +1,142 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TSTS2SLG - SYSTEM LOG RECORD                          * 00000004
+*               TRANSACTION SYSTEM                                    * 00000005
+*                                                                     * 00000006
+*---------------------------------------------------------------------* 00000007
+*                  ** HISTORY OF REVISIONS **                         * 00000008
+*                                                                     * 00000009
+* DESCRIPTION                                                 CHNGID  * 00000010
+* __________________________________________________________  _______ * 00000011
+*                                                                     * 00000012
+* 01/15/95 INCLUDE DEFINITION FOR DICTIONARY AUDIT RECORD     2602105 * 00000795
+* 12/94    ADDED SLCACHID                                     2602105 * 00000796
+*                                                                     * 00000797
+*---------------------------------------------------------------------* 00000798
+*                                                                       00000799
+TSSLG  DSECT                                                            00000800
+SLG      DS    0C                                                       00000900
+SLGLNG   DS    XL2                     SLG RECORD LENGTH                00001000
+*                                      MAX VALUE +297                   00001100
+SLGMXREC DS    XL2                     MAX NUMBER OF RECORDS            00001200
+*                                      MAX VALUE +26                    00001300
+SLGACKEY DS    CL36                    APPLICATION ACCOUNT KEY          00001400
+SLGAPID  DS    CL2                     APPLICATION ID                   00001500
+SLGRCTYP DS    CL4                     RECORD TYPE (EIBTRNID)           00001600
+SLGRPLEV DS    0CL12                   REPORT LEVELS                    00001700
+SLGRPLV1 DS    CL2                     REPORT LEVEL 1                   00001800
+SLGRPLV2 DS    CL3                     REPORT LEVEL 2                   00001900
+SLGRPLV3 DS    CL3                     REPORT LEVEL 3                   00002000
+SLGRPLV4 DS    CL4                     REPORT LEVEL 4                   00002100
+SLGLOGIN DS    0CL29                   LOG INFORMATION AREA             00002200
+SLGEXCCD DS    CL2                     EXCEPTION CODE                   00002300
+*                                      00 - FUNCTION LOG                00002400
+*                                      01 - DETAIL LOG                  00002500
+*                                      02 - SECURITY LOG                00002600
+*                                      03 - DICT AUDIT DATA   2602105   00002610
+SLGRPDES DS    CL8                     REPORT DESCRIPTION               00002700
+SLGTIME  DS    CL6                     TIME                             00002800
+SLGDATE  DS    CL6                     DATE                             00002900
+SLGTRMTY DS    CL2                     TERMINAL TYPE                    00003000
+*                                      AD - ADMIN 3270                  00003100
+*                                      AT - ATM                         00003200
+*                                      TL - TELLER                      00003300
+*                                      PL - PLATFORM                    00003400
+SLGTRMID DS    CL4                     TERMINAL ID                      00003500
+SLGFIRST DS    CL1                     FIRST LOG IN TRANS               00003600
+*                                      0-NOT FIRST LOG IN TRAN          00003700
+*                                      1-FIRST LOG IN TRAN              00003800
+SLGEMPIN DS    0CL31                   EMPLOYEE INFORMATION             00003900
+SLGEMPID DS    CL8                     EMPLOYEE IDENTIFICATION          00004000
+SLGEMPIT DS    CL3                     EMPLOYEE INITIALS                00004100
+SLGSHRNM DS    CL20                    EMPLOYEE SHORT NAME              00004200
+SLGTRNIN DS    0CL21                   TRANSACTION INFORMATION          00004300
+SLGTRNPL DS    CL4                     PHYSICAL LOCATION                00004400
+SLGTRNCD DS    CL8                     ONLINE TRANSACTION CODE          00004500
+SLGSYSFL DS    CL1                     SYSTEM FILE UPDATE FUNCTION      00004600
+SLGLTEMP DS    CL8                     LAST MAINTENANCE EMPLOYEE        00004700
+SLGLTDT  DS    CL6                     DATE LAST MAINTENANCE            00004800
+SLGSYSID DS    CL1                     SYSTEM ID                        00004900
+*                                      0 - FIAS                         00005000
+*                                      1 - ADMIN                        00005100
+*                                      2 - NATIVE/BMS                   00005200
+SLGNMREC DS    XL2                     NUMBER OF LOG RECORDS            00005300
+SLCACHID DS    CL8                     CA CHANGE ID             2602105 00005400
+         DS    XL12                    FILLER                   2602105 00005410
+SLGRECRD DS    CL3354                  26 OCCURRENCES OF LOG REC DATA   00005500
+*                                                                       00005600
+*                                                                       00005700
+SLGLOGD  DSECT                         LOG RECORD OCCURRENCE            00005800
+SLGLOGRC DS    0CL129                  ONE LOG RECORD OCCURRENCE        00005900
+SLGERRFL DS    CL1                     RECORD FLAG                      00006000
+*                                      E-ERROR RECORD                   00006100
+*                                      D-DATA RECORD                    00006200
+*                                      G-GENERAL LEDGER RECORD          00006300
+*                                      T-TEXT RECORD                    00006400
+*                                      N-OLD/NEW RECORD                 00006500
+SLGLOGPH DS    CL8                     LOG PHASE NAME                   00006600
+SLGLOGOC DS    0CL106                  LOG OCCURRENCE                   00006700
+SLGLOGDT DS    CL80                    LOG DATA                         00006800
+         DS    CL26                    FILLER                           00006900
+         ORG   SLGLOGDT                                                 00007000
+SLGLOGSD DS    CL20                    LOG SYS DESC                     00007100
+SLGLOGSO DS    CL30                    LOG SYS OLD                      00007200
+SLGLOGSN DS    CL30                    LOG SYS NEW                      00007300
+         DS    CL26                    FILLER                           00007400
+         ORG   SLGLOGDT                                                 00007500
+SLGLOGCD DS    CL6                     LOG ERROR CODE                   00007600
+SLGLOGMS DS    CL100                   LOG MESSAGE                      00007700
+         DS    CL14                    FILLER                           00007800
+*-------------------------------------------------------------2602105-* 00008000
+* TSSLGD REDEFINES THE LOG RECORD AS THE DICTIONARY AUDIT REC 2602105 * 00008100
+*-------------------------------------------------------------2602105-* 00008200
+TSSLGD DSECT                                                  2602105   00008300
+SLGDLNG  DS    HL2                 SLG REC LEN                2602105   00008400
+         DS    HL2                 FILLER                     2602105   00008500
+SLGDKEY  DS   0CL17                DICTIONARY KEY             2602105   00008600
+SLGDKAP  DS    CL2                 DICTIONARY KEY: APPL       2602105   00008700
+SLGDKTY  DS    CL3                 DICTIONARY KEY: TYPE       2602105   00008800
+SLGDKNM  DS    CL8                 DICTIONARY KEY: NAMNE      2602105   00008900
+SLGDKIN  DS    FL4                 DICTIONARY KEY: INDEX      2602105   00009000
+SLGDDAT  DS    PL4                 LAST MNTE DATE - YYMMDD    2602105   00009100
+SLGDTIM  DS    PL4                 LAST MNTE TIME - HHMMSS    2602105   00009200
+SLGDSOR  DS   0CL8                 LAST MNTE SOURCE (BATCH)   2602105   00009300
+SLGDOPR  DS    CL8                 LAST MNTE OPERATOR (ONLINE)2602105   00009400
+SLGDCID  DS    CL8                 LAST MNTE CHANGE ID        2602105   00009500
+SLGDEAC  DS    CL1                 ENTITY ACTION CODE         2602105   00009600
+SLGDEAD  EQU   C'A'                ENTITY ACTION - ADD        2602105   00009700
+SLGDECH  EQU   C'C'                ENTITY ACTION - CHANGE     2602105   00009800
+SLGDEDL  EQU   C'D'                ENTITY ACTION - DELETE     2602105   00009900
+SLGDFAC  DS    CL1                 FIELD  ACTION CODE         2602105   00010000
+SLGDFAD  EQU   C'A'                FIELD  ACTION - ADD        2602105   00010100
+SLGDFCH  EQU   C'C'                FIELD  ACTION - CHANGE     2602105   00010200
+SLGDFDL  EQU   C'D'                FIELD  ACTION - DELETE     2602105   00010300
+SLGDFNM  DS    CL8                 FIELD NAME                 2602105   00010400
+SLGDATT  DS    CL1                 FIELD ATTRIBUTE            2602105   00010500
+SLGDATA  EQU   C'A'                FIELD ATTRIBUTE - ALPHA    2602105   00010600
+SLGDATB  EQU   C'B'                FIELD ATTRIBUTE - BINARY   2602105   00010700
+SLGDATC  EQU   C'C'                FIELD ATTRIBUTE - CHARACTR 2602105   00010800
+SLGDATN  EQU   C'N'                FIELD ATTRIBUTE - NUMERIC  2602105   00010900
+SLGDATP  EQU   C'P'                FIELD ATTRIBUTE - PACKED   2602105   00011000
+SLGDFLO  DS    HL2                 FIELD LENGTH - OLD VALUE   2602105   00011100
+SLGDRCD  DS    CL2                 REPORT CODE                2602105   00011200
+*                                      00 - FUNCTION LOG      2602105   00011300
+*                                      01 - DETAIL LOG        2602105   00011400
+*                                      02 - SECURITY LOG      2602105   00011500
+*                                      03 - DICT AUDIT DATA   2602105   00011600
+*   SLGDRCD MUST CORRESPOND TO SLGEXCCD SO THAT TSSLG DATA    2602105   00011700
+*   CAN BE SEPARATED BY REPORT TYPE.                          2602105   00011800
+SLGDFLN  DS    HL2                 FIELD LENGTH - NEW VALUE   2602105   00011900
+         DS    CL1                 FILLER                     2602105   00012000
+SLGDVAR  DS    CL512               VARIABLE DATA              2602105   00012100
+SLGDLEN  EQU   *-SLGDLNG           DICTIONARY LOG REC LENGTH  2602105   00012110
+*-------------------------------------------------------------2602105-* 00012200
+*   FORMAT OF VARIABLE DATA IS:                               2602105 * 00012300
+*       FIELD VALUE/OLD @ +0(A)                               2602105 * 00012400
+*       FIELD VALUE/OLD @ +A(B)                               2602105 * 00012500
+*   WHERE @ = ADDRESS OF SLGDVAR                              2602105 * 00012600
+*     AND A = VALUE OF SLGDFLO                                2602105 * 00012700
+*     AND B = VALUE OF SLGDFLN                                2602105 * 00012800
+*-------------------------------------------------------------2602105-* 00012900

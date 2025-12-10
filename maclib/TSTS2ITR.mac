@@ -1,0 +1,203 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*               TSTS2ITR - INSTITUTION TERMINAL RECORD                * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 01/27/14 ADDED OPA ADDRESS                                  1436560   00000679
+* 12/09/02 ADDED ADDITIONAL BATCH FLAG PROCESS OPTION         0324669 * 00000680
+* 10/23/00 ADDED NEW FIELD FOR TSEID FLAG                     2024239 * 00000681
+* 10/03/98 ADDED ADDITIONAL VALUES FOR ITR REC TYPE           2024078 * 00000682
+* 04/30/98 ADDED NEW FIELDS FOR DYNAMIC EORS                  9913482 * 00000683
+* 06/27/97 ADDED ITR PROCESSING INFORMATION FOR ITR           9910846 * 00000684
+*          RESOLUTION.  REMOVED CDR BUILD INFORMATION.        9910846 * 00000685
+* 09/05/95 YEAR 2000 DATE FORMATS J, K, M, AND N.             2602675 * 00000686
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*             ITCAFCL  DS    XL1         FILE CONVERSION LEVE 2602105 * 00000689
+*             ITCARCL  DS    XL1         REC CONVERSION LEVEL 2602105 * 00000690
+*             ITRLMNT  DS    0CL28       LAST MAINT INFO      2602105 * 00000691
+*          REPLACED LAST MAINT TERM ID                        2602105 * 00000692
+*             ITCACHID DS    CL8         CA CHANGE ID         2602105 * 00000693
+*          CHANGED FILLER LENGTH AND MOVED IT                 2602105 * 00000694
+*                      DS    CL4         FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+TSTSITR  DSECT                                                          00000700
+ITR      DS    0X                                                       00000800
+         DS    CL4                   FILLER                   2501474   00000900
+ITRKEY   DS    0CL4                  KEY                                00001200
+ITRTERM  DS    CL4                   TERMINAL ID                        00001300
+ITCAFCL  DS    XL1                   FILE CONVERSION LEVEL      2602105 00001310
+ITCARCL  DS    XL1                   FILE CONVERSION LEVEL      2602105 00001320
+ITRLMNT  DS    0CL28                 LAST MAINT INFO            2602105 00001330
+ITRLMDAT DS    CL6                   LAST MAINT DATE                    00001400
+ITRLMTIM DS    CL6                   LAST MAINT TIME                    00001500
+ITRLMEMP DS    CL8                   LAST MAINT EMPLOYEE ID             00001600
+ITCACHID DS    CL8                   CA CHANGE ID               2602105 00001710
+         DS    CL4                   FILLER                     2602105 00001720
+ITRADCLS DS    CL10                  TTR CLASS                          00001800
+ITRTRMDS DS    CL10                  TERMINAL DESCRIPTION               00002000
+ITRPHYLC DS    CL4                   PHYSICAL LOCATION (BRANCH)         00002100
+ITRNXTDY DS    CL1                   NEXT DAY PROCESSING AVAILABLE      00002200
+ITRTRAIN DS    CL1                   TRAINING                           00002300
+*                                            VALUES: 0 - NO             00002400
+*                                                    1 - YES (DEFAULT)  00002500
+ITRNSOS  DS    CL1                   NUMBER OF ALLOWABLE SIGN ONS       00002600
+ITRRPTLV DS    CL12                  REPORT LEVELS 1 - 4                00002700
+ITREORGP DS    CL2                   EOR FILE GROUP                     00002800
+ITRAORAD DS    XL4                   AOR ADDRESS                        00002900
+ITRCBLAD DS    XL4                   CBL ADDRESS                        00003000
+ITRDCRAD DS    XL4                   DCR ADDRESS                        00003100
+         DS    XL4                   FILLER                             00003200
+ITRSERAD DS    XL4                   SER ADDRESS                        00003300
+ITRSORAD DS    XL4                   SOR STEM ADDRESS                   00003400
+ITRTARAD DS    XL4                   TAR ADDRESS                        00003500
+ITRTTRAD DS    XL4                   TTR ADDRESS                        00003600
+ITRVCRAD DS    XL4                   VCR INDEX ADDRESS                  00003700
+ITRVTRAD DS    XL4                   VTR ADDRESS                        00003800
+ITRVDRAD DS    XL4                   VDR ADDRESS              0722348   00003810
+         DS    XL16                  FILLER                   2601063   00003900
+*                                                                       00004000
+ITRFDRX  DS    XL4                   FDR INDEX ADDRESS                  00004200
+ITRICRX  DS    XL4                   ICR INDEX ADDRESS                  00004300
+ITRSDRX  DS    XL4                   SDR INDEX ADDRESS                  00004400
+ITRSORX  DS    XL4                   SOR INDEX ADDRESS                  00004500
+ITRTBRX  DS    XL4                   TBR INDEX ADDRESS                  00004600
+ITRTCRX  DS    XL4                   TCR INDEX ADDRESS                  00004700
+ITRSSRX  DS    XL4                   SSR INDEX ADDRESS        2501276   00004710
+ITROPAX  DS    XL4                   SASIOPTA INDEX ADDRESS   1436560   00004720
+         DS    XL4                   FILLER                   1436560   00004800
+ITRBCRDX DS    0XL36                 BCR INDEX ADDRESSES                00004900
+ITRBCRX1 DS    0XL6                  1ST OCCUR OF BCR INDEX ENTRY       00005000
+ITRBCRAP DS    CL2                   BCR INDEX APPLICATION              00005100
+ITRBCRX  DS    XL4                   BCR INDEX ADDRESS                  00005200
+ITRBCRX2 DS    XL30                  2ND-6TH OCCUR OF BCR INDEX ENTRY   00005300
+*                                                                       00005400
+         DS    CL3                   FILLER                             00005500
+ITRSNON  DS    0CL36                 TELLER SIGN ON INFORMATION         00005600
+ITRSNON1 DS    0CL18                 1ST OCCUR OF TELLER SIGN ON INFO   00005700
+ITREMPID DS    CL8                   EMPLOYEE ID (TELLER NUMBER)        00005800
+ITRSOTIM DS    CL6                   SIGNON TIME                        00005900
+ITRSOATT DS    XL2                   NUMBER OF SIGNON ATTEMPTS          00006000
+         DS    XL2                   FILLER                             00006100
+ITRSNON2 DS    CL18                  2ND OCCUR OF TELLER SIGN ON INFO   00006200
+*                                                                       00006300
+ITRBGNTM DS    PL3                   DAILY BEGIN TIME                   00006400
+*                                         VALUE:  ZEROES - DEFAULT      00006500
+ITRENDTM DS    PL3                   DAILY END TIME                     00006600
+*                                         VALUE:  ZEROES - DEFAULT      00006700
+*                                                                       00006800
+ITRBG1TM DS    PL3                   SUNDAY BEGIN TIME                  00006900
+ITREN1TM DS    PL3                   SUNDAY END TIME                    00007000
+*                                                                       00007100
+ITRBG2TM DS    PL3                   SATURDAY BEGIN TIME                00007200
+ITREN2TM DS    PL3                   SATURDAY END TIME                  00007300
+*                                                                       00007400
+ITRBG3TM DS    PL3                   HOLIDAY BEGIN TIME                 00007500
+ITREN3TM DS    PL3                   HOLIDAY END TIME                   00007600
+*                                                                       00007700
+         DS    CL8                   FILLER                             00007800
+*                                                                       00007900
+ITREDFLG DS    CL1                   ENABLE / DISABLE FLAG              00008000
+ITRPRTYP DS    CL1                   ITR PROCESS TYPE FLAG    9910846   00008100
+*                                    VALUE: 0-ORIG ITR PROC   9910846   00008120
+*                                           1-DYN ITR PROC    9910846   00008140
+*                                           2-ITR CTL BLOCK   9910846   00008160
+ITRBLDPH DS    CL8                   ITR BUILD PHASE NAME     9910846   00008180
+ITRAUTOS DS    CL1                   AUTO-SIGNON FLAG         9910846   00008200
+*                                    VALUE: 0-NO AUTO-SIGNON  9910846   00008220
+*                                           1-AUTO-SIGNON     9910846   00008240
+ITRRETYP DS    CL2                   ITR RECORD TYPE          9910846   00008260
+*                                    VALUE: GN-GN MODEL REC   9910846   00008280
+*                                           OG-ORIG ITR REC   9910846   00008300
+*                                           DY-DYN ITR REC    9910846   00008320
+*                                           MA-MPS MODEL REC  2024078   00008322
+*                                           IP-TCP/IP MODEL   2024078   00008324
+*                                           MQ-MQ MODEL REC   2024078   00008326
+ITRREBLD DS    CL1                   DYNAMIC ITR REBUILD FLG  9910846   00008340
+*                                    VALUE: 0-DON'T REBLD ITR 9910846   00008360
+*                                           1-REBUILD THE ITR 9910846   00008380
+ITRMODEL DS    CL1                   MODEL USE FLAG           9910846   00008400
+*                                    VALUE: 0-NOT A MODEL REC 9910846   00008420
+*                                           1-THIS IS A MODEL 9910846   00008440
+ITRMULTI DS    CL1                   MULTI-INSTALL PROC FLG   9910846   00008460
+*                                    VALUE: 0-SINGLE INST     9910846   00008480
+*                                           1-MULTI-SYSTEM    9910846   00008500
+ITRBATFL DS    CL1                   ITRCB BATCH FLAG         9910846   00008520
+*                                    VALUE: 0-NOT USED        9910846   00008540
+*                                           1-USE DFLT RPTLVLS9910846   00008560
+*                                             PHYS LOC FILOG  9910846   00008580
+*                                             REFORMAT        9910846   00008600
+*                                           2-PROCESS FILOG   9910846   00008620
+*                                             REFMT VIA USER  9910846   00008640
+*                                             RTN             0324669   00008645
+*                                           3-PROCESS FILOG   0324669   00008650
+*                                             REFMT VIA USER  0324669   00008655
+*                                             RTN W FILXR REC 0324669   00008660
+ITREIDFL DS    CL1                   ITRCB EID FLAG           2024239   00008665
+*                                    VALUE: 0-NOT USED        2024239   00008670
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024239   00008674
+*                                           1-USE FOR MDL DFLT          00008675
+         DS    CL1                   FILLER                   2024239   00008680
+*                                                                       00008700
+ITRTZFCT DS    CL1                   TIME ZONE FACTOR                   00008800
+*                                        VALUES: SPACE - NO (DEFAULT)   00008900
+*                                                  (-) - NEGATIVE       00009000
+*                                                  (+) - POSITIVE       00009100
+ITRTZHRS DS    XL2                   TIME ZONE HOURS                    00009200
+*                                        VALUES: ZEROES - DEFAULT       00009300
+ITRTZMNS DS    XL2                   TIME ZONE MINUTES                  00009400
+*                                        VALUES: 00 OR 30               00009500
+ITRDFORM DS    CL1                   SCREEN DATE FORMAT                 00009600
+*                                        VALUES:                        00009700
+*                                 NO TIME/ZONE FACTOR REQUIRED          00009800
+*                                                                       00009900
+*                                 '1' - JULIAN    - DDDYY               00010000
+*                                 '2' - JULIAN    - YYDDD               00010100
+*                                 '3' - GREGORIAN - YYMMDD              00010200
+*                                 '4' - GREGORIAN - YYYYMMDD            00010300
+*                                 '5' - GREGORIAN - MMDDYY              00010400
+*                                 '6' - GREGORIAN - MMDDYYYY            00010500
+*                                 '7' - GREGORIAN - DDMMYY              00010600
+*                                 '8' - GREGORIAN - DDMMYYYY (DEFAULT)  00010700
+*                                 'J' - JULIAN    - CCYYDDD  2602675    00010710
+*                                 'K' - JULIAN    - DDDCCYY  2602675    00010720
+*                                                                       00010800
+*                                   REQUIRE TIME/ZONE FACTOR            00010900
+*                                                                       00011000
+*                                 'A' - TIME ZONED JULIAN  - DDDYY      00011100
+*                                 'B' - TIME ZONED JULIAN  - YYDDD      00011200
+*                                 'C' - TIME ZONED GREG    - YYMMDD     00011300
+*                                 'D' - TIME ZONED GREG    - YYYYMMDD   00011400
+*                                 'E' - TIME ZONED GREG    - MMDDYY     00011500
+*                                 'F' - TIME ZONED GREG    - MMDDYYYY   00011600
+*                                 'G' - TIME ZONED GREG    - DDMMYY     00011700
+*                                 'H' - TIME ZONED GREG    - DDMMYYYY   00011800
+*                                 'M' - TZ JULIAN - CCYYDDD  2602675    00011810
+*                                 'N' - TZ JULIAN - DDDCCYY  2602675    00011820
+*                                                                       00011900
+ITREORTY DS    CL1                   EOR PROCESS TYPE FLAG    9913482   00012000
+*                                    VALUE: 0-ORIG EOR PROC   9913482   00012002
+*                                           1-DYN EOR PROC    9913482   00012004
+ITREORRB DS    CL1                   DYNAMIC EOR REBUILD FLG  9913482   00012010
+*                                    VALUE: 0-DON'T REBLD EOR 9913482   00012012
+*                                           1-REBUILD THE EOR 9913482   00012014
+*                                           2-LINK FOR SECRTY 9913482   00012016
+*                                           3-LINK SEC+RBLD   9913482   00012018
+ITREORMP DS    CL8                   EOR MODEL POINTER        9913482   00012020
+ITRASNON DS    0CL16                 ADMIN SIGN  ON INFO                00012100
+ITRAEMPI DS    CL8                   EMPLOYEE ID (TELLER NUMBER)        00012200
+ITRASOTM DS    CL6                   SIGNON TIME                        00012300
+ITRASOAT DS    XL2                   NUMBER OF SIGNON ATTEMPTS          00012400
+         DS    XL5                   FILLER                   2501474   00012500
+*                                                                       00013700
+ITREND   EQU   *                     SYMBOLIC END OF ITR                00013800
+ITRLEN   EQU   *-ITR                 SYMBOLIC LENGTH OF ITR             00013900

@@ -1,0 +1,56 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+&NAME    SAD9REPA &DSECT=YES,      DSECT = YES(DSECT) OR NO(CSECT)     X00002000
+               &PFIXAR=NO,         PREFIX AREA S/B PRESENT             X00003000
+               &PREFIX=SAREP       PREFIX = 1-5 CHAR PREFIX FOR NAMES   00004000
+*********************************************************************** 00005000
+* SAD9REPA:  REPOSITORY BASE DATA LAYOUT (KEY + AUDIT SEGMENT)        * 00006000
+*********************************************************************** 00007000
+*                      HISTORY OF REVISIONS                           * 00008000
+* DESCRIPTION                                                 CHNGID  * 00009000
+* ----------------------------------------------------------  ------- * 00010000
+* 10/01/02 PROVIDE ELEMENTARY ITEMS FOR CHANGE ID             0324574 * 00010996
+* 09/25/97 INCLUDE ENTITY SEGMENT LENGTH IN AUDIT SEGMENT     9913569 * 00010998
+* 01/15/95 INITIAL DISTRIBUTION                               2602105 * 00011000
+*********************************************************************** 00012000
+         LCLC  &PF                                                      00013000
+&PF      SETC  '&PREFIX'                                                00014000
+         AIF   ('&DSECT' NE 'YES').CSECT                                00015000
+&PF      DSECT                                                          00016000
+         AGO   .CODE                                                    00017000
+.CSECT   ANOP                                                           00018000
+&PF      EQU   *                                                        00019000
+.CODE    ANOP                                                           00020000
+&PF.BAS  EQU   *                   REP DFN REC START                    00021000
+         AIF   ('&PFIXAR' NE 'YES').KEY                                 00022000
+&PF.LEN  DS    HL2                 REP REC LENGTH                       00023000
+.KEY     ANOP                                                           00024000
+&PF.KEY  DS   0CL25                REP REC KEY                          00025000
+&PF.KYM  DS   0CL13                REP REC KEY (APPL-TYPE-NAME)         00026000
+&PF.APP  DS    CL2                 REP APPLICATION CODE                 00027000
+&PF.TYP  DS    CL3                 REP ENTITY TYPE                      00028000
+&PF.NAM  DS    CL8                 REP ENTITY NAME                      00029000
+&PF.SEQ  DS    CL8                 REP ENTITY RECORD SEQ CTL            00030000
+&PF.NDX  DS    CL4                 REP REC INDEX                        00031000
+&PF.ASG  DS   0CL32                AUDIT SEGMENT                        00032000
+&PF.AUD  DS   0CL24                AUDIT: LAST MNTE DATA                00033000
+&PF.LMD  DS    PL4                 AUDIT: LAST MNTE DATE-YYMMDD         00034000
+&PF.LMT  DS    PL4                 AUDIT: LAST MNTE TIME-HHMMSS         00035000
+&PF.SOU  DS   0CL8                 AUDIT: LAST MNTE SOURCE              00036000
+&PF.OPR  DS    CL8                 AUDIT: LAST MNTE OPERATOR            00037000
+&PF.CID  DS   0CL8                 AUDIT: LAST MNT DIST CTL   0324574   00038000
+&PF.APL  DS    CL2                 AUDIT: DISTRIBUTION APPL   0324574   00038100
+&PF.RSC  DS    CL4                 AUDIT: RSEC NUMBER         0324574   00038200
+&PF.DCT  DS    CL2                 AUDIT: DISTRIBUTION CTL ID 0324574   00038300
+&PF.ESL  DS    FL4                 AUDIT: ENTITY SEGMENT LNGTH9913569   00039000
+&PF.FLV  DS    XL1                 AUDIT: FILE FORMAT LEVEL             00040000
+&PF.RLV  DS    XL1                 AUDIT: RECORD FORMAT LEVEL           00041000
+         DS    XL2                 RESERVED                             00042000
+&PF.BLN  EQU   *-&PF.BAS           REP BASE LEN (OFFSET TO #FLDS FLD)   00043000
+&PF.#FL  DS    XL1                 # DATA FIELDS / SAREP RECORD         00044000
+* THE FOLLOWING DATA CONSISTS OF                                        00045000
+*        1 BYTE OF LENGTH                                               00046000
+*        N BYTES OF DATA                                                00047000
+&PF.VAR  DS    (4096-(*-&PF.KEY))C VARIABLE DATA (FLD LEN + DATA)       00048000
+&PF.BSZ  EQU   *-&PF.KEY           SIZE OF REPOSITORY DATA BUFFER       00049000
+         MEND                                                           00050000

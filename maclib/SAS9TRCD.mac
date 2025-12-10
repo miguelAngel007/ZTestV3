@@ -1,0 +1,42 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00000000
+* * * * * *              S  A  T  R  A  C  E                * * * * * * 00001000
+*                                                                     * 00002000
+*   SA WRAP-AROUND TRACE TABLE DAG                                    * 00003000
+*   SAS9TRCD COPYA                                                    * 00004000
+*********************************************************************** 00005000
+         SPACE                                                          00006000
+*********************************************************************** 00007000
+* THE SA TRACE TABLE DAG CAN BE FOUND BY SCANNING THE DAG TABLE FOR   * 00008000
+* ENTRY 'SATRACE'.  THE DAG TABLE CAN BE FOUND NOT FAR BEHIND THE SACB* 00009000
+* BY LOOKING FOR EYE-CATCHER 'DAGTAB'.  THE SACB ALSO HAS AN EYE-     * 00010000
+* CATCHER, 'SACB'.  THE SACB IS POINTED TO BY R9 IF SASERV IS IN CON- * 00011000
+* TROL.  THE SACB ADDRESS IS ALSO THE FIRST 4 BYTES OF THE GCA.       * 00012000
+*                                                                     * 00013000
+* THE TRACE TABLE IS A WRAP-AROUND TABLE.  THE FIRST WORD IN THE TABLE* 00014000
+* IS THE ADDRESS OF THE CURRENT OR MOST RECENTLY ADDED ENTRY.  THE    * 00015000
+* SECOND WORD IS THE ADDRESS OF THE LAST TABLE ENTRY.  THE 48-BYTE    * 00016000
+* TRACE TABLE ENTRIES FOLLOW IMMEDIATELY THEREAFTER.                  * 00017000
+*********************************************************************** 00018000
+         SPACE                                                          00019000
+STRACE   DSECT          POS.        TRACE ENTRY                         00020000
+STRCALLR DS    CL8      1-8         NAME OF THE API MODULE MOST RECENT- 00021000
+*                                    LY INVOKED; HOPEFULLY, IT IS ALSO  00022000
+*                                    THE MODULE INVOKING THE SERVICE    00023000
+*                                    WHICH CAUSED THIS TRACE ENTRY.     00024000
+STRVERB  DS    CL8      9-16        SA VERB CHARACTER STRING            00025000
+STRRETCD DS    XL8     17-24        RETURN CODE FOR THE SERVICE, IF     00026000
+*                                    COMPLETE.                          00027000
+STRPARMS DS    XL4     25-28        ADDRESS OF THE PARAM LIST SENT      00028000
+*                                    BY THE CALLER, STARTING WITH THE   00029000
+*                                    FIRST PARAMETER AFTER THE VERB.    00030000
+STRR14   DS    XL4     29-32        THE CALLER'S R14 (STANDARD LINK-    00031000
+*                                    AGE RETURN POINT IN THE CALLER.    00032000
+STRVDATA DS    CL16    33-48        VARIABLE DATA, DEPENDING ON THE     00033000
+*                                    VERB.                              00034000
+STREND   EQU   *                                                        00035000
+STRLGTH  EQU   STREND-STRACE                                            00036000
+         SPACE                                                          00037000
+* * * * * *              S  A  T  R  A  C  E                * * * * * * 00038000
+*********************************************************************** 00039000
+         SPACE 3                                                        00040000

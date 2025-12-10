@@ -1,0 +1,25 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*****************************************************************       00000100
+*       SYSTEM LOG RECORD(S)                                    *       00000200
+*                                                               *       00000300
+*          LOG RECORDS MAY CONTAIN UP TO 100 DETAILS EACH       *       00000400
+*             81 BYTES IN LENGTH INCLUDING THE FORMAT TYPE      *       00000500
+*             BYTE.                                             *       00000600
+*                                                               *       00000700
+*          THIS ENTIRE AREA IS STORED IN DYNAMIC STORAGE AND    *       00000800
+*             THE ADDRESS OF THE AREA IS PASSED VIA LINKAGE     *       00000900
+*             TO TSTSSLG1 TO WRITE LOG RECORDS TO THE LOG FILE. *       00001000
+*                                                               *       00001100
+*****************************************************************       00001200
+TSSLGWK  DSECT                         / SYSTEM LOG RECORD DSECT      / 00001300
+TSSLGAR  DS    0XL8102                 / LOG RECORD AREA              / 00001400
+TSSLGNM  DS    XL2                     / LOG RECORD NUMBER OF OCC.    / 00001500
+TSSLG    DS    XL8100                  / LOG DETAIL AREA              / 00001600
+TSSLGOCC DSECT                         / LOG RECORD OCCURRENCE DSECT  / 00001700
+TSSLGDET DS    0XL81                   / LOG RECORD DETAIL            / 00001800
+TSSLGFMT DS    XL1                     / LOG RECORD FORMAT            / 00001900
+*                                      /   'N' = NEW/OLD DATA         / 00002000
+*                                      /   'T' = TEXT                 / 00002100
+*                                      /   'C' = CONVERT BIT SETTINGS / 00002200
+TSSLGTXT DS    XL80                    / LOG RECORD DETAIL TEXT       / 00002300
+TSSLGLNG EQU   *-TSSLGOCC              / LOG RECORD OCCURRENCE LENGTH / 00002400

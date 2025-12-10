@@ -1,0 +1,18 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------*       00000100
+*                TRANSACTION SYSTEM                             *       00000200
+*                SOR-3 TS SECURITY FIELDS FOR LASERACCESS       *       00000300
+*                                                               *       00000400
+*  THIS COPYBOOK IS USED TO REDEFINE THE LAST 408 BYTES OF      *       00000500
+*  THE SOR RECORD FOR LASERACCESS SECURITY PURPOSES.            *       00000600
+*                                                               *       00000700
+*---------------------------------------------------------------*       00000800
+         ORG   SORAPTS                                                  00000900
+ODSECRTY DS    0CL402             LASERACCESS SECURITY FIELDS           00001000
+ODAOR    DS    CL10               AOR CLASS                             00001100
+ODTSF    DS    CL1                TS AUTHORIZATION FLAG                 00001200
+         DS    CL49               FILLER                                00001300
+*                                 30 APPL IDS  X  2 BYTES               00001400
+ODRPTNMS DS    6CL57              INCLUDE/EXCLUDE REPORT NAME GROUPS    00001500
+*                                 GROUP = 7 RPT NAMES + 1 INC/EXC FLG   00001600
+         DS    CL6                FILLER                                00001700

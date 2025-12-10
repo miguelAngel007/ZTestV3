@@ -1,0 +1,237 @@
+         MACRO
+&LABEL   DFXMDF &TYPE=FIELD,&OCCURS=,&LINES=1,                         X
+               &POS=,&LENGTH=,&PICIN=,&PICOUT=,&ATTRB=,&INITIAL=,      X
+               &HILIGHT=OFF
+         GBLC   &PICINW(100),&PICOUTW(100),&POSCW(100)
+         GBLC   &HILIGHZ(100)
+         GBLC   &PICINZ(100),&PICOUTZ(100)
+         GBLC   &ATTRBW(100),&INITIALW(100),&LABELW(100),&ATTW
+         GBLC   &MDINAME,&NAMEW(10)
+         GBLC   &EXTATSD
+         GBLC   &EXTATSM
+         GBLA   &LENGTHW(100),&LINEW(100),&NINIT,&NUMWG(10),&NN
+         GBLA   &NUMW(10),&NUMCW,&OCCW(10),&INC,&LIN,&POSA
+         GBLA   &NUMX(10)
+         LCLC   &LAB
+         LCLA   &N,&Z,&L,&POSX,&I,&J
+         LCLC   &S,&AT(10),&C,&Q,&ST
+&Q       SETC   ''''
+         AIF    (K'&LABEL LT 6).CONT1
+         MNOTE  6,'LABEL NO PUEDE TENER MAS DE 5 CHAR'
+         MEXIT
+.CONT1   ANOP
+         AIF    ('&TYPE' NE 'INITIAL').OTRO
+.********************************** INITIAL *******************
+&NINIT   SETA   &NINIT+1
+         AIF    (&NINIT GT 10).EINIT
+&NAMEW(&NINIT)   SETC   '&LABEL'
+&NUMW(&NINIT)    SETA   &NN+1
+&NUMX(&NINIT)    SETA   0
+&NUMCW   SETA   0
+&INC     SETA   0
+&OCCW(&NINIT)    SETA   &OCCURS
+&LIN     SETA   &LINES
+         AIF    ('&NAMEW(&NINIT)' NE '').SINIT
+&NAMEW(&NINIT) SETC '&MDINAME'
+.SINIT   MEXIT
+.EINIT   MNOTE 8,'ERROR, MAS DE 10 INITIAL'
+         MEXIT
+.OTRO    ANOP
+         AIF    ('&TYPE' NE 'FIELD').OTROF
+.********************************** FIELDS ********************
+&NN      SETA   &NN+1
+&NUMX(&NINIT)  SETA  &NUMX(&NINIT)+1
+&LINEW(&NN)      SETA  &POS(1)
+&LABELW(&NN)     SETC '&LABEL'
+         AIF     ('&POS(2)' NE '*').NOAST
+&POSX    SETA    &POSA
+         AGO     .AST
+.NOAST   ANOP
+         AIF     ('&POS(2)' EQ '*').AST
+&POSX    SETA    &POS(2)
+.AST   ANOP
+&POSCW(&NN)      SETC '&POSX'
+&POSA    SETA    &POSX+&LENGTH+1
+&ATTRBW(&NN)     SETC '&ATTRB'
+&LENGTHW(&NN)    SETA &LENGTH
+&INITIALW(&NN)   SETC '&INITIAL'
+&HILIGHZ(&NN)    SETC '&HILIGHT'
+         AIF    ('&PICIN' EQ '').NOPICIN
+&PICINZ(&NN)     SETC '&PICIN'(2,K'&PICIN-2)
+&PICINW(&NN)     SETC '&PICIN'
+         AGO    .SIPICIN
+.NOPICIN ANOP
+&PICINW(&NN)     SETC '&Q.'.'X('.'&LENGTH'.')'.'&Q'
+&PICINZ(&NN)     SETC 'X('.'&LENGTH'.')'
+.SIPICIN ANOP
+         AIF    ('&PICOUT' EQ '').NOPICOU
+&PICOUTZ(&NN)     SETC '&PICOUT'(2,K'&PICOUT-2)
+&PICOUTW(&NN)     SETC '&PICOUT'
+         AGO    .SIPICOU
+.NOPICOU ANOP
+&PICOUTW(&NN)     SETC '&Q.'.'X('.'&LENGTH'.')'.'&Q'
+&PICOUTZ(&NN)     SETC 'X('.'&LENGTH'.')'
+.SIPICOU ANOP
+.**************************************
+.* LOOP PARA ENCONTRAR IC
+.**************************************
+&N       SETA   0
+&Z       SETA   0
+         AIF    (&NUMCW GT 0).SALEF
+.LOOPF   ANOP
+&N       SETA   &N+1
+         AIF    (&N GT N'&ATTRB).SALEF
+         AIF    ('&ATTRB(&N)' NE 'IC').LOOPF
+&NUMCW   SETA   &NUMX(&NINIT)
+.**************************************
+.* LOOP PARA ENCONTRAR IC
+.**************************************
+&N       SETA   0
+.LOOP1F  ANOP
+&N       SETA   &N+1
+         AIF    (&N GT N'&ATTRB).SALEF1
+         AIF    ('&ATTRB(&N)' EQ 'IC').LOOP1F
+&Z       SETA   &Z+1
+&AT(&Z)  SETC   '&ATTRB(&N)'
+         AGO    .LOOP1F
+.SALEF1  ANOP
+&L       SETA   0
+&ATTW    SETC   '('
+.LOOPF2  ANOP
+&L       SETA   &L+1
+         AIF    (&L GT &Z).SALEF2
+&ATTW    SETC   '&ATTW'.'&AT(&L)'
+         AIF    (&L EQ &Z).LOOPF2
+&ATTW    SETC   '&ATTW'.','
+         AGO    .LOOPF2
+.SALEF2  ANOP
+&ATTW    SETC   '&ATTW'.')'
+.SALEF   MEXIT
+.OTROF   ANOP
+         AIF    ('&TYPE' NE 'FINAL').SALES
+.********************************** FINAL  ********************
+         MNOTE *,'***************************************************'
+&ST      SETC   '123456789ABCDEFGHIJKLMNOPQRST'
+.**************************************
+.* LOOP PARA GENERAR CAMPOS
+.**************************************
+&Z       SETA   0
+.LOOPG   ANOP
+&Z       SETA   &Z+1
+         AIF    (&Z GT &OCCW(&NINIT)).SALEG
+&N       SETA   0
+.LOOPE   ANOP
+&J       SETA   &N+&NUMW(&NINIT)
+&N       SETA   &N+1
+&L       SETA   &LINEW(&J)+&INC
+&S       SETC   '&ST'(&Z,1)
+&LAB     SETC   ''
+         AIF    ('&LABELW(&J)' EQ '').SALTA
+&LAB     SETC   '&LABELW(&J)'.'&S'
+.SALTA   ANOP
+         AIF   (K'&INITIALW(&J) LT 3).NINIT
+&C       SETC  '&INITIALW(&J)'(2,K'&INITIALW(&J)-2)
+.NINIT   ANOP
+         AIF    (&N LE &NUMX(&NINIT)).LOOPMD
+&INC     SETA  &INC+&LIN
+         AGO   .LOOPG
+.LOOPMD  ANOP
+         AIF    (&N EQ &NUMCW AND &Z NE 1).ICE
+         AIF    (&EXTATSM).MD1
+         MNOTE *,'&LAB     DFHMDF POS=(&L,&POSCW(&J)),'
+         MNOTE *,'                LENGTH=&LENGTHW(&J),'
+         MNOTE *,'                ATTRB=&ATTRBW(&J),'
+         MNOTE *,'                INITIAL=&C,'
+         MNOTE *,'                PICIN=&PICINZ(&J),'
+         MNOTE *,'                PICOUT=&PICOUTZ(&J)'
+&LAB     DFHMDF POS=(&L,&POSCW(&J)),                                   X
+               LENGTH=&LENGTHW(&J),                                    X
+               ATTRB=&ATTRBW(&J),                                      X
+               INITIAL=&INITIALW(&J),                                  X
+               PICIN=&PICINW(&J),                                      X
+               PICOUT=&PICOUTW(&J)
+         AGO   .LOOPE
+.MD1     ANOP
+         MNOTE *,'&LAB     DFHMDF POS=(&L,&POSCW(&J)),'
+         MNOTE *,'                LENGTH=&LENGTHW(&J),'
+         MNOTE *,'                ATTRB=&ATTRBW(&J),'
+         MNOTE *,'                HILIGHT=&HILIGHZ(&J),'
+         MNOTE *,'                INITIAL=&C,'
+         MNOTE *,'                PICIN=&PICINZ(&J),'
+         MNOTE *,'                PICOUT=&PICOUTZ(&J)'
+&LAB     DFHMDF POS=(&L,&POSCW(&J)),                                   X
+               LENGTH=&LENGTHW(&J),                                    X
+               ATTRB=&ATTRBW(&J),                                      X
+               HILIGHT=&HILIGHZ(&J),                                   X
+               INITIAL=&INITIALW(&J),                                  X
+               PICIN=&PICINW(&J),                                      X
+               PICOUT=&PICOUTW(&J)
+         AGO   .LOOPE
+.ICE     ANOP
+         AIF    (&EXTATSM).MD2
+         MNOTE *,'&LAB     DFHMDF POS=(&L,&POSCW(&J)),'
+         MNOTE *,'                LENGTH=&LENGTHW(&J),'
+         MNOTE *,'                ATTRB=&ATTW,   '
+         MNOTE *,'                INITIAL=&C,'
+         MNOTE *,'                PICIN=&PICINZ(&J),'
+         MNOTE *,'                PICOUT=&PICOUTZ(&J)'
+&LAB     DFHMDF POS=(&L,&POSCW(&J)),                                   X
+               LENGTH=&LENGTHW(&J),                                    X
+               ATTRB=&ATTW,                                            X
+               INITIAL=&INITIALW(&J),                                  X
+               PICIN=&PICINW(&J),                                      X
+               PICOUT=&PICOUTW(&J)
+         AGO   .LOOPE
+.MD2     ANOP
+         MNOTE *,'&LAB     DFHMDF POS=(&L,&POSCW(&J)),'
+         MNOTE *,'                LENGTH=&LENGTHW(&J),'
+         MNOTE *,'                ATTRB=&ATTW,   '
+         MNOTE *,'                HILIGHT=&HILIGHZ(&J),'
+         MNOTE *,'                INITIAL=&C,'
+         MNOTE *,'                PICIN=&PICINZ(&J),'
+         MNOTE *,'                PICOUT=&PICOUTZ(&J)'
+&LAB     DFHMDF POS=(&L,&POSCW(&J)),                                   X
+               LENGTH=&LENGTHW(&J),                                    X
+               ATTRB=&ATTW,                                            X
+               HILIGHT=&HILIGHZ(&J),                                   X
+               INITIAL=&INITIALW(&J),                                  X
+               PICIN=&PICINW(&J),                                      X
+               PICOUT=&PICOUTW(&J)
+         AGO   .LOOPE
+.SALEG   ANOP
+         MNOTE *,'STRUCTURE GENERATED, &OCCW(&NINIT) OCURRENCES'
+         MNOTE *,'&NUMW(&NINIT) FIELDS'
+         MNOTE *,'***************************************************'
+         MEXIT
+.SALES   AIF    ('&TYPE' NE 'DSECT').SALEERR
+.********************************** FINAL  ********************
+         AIF    ('&SYSPARM' NE 'DSECT').SALE
+&I       SETA   0
+.LOOPHI  ANOP
+&N       SETA   0
+&I       SETA   &I+1
+         AIF    (&I GT &NINIT).SALE
+         PUNCH  '       01 &NAMEW(&I).S.'
+         PUNCH  '          02 &NAMEW(&I).E OCCURS &OCCW(&I)..'
+.LOOPS   ANOP
+&J       SETA   &NUMW(&I)+&N
+&N       SETA   &N+1
+&LAB     SETC   '&LABELW(&J)'
+         AIF    (&N GT &NUMX(&I)).LOOPHI
+         AIF    ('&LAB' EQ '').LOOPS
+         PUNCH  '             03 &LAB.L     PIC S9(4) COMP.'
+         PUNCH  '             03 &LAB.A     PIC X.'
+    PUNCH  '             03 &LAB.F REDEFINES &LAB.A PIC X.'
+         AIF ('&EXTATSD' EQ '0').BEXTATT
+         PUNCH  '             03 &LAB.C     PIC X.'
+         PUNCH  '             03 &LAB.P     PIC X.'
+         PUNCH  '             03 &LAB.H     PIC X.'
+         PUNCH  '             03 &LAB.V     PIC X.'
+.BEXTATT ANOP
+         PUNCH  '             03 &LAB.I     PIC &PICINZ(&J)..'
+    PUNCH  '             03 &LAB.O REDEFINES &LAB.I PIC &PICOUTZ(&J)..'
+         AGO    .LOOPS
+.SALEERR MNOTE  6,'TYPE ERRADO, CORREGIR'
+         MEXIT
+.SALE    MEXIT
+         MEND

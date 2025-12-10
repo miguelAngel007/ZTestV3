@@ -1,0 +1,40 @@
+*     * 802907*12/05/11 JCTE PROYECTO UPGRADE SYSTEMAT
+*********************************************************************** 00001000
+*  IMPACS ACCUM TRANS RECORD FORMAT  LENGTHS AND DISPLACEMENTS        * 00003000
+*        DS    CL8          KEY                                       * 00004000
+*        DS    XL2          LENGTH                                    * 00005000
+*        DS    XL2          DISPLACEMENT                              * 00006000
+*                                                                     * 00007000
+*********************************************************************** 00008000
+T01LENTB DS    0F                                                       00009000
+T01#ENT  DC    A((T01END-T01BEG)/12)                                    00010000
+T01BEG   DC    0H'0'                                                    00011000
+         DC    C'ACCL    ',H'0058',H'0000'     HEADER RECORD            00012000
+         DC    C'ACCL01  ',H'0132',H'0000'                    0717565   00013001
+         DC    C'ACCL02  ',H'0136',H'0000'                    0717565   00014000
+         DC    C'ACCL03  ',H'0185',H'0000'                    0717565   00015000
+         DC    C'ACCL04  ',H'0163',H'0000'                    0717565   00016000
+         DC    C'ACCL05  ',H'0172',H'0000'     NOT EXPANDED   0717565   00017000
+         DC    C'ACCL06  ',H'0000',H'0000'     NOT USED                 00018000
+         DC    C'ACCL07  ',H'0157',H'0000'                    0717565   00019000
+         DC    C'ACCL08  ',H'0000',H'0000'     NOT USED                 00020000
+         DC    C'ACCL09  ',H'0157',H'0000'                    1020116   00021000
+         DC    C'ACCL10  ',H'0222',H'0000'                    0717565   00022000
+         DC    C'ACCL11  ',H'0169',H'0000'                    0717565   00023000
+         DC    C'ACCL12  ',H'0185',H'0000'                    0717565   00024000
+         DC    C'ACCL13  ',H'0157',H'0000'                    1020116   00025001
+         DC    C'ACCL14  ',H'0226',H'0000'                    0717565   00026000
+         DC    C'ACCL15  ',H'0000',H'0000'     REDEFINED RECORD AREA    00027000
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0717565   00027900
+         DC    C'ACCL16  ',H'0132',H'0000'     SAME AS 01 - NO EXPAND   00028000
+         DC    C'ACCL17  ',H'0186',H'0000'     NOT EXPANDED   0717565   00029000
+         DC    C'ACCL18  ',H'0227',H'0000'     NOT EXPANDED   0717565   00030000
+         DC    C'ACCL19  ',H'0253',H'0000'     NOT EXPANDED   0717565   00031000
+         DC    C'ACCL20  ',H'0146',H'0000'                    0717565   00031100
+         DC    C'ACCLCURR',H'0025',H'0271'                    0717565   00032000
+         DC    C'ACCLEP  ',H'0000',H'0000'                              00033000
+         DC    C'ACCLSRC ',H'0044',H'0227'                    0717565   00034000
+         DC    C'ACCLTRC ',H'0024',H'0227'                    0717565   00035000
+         DC    C'ACCLUDT ',H'0794',H'0296'                    0717565   00036000
+         DC    C'ACCLWUDT',H'0295',H'0000'                    0717565   00037000
+T01END   DC    0H'0'                                                    00038000

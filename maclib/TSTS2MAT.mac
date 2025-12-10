@@ -1,0 +1,51 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                  ** COPYBOOK DESCRIPTION **                         * 00020000
+*                                                                     * 00030000
+*                             TSTS2MAT                                * 00040000
+*                        TRANSACTION SYSTEM                           * 00050000
+*                      MULTIPLE ALERTS TABLE                          * 00060001
+*                                                                     * 00070000
+*---------------------------------------------------------------------* 00080000
+*                  ** HISTORY OF REVISIONS **                         * 00090000
+*                                                                     * 00100000
+* DESCRIPTION                                                 CHGID   * 00110000
+* __________________________________________________________  _______ * 00120000
+* 05/09/14 INITIAL RELEASE                                     GN6642   00130003
+*---------------------------------------------------------------------* 00140000
+*                                                                       00150000
+TSTSMAT  DSECT                                                          00160000
+MAT      DS    0CL314                                                   00170002
+MATLNG   DS    XL2          MAT RECORD LENGTH                           00180000
+*                           MAX. VALUE '+314'                           00190000
+         DS    XL2          FILLER                                      00200000
+MATKEY   DS    0CL60                                                    00210000
+MATSTRNM DS    CL8          STRUCTURE NAME                              00220000
+MATCNTL1 DS    XL2          CONTROL 1                                   00230000
+MATAPPL  DS    CL2          APPL                                        00240000
+MATSRCH  DS    CL48         SEARCH KEY                                  00250000
+*                           MAX. VALUE '+314'                           00251000
+MATLMDT  DS    PL5          DATE                                        00260000
+MATLMTM  DS    PL5          TIME                                        00270000
+MATSTML  EQU   *-MAT        SYMBOLIC LENGTH                             00271000
+*                                                                       00280000
+MATOCC   DS    CL220        1-10                                        00290000
+         DS    CL20         FILLER                                      00300000
+TSMATO   DSECT                                                          00310000
+MATTBL   DS    0CL22        MAT TABLE                                   00320000
+MATUSE   DS    CL1          USE THIS ALERT                              00330000
+MATATY   DS    CL3          ALERT TYPE CODE                             00340000
+MATEXT   DS    CL8          EXIT PROGRAM                                00350000
+MATAPI   DS    CL1          PROGRAM IS API                              00360000
+MATAER   DS    CL1          USE AER ENROLLMENT                          00370000
+MATALL   DS    CL1          ALL TYPES                                   00380000
+MATDB    DS    CL1          DEBIT                                       00390000
+MATCR    DS    CL1          CREDIT                                      00400000
+MATINQ   DS    CL1          INQUIRY                                     00410000
+MATMNT   DS    CL1          MAINTENANCE                                 00420000
+MATOTH   DS    CL1          OTHER                                       00430000
+MATTMO   DS    CL1          TM ONLINE                                   00440000
+MATTMB   DS    CL1          TM BATCH                                    00450000
+MATLEN   EQU   *-MATTBL     SYMBOLIC LENGTH                             00460000
+                                                                        00470000
+                                                                        00480000

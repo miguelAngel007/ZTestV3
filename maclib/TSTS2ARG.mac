@@ -1,0 +1,102 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*                                                                     * 00002000
+*             TSTS2ARG--ARGO MESSAGE FORMAT AFTER TS DELIVERY         * 00003000
+*                                                                     * 00004000
+*                                                                     * 00005000
+*********************************************************************** 00006000
+*---------------------------------------------------------------------* 00006001
+*                   ** HISTORY OF REVISIONS **                        * 00006002
+*                                                                     * 00006003
+*  DESCRIPTION                                                 CHNGID * 00006004
+* ----------------------------------------------------------- ------- * 00006005
+* 03/27/98 NEW COPYBOOK.                                      9913719 * 00006998
+*********************************************************************** 00006999
+*                                                                       00007000
+*  INBOUND HEADER FORMAT: (ARGO TO HOST PROCESSEOR)                     00008000
+*                                                                       00009000
+*   AAAA B C D E F GGGGGG HHH JJJJ KKKKKKKK LLLLLL M NNNNNNNN #         00010000
+*   I  I I I I I I I    I I I I  I I      I I    I I I      I I         00011000
+*   ---- - - - - - ------ --- ---- -------- ------ - -------- -         00012000
+*     I  I I I I I   I     I    I      I       I   I     I    I         00013000
+*     I  I I I I I   I     I    I      I       I   I     I    I- SEG    00014000
+*     I  I I I I I   I     I    I      I       I   I     I       DEL    00015000
+*     I  I I I I I   I     I    I      I       I   I     I              00016000
+*     I  I I I I I   I     I    I      I       I   I     I-- OVERRIDING 00017000
+*     I  I I I I I   I     I    I      I       I   I         OPER ID    00018000
+*     I  I I I I I   I     I    I      I       I   I                    00019000
+*     I  I I I I I   I     I    I      I       I   I--- OVERRIDE TYPE   00020000
+*     I  I I I I I   I     I    I      I       I                        00021000
+*     I  I I I I I   I     I    I      I       I--- ARGO TIME STAMP     00022000
+*     I  I I I I I   I     I    I      I            HHMMSS              00023000
+*     I  I I I I I   I     I    I      I                                00024000
+*     I  I I I I I   I     I    I      I-- ARGO LOGON IDENTICATION      00025000
+*     I  I I I I I   I     I    I                                       00026000
+*     I  I I I I I   I     I    I---- TRANSACTION IDENTIFIER            00027000
+*     I  I I I I I   I     I                                            00028000
+*     I  I I I I I   I     I----- ARGO MESSAGE SEQUENCE NUMBER          00029000
+*     I  I I I I I   I                                                  00030000
+*     I  I I I I I   I                                                  00031000
+*     I  I I I I I   I---- ARGO ARGO TRANSACTION SEQUENCE NUMBER        00032000
+*     I  I I I I I                                                      00033000
+*     I  I I I I I----- NEXT DAY FLAG                                   00034000
+*     I  I I I I                                                        00035000
+*     I  I I I I--- ARGO REVERSAL INDICATOR                             00036000
+*     I  I I I                                                          00037000
+*     I  I I I-- ARGO REENTRY INDICATOR                                 00038000
+*     I  I I                                                            00039000
+*     I  I I-- ARGO EXECEPTION INDICATOR                                00040000
+*     I  I                                                              00041000
+*     I  I-- ARGO CONTROL INDICATOR                                     00042000
+*     I                                                                 00043000
+*     I-- CICS TRANSACTION IDENTIFIER                                   00044000
+*                                                                       00045000
+*                                                                       00046000
+*  INBOUND DATA FORMAT: (ARGO TO HOST PROCESSEOR)                       00047000
+*                                                                       00048000
+*   SID / DATA / DATA / DATA ... #                                      00049000
+*    I  I I  I I I  I I I  I     I                                      00050000
+*    -  - ---- - ---- - ----     -                                      00051000
+*    I  I   I  I   I  I   I      I                                      00052000
+*    I  I   I  I   I  I   I      I                                      00053000
+*    I  I   I  I   I  I   I      I--- SEGMENT DELIMITER (X'FC')         00054000
+*    I  I   I  I   I  I   I                                             00055000
+*    I  I   I  I   I  I   I---------- DATA FIELD                        00056000
+*    I  I   I  I   I  I                                                 00057000
+*    I  I   I  I   I  I-------------- FIELD DELIMITER (X'FA')           00058000
+*    I  I   I  I   I                                                    00059000
+*    I  I   I  I   I----------------- DATA FIELD                        00060000
+*    I  I   I  I                                                        00061000
+*    I  I   I  I--------------------- FIELD DELIMITER (X'FA')           00062000
+*    I  I   I                                                           00063000
+*    I  I   I------------------------ DATA FIELD                        00064000
+*    I  I                                                               00065000
+*    I  I---------------------------- FIELD DELIMITER (X'FA')           00066000
+*    I                                                                  00067000
+*    I------------------------------- SEGMENT IDENTIFIER                00068000
+*                                                                       00069000
+*********************************************************************** 00070000
+*                      ARGO INPUT MESSAGE INPUT AREA                  * 00071000
+*********************************************************************** 00072000
+PARGOMSG DS    0CL2048                 ARGO INPUT MESSAGE               00073000
+         ORG   PARGOMSG                                                 00074000
+PAINMSG  DS    0CL2048                 ARGO INPUT MESSAGE               00075000
+PAARGOID DS    CL4                     CICS TRANSACTION CODE 'ARGO'     00076000
+PAINPIND DS    CL1                     INPUT CONTROL IDENTIFIER '<'     00077000
+PAEXCIND DS    CL1                     EXCEPTION INDICATOR              00078000
+*                                      VALUES: T - TIMEOUT              00079000
+*                                              C - COM ERROR            00080000
+*                                              N - OKAY                 00081000
+PARENIND DS    CL1                     RE ENTRY ID (Y OR N)             00082000
+PAREVIND DS    CL1                     REVERSAL (Y OR N)                00083000
+PANXTDAY DS    CL1                     NEXT DAY (Y OR N)                00084000
+PASEQNUM DS    CL6                     TRANSACTION SEQUENCE NUMBER      00085000
+PAMSGSEQ DS    CL3                     MESSAGE SEQUENCE NUMBER          00086000
+PAEXTTRN DS    CL4                     EXTERNAL TRANCODE                00087000
+PATELID  DS    CL8                     TELLER ID                        00088000
+PATIME   DS    CL6                     TRANSACTION TIME 'HHMMSS'        00089000
+PAOVRTYP DS    CL1                     OVERRIDE TYPE S=SUP T=TELLER     00090000
+PAOVRTEL DS    CL8                     OVERRIDE TELLER ID               00091000
+*SEGDLM  DS    CL1                     SEGMENT DEL (X'FC')              00092000
+PAHDRLNG EQU   *-PAINMSG               LENGTH OF HEADER                 00093000
+PADTARC  DS    CL2003                  REST OF TELLER TRANSMISSION      00094000

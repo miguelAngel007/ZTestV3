@@ -1,0 +1,278 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         SPACE                                                          00000100
+*********************************************************************** 00000200
+*           TSTS2TTC--TRANSACTION CODES FOR TELLER TERMINALS          * 00000300
+*********************************************************************** 00000400
+*-------------------------------------------------------------9910846   00000500
+*                  ** HISTORY OF REVISIONS **                 9910846   00000600
+*                                                             9910846   00000700
+* DESCRIPTION                                                 9910846   00000800
+* __________________________________________________________  9910846   00000900
+*                                                             0525126   00001000
+* 04/28/17 ADD 75MA FOR CICSPLEX                              1727203   00001086
+* 04/24/17 ADD 75FT FOR MQ PROJECT AND 75TM FOR METAVANTE     1727173   00001087
+* 04/06/16 ADD PN VERSION 2 TRAN SET, MATT                    1717026   00001088
+* 09/16/15 ADD PCJS FOR REST / JSON MESSAGES                  1626902   00001089
+* 05/29/14 ADD PN TRANSACTION SET                             1516566   00001090
+* 01/06/14 CORRECT PCLO                                       1436549   00001092
+* 01/18/12 ADD MAS6, MAR6, MATM, MASV                         1236203   00001094
+* 08/19/10 ADD MA5S                                           1035977   00001095
+* 04/14/10 ADDED TSTF FOR PERSISTENT SOCKETS                  1115932   00001098
+* 09/24/09 ADDED MAR5 FOR MA EFUNDS                           1025857   00001100
+* 03/21/07 ADDED TPAE AND TPAH FOR SIMULATION OF XES          0735619   00001200
+* 10/12/06 ADDED TSTW FOR HTTP PERSISTENT SOCKETS             0725556   00001300
+* 08/23/06 ADDED TSMS FOR MQ / XES TRANSACTIONS, AND          0724911   00001400
+*          TCPA AND TCPD FOR TSTC INTERTESTING                0724911   00001500
+* 10/06/06 ADDED DEFAULT ABEND EXIT FOR DAG-BASED MESSAGES    0725549   00001600
+* 03/02/06 ADDED PC26 FOR XES STOP PAYMENT                    0635373   00001700
+* 01/26/06 ADDED MARS AND MASS TO TTC TABLE                   0625437   00001800
+* 01/26/06 ADDED MA55 AND MAS5 TO TTC TABLE                   0615378   00001900
+* 05/17/05 ADDED PCI2 AND PCS2 FOR TP FUND TRANSFER,A/C CLOSE 0525259   00002000
+* 12/15/04 ADDED TLPR TO TTC TABLE FOR PASSBOOK TRANS         0525126   00002100
+* 11/07/04 ADDED PC00 TO TTC TABLE FOR EXTENDED HEADER        0525129   00002200
+*          PROCESSING                                         0525129   00002300
+* 05/02/05 ADDED TRAN CODE MARW FOR ATMS           GN5165     0515165   00002400
+* 05/02/05 ADDED TRAN CODES FOR ICB ACE            GN5165     0515165   00002500
+* 06/16/04 ADDED PCGN FOR DAGBASED GN CTL REC MAINT TRANS     0514798   00002600
+* 08/26/04 ADDED PCUC FOR UC APPLICATION                      0515072   00002700
+* 09/20/04 CHANGE FUNDTECH SEVERITY TO TL                     0435097   00002800
+* 06/29/04 ADD FUNDTECH PCX2 TRANID                           0425045   00002900
+* 09/09/03 CHANGE MQ SEVERITY LEVEL TO PL                     0364780   00003000
+* 06/13/03 ADDED MAR4/MASD ENTRIES FOR MA/ISO8583 DASH        0354810   00003100
+* 04/17/03 ADDED TSTC FOR GN TCP/IP INTERFACE                 0354724   00003200
+* 03/31/03 ADDED MAR3/MASR ENTRIES FOR MA/ISO8583 STAR        0334735   00003300
+* 05/31/02 ADDED BKTS AND STPY TRANCODES                      0314609   00003400
+* 01/26/02 CORRECTED MQT1 TRANCODE TO HAVE 07 INSTEAD OF 05   2024376   00003500
+* 01/26/02 ADDED ITAM TRANSCODE                               2024360   00003600
+* 12/20/00 ADDED XML TRANSCODE                                2024235   00003700
+* 09/06/00 ADDED MQ TRANSCODE                                 2024078   00003800
+* 11/11/99 INCREASE ENTRY SIZE, ADDED NEW FIELDS AND ENTRIES  2022261   00003900
+* 10/05/98 ADDED MAR2/MASI ENTRIES FOR MA/ISO8583 SUPPORT     9913957   00004000
+* 10/07/98 ADDED COMMENTS FOR PC/LU6.2 REQUIREMENTS           9913936   00004100
+* 09/01/98 ADDED ISB LU62 TRAN CODE, PC04                     9913936   00004200
+* 03/26/98 ADDED ARGO TRAN CODE                               9913719   00004300
+* 06/97    ADDED ITR MODEL POINTER FIELD                      9910846   00004400
+*-------------------------------------------------------------9910846   00004500
+**************************************************************9910846   00004600
+*           FORMAT OF TRANSACTION CODE ENTRIES:                       * 00004700
+*           BYTES  1 THRU 4       TRANSACTION CODE                    * 00004800
+*           BYTES  5 THRU 6       TERMINAL TYPE                       * 00004900
+*                                 VALUES: '00' THRU '40' RESERVED     * 00005000
+*                                 VALUES: '41' THRU '99' USER DEFINED * 00005100
+*                   CURRENTLY USED:    '00'   ADMIN (3270)    00701839* 00005200
+*                                      '01'   ISC             00701839* 00005300
+*                                      '02'   IBM 4700        00701839* 00005400
+*                                      '03'   BUNKER RAMO     00701839* 00005500
+*                                      '04'   PC (1-4)        02511817* 00005600
+*                                             TRAN-ID 1 - 4   02511817* 00005700
+*                                      '05'   PC (EMBEDDED)   02511817* 00005800
+*                                             TRAN-ID EMBEDDED02511817* 00005900
+*                                      '04'   MA TRANSACTIONS 9913957 * 00006000
+*                                      '04'   DSPC TEST TRANS LU62TEST* 00006100
+*                                      '04'   DSPC TEST TRANS 2603178 * 00006200
+*                                      '05'   PC (EMBEDDED)   2603178 * 00006300
+*                   NOTE:  FOR PC/LU6.2 TRANSACTIONS, THE     9913936 * 00006400
+*                          TRAN ID MUST BEGIN WITH 'PC' TO    9913936 * 00006500
+*                          ALLOW MODEL ITR PROCESSING         9913936 * 00006600
+*                                      '06'   ARGO            9913936 * 00006700
+*                                      '07'   PCTW            2022261 * 00006800
+*                                      '08'   TSTC TCP/IP     0354724 * 00006900
+*           BYTES  7 THRU 16      TTR CLASS                   9910846 * 00007000
+*           BYTES 17 THRU 18      TTR MNEMONIC                2022261 * 00007100
+*           BYTES 19 THRU 20      MESSAGE SEVERITY LEVEL      2022261 * 00007200
+*           BYTES 21 THRU 22      SOURCE CODE                 2022261 * 00007300
+*           BYTES 23 THRU 30      FOR DAG-BASED MESSAGES, THE 0725549   00007400
+*                                 DEFAULT USER ABEND EXIT     0725549   00007500
+*                                 BLANKS IF NOT DAG-BASED.    0725549   00007600
+*                                 LOW-VALUES IF NO USER EXIT. 0725549   00007700
+*********************************************************************** 00007800
+TSTRNID  DS    0X                      TRAN CODES FOR TELLER TERMINALS  00007900
+         DC    CL4'TPAE',CL2'08',CL10'          ' TCP/IP      0735619   00008000
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0735619   00008100
+         DC    CL4'TPAH',CL2'08',CL10'          ' TCP/IP      0735619   00008200
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0735619   00008300
+         DC    CL4'TSTW',CL2'08',CL10'          ' TCP/IP      0725556   00008400
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0725556   00008500
+         DC    CL4'TSTC',CL2'08',CL10'          ' TCP/IP      0354724   00008600
+         DC    CL2'PL',CL2'PL',CL2'01',X'0000000000000000'    0725549   00008700
+         DC    CL4'TSTF',CL2'08',CL10'          ' TCP/IP      1115932   00008740
+         DC    CL2'PL',CL2'PL',CL2'01',X'0000000000000000'    1115932   00008745
+         DC    CL4'TSMS',CL2'08',CL10'          ' MQ/XES      0724911   00008800
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0724911   00008900
+         DC    CL4'TCPA',CL2'08',CL10'          ' AGGR - INT  0724911   00009000
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0724911   00009100
+         DC    CL4'TCPD',CL2'08',CL10'          ' TSTC - INT  0724911   00009200
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0724911   00009300
+         DC    CL4'TTOH',CL2'01',CL10' '  ISC CICS TRAN CODE  9910846   00009400
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00009500
+         DC    CL4'SINA',CL2'01',CL10' '  ISC DOC PREP CICS TC9910846   00009600
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00009700
+         DC    CL4'TTIS',CL2'02',CL10' '  4700 CICS TRAN CODE 9910846   00009800
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00009900
+         DC    CL4'TSIB',CL2'02',CL10' '  4700 CICS TRAN CODE 9910846   00010000
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00010100
+         DC    CL4'TTIB',CL2'02',CL10' '  4700 CICS TRAN CODE 9910846   00010200
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00010300
+         DC    CL4'TSBT',CL2'03',CL10' '  BUNKER RAMO TRAN CD 9910846   00010400
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00010500
+         DC    CL4'TSBU',CL2'01',CL10' '  UNISYS/BURROUGHS    9910846   00010600
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00010700
+         DC    CL4'PC01',CL2'04',CL10' '  PC BASED            9910846   00010800
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00010900
+         DC    CL4'PC00',CL2'04',CL10' '  PC01 EXTENDED HDR   0525129   00011000
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0525129   00011100
+         DC    CL4'PC02',CL2'05',CL10' '  USE EMBED           9910846   00011200
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00011300
+         DC    CL4'PC04',CL2'05',CL10' '  PC BASED LU62       9913936   00011400
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00011500
+         DC    CL4'PCPL',CL2'07',CL10'MODELPLPC '  LU62 PL    2022261   00011600
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                2022261   00011700
+         DC    CL4'PCXM',CL2'07',CL10'          ' XML MESSAGE 2024235   00011800
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                2024235   00011900
+         DC    CL4'PCJS',CL2'07',CL10'          ' JSON MSG    1626902   00011910
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                1626902   00011920
+         DC    CL4'CWBA',CL2'07',CL10'          ' XML MESSAGE 2024235   00012000
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                2024235   00012100
+         DC    CL4'ARGO',CL2'06',CL10' '  ARGO                2024235   00012200
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00012300
+         DC    CL4'PCGN',CL2'07',CL10'MODELPLPC ' GN DAGBASED 0514798   00012400
+         DC    CL2'PL',CL2'PL',CL2'01',X'0000000000000000'    0725549   00012500
+         DC    CL4'MARS',CL2'04',CL10' '  MA/XCTL LOGIC X9.2  0625437   00012600
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0625437   00012700
+         DC    CL4'MASS',CL2'04',CL10' '  MA/XCTL LOGIC X9.2  0625437   00012800
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0625437   00012900
+         DC    CL4'MAI1',CL2'04',CL10' '  MPS ANSI X9.2       9910846   00013000
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                2022261   00013100
+         DC    CL4'MAR2',CL2'04',CL10' '  MA/XCTL LOGIC       9913957   00013200
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                2022261   00013300
+         DC    CL4'MASI',CL2'04',CL10' '  MA/SIMMODE/XCTLLOGIC9913957   00013400
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                2022261   00013500
+         DC    CL4'MQT1',CL2'07',CL10' '  MQ                  2024376   00013600
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0364780   00013700
+         DC    CL4'TLPR',CL2'07',CL10' '  MQ                  0525126   00013800
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                0525126   00013900
+         DC    CL4'DSPC',CL2'04',CL10' '                      9910846   00014000
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00014100
+         DC    CL4'PCLO',CL2'05',CL10' '                      9910846   00014200
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                1436549   00014300
+         DC    CL4'PCIC',CL2'05',CL10' '                      9910846   00014400
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00014500
+         DC    CL4'PCCL',CL2'05',CL10' '                      9910846   00014600
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00014700
+         DC    CL4'PCAM',CL2'05',CL10' '                      9910846   00014800
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00014900
+         DC    CL4'PCIM',CL2'05',CL10' '                      9910846   00015000
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00015100
+         DC    CL4'PCIF',CL2'05',CL10' '                      9910846   00015200
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00015300
+         DC    CL4'PCRM',CL2'04',CL10' '                      9910846   00015400
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00015500
+         DC    CL4'PCSC',CL2'05',CL10' '                      9910846   00015600
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00015700
+         DC    CL4'PCSM',CL2'05',CL10' '                      9910846   00015800
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00015900
+         DC    CL4'PCST',CL2'05',CL10' '                      2022261   00016000
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00016100
+         DC    CL4'HBTR',CL2'04',CL10' '                      9910846   00016200
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00016300
+         DC    CL4'PCTW',CL2'07',CL10' '                      2022261   00016400
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                2022261   00016500
+         DC    CL4'PCSD',CL2'04',CL10' '                      2022261   00016600
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00016700
+         DC    CL4'PCUC',CL2'05',CL10' '                      0515072   00016800
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                0515072   00016900
+         DC    CL4'SDPC',CL2'05',CL10' '                      2022261   00017000
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                2022261   00017100
+         DC    CL4'ITAM',CL2'05',CL10' '                      2024360   00017200
+         DC    CL2'PL',CL2'PL',CL2'01',CL08' '                2024360   00017300
+         DC    CL4'BKTS',CL2'05',CL10' '  3RD PARTY LU62      0314609   00017400
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                2024500   00017500
+         DC    CL4'STPY',CL2'05',CL10' '  3RD PARTY LU62      0314609   00017600
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                2024500   00017700
+         DC    CL4'MA55',CL2'04',CL10' '  MA/XCTL LOGIC       0615378   00017800
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0615378   00017900
+         DC    CL4'MAS5',CL2'04',CL10' '  MA/XCTL LOGIC       0615378   00018000
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0615378   00018100
+         DC    CL4'MAR3',CL2'04',CL10' '  MA/XCTL LOGIC       0334735   00018200
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0334735   00018300
+         DC    CL4'MASR',CL2'04',CL10' '  MA/SIMMODE/XCTLLOGIC0334735   00018400
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0334735   00018500
+         DC    CL4'MAR4',CL2'04',CL10' '  MA/XCTL LOGIC       0354810   00018600
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0354810   00018700
+         DC    CL4'MASD',CL2'04',CL10' '  MA/SIMMODE/XCTLLOGIC0354810   00018800
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0354810   00018900
+         DC    CL4'PCX2',CL2'05',CL10' '  FUNDTECH  LU62      0425045   00019000
+         DC    CL2'PL',CL2'TL',CL2'01',CL08' '                0435097   00019100
+         DC    CL4'MARW',CL2'04',CL10' '  MA/XCTL LOGIC       0515165   00019200
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                0515165   00019300
+         DC    CL4'PC40',CL2'05',CL10' '  ACE LU62            0515165   00019400
+         DC    CL2'TL',CL2'TL',CL2'01',CL08' '                0515165   00019500
+         DC    CL4'PCI2',CL2'07',CL10' '                      0525259   00019600
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                0525259   00019700
+         DC    CL4'PCS2',CL2'07',CL10' '                      0525259   00019800
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                0525259   00019900
+         DC    CL4'PC26',CL2'04',CL10' '                      0635373   00020000
+         DC    CL2'TL',CL2'AD',CL2'01',CL08' '                0635373   00020100
+         DC    CL4'MAR5',CL2'04',CL10' '  MA/XCTL LOGIC       1025857   00020200
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1025857   00020300
+         DC    CL4'MASE',CL2'04',CL10' '  MA/SIM/XCTL         1025857   00020400
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1025857   00020500
+         DC    CL4'10TM',CL2'04',CL10' '  MA/XCTL LOGIC       1025857   00020550
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1025857   00020560
+         DC    CL4'MA5S',CL2'04',CL10' '  MA/XCTL LOGIC       1035977   00020562
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1035977   00020564
+         DC    CL4'MAR6',CL2'04',CL10' '  MA/XCTL LOGIC       1236203   00020566
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1236203   00020568
+         DC    CL4'MAS6',CL2'04',CL10' '  MA/XCTL LOGIC       1236203   00020570
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1236203   00020572
+         DC    CL4'MATM',CL2'04',CL10' '  MA/XCTL LOGIC       1236203   00020574
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1236203   00020576
+         DC    CL4'MASV',CL2'04',CL10' '  MA/XCTL LOGIC       1236203   00020578
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1236203   00020580
+         DC    CL4'10PN',CL2'04',CL10' '  PN LONG RUN         1516566   00020582
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020584
+         DC    CL4'PNF1',CL2'04',CL10' '  PN                  1516566   00020586
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020588
+         DC    CL4'PNI1',CL2'04',CL10' '  PN                  1516566   00020590
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020592
+         DC    CL4'PNO1',CL2'04',CL10' '  PN                  1516566   00020594
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020596
+         DC    CL4'PNR1',CL2'04',CL10' '  PN                  1516566   00020598
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020600
+         DC    CL4'PNS1',CL2'04',CL10' '  PN                  1516566   00020602
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020604
+         DC    CL4'PNSM',CL2'04',CL10' '  PN                  1516566   00020606
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020608
+         DC    CL4'PNTM',CL2'04',CL10' '  PN                  1516566   00020610
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020612
+         DC    CL4'PNTT',CL2'04',CL10' '  PN                  1516566   00020614
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1516566   00020616
+         DC    CL4'PNF2',CL2'04',CL10' '  PN                  1717026   00020618
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020620
+         DC    CL4'PNO2',CL2'04',CL10' '  PN                  1717026   00020622
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020624
+         DC    CL4'PNR2',CL2'04',CL10' '  PN                  1717026   00020626
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020628
+         DC    CL4'PNS2',CL2'04',CL10' '  PN                  1717026   00020630
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020632
+         DC    CL4'PN2R',CL2'04',CL10' '  PN                  1717026   00020638
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020640
+         DC    CL4'MATT',CL2'04',CL10' '  MA/TCPIP TEST       1717026   00020670
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1717026   00020680
+         DC    CL4'75FT',CL2'05',CL10' '  FUNDTECH  MQ        1727173   00020681
+         DC    CL2'PL',CL2'TL',CL2'01',CL08' '                1727173   00020682
+         DC    CL4'75TM',CL2'04',CL10' '  MA/METAVANTE        1727173   00020683
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1727173   00020684
+         DC    CL4'75MA',CL2'04',CL10' '  MA/EFT              1727203   00020686
+         DC    CL2'TL',CL2'AT',CL2'01',CL08' '                1727203   00020688
+         DC    6X'FF'                     END OF TABLE        1516566   00020698
+         SPACE                                                          00020700
+TSTTC    DSECT                                       ;        2022261   00020800
+TTCTC    DS    CL4                                            2022261   00020900
+TTCTT    DS    CL2                                            2022261   00021000
+TTCTTRCL DS    CL10                                           2022261   00021100
+TTCTTRMN DS    CL2                                            2022261   00021200
+TTCMSGSV DS    CL2                                            2022261   00021300
+TTCSRCDE DS    CL2                                            2022261   00021400
+TTCDBUAX DS    CL8                                            0725549   00021500
+TTCENLEN EQU   *-TTCTC                                        2022261   00021600

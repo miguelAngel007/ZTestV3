@@ -1,0 +1,37 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*********************************************************************** 00001000
+*                                                                     * 00002000
+*                KEY TRANSFORMATION FACILITY COMMAREA                 * 00003000
+*                                                                     * 00004000
+*  THIS COMMAREA IS USED FOR CLIENTS WHO ARE WANTING TO ALTER THE     * 00005000
+*  CONTENTS OF THE ACCOUNT KEY.  TO INDICATE USE OF THIS FACILITY,    * 00006000
+*  UPDATE THE KTF EXIT PHASE NAME ON THE ENVIRONMENT RECORD.          * 00007000
+*                                                                     * 00008000
+*********************************************************************** 00009000
+*                                                                     * 00010000
+* 11/18/04 INITIAL DISTRIBUTION                                GN5153 * 00011000
+*                                                                     * 00012000
+*********************************************************************** 00013000
+KTFCOMM  DSECT                                                          00014000
+KTFAREA  DS    0CL1324                                                  00015000
+KTFEYEC  DS    CL8                     EYE CATCHER                      00016000
+KTFSACBA DS    XL4                     SACB ADDR                        00017000
+KTFRETCD DS    CL1                     RETURN CODE                      00018000
+KTFMSGCD DS    CL6                     MESSAGE CODE                     00019000
+         DS    CL25                    FILLER                           00020000
+KTFSTMLN EQU   *-KTFEYEC               SYMB LENGTH OF KTF STEM          00021000
+KTFOCCRS DS    CL1280                  20 OCCURRENCES OF KDA INFO       00022000
+KTFLEN   EQU   *-KTFAREA               SYMBOLIC LENGTH OF KTF           00023000
+*                                                                       00024000
+KTFKDAOC DSECT                         KDA INFORMATION                  00025000
+KTFKEY   DS    0CL64                   ICR KDA                          00026000
+KTFAPCA  DS    XL4                     PCA ADDR                         00027000
+KTF2AAD  DS    XL4                     ICR SEGMENT 2A ADDR              00028000
+KTFKSTML EQU   *-KTFKEY                SYMB LENGTH OF KTF KEY STEM      00029000
+KTF2BINF DS    CL56                    7 OCCURS OF ICR SEG 2B ADDRS     00030000
+KTFKLEN  EQU   *-KTFKEY                SYMB LEN OF 1 KDA OCCURS         00031000
+*                                                                       00032000
+KTF2BADS DSECT                         ICR SEGMENT 2B ADDRS             00033000
+KTF2BAD  DS    XL4                     ICR SEGMENT 2B ADDR              00034000
+KTFSFXM  DS    XL4                     REC KEY SRC FLD XMN ADDR         00035000
+KTF2BLEN EQU   *-KTF2BAD               SYMB LENGTH OF 1 OCCURS          00036000

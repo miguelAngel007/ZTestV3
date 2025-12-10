@@ -1,0 +1,45 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00010000
+*                            SAESCHA                                  * 00020000
+*                       TRANSACTION SYSTEM                            * 00030000
+*                 ESCHEATMENT STATE PARAMETERS                        * 00040000
+*                                                                     * 00050000
+*                      HISTORY OF REVISIONS                           * 00060000
+* DESCRIPTION                                                         * 00070000
+* --------------------------------------------------------------------* 00080000
+* 05/11/12 INITIAL DISTRIBUTION                               ~~~6210 * 00090000
+*---------------------------------------------------------------------* 00100000
+         SPACE 2                                                        00110000
+SAESCH   DSECT                                                          00120000
+SAES     DS    0CL200                SA ESCHEATMENT STATE PARAMETERS    00130000
+SAESLNG  DS    XL2                   RECORD LENGTH                      00140000
+         DS    CL2                   FILLER                             00150000
+SAESRK   DS    0CL60                 RECORD KEY                         00160000
+SAESSN   DS    CL8                     STRUCTURE NAME                   00170000
+SAESC1   DS    XL2                     CNTL-1                           00180000
+SAESSK   DS    0CL50                   SEARCH-KEY                       00190000
+SAESST   DS    CL2                       STATE                          00200000
+         DS    CL48                      FILLER                         00210000
+SAESLMDT DS    PL5                   LAST MAINT DATE                    00220000
+SAESLMTM DS    PL5                   LAST MAINT TIME                    00230000
+SAESPRED DS    CL4                   PRE ESCHEAT DT                     00240000
+SAESDUED DS    CL4                   DUE DILIGENCE DT                   00250000
+SAESESCD DS    CL4                   ESCHEATMENT DT                     00260000
+SAESPROC DS    CL1                   PROCESS IND                        00270000
+SAESTER1 DS    CL1                   ESCHEAT TERM 1                     00280000
+SAESINC1 DS    CL3                   ESCHEAT INCREMENT 1                00290000
+         DS    CL12                  FILLER                             00300000
+SAESTER2 DS    CL1                   ESCHEAT TERM 2                     00310000
+SAESINC2 DS    CL3                   ESCHEAT INCREMENT 2                00320000
+         DS    CL12                  FILLER                             00330000
+SAESTER3 DS    CL1                   ESCHEAT TERM 3                     00340000
+SAESINC3 DS    CL3                   ESCHEAT INCREMENT 3                00350000
+         DS    CL12                  FILLER                             00360000
+SAESTER4 DS    CL1                   ESCHEAT TERM 4                     00370000
+SAESINC4 DS    CL3                   ESCHEAT INCREMENT 4                00380000
+         DS    CL12                  FILLER                             00390000
+SAESTER5 DS    CL1                   ESCHEAT TERM 5                     00400000
+SAESINC5 DS    CL3                   ESCHEAT INCREMENT 5                00410000
+         DS    CL12                  FILLER                             00420000
+         DS    CL33                  FILLER                             00430000
+SAESLEN  EQU   *-SAES                SYMBOLIC LGTH SAESCH               00440000

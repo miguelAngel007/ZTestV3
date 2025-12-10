@@ -1,0 +1,26 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00020000
+*                               SIWSSHA2                              * 00030000
+*                  ASSEMBER COPYBOOK TO CALL CSNBOWH                  * 00040000
+*---------------------------------------------------------------------* 00050000
+*                  ** HISTORY OF REVISIONS **                         * 00060000
+* DESCRIPTION                                                 CHNGID  * 00070000
+* __________________________________________________________  _______ * 00080000
+* 03/24/15 INITIAL CREATION                                    GN6795 * 00090000
+*---------------------------------------------------------------------* 00100000
+RETCD    DS    XL8'00'             RETURN CODE OUTPUT                   00110000
+RESCD    DS    XL8'00'             REASON CODE OUTPUT                   00120000
+EXDATAL  DS    XL8'00'             EXIT DATA LENGTH IN/OUT              00130000
+EXDATA   DS    CL4                 EXIT DATA IN/OUT                     00140000
+RULEACO  DS    XL8'00'             RULE ARRAY COUNT IN                  00150000
+RULEAO   DS    CL8                 RULE ARRAY INPUT                     00160000
+TEXTL    DS    XL8'00'             TEXT LENGTH INPUT                    00170000
+TEXT     DS    CL64                TEXT DATA INPUT                      00180000
+CVL      DS    XL8'00'             CHAINING VECTOR LENGTH IN            00190000
+CV       DS    CL128               CHAINING VECTOR IN/OUT               00200000
+HASHL    DS    XL8'00'             HASH LENGTH INPUT                    00210000
+HASH     DS    CL128               HASH INPUT/OUTPUT                    00220000
+                                                                        00230000
+CALL1    CALL   ,(RETCD,RESCD,EXDATAL,EXDATA,                           00240000
+               RULEACO,RULEAO,TEXTL,TEXT,                               00250000
+               CVL,CV,HASHL,HASH),VL,MF=L                               00260000

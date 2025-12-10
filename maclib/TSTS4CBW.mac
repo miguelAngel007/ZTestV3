@@ -1,0 +1,846 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000010
+*                  ** HISTORY OF REVISIONS **                         * 00000011
+*                                                                     * 00000012
+* DESCRIPTION                                                 CHNGID  * 00000013
+* __________________________________________________________  _______ * 00000014
+*                                                                     * 00000015
+* 01/23/15 INCREASE CBPDALG TO A FULLWORD                     1616093   00000075
+* 03/04/10 CHANGES FOR EXTENDED RBA TSLOG PROCESSING          1035850 * 00000076
+* 05/14/04 PLATFORM TYPE B NOT VALID FOR ONLINE (EIC)         0514798 * 00000077
+* 04/21/04 DELETE 00013302-00013380 FOR ICR TYPE COMPARE      0444995   00000078
+* 01/21/04 ALLOW A MAX SZ LOG RECORD (ABOUT 32K)              0444407   00000079
+* 07/25/03 ADD NOHANDLE FOR ICR FILE READ                     0364840   00000081
+* 05/29/03 MODIFY THE OVERRIDE MAX NUMBER TO 6                0364780   00000083
+* 02/01/02 ADD NEW CREATE TDA FLAG                            2024444 * 00000085
+* 07/26/01 MODIFY FOR SDT                                     2024349   00000086
+* 09/29/00 ADD ICR AFTER PROCESS FLAG                         2024224 * 00000088
+* 01/19/99 MESSAGE TRANSLATION                                9913918 * 00000090
+* 10/20/98 ADD RDA LENGTH TO TOTAL GETMAIN LENGTH             9913519 * 00000091
+* 09/15/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349 * 00000093
+* 01/04/96 YEAR 2000                                          2602675 * 00000095
+* 11/15/95 LOG RECORD EXPANSION                               2600361 * 00000096
+* 11/28/94 REPLACE GETMAIN WITH GETSTOR                       2600213 * 00000097
+*                                                                     * 00000098
+*---------------------------------------------------------------------* 00000099
+**************************************************************2511978   00000100
+* NOTE :  THIS CODE ALSO EXISTS IN TSTS4CBG                   2511978   00000110
+**************************************************************2511978   00000120
+*  BUMP THRU ICR TABLE AND MOVE ADDRESS OF ICR INTO THE TABLE.      *   00000200
+*  IF ICR IS IN CORE, GET RECORD ADDRESS.  IF THE ICR IS NOT IN     *   00000300
+*  CORE, READ THE ICR TO GET THE ADDRESS.                           *   00000400
+*********************************************************************   00000500
+ICRPR000 EQU   *                     PROCESS ICR TABLE                  00000600
+         CLC   ICRSLCTD,LOWVALU      ANY ICR'S SELECTED                 00000700
+         BNE   ICRPR010              YES - CONTINUE PROCESSING ICR'S    00000800
+         MVC   WMSMGVA1,BLANKS       INIT ERR MSG VAR 1                 00000900
+         MVC   WMSMGVA2,BLANKS       INIT ERR MSG VAR 2                 00001000
+         MVC   WMSMGCOD,=C'0269'     MOVE DATA DICT ERROR CODE          00001100
+         LA    R6,ERRTNAD                                               00001105
+         L     R9,0(R6)                                                 00001110
+         STCM  R9,15,ERPROCAD                                           00001115
+         ICM   R15,15,=V(ERRPR000)                                      00001120
+         BALR  R14,R15                                                  00001125
+         LA    R6,FATALAD                                               00001130
+         L     R9,0(R6)                                                 00001135
+         STCM  R9,15,ERPROCAD                                           00001140
+         ICM   R15,15,=V(ERRPR000)                                      00001145
+         BALR  R14,R15                                                  00001150
+         LA    R6,ABENDAD                                               00001155
+         L     R9,0(R6)                                                 00001160
+         STCM  R9,15,ERPROCAD                                           00001165
+         ICM   R15,15,=V(ERRPR000)                                      00001170
+         BR    R15                                                      00001175
+ICRPR010 EQU   *                     PROCESS ICR TABLE                  00001500
+         MVC   CBTOTLG,LOWVALU       INIT TOTAL LENGTH FIELD            00001600
+         MVC   CBSTMLG,LOWVALU       INIT STEM LENGTH FIELD             00001700
+         MVC   CBPCALG,LOWVALU       INIT PCA LENGTH FIELD              00001800
+         MVC   CBKDALG,LOWVALU       INIT KDA LENGTH FIELD              00001900
+         MVC   CBTDALG,LOWVALU       INIT TDA LENGTH FIELD              00002000
+         MVC   CBMDALG,LOWVALU       INIT MDA LENGTH FIELD              00002100
+         XC    CBPDALG,CBPDALG       INIT PDA LENGTH FIELD    1616093   00002200
+         MVC   CBRDALG,LOWVALU       INIT RDA LENGTH FIELD              00002300
+         MVC   CBLDALG,LOWVALU       INIT LDA LENGTH FIELD              00002400
+         MVC   CBKEYCNT,LOWVALU      INIT TOTAL NUM KEYS FIELD          00002500
+         MVC   CBKEYLG,LOWVALU       INIT TOTAL KEY LENGHTS FIELD       00002600
+         MVC   CBTOTCNT,LOWVALU      INIT TOTAL TOTALS FIELD            00002700
+         MVC   SVRDADD,LOWVALU       INIT SAVE READ ADDRESS             00002800
+         MVI   KDATABLE,X'00'        CLEAR KDA TABLE                    00002900
+         MVC   KDATABLE+1(L'KDATABLE-1),KDATABLE                        00003000
+*                                                                       00003100
+         LA    R9,ICRTABLE           POINT TO ICRTABLE                  00003200
+         USING ICTDSECT,R9           ADDRESS NEXT TABLE ENTRY           00003300
+         LA    R10,KDATABLE          ADDRESS KDATABLE                   00003400
+         USING KDTDSECT,R10          POINT TO KDATABLE                  00003500
+         ZAP   WKICRCNT,=P'0'        CLEAR TABLE COUNTER                00003600
+         B     ICRTB010              PROCESS FIRST TABLE ENTRY          00003700
+ICRTB000 EQU   *                                                        00003800
+         LA    R9,ICTENLGN(R9)       POINT TO NEXT TABLE ENTRY          00003900
+ICRTB010 EQU   *                                                        00004000
+         AP    WKICRCNT,=P'1'        ADD 1 TO TABLE COUNTER             00004100
+         CP    WKICRCNT,=P'20'       IS TABLE COUNTER > 20?             00004200
+         BH    TSCBD000              YES - END OF TABLE                 00004300
+         CLC   ICTADDR,LOWVALU       TABLE ENTRY MISSING?               00004400
+         BE    TSCBD000              YES - END OF TABLE                 00004500
+         XR    R7,R7                 CLEAR R7                           00004600
+         ICM   R7,15,ICTADDR         GET TBR SEG ADDR FROM TABLE        00004700
+         USING TBRSEG2A,R7           ADDRESS TBR SEG2                   00004800
+***************************************************************2501054  00004802
+*  SEARCH PREVIOUS ICR TABLE ENTRIES TO SEE IF THIS ICR HAS   *2501054  00004804
+*  BEEN READ PREVIOUSLY.  IF SO, USE THE ADDRESS OF THE       *2501054  00004806
+*  PREVIOUSLY READ ICR.                                       *2501054  00004808
+***************************************************************2501054  00004810
+ICRTB020 EQU   *                                               2501054  00004812
+         CP    WKICRCNT,=P'1'        IS THIS THE FIRST ENTRY?  2501054  00004814
+         BNH   ICRTB050              YES - DO NOT CHECK TBL    2501054  00004816
+         ST    R9,SVTBLADD           SAVE CURRENT TBL POINTER  2501054  00004818
+         ZAP   WKDWRD,WKICRCNT       CONVERT TABLE COUNT       2501054  00004820
+         CVB   R1,WKDWRD             TO BINARY                 2501054  00004822
+         BCTR  R1,0                  SUBTRACT ONE              2501054  00004824
+         LA    R9,ICRTABLE           ADDRESS START OF ICR TBL  2501054  00004826
+ICRTB030 EQU   *                                               2501054  00004828
+         ICM   R8,15,ICTADDR         GET PREV ENTRY ICR ADDR   2501054  00004830
+         USING ICRSEG1,R8            ADDRESS ICR STEM          2501054  00004832
+         CLC   ICR1KEY,TBR2AKEY      KEYS MATCH?               2501054  00004834
+         BE    ICRTB040              YES - GO MOVE ADDRESS     2501054  00004836
+         LA    R9,ICTENLGN(R9)       BUMP TO NEXT TABLE ENTRY  2501054  00004838
+         BCT   R1,ICRTB030           GO CHECK NEXT ENTRY       2501054  00004840
+         L     R9,SVTBLADD           NO MATCH - RSET TBL PNTR  2501054  00004842
+         B     ICRTB050              NO MATCH FOUND            2501054  00004844
+ICRTB040 EQU   *                                               2501054  00004846
+         IC    R1,ICTCORE            SAVE ICR IN-CORE FLAG     2501054  00004848
+         L     R9,SVTBLADD           RESTORE CURRENT TBL PNTR  2501054  00004850
+         STC   R1,ICTCORE            USE PREV ICR IN-CORE FLG  2501054  00004852
+         B     ICRLP000              GO PROCESS THE ICR        2501054  00004854
+ICRTB050 EQU   *                                               2501054  00004856
+         CLC   SVICRIDX,LOWVALU      ICR LOADED IN CORE?                00004900
+         BE    ICRRD000              NO - GO READ IT                    00005000
+         MVC   SVBLDKEY,BLANKS       CLEAR MACRO KEY                    00005100
+         MVC   SVBLDKEY(L'TBR2AKEY),TBR2AKEY  MOVE ICRKEY TO MACRO KEY  00005200
+         MVC   M001,SVICRIDX         MOVE ICR INDEX TO MACRO INDEX      00005300
+         L     R15,SVTTROAD          LOAD TTR ADDRESS         2024349   00005400
+         USING TTRDESCR,R15          ADDRESS TTR              2024349   00005500
+         L     R8,SVQSIADD           LOAD QSI ADDRESS         2024349   00005600
+         USING QSIDST,R8             ADDRESS QSI              2024349   00005700
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024349   00005799
+TC       TSTS9AD WR2=R1,WR4=R6,WR3=R14,Q=L,NOITR=YES,NOEOR=YES,        X00005800
+               FL=ICR,REC=2,GP=1,KEY=YES,TYPE=MACRO,WR1=R8              00005900
+         DROP  R8,R15                                                   00006000
+         CLI   WADRETRN,C'0'         GOOD RETURN?                       00006100
+         BNE   ICRRD000              NO - GO READ ICR                   00006200
+         MVI   ICTCORE,C'1'          INDICATE ICR IN CORE     00701820  00006250
+         L     R8,M002               LOAD RETURNED RECORD ADDRESS       00006300
+         B     ICRLP000              GO TO PROCESS ICR                  00006400
+*                                                                       00006500
+*********************************************************************   00006600
+*  THE ICR WAS NOT IN CORE - AN ICR NEEDS TO BE READ.  IF AN ICR HAS*   00006700
+*  BEEN READ PREVIOUSLY, SAVE THE ADDRESS OF THE TABLE ENTRY NOW    *   00006800
+*  BEING PROCESSED, GO BACK TO THE ENTRY IN THE TABLE WHERE THE ICR *   00006900
+*  WAS READ, DO A GETMAIN FOR THE LENGTH OF THAT ENTRY, MOVE THE ICR*   00007000
+*  FROM THE AREA IT WAS READ TO THE GETMAIN AREA, CHANGE THE ADDRESS*   00007100
+*  OF THE ICR IN THE TABLE TO SHOW THE NEW LOCATION, GO BACK TO THE *   00007200
+*  TABLE ENTRY THAT WAS BEING PROCESSED AND READ THE ICR.           *   00007300
+*********************************************************************   00007400
+ICRRD000 EQU   *                                                        00007500
+         MVC   ICRKEYX,TBR2AKEY      MOVE ICR KEY FROM TBR SEG2         00007600
+         CLC   SVRDADD,LOWVALU       HAS AN ICR BEEN READ?              00007700
+         BE    ICRRD010              NO - GO READ ICR                   00007800
+         ST    R9,SVTBLADD           SAVE CURRENT POS IN TABLE          00007900
+         L     R9,SVRDADD            POINT TO LAST READ TAB ENTRY       00008000
+         XR    R8,R8                 CLEAR R8                           00008100
+         ICM   R8,15,ICTADDR         MOVE ICR ADDR FROM TABLE           00008200
+         DROP  R7,R9                                                    00008300
+*                                                                       00008400
+         XC    WKGSTADR,WKGSTADR     INIT GETSTOR ACQ ADDR    2600213   00008410
+         XC    WKGSTRLN,WKGSTRLN     INIT GETSTOR REQ LENGTH  2600213   00008420
+         XC    WKGSTALN,WKGSTALN     INIT GETSTOR ACQ LENGTH  2600213   00008430
+         MVC   WKGSTRLN+2(2),SVRDLEN SET GETSTOR REQ LENGTH   2600213   00008440
+         ICM   R15,15,DFHEICAP       LOAD NCA ADDRESS         2600213   00008450
+         ICM   R15,15,NCASACBA-TSNCA(R15) SACB ADDR FROM NCA  2600213   00008460
+         ST    R15,WKSACBAD          SAVE FOR PARMLIST USE    2600213   00008470
+         ICM   R15,15,SACBGSFS-SACB(R15) GETSTOR BALR ENTRY PT2600213   00008480
+         BZ    ICRRD002              NO EP - CALL SAS0001C    2600213   00008490
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,                          X00008500
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00008510
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00008520
+         BALR  R14,R15               BALR TO GETSTOR ENTRY PT 2600213   00008530
+         B     ICRRD003              CONTINUE                 2600213   00008540
+ICRRD002 EQU   *                                              2600213   00008550
+         MVC   SAS9FUNC,=C'GETSTOR 0062'  INIT GETSTOR VERB   2600213   00008560
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X00008570
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00008580
+         LA    R1,PARMLIST           GET PARM LIST ADDR       2600213   00008590
+         CALL  SAS0001C              PERFORM GETSTOR          2600213   00008600
+ICRRD003 EQU   *                                              2600213   00008610
+         L     R6,WKGSTADR           LOAD GETSTOR ACQ ADDR    2600213   00008620
+*                                                                       00008800
+         L     R9,SVRDADD            POINT TO LAST ICR READ TAB ENTRY   00008900
+         USING ICTDSECT,R9           ADDRESS LAST ICR READ TAB ENTRY    00009000
+         STCM  R6,15,ICTADDR         MOVE NEW ADDR OF ICR REC TO TAB    00009100
+***************************************************************2501054  00009105
+*  IF THE REPLACED ADDRESS WAS PROPOGATED TO ANY OTHER TABLE  *2501054  00009110
+*  ENTRIES, THEY MUST ALSO BE REPLACED. R8 CONTAINS THE       *2501054  00009115
+*  ADDRESS OF THE PREVIOUSLY READ ICR.                        *2501054  00009120
+***************************************************************2501054  00009125
+ICRRD005 EQU   *                                               2501054  00009130
+         LA    R9,ICTENLGN(R9)       BUMP TO NEXT TABLE ENTRY  2501054  00009135
+         C     R9,SVTBLADD           IS THIS CURRENT ENTRY?    2501054  00009140
+         BNL   ICRRD007              YES - GO MOVE THE ICR     2501054  00009145
+         C     R8,ICTADDR            THIS ENTRY FOR SAME ICR?  2501054  00009150
+         BNE   ICRRD005              NO - GO CHECK NEXT ENTRY  2501054  00009155
+         STCM  R6,15,ICTADDR         YES - PROPAGATE NEW ADDR  2501054  00009160
+         B     ICRRD005              CONTINUE PROPAGATION      2501054  00009165
+ICRRD007 EQU   *                                               2501054  00009170
+         DROP  R9                                                       00009200
+         LH    R7,SVRDLEN            PUT LENGTH IN WORK REG             00009300
+         LR    R9,R7                 PUT LENGTH IN WORK REG             00009400
+         MVCL  R6,R8                 MOVE ICR RECORD TO GETMAIN ADDR    00009500
+         L     R9,SVTBLADD           POINT BACK TO CURRENT TABLE ENTRY  00009600
+         USING ICTDSECT,R9           ADDRESS CURRENT TABLE ENTRY        00009700
+ICRRD010 EQU   *                                                        00009800
+         MVC   SVRDLEN,MAXICRLG      READ FOR MAXIMUM ICR LENGTH        00009900
+         MVC   FILNAME,BLANKS        INITIIALIZE SYSTEM FILE NAME       00010000
+         MVC   FILNAM,=C'TSICR'      MOVE FILE NAME                     00010100
+         MVC   FILGRP,SVTBRGP        LOAD ICR FILE GROUP NUM            00010200
+*                                                                       00010300
+         MVC   WMSMGVA1,BLANKS       INIT ERR MSG VAR 1                 00010400
+         MVC   WMSMGVA2,BLANKS       INIT ERR MSG VAR 2                 00010500
+         MVC   WMSMGVA1(L'FILNAME),FILNAME  MOVE FILE NAME TO ERR FLD1  00010600
+         MVC   WMSMGVA2(L'ICRKEYX),ICRKEYX  MOVE ICR KEY TO ERR FLD2    00010700
+*                                                                       00010800
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      0364840   00010899
+*        EXEC CICS READ DATASET (FILNAME)                               00010900
+*              SET (R8)                                                 00011000
+*              RIDFLD (ICRKEYX)                                         00011100
+*              LENGTH (SVRDLEN)                                         00011200
+*              EQUAL                                                    00011300
+*              NOHANDLE                                                 00011310
+         DFHECALL =X'0602F0002801008000',(CHA8,FILNAME),(PTR4__RF,R8),(*
+               FB_2__RF,SVRDLEN),(______RF,ICRKEYX)
+*                                                                       00011400
+         CLC   EIBRCODE,=6X'00'                                         00011410
+         BNE   TBRPR998                                                 00011420
+         ST    R9,SVRDADD            SAVE TAB POS OF ICR READ           00011500
+*                                                                       00011600
+ICRLP000 EQU   *                                                        00011700
+*********************************************************************   00011800
+*  SEGMENT 1 OF ICR                                                 *   00011900
+*********************************************************************   00012000
+         STCM  R8,15,ICTADDR         MOVE FILE ADDR OF ICR TO TABLE     00012100
+*                                                                       00012200
+         ST    R8,SVICRAD            SAVE ICR ADDRESS                   00012300
+         USING ICRSEG1,R8            ADDRESS ICR SEG1                   00012400
+         CLI   ICR1TYPE,C'B'         IS TYPE VALID FOR ONLINE 0514798   00012410
+         BE    ICRLP021              N: ERROR                 0514798   00012420
+         MVC   ICTPDALG,ICR1OCSZ     MOVE ICR SIZE OF PDA TO ICR TAB    00012500
+*                                                                       00012600
+         XR    R1,R1                 CLEAR R1                           00012700
+         ICM   R1,3,ICR1OCSZ         INSERT LENGTH OF PDA               00012800
+         A     R1,CBPDALG            ACCUM TOT PDA SIZE       1616093   00012900
+         ST    R1,CBPDALG            SAVE TOT PDA SIZE        1616093   00013000
+*                                                                       00013100
+         XR    R1,R1                 CLEAR R1                           00013200
+         ICM   R1,3,ICR1SGSK         INSERT LEN OF SEG 2                00013300
+         LA    R8,ICR1LGN(R8)        POINT TO END OF ICR SEG1           00013400
+         AR    R1,R8                 ENDING ADDR OF SEG2                00013500
+         DROP  R8                                             0444995   00013600
+         USING ICRSEG2A,R8           ADDRESS ICR SEG2A                  00013700
+ICRLP010 EQU   *                                                        00013800
+*********************************************************************   00013900
+*  SEGMENT 2 OF ICR                                                 *   00014000
+*********************************************************************   00014100
+         CR    R8,R1                 END OF SEG2?                       00014200
+         BNL   ICRLP040              YES-GO CHECK FOR SEG3              00014300
+         MVC   WKFDRCLS,SVFDRCL      BUILD FDR KEY - CLASS              00014400
+ICRLP012 EQU   *                                                        00014500
+         ST    R1,SVRADDR            SAVE R1 ADDRESS                    00014600
+         MVC   SVBLDKEY,BLANKS       CLEAR MACRO KEY                    00014700
+         MVC   WKFDRFNM,ICR2ATCF       AND FILE NAME FROM ICR           00014800
+         MVC   SVBLDKEY(L'WKFDRKEY),WKFDRKEY MOVE FDR KEY TO MACRO      00014900
+         MVC   M001,SVFDRIDX         MOVE FDR INDEX TO MACRO INDEX      00015000
+         L     R7,SVQSIADD           LOAD QSI ADDRESS         2024349   00015100
+         USING QSIDST,R7             ADDRESS QSI              2024349   00015200
+* THE FOLLOWING STATEMENT(S) MODIFIED BY                      2024349   00015299
+AD       TSTS9AD WR2=R1,WR4=R6,WR3=R14,Q=L,NOITR=YES,NOEOR=YES,        X00015300
+               FL=FDR,REC=2,GP=0,KEY=YES,TYPE=MACRO,WR1=R7              00015400
+         DROP  R7                                             2024349   00015500
+         L     R1,SVRADDR            RESTORE R1 ADDRESS                 00015600
+         CLI   WADRETRN,C'0'         GOOD RETURN?                       00015700
+         BNE   ICRLP015              NO - FATAL ERROR                   00015800
+         L     R7,M002               LOAD RETURNED RECORD ADDRESS       00015900
+         USING TSTSFDR,R7            POINT TO FDR FILE                  00016000
+         B     ICRLP030              BRANCH                             00016100
+ICRLP015 EQU   *                                                        00016200
+         CLC   WKFDRCLS,BLANKS       FDR KEY CLASS BLANKS?              00016300
+         BE    ICRLP020              YES - ERROR                        00016400
+         MVC   WKFDRCLS,BLANKS       NO - READ AGAIN WITH CLASS BLANKS  00016500
+         B     ICRLP012              BRANCH                             00016600
+ICRLP020 EQU   *                                                        00016700
+         MVC   WMSMGCOD,=C'0103'     MOVE DATA DICT ERROR CODE          00016800
+         MVC   WMSMGVA1,BLANKS       INIT ERR MSG VAR 1                 00016900
+         MVC   WMSMGVA1(3),=C'FDR'   MOVE FILE NAME TO ERR FLD1         00017000
+         MVC   WMSMGVA2,BLANKS       INIT ERR MSG VAR 2                 00017100
+         MVC   WMSMGVA2(L'ICR2ATCF),ICR2ATCF MOVE KEY TO ERR FLD2       00017200
+         B     ICRLP022              BRANCH                   0514798   00017201
+ICRLP021 EQU   *                                              0514798   00017202
+         MVC   WMSMGCOD,=C'0830'     MOVE TYPE MISMATCH ERROR 0514798   00017203
+         MVC   WMSAPPL,=C'TS'        MOVE APPL                0514798   00017204
+ICRLP022 EQU   *                                              0514798   00017205
+         LA    R6,ERRTNAD                                     0514798   00017206
+         L     R9,0(R6)                                                 00017210
+         STCM  R9,15,ERPROCAD                                           00017215
+         ICM   R15,15,=V(ERRPR000)                                      00017220
+         BALR  R14,R15                                                  00017225
+         LA    R6,FATALAD                                               00017230
+         L     R9,0(R6)                                                 00017235
+         STCM  R9,15,ERPROCAD                                           00017240
+         ICM   R15,15,=V(ERRPR000)                                      00017245
+         BALR  R14,R15                                                  00017250
+         LA    R6,ABENDAD                                               00017255
+         L     R9,0(R6)                                                 00017260
+         STCM  R9,15,ERPROCAD                                           00017265
+         ICM   R15,15,=V(ERRPR000)                                      00017270
+         BR    R15                                                      00017275
+*                                                                       00017600
+ICRLP030 EQU   *                                                        00017700
+         STCM  R7,15,KDTFDRAD        STORE FILE ADDR IN KDA TAB         00017800
+         MVC   KDTFLNAM,ICR2ATCF     MOVE ICR FILE NAME TO KDA TAB      00017900
+         MVC   KDTKYLGN,FDRFKEYL     MOVE FDR KEY LEN TO KDA TAB        00018000
+         DROP  R7                                                       00018100
+         ICM   R7,3,ICTNOKYS         MOVE ICR TBL NUM KEYS TO R7        00018200
+         AH    R7,=H'01'             ADD 1 TO ICR NUM OF KEYS           00018300
+         STCM  R7,3,ICTNOKYS         MOVE R7 TO ICR TBL                 00018400
+*                                                                       00018500
+         LH    R7,CBKEYCNT           MOVE TOT NUM KEYS TO R7            00018600
+         AH    R7,=H'01'             ADD 1 TO TOT NUM OF KEYS           00018700
+         STH   R7,CBKEYCNT           MOVE R7 TO TOT NUM OF KEYS         00018800
+*                                                                       00018900
+         ICM   R7,3,KDTKYLGN         MOVE FDR KEY LEN TO R7             00019000
+         ICM   R6,3,ICTKEYLG         MOVE ICR TBL KEY LEN TO R6         00019100
+         AR    R6,R7                 ADD FDR KEY LEN TO ICR TBL KEY KEN 00019200
+         STCM  R6,3,ICTKEYLG         MOVE KEY LEN TO ICR TABLE          00019300
+*                                                                       00019400
+         AH    R7,CBKEYLG            ADD FDR KEY LEN TO TOT KEY KEN     00019500
+         STH   R7,CBKEYLG            MOVE R7 TO TOT KEY LEN             00019600
+*                                                                       00019700
+         SR    R7,R7                 CLEAR REG FOR INSERT               00019800
+         ICM   R7,3,ICR2ALNG         INSERT LENGTH OF KEY DEFINITION    00019900
+         AR    R8,R7                 POINT TO NEXT 2A                   00020000
+         LA    R10,KDTENLGN(10)      POINT TO NEXT KDA TABLE ENTRY      00020100
+         B     ICRLP010              GO TO NEXT SEGMENT                 00020200
+ICRLP040 EQU   *                                                        00020300
+         L     R8,SVICRAD            LOAD ADDRESS OF ICR                00020400
+         DROP  R8                                                       00020500
+         USING ICRSEG1,R8            ADDRESS ICR SEG1                   00020600
+         XR    R1,R1                 CLEAR R1                           00020700
+         ICM   R1,3,ICR1SGSK         INSERT LEN OF SEG 2                00020800
+         XR    R7,R7                 CLEAR R7                           00020900
+         ICM   R7,3,ICR1SGSP         INSERT LEN OF SEG 3                00021000
+*                                                                       00021100
+         LA    R8,ICR1LGN(R8)        POINT TO END OF SEG1               00021200
+         AR    R8,R1                 ENDING ADDR OF SEG2                00021300
+*                                                                       00021400
+         LR    R1,R7                 MOVE R7 TO R1                      00021500
+*                                                                       00021600
+         AR    R1,R8                 ENDING ADDR OF SEG3                00021700
+         DROP  R8                                                       00021800
+*                                                                       00021900
+         USING ICRSEG3A,R8           ADDRESS ICR SEG3                   00022000
+ICRLP050 EQU   *                                                        00022100
+         CR    R8,R1                 END OF SEG3?                       00022200
+         BNL   ICRTB000              GO TO NEXT ENTRY IN ICR TABLE      00022300
+*********************************************************************   00022400
+*  SEGMENT 3 OF ICR                                                 *   00022500
+*********************************************************************   00022600
+         CLC   ICR3A#TO,LOWVALU      ANY TOTALS FOR ICR?                00022900
+         BE    ICRLP060              NO - DON'T INCREMENT ICR TOT CNT   00023000
+         XR    R6,R6                 CLEAR R6                           00023100
+         ICM   R6,3,ICTNOTOT         MOVE TAB NUM TOTS TO R6            00023200
+         LA    R6,1(R6)              ADD 1 TO ICR TOTAL COUNT           00023400
+         STCM  R6,3,ICTNOTOT         MOVE R6 TO ICR TAB NUM TOTS        00023500
+         LH    R7,CBTOTCNT           LOAD NUMBER OF TOTALS              00023600
+         LA    R7,1(R7)              ADD 1 TO TOTAL COUNT               00023700
+         STH   R7,CBTOTCNT           MOVE R7 TO TOT NUM TOTS            00023800
+         SPACE                                                          00023900
+ICRLP060 EQU   *                                                        00024000
+         XR    R7,R7                                                    00024100
+         ICM   R7,3,ICR3ALEN         MOVE LEN OF SEG3 TO R7             00024200
+         AR    R8,R7                 POINT TO NEXT SEG3A                00024300
+         B     ICRLP050              PROCESS NEXT SEG3A                 00024400
+         EJECT                                                          00024500
+*********************************************************************   00024600
+*  BUILD GETMAIN SIZE FOR TSCB.                                     *   00024700
+*********************************************************************   00024800
+TSCBD000 EQU   *                                                        00024900
+         DROP  R8,R9,R10                                                00025000
+         XR    R10,R10               CLEAR R10 TO ACCUM TOT LEN         00025100
+*                                                                       00025200
+*********************************************************************   00025300
+*  ADD TSCB STEM LENGTH TO TOTAL GETMAIN LENGTH                     *   00025400
+*********************************************************************   00025500
+         USING STEM,R1                                                  00025600
+         LA    R7,STMLNG             MOVE STEM LEN TO R7                00025700
+         STH   R7,CBSTMLG            SAVE STEM LEN                      00025800
+         AR    R10,R7                ADD STEM LEN TO TOT LEN            00025900
+         DROP  R1                    DROP R1                            00026000
+*                                                                       00026100
+*********************************************************************   00026200
+*  ADD PCA LENGTH TO TOTAL GETMAIN LENGTH                           *   00026300
+*********************************************************************   00026400
+         USING PCAOCCUR,R1                                              00026500
+         LA    R7,PCAOLNG            MOVE PCA OCCUR LEN TO R7           00026600
+         MH    R7,ICRSLCTD           NUM ICR'S SELETED * OCCUR LEN      00026700
+         STH   R7,CBPCALG            SAVE TOT PCA LEN                   00026800
+         AR    R10,R7                ADD PCA LEN TO TOT LEN             00026900
+         DROP  R1                    DROP R1                            00027000
+*                                                                       00027100
+*********************************************************************   00027200
+*  ADD KDA LENGTH TO TOTAL GETMAIN LENGTH                           *   00027300
+*********************************************************************   00027400
+         CLC   CBKEYCNT,LOWVALU      NUM ICR KEYS EQUAL ZERO?           00027500
+         BE    TSCBD010              YES, BRANCH TO CALC TDA            00027600
+         USING KDAOCCUR,R1                                              00027700
+         LA    R7,KDAOLNG            MOVE KDA OCCUR FIXED LEN TO R7     00027800
+         MH    R7,CBKEYCNT           NUM ICR KEYS * OCCUR FIXED LEN     00027900
+         AH    R7,CBKEYLG            ADD TOT OF KEY LENGTHS             00028000
+         DROP  R1                    DROP R1                            00028100
+         USING KDASTEM,R1                                               00028200
+         LA    R7,KDASLNG(R7)        ADD KDA STEM LEN                   00028300
+         STH   R7,CBKDALG            SAVE TOT KDA LEN                   00028400
+         AR    R10,R7                ADD KDA LEN TO TOT LEN             00028500
+         DROP  R1                    DROP R1                            00028600
+*                                                                       00028700
+*********************************************************************   00028800
+*  ADD TDA LENGTH TO TOTAL GETMAIN LENGTH                           *   00028900
+*********************************************************************   00029000
+TSCBD010 EQU   *                                                        00029100
+         L     R7,DFHEICAP           POINT TO NCA             2024444   00029110
+         USING TSTSNCA,R7            POINT TO NCA             2024444   00029115
+         CLI   NCATOT,C'Y'           CREATE TDA?              2024444   00029120
+         BE    TSCBD014              YES                      2024444   00029125
+         B     TSCBD018              NOPE - DON'T TOTAL       2024444   00029130
+TSCBD014 EQU   *                                              2024444   00029140
+         CLC   CBTOTCNT,LOWVALU      YOU CAN'T HAVE TOTALS    2024444   00029145
+         BNE   TSCBD018                AND USE NCATOT!        2024444   00029150
+         XR    R6,R6                 CLEAR R6                 2024444   00029155
+         LA    R6,20                 LOAD 20 DUMMY TOTALS     2024444   00029160
+         STH   R6,CBTOTCNT           STORE FOR USE            2024444   00029165
+         DROP  R7                                             2024444   00029170
+TSCBD018 EQU   *                                              2024444   00029175
+         CLC   CBTOTCNT,LOWVALU      NUM ICR TOTS EQUAL ZERO?           00029200
+         BE    TSCBD020              YES, BRANCH TO CALC PDA            00029300
+         USING TDAOCCUR,R1                                              00029400
+         LA    R7,TDAOLNG            MOVE TDA OCCUR LEN TO R7           00029500
+         MH    R7,CBTOTCNT           NUM ICR TOTS * OCCUR LEN           00029600
+         DROP  R1                    DROP R1                            00029700
+         USING TDASTEM,R1                                               00029800
+         LA    R7,TDASLNG(7)         ADD TDA STEM LEN                   00029900
+         STH   R7,CBTDALG            SAVE TOT TDA LEN                   00030000
+         AR    R10,R7                ADD TDA LEN TO TOT LEN             00030100
+         DROP  R1                    DROP R1                            00030200
+*                                                                       00030300
+*********************************************************************   00030400
+*  ADD PDA LENGTH TO TOTAL GETMAIN LENGTH                           *   00030500
+*********************************************************************   00030600
+TSCBD020 EQU   *                                                        00030700
+         USING PDASTEM,R1                                               00030800
+         L     R7,CBPDALG            MOVE PDA TOT LEN TO R7   1616093   00030900
+         LA    R7,PDASLNG(R7)        ADD PDA STEM LEN TO PDA LEN        00031000
+         ST    R7,CBPDALG            SAVE TOT PDA LEN         1616093   00031100
+         AR    R10,R7                ADD PDA LEN TO TOT LEN             00031200
+         DROP  R1                                                       00031300
+*                                                                       00031400
+*********************************************************************   00031500
+*  ADD RDA LENGTH TO TOTAL GETMAIN LENGTH                           *   00031600
+*  RDA = 4K - TRANSMISSION LENGTH - KDA LEN - TDA LEN - PDA LEN     *   00031700
+*  RDA WILL NOT BE CREATED IF SPACE ALLOCATED FOR IT IS LESS THAN   *   00031705
+*  157. SO THE FOLLOWING COMPARES HAVE BEEN ALTERED TO TAKE THIS    *   00031710
+*  INTO ACCOUNT.                                                    *   00031715
+*********************************************************************   00031800
+*  RDA PROCESSING HAS BEEN MODIFIED TO TAKE ADVANTAGE OF    * 0444407   00031820
+*  A LARGER LOG RECORD SIZE.  THE SPACE AVAILABLE FOR THE   * 0444407   00031840
+*  RDA IN A LOG RECORD CAN BE CALCULATED HERE AND WILL BE   * 0444407   00031860
+*  PASSED TO TSTSRDB1 IN THE RDA ADDRESS FIELD.  THE HIGH   * 0444407   00031880
+*  ORDER ADDRESS BIT IS SET TO INDICATE THAT A LENGTH IS    * 0444407   00031900
+*  PASSED RATHER THAN AN ADDRESS.  TSTSRDB1 WILL NOW        * 0444407   00031920
+*  ACQUIRE ALL STORAGE FOR THE RDA.                         * 0444407   00031940
+*  THE SIZE OF THE RDA AVAILABLE IN THE FIRST LOG RECORD IS * 0444407   00031960
+*  EQUAL TO THE LOG RECORD SIZE LESS THE LOG RECORD STEM    * 0444407   00031980
+*  LESS THE KDA LENGTH LESS THE TDA LENGTH LESS THE PDA     * 0444407   00032000
+*  LENGTH LESS THE TRANSMISSION LENGTH.  USING FIELDS IN    * 0444407   00032020
+*  THIS ROUTINE THE FORMULA IS:                             * 0444407   00032040
+*  CBRDALG = LGRECLNG - (LGSTMLNG + CBKDALG + CBTDALG +     * 0444407   00032060
+*                        CBPDALG)                           * 0444407   00032080
+*  THE LOGGED TRANSMISSION LENGTH IS NOT ACCURATE HERE      * 0444407   00032100
+*  BUT IS IN TSTSRDB1 SO TSTSRDB1 WILL CALCULATE THE FINAL  * 0444407   00032120
+*  RDA LENGTH.                                              * 0444407   00032140
+************************************************************* 0444407   00032160
+         ICM   R6,15,=A(LGRECLNG)    LOAD LOG REC LENGTH      0444407   00032200
+         ICM   R7,15,=A(LGSTMLNG)    LOAD LOG STEM LENGTH     0444407   00032250
+         SR    R6,R7                 SUBTRACT STEM LENGTH     0444407   00032300
+         SH    R6,CBKDALG            SUBTRACT KDA LENGTH      0444407   00032350
+         SH    R6,CBTDALG            SUBTRACT TDA LENGTH      0444407   00032400
+         S     R6,CBPDALG            SUBTRACT PDA LENGTH      1616093   00032450
+         STH   R6,CBRDALG            SAVE TOT RDA LEN         0444407   00032500
+*                                                                       00032600
+*********************************************************************   00032700
+*  ADD LDA LENGTH TO TOTAL GETMAIN LENGTH                           *   00032800
+*********************************************************************   00032900
+         XR    R7,R7                 CLEAR R6                           00033000
+         LH    R7,LOGLNG             MOVE MAX LDA LEN TO R7             00033100
+         STH   R7,CBLDALG            SAVE TOT LDA LEN                   00033200
+         AR    R10,R7                ADD LDA LEN TO TOT LEN             00033300
+*                                                                       00033400
+*********************************************************************   00033500
+*  ADD ANY MISCELLANEOUS LENGTHS TO THE GETMAIN LENGTH.             *   00033600
+*  INDIVIDUAL INPUT ANALYSIS PROGRAMS WILL MOVE THE LENGTH TO       *   00033700
+*  CBMSCLG.                                                         *   00033800
+*********************************************************************   00033900
+         CLC   CBMSCLG,LOWVALU       MISC LENGTH PRESENT?               00034000
+         BE    TSCBD030              NO-DO GETMAIN                      00034100
+         LH    R7,CBMSCLG            MOVE MISC LEN TO R7                00034200
+         AR    R10,R7                ADD MISC LEN TO TOT LEN            00034300
+*                                                                       00034400
+TSCBD030 EQU   *                                                        00034500
+         STH   R10,CBTOTLG           SAVE TOT LEN                       00034600
+*                                                                       00034700
+*********************************************************************   00034800
+*  ACQUIRE STORAGE FOR LKCA                                         *   00034900
+*  INITIALIZE LKCA                                                  *   00035000
+*********************************************************************   00035100
+*                                                                       00035200
+TSCBG000 EQU   *                                                        00035300
+         XC    WKGSTADR,WKGSTADR     INIT GETSTOR ACQ ADDR    2600213   00035310
+         XC    WKGSTRLN,WKGSTRLN     INIT GETSTOR REQ LENGTH  2600213   00035320
+         XC    WKGSTALN,WKGSTALN     INIT GETSTOR ACQ LENGTH  2600213   00035330
+         MVC   WKGSTRLN+2(2),CBTOTLG SET GETSTOR REQ LENGTH   2600213   00035340
+         MVI   WKGSTRLN,C' '         SET INITIMG TO SPACES    2600213   00035350
+         ICM   R15,15,DFHEICAP       LOAD NCA ADDRESS         2600213   00035360
+         ICM   R15,15,NCASACBA-TSNCA(R15) SACB ADDR FROM NCA  2600213   00035370
+         ST    R15,WKSACBAD          SAVE FOR PARMLIST USE    2600213   00035380
+         ICM   R15,15,SACBGSFS-SACB(R15) GETSTOR BALR ENTRY PT2600213   00035390
+         BZ    TSCBG002              NO EP - CALL SAS0001C    2600213   00035400
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,                          X00035410
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00035420
+         LA    R1,PARMLIST           LOAD PARMLIST ADDRESS    2600213   00035430
+         BALR  R14,R15               BALR TO GETSTOR ENTRY PT 2600213   00035440
+         B     TSCBG003              CONTINUE                 2600213   00035450
+TSCBG002 EQU   *                                              2600213   00035460
+         MVC   SAS9FUNC,=C'GETSTOR 0062'  INIT GETSTOR VERB   2600213   00035470
+         SIPLIST PARMLIST,(DFHEIBLK,WKSACBAD,WORKAREA,SAS9FUNC,        X00035480
+               WKGSTADR,WKGSTRLN,WKGSTALN)                    2600213   00035490
+         LA    R1,PARMLIST           GET PARM LIST ADDR       2600213   00035500
+         CALL  SAS0001C              PERFORM GETSTOR          2600213   00035510
+TSCBG003 EQU   *                                              2600213   00035520
+         L     R6,WKGSTADR           LOAD GETSTOR ACQ ADDR    2600213   00035530
+*                                                                       00035800
+         ST    R6,SVTSCBAD           SAVE GETMAIN ADDRESS               00035900
+         EJECT                                                          00036000
+*********************************************************************   00036100
+*  IF A MISC LENGTH WAS ADDED TO THE GETMAIN LENGTH, CALCULATE THE  *   00036200
+*  ADDRESS OF THE BEGINNING OF THE MISC AREA.                       *   00036300
+*  R2  = GETMAIN BEGINNING ADDR                                     *   00036400
+*  R7  = TOTAL MISC LENGTH                                          *   00036500
+*  R10 = TOTAL GETMAIN LENGTH                                       *   00036600
+*********************************************************************   00036700
+         CLC   CBMSCLG,LOWVALU       MISC LENGTH PRESENT?               00036800
+         BE    CBINI000              NO-BYPASS CALCULATION              00036900
+         AR    R10,R6                CALC GETMAIN ENDING ADDR           00037000
+         SR    R10,R7                CALC MISC AREA BEGIN ADDR          00037100
+         ST    R10,SVMSCAD           SAVE MISC AREA BEGIN ADDR          00037200
+*                                                                       00037300
+*---------------------------------------------------------------------* 00037400
+*                            TSTS2CBI                                 * 00037500
+*                       TRANSACTION SYSTEM                            * 00037600
+*              TS CONTROL BLOCK INITIALIZATION CODE                   * 00037700
+*---------------------------------------------------------------------* 00037800
+*                                                                       00037900
+CBINI000 EQU   *                                                        00038000
+         L     R6,SVTSCBAD                                              00038100
+         USING STEM,R6                                                  00038200
+         MVC   STMECATC,=C'*** TSCBSTEM ***'                            00038300
+         L     R7,DFHEICAP             LOAD COMM AREA ADDRESS           00038400
+         USING TSTSNCA,R7              ADDRESS COMMAREA                 00038500
+         LA    R8,NCAMDA               GET ADDRESS OF MDA               00038600
+         STCM  R8,15,STMAMDA           STORE MDA ADDRESS IN STEM        00038700
+         LA    R9,L'NCAMDA             LOAD LENGTH OF MDA               00038800
+         XR    R8,R8                   CLEAR TSCB LENG REG    2600361   00038810
+         ICM   R8,3,CBTOTLG            LOAD LENGTH OF TSCB    2600361   00038820
+         AR    R9,R8                   ADD TO TSCB TOTAL LENG 2600361   00038900
+         STCM  R9,3,CBTOTLG            SAVE NEW TSCB LENGTH   2600361   00039000
+         STCM  R9,15,STMLAL            STORE LENGTH OF THE TSCB         00039100
+         LR    R7,R6                   LOAD TSCB ADDRESS                00039200
+         AH    R7,CBSTMLG              ADD STEM LENGTH                  00039300
+         STCM  R7,15,STMAPCA              FOR PCA ADDRESS               00039400
+         AH    R7,CBPCALG              ADD PCA LENGTH                   00039500
+         MVC   STMAKDA,LOWVALU         CLEAR KDA ADDRESS                00039600
+         MVC   STMKDAEA,LOWVALU        CLEAR KDA ENDING ADDRESS         00039700
+         CLC   CBKDALG,LOWVALU         ANY KDA?                         00039800
+         BE    CBINI010                NO - DON'T CALC ADDRESS          00039900
+         STCM  R7,15,STMAKDA           STORE KDA ADDRESS                00040000
+         AH    R7,CBKDALG              ADD KDA LENGTH                   00040100
+         BCTR  R7,0                    SUBTRACT 1                       00040200
+         STCM  R7,15,STMKDAEA             FOR END OF KDA                00040300
+         LA    R7,1(R7)                ADD 1 BACK                       00040400
+         SPACE                                                          00040500
+CBINI010 EQU   *                                                        00040600
+         MVC   STMATDA,LOWVALU         CLEAR TDA ADDRESS                00040700
+         CLC   CBTDALG,LOWVALU         ANY TDA?                         00040800
+         BE    CBINI020                NO - DON'T CALC ADDRESS          00040900
+         STCM  R7,15,STMATDA              FOR TDA ADDRESS               00041000
+         AH    R7,CBTDALG              ADD TDA LENGTH                   00041100
+         SPACE                                                          00041200
+CBINI020 EQU   *                                                        00041300
+         STCM  R7,15,STMAPDA           MOVE PDA ADDRSS                  00041400
+         A     R7,CBPDALG              ADD PDA LENGTH         1616093   00041500
+         STCM  R7,15,STMALDA           MOVE LDA ADDRESS                 00041800
+         XR    R7,R7                   CLEAR R7               0444407   00041820
+         AH    R7,CBRDALG              ADD RDA LENGTH         0444407   00041840
+         STCM  R7,15,STMARDA           STORE RDA LENGTH       0444407   00041860
+         OI    STMARDA,X'80'           TELL RDB1 ITS A LENGTH 0444407   00041880
+         DROP  R7                                                       00041900
+         USING KDASTEM,R7                                               00042000
+         LA    R7,KDAOLNG              LOAD KDA FIXED AREA LENGTH       00042100
+         STCM  R7,3,STMKDAL              AND STORE IT IN THE STEM       00042200
+         MVC   STMAALA,LOWVALU                                          00042300
+         MVC   STMASACB,LOWVALU                                         00042400
+         MVC   STMITRA,SVITRAD         ITR ADDRESS                      00042500
+         MVC   STMEORA,SVEORAD         EOR ADDRESS                      00042600
+         MVC   STMQSIA,SVQSIADD        QSI ADDRESS                      00042700
+         MVC   STMTCRA,LOWVALU                                          00042800
+         MVC   STMPIA,LOWVALU                                           00042900
+         MVC   STMAPIP,LOWVALU                                          00043000
+         MVC   STMNPO,ICRSLCTD         NUMBER OF ICRS SELECTED          00043100
+         MVC   STMPOIP,LOWVALU                                          00043200
+         MVC   STMTSIP,LOWVALU                                          00043300
+         MVC   STMTC,=C'19'                                             00043400
+         TM    EIBDATE,X'01'           TEST FOR 2000          2602675   00043410
+         BZ    CBINI025                NO, SKIP               2602675   00043420
+         MVC   STMTC,=C'20'            INITIAL CURRENT CENT   2602675   00043430
+CBINI025 EQU   *                                              2602675   00043440
+         MVC   STMPAA,LOWVALU                                           00043500
+         MVI   STMTSF,C'0'                                              00043600
+         MVI   STMRF,C'0'                                               00043700
+         MVI   STMREF,C'0'                                              00043750
+         MVI   STMFPF,C'0'                                              00043800
+         MVI   STMETPF,C'0'                                             00043900
+         MVI   STMCTF,C'0'                                              00044000
+         MVC   STMMTEO,=X'0006'        MAXIMUM  6 ERRORS      0364780   00044100
+         MVC   STMNTEOU,LOWVALU                                         00044200
+         MVI   STMESOF,C'0'                                             00044300
+         MVC   STMTDEPT(3),=C'00000'   INIT DEPT BATCH FLD    0722348   00044301
+         MVC   STMBN(5),=C'00000'      INIT BATCH FIELD       0722348   00044302
+         MVC   STMTSUB(5),=C'00000'    INIT SUB-BATCH FIELD   0722348   00044303
+         LA    R9,ICRTABLE             POINT TO ICRTABLE       TS006.00 00044305
+         USING ICTDSECT,R9             ADDRESS NXT TABLE ENTRY TS006.00 00044310
+         ICM   R9,15,ICTTBRAD          LOAD TBR ADDRESS        TS006.00 00044315
+         DROP  R9                                              TS006.00 00044320
+         USING TBRSEG1,R9                                      TS006.00 00044325
+         MVC   STMBALF,TBR1BALF        MOVE BALANCE FLAG       TS006.00 00044400
+         DROP  R9                                              TS006.00 00044405
+         SPACE                                                          00044500
+         MVC   SVLSTKDA,LOWVALU        CLEAR LAST KDA ADDRESS           00044600
+         MVC   SVLSTTDA,LOWVALU        CLEAR LAST TDA ADDRESS           00044700
+         MVC   SVLSTPDA,LOWVALU        CLEAR LAST PDA ADDRESS           00044800
+         ICM   R7,15,STMAKDA           INSERT KDA ADDRESS               00044900
+         LTR   R7,R7                   KDA ADDRESS THERE?               00045000
+         BZ    CBINI030                NO - SKIP KDA ADDRESS CALC       00045100
+         LA    R7,KDASLNG(R7)          POINT PAST STEM                  00045200
+         ST    R7,SVLSTKDA             STORE LAST KDA ADDRESS           00045300
+         SPACE                                                          00045400
+CBINI030 EQU   *                                                        00045500
+         ICM   R7,15,STMATDA           INSERT TDA ADDRESS               00045600
+         LTR   R7,R7                   TDA ADDRESS THERE?               00045700
+         BZ    CBINI040                NO - SKIP TDA ADDRESS CALC       00045800
+         DROP  R7                                                       00045900
+         USING TDASTEM,R7                                               00046000
+         LA    R7,TDASLNG(R7)          POINT PAST STEM                  00046100
+         ST    R7,SVLSTTDA             STORE LAST TDA ADDRESS           00046200
+         SPACE                                                          00046300
+CBINI040 EQU   *                                                        00046400
+         ICM   R7,15,STMAPDA           INSERT PDA ADDRESS               00046500
+         LTR   R7,R7                   PDA ADDRESS THERE?               00046600
+         BZ    CBINI050                NO - SKIP PDA ADDRESS CALC       00046700
+         DROP  R7                                                       00046800
+         USING PDASTEM,R7                                               00046900
+         LA    R7,PDASLNG(R7)          POINT PAST STEM                  00047000
+         ST    R7,SVLSTPDA             STORE LAST PDA ADDRESS           00047100
+         DROP  R7                                                       00047200
+         SPACE                                                          00047300
+CBINI050 EQU   *                                                        00047400
+         LA    R6,PCA20OID             LOAD FIRST PCA OCCURRENCE ADDR   00047500
+         DROP  R6                                                       00047600
+         USING PCAOCCUR,R6             ADDRESS PCA                      00047700
+         LH    R7,ICRSLCTD             USE NO OF ICRS FOR COUNTER       00047800
+         LA    R8,ICRTABLE             POINT TO ICR SELECTION TABLE     00047900
+         USING ICTDSECT,R8             ADDRESS ICR TABLE                00048000
+         SPACE                                                          00048100
+CBINI100 EQU   *                                                        00048200
+         MVC   PCAECATC,=C'** PCA**'   PCA EYE CATCHER                  00048300
+         MVC   PCASAKDA,LOWVALU                                         00048400
+         MVC   PCASATDA,LOWVALU                                         00048500
+         MVC   PCASAPDA,LOWVALU                                         00048600
+         MVC   PCASPS,ZEROS                                             00048700
+         MVC   PCASAPDA,LOWVALU                                         00048800
+         MVC   PCAEAKDA,LOWVALU                                         00048900
+         MVC   PCAEATDA,LOWVALU                                         00049000
+         XC    PCAPADRS,PCAPADRS       CLEAR PROCESSING ADDRESSES       00049100
+         CLC   ICTNOKYS,LOWVALU        ANY KEYS?                        00049200
+         BE    CBINI110                NO - SKIP KDA INITIALIZATION     00049300
+         MVC   PCASAKDA,SVLSTKDA       KDA ADDRESS                      00049400
+         MVC   WKHWRD,ICTNOKYS         MOVE ICR NUMBER OF KEYS          00049500
+         USING KDAOCCUR,R9             GET ADDRESSABILITY FOR EQU FLD   00049600
+         LA    R9,KDAOLNG              LOAD EQUATED LENGTH FIELD        00049700
+         MH    R9,WKHWRD               MULTIPLY BY NUMBER OF KEYS       00049800
+         SR    R10,R10                 CLEAR REG FOR INSERT             00049900
+         ICM   R10,3,ICTKEYLG          INSERT KEY LENGTH                00050000
+         AR    R9,R10                  ADD TO KDA FIXED LENGTH          00050100
+         A     R9,SVLSTKDA             ADD KDA ADDRESS                  00050200
+         ST    R9,SVLSTKDA             SAVE FOR NEXT KDA ADDRESS        00050300
+         BCTR  R9,0                    SUBTRACT 1 FOR LAST BYTE         00050400
+         STCM  R9,15,PCAEAKDA          STORE AS END OF KDA              00050500
+         SPACE                                                          00050600
+CBINI110 EQU   *                                                        00050700
+         XR    R10,R10                 CLEAR R10              2024444   00050705
+         L     R10,DFHEICAP            POINT TO NCA           2024444   00050710
+         USING TSTSNCA,R10             POINT TO NCA           2024444   00050720
+         CLI   NCATOT,C'Y'             NCA TOTALS 'ON'?       2024444   00050730
+         BE    CBINI115                YEP                    2024444   00050740
+         CLC   ICTNOTOT,LOWVALU        ANY TOTALS?                      00050800
+         BE    CBINI120                NO - SKIP TDA INITIALIZATION     00050900
+         B     CBINI116                ELSE, GO ON            2024444   00050910
+CBINI115 EQU   *                                              2024444   00050920
+         MVC   ICTNOTOT,=X'0014'       LOAD FAKE TOTALS       2024444   00050930
+         DROP  R10                                            2024444   00050940
+CBINI116 EQU   *                                              2024444   00050950
+         MVC   PCASATDA,SVLSTTDA       TDA ADDRESS                      00051000
+         MVC   WKHWRD,ICTNOTOT         MOVE ICR NUMBER OF TOTALS        00051100
+         DROP  R9                                                       00051200
+         USING TDAOCCUR,R9             GET ADDRESSABILITY FOR EQU FLD   00051300
+         LA    R9,TDAOLNG              LOAD EQUATED LENGTH FIELD        00051400
+         MH    R9,WKHWRD               MULTIPLY BY NUMBER OF TOTALS     00051500
+         A     R9,SVLSTTDA             ADD TDA ADDRESS                  00051600
+         ST    R9,SVLSTTDA             SAVE FOR NEXT TDA ADDRESS        00051700
+         BCTR  R9,0                    SUBTRACT 1 FOR LAST BYTE         00051800
+         STCM  R9,15,PCAEATDA          STORE AS END OF TDA              00051900
+         SPACE                                                          00052000
+CBINI120 EQU   *                                                        00052100
+         CLC   ICTPDALG,LOWVALU        ANY PDA?                         00052200
+         BE    CBINI130                NO - SKIP TDA INITIALIZATION     00052300
+         MVC   PCASAPDA,SVLSTPDA       PDA ADDRESS                      00052400
+         MVC   PCALPDA,ICTPDALG        PDA LENGTH                       00052500
+         SR    R9,R9                   CLEAR REG FOR INSERT             00052600
+         ICM   R9,3,ICTPDALG           INSERT PDA LENGTH                00052700
+         A     R9,SVLSTPDA             ADD LAST PDA ADDRESS             00052800
+         ST    R9,SVLSTPDA             STORE FOR NEXT PDA ADDRESS       00052900
+         SPACE                                                          00053000
+CBINI130 EQU   *                                                        00053100
+         MVC   PCATBRA,ICTTBRAD        TBR ADDRESS                      00053200
+         MVC   PCAICRA,ICTADDR         ICR ADDRESS                      00053300
+         ICM   R9,15,ICTADDR           LOAD ICR ADDRESS                 00053400
+         DROP  R9                                                       00053500
+         USING ICRSEG1,R9              ADDRESS ICR                      00053600
+         MVC   PCAITC,ICR1NAME         MOVE ICR NAME                    00053700
+         MVC   PCAIAFT,ICR1AFT         MOVE ICR AFTER PROC    2024224   00053710
+         MVC   PCAUGML,LOWVALU                                          00053800
+         CLC   WKTRMTYP,=C'AD'         ADMIN TERMINAL?                  00053900
+         BNE   CBINI140                NO - GO PUT IN TELLER FIELDS     00054000
+         MVC   PCASDRA,ICTSDRAD        MOVE SDR ADDRESS                 00054100
+         MVI   PCASTI,C'0'             SET INQUIRY/NOT TELLER FLAG      00054200
+         SPACE                                                          00054300
+CBINI140 EQU   *                                                        00054400
+         MVI   PCAPLF,C'0'                                              00054500
+         MVI   PCAAF,C'0'                                               00054600
+         MVI   PCAAAPF,C'0'                                             00054700
+         MVI   PCAISF,C'0'                                              00054800
+         MVI   PCASFUF,C'0'                                             00054900
+         MVI   PCACACF,C'0'                                             00055000
+         MVI   PCADRCR,C'0'                                             00055100
+         MVI   PCATRPF,C'0'                                             00055200
+         MVI   PCADELGF,C'0'           INITIALIZE DELETE LOG FLAG       00055300
+         MVC   PCAAAS,LOWVALU                                           00055400
+         MVC   PCAREVPS,LOWVALU                                         00055500
+         MVC   PCAMHSL,=C'00'                                           00055600
+         SPACE                                                          00055700
+         LA    R6,PCAOLNG(R6)          BUMP TO NEXT PCA                 00055800
+         LA    R8,ICTENLGN(R8)         BUMP TO NEXT ICR TABLE ENTRY     00055900
+         BCT   R7,CBINI100             CONTINUE FOR NO OF ICRS          00056000
+         SPACE                                                          00056100
+         CLC   CBKDALG,LOWVALU         ANY KDA?                         00056200
+         BE    CBINI240                NO - DON'T CALC ADDRESS          00056300
+         DROP  R6                                                       00056400
+         USING KDASTEM,R6              ADDRESS KDA STEM                 00056500
+         MVC   KDAECATC,=C'** KDA**'   KDA EYE CATCHER                  00056600
+         LA    R6,KDASLNG(R6)          BUMP PAST STEM                   00056700
+         DROP  R6                                                       00056800
+         USING KDAOCCUR,R6             ADDRESS KDA OCCURRENCE           00056900
+         LH    R7,CBKEYCNT             USE NUMBER OF KEYS FOR COUNTER   00057000
+         LA    R8,KDATABLE             POINT TO KDA TABLE               00057100
+         DROP  R8                                                       00057200
+         USING KDTDSECT,R8             ADDRESS KDA TABLE                00057300
+         SPACE                                                          00057400
+CBINI200 EQU   *                                                        00057500
+         MVC   KDAAFDR,KDTFDRAD        FDR ADDRESS                      00057600
+         MVC   KDARKL,KDTKYLGN         KEY LENGTH                       00057700
+         MVC   KDAFN,KDTFLNAM          FILE NAME                        00057800
+         MVC   KDACTLSL,LOWVALU        CLEAR LENGTH OF CONTROLS         00057900
+         L     R9,KDTFDRAD             LOAD ADDRESS OF FDR    00702009  00058000
+         DROP  R9                                                       00058100
+         USING TSTSFDR,R9              ADDRESS FOR            00702009  00058200
+         MVC   KDACTLSL,FDRCONL        MOVE TO KDA            00702009  00058300
+         SPACE                                                          00060100
+CBINI230 EQU   *                                                        00060200
+         MVC   KDAAR,LOWVALU           INITIALIZE FIELDS                00060300
+         MVC   KDAACRBA,HIGHVALU                                        00060500
+         MVC   KDAATGA,LOWVALU                                          00060600
+         MVC   KDALRA,LOWVALU                                           00060700
+         ZAP   KDARSN,=P'0'                                             00060800
+         ZAP   KDARKC,=P'0'                                             00060900
+         MVI   KDARUF,C'0'                                              00061000
+         MVI   KDAREF,C'0'                                              00061100
+         MVI   KDARPIO,C'0'                                             00061200
+         MVI   KDARAF,C'0'                                              00061300
+         MVI   KDAPA,C'0'                                               00061400
+         MVI   KDASAF,C'0'                                              00061500
+         SPACE                                                          00061600
+         LA    R6,KDAOLNG(R6)          BUMP PAST FIXED KEY AREA         00061700
+         SR    R9,R9                   CLEAR REG FOR INSERT             00061800
+         ICM   R9,3,KDTKYLGN           INSERT KEY LENGTH                00061900
+         AR    R6,R9                   BUMP PAST VARIABLE KEY AREA      00062000
+         LA    R8,KDTENLGN(R8)         BUMP TO NEXT KEY TABLE ENTRY     00062100
+         BCT   R7,CBINI200             REPEAT FOR NEXT KEY              00062200
+         SPACE                                                          00062300
+CBINI240 EQU   *                                                        00062400
+         CLC   CBTDALG,LOWVALU         ANY TDA?                         00062500
+         BE    CBINI260                NO - DON'T CALC ADDRESS          00062600
+         DROP  R6                                                       00062700
+         USING TDASTEM,R6              ADDRESS TDA STEM                 00062800
+         MVC   TDAECATC,=C'** TDA**'   TDA EYE CATCHER                  00062900
+         MVC   TDAOUSED,CBTOTCNT       MOVE NUMBER OF TOTALS            00063000
+         LA    R6,TDASLNG(R6)          BUMP PAST STEM                   00063100
+         DROP  R6                                                       00063200
+         USING TDAOCCUR,R6             ADDRESS KDA OCCURRENCE           00063300
+         LH    R7,CBTOTCNT             USE NUMBER OF KEYS FOR COUNTER   00063400
+         SPACE                                                          00063500
+CBINI250 EQU   *                                                        00063600
+         MVI   TDAFTF,C'0'             INITIALIZE AMT-NOT-FORMATTED FLG 00063700
+         LA    R6,TDAOLNG(R6)          BUMP TO NEXT TOTAL OCCURRENCE    00063800
+         BCT   R7,CBINI250             REPEAT FOR NEXT KEY              00063900
+         SPACE                                                          00064000
+CBINI260 EQU   *                                                        00064100
+         DROP  R6                                                       00064200
+         USING PDASTEM,R6              ADDRESS PDA                      00064300
+         MVC   PDAECATC,=C'** PDA**'   PDA EYE CATCHER                  00064400
+         A     R6,CBPDALG              BUMP PAST PDA          1616093   00064500
+         DROP  R6                                                       00064600
+         USING TSTSLOG,R6              ADDRESS LOG                      00065800
+         MVC   LGECATC,=C'**TSLOG*'    LOG EYE CATCHER                  00065900
+         SPACE                                                          00066000
+         L     R7,DFHEICAP             LOAD COMMAREA ADDRESS            00066100
+         USING TSTSNCA,R7              ADDRESS COMMAREA                 00066200
+         MVC   NCATSCBA,SVTSCBAD       SAVE ADDRESS OF TSCB             00066300
+         MVI   NCAESTFL,C'1'           SET TSCB ESTABLISHED FLAG        00066400
+         SPACE                                                          00066500
+         DROP  R6,R7,R8,R9                                              00066600
+*DFH7041I W  NO END CARD FOUND - COPYBOOK ASSUMED.
+         DFHEIMSG 4

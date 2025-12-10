@@ -1,0 +1,47 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAT8QCBM &DSECT=YES                                            00002000
+         AIF ('&DSECT' EQ 'YES').DSECT                                  00003000
+         AGO .CSECT                                                     00004000
+.DSECT   ANOP                                                           00005000
+SAQCB    DSECT                                                          00006000
+         DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00007000
+         AGO .SAQCB                                                     00008000
+.CSECT   ANOP                                                           00009000
+SAQCB    DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00010000
+.SAQCB   ANOP                                                           00011000
+*********************************************************************** 00012000
+*                                                                     * 00013000
+*        QUEUE CONTROL BLOCK                                          * 00014000
+*                                                                     * 00015000
+*********************************************************************** 00016000
+SAQCBID  DS    CL8                QUEUE ID                              00017000
+SAQCBSIZ DS    F                  MAXIMUM SIZE OF QUEUE IN BYTES   0@@@ 00018000
+SAQCBACT DS    F                  CURRENT SIZE OF QUEUE IN BYTES   0@@@ 00019000
+SAQCBNXT DS    A                  NEXT QCB IN CHAIN                     00020000
+SAQCBTSK DS    CL4                TASK ID OF ENQUEUEING TASK       0@@@ 00021000
+SAQCBM#Q DS    A                  MAXIMUM # OF QUES                     00022000
+SAQCBA#Q DS    A                  ACTIVE # QUES                         00023000
+SAQCBA#B DS    A                  ACTIVE # QE BLOCKS                    00024000
+SAQCBMKL DS    H                  MAXIMUM KEY LENGTH                    00025000
+SAQCBPT  DS    C                  PURGE TECHNIQUE C=CONTROL, A=AGE      00026000
+SAQCBFLG DS    X                  QCB FLAGS                             00027000
+SAQCBKV  EQU   B'00000001'        INDICATES VARIABLE KEY FORMAT         00028000
+SAQCBAUX EQU   B'00000010'        INDICATES AUXILIARY CICS STORAGE      00029000
+SAQCBESA EQU   B'00000100'        INDICATES QUEUE IN ESA MODE           00030000
+SAQCBENQ EQU   B'00001000'        INDICATES QUEUE LOCK OUT SUCCESSFUL   00031000
+SAQCBNOA EQU   B'00010000'        INDICATES DO NOT PURGE BY AGE         00032000
+SAQCBQEA DS    A                  QE ANCHOR                             00033000
+SAQCBSB  DS    0F                 STATISTICS AREA                       00034000
+SAQCB#AC DS    A                  # OF TABLE GET REQUESTS               00035000
+SAQCB#RG DS    A                  # OF TABLE GET REQUESTS               00036000
+SAQCB#GS DS    A                  # OF TABLE GET REQUESTS SATISFIED     00037000
+SAQCB#RI DS    A                  # OF TABLE INSERT REQUESTS            00038000
+SAQCB#RD DS    A                  # OF TABLE DELETE REQUESTS            00039000
+SAQCB#RU DS    A                  # OF TABLE UPDATE REQUESTS            00040000
+SAQCB#RP DS    A                  # OF TABLE ITEMS PURGED               00041000
+SAQCBSTP DS    A                  TIME OF OLDEST ITEM IN TABLE          00042000
+SAQCBCTL DS    CL256              START OF QCB CONTROL BREAK INFO       00043000
+SAQCBLEN EQU   *-SAQCB       LENGTH OF QCB FIXED PORTION                00044000
+*********************************************************************** 00045000
+         MEND                                                           00046000

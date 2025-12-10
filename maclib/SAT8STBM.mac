@@ -1,0 +1,78 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00001000
+         SAT8STBM &DSECT=YES                                            00002000
+         AIF ('&DSECT' EQ 'YES').DSECT                                  00003000
+         AGO .CSECT                                                     00004000
+.DSECT   ANOP                                                           00005000
+SATB     DSECT                                                          00006000
+         DS    0D                 BEGIN TABLE BLOCK ON D/WORD BOUNDRY   00007000
+         AGO .SATBL                                                     00008000
+.CSECT   ANOP                                                           00009000
+SATB     DS    0D                 BEGIN TABLE BLOCK ON D/WORD BOUNDRY   00010000
+.SATBL   ANOP                                                           00011000
+*********************************************************************** 00012000
+*                                                                     * 00013000
+*        TABLE MANAGER CONTROL BLOCK                                  * 00014000
+*                                                                     * 00015000
+*********************************************************************** 00016000
+SATBID   DS    CL8  **SATB**      TEMP STOR QUE ID OR BATCH EYEBALL     00017000
+*********************************************************************** 00018000
+*        WORKING CELLS                                                * 00019000
+*********************************************************************** 00020000
+SATBADDR DS    F                  ADDRESS OF PERM STOR SATB             00021000
+SATFLAG1 DS    AL1                TABLE MANAGER FLAGS                   00022000
+SATCBPUR EQU   B'00000001'        CONTROL BREAK PURGE REQUIRED          00023000
+SATUPDAT EQU   B'00000010'        UPDATE REQUIRED                       00024000
+SATINSRT EQU   B'00000100'        INSERT REQUIRED                       00025000
+SATDELET EQU   B'00001000'        DELETE REQUIRED                       00026000
+SATDELGN EQU   B'00010000'        GENERIC DELETE REQUIRED               00027000
+SATGET   EQU   B'00100000'        GET REQUIRED                          00028000
+SATNEXT  EQU   B'01000000'        GET NEXT REQUIRED                     00029000
+SATPURGE EQU   B'10000000'        PURGE SOME RECORDS                    00030000
+SATFLAG2 DS    AL1                TABLE MANAGER FLAGS                   00031000
+SATWRITE EQU   B'00000001'        WRITE SATB TO TEMP STORAGE QUEUE      00032000
+SATSTAT  DS    H                  TABLE SCAN ROUTINE STATUS             00033000
+         SPACE                                                          00034000
+SATSTMP  DS    CL4                TIME THIS ENTRY                       00035000
+SATGCA   DS    F                  POINTER TO GCA                        00036000
+SATEISTG DS    F                  POINTER TO DFHEISTG                   00037000
+SATEIB   DS    F                  POINTER TO DFHEIB                     00038000
+SATWKLEN DS    F                  LENGTH OF WORKA GOTTEN FROM GETSTOR   00039000
+SATWKADR DS    F                  ADDRESS OF WORKA GOTTEN FROM GETSTOR  00040000
+SATWORK  DS    4F                 WORK AREA                             00041000
+*********************************************************************** 00042000
+SATBGSE  DS    0F                 GOTTEN STORAGE ELEMENT                00043000
+SATBGSIB DS    CL8                GOTTEN STORAGE EYEBALL                00044000
+SATBGSDN DS    F                  GOTTEN STORAGE FORWARD POINTER        00045000
+SATBGSUP DS    F                  GOTTEN STORAGE BACKWARD POINTER       00046000
+SATBGSBL DS    F                  GOTTEN STORAGE BACKWARD POINTER       00047000
+SATBFCE  DS    0F                 PERM QUEUE FREE STORAGE ANCHOR        00048000
+SATBFCLN DS    XL4                SIZE OF THIS PIECE (0 IN ANCHOR)      00049000
+SATBFCED DS    F                  STORAGE FREE CHAIN DOWNWARD POINTER   00050000
+SATBFCEU DS    F                  STORAGE FREE CHAIN UPWARD POINTER     00051000
+*********************************************************************** 00052000
+SATBAQA  DS    A                  ACTIVE QRB ADDRESS                    00053000
+SATBQCBA DS    A                  QCB ANCHOR                            00054000
+SATBAQCB DS    A                  ACTIVE QCB                            00055000
+SATBQCBP DS    A                  QCB ANCHOR - PERMANENT QUEUES    0@@@ 00056000
+SATBPQCB DS    A                  ACTIVE QCB - PERMANENT QUEUES    0@@@ 00057000
+SATBQEA  DS    A                  ADDRESS OF CURRENT QE                 00058000
+SATBQEP  DS    A                  ADDRESS OF PREVIOUS QE                00059000
+SATBQUEA DS    A                  ADDRESS OF CURRENT QUE                00060000
+SATBQUEP DS    A                  ADDRESS OF PREVIOUS QUE               00061000
+SATBDQEA DS    A                  ADDRESS OF CURRENT DQE                00062000
+SATBSSTR DS    0F                START OF STATISTICS BUCKETS            00063000
+SATBM#QZ DS    A                  MAXIMUM QUEUE SPACE                   00064000
+SATB#QCB DS    A                  # ACTIVE QCBS                         00065000
+SATBM#A  DS    A                  AMOUNT OF ACTIVE QUE SPACE            00066000
+SATOSTMP DS    CL4                OLDEST ENTRY TIME STAMP               00067000
+SAT#DAYS DS    F                  # OF ELAPSED DAYS                     00068000
+SATB#AC  DS    A                  # OF TABLE ACCESSES FOR AVG ACC CALC  00069000
+SATB#RG  DS    A                  # OF TABLE GET REQUESTS               00070000
+SATB#RI  DS    A                  # OF TABLE INSERT REQUESTS            00071000
+SATB#RD  DS    A                  # OF TABLE DELETE REQUESTS            00072000
+SATB#RU  DS    A                  # OF TABLE UPDATE REQUESTS            00073000
+SATBSSAV DS    CL12               STATISTICS SAVE AREA FOR REFRESH      00074000
+SATBLEN  EQU   *-SATB             LENGTH OF SATB                        00075000
+*********************************************************************** 00076000
+         MEND                                                           00077000

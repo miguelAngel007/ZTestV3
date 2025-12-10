@@ -1,0 +1,55 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000000
+         SAP9070M &DSECT=YES,&TYPE=P                                    00001000
+.*************************************************************9913481   00001001
+.*       HISTORY OF REVISIONS                                 9913481   00001002
+.*                                                            9913481   00001003
+.* 08/19/97   MULTI LANGUAGE                                  9913481   00001998
+.*************************************************************9913481   00001999
+         AIF   ('&DSECT' EQ 'YES').M70DSCT                              00002000
+&TYPE.70AREA  DS    0F                                                  00003000
+         AGO   .M70CONT                                                 00004000
+.M70DSCT ANOP                                                           00005000
+&TYPE.70AREA DSECT                                                      00006000
+.M70CONT ANOP                                                           00007000
+&TYPE.70RSLT  DS    XL2                     RESULT                      00008000
+&TYPE.70RTNAD DS    XL4                     RETURN ADDRESS              00009000
+&TYPE.70RTNLG DS    XL2                     RETURN LENGTH               00010000
+&TYPE.70EFDT  DS    PL5                     EFFECTIVE DATE              00011000
+&TYPE.70KEY   DS    0CL25                   REQUESTED INFO              00012000
+&TYPE.70TKEY  DS    CL3                     TYPE (STRUCTURE DEF)        00013000
+&TYPE.70RKEY  DS    CL22                    MEMBER KEY                  00014000
+&TYPE.70CTLS  DS    0CL12                   CONTROLS                    00015000
+&TYPE.70CTL1  DS    CL2                     CTL1                        00016000
+&TYPE.70CTL2  DS    CL3                     CTL2                        00017000
+&TYPE.70CTL3  DS    CL3                     CTL3                        00018000
+&TYPE.70CTL4  DS    CL4                     CTL4                        00019000
+&TYPE.70EQ1K  DS    0CL10          INPUT  - EQUATE KEY 1                00020000
+&TYPE.70MSG   DS    0CL40          OUTPUT - RETURNED MESSAGE TEXT       00021000
+&TYPE.70EQ2K  DS    CL40           INPUT  - EQUATE KEY 2                00022000
+*                                                                       00023000
+* THE NEXT FIELD IS THE ADDR OF A TS CONTROL BLOCK FIELD WHICH CONTAINS 00024000
+* THE ADDRESS OF THE SACB.                                              00025000
+* THIS ADDRESS MUST BE PROVIDED BY THE CALLING MODULE.                  00026000
+*                                                                       00027000
+&TYPE.70SACB  DS    XL4                                                 00028000
+*                                                                       00029000
+* THE NEXT FIELD IS THE ADDR OF A TS CONTROL BLOCK FIELD WHICH CONTAINS 00030000
+* THE ADDRESS OF A DUMMY SACB (SASERVE IS NOT ACTIVE).  A DUMMY SACB IS 00031000
+* CREATED FOR THE TABLE MANAGER IF SASERVE IS NOT ACTIVE.               00032000
+* THIS ADDRESS MUST BE PROVIDED BY THE CALLING MODULE.                  00033000
+*                                                                       00034000
+&TYPE.70DSACB DS    XL4                                                 00035000
+*                                                                       00036000
+* OTHER PARMS SEARCH KEY FIELDS                                         00037000
+&TYPE.70APPL  DS    CL2                     APPL ID                     00038000
+&TYPE.70DAGID DS    CL8                     DAG ID                      00039000
+&TYPE.70ELEID DS    CL8                     ELEMENT ID                  00040000
+&TYPE.70CLASS DS    CL10                    CLASS CODE                  00041000
+&TYPE.70SCRN  DS    CL8                     SCREEN ID                   00042000
+&TYPE.70SEQ   DS    CL2                     SEQUENCE NUMBER             00043000
+&TYPE.70EORLC DS    CL2                     EOR LANG CODE     9913481   00043010
+*                                                                       00044000
+&TYPE.70FILL  DS    CL100                   FUTURE USE        9913481   00045000
+&TYPE.70LGTH  EQU   *-&TYPE.70AREA                                      00046000
+         MEND                                                           00047000

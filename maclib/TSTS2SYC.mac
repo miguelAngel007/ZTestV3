@@ -1,0 +1,541 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+*---------------------------------------------------------------------* 00000001
+*                  ** COPYBOOK DESCRIPTION **                         * 00000002
+*                                                                     * 00000003
+*   TRANSACTION SYSTEM CONTROL FILES UPDATE COMMUNICATIONS AREA       * 00000004
+*                                                                     * 00000005
+*---------------------------------------------------------------------* 00000006
+*                  ** HISTORY OF REVISIONS **                         * 00000007
+*                                                                     * 00000008
+* DESCRIPTION                                                 CHNGID  * 00000009
+* __________________________________________________________  _______ * 00000010
+*                                                                     * 00000011
+* 01/28/14 MODIFY FOR DB2 AND ENCRYPTION                      1436560 * 00000668
+* 12/18/09 MODIFY LK-LENGTH                                   1025861   00000669
+* 11/27/07 ADDED NEW STATUS FIELD FOR MAKER/CHECKER           0835688   00000670
+* 04/26/05 GN5191 ADD FIELDS FOR ICR SEGMENT 3C               0635191   00000672
+* 04/08/03 MODIFY TO MATCH SDR 4B LAYOUTS AND RSEQ HIST       0344671   00000674
+* 08/31/01 USE EOR DATE VIEW PREF IN CALL TO FINTLDTE         2024347 * 00000676
+* 10/03/00 ADDED NEW FIELD FOR FILE GROUP SAVE                2023586 * 00000678
+* 04/30/98 ADDED NEW FIELDS FOR DYNAMIC EORS                  9913482 * 00000680
+* 12/18/97 ADDED CHANGES FOR ICR PARSING BY DAG/ELE ID        9913349 * 00000682
+* 10/30/97 STANDARDIZED TEMP STOR QUEUE NAME                  9913522 * 00000684
+* 11/21/97 ADDED FIELDS FOR ITR RESOLUTION                    9910846 * 00000686
+* 05/01/97 ALLOW SDR TRANSLATION                              9913481 * 00000687
+* 12/94    ADDED THE FOLLOWING FIELDS:                        2602105 * 00000688
+*              LKCACHID DS    CL8      CA CHANGE ID           2602105 * 00000689
+*              LKCAFCL  DS    XL1      FILE CONVERSION LEVEL  2602105 * 00000690
+*              LKCARCL  DS    XL1      REC CONVERSION LEVEL   2602105 * 00000691
+*              LKECCID  DS    CL8      EOR CHG ID             2602105 * 00000692
+*              LKECCIDR DS    CL1      EOR CHG ID REQD        2602105 * 00000693
+*          CHANGED FILLER LENGTH                              2602105 * 00000694
+*                      DS    CL86        FILLER               2602105 * 00000695
+*                                                             2602105 * 00000696
+*                                                                     * 00000697
+*---------------------------------------------------------------------* 00000698
+*                                                                       00000699
+LKTSSY   DSECT                                                          00000700
+LKBGN    DS    0CL3200                                        1025861   00000800
+LKCOMM   DS    0CL300                                                   00000900
+LKLGTH   DS    XL2                     COMMON AREA LENGTH               00001000
+LKMTDATE DS    CL6                     MAINTENANCE DATE                 00001100
+LKMTTIME DS    CL6                     MAINTENANCE TIME                 00001200
+         SPACE                                                          00001300
+LKSFKY   DS    CL36                    SYSTEM RECORD KEY                00001400
+         ORG   LKSFKY                                                   00001500
+LKICKY   DS    0CL18                   ICR RECORD KEY                   00001600
+LKICCLS  DS    CL10                      CLASS ID                       00001700
+LKICNM   DS    CL8                       NAME                           00001800
+         DS    CL18                      FILLER                         00001900
+         SPACE                                                          00002000
+         ORG   LKSFKY                                                   00002100
+LKSDKY   DS    0CL20                   SDR RECORD KEY                   00002200
+LKSDCLS  DS    CL10                      CLASS ID                       00002300
+LKSDNM   DS    CL8                       SCREEN NAME                    00002400
+LKSDSEQ  DS    CL2                       SEQUENCE NUMBER                00002500
+         DS    CL16                      FILLER                         00002600
+         SPACE                                                          00002700
+         ORG   LKSFKY                                                   00002800
+LKTBKY   DS    0CL18                   TBR RECORD KEY                   00002900
+LKTBCLS  DS    CL10                      CLASS ID                       00003000
+LKTBTID  DS    CL8                       TRANSACTION-ID                 00003100
+         DS    CL18                      FILLER                         00003200
+         SPACE                                                          00003300
+         ORG                                                            00003400
+***************                                                         00003500
+LKSYAREA DS    0CL22                                                    00003600
+LKSYCLAS DS    0CL10                   INIT CLASS                       00003700
+LKSYLVL1 DS    CL2                     INIT LEVEL 1                     00003800
+LKSYLVL2 DS    CL3                     INIT LEVEL 2                     00003900
+         DS    CL5                     FILLER                           00004000
+LKSYFILE DS    CL8                     FILE NAME                        00004100
+LKSYSTRM DS    CL4                     TERMINAL ID                      00004200
+***************                                                         00004300
+LKNOSTPS DS    XL2                     NUMBER OF STEPS                  00004400
+LKTRMCLS DS    CL10                    TERMINAL CLASS                   00004500
+LKEORFG  DS    CL2                     EOR FILE GROUP                   00004600
+LKMIRLOG DS    CL1                     MIRROR LOG FLAG                  00004700
+LKPRCCTL DS    0CL12                   PROCESS CONTROLS                 00004800
+LKPRCT1  DS    CL2                       PROCESS CONTROL 1              00004900
+LKPRCT2  DS    CL3                       PROCESS CONTROL 2              00005000
+LKPRCT3  DS    CL3                       PROCESS CONTROL 3              00005100
+LKPRCT4  DS    CL4                       PROCESS CONTROL 4              00005200
+         SPACE                                                          00005300
+LKFLID   DS    0CL8                    CURRENT FILE IDENTIFIER          00005400
+LKFLIDAP DS    CL2                       FILE APPLICATION               00005500
+LKFLIDNM DS    CL3                       FILE NAME                      00005600
+LKFLIDGP DS    CL2                       FILE GROUP                     00005700
+         DS    CL1                       FILLER                         00005800
+         SPACE                                                          00005900
+LKEMP    DS    0CL31                   EMPLOYEE INFORMATION             00006000
+LKEMPID  DS    CL8                       EMPLOYEE-ID                    00006100
+LKEMPINT DS    CL3                       EMPLOYEE INITIALS              00006200
+LKEMPNME DS    CL20                      EMPLOYEE NAME                  00006300
+         SPACE                                                          00006400
+LKLSTMT  DS    0CL24                   LAST MAINTENANCE INFORMATION     00006500
+LKLMDATE DS    CL6                       LAST MAINT DATE                00006600
+LKLMTIME DS    CL6                       LAST MAINT TIME                00006700
+LKLMEMP  DS    CL8                       LAST MAINT EMPLOYEE-ID         00006800
+LKLMTERM DS    CL4                       LAST MAINT TERMINAL ID         00006900
+         SPACE                                                          00007000
+LKINTPC  DS    CL8                     INITIAL TRANS PROCESS CODES      00007100
+         ORG   LKINTPC                                                  00007200
+LKICIPC  DS    0CL8                    ICR PROCESS CODES                00007300
+LKICISC  DS    CL1                       ICR SEGMENT CODE               00007400
+LKICITT  DS    CL2                       ICR TRAN TYPE                  00007500
+         DS    CL2                       FILLER                         00007600
+LKICICG  DS    CL1                       ICR DETAIL CHANGE TYPE         00007700
+LKICICN  DS    CL1                       ICR DETAIL CONDITIONL CHG TYPE 00007800
+         DS    CL1                       FILLER                         00007900
+         ORG   LKINTPC                                                  00008000
+LKSDIPC  DS    0CL8                    SDR PROCESS CODES                00008100
+LKSDIRC  DS    CL1                       RECORD CODE                    00008200
+LKSDITC  DS    CL2                       FUNCTION TYPE CODE             00008300
+LKSDICG  DS    CL2                       CHANGE TYPE CODE               00008400
+         DS    CL3                       FILLER                         00008500
+         ORG   LKINTPC                                                  00008600
+LKTBIPC  DS    0CL8                    TBR PROCESS CODES                00008700
+LKTBISC  DS    CL1                       TBR SEGMENT CODE               00008800
+LKTBITT  DS    CL2                       TBR TRAN TYPE                  00008900
+         DS    CL2                                                      00009000
+LKTBICG  DS    CL1                       TBR DETAIL CHANGE TYPE         00009100
+         DS    CL2                       FILLER                         00009200
+         ORG   LKINTPC                                                  00009300
+LKGENPC  DS    0CL8                    GEN PROCESS CODES                00009400
+LKGENSC  DS    CL1                       GEN SEGMENT CODE               00009500
+         DS    CL7                       FILLER                         00009600
+         ORG   LKINTPC                                                  00009700
+LKEBRPC  DS    0CL8                    EBR PROCESS CODES                00009800
+LKEBRCC  DS    CL1                       EBR COMMAND CODE               00009900
+LKEBRCP  DS    CL2                       EBR COMMAND POSITION           00010000
+LKEBRAF  DS    CL1                       EBR ADD FLAG                   00010100
+         DS    CL4                       FILLER                         00010200
+         ORG                                                            00010300
+         SPACE                                                          00010400
+LKPRCNO  DS    XL2                     PROCESS NUMBER                   00010500
+         ORG   LKPRCNO                                                  00010600
+LKSDSCR  DS    XL2                       SDR SCREEN NUMBER              00010700
+         ORG   LKPRCNO                                                  00010800
+LKSGTME  DS    XL2                       NO SIGNON TIMES                00010900
+         ORG                                                            00011000
+         SPACE                                                          00011100
+LKPROCSW DS    CL1                     PROCESSING SWITCH                00011200
+LKRECADR DS    XL4                     CURRENT RECORD ADDRESS           00011300
+LKEQUADR DS    XL4                     EQU ADDRESS                      00011400
+LKMENUCD DS    CL6                     SECURITY MENU CODES              00011500
+LKSERLG  DS    CL1                     SER LOG CTL FILE CHANGES         00011600
+LKSERCLS DS    CL10                    SER INSTALL CLASS ID             00011700
+LKBYTES  DS    XL2                     AVAILABLE RECORD SIZE            00011800
+         SPACE                                                          00011900
+LKLOGINF DS    0CL18                   LOGGING INFORMATION              00012000
+LKLOGTYP DS    CL1                       LOGGING TYPE                   00012100
+*                                          0 = FUNCTION LOGGING         00012200
+*                                          1 = SECURITY LOGGING         00012300
+*                                          2 = DETAIL LOGGING           00012400
+LKLOGADR DS    XL4                       LOGGING DETAIL ADDRESS         00012500
+LKLOGWR  DS    CL1                       LOG FUNCTION WRITTEN FLAG      00012600
+*                                          0 = NO                       00012700
+*                                          1 = YES                      00012800
+LKLOGER  DS    CL1                       LOGGING ERROR FLAG             00012900
+*                                          VALUE 0 - NO ERROR           00013000
+*                                          1 - DETAIL LOG/NO DETAIL     00013100
+*                                          2 - INVALID LOG TYPE         00013200
+*                                          3 - NO FUNC CODE/NO DETAIL   00013300
+*                                          4 - DETAIL AREA / NO DET     00013400
+*                                          5 - NUM OF DETAIL NOT 1-300  00013500
+*                                          6 - FILE NOT OPEN            00013600
+*                                          7 - LENGTH ERROR             00013700
+*                                          8 - NO SPACE                 00013800
+*                                          9 - CICS BRFN/BRCODE PREST   00013900
+*                                          A - FILINK                   00014000
+LKEIBR   DS    CL6                     EIBRCODE                         00014100
+LKEIBF   DS    CL4                     EIBFN                            00014200
+LKRDVER  DS    CL1                     READ VERIFY FLAG                 00014300
+         SPACE                                                          00014400
+***************                                                         00014500
+LKLSTMNU DS    CL8                                                      00014600
+LKLSTPGM DS    CL8                                                      00014700
+LKINSTWK DS    CL8                     INSTALL WORK AREA                00014800
+         DS    CL8                     FILLER                           00014900
+LKREQID  DS    0CL8                    REQID                            00015000
+LKREQTRA DS    CL4                        TRANSACTION ID      9913522   00015100
+LKREQTRM DS    CL4                        TERMINAL ID         9913522   00015200
+LKLMTID  DS    CL4                     LAST MENU TRAN ID                00015300
+LKTELLER DS    CL1                     PROCESSING TELLERS               00015400
+LKSFDRCL DS    CL10                    SER FDR CLASS                    00015500
+LKQUEID  DS    0CL8                    TEMPORARY STORAGE QUE NAME       00015600
+LKQTRAN  DS    CL4                        TRANSACTION ID      9913522   00015700
+LKQTERM  DS    CL4                        TERMINAL ID         9913522   00015800
+LKQUEID2 DS    0CL8                    TEMPORARY STORAGE QUE 2 NAME     00015900
+LKQTRAN2 DS    CL4                        TRANSACTION ID      9913522   00016000
+LKQTERM2 DS    CL4                        TERMINAL ID         9913522   00016100
+LKQUEID3 DS    0CL8                    TEMPORARY STORAGE QUE 3 NAME     00016200
+LKQTRAN3 DS    CL4                        TRANSACTION ID      9913522   00016300
+LKQTERM3 DS    CL4                        TERMINAL ID         9913522   00016400
+LKSARLVL DS    CL1                        SAR CHECK LEVEL OF REC KEY    00016500
+*                                          VALUE: 0 - CHK FULL REC KEY  00016600
+*                                                 1 - CHK FIRST LEVEL   00016700
+*                                                     SOR - CLASS ONLY  00016800
+         DS    CL46                    FILLER                 2501200   00016900
+LKSECRCD DS    XL1                       SECURITY RETURN CODE 2501200   00016910
+LKCACHID DS    CL8                     CA CHANGE ID             2602105 00016920
+LKCAFCL  DS    XL1                     FILE CONVERSION LEVEL    2602105 00016930
+LKCARCL  DS    XL1                     REC CONVERSION LEVEL     2602105 00016940
+LKECCID  DS    CL8                     EOR CHG ID               2602105 00016950
+LKECCIDR DS    CL1                     EOR CHG ID REQD          2602105 00016960
+LKITRAD  DS    XL4                     ITR ADDRESS            9910846   00016962
+LKPRTYP  DS    CL1                     ITR / EOR PROCESS TYPE 9913482   00016964
+*                                        0 - ORIG ITR/EOR     9913482   00016965
+*                                        1 - DYN ITR/ORIG EOR 9913482   00016966
+*                                        2 - ITRCB/ORIG EOR   9913482   00016967
+*                                        3 - DYN ITR/DYN EOR  9913482   00016968
+*                                        4 - ITRCB/DYN EOR    9913482   00016969
+LKAUSORC DS    CL2                     TSTSSBLD RETURN CODE   9913482   00016970
+LKEORAD  DS    XL4                     EOR ADDRESS            9913482   00016975
+LKFILGP  DS    CL2                     EOR FILE GROUP SAVE    2023586   00016980
+LKSECAU  DS    CL1                     SASIOPTE SECURITY AUTH 0835688   00016982
+LKSAUTN  DS    CL1                     SECURITY AUTH TRAN     0835688   00016984
+LKGNDB2  DS    CL1                     SASIOPTE GN DB2 FLAG   1436560   00016985
+LKOPTEA  DS    XL4                     SASIOPTE ADDRESS       1436560   00016986
+         DS    CL59                    FILLER                 1436560   00016989
+LKDTFMT  DS    CL2                     DATE FORMAT INFO       2024347   00016990
+LKMAPCLS DS    CL3                     MAPSET CLASS           9913481   00016996
+LKEMPLAN DS    CL2                     EMP LANG               9913481   00016998
+***************                                                         00017000
+         SPACE                                                          00017100
+LKSHARED DS    CL2750                  FILE SPECIFIC INFOR    1025861   00017200
+         SPACE                                                          00017300
+         ORG   LKSHARED                                                 00017400
+LKSDSH   DS    0CL600                  SDR FILE COMMAREA                00017500
+LKSDSHCA DS    0CL108                    SDR SHARED AREA                00017600
+LKSDFLN  DS    XL2                       SDR FIELD NUMBER               00017700
+LKSDPSC  DS    XL2                       SDR PREVIOUS SCREEN NUMBER     00017800
+LKSDPRW  DS    XL2                       SDR PREVIOUS ROW NUMBER        00017900
+LKSDPCL  DS    XL2                       SDR PREVIOUS COLUMN NUMBER     00018000
+LKSDPOL  DS    XL2                       SDR PREVIOUS OUTPUT LENGTH     00018100
+LKSDPER  DS    XL2                       SDR PREVIOUS ENDING ROW        00018200
+LKSDBCT  DS    XL2                       SDR SUB-FUN COUNTER            00018300
+LKSDMSP  DS    XL4                       SDR MASTER POSITION            00018400
+LKSDSLT  DS    CL12                      SDR SCREEN LITERAL             00018500
+LKSDIFC  DS    0CL5                      SDR INITIAL PROCESS TYPE       00018600
+LKSDRC   DS    CL1                         SDR INITIAL RECORD CODE      00018700
+LKSDTT   DS    CL2                         SDR INITIAL TRAN TYPE        00018800
+LKSDCC   DS    CL2                         SDR INITIAL CHANGE CODE      00018900
+LKSDSCC  DS    CL2                       SDR SCREEN CODE                00019000
+LKSDTRM  DS    CL2                       SDR TERMINAL TYPE              00019100
+*                                          TL = TELLER                  00019200
+*                                          AD = ADMINISTRATIVE          00019300
+LKSDSCD  DS    CL1                       SDR SCREEN DATA TYPE           00019400
+LKSDPASW DS    CL1                       SDR PRI/ALT SWITCH   2501304   00019500
+LKSDMSI  DS    CL1                       SDR SOURCE INFO FLAG           00019600
+LKSDEQU  DS    CL1                       SDR EQUATE INFO FLAG           00019700
+LKSDMEQ  DS    CL1                       SDR MORE EQUATE FLAG           00019800
+LKSDEOS  DS    CL1                       SDR END OF SCREEN FLAG         00019900
+LKSDEOD  DS    CL1                       SDR END OF DETAIL FLAG         00020000
+LKSDLSCF DS    CL1                       SDR LAST SCREEN DETAIL FLAG    00020100
+LKSDINIT DS    CL1                       SDR INIT FLAG                  00020200
+         DS    CL44                      FILLER                         00020300
+LKSDLGNO DS    XL2                       SDR LOG NUMBER                 00020400
+LKSDEMRF DS    CL1                       SDR EMR UPDATE FLAG            00020500
+LKSDSVPG DS    CL8                       SDR SAVE PROGRAM NAME          00020600
+LKSDSVCP DS    XL2                       SDR SAVE CURSOR POSITION       00020700
+         DS    CL3                       FILLER                         00020800
+         SPACE                                                          00020900
+LKSDI    DS    0CL242                    SDR I/O MODULE COMMON DATA     00021000
+LKSDIREQ DS    CL1                         SDR I/O TYPE REQUEST         00021100
+LKSDIRCL DS    XL2                         SDR I/O RECORD LENGTH        00021200
+LKSDISGN DS    CL1                         SDR I/O SEGMENT NUMBER CHGED 00021300
+LKSDISAC DS    CL1                         SDR I/O SCREEN ADD CODE      00021400
+LKSDISAS EQU   C'S'                          ADDING NEW SCREEN          00021500
+LKSDISAD EQU   C'D'                          ADDING NEW DETAIL          00021600
+LKSDISAM EQU   C'M'                          ADD/CHANGE MASTER INFO     00021700
+LKSDISAB EQU   C'B'                          ADD/CHANGE BMS    INFO     00021800
+LKSDISAV EQU   C'V'                          ADD/CHANGE VARIABLE INFO   00021900
+LKSDISCN DS    XL2                         SDR I/O SCREEN NUMBER        00022000
+LKSDISDN DS    XL2                         SDR I/O FIELD NUMBER         00022100
+LKSDIFG1 DS    CL1                         SDR I/O OPTION FLAG1         00022200
+LKSDIERC DS    CL2                         SDR I/O ERROR CODE           00022300
+LKSDIEIF DS    CL2                         SDR I/O EIBFN                00022400
+LKSDIEIR DS    CL6                         SDR I/O EIBRCODE             00022500
+LKSDIFDI DS    CL1                         SDR I/O FREE FORMAT DATA ID  00022600
+LKSDIFUR DS    CL8                         SDR I/O FREE FORMAT USER FLD 00022700
+LKSDIFG2 DS    CL1                         SDR I/O OPTION FLAG2         00022800
+         DS    CL10                        FILLER                       00022900
+LKSDISVL DS    XL2                         SDR I/O SAVE AREA LENGTH     00023000
+LKSDISVA DS    CL200                       SDR I/O SAVE WORK AREA       00023100
+         ORG   LKSDISVA                                                 00023200
+LKSDSVD  DS    0CL200                  SDR SAVE DETAIL SCREEN 1 DATA    00023300
+         DS    CL1                       DET SCRN 1 SEG ID    0344671   00023310
+LKSD1LGN DS    XL2                       DET SCRN 1 DETAIL LENGTH       00023400
+LKSD1PRV DS    XL2                       DET SCRN 1 PREV DETAIL LENGTH  00023500
+LKSD1VAR DS    XL2                       DET SCRN 1 VARIABLE LENGTH     00023600
+LKSD1TOT DS    XL1                       DET SCRN 1 TOTAL OCCURRENCES   00023700
+LKSD1RTE DS    XL1                       DET SCRN 1 RATE      0344671   00023750
+LKSD1JUS DS    XL1                       DET SCRN 1 JUSTIFY             00023800
+LKSD1FIL DS    XL1                       DET SCRN 1 FILL DATA           00023900
+LKSD1PFL DS    CL1                       DET SCRN 1 REPEAT SPACING      00024000
+LKSD1PRD DS    CL1                       DET SCRN 1 READ RECORD         00024100
+LKSD1PBO DS    CL1                       DET SCRN 1 NEXT OCCURRENCE     00024200
+LKSD1OP1 DS    XL1                       DET SCRN 1 OPTION FLAG 1       00024300
+LKSD1OP2 DS    XL1                       DET SCRN 1 OPTION FLAG 2       00024400
+LKSD1OP3 DS    XL1                       DET SCRN 1 OPT FLG 3 0344671   00024410
+         DS    CL7                       FILLER               0344671   00024500
+LKSD1FSI DS    XL1                       DET SCRN 1 SECURITY INQ        00024600
+LKSD1FSE DS    XL1                       DET SCRN 1 SECURITY ENT        00024700
+LKSD1DTY DS    CL1                       DET SCRN 1 DATA TYPE           00024800
+LKSD1DFF DS    CL1                       DET SCRN 1 DATE FORMAT         00024900
+LKSD1CFD DS    CL2                       DET SCRN 1 COMPARE FIELD       00025000
+LKSD1ATF DS    XL1                       DET SCRN 1 FIELD ATTRIBUTE     00025100
+LKSD1ATC DS    XL1                       DET SCRN 1 COLOR ATTRIBUTE     00025200
+LKSD1ATH DS    XL1                       DET SCRN 1 HI-LITE ATTRIBUTE   00025300
+LKSD1ATV DS    XL1                       DET SCRN 1 VALIDATE ATTRIBUTE  00025400
+LKSD1BRW DS    XL1                       DET SCRN 1 BEGIN ROW           00025500
+LKSD1REA DS    XL1                       DET SCRN 1 NUM TIMES REPEAT    00025600
+LKSD1COL DS    XL1                       DET SCRN 1 COLUMN              00025700
+LKSD1FLD DS    CL8                       DET SCRN 1 FIELD ID            00025800
+LKSD1OPL DS    XL2                       DET SCRN 1 OUTPUT LENGTH       00025900
+LKSD1EPT DS    XL1                       DET SCRN 1 EDIT PIC POINTER    00026100
+LKSD1EDP DS    XL1                       DET SCRN 1 EDIT PIC DEC PL     00026200
+LKSD1USR DS    XL2                       DET SCRN 1 USER FIELD          00026300
+LKSD1REW DS    CL15                      DET SCRN 1 REM WORK  0344671   00026310
+LKSD1DVL DS    CL79                      DET SCRN 1 LITERAL             00026400
+LKSD1DLG DS    XL2                       DET SCRN 1 DATA LENGTH         00026500
+LKSD1MDT DS    CL1                       DET SCRN 1 MDT                 00026600
+LKSD1PRO DS    CL1                       DET SCRN 1 PROTECT             00026700
+LKSD1INT DS    CL1                       DET SCRN 1 INIT FLAG           00026800
+LKSD1PEN DS    CL1                       DET SCRN 1 PEN DET             00026900
+LKSD1ASK DS    CL1                       DET SCRN 1 AUTO SKIP           00027000
+LKSD1NUM DS    CL1                       DET SCRN 1 NUMERIC             00027100
+LKSD1DRK DS    CL1                       DET SCRN 1 NON DISPLAY         00027200
+         ORG   LKSD1MDT                  REDEFINE WORK FIELDS           00027300
+LKSD1PSP DS    CL1                       DET SCRN PRIM SOURCE PRESENT   00027400
+LKSD1ASP DS    CL1                       DET SCRN ALT SOURCE PRESENT    00027500
+LKSD1PDP DS    CL1                       DET SCRN PRIM DICT PRESENT     00027600
+LKSD1ADP DS    CL1                       DET SCRN ALT DICT PRESENT      00027700
+         DS    CL3                                                      00027800
+*                                                                       00027900
+LKSD1BOX DS    CL1                       DET SCRN 1 BOX POSITION        00028000
+LKSD1ERW DS    XL1                       DET SCRN 1 ENDING ROW          00028100
+LKSD1HI  DS    CL1                       DET SCRN 1 HIGH INT            00028200
+LKSD1ESW DS    XL1                       DET SCRN 1 ERROR SW  2501304   00028220
+LKSD1ENO DS    XL2                       DET SCRN 1 ERROR NO  2501304   00028230
+LKSD1EFN DS    XL2                       DET SCRN 1 FIELD NO  2501304   00028240
+LKSD1PFA DS    XL2                       DET SCRN 1 PR FLD ADR2501304   00028250
+LKSD1CFA DS    XL2                       DET SCRN 1 CU FLD ADR2501304   00028260
+LKSD1NFA DS    XL2                       DET SCRN 1 NX FLD ADR2501304   00028270
+LKSD1EQU DS    CL8                       DET SCRN 1 EQU PTR   0344671   00028280
+LKSD1EPC DS    XL24                      DET SCRN 1 EDIT PIC  0344671   00028290
+         ORG   LKSDISVA                                                 00028400
+LKSDMNT  DS    0CL22                   SDR MAINTENANCE WORK AREA        00028500
+LKSDMSPS DS    XL2                       RELATIVE CURSOR POSITION 1     00028600
+LKSDMDPS DS    XL2                       RELATIVE CURSOR POSITION 2     00028700
+LKSDMTRW DS    XL1                       TARGET TERM NUM ROWS (TTR)     00028800
+LKSDMTCL DS    XL1                       TARGET TERM NUM COLS (TTR)     00028900
+LKSDMCRW DS    XL1                       CURRENT TERM NUM ROWS (TTR)    00029000
+LKSDMCCL DS    XL1                       CURRENT TERM NUM COLS (TTR)    00029100
+LKSDMROW DS    XL1                       SOURCE FIELD ROW               00029200
+LKSDMCOL DS    XL1                       SOURCE FIELD COLUMN            00029300
+LKSDMFAD DS    XL4                       SOURCE FIELD ADDRESS           00029400
+LKSDMFLG DS    XL2                       SOURCE FIELD LENGTH            00029500
+LKSDMRPX DS    XL2                       SOURCE FIELD REL POSITION      00029600
+LKSDMDAD DS    XL4                       DETAIL ADDRESS                 00029700
+LKSDMDLG DS    XL2                       DETAIL LENGTH                  00029800
+         ORG   LKSHARED                                                 00029900
+*                                                                       00030000
+LKTBICSH DS    0CL600                  TBR/ICR SHARED DATA              00030100
+LKTBICPC DS    0CL190                  TBR/ICR PROCESSING DATA          00030200
+LKICMAP  DS    CL1                     ICR MAP SUFFIX                   00030300
+LKICSLPG DS    CL8                     ICR PREVIOUS LAST PROGRAM        00030400
+LKTBCRSR DS    XL2                     TBR SAVE CURSOR POSITION         00030500
+         ORG   LKTBCRSR                                                 00030600
+LKICCRSR DS    XL2                     ICR SAVE CURSOR POSITION         00030700
+LKTBICOR DS    CL1                     TRANSACTION ORIGIN FLAG          00030800
+*                                      VALID VALUES 'I'-ICR MENU        00030900
+*                                                   'T'-TBR MENU        00031000
+LKTBSDKY DS    0CL20                   CPF/SDR KEY FOR FIELD ID EDITS   00031100
+LKTBSDCL DS    CL10                      CPF/SDR CLASS                  00031200
+LKTBSDNM DS    CL8                       CPF/SDR NAME                   00031300
+LKTBSDSQ DS    CL2                       CPF/SDR SEQUENCE NUMBER        00031400
+LKTBSDGP DS    CL2                     CPF/SDR FILE GROUP NUMBER        00031500
+LKTBSDCD DS    CL1                     CPF/SDR FILE INDICATOR           00031600
+LKTBSDCC EQU   C'C'                      ACCESS CPF FILE                00031700
+LKTBSDCS EQU   C'S'                      ACCESS SDR FILE                00031800
+*                                                                       00031900
+LKTBTBKY DS    0CL18                   TBR KEY (FOR TBR GLBL FROM ICR)  00032000
+LKTBTBCL DS    CL10                      TBR CLASS                      00032100
+LKTBTBTC DS    CL8                       TBR TRAN CODE                  00032200
+LKTBTBGP DS    CL2                     TBR FILE GROUP NUMBER            00032300
+         ORG   LKTBTBGP                                                 00032400
+LKICICGP DS    CL2                     ICR FILE GROUP NUMBER            00032500
+LKTBIPCD DS    CL8                     SAVED TBR INIT PROC CODES        00032600
+LKTBSCCD DS    CL6                     SAVED TBR SECURITY MENU CODES    00032700
+LKTBPRSW DS    CL1                     SAVED TBR PROCESS SWITCH         00032800
+LKTBI1OC DS    XL2                     OCC OF 1ST ICR ON TBR GLOBAL     00032900
+LKTBILOC DS    XL2                     OCC OF LST ICR ON TBR GLOBAL     00033000
+LKTBICOC DS    XL2                     OCC OF SELECTED ICR ON TBR GLBL  00033100
+         DS    CL1                     FILLER                           00033200
+*                                                                       00033300
+LKICICKY DS    0CL18                   ICR KEY (FOR TCR PROCESSING)     00033400
+LKICICCL DS    CL10                      ICR CLASS                      00033500
+LKICICNM DS    CL8                       ICR NAME                       00033600
+LKICIPCD DS    CL8                     SAVED ICR INIT PROC CODES        00033700
+LKICSCCD DS    CL6                     SAVED ICR SECURITY MENU CODES    00033800
+LKICPRSW DS    CL1                     SAVED ICR PROCESS SWITCH         00033900
+LKICK1OC DS    XL2                     OCC OF 1ST KEY ON KEY GLOBAL     00034000
+LKICD1OC DS    XL2                     OCC OF 1ST DTL IN 1ST KEY        00034100
+*                                      OR 1ST DTL ON PARSE DTL GLOBAL   00034200
+LKICD1NO DS    XL2                     NUMBER OF FIRST DETAIL           00034300
+LKICDLOC DS    XL2                     OCC OF LST DTL IN LST KEY        00034400
+*                                      OR LST DTL ON PARSE DTL GLOBAL   00034500
+LKICKCOC DS    XL2                     FOR COPY, "OLD" KEY OCCURRENCE   00034600
+LKICDCOC DS    XL2                     FOR COPY, "OLD" DETL WITHIN KEY  00034700
+*                                      OR "OLD" DETAIL FOR PARSE DTL    00034800
+LKICKCTR DS    XL12                    ICR RECORD KEY GLOBAL WORK AREA  00034900
+*                                        RECORD KEY COUNTER FIELDS      00035000
+*                                                                       00035100
+LKTBICDT DS    0CL40                   TBR/ICR GLOBAL/FIELD ID DATA     00035200
+*                                                                       00035300
+LKTBFELD DS    0CL31                   FIELD ID INQ PARAMETERS          00035400
+LKTBFPRC DS    CL1                       PROCESSING OPTION              00035500
+*                                           '1'- DISPLAY INQUIRY        00035600
+*                                           '2'- PROCESS FLD ID PASSED  00035700
+*                                           '3'- INQ WITH NO SELECTION  00035800
+LKTBFLD  DS    CL8                       FIELD ID                       00035900
+LKTBFOCC DS    XL1                       FIELD ID OCCUR IN CALLING PGM  00036000
+LKTBF1OF DS    XL2                       1ST FIELD OFFSET ON INQ SCREEN 00036100
+LKTBFLOF DS    XL2                       LST FIELD OFFSET ON INQ SCREEN 00036200
+LKTBFJST DS    CL1                       LEFT/RIGHT JUSTIFY             00036300
+LKTBFFLL DS    CL1                       BLANK/ZERO FILL                00036400
+LKTBFTYP DS    CL1                       DATA TYPE                      00036500
+LKTBFFMT DS    CL1                       DATE FORMAT                    00036600
+LKTBFLEN DS    XL2                       FIELD LENGTH                   00036700
+LKTBFSPG DS    CL8                       CALLING PROGRAM'S NAME         00036800
+LKTBFFOC DS    XL2                       FIELD ID OCCUR IN FIELD ID PGM 00036900
+LKTBFOVR DS    CL1                       OVERRIDE REQUEST FLAG          00037000
+*                                           '0'- NO OVERRIDE            00037100
+*                                           '1'- OVERRIDE REQUESTED     00037200
+         DS    CL9                     FILLER                           00037300
+*                                                                       00037400
+         ORG   LKTBICDT                                                 00037500
+*                                                                       00037600
+LKICRKEY DS    0CL1                    RECORD KEY DATA FROM KEY GLOBAL  00037700
+LKICRPF  DS    CL1                       PF1/PF2 FLAG                   00037800
+         DS    CL39                    FILLER                           00037900
+*                                                                       00038000
+LKICTCPR DS    CL1                     PROC SWITCH ON RETURN FROM TCR   00038100
+LKICFSRC DS    CL1                     FIELD PARSE SOURCE CODE          00038200
+LKICFDST DS    CL1                     FIELD PARSE DESTINATION CODE     00038300
+         DS    CL13                    FILLER                           00038400
+LKTBICIO DS    0CL410                  TBR/ICR I/O PROGRAMS DATA        00038500
+LKTBDCTL DS    CL1                       TBR DRIVER CONTROL             00038600
+         ORG   LKTBDCTL                                                 00038700
+LKICIREQ DS    CL1                       ICR REQUEST TYPE               00038800
+*                                          VALID VALUES FOR TBR & ICR:  00038900
+*                                          '0'-LOG ONLY                 00039000
+*                                          '1'-READ                     00039100
+*                                          '2'-READ FOR UPDATE          00039200
+*                                          '3'-REWRITE                  00039300
+*                                          '4'-WRITE                    00039400
+*                                          '5'-DELETE                   00039500
+*                                          '6'-COPY                     00039600
+LKTBRLEN DS    XL2                       TBR RECORD LENGTH              00039700
+         ORG   LKTBRLEN                                                 00039800
+LKICIRCL DS    XL2                       ICR RECORD LENGTH              00039900
+LKTBRSGN DS    CL1                       TBR SEGMENT # TO BE CHANGED    00040000
+         ORG   LKTBRSGN                                                 00040100
+LKICISGN DS    CL1                       ICR SEGMENT # TO BE CHANGED    00040200
+LKTBRACC DS    CL1                       TBR ACTION CODE                00040300
+LKTBRACU EQU   C'U'                        UPDATE                       00040400
+LKTBRACS EQU   C'S'                        DELETE SEGMENT               00040500
+LKTBRACD EQU   C'D'                        DELETE ONE OCCURRENCE        00040600
+LKTBRACA EQU   C'A'                        ADD OCCURRENCE               00040700
+         ORG   LKTBRACC                                                 00040800
+LKICIKAC DS    CL1                       ICR ACTION CODE                00040900
+LKICIKAK EQU   C'K'                        ADD NEW RECORD KEY (SEG 2)   00041000
+LKICIKAD EQU   C'D'                        ADD NEW DETAIL (SEG 2 OR 3)  00041100
+LKICIKAN EQU   C'N'                        CONDITONAL DATA(SEG 2 OR 3)  00041200
+LKICIKAT EQU   C'T'                        TOTALS DATA    (SEG 2 OR 3)  00041300
+LKICIKAE EQU   C'E'                        COMPUTE DATA SEG 3 0635191   00041310
+LKTBRICO DS    XL2                       TBR OCCUR # (SEG 2 OR 4)       00041400
+         ORG   LKTBRICO                                                 00041500
+LKICIRKN DS    XL2                       ICR RECORD KEY OCCUR # (SEG 2) 00041600
+LKICIRDN DS    XL2                       ICR RECORD KEY DETL OCCUR #    00041700
+LKICIPAN DS    XL2                       ICR FIELD PARSE DETL OCCUR #   00041800
+LKTBRERC DS    CL2                       TBR ERROR CODE                 00041900
+         ORG   LKTBRERC                                                 00042000
+LKICIERC DS    XL2                       ICR ERROR CODE                 00042100
+LKTBREIF DS    CL2                       TBR EIBFN                      00042200
+         ORG   LKTBREIF                                                 00042300
+LKICIEIF DS    CL2                       ICR EIBFN                      00042400
+LKTBREIR DS    CL6                       TBR EIBRCODE                   00042500
+         ORG   LKTBREIR                                                 00042600
+LKICIEIR DS    CL6                       ICR EIBRCODE                   00042700
+LKICISAC DS    CL1                       ICR SUB-ACTION CODE            00042800
+*                                         FOR TOTALS & CONDITIONAL PROC 00042900
+*                                         SEGMENTS 2 AND 3 ONLY         00043000
+LKICISAA EQU   C'A'                        ADD NEW TOTALS OR CONDITIONL 00043100
+*                                              OR COMPUTE     0635191   00043110
+LKICISAU EQU   C'U'                        UPDATE TOTALS OR CONDITIONAL 00043200
+*                                              OR COMPUTE     0635191   00043210
+LKTBWADR DS    CL4                       ADDRESS OF TBR WORK AREA       00043220
+         ORG   LKTBWADR                                       9913349   00043230
+LKICWADR DS    CL4                       ADDRESS OF ICR WORK AREA       00043240
+         DS    CL7                       FILLER               9913349   00043300
+LKTBRSVL DS    XL2                       TBR SAVE AREA LENGTH           00043400
+         ORG   LKTBRSVL                                                 00043500
+LKICISVL DS    XL2                       ICR SAVE AREA LENGTH           00043600
+LKTBRSVA DS    CL375                     TBR SAVE AREA                  00043700
+         ORG   LKTBRSVA                                                 00043800
+LKICISVA DS    CL375                     ICR SAVE AREA                  00043900
+*                                                                       00044000
+         ORG   LKSHARED                                                 00044100
+         DS    XL1                       FILLER               2501200   00044200
+LKSECMSG DS    CL79                      SECURITY MESSAGE               00044300
+         ORG   LKSHARED                                                 00044400
+         DS    XL10                      FILLER                         00044500
+LKDEFAT  DS    0XL16                   / DEFAULT ATTRIBUTE DATA AREA  / 00044600
+LKAKEYFS DS    XL1                     / KEYABLE FIELD SYMBOL         / 00044700
+LKALITFS DS    XL1                     / LITERAL FIELD SYMBOL         / 00044800
+LKADSPFS DS    XL1                     / DISPLAY FIELD SYMBOL         / 00044900
+LKAFLCHR DS    XL1                     / SCREEN FILL CHARACTER        / 00045000
+LKAPLITR DS    CL1                     / PROT LITERAL FIELD ATTR      / 00045100
+LKAPLCLR DS    XL1                     / PROT LITERAL EXT COLOR ATTR  / 00045200
+LKAPLHIL DS    XL1                     / PROT LITERAL EXT HILIGHT ATR / 00045300
+LKAPDSPY DS    CL1                     / PROT DISPLAY FIELD ATTR      / 00045400
+LKAPDCLR DS    XL1                     / PROT DISPLAY EXT COLOR ATTR  / 00045500
+LKAPDHIL DS    XL1                     / PROT DISPLAY EXT HILIGHT ATR / 00045600
+LKAUALPH DS    CL1                     / UNPROT ALPHANUM FIELD ATTR   / 00045700
+LKAUACLR DS    XL1                     / UNPROT ALPHANUM EXT CLR ATTR / 00045800
+LKAUAHIL DS    XL1                     / UNPROT ALPHANUM EXT HI ATR   / 00045900
+LKAUNUMR DS    CL1                     / UNPROT NUMERIC FIELD ATTR    / 00046000
+LKAUNCLR DS    XL1                     / UNPROT NUMERIC EXT CLR ATTR  / 00046100
+LKAUNHIL DS    XL1                     / UNPROT NUMERIC EXT HI ATR    / 00046200
+         DS    XL223                   / FILLER                       / 00046300
+LKSTHAT  DS    XL1                     / STD HEADING TERM TYPE FLAG   / 00046400
+         DS    XL10                    / FILLER                       / 00046500
+LKSTDHDG DS    XL240                   / STANDARD HEADING DATA AREA   / 00046600
+         ORG   LKSHARED                                                 00046700
+LKSD2SVA DS    CL160                   PFKEY SAVE AREA                  00046800
+         DS    CL340                                                    00046900
+         ORG                                                            00047000
+LKCOMLGH EQU   *-LKBGN                                                  00047100

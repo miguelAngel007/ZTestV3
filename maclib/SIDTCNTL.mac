@@ -1,0 +1,19 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+**************************************************************2024102** 00000010
+*                  ** HISTORY OF REVISIONS **                 2024102 * 00000020
+* DESCRIPTION                                         CHNGID  2024102 * 00000030
+* __________________________________________________________  2024102 * 00000040
+*                                                             2024102 * 00000050
+* 07/19/99 SIDSCNTL  8-BYTE RBA PROCESSING                    2024102 * 00000080
+* __________________________________________________________  2024102 * 00000090
+IOCNTL   DS    0F                      I/O ROUTINE CONTROL AREA         00000100
+IOOPER   DS    CL1                     OPERATOR                         00000200
+IOACCESS DS    CL1                     ACCESS MODE                      00000300
+IORETCOD DS    H                       RETURN CODE                      00000400
+         ORG   IORETCOD                                       2024102   00000410
+IOSENCOD DS    H                       SEND CODE XRBA -1      2024102   00000420
+*  2F USED INSTEAD OF D BECAUSE OF ALIGNMENT                  2024102   00000422
+IORBAX   DS    2F                      8-BYTE RBA             2024102   00000430
+         ORG   IORBAX                                         2024102   00000440
+IORBA    DS    F                       RBA                              00000500
+         DS    F                                              2024102   00000600

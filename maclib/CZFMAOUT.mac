@@ -1,0 +1,750 @@
+         MACRO                                                          00000100
+         CZFMAOUT                                                      X00000200
+               &TYPE=,                                                 X00000300
+               &NUMBER=,                                               X00000400
+               &DEVICE=,                                               X00000500
+               &FLDNAME=,                                              X00000600
+               &WRDNAME=,                                              X00000700
+               &LINE=,                                                 X00000800
+               &COLUMN=,                                               X00000900
+               &ROUTINE=0,                                             X00001000
+               &HELP=            HELP FUNCTION                          00001100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001200
+.*********                   P R O L O G                       ******** 00001300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00001400
+.*                                                                    * 00001500
+.*   MACRO NAME : CZFMAOUT                                            * 00001600
+.*                                                                    * 00001700
+.*   DESCRIPTIVE NAME : OUTPUT FORMAT TABLE CREATION                  * 00001800
+.*                                                                    * 00001900
+.*   STATUS : VERSION 1                                               * 00002000
+.*            RELEASE LEVEL = 1                                       * 00002100
+.*            MODIFICATION LEVEL = 0                                  * 00002200
+.*                                                                    * 00002300
+.*   COPYRIGHT:                                                       * 00002400
+.*                                                                    * 00002500
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00002600
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00002700
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00002800
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00002900
+.*                                                                    * 00003000
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00003100
+.*                                                                    * 00003200
+.*   FUNCTION:  TO GENERATE THE OUTPUT FORMAT TABLES. IT ALSO BUILDS  * 00003300
+.*              A MASTER TABLE CONTAINING THE ADDRESSES OF THE        * 00003400
+.*              DIFFERENT FORMATS. THESE TABLES WILL BE TRANSMITTED TO* 00003500
+.*              THE AP.                                               * 00003600
+.*                                                                    * 00003700
+.*                                                                    * 00003800
+.*   LOGIC: THE LOGIC FOR THIS MACRO IS DIVIDED IN 4 PARTS:           * 00003900
+.*          1) THE MACRO TYPE=INITIAL PROCESS -  CHECKS IF IT IS      * 00004000
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT BUILDS     * 00004100
+.*             THE PREFIX OF THE MASTER TABLE.                        * 00004200
+.*          2) THE MACRO TYPE=FORMAT PROCESS -  CHECKS THE VALIDITY   * 00004300
+.*             OF THE PARAMETERS NUMBER AND DEVICE. BASED ON THESE    * 00004400
+.*             PARAMETERS, A HEADER IS BUILT IN THE FORMAT TABLE AND  * 00004500
+.*             AND THE CORRESPONDING ADDRESS IS STORE IN THE MASTER   * 00004600
+.*             TABLE.                                                 * 00004700
+.*          3) THE MACRO TYPE=FIELD PROCESS -  CHECKS THE VALIDITY    * 00004800
+.*             OF THE PARAMETERS FLDNAME, COLUMN, LINE,               * 00004900
+.*             ROUTINE, WRDNAME. BASED ON THESE PARAMETER, ONE ENTRY  * 00005000
+.*             IS BUILT IN THE FORMAT TABLE.                          * 00005100
+.*          4) THE MACRO TYPE=FINAL PROCESS -  CHECKS IF IT IS        * 00005200
+.*             CORRECTLY CODED AND IN THE PROPER ORDER. IT UPDATES THE* 00005300
+.*             PREFIX INFORMATION IN THE MASTER TABLE.                * 00005400
+.*                                                                    * 00005500
+.*   ENTRY POINT :  BEGINNING OF THE MACRO                            * 00005600
+.*                                                                    * 00005700
+.*   EXTERNAL MODULE(S) CALL :  CZFMHELP TO VALIDATE HELP REQUESTS    * 00005800
+.*                              CZFMHIMS TO PRINT REQUESTED MESSAGES  * 00005900
+.*                                                                    * 00006000
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00006100
+.*                                                                    * 00006200
+.*   CHARACTERISTICS :                                                * 00006300
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00006400
+.*                                                                    * 00006500
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00006600
+.*                                                                    * 00006700
+.*   RESTRICTIONS: NONE                                               * 00006800
+.*                                                                    * 00006900
+.*   PARAMETERS RECEIVED:                                             * 00007000
+.*                                                                    * 00007100
+.*             TYPE=              *MACRO TYPE(INITIAL, FORMAT, FIELD  * 00007200
+.*                                * & FINAL)                          * 00007300
+.*             NUMBER=            *OUTPUT FORMAT NUMBER (001 TO 254)  * 00007400
+.*                                * (THREE DIGITS AND ASCENDING ORDER)* 00007500
+.*             DEVICE=            *DEVICE CODE                        * 00007600
+.*                                * 3604D   - KEYBOARD/DISPLAY        * 00007700
+.*                                * 36042   - 480 CHARACTERS DISPLAY  * 00007800
+.*                                * 36044   - 1024 CHARACTERS DISPLAY * 00007900
+.*                                * 36048   - 1920 CHARACTERS DISPLAY * 00008000
+.*                                * 3604M   - 3604 MAGNETIC STRIPE    * 00008100
+.*                                *         - READER/ENCODER          * 00008200
+.*                                * 3612J   - 3610/12 JOURNAL PRINTER * 00008300
+.*                                * 3612P   - 3611/12 PASSBOOK PRINTER* 00008400
+.*                                * 3615    - 3615/19 ADMIN. PRINTER  * 00008500
+.*                                * 3616J   - 3616 JOURNAL PRINT STAT.* 00008600
+.*                                * 3616D   - 3616 DOCUMENT PRINT STAT* 00008700
+.*                                * 3618    - 3618 ADMIN. PRINTER     * 00008800
+.*                                * 3620J   - 3620 JOURNAL PRINT STAT.* 00008900
+.*                                * 3620P   - 3620 PASSBOOK PRINT STAT* 00009000
+.*                                * 4704    - 480 CHARACTERS DISPLAY  * 00009100
+.*                                * 4710    - 4710 PRINTER            * 00009200
+.*                                * 4720    - 4720 PRINTER         JJ * 00009300
+.*                                * GENERAL - GENERAL FORMAT          * 00009400
+.*                                *         - NO DEVICE ASSOCIATED    * 00009500
+.*             FLDNAME=           *FIELD NAME                         * 00009600
+.*                                * ACCT    - PRIMARY ACCOUNT         * 00009700
+.*                                * ACCT2   - SECONDARY ACCOUNT       * 00009800
+.*                                * AMT     - AMOUNT                  * 00009900
+.*                                * BAL     - PASSBOOK BALANCE        * 00010000
+.*                                * CASH    - CASH                    * 00010100
+.*                                * LINE    - PASSBOOK LINE NUMBER    * 00010200
+.*                                * SER     - SERIAL NUMBER           * 00010300
+.*                                * OTHERNN - OTHER FIELDS (NN VALUE  * 00010400
+.*                                *           IS FROM 01 TO 50)    *IG* 00010500
+.*                                * SPECIAL - SPECIAL FIELD           * 00010600
+.*                                * COMPN   - COMPUTED FIELD N VALUE  * 00010700
+.*                                *           IS FROM  1 TO  9)       * 00010800
+.*             WRDNAME=           *WORDNAME (2 TO 8 CHAR STARTING WITH* 00010900
+.*                                *   A "W", SEE MACRO CZFMAWRD)      * 00011000
+.*             COLUMN=            *COLUMN NUMBER FOR FIELD (0 TO 80)  * 00011100
+.*             ROUTINE=           *ROUTINE NUMBER (0 TO 255)          * 00011200
+.*             LINE=              *LINE NUMBER (0 TO 63) (RELATIVE)   * 00011300
+.*             HELP=              *HELP MESSAGES REQUIRED             * 00011400
+.*                                                                    * 00011500
+.*   CONTROL BLOCK(S) BUILT :                                         * 00011600
+.*                                                                    * 00011700
+.*           OUTPUT FORMAT MASTER TABLE PREFIX                        * 00011800
+.*                                                                    * 00011900
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00012000
+.* DEC  HEX                                                           * 00012100
+.*                                                                    * 00012200
+.*  0    0        2       NUMBER OF ENTRIES                           * 00012300
+.*  2    2        2       LENGTH OF ENTRY                             * 00012400
+.*                                                                    * 00012500
+.*           OUTPUT FORMAT MASTER TABLE ELEMENT                       * 00012600
+.*                                                                    * 00012700
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00012800
+.* DEC  HEX                                                           * 00012900
+.*                                                                    * 00013000
+.*  0    0        1       FORMAT NUMBER                               * 00013100
+.*  1    1        2       ADDRESS OF THE FORMAT                       * 00013200
+.*                                                                    * 00013300
+.*            OUTPUT FORMAT TABLE ELEMENT                             * 00013400
+.*                                                                    * 00013500
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00013600
+.* DEC  HEX                                                           * 00013700
+.*                                                                    * 00013800
+.*  0    0        1       DEVICE INDICATOR (ONLY IF DEVICE IS NOT     * 00013900
+.*                         EQUAL TO GENERAL)                          * 00014000
+.*  1    1        1       DEVICE CODE (ONLY IF DEVICE IS NOT EQUAL    * 00014100
+.*                         TO GENERAL)                                * 00014200
+.*                                                                    * 00014300
+.*  2    2        1       LINE NUMBER (ONLY IF LINE NOT EQUAL TO ZERO)* 00014400
+.*                                                                    * 00014500
+.*  3    3        1       FIELD NAME (DELIMITER)                      * 00014600
+.*  4    4        1       COLUMN NUMBER FOR FIELD                     * 00014700
+.*  6    6        1       ROUTINE NUMBER OR WORD NUMBER               * 00014800
+.*                                                                    * 00014900
+.*  7    7        1       BLANK (ONLY IF IT IS THE LAST FIELD         * 00015000
+.*                        BELONGING TO THIS FORMAT)                   * 00015100
+.*                                                                    * 00015200
+.*   GENERATED CODE :                                                 * 00015300
+.*                   OUTPUT FORMAT MASTER TABLE                       * 00015400
+.*                                                                    * 00015500
+.*         DS    0D                    *MASTER TABLE PREFIX           * 00015600
+.*         DC    AL2(NUM OF ENTRIES)   *NUMBER OF ENTRIES             * 00015700
+.*         DC    AL2(3)                *LENGTH OF ENTRY               * 00015800
+.*                                     *MASTER TABLE ELEMENT          * 00015900
+.*         DC    XL1'NUMBER'           *FORMAT NUMBER                 * 00016000
+.*         DC    AL2(FORMAT ADDRESS)   *FORMAT ADDRESS                * 00016100
+.*                                                                    * 00016200
+.*                                                                    * 00016300
+.*                    OUTPUT FORMAT TABLE                             * 00016400
+.*                                                                    * 00016500
+.*OUT&NUMBER DS  0X                    *OUTPUT FORMAT TABLE ELEMENT   * 00016600
+.*         DC    XL1'EE'               *DEVICE INDICATOR (ALWAYS EE)  * 00016700
+.*         DC    YL1(DEVICE CODE)      *DEVICE CODE                   * 00016800
+.*         DC    YL1(LINE - 1)         *LINE NUMBER (BIT 0 IS ON FOR  * 00016900
+.*                                     *THE FIRST OCURRENCE OF LINE)  * 00017000
+.*         DC    YL1(DELIMITER)        *FIELD DELIMITER               * 00017100
+.*         DC    AL1(COLUMN)           *COLUMN NUMBER FOR FIELD       * 00017200
+.*         DC    AL1(ROUTINE)          *ROUTINE NUMBER OR             * 00017300
+.*         DC    AL1(WRDNAME)          *WORD NUMBER                   * 00017400
+.*         DC    CL1' '                *BLANK TO SHOW LAST FIELD OF   * 00017500
+.*                                     *THIS FORMAT                   * 00017600
+.*                                                                    * 00017700
+.*   NOTES:                                                           * 00017800
+.*                                                                    * 00017900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00018000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00018100
+.*                                                                    * 00018200
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00018300
+.*                                                                    * 00018400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00018500
+         GBLA  &MFINAL            *GLOBAL FINAL RECEIVED INDICATOR      00018600
+         GBLC  &MACREC            *NAME OF MACRO FOR LAST TYPE=INITIAL  00018700
+         GBLA  &MAOUT             *MACRO CZFMAOUT INDICATOR             00018800
+         GBLA  &PREVNUM           *PREVIOUS FORMAT NUMBER               00018900
+         GBLA  &LINE1ST           *FIRST LINE WITHIN FORMAT             00019000
+         GBLA  &ICOUNT            *COUNTER FOR NUMBER OF ENTRIES        00019100
+         GBLA  &LASTDEV           *LAST DEVICE TYPE INDICATOR           00019200
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00019300
+         GBLC  &CURRDEV           *CURRENT DEVICE TYPE                  00019400
+         GBLC  &LASTMAC           *PREVIOUS MACRO TYPE INDICATOR        00019500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00019600
+.*                                                                    * 00019700
+.*       DEFINE AND INITIALIZE LOCAL FIELDS                           * 00019800
+.*                                                                    * 00019900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00020000
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00020100
+         LCLA  &WKAREA            *WORK AREA                            00020200
+         LCLA  &WKLINE            *WORK FIELD FOR LINE NUMBER           00020300
+         LCLB  &ERRIND            *ERROR INDICATOR                      00020400
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00020500
+&ERRIND  SETB  0                  *INITIAL VALUE OF ERROR INDICATOR     00020600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00020700
+.*                                                                    * 00020800
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00020900
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00021000
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00021100
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00021200
+.*   PERFORMED.                                                       * 00021300
+.*                                                                    * 00021400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00021500
+         CZFMHELP HELP=&HELP         IS HELP FUNCTION REQUIRED ?        00021600
+         AIF (&HELPARM EQ 1).HELP                                       00021700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00021800
+.*                                                                    * 00021900
+.*   FIND THE TYPE OF MACRO TO BE PROCESSED                           * 00022000
+.*                                                                    * 00022100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00022200
+.P1VAL   ANOP                                                           00022300
+         AIF   (&MAOUT EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00022400
+         AIF   ('&TYPE' EQ 'INITIAL').P1V1                              00022500
+         AIF   ('&TYPE' EQ 'FORMAT').P2V1                               00022600
+         AIF   ('&TYPE' EQ 'FIELD').P3V1                                00022700
+         AIF   ('&TYPE' EQ 'FINAL').P4V1                                00022800
+         AGO   .PUE1              *INVALID TYPE MESSAGE                 00022900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00023000
+.*                                                                    * 00023100
+.*   VALIDATE MACRO TYPE=INITIAL                                      * 00023200
+.*                                                                    * 00023300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00023400
+.P1V1    ANOP                                                           00023500
+         AIF (&MAOUT NE 0).P1E1   *DUPLICATE TYPE INITIAL MACRO ERROR   00023600
+&MAOUT   SETA  1                  *SET ON MACRO INITIAL RECEIVED IND    00023700
+         AIF (&MFINAL GT 0).NOFINAL                                     00023800
+.SETMAC  ANOP                                                           00023900
+&MFINAL  SETA  1                  *SET TYPE=INITIAL RECEIVED            00024000
+&MACREC  SETC  'CZFMAOUT'         *NAME OF CURRENT MACRO                00024100
+         TITLE 'OUTPUT FORMAT TABLE'                                    00024200
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00024300
+*                                                                    *  00024400
+*   MACRO NAME : CZFMAOUT                                            *  00024500
+*                                                                    *  00024600
+*   DESCRIPTIVE NAME : OUTPUT FORMAT TABLE CREATION MACRO            *  00024700
+*                                                                    *  00024800
+*   STATUS : VERSION 1                                               *  00024900
+*            RELEASE LEVEL = 0                                       *  00025000
+*            MODIFICATION LEVEL = 0                                  *  00025100
+*                                                                    *  00025200
+*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.**  00025300
+&LASTMAC SETC  '&TYPE'            *SAVE MACRO TYPE FOR LATER USE        00025400
+&PREVNUM SETA  0                  *INITIALIZE PREVIOUS FMT NUMBER       00025500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00025600
+.*                                                                    * 00025700
+.*   BUILD THE MASTER TABLE PREFIX                                    * 00025800
+.*                                                                    * 00025900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00026000
+         AIF   (&ERRIND).END      *EXIT FROM THE MACRO                  00026100
+CZFACTMS CSECT                                                          00026200
+MSTENTR  EQU   *                                                        00026300
+         DC    AL2(&ICOUNT)       *NUMBER OF ENTRIES                    00026400
+         DC    AL2(3)             *LENGTH OF ENTRY                      00026500
+         AGO   .END               *EXIT FROM THE MACRO                  00026600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00026700
+.*                                                                    * 00026800
+.*   VALIDATION OF MACRO TYPE=FORMAT                                  * 00026900
+.*          - MACRO TYPE=INITIAL MUST HAVE BEEN PREVIOUSLY PROCESSED. * 00027000
+.*          - IF IT IS THE FIRST FORMAT, IT IS O.K.                   * 00027100
+.*          - IF THE LAST MACRO WAS TYPE=FORMAT, IT IS AN ERROR BECAUSE 00027200
+.*            THE FORMAT SHOULD HAVE AT LEAST ONE MACRO TYPE=FIELD.   * 00027300
+.*          - IF THE LAST MACRO WAS TYPE=FIELD, INDICATE THE END OF   * 00027400
+.*            THIS FORMAT WITH A BLANK.                               * 00027500
+.*                                                                    * 00027600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00027700
+.P2V1    ANOP                                                           00027800
+         AIF (&MAOUT NE 1).P2E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00027900
+         AIF ('&LASTMAC' EQ 'INITIAL').P2V3                             00028000
+         AIF ('&LASTMAC' EQ 'FORMAT').P2E1                              00028100
+         AIF ('&LASTMAC' EQ 'FIELD').P2V2                               00028200
+.P2V2    ANOP                                                           00028300
+CZFACTDT CSECT                                                          00028400
+         DC    CL1' '             *BLANK TO SHOW LAST FIELD             00028500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00028600
+.*                                                                    * 00028700
+.*   VALIDATE PARAMETER NUMBER IN MACRO TYPE=FORMAT                   * 00028800
+.*        - MUST BE 2 DIGITS, AND GREATER OR EQUAL TO THE PREVIOUS    * 00028900
+.*          FORMAT NUMBER.                                            * 00029000
+.*                                                                    * 00029100
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00029200
+.P2V3    ANOP                                                           00029300
+&LINE1ST SETA  0                  *FIRST LINE INDICATOR (USED BY FIELD) 00029400
+         AIF    (T'&NUMBER EQ 'O').P2E3                                 00029500
+         AIF    (T'&NUMBER NE 'N').P2E3                                 00029600
+         AIF    (K'&NUMBER NE 3).P2E3                                   00029700
+         AIF    (&NUMBER LT 001 OR &NUMBER GT 254).P2E3                 00029800
+.P2V4    ANOP                                                           00029900
+         AIF    (&NUMBER LT &PREVNUM).P2E4                              00030000
+         AIF    (&NUMBER GT &PREVNUM).P2V4A                             00030100
+.*                                *IF LAST DEVICE FOR THIS FORMAT HAS   00030200
+         AIF    (&LASTDEV EQ 1).P2E4A  *BEEN RECEIVED, ERROR            00030300
+         AGO   .P2V5                                                    00030400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00030500
+.*                                                                    * 00030600
+.*   BUILD THE LABEL IN THE FORMAT TABLE.                             * 00030700
+.*                                                                    * 00030800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00030900
+.P2V4A   ANOP                                                           00031000
+         AIF    (&LASTDEV EQ 0 AND '&LASTMAC' EQ 'INITIAL').P2V4B *O.K. 00031100
+         AIF    (&LASTDEV EQ 0).P2E4B  *DEVICE=GENERAL NEVER RECEIVED   00031200
+.P2V4B   ANOP                                                           00031300
+CZFACTDT CSECT                                                          00031400
+OUT&NUMBER   DS    0X                  *FORMAT LABEL                    00031500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00031600
+.*                                                                    * 00031700
+.*   BUILD THE ENTRY IN THE MASTER TABLE.                             * 00031800
+.*                                                                    * 00031900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00032000
+CZFACTMS CSECT                                                          00032100
+         DC    AL1(&NUMBER)        *FORMAT NUMBER                       00032200
+         DC    AL2(OUT&NUMBER-CZFACTDT+MSTRLENG)     *FORMAT ADDRESS    00032300
+&ICOUNT  SETA  &ICOUNT+1          *COUNTER FOR NUMBER OF ENTRIES ADD 1  00032400
+&LASTDEV SETA  0                  *LAST DEVICE INDICATOR (NOT RECEIVED) 00032500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00032600
+.*                                                                    * 00032700
+.*   VALIDATE PARAMETER DEVICE IN MACRO TYPE=FORMAT                   * 00032800
+.*        - MUST BE EQUAL TO: 3604D, 36042, 36044, 36048, 3604M,      * 00032900
+.*          3612J, 3612P, 3615, 3616J, 3616D, 3618, 3620J, 3620P,     * 00033000
+.*          4704, 4710, 4720, GENERAL                             JJ  * 00033100
+.*        - DEVICE=GENERAL MUST BE THE LAST DEVICE CODED WITHIN THE   * 00033200
+.*          SAME FORMAT NUMBER.                                       * 00033300
+.*                                                                    * 00033400
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00033500
+.P2V5    ANOP                                                           00033600
+         AIF    (T'&DEVICE EQ 'O').P2E5                                 00033700
+         AIF    ('&DEVICE' EQ 'GENERAL').P2V5A                          00033800
+         AIF    ('&DEVICE' EQ '3604D').P2V6                             00033900
+         AIF    ('&DEVICE' EQ '36042').P2V6                             00034000
+         AIF    ('&DEVICE' EQ '36044').P2V6                             00034100
+         AIF    ('&DEVICE' EQ '36048').P2V6                             00034200
+         AIF    ('&DEVICE' EQ '3604M').P2V6                             00034300
+         AIF    ('&DEVICE' EQ '3612J').P2V6                             00034400
+         AIF    ('&DEVICE' EQ '3612P').P2V6                             00034500
+         AIF    ('&DEVICE' EQ '3615').P2V6                              00034600
+         AIF    ('&DEVICE' EQ '3616J').P2V6                             00034700
+         AIF    ('&DEVICE' EQ '3616D').P2V6                             00034800
+         AIF    ('&DEVICE' EQ '3618').P2V6                              00034900
+         AIF    ('&DEVICE' EQ '3620J').P2V6                             00035000
+         AIF    ('&DEVICE' EQ '3620P').P2V6                             00035100
+         AIF    ('&DEVICE' EQ '4704').P2V6                              00035200
+         AIF    ('&DEVICE' EQ '4710').P2V6                              00035300
+         AIF    ('&DEVICE' EQ '4720').P2V6                      *JJ     00035400
+         AGO   .P2E5                                                    00035500
+.P2V5A   ANOP                                                           00035600
+&LASTDEV SETA  1                  *LAST DEVICE INDICATOR (RECEIVED)     00035700
+         AGO   .P2V7                                                    00035800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00035900
+.*                                                                    * 00036000
+.*   BUILD THE DEVICE INFORMATION IN THE FORMAT TABLE.                * 00036100
+.*                                                                    * 00036200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00036300
+.P2V6    ANOP                                                           00036400
+         AIF   (&ERRIND).END                                            00036500
+CZFACTDT CSECT                                                          00036600
+         DC    XL1'EE'             *DEVICE INDICATOR                    00036700
+         DC    YL1(DVC&DEVICE)     *DEVICE CODE                         00036800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00036900
+.*                                                                    * 00037000
+.*   IF NO ERRORS FOUND, SAVE INFORMATION TO BE USE IN SUBSEQUENT MACRO 00037100
+.*                                                                    * 00037200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00037300
+.P2V7    ANOP                                                           00037400
+         AIF   (&ERRIND).END                                            00037500
+&CURRDEV SETC  '&DEVICE'                                                00037600
+&LASTMAC SETC  '&TYPE'            *SAVE MACRO TYPE FOR LATER USE        00037700
+&PREVNUM SETA  &NUMBER            *SAVE FORMAT NUMBER FOR LATER USE     00037800
+         AGO   .END                                                     00037900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00038000
+.*                                                                    * 00038100
+.*   VALIDATION OF MACRO TYPE=FIELD                                   * 00038200
+.*          - MACRO TYPE=INITIAL AND A MACRO TYPE=FORMAT MUST HAVE    * 00038300
+.*            BEEN PREVIOUSLY PROCESSED.                              * 00038400
+.*                                                                    * 00038500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00038600
+.P3V1    ANOP                                                           00038700
+         AIF (&MAOUT NE 1).P3E1   *NO INITIAL TYPE MACRO RECEIVED ERROR 00038800
+         AIF ('&LASTMAC' EQ 'INITIAL').P3E1                             00038900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00039000
+.*                                                                    * 00039100
+.*   VALIDATE PARAMETER FLDNAME IN MACRO TYPE=FIELD                   * 00039200
+.*        - MUST BE EQUAL TO: ACCT, ACCT2, AMT, BAL, CASH, LINE, SER, * 00039300
+.*          OTHERNN (WHERE NN IS FROM 01 TO 50), SPECIAL,          *IG* 00039400
+.*          COMPN   (WHERE N  IS FROM 1  TO  9).                      * 00039500
+.*                                                                    * 00039600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00039700
+.P3V1A   ANOP                                                           00039800
+.*                                *CHECK IF FLDNAME IS ALLOWED          00039900
+         AIF    (T'&FLDNAME EQ 'O' AND T'&WRDNAME EQ 'O').P3E2A         00040000
+         AIF    (T'&FLDNAME NE 'O' AND T'&WRDNAME NE 'O').P3E2A         00040100
+         AIF    (T'&FLDNAME EQ 'O').P3V2                                00040200
+         AIF    ('&FLDNAME' EQ 'ACCT').P3V2A                            00040300
+         AIF    ('&FLDNAME' EQ 'ACCT2').P3V2A                           00040400
+         AIF    ('&FLDNAME' EQ 'AMT').P3V2A                             00040500
+         AIF    ('&FLDNAME' EQ 'BAL').P3V2A                             00040600
+         AIF    ('&FLDNAME' EQ 'CASH').P3V2A                            00040700
+         AIF    ('&FLDNAME' EQ 'LINE').P3V2A                            00040800
+         AIF    ('&FLDNAME' EQ 'SER').P3V2A                             00040900
+         AIF    ('&FLDNAME' EQ 'OTHER01').P3V2A                         00041000
+         AIF    ('&FLDNAME' EQ 'OTHER02').P3V2A                         00041100
+         AIF    ('&FLDNAME' EQ 'OTHER03').P3V2A                         00041200
+         AIF    ('&FLDNAME' EQ 'OTHER04').P3V2A                         00041300
+         AIF    ('&FLDNAME' EQ 'OTHER05').P3V2A                         00041400
+         AIF    ('&FLDNAME' EQ 'OTHER06').P3V2A                         00041500
+         AIF    ('&FLDNAME' EQ 'OTHER07').P3V2A                         00041600
+         AIF    ('&FLDNAME' EQ 'OTHER08').P3V2A                         00041700
+         AIF    ('&FLDNAME' EQ 'OTHER09').P3V2A                         00041800
+         AIF    ('&FLDNAME' EQ 'OTHER10').P3V2A                         00041900
+         AIF    ('&FLDNAME' EQ 'OTHER11').P3V2A                         00042000
+         AIF    ('&FLDNAME' EQ 'OTHER12').P3V2A                         00042100
+         AIF    ('&FLDNAME' EQ 'OTHER13').P3V2A                         00042200
+         AIF    ('&FLDNAME' EQ 'OTHER14').P3V2A                         00042300
+         AIF    ('&FLDNAME' EQ 'OTHER15').P3V2A                         00042400
+         AIF    ('&FLDNAME' EQ 'OTHER16').P3V2A                         00042500
+         AIF    ('&FLDNAME' EQ 'OTHER17').P3V2A                         00042600
+         AIF    ('&FLDNAME' EQ 'OTHER18').P3V2A                         00042700
+         AIF    ('&FLDNAME' EQ 'OTHER19').P3V2A                         00042800
+         AIF    ('&FLDNAME' EQ 'OTHER20').P3V2A                         00042900
+         AIF    ('&FLDNAME' EQ 'OTHER21').P3V2A                  *JJ    00043000
+         AIF    ('&FLDNAME' EQ 'OTHER22').P3V2A                  *JJ    00043100
+         AIF    ('&FLDNAME' EQ 'OTHER23').P3V2A                  *JJ    00043200
+         AIF    ('&FLDNAME' EQ 'OTHER24').P3V2A                  *JJ    00043300
+         AIF    ('&FLDNAME' EQ 'OTHER25').P3V2A                  *JJ    00043400
+         AIF    ('&FLDNAME' EQ 'OTHER26').P3V2A                  *JJ    00043500
+         AIF    ('&FLDNAME' EQ 'OTHER27').P3V2A                  *JJ    00043600
+         AIF    ('&FLDNAME' EQ 'OTHER28').P3V2A                  *JJ    00043700
+         AIF    ('&FLDNAME' EQ 'OTHER29').P3V2A                  *JJ    00043800
+         AIF    ('&FLDNAME' EQ 'OTHER30').P3V2A                  *JJ    00043900
+         AIF    ('&FLDNAME' EQ 'OTHER31').P3V2A                    *IG* 00044000
+         AIF    ('&FLDNAME' EQ 'OTHER32').P3V2A                    *IG* 00044100
+         AIF    ('&FLDNAME' EQ 'OTHER33').P3V2A                    *IG* 00044200
+         AIF    ('&FLDNAME' EQ 'OTHER34').P3V2A                    *IG* 00044300
+         AIF    ('&FLDNAME' EQ 'OTHER35').P3V2A                    *IG* 00044400
+         AIF    ('&FLDNAME' EQ 'OTHER36').P3V2A                    *IG* 00044500
+         AIF    ('&FLDNAME' EQ 'OTHER37').P3V2A                    *IG* 00044600
+         AIF    ('&FLDNAME' EQ 'OTHER38').P3V2A                    *IG* 00044700
+         AIF    ('&FLDNAME' EQ 'OTHER39').P3V2A                    *IG* 00044800
+         AIF    ('&FLDNAME' EQ 'OTHER40').P3V2A                    *IG* 00044900
+         AIF    ('&FLDNAME' EQ 'OTHER41').P3V2A                    *IG* 00045000
+         AIF    ('&FLDNAME' EQ 'OTHER42').P3V2A                    *IG* 00045100
+         AIF    ('&FLDNAME' EQ 'OTHER43').P3V2A                    *IG* 00045200
+         AIF    ('&FLDNAME' EQ 'OTHER44').P3V2A                    *IG* 00045300
+         AIF    ('&FLDNAME' EQ 'OTHER45').P3V2A                    *IG* 00045400
+         AIF    ('&FLDNAME' EQ 'OTHER46').P3V2A                    *IG* 00045500
+         AIF    ('&FLDNAME' EQ 'OTHER47').P3V2A                    *IG* 00045600
+         AIF    ('&FLDNAME' EQ 'OTHER48').P3V2A                    *IG* 00045700
+         AIF    ('&FLDNAME' EQ 'OTHER49').P3V2A                    *IG* 00045800
+         AIF    ('&FLDNAME' EQ 'OTHER50').P3V2A                    *IG* 00045900
+.*                                *FIELDS ANADIDOS INTERBANC JULIO/88   00046000
+         AIF    ('&FLDNAME' EQ 'OTHER51').P3V2A                    *IB* 00046100
+         AIF    ('&FLDNAME' EQ 'OTHER52').P3V2A                    *IB* 00046200
+         AIF    ('&FLDNAME' EQ 'OTHER53').P3V2A                    *IB* 00046300
+         AIF    ('&FLDNAME' EQ 'OTHER54').P3V2A                    *IB* 00046400
+         AIF    ('&FLDNAME' EQ 'OTHER55').P3V2A                    *IB* 00046500
+         AIF    ('&FLDNAME' EQ 'OTHER56').P3V2A                    *IB* 00046600
+         AIF    ('&FLDNAME' EQ 'OTHER57').P3V2A                    *IB* 00046700
+         AIF    ('&FLDNAME' EQ 'OTHER58').P3V2A                    *IB* 00046800
+         AIF    ('&FLDNAME' EQ 'OTHER59').P3V2A                    *IB* 00046900
+         AIF    ('&FLDNAME' EQ 'OTHER60').P3V2A                    *IB* 00047000
+         AIF    ('&FLDNAME' EQ 'OTHER61').P3V2A                    *IB* 00047100
+         AIF    ('&FLDNAME' EQ 'OTHER62').P3V2A                    *IB* 00047200
+         AIF    ('&FLDNAME' EQ 'OTHER63').P3V2A                    *IB* 00047300
+         AIF    ('&FLDNAME' EQ 'OTHER64').P3V2A                    *IB* 00047400
+         AIF    ('&FLDNAME' EQ 'OTHER65').P3V2A                    *IB* 00047500
+         AIF    ('&FLDNAME' EQ 'OTHER66').P3V2A                    *IB* 00047600
+         AIF    ('&FLDNAME' EQ 'OTHER67').P3V2A                    *IB* 00047700
+         AIF    ('&FLDNAME' EQ 'OTHER68').P3V2A                    *IB* 00047800
+         AIF    ('&FLDNAME' EQ 'OTHER69').P3V2A                    *IB* 00047900
+         AIF    ('&FLDNAME' EQ 'OTHER70').P3V2A                    *IB* 00048000
+         AIF    ('&FLDNAME' EQ 'OTHER71').P3V2A                    *IB* 00048100
+         AIF    ('&FLDNAME' EQ 'OTHER72').P3V2A                    *IB* 00048200
+         AIF    ('&FLDNAME' EQ 'OTHER73').P3V2A                    *IB* 00048300
+         AIF    ('&FLDNAME' EQ 'OTHER74').P3V2A                    *IB* 00048400
+         AIF    ('&FLDNAME' EQ 'OTHER75').P3V2A                    *IB* 00048500
+         AIF    ('&FLDNAME' EQ 'OTHER76').P3V2A                    *IB* 00048600
+         AIF    ('&FLDNAME' EQ 'OTHER77').P3V2A                    *IB* 00048700
+         AIF    ('&FLDNAME' EQ 'OTHER78').P3V2A                    *IB* 00048800
+         AIF    ('&FLDNAME' EQ 'OTHER79').P3V2A                    *IB* 00048900
+         AIF    ('&FLDNAME' EQ 'OTHER80').P3V2A                    *IB* 00049000
+         AIF    ('&FLDNAME' EQ 'OTHER81').P3V2A                    *IB* 00049100
+         AIF    ('&FLDNAME' EQ 'OTHER82').P3V2A                    *IB* 00049200
+         AIF    ('&FLDNAME' EQ 'OTHER83').P3V2A                    *IB* 00049300
+         AIF    ('&FLDNAME' EQ 'OTHER84').P3V2A                    *IB* 00049400
+         AIF    ('&FLDNAME' EQ 'OTHER85').P3V2A                    *IB* 00049500
+         AIF    ('&FLDNAME' EQ 'OTHER86').P3V2A                    *IB* 00049600
+         AIF    ('&FLDNAME' EQ 'OTHER87').P3V2A                    *IB* 00049700
+         AIF    ('&FLDNAME' EQ 'OTHER88').P3V2A                    *IB* 00049800
+         AIF    ('&FLDNAME' EQ 'OTHER89').P3V2A                    *IB* 00049900
+         AIF    ('&FLDNAME' EQ 'OTHER90').P3V2A                    *IB* 00050000
+         AIF    ('&FLDNAME' EQ 'OTHER91').P3V2A                    *IB* 00050100
+         AIF    ('&FLDNAME' EQ 'OTHER92').P3V2A                    *IB* 00050200
+         AIF    ('&FLDNAME' EQ 'OTHER93').P3V2A                    *IB* 00050300
+         AIF    ('&FLDNAME' EQ 'OTHER94').P3V2A                    *IB* 00050400
+         AIF    ('&FLDNAME' EQ 'OTHER95').P3V2A                    *IB* 00050500
+         AIF    ('&FLDNAME' EQ 'OTHER96').P3V2A                    *IB* 00050600
+         AIF    ('&FLDNAME' EQ 'OTHER97').P3V2A                    *IB* 00050700
+         AIF    ('&FLDNAME' EQ 'OTHER98').P3V2A                    *IB* 00050800
+         AIF    ('&FLDNAME' EQ 'OTHER99').P3V2A                    *IB* 00050900
+         AIF    ('&FLDNAME' EQ 'SPECIAL').P3V2A                         00051000
+         AIF    ('&FLDNAME' EQ 'COMP1').P3V2A                           00051100
+         AIF    ('&FLDNAME' EQ 'COMP2').P3V2A                           00051200
+         AIF    ('&FLDNAME' EQ 'COMP3').P3V2A                           00051300
+         AIF    ('&FLDNAME' EQ 'COMP4').P3V2A                           00051400
+         AIF    ('&FLDNAME' EQ 'COMP5').P3V2A                           00051500
+         AIF    ('&FLDNAME' EQ 'COMP6').P3V2A                           00051600
+         AIF    ('&FLDNAME' EQ 'COMP7').P3V2A                           00051700
+         AIF    ('&FLDNAME' EQ 'COMP8').P3V2A                           00051800
+         AIF    ('&FLDNAME' EQ 'COMP9').P3V2A                           00051900
+         AGO   .P3E2                                                    00052000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00052100
+.*                                                                    * 00052200
+.*   VALIDATE PARAMETER WRDNAME IN MACRO TYPE=FIELD                   * 00052300
+.*        - MUST BE EQUAL TO A PREVIOUSLY DEFINED WORD NAME (MACRO    * 00052400
+.*          CZFMAWRD)                                                 * 00052500
+.*        - MUST BE FROM 2 TO 8 CHARACTERS LONG STARTING WITH A "W"   * 00052600
+.*                                                                    * 00052700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00052800
+.P3V2    ANOP                                                           00052900
+         AIF    (T'&WRDNAME EQ 'O').P3V2A                               00053000
+         AIF    (K'&WRDNAME LT 02 OR K'&WRDNAME GT 08).P3E3A            00053100
+         AIF    ('&WRDNAME'(1,1) NE 'W').P3E3A                          00053200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00053300
+.*                                                                    * 00053400
+.*   VALIDATE PARAMETER COLUMN COLUMN IN THE MACRO TYPE=FIELD         * 00053500
+.*        - MUST BE NUMERIC FROM 0 TO 80                              * 00053600
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00053700
+.P3V2A   ANOP                                                           00053800
+         AIF    ('&CURRDEV' EQ '3604M').P3V3                            00053900
+         AIF    (T'&COLUMN EQ 'O').P3E3                                 00054000
+         AIF    (T'&COLUMN NE 'N').P3E3                                 00054100
+         AIF    (&COLUMN GT 80).P3E3                                    00054200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00054300
+.*                                                                    * 00054400
+.*   VALIDATE PARAMETER ROUTINE IN MACRO TYPE=FIELD                   * 00054500
+.*        - IT MUST BE NUMERIC (0 TO 255)                             * 00054600
+.*        - IF FLDNAME=SPECIAL, ROUTINE MUST NOT BE ZERO.             * 00054700
+.*        - IF WRDNAME IS CODED, ROUTINE IS IGNORED (WARNING MESSAGE).* 00054800
+.*                                                                    * 00054900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00055000
+.P3V3    ANOP                                                           00055100
+         AIF    (T'&WRDNAME NE 'O').P3V3A                               00055200
+         AIF    (T'&ROUTINE NE 'N').P3E4                                00055300
+         AIF    (&ROUTINE EQ 0 AND '&FLDNAME' EQ 'SPECIAL').P3E4        00055400
+         AIF    (&ROUTINE GT 255).P3E4                                  00055500
+         AGO   .P3V4                                                    00055600
+.P3V3A   ANOP                                                           00055700
+         AIF    (T'&ROUTINE EQ 'O').P3V4   *SHOULD NOT BE CODED WITH    00055800
+         AIF    ('&ROUTINE' NE '0').P3E4A  * WORDNAME                   00055900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00056000
+.*                                                                    * 00056100
+.*   VALIDATE PARAMETER LINE IN MACRO TYPE=FIELD                      * 00056200
+.*        - MUST BE NUMERIC AND NOT GREATER THAN 63                   * 00056300
+.*        - IF LINE IS NOT ZERO, GENERATE THE LINE NUMBER (MINUS ONE) * 00056400
+.*          IN THE FORMAT TABLE. IF IT IS THE FIRST LINE TURN THE     * 00056500
+.*          FIRST BIT ON.                                             * 00056600
+.*                                                                    * 00056700
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00056800
+.P3V4    ANOP                                                           00056900
+         AIF    (&LINE1ST EQ 0 AND &LINE EQ 0).P3E5                     00057000
+         AIF    ('&CURRDEV' EQ '3604M').P3V5                            00057100
+         AIF    (T'&LINE EQ 'O').P3E5                                   00057200
+         AIF    (T'&LINE NE 'N').P3E5                                   00057300
+         AIF    (&LINE GT 63).P3E5                                      00057400
+         AIF    (&LINE EQ 0).P3V5                                       00057500
+&WKLINE  SETA  &LINE-1             *SUBSTRACT 1 FROM LINE NUMBER        00057600
+         AIF    (&LINE1ST EQ 0).P3V4A       *IF THIS IS THE FIRST LINE  00057700
+CZFACTDT CSECT                                                          00057800
+         DC    YL1(&WKLINE)        *LINE NUMBER (NO FIRST LINE)         00057900
+         AGO   .P3V4B                                                   00058000
+.P3V4A   ANOP                                                           00058100
+CZFACTDT CSECT                                                          00058200
+         DC    YL1(&WKLINE+128)    *LINE NUMBER (FIRST LINE)            00058300
+.P3V4B   ANOP                                                           00058400
+&LINE1ST SETA  1                   *INDICATE 1ST LINE RECEIVE           00058500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00058600
+.*                                                                    * 00058700
+.*   IF NO ERRORS FOUND, SAVE INFORMATION TO BE USE IN SUBSEQUENT     * 00058800
+.*   MACRO AND BUILD THE ENTRY IN THE FORMAT TABLE.                   * 00058900
+.*                                                                    * 00059000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00059100
+.P3V5    ANOP                                                           00059200
+         AIF   (&ERRIND).END                                            00059300
+&LASTMAC SETC  '&TYPE'            *SAVE MACRO TYPE FOR LATER USE        00059400
+CZFACTDT CSECT                                                          00059500
+         AIF    (T'&WRDNAME EQ 'O').P3V5A                               00059600
+         DC    AL1(WORD)           *FIELD ID (DELIMITER) FOR WORD       00059700
+         AGO   .P3V5B                                                   00059800
+.P3V5A   ANOP                                                           00059900
+         DC    AL1(&FLDNAME)       *FIELD ID (DELIMITER)                00060000
+.P3V5B   ANOP                                                           00060100
+         AIF    ('&CURRDEV' EQ '3604M').P3V5C                           00060200
+         DC    AL1(&COLUMN)        *COLUMN NUMBER FOR FIELD             00060300
+         AGO    .P3V5D                                                  00060400
+.P3V5C   ANOP                                                           00060500
+         DC    AL1(0)              *COLUMN NUMBER FOR FIELD             00060600
+         AGO    .P3V5D                                                  00060700
+.P3V5D   ANOP                                                           00060800
+         AIF    (T'&WRDNAME NE 'O').P3V6                                00060900
+         DC    AL1(&ROUTINE)       *EDIT ROUTINE NUMBER                 00061000
+         AGO   .P3V7                                                    00061100
+.P3V6    ANOP                                                           00061200
+         DC    AL1(&WRDNAME)       *WORD NUMBER                         00061300
+.P3V7    ANOP                                                           00061400
+         AGO   .END                                                     00061500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00061600
+.*                                                                    * 00061700
+.*   VALIDATION OF MACRO TYPE=FINAL                                   * 00061800
+.*        -   THIS MACRO TYPE REQUIRES THE PREVIOUS EXISTENCE OF      * 00061900
+.*            A MACRO TYPE=INITIAL AND OPTIONALLY ANY NUMBER OF       * 00062000
+.*            MACROS TYPE FORMAT AND TYPE FIELD                       * 00062100
+.*                                                                    * 00062200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00062300
+.P4V1    ANOP                                                           00062400
+         AIF (&MAOUT NE 1).P4E1                                         00062500
+         AIF (&LASTDEV EQ 0).P4E2                                       00062600
+         AIF   (&ERRIND).END                                            00062700
+&MAOUT   SETA  2                                                        00062800
+&MFINAL  SETA  0                  *SET TYPE=FINAL RECEIVED              00062900
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00063000
+.*                                                                    * 00063100
+.*   FINISH UP WITH INFORMATION IN BOTH TABLES                        * 00063200
+.*        -   UPDATE THE FORMAT TABLE TO INDICATE LAST FIELD.         * 00063300
+.*        -   UPDATE THE MASTER TABLE WITH THE NUMBER OF ENTRIES.     * 00063400
+.*                                                                    * 00063500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00063600
+CZFACTMS CSECT                                                          00063700
+         ORG   MSTENTR            *GO TO THE PREFIX OF THE MASTER TABLE 00063800
+         DC    AL2(&ICOUNT)       *TO UPDATE THE NUMBER OF ENTRIES      00063900
+         ORG ,                    *RESET THE LOCATION COUNTER           00064000
+CZFACTDT CSECT                                                          00064100
+         DC    CL1' '             *BLANK TO SHOW LAST FIELD             00064200
+         AGO   .END                                                     00064300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00064400
+.*                                                                    * 00064500
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00064600
+.*    MESSAGES REQUIRED.                                              * 00064700
+.*                                                                    * 00064800
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00064900
+.HELP    ANOP                                                           00065000
+         CZFMHIMS MSGNUM=998                                            00065100
+         CZFMHIMS MSGNUM=30                                             00065200
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMAOUT                            00065300
+         CZFMHIMS MSGNUM=2                                              00065400
+         CZFMHIMS MSGNUM=31,MSGPARM=FORMAT                              00065500
+         CZFMHIMS MSGNUM=35,MSGPARM=FIELD                               00065600
+         CZFMHIMS MSGNUM=88,MSGPARM=FINAL                               00065700
+         CZFMHIMS MSGNUM=32                                             00065800
+         CZFMHIMS MSGNUM=33                                             00065900
+         CZFMHIMS MSGNUM=34                                             00066000
+         CZFMHIMS MSGNUM=40                                             00066100
+         CZFMHIMS MSGNUM=42                                             00066200
+         CZFMHIMS MSGNUM=36                                             00066300
+         CZFMHIMS MSGNUM=41                                             00066400
+         CZFMHIMS MSGNUM=69                                             00066500
+         CZFMHIMS MSGNUM=37                                             00066600
+         CZFMHIMS MSGNUM=38                                             00066700
+         CZFMHIMS MSGNUM=70                                             00066800
+         CZFMHIMS MSGNUM=119                                            00066900
+       AGO   .END                                                       00067000
+.NOFINAL ANOP                                                           00067100
+         CZFMHIMS MSGNUM=996,MSGPARM=&MACREC                            00067200
+         AGO   .SETMAC            *RETURN TO SET NEXT                   00067300
+.PCOMP   ANOP                                                           00067400
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMAOUT                            00067500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00067600
+         AGO   .END                                                     00067700
+.PUE1    ANOP                                                           00067800
+         CZFMHIMS MSGNUM=30                                             00067900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00068000
+         AGO   .END                                                     00068100
+.P1E1    ANOP                                                           00068200
+         CZFMHIMS MSGNUM=2                                              00068300
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00068400
+         AGO   .END                                                     00068500
+.P2E1    ANOP                                                           00068600
+         CZFMHIMS MSGNUM=31,MSGPARM=&TYPE                               00068700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00068800
+         AGO   .END                                                     00068900
+.P2E3    ANOP                                                           00069000
+         CZFMHIMS MSGNUM=32                                             00069100
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00069200
+         AGO   .P2V5                                                    00069300
+.P2E4    ANOP                                                           00069400
+         CZFMHIMS MSGNUM=33                                             00069500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00069600
+         AGO   .P2V5                                                    00069700
+.P2E4A   ANOP                                                           00069800
+         CZFMHIMS MSGNUM=40                                             00069900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00070000
+         AGO   .P2V5                                                    00070100
+.P2E4B   ANOP                                                           00070200
+         CZFMHIMS MSGNUM=42                                             00070300
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00070400
+         AGO   .P2V5                                                    00070500
+.P2E5    ANOP                                                           00070600
+         CZFMHIMS MSGNUM=34                                             00070700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00070800
+         AGO   .P2V7                                                    00070900
+.P3E1    ANOP                                                           00071000
+         CZFMHIMS MSGNUM=35,MSGPARM=&TYPE                               00071100
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00071200
+         AGO   .END                                                     00071300
+.P3E2    ANOP                                                           00071400
+         CZFMHIMS MSGNUM=36                                             00071500
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00071600
+         AGO   .P3V2                                                    00071700
+.P3E2A   ANOP                                                           00071800
+         CZFMHIMS MSGNUM=69                                             00071900
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00072000
+         AGO   .P3V2A                                                   00072100
+.P3E3    ANOP                                                           00072200
+         CZFMHIMS MSGNUM=37                                             00072300
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00072400
+         AGO   .P3V3                                                    00072500
+.P3E3A   ANOP                                                           00072600
+         CZFMHIMS MSGNUM=41                                             00072700
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00072800
+         AGO   .P3V2A                                                   00072900
+.P3E4    ANOP                                                           00073000
+         CZFMHIMS MSGNUM=38                                             00073100
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00073200
+         AGO   .P3V4                                                    00073300
+.P3E4A   ANOP                                                           00073400
+         CZFMHIMS MSGNUM=70                                             00073500
+         AGO   .P3V4                                                    00073600
+.P3E5    ANOP                                                           00073700
+         CZFMHIMS MSGNUM=119                                            00073800
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00073900
+         AGO   .P3V5                                                    00074000
+.P4E1    ANOP                                                           00074100
+         CZFMHIMS MSGNUM=88,MSGPARM=&TYPE                               00074200
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00074300
+         AGO   .END                                                     00074400
+.P4E2    ANOP                                                           00074500
+         CZFMHIMS MSGNUM=42                                             00074600
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00074700
+         AGO   .END                                                     00074800
+.END     ANOP                                                           00074900
+         MEND                                                           00075000

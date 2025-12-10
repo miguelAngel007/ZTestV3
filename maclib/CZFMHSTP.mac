@@ -1,0 +1,1163 @@
+         MACRO                                                          00000010
+         CZFMHSTP                                                      X00000020
+               &TRANUM=,                                               X00000030
+               &FLOWNAM=,                                              X00000040
+               &VALINPF=,                                              X00000050
+               &TSTBAL1=,                                              X00000060
+               &ADLVALD=,                                              X00000070
+               &STATUS1=,                                              X00000080
+               &MISCEL1=,                                              X00000090
+               &BLDRMSG=,                                              X00000100
+               &BLDJRNL=,                                              X00000110
+               &UPDTOTL=,                                              X00000120
+               &UPDACT1=,                                              X00000130
+               &ADLPROC=,                                              X00000140
+               &REQPTR2=YES,                                           X00000150
+               &REQTLR1=NO,                                            X00000160
+               &SCHTLR1=,                                              X00000170
+               &PROTLR1=,                                              X00000180
+               &UPDTLR1=,                                              X00000190
+               &STATUS2=,                                              X00000200
+               &MISCEL2=,                                              X00000210
+               &TSTBAL2=,                                              X00000220
+               &UPDACT2=,                                              X00000230
+               &REQTLR2=NO,                                            X00000240
+               &SCHTLR2=,                                              X00000250
+               &PROTLR2=,                                              X00000260
+               &UPDTLR2=,                                              X00000270
+               &HELP=            HELP FUNCTION                          00000280
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000290
+.*********                   P R O L O G                       ******** 00000300
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00000310
+.*                                                                    * 00000320
+.*   MACRO NAME : CZFMHSTP                                            * 00000330
+.*                                                                    * 00000340
+.*   DESCRIPTIVE NAME : CREATION OF THE TRANSACTION PROCEDURE         * 00000350
+.*                      CONTROL BLOCK TO BE USED BY HOST PROGRAMS.    * 00000360
+.*   STATUS : VERSION 1                                               * 00000370
+.*            RELEASE LEVEL = 1                                       * 00000380
+.*            MODIFICATION LEVEL = 0                                  * 00000390
+.*                                                                    * 00000400
+.*                                                                    * 00000410
+.*   COPYRIGHT:                                                       * 00000420
+.*                                                                    * 00000430
+.*            5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983       * 00000440
+.*            5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983       * 00000450
+.*            LICENSED MATERIAL - PROGRAM PROPERTY OF IBM             * 00000460
+.*            REFER TO COPYRIGHT INSTRUCTIONS FORM NO. G120-2083      * 00000470
+.*                                                                    * 00000480
+.*   REVISION DATE : 01 SEPTEMBER 1983                                * 00000490
+.*                                                                    * 00000500
+.*   FUNCTION: GENERATE THE ENTRIES THAT COMPOSE THE TABLE OF         * 00000510
+.*             TRANSACTION PROCEDURES AS PART OF THE CZFHAA           * 00000520
+.*             APPLICATION MODULE.                                    * 00000530
+.*                                                                    * 00000540
+.*   LOGIC: THE FOLLOWING LOGIC IS PERFORMED FOR THIS MACRO:          * 00000550
+.*           - THE TRANSACTION NUMBER IS VALIDATED TO ASSURE THAT IT  * 00000560
+.*             IS THE SAME TRANSACTION DESCRIBE BY THE CZFMAPBP MACRO.* 00000570
+.*           - THE PARAMETERS REGARDING STATUS AND MISCELLANEOUS CODES* 00000580
+.*             FOR THE PRIMARY ACCOUNT ARE VALIDATED.                 * 00000590
+.*           - THE PARAMETERS REGARDING TRAILER PROCESSING FOR THE    * 00000600
+.*             PRIMARY ACCOUNT ARE VALIDATED.                         * 00000610
+.*           - THE PARAMETERS REGARDING STATUS AND MISCELLANEOUS CODES* 00000620
+.*             FOR THE SECONDARY ACCOUNT ARE VALIDATED.               * 00000630
+.*           - THE PARAMETERS REGARDING TRAILER PROCESSING FOR THE    * 00000640
+.*             SECONDARY ACCOUNT ARE VALIDATED.                       * 00000650
+.*           - FINALLY, THE APPROPRIATE HOST TRANSACTION PROCEDURE    * 00000660
+.*             ELEMENT IS BUILT (A CONTROL BLOCK IS BUILT IF ONLY ONE * 00000670
+.*             ACCOUNT IS PRESENT. IF TWO ACCOUNTS ARE PRESENT, THE   * 00000680
+.*             BLOCK IS EXTENDED TO CONTAIN ADDITIONAL INFORMATION).  * 00000690
+.*                                                                    * 00000700
+.*   ENTRY POINT : AT THE BEGINNING OF THE MACRO                      * 00000710
+.*                                                                    * 00000720
+.*   INTERNAL MODULE(S) CALL : CZFMHELP TO VALIDATE HELP REQUESTS     * 00000730
+.*                             CZFMHIMS TO PRINT REQUESTED MESSAGES   * 00000740
+.*                                                                    * 00000750
+.*   MESSAGES ISSUED :  ERROR MESSAGES BY CZFMHIMS                    * 00000760
+.*                                                                    * 00000770
+.*   CHARACTERISTICS :                                                * 00000780
+.*        LANGUAGE : MACRO ASSEMBLER                                  * 00000790
+.*                                                                    * 00000800
+.*   DEVIATIONS FROM PROGRAMMING STANDARDS :  NONE                    * 00000810
+.*                                                                    * 00000820
+.*   RESTRICTIONS:  NONE                                              * 00000830
+.*                                                                    * 00000840
+.*   PARAMETERS RECEIVED:                                             * 00000850
+.*             TRANUM=            * TRANSACTION NUMBER                * 00000860
+.*             FLOWNAM=           * FLOW NAME                         * 00000870
+.*             VALINPF=           * TRANSAC INPUT FIELDS VALIDATION   * 00000880
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00000890
+.*             TSTBAL1=           * TEST ACCT BALANCE FOR PRIMARY ACCT* 00000900
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00000910
+.*             ADLVALD=           * ADDITIONAL VALIDATION             * 00000920
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00000930
+.*             STATUS1=           * ACCOUNT STATUS CODES TO BE TESTED * 00000940
+.*                                *    FOR THE PRIMARY ACCOUNT        * 00000950
+.*             MISCEL1=           * ACCOUNT MISCELLANEOUS CODE TO TEST* 00000960
+.*                                *    FOR THE PRIMARY ACCOUNT        * 00000970
+.*             BLDRMSG=           * BUILD RESPONSE MESSAGE            * 00000980
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00000990
+.*             BLDJRNL=           * BUILD JOURNAL RECORD              * 00001000
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001010
+.*             UPDTOTL=           * UPDATE TELLER TOTALS              * 00001020
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001030
+.*             UPDACT1=           * UPDATE INFORMATION OF PRIMARY ACCT* 00001040
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001050
+.*             ADLPROC=           * ADDITIONAL TRANSACTION PROCESS    * 00001060
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001070
+.*                                *** INTERSERV S.A. - @BIP1992ABR **** 00001080
+.*             REQPTR2=NO         * POINTERS SECOND REQUIRED (IS NOT  * 00001090
+.*                                *    TRANSFER TRANSACTION)          * 00001100
+.*                                *    YES - POINTERS SECOND REQUIRED * 00001110
+.*                                *    NO  - IT REVERSAL (DAFAULT VAL)* 00001120
+.*                                ***   END  CHANGE  - @BIP199APR  **** 00001130
+.*             REQTLR1=NO         * TRAILER PROCESS FOR PRIMARY ACCT  * 00001140
+.*                                *    YES - TRAILER PROCESS REQUIRED * 00001150
+.*                                *    NO  - TRAILER PROCESS NOT REQ  * 00001160
+.*             SCHTLR1=           * SEARCH TRAILERS OF PRIMARY ACCOUNT* 00001170
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001180
+.*             PROTLR1=           * PROCESS TRAILER INFO PRIMARY ACCT * 00001190
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001200
+.*             UPDTLR1=           * UPDATE TRAILER INFO PRIMARY ACCT  * 00001210
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001220
+.*             STATUS2=           * ACCOUNT STATUS CODES TO BE TESTED * 00001230
+.*                                *    FOR THE SECONDARY ACCOUNT      * 00001240
+.*             MISCEL2=           * ACCOUNT MISCELLANEOUS CODE TO TEST* 00001250
+.*                                *    FOR THE SECONDARY ACCOUNT      * 00001260
+.*             TSTBAL2=           * TEST ACCT BALANCE SECONDARY ACCT  * 00001270
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001280
+.*             UPDACT2=           * UPDATE INFORMATION SECONDARY ACCT * 00001290
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001300
+.*             REQTLR2=NO         * TRAILER PROCESS FOR SECONDARY ACCT* 00001310
+.*                                *    YES - TRAILER PROCESS REQUIRED * 00001320
+.*                                *    NO  - TRAILER PROCESS NOT REQ  * 00001330
+.*             SCHTLR2=           * SEARCH TRAILERS OF SECONDARY ACCT * 00001340
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001350
+.*             PROTLR2=           * PROCESS TRAILER INFO SECOND ACCT  * 00001360
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001370
+.*             UPDTLR2=           * UPDATE TRAILER INFO SECOND ACCT   * 00001380
+.*                                *    NAME OF USER EXIT (IF REQUIRED)* 00001390
+.*             HELP=              * HELP MESSAGES REQUIRED            * 00001400
+.*                                                                    * 00001410
+.*   CONTROL BLOCK(S) BUILT :                                         * 00001420
+.*                                                                    * 00001430
+.*            HOST TRANSACTION PROCEDURE ELEMENT                      * 00001440
+.*                                                                    * 00001450
+.*  OFFSET      LENGTH         DESCRIPTION                            * 00001460
+.* DEC  HEX                                                           * 00001470
+.*                                                                    * 00001480
+.*  0    0        1       PROCEDURE LENGTH                            * 00001490
+.*                           88 FOR NON FINANCIAL,CREDIT AND DEBIT    * 00001500
+.*                          116 FOR TRANSFERS                         * 00001510
+.*  1    1        3       TRANSACTION NUMBER (0001 TO 9999 PACKED)    * 00001520
+.*  4    4        1       APPLICATION 1 CODE                          * 00001530
+.*  5    5        1       TRANSACTION MODE                            * 00001540
+.*                           BIT 0    - RESERVED - @@@BIP RV S.A.     * 00001550
+.*                           BIT 0    - RESERVED                      * 00001560
+.*                           BIT 1 ON - PROCESS ACCOUNT 1 TRAILERS    * 00001570
+.*                           BIT 2 ON - PROCESS ACCOUNT 2 TRAILERS    * 00001580
+.*                           BIT 3 ON - SIGN-ON REQUIRED              * 00001590
+.*                           BIT 4 ON - DEACTIVATED                   * 00001600
+.*                           BIT 5 ON - REVERSAL                      * 00001610
+.*                           BITS 6-7 - 00  NON FINANCIAL             * 00001620
+.*                           BITS 6-7 - 01  CREDIT                    * 00001630
+.*                           BITS 6-7 - 10  DEBIT                     * 00001640
+.*                           BITS 6-7 - 11  TRANSFER                  * 00001650
+.*  6    6        1       TRANSACTION TYPE                            * 00001660
+.*                           BIT 0 ON - RESERVED FOR CONTROLLER USE   * 00001670
+.*                           BIT 1 ON - ELIGIBLE FOR OFFLOAD          * 00001680
+.*                           BIT 2 ON - ELIGIBLE FOR OFFLINE          * 00001690
+.*                           BITS 3 - 7 - RESERVED FOR CONTROLLER USE * 00001700
+.*  7    7        1       TRANSACTION CLASS                           * 00001710
+.*                           BIT 0 ON = USER CLASS 1 AUTHORIZED       * 00001720
+.*                           BIT 1 ON = USER CLASS 2 AUTHORIZED       * 00001730
+.*                           BIT 2 ON = USER CLASS 3 AUTHORIZED       * 00001740
+.*                           BIT 3 ON = USER CLASS 4 AUTHORIZED       * 00001750
+.*                           BIT 4 ON = USER CLASS 5 AUTHORIZED       * 00001760
+.*                           BIT 5 ON = USER CLASS 6 AUTHORIZED       * 00001770
+.*                           BIT 6 ON = USER CLASS 7 AUTHORIZED       * 00001780
+.*                           BIT 7 ON = USER CLASS 8 AUTHORIZED       * 00001790
+.*  8    8        1       TRANSACTION LEVEL                           * 00001800
+.*                           BIT 0 ON = USER LEVEL 1 AUTHORIZED       * 00001810
+.*                           BIT 1 ON = USER LEVEL 2 AUTHORIZED       * 00001820
+.*                           BIT 2 ON = USER LEVEL 3 AUTHORIZED       * 00001830
+.*                           BIT 3 ON = USER LEVEL 4 AUTHORIZED       * 00001840
+.*                           BIT 4 ON = USER LEVEL 5 AUTHORIZED       * 00001850
+.*                           BIT 5 ON = USER LEVEL 6 AUTHORIZED       * 00001860
+.*                           BIT 6 ON = USER LEVEL 7 AUTHORIZED       * 00001870
+.*                           BIT 7 ON = USER LEVEL 8 AUTHORIZED       * 00001880
+.*  9    9        2       STATUS INDICATORS TO BE COMPARED WITH       * 00001890
+.*                           INDICATOR IN ACCOUNT 1 (1 TO 16)         * 00001900
+.* 11    B        3       MISCELLANEOUS INDICATORS TO BE TESTED       * 00001910
+.*                           IN ACCOUNT  1 (17 TO 40)                 * 00001920
+.* 14    E        1       APPLICATION 2 CODE (ONLY IN TRANSFERS)      * 00001930
+.* 15    F        1       INTERBANK APPLICATIONS BYTE                 * 00001940
+.* 16   10        8       FLOW EXTERNAL NAME                          * 00001950
+.* 24   18        4       VALIDATION OF INPUT  USER ROUTINE ADDRESS   * 00001960
+.* 28   1C        4       BALANCE TEST ACCT. 1 USER ROUTINE ADDRESS   * 00001970
+.* 32   20        4       ADDITIONAL VALIDAT.  USER ROUTINE ADDRESS   * 00001980
+.* 36   24        4       BUILD RESPONSE MSG.  USER ROUTINE ADDRESS   * 00001990
+.* 40   28        4       BUILD JOURNAL RECORD USER ROUTINE ADDRESS   * 00002000
+.* 44   2C        4       UPDATE TELLER TOTALS USER ROUTINE ADDRESS   * 00002010
+.* 48   30        4       UPDATE ACCT. 1 FLDS  USER ROUTINE ADDRESS   * 00002020
+.* 52   34        4       ADDITIONAL PROCESS   USER ROUTINE ADDRESS   * 00002030
+.* 56   38        4       SEARCH TRAILERS A.1  USER ROUTINE ADDRESS   * 00002040
+.* 60   3C        4       PROCESS TLRS. ACCT.1 USER ROUTINE ADDRESS   * 00002050
+.* 64   40        4       UPDATE TRAILERS A.1  USER ROUTINE ADDRESS   * 00002060
+.* 68   44        2       OUTPUT FORMAT NUMBER FOR DISPLAY            * 00002070
+.* 70   46        2       OUTPUT FORMAT NUMBER FOR JOURNAL PRINTER    * 00002080
+.* 72   48        2       OUTPUT FORMAT NUMBER FOR CUT FORM PRINTER   * 00002090
+.* 74   4A        2       OUTPUT FORMAT NUMBER FOR VALIDATION PRINTER * 00002100
+.* 76   4C        2       OUTPUT FORMAT NUMBER FOR ADMIN PRINTER      * 00002110
+.* 78   4E        2       OUTPUT FORMAT NUMBER FOR PASBOOK PRINTER    * 00002120
+.* 80   50        2       OUTPUT FORMAT NUMBER FOR MAG STRIPE         * 00002130
+.* 82   52        3       ORIGINAL TRANSACTION CODE TO BE REVERSED    * 00002140
+.* 85   55        3       MNEMONIC                                    * 00002150
+.* 88   58        4       RESERVED                                    * 00002160
+.*                                                                    * 00002170
+.*****   THIS PART IS GENERATED ONLY FOR TRANSFER TRANSACTIONS   ****** 00002180
+.*                                                                    * 00002190
+.* 92   5C        4       BALANCE TEST ACCT. 2 USER ROUTINE ADDRESS   * 00002200
+.* 96   60        4       UPDATE ACCT. 2 FLDS  USER ROUTINE ADDRESS   * 00002210
+.*100   64        4       SEARCH TRAILERS A.2  USER ROUTINE ADDRESS   * 00002220
+.*104   68        4       PROCESS TLRS. ACCT.2 USER ROUTINE ADDRESS   * 00002230
+.*108   6C        4       UPDATE TRAILERS A.2  USER ROUTINE ADDRESS   * 00002240
+.*112   70        2       STATUS INDICATORS TO BE COMPARED WITH       * 00002250
+.*                           INDICATOR IN ACCOUNT 2 (1 TO 16)         * 00002260
+.*114   72        3       MISCELLANEOUS INDICATORS TO BE TESTED       * 00002270
+.*                           IN ACCOUNT  2 (17 TO 40)                 * 00002280
+.*117   75        3       RESERVED                                    * 00002290
+.*                                                                    * 00002300
+.*                                                                    * 00002310
+.*   GENERATED CODE :                                                 * 00002320
+.*                                                                    * 00002330
+.*       DS    0F                 * ALIGNMENT                         * 00002340
+.*       DC    YL1(&LENGTH)       * PROCEDURE LENGTH                  * 00002350
+.*       DC    PL3'&GTRANUM'      * TRANSACTION NUMBER                * 00002360
+.*       DC    YL1(&GAPLIC1)      * CODE FOR APPLICATION 1            * 00002370
+.*                  TRANSACTION MODE                                  * 00002380
+.*       DC B'&M(1)&M(2)&M(3)&M(4)&M(5)&M(6)&M(7)&M(8)'               * 00002390
+.*                  TRANSACTION TYPE                                  * 00002400
+.*       DC B'&T(1)&T(2)&T(3)&T(4)&T(5)&T(6)&T(7)&T(8)'               * 00002410
+.*                  TRANSACTION CLASS                                 * 00002420
+.*       DC B'&C(1)&C(2)&C(3)&C(4)&C(5)&C(6)&C(7)&C(8)'               * 00002430
+.*                  TRANSACTION LEVEL                                 * 00002440
+.*       DC B'&L(1)&L(2)&L(3)&L(4)&L(5)&L(6)&L(7)&L(8)'               * 00002450
+.*               STATUS CONFIGURATION TO BE TESTED IN ACCOUNT 1       * 00002460
+.*       DC B'&A(1)&A(2)&A(3)&A(4)&A(5)&A(6)&A(7)&A(8)'               * 00002470
+.*       DC B'&A(9)&A(10)&A(11)&A(12)&A(13)&A(14)&A(15)&A(16)'        * 00002480
+.*               MISCELLANEOUS BITS TO BE TESTED (17-40) IN ACCOUNT 1 * 00002490
+.*       DC B'&B(17)&B(18)&B(19)&B(20)&B(21)&B(22)&B(23)&B(24)'       * 00002500
+.*       DC B'&B(25)&B(26)&B(27)&B(28)&B(29)&B(30)&B(31)&B(32)'       * 00002510
+.*       DC B'&B(33)&B(34)&B(35)&B(36)&B(37)&B(38)&B(39)&B(40)'       * 00002520
+.*       DC    YL1(&GAPLIC2)     CODE FOR APPLICATION 2  OR ZERO      * 00002530
+.*       DC    YL1(&IB)          RESERVED FOR ALIGNMENT               * 00002540
+.*       DC    CL8'&FLOWNAM'      *EXTERNAL FLOW NAME                 * 00002550
+.*    ADDRESS OF:INPUT VAL.,BALANCE TEST ACT.1,OTHER VALIDATION       * 00002560
+.*       DC    A(&VALINPF),A(&TSTBAL1),A(&ADLVALD)                    * 00002570
+.*    ADDRESS OF:BUILD RESPONSE MESSAGE(S),ASSEMBLY JOURNAL RECORD    * 00002580
+.*       DC    A(&BLDRMSG),A(&BLDJRNL)                                * 00002590
+.*    ADDRESS OF:UPDATE TOTALS,UPDATE BALANCES ACT.1,OTHER PROCESS    * 00002600
+.*       DC    A(&UPDTOTL),A(&UPDACT1),A(&ADLPROC)                    * 00002610
+.*    ADDRESS OF:TEST AND UPDATE TRAILERS ACCOUNT 1                   * 00002620
+.*       DC    A(&SCHTLR1),A(&PROTLR1),A(&UPDTLR1)                    * 00002630
+.*    FORMAT NUMBERS FOR AP OUTPUT :                                  * 00002640
+.*       DC    Y(&WDSOUT),Y(&WJPOUT),Y(&WCFOUT),Y(&WVPOUT)            * 00002650
+.*       DC    Y(&WADOUT),Y(&WPBOUT),Y(&WMSOUT)                       * 00002660
+.*       DC    PL3'&WORIGTR'      *ORIGINAL TRANS.CODE TO BE REVERSED * 00002670
+.*       DC    CL3'MNEMO'         *MNEMONIC                           * 00002680
+.*       DC    XL4'00'            *RESERVED FOR ALIGNMENT             * 00002690
+.*                                                                    * 00002700
+.*** IF TRANSFER TRANSACTION, PROCESS FOR ACCOUNT 2 IS GENERATED    *** 00002710
+.*                                                                    * 00002720
+.*    ADDRESS OF:TEST BALANCES ACT.2,UPDATE BALANCES ACT.2            * 00002730
+.*       DC    A(&TSTBAL2),A(&UPDACT2)                                * 00002740
+.*    ADDRESS OF:TEST AND UPDATE TRAILERS ACCOUNT 2                   * 00002750
+.*       DC    A(&SCHTLR2),A(&PROTLR2),A(&UPDTLR2)                    * 00002760
+.*               STATUS CONFIGURATION TO BE TESTED  IN ACCOUNT 2      * 00002770
+.*       DC B'&Y(1)&Y(2)&Y(3)&Y(4)&Y(5)&Y(6)&Y(7)&Y(8)'               * 00002780
+.*       DC B'&Y(9)&Y(10)&Y(11)&Y(12)&Y(13)&Y(14)&Y(15)&Y(16)'        * 00002790
+.*               MISCELLANEOUS BITS TO BE TESTED (17-40) IN ACCOUNT 2 * 00002800
+.*       DC B'&Z(17)&Z(18)&Z(19)&Z(20)&Z(21)&Z(22)&Z(23)&Z(24)'       * 00002810
+.*       DC B'&Z(25)&Z(26)&Z(27)&Z(28)&Z(29)&Z(30)&Z(31)&Z(32)'       * 00002820
+.*       DC B'&Z(33)&Z(34)&Z(35)&Z(36)&Z(37)&Z(38)&Z(39)&Z(40)'       * 00002830
+.*       DC    XL3'00'            * RESERVED                          * 00002840
+.*                                                                    * 00002850
+.*   NOTES:                                                           * 00002860
+.*                                                                    * 00002870
+.*                                                                    * 00002880
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002890
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002900
+.*                                                                    * 00002910
+.*       CREATE REFERENCES TO GLOBAL DEFINED FIELDS                   * 00002920
+.*                                                                    * 00002930
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00002940
+         GBLA  &MSTRP             *TRP INITIAL INDICATOR                00002950
+         GBLA  &MSTRP1            *APBP INDICATOR                       00002960
+         GBLA  &TXPIND            *ASSEMBLE TYPE INDICATOR              00002970
+         GBLA  &GTRANUM           *GLOBAL TRANSACTION NUMBER AREA       00002980
+         GBLA  &WDSOUT            *WORK AREA FOR DS FORMAT              00002990
+         GBLA  &WJPOUT            *WORK AREA FOR JP FORMAT              00003000
+         GBLA  &WCFOUT            *WORK AREA FOR CF FORMAT              00003010
+         GBLA  &WVPOUT            *WORK AREA FOR VP FORMAT              00003020
+         GBLA  &WADOUT            *WORK AREA FOR AD FORMAT              00003030
+         GBLA  &WPBOUT            *WORK AREA FOR PB FORMAT              00003040
+         GBLA  &WMSOUT            *WORK AREA FOR MS FORMAT              00003050
+         GBLA  &WDSLDC            *WORK AREA FOR DS LDC                 00003060
+         GBLA  &WJPLDC            *WORK AREA FOR JP LDC                 00003070
+         GBLA  &WCFLDC            *WORK AREA FOR CF LDC                 00003080
+         GBLA  &WVPLDC            *WORK AREA FOR VP LDC                 00003090
+         GBLA  &WADLDC            *WORK AREA FOR AD LDC                 00003100
+         GBLA  &WPBLDC            *WORK AREA FOR PB LDC                 00003110
+         GBLA  &WMSLDC            *WORK AREA FOR MS LDC                 00003120
+         GBLA  &WORIGTR           *ORIGINAL TRANS.CODE TO BE REVERSED   00003130
+         GBLB  &HELPARM           *HELP PARAMETER GLOBAL SWITCH         00003140
+         GBLB  &M(8)              *MODE BYTE                            00003150
+         GBLB  &T(8)              *TRANSACTION TYPE BYTE                00003160
+         GBLB  &C(8)              *CLASS BYTE                           00003170
+         GBLB  &L(8)              *LEVEL BYTE                           00003180
+         GBLC  &GAPLIC1           *GLOBAL APPLICATION 1 CODE            00003190
+         GBLC  &GAPLIC2           *GLOBAL APPLICATION 2 CODE            00003200
+         GBLC  &WMNEMO            *GLOBAL MNEMONIC CODE                 00003210
+         GBLB  &IB(8)             *INTERBANK APPLICATIONS BYTE          00003220
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003230
+.*                                                                    * 00003240
+.*       DEFINE AND INITALIZE LOCAL FIELDS                            * 00003250
+.*                                                                    * 00003260
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003270
+         LCLA  &MSGNUM            *ERROR MESSAGE NUMBER                 00003280
+         LCLA  &I                 *LOCAL INDEX                          00003290
+         LCLA  &LENGTH            *FIELD TO STORE THE PROCEDURE LENGTH  00003300
+         LCLB  &ERRIND            *DEFINITION OF BINARY FIELD           00003310
+         LCLB  &A(40)             *WORK AREA FOR STATUS1  1 TO 16 USED  00003320
+         LCLB  &B(40)             *WORK AREA FOR MISCEL1 17 TO 40 USED  00003330
+         LCLB  &Y(40)             *WORK AREA FOR STATUS2  1 TO 16 USED  00003340
+         LCLB  &Z(40)             *WORK AREA FOR MISCEL2 17 TO 40 USED  00003350
+         LCLC  &MSGPARM           *MESSAGE PARAMETER                    00003360
+         LCLC  &WORKC             *WORK AREA FOR GENERATED CODE         00003370
+         LCLC  &XALINPF           *VALINPF ROUTINE NAME SAVE AREA       00003380
+         LCLC  &XSTBAL1           *TSTBAL1 ROUTINE NAME SAVE AREA       00003390
+         LCLC  &XDLVALD           *ADLVALD ROUTINE NAME SAVE AREA       00003400
+         LCLC  &XLDRMSG           *BLDRMSG ROUTINE NAME SAVE AREA       00003410
+         LCLC  &XLDJRNL           *BLDJRNL ROUTINE NAME SAVE AREA       00003420
+         LCLC  &XPDTOTL           *UPDTOTL ROUTINE NAME SAVE AREA       00003430
+         LCLC  &XPDACT1           *UPDACT1 ROUTINE NAME SAVE AREA       00003440
+         LCLC  &XDLPROC           *ADLPROC ROUTINE NAME SAVE AREA       00003450
+         LCLC  &XCHTLR1           *SCHTLR1 ROUTINE NAME SAVE AREA       00003460
+         LCLC  &XROTLR1           *PROTLR1 ROUTINE NAME SAVE AREA       00003470
+         LCLC  &XPDTLR1           *UPDTLR1 ROUTINE NAME SAVE AREA       00003480
+         LCLC  &XSTBAL2           *TSTBAL2 ROUTINE NAME SAVE AREA       00003490
+         LCLC  &XPDACT2           *UPDACT2 ROUTINE NAME SAVE AREA       00003500
+         LCLC  &XCHTLR2           *SCHTLR2 ROUTINE NAME SAVE AREA       00003510
+         LCLC  &XROTLR2           *PROTLR2 ROUTINE NAME SAVE AREA       00003520
+         LCLC  &XPDTLR2           *UPDLTR2 ROUTINE NAME SAVE AREA       00003530
+&I       SETA  1                  *WORK AREA INITIAL VALUE              00003540
+&ERRIND  SETB  0                  *ERROR INDICATOR INITIALIZATION       00003550
+&XALINPF SETC  '0'                *INITIAL VALUE FOR SAVE AREAS         00003560
+&XSTBAL1 SETC  '0'                *                                     00003570
+&XDLVALD SETC  '0'                *           I                         00003580
+&XLDRMSG SETC  '0'                *           I                         00003590
+&XLDJRNL SETC  '0'                *           I                         00003600
+&XPDTOTL SETC  '0'                *           I                         00003610
+&XPDACT1 SETC  '0'                *           I                         00003620
+&XDLPROC SETC  '0'                *           I                         00003630
+&XCHTLR1 SETC  '0'                *           I                         00003640
+&XROTLR1 SETC  '0'                *           I                         00003650
+&XPDTLR1 SETC  '0'                *           I                         00003660
+&XSTBAL2 SETC  '0'                *           I                         00003670
+&XPDACT2 SETC  '0'                *           I                         00003680
+&XCHTLR2 SETC  '0'                *           V                         00003690
+&XROTLR2 SETC  '0'                *                                     00003700
+&XPDTLR2 SETC  '0'                *INITIAL VALUE FOR SAVE AREAS         00003710
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003720
+.*                                                                    * 00003730
+.*   IF THE HELP FUNCTION IS REQUIRED A SERIES OF MESSAGES WILL BE    * 00003740
+.*   PRODUCED TO SHOW TO THE USER OF THE MACRO THE VALUES             * 00003750
+.*   ALLOWED FOR EVERY PARAMETER OF THE MACRO. NO CODE WILL BE        * 00003760
+.*   GENERATED AND NO VALIDATION OF THE OTHER PARAMETERS WILL BE      * 00003770
+.*   PERFORMED.                                                       * 00003780
+.*                                                                    * 00003790
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003800
+         CZFMHELP HELP=&HELP                                            00003810
+         AIF   (&HELPARM EQ 1).HELP  IS HELP FUNCTION REQUIRED ?        00003820
+         AIF   (&MSTRP EQ 2).PCOMP   *PREVIOUS SET COMPLETE             00003830
+         AIF   (&TXPIND EQ 2).P1V8   *BYPASS TO BUILD IF MODULE=CZFACT  00003840
+&I       SETA  1                                                        00003850
+.LOOP00  ANOP                                                           00003860
+&A(&I)   SETB  0                  * CLEAR STATUS 1 WORK AREA            00003870
+&B(&I)   SETB  0                  * CLEAR MISCEL 1 WORK AREA            00003880
+&Y(&I)   SETB  0                  * CLEAR STATUS 2 WORK AREA            00003890
+&Z(&I)   SETB  0                  * CLEAR MISCEL 2 WORK AREA            00003900
+&I       SETA  &I+1                                                     00003910
+         AIF   (&I LE 40).LOOP00 * LOOP CONTROL                         00003920
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003930
+.*                                                                    * 00003940
+.*   VALIDATE PARAMETER TRANUM                                        * 00003950
+.*        .   VALUE MUST BE EQUAL TO VALUE STORED BY MACRO            * 00003960
+.*            CZFMAPBP IN GLOBAL GTRANUM                              * 00003970
+.*                                                                    * 00003980
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00003990
+.P1V0    ANOP                                                           00004000
+         AIF   (T'&TRANUM EQ 'O').P1E0                                  00004010
+         AIF   (T'&TRANUM NE 'N').P1E0                                  00004020
+         AIF   (K'&TRANUM NE 4).P1E0                                    00004030
+         AIF   (&TRANUM LT 1 OR &TRANUM GT 9999).P1E0                   00004040
+         AIF   (&GTRANUM NE &TRANUM).P1E0  * VALIDATE TRANS. NUMBER     00004050
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004060
+.*                                                                    * 00004070
+.*   VALIDATE PARAMETER FLOWNAM                                       * 00004080
+.*        .   VALIDATE FLOWNAM BEING FROM 5 TO 8 CHARACTERS LONG.     * 00004090
+.*        .   FIRST 4 CHARACTERS MUST BE 'CZFW'.                      * 00004100
+.*                                                                    * 00004110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004120
+.P1V0A   ANOP                                                           00004130
+         AIF   (T'&FLOWNAM EQ 'O').P1E0A   * OMITTED?                   00004140
+         AIF   (K'&FLOWNAM LT 5 OR K'&FLOWNAM GT 8).P1E0A *LENGTH ERR?  00004150
+         AIF   ('&FLOWNAM'(1,4) NE 'CZFW').P1E0A *PREFIX CHARACTERS     00004160
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004170
+.*                                                                    * 00004180
+.*   VALIDATE PARAMETER VALINPF                                       * 00004190
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004200
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004210
+.*                                                                    * 00004220
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004230
+.A       ANOP                                                           00004240
+         AIF   (T'&VALINPF EQ 'O').A1      * SKIP IF PARAMETER OMITTED  00004250
+         AIF   (K'&VALINPF LT 2 OR K'&VALINPF GT 8).PAERR    *LENGTH    00004260
+         AIF   ('&VALINPF'(1,1) NE 'X').PAERR                           00004270
+&XALINPF SETC  '&VALINPF'                                               00004280
+         AGO   .B                                                       00004290
+.A1      ANOP                                                           00004300
+&XALINPF SETC  '0'                                                      00004310
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004320
+.*                                                                    * 00004330
+.*   VALIDATE PARAMETER TSTBAL1                                       * 00004340
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004350
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004360
+.*                                                                    * 00004370
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004380
+.B       ANOP                                                           00004390
+         AIF   (T'&TSTBAL1 EQ 'O').B1      * SKIP IF PARAMETER OMITTED  00004400
+         AIF   (K'&TSTBAL1 LT 2 OR K'&TSTBAL1 GT 8).PBERR    *LENGTH    00004410
+         AIF   ('&TSTBAL1'(1,1) NE 'X').PBERR                           00004420
+&XSTBAL1 SETC  '&TSTBAL1'                                               00004430
+         AGO   .C                                                       00004440
+.B1      ANOP                                                           00004450
+&XSTBAL1 SETC  '0'                                                      00004460
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004470
+.*                                                                    * 00004480
+.*   VALIDATE PARAMETER ADLVALD                                       * 00004490
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004500
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004510
+.*                                                                    * 00004520
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004530
+.C       ANOP                                                           00004540
+         AIF   (T'&ADLVALD EQ 'O').C1      * SKIP IF PARAMETER OMITTED  00004550
+         AIF   (K'&ADLVALD LT 2 OR K'&ADLVALD GT 8).PCERR    *LENGTH    00004560
+         AIF   ('&ADLVALD'(1,1) NE 'X').PCERR                           00004570
+&XDLVALD SETC  '&ADLVALD'                                               00004580
+         AGO   .D                                                       00004590
+.C1      ANOP                                                           00004600
+&XDLVALD SETC  '0'                                                      00004610
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004620
+.*                                                                    * 00004630
+.*   VALIDATE PARAMETER BLDRMSG                                       * 00004640
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004650
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004660
+.*                                                                    * 00004670
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004680
+.D       ANOP                                                           00004690
+         AIF   (T'&BLDRMSG EQ 'O').D1      * SKIP IF PARAMETER OMITTED  00004700
+         AIF   (K'&BLDRMSG LT 2 OR K'&BLDRMSG GT 8).PDERR    *LENGTH    00004710
+         AIF   ('&BLDRMSG'(1,1) NE 'X').PDERR                           00004720
+&XLDRMSG SETC  '&BLDRMSG'                                               00004730
+         AGO   .E                                                       00004740
+.D1      ANOP                                                           00004750
+&XLDRMSG SETC  '0'                                                      00004760
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004770
+.*                                                                    * 00004780
+.*   VALIDATE PARAMETER BLDJRNL                                       * 00004790
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004800
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004810
+.*                                                                    * 00004820
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004830
+.E       ANOP                                                           00004840
+         AIF   (T'&BLDJRNL EQ 'O').E1      * SKIP IF PARAMETER OMITTED  00004850
+         AIF   (K'&BLDJRNL LT 2 OR K'&BLDJRNL GT 8).PEERR    *LENGTH    00004860
+         AIF   ('&BLDJRNL'(1,1) NE 'X').PEERR                           00004870
+&XLDJRNL SETC  '&BLDJRNL'                                               00004880
+         AGO   .F                                                       00004890
+.E1      ANOP                                                           00004900
+&XLDJRNL SETC  '0'                                                      00004910
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004920
+.*                                                                    * 00004930
+.*   VALIDATE PARAMETER UPDTOTL                                       * 00004940
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00004950
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00004960
+.*                                                                    * 00004970
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00004980
+.F       ANOP                                                           00004990
+         AIF   (T'&UPDTOTL EQ 'O').F1      * SKIP IF PARAMETER OMITTED  00005000
+         AIF   (K'&UPDTOTL LT 2 OR K'&UPDTOTL GT 8).PFERR    *LENGTH    00005010
+         AIF   ('&UPDTOTL'(1,1) NE 'X').PFERR                           00005020
+&XPDTOTL SETC  '&UPDTOTL'                                               00005030
+         AGO   .G                                                       00005040
+.F1      ANOP                                                           00005050
+&XPDTOTL SETC  '0'                                                      00005060
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005070
+.*                                                                    * 00005080
+.*   VALIDATE PARAMETER UPDACT1                                       * 00005090
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005100
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005110
+.*                                                                    * 00005120
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005130
+.G       ANOP                                                           00005140
+         AIF   (T'&UPDACT1 EQ 'O').G1      * SKIP IF PARAMETER OMITTED  00005150
+         AIF   (K'&UPDACT1 LT 2 OR K'&UPDACT1 GT 8).PGERR    *LENGTH    00005160
+         AIF   ('&UPDACT1'(1,1) NE 'X').PGERR                           00005170
+&XPDACT1 SETC  '&UPDACT1'                                               00005180
+         AGO   .H                                                       00005190
+.G1      ANOP                                                           00005200
+&XPDACT1 SETC  '0'                                                      00005210
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005220
+.*                                                                    * 00005230
+.*   VALIDATE PARAMETER ADLPROC                                       * 00005240
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005250
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005260
+.*                                                                    * 00005270
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005280
+.H       ANOP                                                           00005290
+         AIF   (T'&ADLPROC EQ 'O').H1      * SKIP IF PARAMETER OMITTED  00005300
+         AIF   (K'&ADLPROC LT 2 OR K'&ADLPROC GT 8).PHERR    *LENGTH    00005310
+         AIF   ('&ADLPROC'(1,1) NE 'X').PHERR                           00005320
+&XDLPROC SETC  '&ADLPROC'                                               00005330
+         AGO   .I                                                       00005340
+.H1      ANOP                                                           00005350
+&XDLPROC SETC  '0'                                                      00005360
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005370
+.*                                                                    * 00005380
+.*   VALIDATE PARAMETER SCHTLR1                                       * 00005390
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005400
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005410
+.*                                                                    * 00005420
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005430
+.I       ANOP                                                           00005440
+         AIF   (T'&SCHTLR1 EQ 'O').I1      * SKIP IF PARAMETER OMITTED  00005450
+         AIF   (K'&SCHTLR1 LT 2 OR K'&SCHTLR1 GT 8).PIERR    *LENGTH    00005460
+         AIF   ('&SCHTLR1'(1,1) NE 'X').PIERR                           00005470
+&XCHTLR1 SETC  '&SCHTLR1'                                               00005480
+         AGO   .J                                                       00005490
+.I1      ANOP                                                           00005500
+&XCHTLR1 SETC  '0'                                                      00005510
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005520
+.*                                                                    * 00005530
+.*   VALIDATE PARAMETER PROTLR1                                       * 00005540
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005550
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005560
+.*                                                                    * 00005570
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005580
+.J       ANOP                                                           00005590
+         AIF   (T'&PROTLR1 EQ 'O').J1      * SKIP IF PARAMETER OMITTED  00005600
+         AIF   (K'&PROTLR1 LT 2 OR K'&PROTLR1 GT 8).PJERR    *LENGTH    00005610
+         AIF   ('&PROTLR1'(1,1) NE 'X').PJERR                           00005620
+&XROTLR1 SETC  '&PROTLR1'                                               00005630
+         AGO   .K                                                       00005640
+.J1      ANOP                                                           00005650
+&XROTLR1 SETC  '0'                                                      00005660
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005670
+.*                                                                    * 00005680
+.*   VALIDATE PARAMETER UPDTLR1                                       * 00005690
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005700
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005710
+.*                                                                    * 00005720
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005730
+.K       ANOP                                                           00005740
+         AIF   (T'&UPDTLR1 EQ 'O').K1      * SKIP IF PARAMETER OMITTED  00005750
+         AIF   (K'&UPDTLR1 LT 2 OR K'&UPDTLR1 GT 8).PKERR    *LENGTH    00005760
+         AIF   ('&UPDTLR1'(1,1) NE 'X').PKERR                           00005770
+&XPDTLR1 SETC  '&UPDTLR1'                                               00005780
+         AGO   .L                                                       00005790
+.K1      ANOP                                                           00005800
+&XPDTLR1 SETC  '0'                                                      00005810
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005820
+.*                                                                    * 00005830
+.*   VALIDATE PARAMETER TSTBAL2                                       * 00005840
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00005850
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00005860
+.*                                                                    * 00005870
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005880
+.L       ANOP                                                           00005890
+         AIF   (T'&TSTBAL2 EQ 'O').L1      * SKIP IF PARAMETER OMITTED  00005900
+         AIF   (K'&TSTBAL2 LT 2 OR K'&TSTBAL2 GT 8).PLERR    *LENGTH    00005910
+         AIF   ('&TSTBAL2'(1,1) NE 'X').PLERR                           00005920
+&XSTBAL2 SETC  '&TSTBAL2'                                               00005930
+         AGO   .M                                                       00005940
+.L1      ANOP                                                           00005950
+&XSTBAL2 SETC  '0'                                                      00005960
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00005970
+.*                                                                    * 00005980
+.*   VALIDATE PARAMETER UPDACT2                                       * 00005990
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00006000
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00006010
+.*                                                                    * 00006020
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006030
+.M       ANOP                                                           00006040
+         AIF   (T'&UPDACT2 EQ 'O').M1      * SKIP IF PARAMETER OMITTED  00006050
+         AIF   (K'&UPDACT2 LT 2 OR K'&UPDACT2 GT 8).PMERR    *LENGTH    00006060
+         AIF   ('&UPDACT2'(1,1) NE 'X').PMERR                           00006070
+&XPDACT2 SETC  '&UPDACT2'                                               00006080
+         AGO   .N                                                       00006090
+.M1      ANOP                                                           00006100
+&XPDACT2 SETC  '0'                                                      00006110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006120
+.*                                                                    * 00006130
+.*   VALIDATE PARAMETER SCHTLR2                                       * 00006140
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00006150
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00006160
+.*                                                                    * 00006170
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006180
+.N       ANOP                                                           00006190
+         AIF   (T'&SCHTLR2 EQ 'O').N1      * SKIP IF PARAMETER OMITTED  00006200
+         AIF   (K'&SCHTLR2 LT 2 OR K'&SCHTLR2 GT 8).PNERR    *LENGTH    00006210
+         AIF   ('&SCHTLR2'(1,1) NE 'X').PNERR                           00006220
+&XCHTLR2 SETC  '&SCHTLR2'                                               00006230
+         AGO   .O                                                       00006240
+.N1      ANOP                                                           00006250
+&XCHTLR2 SETC  '0'                                                      00006260
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006270
+.*                                                                    * 00006280
+.*   VALIDATE PARAMETER PROTLR2                                       * 00006290
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00006300
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00006310
+.*                                                                    * 00006320
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006330
+.O       ANOP                                                           00006340
+         AIF   (T'&PROTLR2 EQ 'O').O1      * SKIP IF PARAMETER OMITTED  00006350
+         AIF   (K'&PROTLR2 LT 2 OR K'&PROTLR2 GT 8).POERR    *LENGTH    00006360
+         AIF   ('&PROTLR2'(1,1) NE 'X').POERR                           00006370
+&XROTLR2 SETC  '&PROTLR2'                                               00006380
+         AGO   .P                                                       00006390
+.O1      ANOP                                                           00006400
+&XROTLR2 SETC  '0'                                                      00006410
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006420
+.*                                                                    * 00006430
+.*   VALIDATE PARAMETER UPDTLR2                                       * 00006440
+.*        .   IF PARAMETER IS OMITTED MAKE PARAMETER = 0.             * 00006450
+.*        .   VALIDATE NAME BEING FROM 2 TO 8 CHARACTERS LONG.        * 00006460
+.*                                                                    * 00006470
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006480
+.P       ANOP                                                           00006490
+         AIF   (T'&UPDTLR2 EQ 'O').P1      * SKIP IF PARAMETER OMITTED  00006500
+         AIF   (K'&UPDTLR2 LT 2 OR K'&UPDTLR2 GT 8).PPERR    *LENGTH    00006510
+         AIF   ('&UPDTLR2'(1,1) NE 'X').PPERR                           00006520
+&XPDTLR2 SETC  '&UPDTLR2'                                               00006530
+         AGO   .P1V1                                                    00006540
+.P1      ANOP                                                           00006550
+&XPDTLR2 SETC  '0'                                                      00006560
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006570
+.*                                                                    * 00006580
+.*   VALIDATE PARAMETER STATUS1                                       * 00006590
+.*        .   EVERY VALUE MUST BE IN THE RANGE 1 TO 16                * 00006600
+.*        .   ALL VALUES IN SUB-PARAMETERS ARE STORED IN A WORK AREA  * 00006610
+.*                                                                    * 00006620
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006630
+.P1V1    ANOP                                                           00006640
+         AIF   ('&STATUS1' EQ '').P1V2  * SKIP IF STATUS1 OMITTED       00006650
+&I       SETA  1                                                        00006660
+.LOOP01  ANOP                            * VALIDATE SUB-PARAMETERS      00006670
+         AIF   (T'&STATUS1(&I) EQ 'O').LOOP01I                          00006680
+         AIF   (T'&STATUS1(&I) NE 'N').P1E1                             00006690
+         AIF   (&STATUS1(&I) LT 1 OR &STATUS1(&I) GT 16).P1E1           00006700
+&A(&STATUS1(&I)) SETB 1                  * STORE VALUE CODED            00006710
+.LOOP01I ANOP                                                           00006720
+&I       SETA  &I+1                                                     00006730
+         AIF   (&I LE N'&STATUS1).LOOP01 * LOOP CONTROL                 00006740
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006750
+.*                                                                    * 00006760
+.*   VALIDATE PARAMETER MISCEL1                                       * 00006770
+.*        .   EVERY VALUE MUST BE IN THE RANGE 17 TO 40               * 00006780
+.*        .   ALL VALUES IN SUB-PARAMETERS ARE STORED IN A WORK AREA  * 00006790
+.*        .   OLD SKIP : AIF  ('&MISCEL1' EQ '').P1V3    @BIP1992APR  * 00006800
+.*                                                                    * 00006810
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006820
+.P1V2    ANOP                                                           00006830
+         AIF   ('&MISCEL1' EQ '').P1V30   * SKIP IF MISCEL 1 OMITTED    00006840
+&I       SETA  1                                                        00006850
+.LOOP02  ANOP                             * VALIDATE SUB-PARAMETERS     00006860
+         AIF   (T'&MISCEL1(&I) EQ 'O').LOOP02I                          00006870
+         AIF   (T'&MISCEL1(&I) NE 'N').P1E2                             00006880
+         AIF   (&MISCEL1(&I) LT 17 OR &MISCEL1(&I) GT 40).P1E2          00006890
+&B(&MISCEL1(&I)) SETB 1                 * STORE VALUE CODED             00006900
+.LOOP02I ANOP                                                           00006910
+&I       SETA  &I+1                                                     00006920
+         AIF   (&I LE N'&MISCEL1).LOOP02  * LOOP CONTROL                00006930
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006940
+.*                                                                    * 00006950
+.*   VALIDATE REQPTR2 PARAMETER YES OR NO                             * 00006960
+.*                                                                    * 00006970
+.*                                                                    * 00006980
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00006990
+.P1V30   ANOP                                                           00007000
+         AIF   (T'&REQPTR2 EQ 'O').P1E30  * ERROR IF IS OMITTED         00007010
+         AIF   ('&REQPTR2' EQ 'NO').P1V3                                00007020
+         AIF   ('&REQPTR2' NE 'YES').P1E30                              00007030
+&M(1)    SETB  1                          * POINTERS SECOND REQUIRED    00007040
+         AGO   .P1V3                                                    00007050
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007060
+.*                                                                    * 00007070
+.*   VALIDATE PARAMETER REQTLR1 (PROCESS FOR ACCOUNT 1 TRAILERS)      * 00007080
+.*        IF PARAMETER VALUE IS EQUAL TO NO THEN:                     * 00007090
+.*        .   THE PARAMETERS SCHTLR1, PROTLR1, UPDTLR1 SHOULD NOT     * 00007100
+.*            BE CODED.                                               * 00007110
+.*                                                                    * 00007120
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007130
+.P1V3    ANOP                                                           00007140
+         AIF   ('&REQTLR1' EQ 'YES').P1V3C * SKIP IF TRAILER PROCESS    00007150
+         AIF   ('&REQTLR1' NE 'NO').P1E3                                00007160
+&M(2)    SETB  0                          * SET TRAILER 1 PROCESS OFF   00007170
+         AIF   (T'&SCHTLR1 NE 'O').P1E3A  * ERROR IF NOT OMITTED        00007180
+.P1V3A   ANOP                                                           00007190
+         AIF   (T'&PROTLR1 NE 'O').P1E3B  * ERROR IF NOT OMITTED        00007200
+.P1V3B   ANOP                                                           00007210
+         AIF   (T'&UPDTLR1 NE 'O').P1E3C  * ERROR IF NOT OMITTED        00007220
+         AGO   .P1V4                                                    00007230
+.P1V3C   ANOP                                                           00007240
+&M(2)    SETB  1                          * SET TRAILER 1 PROCESS ON    00007250
+         AGO   .P1V4                                                    00007260
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007270
+.*                                                                    * 00007280
+.*   IF THIS TRANSACTION IS NOT A TRANSFER THEN:                      * 00007290
+.*        .   SKIP THE ACCOUNT 2 VALIDATIONS                          * 00007300
+.*            - VALIDATE PARAMETER STATUS2                            * 00007310
+.*            - VALIDATE PARAMETER MISCEL2                            * 00007320
+.*                                                                    * 00007330
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007340
+.P1V4    ANOP                                                           00007350
+         AIF   (&M(7) AND &M(8)).P1V4A * IF IT IS A TRANSFER GO TO VAL  00007360
+         AIF   (&M(1)).P1V4A   * IF POINTERS SECOND REQUIRED GO TO VAL  00007370
+         AGO   .P1V7                   * ELSE SKIP TRANSFER VALIDATIONS 00007380
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007390
+.*                                                                    * 00007400
+.*   THE TRANSACTION TYPE IS 'TRANSFER'.                              * 00007410
+.*                                                                    * 00007420
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007430
+.P1V4A   ANOP                                                           00007440
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007450
+.*                                                                    * 00007460
+.*   VALIDATE PARAMETER STATUS2                                       * 00007470
+.*        .   EVERY VALUE MUST BE IN THE RANGE 1 TO 16                * 00007480
+.*        .   ALL VALUES IN SUB-PARAMETERS ARE STORED IN A WORK AREA  * 00007490
+.*                                                                    * 00007500
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007510
+         AIF   ('&STATUS2' EQ '').P1V5   *SKIP IF STATUS2 OMITTED       00007520
+&I       SETA  1                                                        00007530
+.LOOP03  ANOP                             * VALIDATE SUB-PARAMETERS     00007540
+         AIF   (T'&STATUS2(&I) EQ 'O').LOOP03I                          00007550
+         AIF   (T'&STATUS2(&I) NE 'N').P1E4                             00007560
+         AIF   (&STATUS2(&I) LT 1 OR &STATUS2(&I) GT 16).P1E4           00007570
+&Y(&STATUS2(&I)) SETB 1                   * STORE VALUE CODED           00007580
+.LOOP03I ANOP                                                           00007590
+&I       SETA  &I+1                                                     00007600
+         AIF   (&I LE N'&STATUS2).LOOP03  * LOOP CONTROL                00007610
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007620
+.*                                                                    * 00007630
+.*   VALIDATE PARAMETER MISCEL2                                       * 00007640
+.*        .   EVERY VALUE MUST BE IN THE RANGE 17 TO 40               * 00007650
+.*        .   ALL VALUES IN SUB-PARAMETERS ARE STORED IN A WORK AREA  * 00007660
+.*                                                                    * 00007670
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007680
+.P1V5    ANOP                                                           00007690
+         AIF   ('&MISCEL2' EQ '').P1V6   *SKIP IF MISCEL2 OMITTED       00007700
+&I       SETA  1                                                        00007710
+.LOOP04  ANOP                             * VALIDATE SUB-PARAMETERS     00007720
+         AIF   (T'&MISCEL2(&I) EQ 'O').LOOP04I                          00007730
+         AIF   (T'&MISCEL2(&I) NE 'N').P1E5                             00007740
+         AIF   (&MISCEL2(&I) LT 17 OR &MISCEL2(&I) GT 40).P1E5          00007750
+&Z(&MISCEL2(&I)) SETB 1                   * STORE CODED VALUE           00007760
+.LOOP04I ANOP                                                           00007770
+&I       SETA  &I+1                                                     00007780
+         AIF   (&I LE N'&MISCEL2).LOOP04  * LOOP CONTROL                00007790
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007800
+.*                                                                    * 00007810
+.*   VALIDATE PARAMETER REQTLR2 (PROCESS FOR ACCOUNT 2 TRAILERS)      * 00007820
+.*        IF PARAMETER VALUE IS EQUAL TO NO THEN:                     * 00007830
+.*        .   THE PARAMETERS SCHTLR2, PROTLR2, UPDTLR2 SHOULD NOT     * 00007840
+.*            BE CODED.                                               * 00007850
+.*                                                                    * 00007860
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007870
+.P1V6    ANOP                                                           00007880
+         AIF   ('&REQTLR2' EQ 'YES').P1V6D  * SKIP IF TRAILER PROCESS   00007890
+         AIF   ('&REQTLR2' NE 'NO').P1E6    * SKIP IF TRAILER PROCESS   00007900
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007910
+.*      .* REQTLR2=NO                                                 * 00007920
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00007930
+&M(3)    SETB  0                            * SET TRAILER 2 PROCESS OFF 00007940
+.P1V6A   ANOP                                                           00007950
+         AIF   (T'&SCHTLR2 NE 'O').P1E6A    * ERROR IF NOT OMITTED      00007960
+.P1V6B   ANOP                                                           00007970
+         AIF   (T'&PROTLR2 NE 'O').P1E6B    * ERROR IF NOT OMITTED      00007980
+.P1V6C   ANOP                                                           00007990
+         AIF   (T'&UPDTLR2 NE 'O').P1E6C    * ERROR IF NOT OMITTED      00008000
+         AGO   .P1V8                                                    00008010
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008020
+.*      .* REQTLR2=YES                                                * 00008030
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008040
+.P1V6D   ANOP                                                           00008050
+&M(3)    SETB  1                          * SET TRAILER 2 PROCESS ON    00008060
+         AGO   .P1V8                                                    00008070
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008080
+.*                                                                    * 00008090
+.*   THE TRANSACTION TYPE IS NOT 'TRANSFER'.                          * 00008100
+.*                                                                    * 00008110
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008120
+.P1V7    ANOP                                                           00008130
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008140
+.*                                                                    * 00008150
+.*   IF THE TRANSACTION TYPE IS NOT EQUAL TO TRANSFER THEN:           * 00008160
+.*        .   THE PARAMETERS STATUS2, MISCEL2, TSTBAL2, UPDACT2,      * 00008170
+.*            REQTLR2, SCHTLR2, PROTLR2 AND UPDTLR2 SHOULD NOT BE     * 00008180
+.*            CODED.                                                  * 00008190
+.*                                                                    * 00008200
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008210
+         AIF   (T'&STATUS2 NE 'O').P1E7    * ERROR IF NOT OMITTED       00008220
+.P1V7A   ANOP                                                           00008230
+         AIF   (T'&MISCEL2 NE 'O').P1E7A   * ERROR IF NOT OMITTED       00008240
+.P1V7B   ANOP                                                           00008250
+         AIF   (T'&TSTBAL2 NE 'O').P1E7B   * ERROR IF NOT OMITTED       00008260
+.P1V7C   ANOP                                                           00008270
+         AIF   (T'&UPDACT2 NE 'O').P1E7C   * ERROR IF NOT OMITTED       00008280
+.P1V7D   ANOP                                                           00008290
+         AIF   ('&REQTLR2' EQ 'YES').P1E7D * ERROR IF PROCESS ASKED     00008300
+.P1V7E   ANOP                                                           00008310
+         AIF   (T'&SCHTLR2 NE 'O').P1E7E   * ERROR IF NOT OMITTED       00008320
+.P1V7F   ANOP                                                           00008330
+         AIF   (T'&PROTLR2 NE 'O').P1E7F   * ERROR IF NOT OMITTED       00008340
+.P1V7G   ANOP                                                           00008350
+         AIF   (T'&UPDTLR2 NE 'O').P1E7G   * ERROR IF NOT OMITTED       00008360
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008370
+.*                                                                    * 00008380
+.*   AVAILABLE FOR THE VALIDATION OF ADDITIONAL PARAMETERS            * 00008390
+.*   (NOT USED WITH CURRENT VERSION OF THE MACRO).                    * 00008400
+.*                                                                    * 00008410
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008420
+.P1V8    ANOP                                                           00008430
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008440
+.*                                                                    * 00008450
+.*   IF NOT ERROR FOUND, GENERATE THE HOST TRANSACTION PROCEDURE      * 00008460
+.*                                                                    * 00008470
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008480
+         AIF   (&ERRIND).END                                            00008490
+         AIF   (&TXPIND EQ 2).END * SKIP GENERATION IF CZFACT ASSEMBLY  00008500
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008510
+.*      .*                                                            * 00008520
+.*      .* GENERATE THE CODE FOR THE GENERAL PARAMETERS.              * 00008530
+.*      .*                                                            * 00008540
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008550
+         AIF   (&M(7) AND &M(8)).LBL001  *SKIP IF TRANSFER TRANS.       00008560
+         AIF   (&M(1)).LBL001      * SKIP IF POINTERS SECOND REQUIRED   00008570
+&LENGTH  SETA  92                 * SET LENGTH OF REGULAR ELEMENT       00008580
+         AGO   .LBL002                                                  00008590
+.LBL001  ANOP                                                           00008600
+&LENGTH  SETA  120                * SET LENGTH OF TRANSFER ELEMENT      00008610
+.LBL002  ANOP                                                           00008620
+         DS    0F                 * ALIGNMENT ON A FULLWORD BOUNDARY    00008630
+         DC    YL1(&LENGTH)       * PROCEDURE LENGTH                    00008640
+         DC    PL3'&GTRANUM'      * TRANSACTION NUMBER                  00008650
+         DC    YL1(&GAPLIC1)      * CODE FOR APPLICATION 1              00008660
+&WORKC   SETC  '&M(1)&M(2)&M(3)&M(4)&M(5)&M(6)&M(7)&M(8)'               00008670
+         DC    B'&WORKC'          * TRANSACTION MODE                    00008680
+&WORKC   SETC  '&T(1)&T(2)&T(3)&T(4)&T(5)&T(6)&T(7)&T(8)'               00008690
+         DC    B'&WORKC'          * TRANSACTION TYPE                    00008700
+&WORKC   SETC  '&C(1)&C(2)&C(3)&C(4)&C(5)&C(6)&C(7)&C(8)'               00008710
+         DC    B'&WORKC'          * AUTHORIZED CLASSES                  00008720
+&WORKC   SETC  '&L(1)&L(2)&L(3)&L(4)&L(5)&L(6)&L(7)&L(8)'               00008730
+         DC    B'&WORKC'          * AUTHORIZED LEVELS                   00008740
+&WORKC   SETC  '&A(1)&A(2)&A(3)&A(4)&A(5)&A(6)&A(7)&A(8)'               00008750
+         DC    B'&WORKC'          * INDICATOR BITS  1 -  8: STATUS1     00008760
+&WORKC   SETC  '&A(9)&A(10)&A(11)&A(12)&A(13)&A(14)&A(15)&A(16)'        00008770
+         DC    B'&WORKC'          * INDICATOR BITS  9 - 16: STATUS1     00008780
+&WORKC   SETC  '&B(17)&B(18)&B(19)&B(20)&B(21)&B(22)&B(23)&B(24)'       00008790
+         DC    B'&WORKC'          * INDICATOR BITS 17 - 24: MISCEL1     00008800
+&WORKC   SETC  '&B(25)&B(26)&B(27)&B(28)&B(29)&B(30)&B(31)&B(32)'       00008810
+         DC    B'&WORKC'          * INDICATOR BITS 25 - 32: MISCEL1     00008820
+&WORKC   SETC  '&B(33)&B(34)&B(35)&B(36)&B(37)&B(38)&B(39)&B(40)'       00008830
+         DC    B'&WORKC'          * INDICATOR BITS 33 - 40: MISCEL1     00008840
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008850
+.*      .*                                                            * 00008860
+.*      .* GENERATE THE CODE FOR APPLICATION CODE 2.                  * 00008870
+.*      .*                                                            * 00008880
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008890
+         AIF   (&M(7) AND &M(8)).LBL003  * SKIP IF TRANSFER TRANS.      00008900
+         AIF   (&M(1)).LBL003      * SKIP IF POINTERS SECOND REQUIRED   00008910
+         DC    X'00'              * RESERVED FOR APPLICATION 2 CODE     00008920
+         AGO   .LBL004                                                  00008930
+.LBL003  ANOP                     * TRANSFER TRANSACTION                00008940
+         DC    YL1(&GAPLIC2)      * CODE FOR APPLICATION 2              00008950
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00008960
+.*      .*                                                            * 00008970
+.*      .* GENERATE THE CODE FOR INTERBANK APPLICATIOS BYTE           * 00008980
+.*      .*                                                            * 00008990
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009000
+.LBL004  ANOP                                                           00009010
+&WORKC   SETC  '&IB(1)&IB(2)&IB(3)&IB(4)&IB(5)&IB(6)&IB(7)&IB(8)'       00009020
+         DC    B'&WORKC'          * INTERBANC COBOL/MULTIRED/MON.EXT.   00009030
+.*       DC    YL1(&IB)           * INTERBANK APPLICATIONS BYTE         00009040
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009050
+.*      .*                                                            * 00009060
+.*      .* GENERATE THE CODE FOR ACCOUNT 1.                           * 00009070
+.*      .*                                                            * 00009080
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009090
+         DC    CL8'&FLOWNAM'      * EXTERNAL FLOW NAME                  00009100
+         DC    A(&XALINPF),A(&XSTBAL1),A(&XDLVALD) * VALIDATION EXITS   00009110
+         DC    A(&XLDRMSG),A(&XLDJRNL)             * BUILD INFO. EXITS  00009120
+         DC    A(&XPDTOTL),A(&XPDACT1),A(&XDLPROC) * UPDATE INFO. EXITS 00009130
+         DC    A(&XCHTLR1),A(&XROTLR1),A(&XPDTLR1) * TRAILER PROCESSING 00009140
+         DC    YL1(&WDSLDC),YL1(&WDSOUT)           * DS OUTPUT FORMAT   00009150
+         DC    YL1(&WJPLDC),YL1(&WJPOUT)           * JP OUTPUT FORMAT   00009160
+         DC    YL1(&WCFLDC),YL1(&WCFOUT)           * CF OUTPUT FORMAT   00009170
+         DC    YL1(&WVPLDC),YL1(&WVPOUT)           * VP OUTPUT FORMAT   00009180
+         DC    YL1(&WADLDC),YL1(&WADOUT)           * AD OUTPUT FORMAT   00009190
+         DC    YL1(&WPBLDC),YL1(&WPBOUT)           * PB OUTPUT FORMAT   00009200
+         DC    YL1(&WMSLDC),YL1(&WMSOUT)           * MS OUTPUT FORMAT   00009210
+         DC    PL3'&WORIGTR'      * ORIGINAL TRANSACTION TO BE REVERSED 00009220
+         DC    CL3'&WMNEMO'       * MNEMONIC FOR SAVINGS PASSBOOK       00009230
+         DC    XL4'00'            * RESERVED FOR ALIGNMENT              00009240
+         AIF   (&M(7) AND &M(8)).LBL005  * SKIP IF TRANSFER TRANS.      00009250
+         AIF   (&M(1)).LBL005      * SKIP IF POINTERS SECOND REQUIRED   00009260
+         AGO   .LBL006            * NOT A TRANSFER: SKIP ACCOUNT 2 GEN. 00009270
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009280
+.*      .*                                                            * 00009290
+.*      .* GENERATE THE CODE FOR ACCOUNT 2.                           * 00009300
+.*      .*                                                            * 00009310
+.*      .*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009320
+.LBL005  ANOP                                                           00009330
+         DC    A(&XSTBAL2),A(&XPDACT2)             * UPDATE2 INFO EXITS 00009340
+         DC    A(&XCHTLR2),A(&XROTLR2),A(&XPDTLR2) * TRLR. 2 PROCESSING 00009350
+&WORKC   SETC  '&Y(1)&Y(2)&Y(3)&Y(4)&Y(5)&Y(6)&Y(7)&Y(8)'               00009360
+         DC    B'&WORKC'          * INDICATOR BITS  1 -  8: STATUS2     00009370
+&WORKC   SETC  '&Y(9)&Y(10)&Y(11)&Y(12)&Y(13)&Y(14)&Y(15)&Y(16)'        00009380
+         DC    B'&WORKC'          * INDICATOR BITS  9 - 16: STATUS2     00009390
+&WORKC   SETC  '&Z(17)&Z(18)&Z(19)&Z(20)&Z(21)&Z(22)&Z(23)&Z(24)'       00009400
+         DC    B'&WORKC'          * INDICATOR BITS 17 - 24: MISCEL2     00009410
+&WORKC   SETC  '&Z(25)&Z(26)&Z(27)&Z(28)&Z(29)&Z(30)&Z(31)&Z(32)'       00009420
+         DC    B'&WORKC'          * INDICATOR BITS 25 - 32: MISCEL2     00009430
+&WORKC   SETC  '&Z(33)&Z(34)&Z(35)&Z(36)&Z(37)&Z(38)&Z(39)&Z(40)'       00009440
+         DC    B'&WORKC'          * INDICATOR BITS 33 - 40: MISCEL2     00009450
+         DC    XL3'00'            * RESERVED                            00009460
+.LBL006  ANOP                                                           00009470
+         AGO   .END                                                     00009480
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009490
+.*                                                                    * 00009500
+.*    HELP FUNCTION REQUESTED. GENERATE ALL THE INFORMATIVE           * 00009510
+.*    MESSAGES REQUIRED.                                              * 00009520
+.*                                                                    * 00009530
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009540
+.HELP    ANOP                                                           00009550
+         CZFMHIMS MSGNUM=998                                            00009560
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTRP                            00009570
+         CZFMHIMS MSGNUM=55                                             00009580
+         CZFMHIMS MSGNUM=114                                            00009590
+         CZFMHIMS MSGNUM=56,MSGPARM=STATUS1                             00009600
+         CZFMHIMS MSGNUM=57,MSGPARM=MISCEL1                             00009610
+         CZFMHIMS MSGNUM=65,MSGPARM=VALINPF                             00009620
+         CZFMHIMS MSGNUM=65,MSGPARM=TSTBAL1                             00009630
+         CZFMHIMS MSGNUM=65,MSGPARM=ADLVALD                             00009640
+         CZFMHIMS MSGNUM=65,MSGPARM=BLDRMSG                             00009650
+         CZFMHIMS MSGNUM=65,MSGPARM=BLDJRNL                             00009660
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTOTL                             00009670
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDACT1                             00009680
+         CZFMHIMS MSGNUM=65,MSGPARM=ADLPROC                             00009690
+         CZFMHIMS MSGNUM=116,MSGPARM=REQTLR1                            00009700
+         CZFMHIMS MSGNUM=58,MSGPARM=SCHTLR1                             00009710
+         CZFMHIMS MSGNUM=65,MSGPARM=SCHTLR1                             00009720
+         CZFMHIMS MSGNUM=58,MSGPARM=PROTLR1                             00009730
+         CZFMHIMS MSGNUM=65,MSGPARM=PROTLR1                             00009740
+         CZFMHIMS MSGNUM=58,MSGPARM=UPDTLR1                             00009750
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTLR1                             00009760
+         CZFMHIMS MSGNUM=56,MSGPARM=STATUS2                             00009770
+         CZFMHIMS MSGNUM=59,MSGPARM=STATUS2                             00009780
+         CZFMHIMS MSGNUM=57,MSGPARM=MISCEL2                             00009790
+         CZFMHIMS MSGNUM=59,MSGPARM=MISCEL2                             00009800
+         CZFMHIMS MSGNUM=65,MSGPARM=TSTBAL2                             00009810
+         CZFMHIMS MSGNUM=59,MSGPARM=TSTBAL2                             00009820
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDACT2                             00009830
+         CZFMHIMS MSGNUM=59,MSGPARM=UPDACT2                             00009840
+         CZFMHIMS MSGNUM=116,MSGPARM=REQTLR2                            00009850
+         CZFMHIMS MSGNUM=59,MSGPARM=REQTLR2                             00009860
+         CZFMHIMS MSGNUM=65,MSGPARM=SCHTLR2                             00009870
+         CZFMHIMS MSGNUM=59,MSGPARM=SCHTLR2                             00009880
+         CZFMHIMS MSGNUM=115,MSGPARM=SCHTLR2                            00009890
+         CZFMHIMS MSGNUM=65,MSGPARM=PROTLR2                             00009900
+         CZFMHIMS MSGNUM=59,MSGPARM=PROTLR2                             00009910
+         CZFMHIMS MSGNUM=115,MSGPARM=PROTLR2                            00009920
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTLR2                             00009930
+         CZFMHIMS MSGNUM=59,MSGPARM=UPDTLR2                             00009940
+         CZFMHIMS MSGNUM=115,MSGPARM=UPDTLR2                            00009950
+       AGO   .END                                                       00009960
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00009970
+.*                                                                    * 00009980
+.*    REQUEST TO MACRO CZFMHIMS THE ERROR MESSAGES NEEDED             * 00009990
+.*                                                                    * 00010000
+.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.** 00010010
+.PCOMP   ANOP                                                           00010020
+         CZFMHIMS MSGNUM=94,MSGPARM=CZFMSTRP                            00010030
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010040
+         AGO   .END                                                     00010050
+.P1E0    ANOP                                                           00010060
+         CZFMHIMS MSGNUM=55                                             00010070
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010080
+         AGO   .P1V0A                                                   00010090
+.P1E0A   ANOP                                                           00010100
+         CZFMHIMS MSGNUM=114                                            00010110
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010120
+         AGO   .P1V1                                                    00010130
+.P1E1    ANOP                                                           00010140
+         CZFMHIMS MSGNUM=56,MSGPARM=STATUS1                             00010150
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010160
+         AGO   .P1V2                                                    00010170
+.P1E2    ANOP                                                           00010180
+         CZFMHIMS MSGNUM=57,MSGPARM=MISCEL1                             00010190
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR (OLD .P1V3)   00010200
+         AGO   .P1V30                                                   00010210
+.P1E30   ANOP                                                           00010220
+         CZFMHIMS MSGNUM=116,MSGPARM=REQPRT2                            00010230
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR @BIP1992APR   00010240
+         AGO   .P1V3                                                    00010250
+.P1E3    ANOP                                                           00010260
+         CZFMHIMS MSGNUM=116,MSGPARM=REQTLR1                            00010270
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010280
+         AGO   .P1V3B                                                   00010290
+.P1E3A   ANOP                                                           00010300
+         CZFMHIMS MSGNUM=58,MSGPARM=SCHTLR1                             00010310
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010320
+         AGO   .P1V3B                                                   00010330
+.P1E3B   ANOP                                                           00010340
+         CZFMHIMS MSGNUM=58,MSGPARM=PROTLR1                             00010350
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010360
+         AGO   .P1V3C                                                   00010370
+.P1E3C   ANOP                                                           00010380
+         CZFMHIMS MSGNUM=58,MSGPARM=UPDTLR1                             00010390
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010400
+         AGO   .P1V4                                                    00010410
+.P1E4    ANOP                                                           00010420
+         CZFMHIMS MSGNUM=56,MSGPARM=STATUS2                             00010430
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010440
+         AGO   .P1V5                                                    00010450
+.P1E5    ANOP                                                           00010460
+         CZFMHIMS MSGNUM=57,MSGPARM=MISCEL2                             00010470
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010480
+         AGO   .P1V6                                                    00010490
+.P1E6    ANOP                                                           00010500
+         CZFMHIMS MSGNUM=116,MSGPARM=REQTLR2                            00010510
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010520
+         AGO   .P1V8                                                    00010530
+.P1E6A   ANOP                                                           00010540
+         CZFMHIMS MSGNUM=115,MSGPARM=SCHTLR2                            00010550
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010560
+         AGO   .P1V6B                                                   00010570
+.P1E6B   ANOP                                                           00010580
+         CZFMHIMS MSGNUM=115,MSGPARM=PROTLR2                            00010590
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010600
+         AGO   .P1V6C                                                   00010610
+.P1E6C   ANOP                                                           00010620
+         CZFMHIMS MSGNUM=115,MSGPARM=UPDTLR2                            00010630
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010640
+         AGO   .P1V8                                                    00010650
+.P1E7    ANOP                                                           00010660
+         CZFMHIMS MSGNUM=59,MSGPARM=STATUS2                             00010670
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010680
+         AGO   .P1V7A                                                   00010690
+.P1E7A   ANOP                                                           00010700
+         CZFMHIMS MSGNUM=59,MSGPARM=MISCEL2                             00010710
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010720
+         AGO   .P1V7B                                                   00010730
+.P1E7B   ANOP                                                           00010740
+         CZFMHIMS MSGNUM=59,MSGPARM=TSTBAL2                             00010750
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010760
+         AGO   .P1V7C                                                   00010770
+.P1E7C   ANOP                                                           00010780
+         CZFMHIMS MSGNUM=59,MSGPARM=UPDACT2                             00010790
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010800
+         AGO   .P1V7D                                                   00010810
+.P1E7D   ANOP                                                           00010820
+         CZFMHIMS MSGNUM=59,MSGPARM=REQTLR2                             00010830
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010840
+         AGO   .P1V7E                                                   00010850
+.P1E7E   ANOP                                                           00010860
+         CZFMHIMS MSGNUM=59,MSGPARM=SCHTLR2                             00010870
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010880
+         AGO   .P1V7F                                                   00010890
+.P1E7F   ANOP                                                           00010900
+         CZFMHIMS MSGNUM=59,MSGPARM=PROTLR2                             00010910
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010920
+         AGO   .P1V7G                                                   00010930
+.P1E7G   ANOP                                                           00010940
+         CZFMHIMS MSGNUM=59,MSGPARM=UPDTLR2                             00010950
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00010960
+         AGO   .P1V8                                                    00010970
+.PAERR   ANOP                                                           00010980
+         CZFMHIMS MSGNUM=65,MSGPARM=VALINPF                             00010990
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011000
+         AGO   .B                                                       00011010
+.PBERR   ANOP                                                           00011020
+         CZFMHIMS MSGNUM=65,MSGPARM=TSTBAL1                             00011030
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011040
+         AGO   .C                                                       00011050
+.PCERR   ANOP                                                           00011060
+         CZFMHIMS MSGNUM=65,MSGPARM=ADLVALD                             00011070
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011080
+         AGO   .D                                                       00011090
+.PDERR   ANOP                                                           00011100
+         CZFMHIMS MSGNUM=65,MSGPARM=BLDRMSG                             00011110
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011120
+         AGO   .E                                                       00011130
+.PEERR   ANOP                                                           00011140
+         CZFMHIMS MSGNUM=65,MSGPARM=BLDJRNL                             00011150
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011160
+         AGO   .F                                                       00011170
+.PFERR   ANOP                                                           00011180
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTOTL                             00011190
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011200
+         AGO   .G                                                       00011210
+.PGERR   ANOP                                                           00011220
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDACT1                             00011230
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011240
+         AGO   .H                                                       00011250
+.PHERR   ANOP                                                           00011260
+         CZFMHIMS MSGNUM=65,MSGPARM=ADLPROC                             00011270
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011280
+         AGO   .I                                                       00011290
+.PIERR   ANOP                                                           00011300
+         CZFMHIMS MSGNUM=65,MSGPARM=SCHTLR1                             00011310
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011320
+         AGO   .J                                                       00011330
+.PJERR   ANOP                                                           00011340
+         CZFMHIMS MSGNUM=65,MSGPARM=PROTLR1                             00011350
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011360
+         AGO   .K                                                       00011370
+.PKERR   ANOP                                                           00011380
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTLR1                             00011390
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011400
+         AGO   .L                                                       00011410
+.PLERR   ANOP                                                           00011420
+         CZFMHIMS MSGNUM=65,MSGPARM=TSTBAL2                             00011430
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011440
+         AGO   .M                                                       00011450
+.PMERR   ANOP                                                           00011460
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDACT2                             00011470
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011480
+         AGO   .N                                                       00011490
+.PNERR   ANOP                                                           00011500
+         CZFMHIMS MSGNUM=65,MSGPARM=SCHTLR2                             00011510
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011520
+         AGO   .O                                                       00011530
+.POERR   ANOP                                                           00011540
+         CZFMHIMS MSGNUM=65,MSGPARM=PROTLR2                             00011550
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011560
+         AGO   .P                                                       00011570
+.PPERR   ANOP                                                           00011580
+         CZFMHIMS MSGNUM=65,MSGPARM=UPDTLR2                             00011590
+&ERRIND  SETB   1                 *SET ON ERROR INDICATOR               00011600
+         AGO   .P1V1                                                    00011610
+.END     ANOP                                                           00011620
+         MEND                                                           00011630

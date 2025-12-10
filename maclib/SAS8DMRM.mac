@@ -1,0 +1,72 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000999
+&LABEL   SAS8DMRM &DSECT=NO                                             00001000
+*                                                                     * 00002000
+*********************************************************************** 00003000
+*                                                                     * 00004000
+* * * * * * *           S  A  D  M  P  A  R  M          * * * * * * * * 00005000
+*                                                                     * 00006000
+*      DAG MANAGER REQUEST BLOCK                                      * 00007000
+*04/14/89 DAGTAB ENTRY OFFSET                                         * 00008000
+*********************************************************************** 00009000
+         SPACE 3                                                        00010000
+         AIF   ('&DSECT' EQ 'YES').SAS8010                              00011000
+SADMPARM DS    0F                                                       00012000
+         AGO   .SAS8050                                                 00013000
+.SAS8010 ANOP                                                           00014000
+SADMPARM DSECT                                                          00015000
+.SAS8050 ANOP                                                           00016000
+         SPACE                                                          00017000
+SADMNAME DS    CL8               DAG OR DSET NAME                       00018000
+         SPACE                                                          00019000
+*                                ADDRESSES RETURNED FROM FUNCTION.      00020000
+SADMADRS DS    0XL16                                                    00021000
+SADMADDS DS    0XL8              (TWO DSET ADDRESSES BELOW)             00022000
+SADMADDR DS    F                 DAG OR DSET ADDRESS.  IF DSET, IT IS   00023000
+*                                 ONLY DSET OR OUTPUT SIDE OF SEQMASTER 00024000
+SADMADRI DS    F                 DSET ADDRESS OF INPUT SIDE OF          00025000
+*                                 SEQMASTER, OTHERWISE ZERO.            00026000
+SADMDSTE DS    F                 DSETTBE ADDRESS                        00027000
+SADMDDTE DS    F                 DDTABE ADDRESS                         00028000
+         SPACE                                                          00029000
+         ORG   SADMDSTE                                                 00030000
+SADMDGTE DS    XL4               OFFSET RELATIVE TO START OF DAGTAB     00031000
+*                                 FOR DAG INVOLVED IN THIS OPERATION    00032000
+SADMDAGO DS    XL4               OPEN SLOT FOUND DURING ANY DAGTAB SCAN 00033000
+         SPACE                                                          00034000
+SADMRQFW DS    0F                                                       00035000
+         DS    XL3               DO NOT REMOVE!                         00036000
+SADMRQST DS    XL1               REQUESTED FUNCTION                     00037000
+SADMDAGA EQU   4                 ADD A DAG TO THE TABLE                 00038000
+SADMDAGD EQU   8                 DELETE A DAG FROM TABLE                00039000
+SADMDAGR EQU   12                RETRIEVE A DAG FROM TABLE              00040000
+SADMDSTB EQU   16                RETRIEVE OR BUILD A DSET IN DSETTAB    00041000
+SADMDSTR EQU   20                RETRIEVE A DSET FROM TABLE             00042000
+SADMDAGC EQU   24                DECREMENT DAG USE COUNT,               00043000
+*                                 BUT DO NOT DELETE DAG.                00044000
+SADMDAGB EQU   28                ALLOCATE, BUT DON'T INCREMENT          00045000
+SADMDAGX EQU   32                ALLOCATE IF NOT IN TABLE,              00046000
+*                                  REPLACE IF ALREADY IN TABLE          00047000
+SADMDAGF EQU   36                RETRIEVE DAG, DON'T INCR USE 2501124   00047010
+SADMDSSL DS    XL4               LENGTH OF STORAGE ACQUIRED FOR DSET    00048000
+SADMLGTH DS    XL2               LENGTH OF DAG FOR 'SADMDAGA'           00049000
+SADMLGGM DS    XL2               LENGTH OF GETMAIN FOR ABOVE ITEM       00050000
+SADMAMOD DS    CL8               NAME OF PGM WHICH ALLOCATED DAG        00051000
+SADMDDN  DS    CL8               DDNAME FOR ASSIGN & DBCOPY OVERRIDES   00052000
+SADMDDTY DS    X                 TYPE OF DDTABE EXPECTED ON LOOKUP      00053000
+         ORG   SADMDDTY                                       2511803   00053010
+SADMDEAL DS    C                 UNMODIFIED DAG DEALLOC STATUS2511803   00053020
+SADMDSNW DS    X                 'Y' IF NEW DSETTBE ALLOCATED           00054000
+*                                ALSO USED DURING DAG ADD ROUTINE TO    00055000
+*                                 INDICATE IF DUPCHECK NEEDED.          00056000
+SADMDDNW DS    X                 'Y' IF NEW DDTABE ALLOCATED            00057000
+*                                                                     * 00058000
+SADMPSSV DS    CL01                PASS/SAVE STATUS                     00058010
+*                                  P - PASS                   2501124   00058020
+*                                  S - SAVE                   2501124   00058030
+SADMFLG1 DS    X                   VALUES = DAGTFLG1 VALUES   2501124   00058040
+SADMTRID DS    CL04                TRAN ID SETTING DISPOSITION2501124   00058050
+SADMTSKN DS    PL04                TASK NUMBER OF DISPOSITION 2501124   00058060
+SADMREND EQU   *                   END OF REQUEST AREA        2501124   00058070
+*********************************************************************** 00059000
+         MEND                                                           00060000

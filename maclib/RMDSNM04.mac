@@ -1,0 +1,41 @@
+*     * FO5238*13/05/11 AUTO PROYECTO REBORN                            00000100
+******************************************************************      00000100
+*DICTIONARY OBJECT RMDAGRMLNNM04                                 *      00000200
+* CODED     08/30/93                                             *      00000300
+* KEY GENR NAME SEARCH KEY                                       *      00000400
+******************************************************************      00000500
+RMDSNM04 DSECT                          NAME SEARCH KEY                 00000600
+WK4DSECT DS    0CL33                                                    00000700
+WK4LEN   EQU   33                       DSECT LENGTH                    00000800
+WK4LNTYP DS    CL1                      NAME LINE TYPE INDICATOR        00000900
+*                                        LINE-TYP-PERS       VALUE 'P'. 00001000
+*                                        LINE-TYP-COML       VALUE 'C'. 00001100
+WK4RETCD DS    CL1                      NAMES-RETURN-CD                 00001200
+*                                        NAME-OK             VALUE '0'. 00001300
+*                                        NO-LAST-NAME        VALUE '1'. 00001400
+*                                        NO-SIGNIFICANT-WORD VALUE '2'. 00001500
+WK4PRIND DS    0CL5                     PARTL PERS NAME INDS            00001600
+WK4PLNI  DS    CL1                       PARTL LST NAME IND             00001700
+WK4P1NI  DS    CL1                       PARTL 1ST NAME IND             00001800
+         DS    CL3                                                      00001900
+         ORG   WK4PRIND                 PARTL COML NAME INDS            00002000
+WK4P1WI  DS    CL1                       PARTL 1ST WORD IND             00002100
+WK4P2WI  DS    CL1                       PARTL 2ND WORD IND             00002200
+WK4P3WI  DS    CL1                       PARTL 3RD WORD IND             00002300
+WK4P4WI  DS    CL1                       PARTL 4TH WORD IND             00002400
+WK4P5WI  DS    CL1                       PARTL 5TH WORD IND             00002500
+         ORG                                                            00002600
+WK4PKEY  DS    0CL26                    PERS KEY                        00002700
+WK4LN13  DS    CL13                      LST NAME 13 CHAR               00002800
+WK41N8   DS    CL8                       1ST NAME 8 CHAR                00002900
+WK4MI    DS    CL1                       MID INITIAL                    00003000
+WK4RCSN  DS    CL2                       REM CHAR SURNAME               00003100
+WK4RC1N  DS    CL2                       REM CHAR 1ST NAME              00003200
+         ORG   WK4PKEY                  COML KEY                        00003300
+WK41W9   DS    CL10                      1ST WORD 10 CHAR               00003400
+WK42W9   DS    CL9                       2ND WORD 9 CHAR                00003500
+WK43W3   DS    CL4                       3RD WORD 4 CHAR                00003600
+WK44W2   DS    CL2                       4TH WORD 2 CHAR                00003700
+WK45W1   DS    CL1                       5TH WORD 1 CHAR                00003800
+         ORG                                                            00003900
+         EJECT                                                          00004000

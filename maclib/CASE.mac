@@ -1,0 +1,139 @@
+         MACRO                                                          00010000
+&NAME    CASE  &SEQIND,&CODES=NO                                        00020000
+.* -----------------------------------------------------------------    00030000
+.* 5799-BNT (C) COPYRIGHT IBM AMERICAS/FAR EAST 1983                    00040000
+.* 5799-BNT (C) COPYRIGHT IBM WORLD TRADE CORP. 1983                    00050000
+.* 5798-CLF COPYRIGHT IBM CORP. 1976                                    00060000
+.* LICENSED MATERIAL - PROGRAM PROPERTY OF IBM                          00070000
+.* REFER TO COPYRIGHT INSTRUCTIONS FROM NO. G120-2083                   00080000
+.* -----------------------------------------------------------------    00090000
+.*                                                                      00100000
+ GBLA &$PMAFO      * AND FOLLOWED BY OR COUNTER                         00110000
+ GBLA &$PMCNO      * CASE NUMBER                                        00120000
+ GBLA &$PMINC      * IF NESTING LEVEL COUNT                             00130000
+ GBLA &$PMPNI      * PROC NESTING INDEX                                 00140000
+ GBLA &$PMPNO      * PROC NUMBER WITHIN CASE                            00150000
+ GBLA &$PMPSC      * CONDITION (PREDICATE SET) COUNTER                  00160000
+ GBLA &$PMNDX      * LABEL SEQUENCE COUNTER                   @JBTR     00170000
+.*                                                                      00180000
+ GBLB &$PMCCI      * USER DEFINED CASE INDICATOR                        00190000
+ GBLB &$PMCEM      * CASE ERROR PROC PRESENT INDICATOR                  00200000
+ GBLB &$PMCICS     * CICS OPTION                                        00210000
+ GBLB &$PMCIND     * CASE ACTIVE (WITHIN CASE/ECASE) INDICATOR          00220000
+ GBLB &$PMDCLS     * DCL ACTIVE (WITHIN DCL/EDCL PAIR)                  00230000
+ GBLB &$PMES(20)   * ELSE MACRO PRESENT INDICATOR                       00240000
+ GBLB &$PMOAA      * OR AND AND INDICATOR                               00250000
+ GBLB &$PMOERR     * CASE SEQ INDICATOR ERROR SW                        00260000
+ GBLB &$PMPMS      * PROC MAIN ACTIVE SWITCH                            00270000
+ GBLB &$PMROS      * RENT (REENTRANT) OPTION SW FROM PROC               00280000
+.*                                                                      00290000
+ GBLC &$PMCLBL     * CASE LABEL FOR ECASE                               00300000
+ GBLC &$PMINS(20)  * IF NESTED SYSNDX VALUE                             00310000
+ GBLC &$PMISN(20)  * IF SYMBOLIC NAME                                   00320000
+ GBLC &$PMLKR      * PROC LINK REGISTER (PROC PERFORM EPROC)            00330000
+ GBLC &$PMPCA(255)  * USER DEFINED CASE ARRAY                           00340000
+ GBLC &$PMPMX      * CURRENT SYSNDX VALUE                               00350000
+ GBLC &$PMPNM(20)  * PROC NESTED NAME                                   00360000
+ GBLC &$PMPNS(20)  * PROC NESTING SYMBOL                                00370000
+ GBLC &$PMPTP(20)  * PROC TYPE C=CASE L=CLOSED E=ERROR                  00380000
+ GBLC &$PMWR1      * WORK REGISTER 1 NAME                               00390000
+ GBLC &$PMWR2      * WORK REGISTER 2 NAME                               00400000
+ GBLC &$PMWSN      * WRKAREA SYMBOLIC NAME                              00410000
+.*                                                                      00420000
+ LCLA &INDEX                                                            00430000
+.* -----------------------------------------------------------------    00440000
+         SPACE 1                                                        00450000
+&NAME    DS    0H                      * START ON HALFWORD BOUNDARY     00460000
+         AIF   ('&SYSPARM' NE 'TRON').NOTR01                  @JBTR     00470000
+         MVC   TRDATA,=CL8'&NAME'                             @JBTR     00480000
+         BAL   14,SAFTRACE                                    @JBTR     00490000
+.*                                                            @JBTR     00500000
+.NOTR01  ANOP                                                 @JBTR     00510000
+&$PMOERR SETB  0                                                        00520000
+&$PMCCI  SETB  0                                                        00530000
+         AIF   ('&CODES' NE 'YES').SYSDEF                               00540000
+.* CLEAR USER DEFINED CODE ARRAY (SET TO E)                             00550000
+.CLEAR   ANOP                                                           00560000
+&INDEX   SETA  &INDEX+1                                                 00570000
+&$PMPCA(&INDEX) SETC 'E'                                                00580000
+         AIF   (&INDEX NE 255).CLEAR                                    00590000
+&$PMCCI  SETB  1                                                        00600000
+.SYSDEF  ANOP  *SYSTEM DEFAULTS TO BE USED                              00610000
+.*    --- CHECK FOR ERRORS                                              00620000
+         AIF   (&$PMCIND EQ 1).ERROR1          * 601 MISSING ECASE      00630000
+.CKIND   AIF   (T'&SEQIND EQ 'O').ERROR2    * 602 MISSING SEQ-IND       00640000
+.*    --- INITIALIZE SOME VARIABLES                                     00650000
+.SET     ANOP                                                           00660000
+&$PMCLBL SETC  '&NAME'                      * SAVE LABEL FOR ECASE      00670000
+&$PMCIND SETB  1                            * SET IN-CASE-INDICATOR     00680000
+&$PMCNO  SETA  &$PMCNO+1                    * ADD 1 TO CASE COUNTER     00690000
+&$PMPNO  SETA  0                            * RESET PROC COUNTER        00700000
+&$PMCEM  SETB  0                            * RESET ERR-PROC-IND        00710000
+         AIF   (&$PMOERR EQ 0).GEN                                      00720000
+         MEXIT                                                          00730000
+.GEN     ANOP                                                           00740000
+.*    --- GENERATE THE CODE                                             00750000
+         AIF   ('&SEQIND'(1,1) NE '(').F    * REGISTER NOTATION ?       00760000
+          LR    &$PMWR2,&SEQIND              * LOAD SEQUENCE REGISTER   00770000
+         AGO   .REGNOT                                                  00780000
+.F       AIF   (T'&SEQIND NE 'F' AND T'&SEQIND NE 'A').H * FULLWORD?    00790000
+         L     &$PMWR2,&SEQIND              * LOAD SEQUENCE REG         00800000
+         AGO   .REGNOT                                                  00810000
+.H       AIF   (T'&SEQIND NE 'H' AND T'&SEQIND NE 'Y').Z * HALFWORD ?   00820000
+         LH    &$PMWR2,&SEQIND              * LOAD SEQUENCE REGOSTER    00830000
+         AGO   .REGNOT                                                  00840000
+.Z       AIF   (T'&SEQIND NE 'Z' AND T'&SEQIND NE 'C').P  *ZONED DEC.   00850000
+         PACK  &$PMWSN.(8),&SEQIND          * PACK ZONED FIELD          00860000
+         CVB   &$PMWR2,&$PMWSN              * CVB INTO SEQ REG          00870000
+         AGO   .REGNOT                                                  00880000
+.P       AIF   (T'&SEQIND NE 'P').BX        * 603 INVALID IND TYPE      00890000
+         ZAP   &$PMWSN.(8),&SEQIND          * ZAP INTO WORK AREA        00900000
+         CVB   &$PMWR2,&$PMWSN              * CVB INTO SEQ REG          00910000
+         AGO   .REGNOT                                                  00920000
+.BX      AIF   (T'&SEQIND NE 'B' AND T'&SEQIND NE 'X').ERROR3 B,X ?     00930000
+         AIF   (L'&SEQIND GT 1).TWO        * IS LENGTH 1 ?              00940000
+         MVI   &$PMWSN.,X'00'                                           00950000
+         MVC   &$PMWSN.+1(1),&SEQIND                                    00960000
+         LH    &$PMWR2,&$PMWSN              * LOAD SEQUENCE REGISTER    00970000
+         AGO   .REGNOT                                                  00980000
+.TWO     AIF (L'&SEQIND GT 2).THREE       * IS LENGTH 2 ?               00990000
+         MVC   &$PMWSN.(2),&SEQIND                                      01000000
+         LH    &$PMWR2,&$PMWSN              * LOAD SEQUENCE REGISTER    01010000
+         AGO   .REGNOT                                                  01020000
+.THREE   AIF   (L'&SEQIND GT 3).FOUR        IS LENGTH 4 ?               01030000
+         MVI   &$PMWSN.,X'00'                                           01040000
+         MVC   &$PMWSN.+1(3),&SEQIND                                    01050000
+         L     &$PMWR2,&$PMWSN              * LOAD SEQUENCE REGISTER    01060000
+         AGO   .REGNOT                                                  01070000
+.FOUR    AIF   (L'&SEQIND GT 4).ERROR8  *GREATER THAN 4 ?               01080000
+         MVC   &$PMWSN.(4),&SEQIND                                      01090000
+         L     &$PMWR2,&$PMWSN              * LOAD SEQUENCE REGISTER    01100000
+.*    --- SEQ-IND NOW IN REGISTER NOTATION ---                          01110000
+.REGNOT  ANOP                                                           01120000
+         LTR   &$PMWR2,&$PMWR2              * CHECK ZERO AND MINUS      01130000
+         BNP   $CERR&$PMCNO                 * BRANCH TO CASE ERR PROC   01140000
+         C     &$PMWR2,$PMVM&$PMCNO          * CHECK GREATER THAN MAX   01150000
+         BH    $CERR&$PMCNO                 * BRANCH TO CASE ERR PROC   01160000
+         AIF   ('&CODES' NE 'YES').BYPASS                               01170000
+         C     &$PMWR2,$PMMV&$PMCNO         COMPARE TO LOW              01180000
+         BNH   $CERR&$PMCNO                 BRANCH TO ERROR             01190000
+         S     &$PMWR2,$PMMV&$PMCNO                                     01200000
+.BYPASS  ANOP                                                           01210000
+         BCTR  &$PMWR2,0                    * SUBTRACT ONE FROM POINTER 01220000
+         SLL   &$PMWR2,2                    * MULTIPLY BY 4             01230000
+         B     $PMVT&$PMCNO.(&$PMWR2.)      * BRANCH TO ENTRY OF ECASE  01240000
+         SPACE 1                                                        01250000
+         MEXIT                                                          01260000
+.*    --- ERROR ROUTINES ---                                            01270000
+.ERROR1  MNOTE 12,'SPM0601 - ECASE MISSING - ABOVE CASE MACRO IGNORED'  01280000
+         AGO   .CKIND                       * GO CHECK INDICATOR        01290000
+.ERROR2  MNOTE 12,'SPM0602 - SEQUENCE INDICATOR MISSING'                01300000
+&$PMOERR SETB  1                            * SET SEQIND ERROR SW       01310000
+         AGO   .SET                                                     01320000
+.ERROR3  MNOTE 12,'SPM0603 - SEQUENCE INDICATOR NOT VALID TYPE'         01330000
+&$PMOERR SETB  1                                                        01340000
+         MEXIT                                                          01350000
+.ERROR8  MNOTE 12,'SPM0608 - HEX AND BINARY SEQUENCE INDICATORS MUST BEX01360000
+               4 BYTES OR LESS'                                         01370000
+&$PMOERR SETB  1                                                        01380000
+         MEND                                                           01390000

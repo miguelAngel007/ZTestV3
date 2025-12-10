@@ -1,0 +1,80 @@
+*     * 802262 12/11/20 PROYECTO UPGRADE GN172 EDVR
+         MACRO                                                          00000000
+         SAT8QUEM  &DSECT=YES                                           00001000
+         AIF ('&DSECT' EQ 'YES').DSECT                                  00002000
+         AGO .CSECT                                                     00003000
+.DSECT   ANOP                                                           00004000
+SAQE     DSECT                                                          00005000
+         DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00006000
+         AGO .SAQE                                                      00007000
+.CSECT   ANOP                                                           00008000
+SAQE     DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00009000
+.SAQE    ANOP                                                           00010000
+*********************************************************************** 00011000
+*                                                                     * 00012000
+*        QUEUE ENTRY BLOCK                                            * 00013000
+*                                                                     * 00014000
+*********************************************************************** 00015000
+.********************************************************************** 00015100
+.*                    ** HISTORY OF REVISIONS **                      * 00015200
+.* DESCRIPTION                                                 CHNGID * 00015300
+.* __________________________________________________________ _______ * 00015400
+.* 10/01/97 SUPPORT 4 BYTE LENGTH FIELD                       9913569 * 00015502
+.*                                                                    * 00015700
+.********************************************************************** 00015800
+SAQEID   DS    CL8   QE(QUEUEID)  EYEBALL                               00016000
+SAQEBLKZ DS    H                  SIZE OF BLOCK                         00017000
+SAQE#BR  DS    H                  # OF BYTES REMAINING IN BLOCK         00018000
+SAQENXT  DS    A                  NEXT QE BLOCK                         00019000
+SAQEHKO  DS    A                  OFFSET OF HIGH KEY QUE IN BLOCK       00020000
+SAQEKFM  DS    C                  FOR PERM QUEUES, THE KEY FORMAT       00021000
+         DS    XL3                                                      00022000
+SAQELEN  EQU   *-SAQE        LENGTH OF QE FIXED PORTION                 00023000
+*********************************************************************** 00024000
+         AIF ('&DSECT' EQ 'YES').DSECT2                                 00025000
+         AGO .CSECT2                                                    00026000
+.DSECT2  ANOP                                                           00027000
+SAQUE    DSECT                                                          00028000
+         DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00029000
+         AGO .SAQUE                                                     00030000
+.CSECT2  ANOP                                                           00031000
+SAQUE    DS    0D                 BEGIN BLOCK ON D/WORD BOUNDRY         00032000
+.SAQUE   ANOP                                                           00033000
+*********************************************************************** 00034000
+*                                                                     * 00035000
+*        QUEUE ENTRY                                                  * 00036000
+*                                                                     * 00037000
+*********************************************************************** 00038000
+SAQUEORG DS    CL4                TIME ITEM ORIGINATED                  00039000
+SAQUESTP DS    CL4                TIME ITEM LAST ACCESSED               00040000
+SAQUEUSE DS    A                  USE COUNT                             00041000
+SAQUEDQE DS    A                  DQE - DATA POINTER                    00042000
+         ORG   SAQUEDQE                                                 00043000
+         DS    H                                                        00044000
+SAQUEITM DS    H                  DATA ITEM NUMBER FOR ESA              00045000
+SAQUEKL  DS    H                  KEY LENGTH                            00046000
+SAQUEDL  DS    FL4                DATA LENGTH                 9913569   00047003
+SAQUEFLG DS    X                  MISCELLANEOUS FLAGS                   00048000
+SAQUEUPD EQU   B'00000001'        INDICATE QUE IN UPDATE MODE           00049000
+         DS    XL3                FILLER                                00050000
+SAQUELEN EQU   *-SAQUE       LENGTH OF QUE FIXED PORTION                00051000
+*********************************************************************** 00052000
+         AIF ('&DSECT' EQ 'YES').DSECT3                                 00053000
+         AGO .CSECT3                                                    00054000
+.DSECT3  ANOP                                                           00055000
+SADQE    DSECT                                                          00056000
+         DS    0F                 BEGIN BLOCK ON D/WORD BOUNDRY         00057000
+         AGO .SADQE                                                     00058000
+.CSECT3  ANOP                                                           00059000
+SADQE    DS    0F                 BEGIN BLOCK ON D/WORD BOUNDRY         00060000
+.SADQE   ANOP                                                           00061000
+*********************************************************************** 00062000
+*                                                                     * 00063000
+*        DATA QUE ENTRY                                               * 00064000
+*                                                                     * 00065000
+*********************************************************************** 00066000
+SADQESIZ DS    FL4                DQE LENGTH                  9913569   00067003
+SADQE#CL DS    H                  # OF CONTROL LEVELS                   00068000
+SADQELEN EQU   *-SADQE       LENGTH OF DQE FIXED PORTION                00069000
+*********************************************************************** 00070000
+         MEND                                                           00071000
