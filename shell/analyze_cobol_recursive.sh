@@ -9,6 +9,10 @@ COPYLIB="E.LIB.COPY.COB"
 TMPDIR="/u/idz/B45617/tmp"
 PGM="IM31"
 
+# Directorios para copiar archivos
+COBOL_DIR="$TMPDIR/cobol"
+COPY_DIR="$TMPDIR/copybook"
+
 # Archivos para tracking
 PROCESSED_PGMS="$TMPDIR/processed_pgms.txt"
 PROCESSED_COPY="$TMPDIR/processed_copy.txt"
@@ -385,3 +389,61 @@ if [ -s "$FOUND_COPY" ]; then
 fi
 echo "Total programas COBOL: $TOTAL_PGM"
 echo "Total copybooks: $TOTAL_CPY"
+
+# === COPIAR ARCHIVOS ===
+echo ""
+echo "=== Copiando archivos ==="
+
+# Crear directorios si no existen
+if [ ! -d "$COBOL_DIR" ]; then
+    mkdir -p "$COBOL_DIR"
+    echo "Directorio creado: $COBOL_DIR"
+fi
+if [ ! -d "$COPY_DIR" ]; then
+    mkdir -p "$COPY_DIR"
+    echo "Directorio creado: $COPY_DIR"
+fi
+
+# Copiar programa principal
+echo ""
+echo "Copiando programas COBOL..."
+cp "//'${PGMLIB}(${PGM})'" "$COBOL_DIR/${PGM}.cbl" 2>/dev/null
+if [ $? -eq 0 ]; then
+    echo "  Copiado: $PGM -> $COBOL_DIR/${PGM}.cbl"
+fi
+
+# Copiar programas COBOL encontrados
+if [ -s "$FOUND_PGMS" ]; then
+    sort -u "$FOUND_PGMS" | while read _pgm; do
+        if [ -n "$_pgm" ]; then
+            cp "//'${PGMLIB}(${_pgm})'" "$COBOL_DIR/${_pgm}.cbl" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                echo "  Copiado: $_pgm -> $COBOL_DIR/${_pgm}.cbl"
+            else
+                echo "  ERROR copiando: $_pgm"
+            fi
+        fi
+    done
+fi
+
+# Copiar copybooks
+echo ""
+echo "Copiando copybooks..."
+if [ -s "$FOUND_COPY" ]; then
+    sort -u "$FOUND_COPY" | while read _cpy; do
+        if [ -n "$_cpy" ]; then
+            cp "//'${COPYLIB}(${_cpy})'" "$COPY_DIR/${_cpy}.cpy" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                echo "  Copiado: $_cpy -> $COPY_DIR/${_cpy}.cpy"
+            else
+                echo "  ERROR copiando: $_cpy"
+            fi
+        fi
+    done
+fi
+
+echo ""
+echo "========================================="
+echo "Programas COBOL en: $COBOL_DIR"
+echo "Copybooks en: $COPY_DIR"
+echo "========================================="

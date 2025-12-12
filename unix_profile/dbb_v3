@@ -1,0 +1,40 @@
+# ==========================================================
+#   PERFIL USS - IBM DBB v3 (zBuilder) - Usuario B45617
+# ==========================================================
+
+# HOME correcto
+#export HOME=/u/idz/B45617
+#cd $HOME
+
+# =========================
+#  JAVA (REQUIRED for DBB)
+# =========================
+export JAVA_HOME=/usr/lpp/java/current_64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Evitar error: compressed references
+export JAVA_OPTS="-Xnocompressedrefs"
+export JAVA_TOOL_OPTIONS="-Xnocompressedrefs"
+
+# Memoria suficiente para DBB v3
+export DBB_JAVA_OPTS="-Xms256m -Xmx512m -Xnocompressedrefs"
+
+
+# =========================
+#  IBM DBB v3 / zBuilder
+# =========================
+export DBB_BUILD=/u/idz/B45617/dbb_v3/zBuilder/build
+export DBB_HOME=/u/idz/B45617/dbb_v3/dbb
+export DBB_CONF=$DBB_HOME/conf
+
+export PATH=$DBB_HOME/bin:$PATH
+export LIBPATH=$DBB_HOME/lib:$LIBPATH
+
+
+# =========================
+#  (Opcional) logging
+# =========================
+export DBB_LOG_LEVEL=INFO
+
+
+echo "Env DBB v3 conf success to B45617"

@@ -1,0 +1,51 @@
+# ======================================================================
+#  Archivo de configuración del entorno USS para IDz / DBB
+#  Usuario: B45617
+# ======================================================================
+
+# === Asegurar que HOME apunta a tu directorio válido ===
+export HOME=/u/idz/B45617
+cd $HOME
+
+# === Directorios adicionales al PATH ===
+PATH=$PATH:/usr/lpp/IDZV16/Rocket/rsusr/ported/bin
+PATH=$PATH:/usr/lpp/IDZV16/IBM/dbb/bin
+export PATH
+
+# === Librerías adicionales ===
+LIBPATH=$LIBPATH:/usr/lpp/IBM/dbb/lib
+LIBPATH=$LIBPATH:/usr/lpp/IDZV16/Rocket/rsusr/ported/lib
+LIBPATH=$LIBPATH:/usr/lpp/IDZV16/Rocket/rsusr/ported/lib/perl5/5.32.1/s390/CORE
+export LIBPATH
+
+# === Configuración de IBM Dependency Based Build (DBB) ===
+export DBB_HOME=/usr/lpp/IDZV16/IBM/dbb
+export DBB_CONF=$DBB_HOME/conf
+
+# === Activar modo debug de DBB ===
+export DBB_LOG_LEVEL=DEBUG
+
+# ======================================================================
+#  CONFIGURACIÓN CORRECTA DEL JAVA PARA EVITAR ERRORES DE MEMORIA
+# ======================================================================
+
+# Java correcto para z/OS (Semeru 64 bits)
+export JAVA_HOME=/usr/lpp/java/current_64
+
+# JVM sin compressedrefs (evita el error "Failed to instantiate compressed references metadata")
+export JAVA_OPTS="-Xnocompressedrefs"
+export JAVA_TOOL_OPTIONS="-Xnocompressedrefs"
+
+# DBB requiere JVM con memoria suficiente
+export DBB_JAVA_OPTS="-Xmx512m -Xms256m -Xnocompressedrefs"
+
+# Groovy usa JAVA_OPTS automáticamente, no necesita extra
+
+# ======================================================================
+# Opcional: Desactivar logger de SLF4J en DBB
+# ======================================================================
+export SIMPLE_LOGGER_OFF="-Dorg.slf4j.simpleLogger.defaultLogLevel=off"
+
+# === Mensaje de confirmación ===
+echo "Entorno DBB + Java configurado correctamente para el usuario B45617."
+
