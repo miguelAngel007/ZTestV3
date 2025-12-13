@@ -147,7 +147,8 @@
 014900             EXIT.
 015000*
 015100 I-O-SCSVCMV.                                                     9916269
-015200     CALL 'SCSVCMV'           USING  I-O-CONTROL-AREA             9916269
+      * CALL 'SCSVCMV'           USING  I-O-CONTROL-AREA    ORIGINAL    9916269
+015200     CALL SC-PHASE-SCSVCMV    USING  I-O-CONTROL-AREA             9916269
 015300                                     DUMMY-RECORD.
 015400 I-O-SCSVCMV-EXIT.                                                9916269
 015500             EXIT.

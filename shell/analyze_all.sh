@@ -5,11 +5,11 @@
 
 PGMLIB="E.LIB.PROGRAM"
 COPYLIB="E.LIB.COPY.COB"
-TMPDIR="/u/idz/B45617/tmp"
+TMPDIR="/u/idz/B45617/sh_opt"
 PGM="IM31"
 
 # Directorio de trabajo (donde esta el workspace)
-WORKDIR="/u/idz/B45617/workspaceV3/ZTestV3"
+WORKDIR="/u/idz/B45617/dbb_workspace/ZTestV3"
 
 # Directorios para copiar archivos
 COBOL_DIR="$TMPDIR/cobol"
@@ -189,9 +189,9 @@ analyze_program() {
     # Extraer CALL (solo nombre del programa)
     awk 'substr($0,7,1) != "*" && index($0," CALL ") {
         line = substr($0,8)
-        if (match(line, /CALL ['\''"][A-Z0-9]+['\''"]/)) {
+        if (match(line, /CALL +['\''"]+[A-Z0-9]+['\''"]/)) {
             call_part = substr(line, RSTART, RLENGTH)
-            gsub(/CALL ['\''"]/, "", call_part)
+            gsub(/CALL +['\''"]+/, "", call_part)
             gsub(/['\''"]/, "", call_part)
             print call_part
         }
@@ -284,9 +284,9 @@ analyze_copybook() {
     # Extraer CALL (solo nombre del programa)
     awk 'substr($0,7,1) != "*" && index($0," CALL ") {
         line = substr($0,8)
-        if (match(line, /CALL ['\''"][A-Z0-9]+['\''"]/)) {
+        if (match(line, /CALL +['\''"][A-Z0-9]+['\''"]/)) {
             call_part = substr(line, RSTART, RLENGTH)
-            gsub(/CALL ['\''"]/, "", call_part)
+            gsub(/CALL +['\''"]/, "", call_part)
             gsub(/['\''"]/, "", call_part)
             print call_part
         }
@@ -543,7 +543,7 @@ cat > "$DBB_BUILD_ASM" << 'HEADER'
 # Script generado automaticamente para compilar programas ASM
 # Ejecutar: sh dbb_build_asm.sh
 
-LOGFILE="/u/idz/B45617/tmp/dbb_build_asm.log"
+LOGFILE="/u/idz/B45617/sh_opt/dbb_build_asm.log"
 rm -f "$LOGFILE"
 touch "$LOGFILE"
 
@@ -700,7 +700,7 @@ cat > "$DBB_BUILD_COBOL" << 'HEADER'
 # Orden: dependencias primero, programa principal al final
 # Ejecutar: sh dbb_build_cobol.sh
 
-LOGFILE="/u/idz/B45617/tmp/dbb_build_cobol.log"
+LOGFILE="/u/idz/B45617/sh_opt/dbb_build_cobol.log"
 rm -f "$LOGFILE"
 touch "$LOGFILE"
 

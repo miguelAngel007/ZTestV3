@@ -8,7 +8,7 @@
 ***   * 602090 07/04/17 JCSC PROXIM 2.4 - GLOSAS                      **
       * FO5238 15/05/2011 PROYECTO REBORN
 ************************************************************************
-00*0050 IDENTIFICATION DIVISION.
+000050 IDENTIFICATION DIVISION.
 000100 PROGRAM-ID. IM31.
 000150*REMARKS. DEMAND DEPOSIT FILE MAINTENANCE AND POSTING.            IM004
 000180*    *************************************************************IM004
@@ -31010,4 +31010,4 @@
 900200     COPY IMPD31PR.                                               0827778
 900300                                                                  0827778
 900400     COPY IMPD31CC.                                               1020057
-900500                                                                  1020057
+900500                                                                  1020057 
