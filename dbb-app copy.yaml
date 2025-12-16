@@ -1,0 +1,98 @@
+---
+#
+# Licensed materials - Property of IBM
+# 5655-AC5 Copyright IBM Corp. 2024, 2025
+# All rights reserved
+# US Government users restricted rights  -  Use, duplication or
+# disclosure restricted by GSA ADP schedule contract with IBM Corp.
+#
+version: 1.0.0
+application:
+  name: ZTestV3
+  tasks:
+   
+    # Variable overrides for the ImpactAnalysis task
+    - task: ImpactAnalysis
+      variables:
+        # Associate dependency files to program types. For more information see 
+        # https://www.ibm.com/docs/en/dbb/3.0?topic=index-task-impactanalysis#defining-impact-query-patterns
+        - name: impactQueryPatterns
+          value:
+            # Cobol program dependency patterns
+            - languageExt: cbl      
+              dependencyPatterns: 
+                - ${APP_DIR_NAME}/copybook/*.cpy   # Copybook source dependency
+                - ${APP_DIR_NAME}/bms/*.bms        # BMS Map source dependency
+                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency
+            # Link card dependency patterns
+            - languageExt: lnk                    
+              dependencyPatterns: 
+                - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency
+    # Variable overrides for the Cobol language task => custom by ibk
+    - task: Cobol
+      variables:       
+        - name: WORKSPACE
+          value: /u/idz/B45617/dbb_workspace
+        - name: APP_DIR_NAME
+          value: ZTestV3
+        - name: compileParms
+          value: LIB
+        # Programs that link with CICS ASM modules need SDFHLOAD in linkEdit
+        - name: IS_CICS
+          value: true
+          forFiles:
+            - "**/IM31RWEX.cbl"
+            - "**/IMACTM.cbl"
+            - "**/IMACTS.cbl"
+            - "**/IMALPHA.cbl"
+            - "**/IMBALM.cbl"
+            - "**/IM31.cbl"
+    
+    # Variable overrides for the Assembler language task
+    - task: Assembler
+      variables:
+        - name: WORKSPACE
+          value: /u/idz/B45617/dbb_workspace
+        - name: APP_DIR_NAME
+          value: ZTestV3
+        # Assembler programs that are CICS
+        - name: IS_CICS
+          value: true
+          forFiles:
+            - "**/SIGETNM2.asm"       
+    
+     # CUSTOM IBK
+    - task: Start
+      variables:
+        - name: WORKSPACE
+          value: /u/idz/B45617/dbb_workspace
+        - name: APP_DIR_NAME
+          value: ZTestV3
+        - name: logOutput
+          value: ${WORKSPACE}/${APP_DIR_NAME}/logs
+    # Variable overrides for the LinkEdit language task
+    - task: LinkEdit
+      variables: 
+        # Set flag for link cards with CICS load modules
+        - name: hasCICSModules
+          value: true
+        # Add CICS libraries to resolve DFHEAI0 and other CICS symbols
+        - name: linkEditSysLibs
+          value:
+            - IBM.CICS.V62.J1.CICS.SDFHLOAD
+            - CEE.SCEELKED
+    
+    # Variable overrides for the ScanLoadModule task
+    - task: ScanLoadModule
+      variables:
+        - name: skipScan
+          value: true
+          forFiles:
+            - "**/copybook/**"
+            - "**/bms/**"
+    
+    - task: ScannerInit
+      variables:
+        - name: loadModuleExcludeList
+          value: "${SCEELKED}.*,${SDFHLOAD}.*"
+            

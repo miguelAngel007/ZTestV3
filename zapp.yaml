@@ -22,11 +22,14 @@ profiles:
   - name: zBuilder-userbuild
     type: dbb
     settings:
-      command: "$DBB_HOME/bin/dbb build"
+      command: ". /u/idz/B45617/dbb_workspace/ZTestV3/profile/dbb_v3 && $DBB_HOME/bin/dbb build"
       lifecycle: user
       lifecycleArgs:
         - "--hlq ${dbbHlq}"
+        - "--verbose"
+        - "--config /u/idz/B45617/dbb_workspace/ZTestV3/dbb-app.yaml"
       additionalDependencies:
         - "dbb-app.yaml"
+        - "profile/dbb_v3"
       logFilePatterns:
-        - "*"
+        - "logs/*"
