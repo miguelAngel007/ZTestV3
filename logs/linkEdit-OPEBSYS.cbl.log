@@ -1,0 +1,184 @@
+1z/OS V3 R1 BINDER     17:04:52 TUESDAY DECEMBER 23, 2025
+ BATCH EMULATOR  JOB(B45617  ) STEP(STEP1   ) PGM= IEWBLINK
+ IEW2278I B352 INVOCATION PARAMETERS - MAP,RENT
+
+1                         *** M O D U L E  M A P ***
+
+ ---------------
+ CLASS  B_TEXT            LENGTH =     1298  ATTRIBUTES = CAT,   LOAD, RMODE=ANY
+                          OFFSET =        0 IN SEGMENT 001     ALIGN = DBLWORD
+ ---------------
+
+  SECTION    CLASS                                      ------- SOURCE --------
+   OFFSET   OFFSET  NAME                TYPE    LENGTH  DDNAME   SEQ  MEMBER
+
+                 0  OPEBSYS            CSECT       640  SYSLIN    01  OPEBSYS
+
+               640  CEESG005        *  CSECT        18  SYSLIB    02  CEESG005
+
+               658  CEEBETBL        *  CSECT        28  SYSLIB    02  CEEBETBL
+
+               680  CEESTART        *  CSECT        B0  SYSLIB    02  CEESTART
+
+               730  IGZCBSO         *  CSECT       5F0  SYSLIB    02  IGZCBSO
+
+               D20  CEEARLU         *  CSECT        B8  SYSLIB    02  CEEARLU
+
+               DD8  CEEBPIRA        *  CSECT       2A0  SYSLIB    02  CEEINT
+        0      DD8     CEEINT             LABEL
+        0      DD8     CEEBPIRB           LABEL
+        0      DD8     CEEBPIRC           LABEL
+
+              1078  CEECPYRT        *  CSECT        CF  SYSLIB    02  CEEINT
+
+              1148  CEEBPUBT        *  CSECT        70  SYSLIB    02  CEEBPUBT
+
+              11B8  CEEBTRM         *  CSECT        74  SYSLIB    02  CEEBTRM
+
+              1230  CEEBLLST        *  CSECT        5C  SYSLIB    02  CEEBLLST
+       10     1240     CEELLIST           LABEL
+
+              1290  CEEBINT         *  CSECT         8  SYSLIB    02  CEEBINT
+1          ***  DATA SET SUMMARY  ***
+
+ DDNAME    CONCAT   FILE IDENTIFICATION
+
+ SYSLIB      02     CEE.SCEELKED
+ SYSLIN      01     B45617.DBB.OBJ
+1          *** SYMBOL REFERENCES NOT ASSOCIATED WITH ANY ADCON ***
+
+ TYPE   SCOPE   NAME
+
+
+           *** E N D  O F  M O D U L E  M A P ***
+
+
+
+                                 *** O P E R A T I O N   S U M M A R Y   R E P O R T ***
+
+1PROCESSING OPTIONS:
+
+    ALIASES             NO
+    ALIGN2              NO
+    AMODE               UNSPECIFIED
+    CALL                YES
+    CASE                UPPER
+    COMPAT              UNSPECIFIED
+    COMPRESS            AUTO
+    DCBS                NO
+    DYNAM               NO
+    EXTATTR             UNSPECIFIED
+    EXITS:              NONE
+    FILL                NONE
+    GID                 UNSPECIFIED
+    HOBSET              NO
+    INFO                NO
+    LET                 04
+    LINECT              060
+    LIST                SUMMARY
+    LISTPRIV            NO
+    LONGPARM            NO
+    MAP                 YES
+    MAXBLK              032760
+    MODMAP              NO
+    MSGLEVEL            00
+    OVLY                NO
+    PRINT               YES
+    RES                 NO
+    REUSABILITY         REENTRANT
+    RMODE               UNSPECIFIED
+    RMODEX              NO
+    SIGN                NO
+    STORENX             NOREPLACE
+    STRIPCL             NO
+    STRIPSEC            NO
+    SYMTRACE
+    TERM                NO
+    TRAP                ON
+    UID                 UNSPECIFIED
+    UPCASE              NO
+    WKSPACE             000000K,000000K
+    XCAL                NO
+    XREF                NO
+    ***END OF OPTIONS***
+
+
+
+
+1SAVE OPERATION SUMMARY:
+
+    MEMBER NAME         OPEBSYS
+    LOAD LIBRARY        B45617.DBB.LOAD
+    PROGRAM TYPE        PROGRAM OBJECT(FORMAT 2)
+    VOLUME SERIAL       STG344
+    DISPOSITION         ADDED NEW
+    TIME OF SAVE        17.04.53  DEC 23, 2025
+
+
+1SAVE MODULE ATTRIBUTES:
+
+    AC                  000
+    AMODE                31
+    COMPRESSION         NONE
+    DC                  NO
+    EDITABLE            YES
+    EXCEEDS 16MB        NO
+    EXECUTABLE          YES
+    LONGPARM            NO
+    MIGRATABLE          YES
+    OL                  NO
+    OVLY                NO
+    PACK,PRIME          NO,NO
+    PAGE ALIGN          NO
+    REFR                NO
+    RENT                YES
+    REUS                YES
+    RMODE               ANY
+    SCTR                NO
+    SIGN                NO
+    SSI
+    SYM GENERATED       NO
+    TEST                NO
+    XPLINK              NO
+    MODULE SIZE (HEX)   00001298
+    DASD SIZE (HEX)     00005000
+
+
+1 ENTRY POINT AND ALIAS SUMMARY:
+
+  NAME:            ENTRY TYPE AMODE C_OFFSET CLASS NAME        STATUS
+
+  OPEBSYS           MAIN_EP      31 00000000 B_TEXT
+
+                          *** E N D   O F   O P E R A T I O N   S U M M A R Y   R E P O R T ***
+
+
+
+
+1z/OS V3 R1 BINDER     17:04:52 TUESDAY DECEMBER 23, 2025
+ BATCH EMULATOR  JOB(B45617  ) STEP(STEP1   ) PGM= IEWBLINK
+ IEW2008I 0F03 PROCESSING COMPLETED.  RETURN CODE =  0.
+
+
+
+1----------------------
+ MESSAGE SUMMARY REPORT
+ ----------------------
+  TERMINAL MESSAGES      (SEVERITY = 16)
+  NONE
+
+  SEVERE MESSAGES        (SEVERITY = 12)
+  NONE
+
+  ERROR MESSAGES         (SEVERITY = 08)
+  NONE
+
+  WARNING MESSAGES       (SEVERITY = 04)
+  NONE
+
+  INFORMATIONAL MESSAGES (SEVERITY = 00)
+  2008  2278
+
+
+  **** END OF MESSAGE SUMMARY REPORT ****
+
