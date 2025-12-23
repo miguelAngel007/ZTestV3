@@ -21,7 +21,7 @@
       *------------------------*
        01  SW-FOUND              PIC X(01) VALUE SPACES.
        01  WS-APL                PIC X(03) VALUE SPACES.
-       01  TBL-APLIC             PIC X(15) VALUE '$TSAAABBBCCCDDD'.
+       01  TBL-APLIC             PIC X(15) VALUE 'AAABBBCCCDDDEEE'.
        01  TABLA-APLIC.
            05 WS-APLIC OCCURS 5 TIMES INDEXED BY INDX-TBL.
               07 WS-APLIC-C42    PIC X(03).
