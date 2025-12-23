@@ -30,7 +30,7 @@ application:
                 - ${APP_DIR_NAME}/cobol/*.cbl      # Static link dependency
     # Variable overrides for the Cobol language task => custom by ibk
     - task: Cobol
-      variables:       
+      variables:
         - name: WORKSPACE
           value: /u/idz/B45617/dbb_workspace
         - name: APP_DIR_NAME
@@ -47,6 +47,13 @@ application:
             - "**/IMALPHA.cbl"
             - "**/IMBALM.cbl"
             - "**/IM31.cbl"
+        # Programas que requieren COBOL Version 6.3 (sobrescribe el default 4.0.2)
+        - name: SIGYCOMP
+          value: IBM.COB630.SIGYCOMP
+          forFiles:
+            - "**/OPEBSYS.cbl"
+            # Agregar aqui los programas que requieran COBOL 6.3
+            # - "**/OTRO_PROGRAMA.cbl"
     
     # Variable overrides for the Assembler language task
     - task: Assembler
