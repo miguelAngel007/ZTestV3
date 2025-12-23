@@ -106,12 +106,14 @@ tasks:
         parm: ${compileParms}
         maxRC: 4
         dds:
-          - { name: "SYSIN", dsn: "${HLQ}.COBOL(${MEMBER})", options: "shr", input: true }
-          - { name: "SYSLIN", dsn: "${HLQ}.OBJ(${ENTRY})", options: "shr", output: true, deployType: "OBJ" }
+          - { name: "SYSIN",   dsn: "${HLQ}.COBOL(${MEMBER})", options: "shr", input: true }
+          - { name: "SYSLIN",  dsn: "${HLQ}.OBJ(${ENTRY})", options: "shr", output: true, deployType: "OBJ" }
           - { name: "TASKLIB", dsn: "${SIGYCOMP}", options: "shr" }
+          - {                  dsn: "${SCEERUN}",  options: "shr" }
+          - {                  dsn: "${SCEERUN2}", options: "shr" }
           - {                  dsn: "${SDFHLOAD}", condition: "${IS_CICS}", options: "shr" }
-          - {                 dsn: "${SDSNLOAD}", condition: "${IS_SQL}", options: "shr" }
-          - {                 dsn: "${SFELLOAD}", condition: { exists: "SFELLOAD" }, options: "shr" }
+          - {                  dsn: "${SDSNLOAD}", condition: "${IS_SQL}", options: "shr" }
+          - {                  dsn: "${SFELLOAD}", condition: { exists: "SFELLOAD" }, options: "shr" }
           - { name: "SYSPRINT", log: "${STEP}-${FILE_NAME}.log", logEncoding: "${LOG_ENCODING}", options: "cyl space(5,5) unit(vio) blksize(133) lrecl(133) recfm(f,b) new" }
           - { name: "SYSMDECK", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
           - { name: "SYSUT1", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
