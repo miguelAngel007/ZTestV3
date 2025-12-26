@@ -8,6 +8,7 @@
 #
 ####################################
 # Cobol language configuration
+# Using dynamic JCL lines for REGION=0M support
 #################################### 
 
 version: 1.0.3
@@ -23,6 +24,7 @@ tasks:
     variables:
       # conditional variable builds compile parameters i.e CICS,SQL
       - name: compileParms
+        value: LIB
         append:
           - condition: ${IS_CICS}
             value: CICS
@@ -35,6 +37,72 @@ tasks:
               exists: debug
               eval: ${debug}
             value: TEST
+
+      # =====================================================
+      # Dynamic JCL lines - STEPLIB additions
+      # =====================================================
+      - name: steplibCICS
+        value: "//*"
+        select:
+          - condition: ${IS_CICS}
+            value: "//         DD DSN=${SDFHLOAD},DISP=SHR"
+
+      - name: steplibSQL
+        value: "//*"
+        select:
+          - condition: ${IS_SQL}
+            value: "//         DD DSN=${SDSNLOAD},DISP=SHR"
+
+      # =====================================================
+      # Dynamic JCL lines - SYSLIB additions
+      # =====================================================
+      - name: syslibCICS
+        value: "//*"
+        select:
+          - condition: ${IS_CICS}
+            value: "//         DD DSN=${SDFHCOB},DISP=SHR"
+
+      - name: syslibMQ
+        value: "//*"
+        select:
+          - condition: ${IS_MQ}
+            value: "//         DD DSN=${SCSQCOBC},DISP=SHR"
+
+      # =====================================================
+      # Dynamic JCL lines - DBRMLIB (only for SQL)
+      # =====================================================
+      - name: dbrmlib
+        value: "//*"
+        select:
+          - condition: ${IS_SQL}
+            value: "//DBRMLIB  DD DSN=${HLQ}.DBRM(${MEMBER}),DISP=SHR"
+
+      # =====================================================
+      # Dynamic JCL lines - SFELLOAD (Fault Analyzer)
+      # =====================================================
+      - name: steplibFEL
+        value: "//*"
+        select:
+          - condition:
+              exists: SFELLOAD
+            value: "//         DD DSN=${SFELLOAD},DISP=SHR"
+
+      # =====================================================
+      # Dynamic JCL lines - SYSADATA and SYSXMLSD (errPrefix)
+      # =====================================================
+      - name: sysadata
+        value: "//*"
+        select:
+          - condition:
+              exists: errPrefix
+            value: "//SYSADATA DD DUMMY"
+
+      - name: sysxmlsd
+        value: "//*"
+        select:
+          - condition:
+              exists: errPrefix
+            value: "//SYSXMLSD DD DSN=${HLQ}.${errPrefix}.SYSXMLSD.XML,DISP=(NEW,KEEP),SPACE=(TRK,(200,40)),BLKSIZE=27998,LRECL=16383,RECFM=VB"
             
       # flag to perform linkedit
       - name: doLinkEdit
@@ -46,7 +114,7 @@ tasks:
 
       # build record output deploy type
       - name: deployType
-        value: LOAD  # default value
+        value: LOAD
         select:
           - condition: ${IS_CICS}
             value: CICSLOAD
@@ -63,14 +131,10 @@ tasks:
       - name: dependencySearchPath
         value: search:${WORKSPACE}/?path=${APP_DIR_NAME}/copybook/*.cpy
 
-      # flag incating to scan the load module for static link dependencies  
+      # flag indicating to scan the load module for static link dependencies  
       - name: scanLoadModule
         value: true
-        
-      # Uncomment to resolve logical files using resolveSubsystems
-      # - name: subsystemSearchPath
-      #   value: ${dependencySearchPath}
-
+    
     # datasets that need to be created / validated for this language configuration
     datasets:
       - name: ${HLQ}.COBOL
@@ -99,48 +163,50 @@ tasks:
               - source: "**/*"
                 dataset: ${HLQ}.COPY
                 
-      # COBOL compile step          
+      # COBOL compile step with REGION=0M using dynamic JCL
       - step: compile
-        type: mvs
-        pgm: IGYCRCTL
-        parm: ${compileParms}
+        type: job
         maxRC: 4
-        dds:
-          - { name: "SYSIN",   dsn: "${HLQ}.COBOL(${MEMBER})", options: "shr", input: true }
-          - { name: "SYSLIN",  dsn: "${HLQ}.OBJ(${ENTRY})", options: "shr", output: true, deployType: "OBJ" }
-          - { name: "TASKLIB", dsn: "${SIGYCOMP}", options: "shr" }
-          - {                  dsn: "${SCEERUN}",  options: "shr" }
-          - {                  dsn: "${SCEERUN2}", options: "shr" }
-          - {                  dsn: "${SDFHLOAD}", condition: "${IS_CICS}", options: "shr" }
-          - {                  dsn: "${SDSNLOAD}", condition: "${IS_SQL}", options: "shr" }
-          - {                  dsn: "${SFELLOAD}", condition: { exists: "SFELLOAD" }, options: "shr" }
-          - { name: "SYSPRINT", log: "${STEP}-${FILE_NAME}.log", logEncoding: "${LOG_ENCODING}", options: "cyl space(5,5) unit(vio) blksize(133) lrecl(133) recfm(f,b) new" }
-          - { name: "SYSMDECK", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT1", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT2", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT3", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT4", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT5", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT6", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT7", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT8", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new"}
-          - { name: "SYSUT9", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT10", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT11", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT12", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT13", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT14", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT15", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT16", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSUT17", options: "cyl space(5,5) unit(vio) blksize(80) lrecl(80) recfm(f,b) new" }
-          - { name: "SYSLIB", dsn: "${HLQ}.COPY", options: "shr" }
-          - {                 dsn: "${HLQ}.BMS.COPY", options: "shr" }
-          - {                 dsn: "${SDFHCOB}", condition: "${IS_CICS}", options: "shr" }
-          - {                 dsn: "${SCSQCOBC}", condition: "${IS_MQ}", options: "shr" }
-          - { name: "DBRMLIB", dsn: "${HLQ}.DBRM(${MEMBER})", condition: "${IS_SQL}", options: "shr", output: true, deployType: "DBRM" }          
-          - { name: "SYSADATA", condition: { exists: "errPrefix" }, options: "DUMMY" }
-          - { name: "SYSXMLSD", condition: { exists: "errPrefix" }, dsn: "${HLQ}.${errPrefix}.SYSXMLSD.XML", options: "tracks space(200,40) dsorg(PS) blksize(27998) lrecl(16383) recfm(v,b) new keep" }
-
+        text: |
+          //${MEMBER} JOB ,'COMPILE DBB',CLASS=${JOBCLASS},MSGCLASS=${MSGCLASS}
+          //COMPILE  EXEC PGM=IGYCRCTL,REGION=${COMPREGION},PARM='${compileParms}'
+          //STEPLIB  DD DSN=${SIGYCOMP},DISP=SHR
+          //         DD DSN=${SCEERUN},DISP=SHR
+          //         DD DSN=${SCEERUN2},DISP=SHR
+          ${steplibCICS}
+          ${steplibSQL}
+          ${steplibFEL}
+          //SYSIN    DD DSN=${HLQ}.COBOL(${MEMBER}),DISP=SHR
+          //SYSLIN   DD DSN=${HLQ}.OBJ(${MEMBER}),DISP=SHR
+          //SYSPRINT DD SYSOUT=*
+          ${dbrmlib}
+          //SYSMDECK DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT1   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT2   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT3   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT4   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT5   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT6   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT7   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT8   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT9   DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT10  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT11  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT12  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT13  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT14  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT15  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT16  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSUT17  DD UNIT=VIO,SPACE=(CYL,(5,5)),BLKSIZE=80,LRECL=80,RECFM=FB
+          //SYSLIB   DD DSN=${HLQ}.COPY,DISP=SHR
+          //         DD DSN=${HLQ}.BMS.COPY,DISP=SHR
+          ${syslibCICS}
+          ${syslibMQ}
+          ${sysadata}
+          ${sysxmlsd}
+        logs:
+          - log: ${LOGS}/${STEP}-${FILE_NAME}.log
+            ddname: "*"
 
       # Link-Edit step
       - step: linkEdit
@@ -159,4 +225,3 @@ tasks:
           - {                 dsn: "${SCEELKED}", options: "shr" }
           - {                 dsn: "${SDFHLOAD}", condition: "${IS_CICS}", options: "shr" }
           - {                 dsn: "${SDSNLOAD}", condition: "${IS_SQL}", options: "shr" }
-

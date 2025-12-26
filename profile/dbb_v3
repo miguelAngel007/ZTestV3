@@ -9,7 +9,7 @@
 # =========================
 #  JAVA (REQUIRED for DBB)
 # =========================
-export JAVA_HOME=/usr/lpp/java/current_64
+export JAVA_HOME=/usr/lpp/java/J17.0_64
 export PATH=$JAVA_HOME/bin:$PATH
 
 # Evitar error: compressed references
@@ -17,17 +17,18 @@ export JAVA_OPTS="-Xnocompressedrefs"
 export JAVA_TOOL_OPTIONS="-Xnocompressedrefs"
 
 # Memoria suficiente para DBB v3
-export DBB_JAVA_OPTS="-Xms256m -Xmx512m -Xnocompressedrefs"
+#export DBB_JAVA_OPTS="-Xms256m -Xmx512m -Xnocompressedrefs"
+#export DBB_JAVA_OPTS="-Xms256m -Xmx512m -Xnocompressedrefs -Dcom.ibm.dbb.zos.mvs.region=0"
 
-
-# =========================
 #  IBM DBB v3 / zBuilder
 # =========================
 export DBB_BUILD=/u/idz/B45617/dbb_v3/zBuilder/build
 export DBB_HOME=/u/idz/B45617/dbb_v3/dbb
 export DBB_CONF=$DBB_HOME/conf
+export DBB_JAVA_HOME=/usr/lpp/java/J17.0_64
 
 export PATH=$DBB_HOME/bin:$PATH
+export PATH=$DBB_JAVA_HOME/bin:$PATH
 export LIBPATH=$DBB_HOME/lib:$LIBPATH
 
 
